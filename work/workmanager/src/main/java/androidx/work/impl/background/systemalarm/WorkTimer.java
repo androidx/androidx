@@ -20,14 +20,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
+import androidx.work.BaseWork;
+import androidx.work.impl.logger.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import androidx.work.BaseWork;
-import androidx.work.impl.logger.Logger;
 
 /**
  * Manages timers to enforce a time limit for processing {@link BaseWork}.

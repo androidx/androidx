@@ -16,17 +16,17 @@
 
 package androidx.work.impl.background.systemjob;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import static androidx.work.NetworkType.CONNECTED;
 import static androidx.work.NetworkType.METERED;
 import static androidx.work.NetworkType.NOT_REQUIRED;
 import static androidx.work.NetworkType.NOT_ROAMING;
 import static androidx.work.NetworkType.UNMETERED;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.app.job.JobInfo;
 import android.net.Uri;
@@ -35,10 +35,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -50,6 +46,10 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.IdGenerator;
 import androidx.work.worker.TestWorker;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
@@ -76,7 +76,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         final String expectedWorkSpecId = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
         final int expectedJobId = 101;
         when(mMockIdGenerator.nextJobSchedulerId()).thenReturn(expectedJobId);
-        WorkSpec workSpec = new WorkSpec(expectedWorkSpecId);
+        WorkSpec workSpec = new WorkSpec(expectedWorkSpecId, TestWorker.class.getName());
         JobInfo jobInfo = mConverter.convert(workSpec);
         String actualWorkSpecId = jobInfo.getExtras().getString(
                 SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
@@ -87,7 +87,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testConvert_setPersistedByDefault() {
-        JobInfo jobInfo = mConverter.convert(new WorkSpec("id"));
+        JobInfo jobInfo = mConverter.convert(new WorkSpec("id", TestWorker.class.getName()));
         assertThat(jobInfo.isPersisted(), is(true));
     }
 
@@ -101,16 +101,16 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testConvert_noConstraints_doesNotThrowException() {
-        mConverter.convert(new WorkSpec("id"));
+        mConverter.convert(new WorkSpec("id", TestWorker.class.getName()));
     }
 
     @Test
     @SmallTest
     public void testConvert_retryPolicy() {
         long expectedBackoffDelayDuration = 50000;
-        WorkSpec workSpec = new WorkSpec("id");
+        WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setBackoffDelayDuration(expectedBackoffDelayDuration);
-        workSpec.setBackoffPolicy(BackoffPolicy.LINEAR);
+        workSpec.backoffPolicy = BackoffPolicy.LINEAR;
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.getInitialBackoffMillis(), is(expectedBackoffDelayDuration));
         assertThat(jobInfo.getBackoffPolicy(), is(JobInfo.BACKOFF_POLICY_LINEAR));
@@ -120,8 +120,8 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @SmallTest
     public void testConvert_initialDelay() {
         final long expectedInitialDelay = 12123L;
-        WorkSpec workSpec = new WorkSpec("id");
-        workSpec.setInitialDelay(expectedInitialDelay);
+        WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
+        workSpec.initialDelay = expectedInitialDelay;
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.getMinLatencyMillis(), is(expectedInitialDelay));
     }
@@ -129,7 +129,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testConvert_periodicWithNoFlex() {
-        WorkSpec workSpec = new WorkSpec("id");
+        WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION);
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.getIntervalMillis(), is(TEST_INTERVAL_DURATION));
@@ -139,7 +139,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     public void testConvert_periodicWithFlex() {
-        WorkSpec workSpec = new WorkSpec("id");
+        WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.getIntervalMillis(), is(TEST_INTERVAL_DURATION));

@@ -31,17 +31,6 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.Collections;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 import androidx.work.Arguments;
 import androidx.work.Constraints;
 import androidx.work.DatabaseTest;
@@ -60,6 +49,17 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.EchoingWorker;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -153,8 +153,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(workSpecId);
         assertThat(mLatch.getCount(), is(0L));
-        assertThat(workSpec.getState(), is(State.SUCCEEDED));
-        Arguments output = workSpec.getOutput();
+        assertThat(workSpec.state, is(State.SUCCEEDED));
+        Arguments output = workSpec.output;
         assertThat(output.getBoolean(TEST_ARGUMENT_NAME, false), is(true));
     }
 
@@ -197,7 +197,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(workSpecId);
         assertThat(mLatch.getCount(), is(0L));
-        assertThat(workSpec.getState(), is(State.ENQUEUED));
+        assertThat(workSpec.state, is(State.ENQUEUED));
     }
 
     @Test
@@ -247,7 +247,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(workSpecId);
         assertThat(mLatch.getCount(), is(0L));
-        assertThat(workSpec.getState(), is(State.ENQUEUED));
+        assertThat(workSpec.state, is(State.ENQUEUED));
     }
 
     @Test
@@ -306,7 +306,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         mLatch.await(TEST_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(workSpecId);
         assertThat(mLatch.getCount(), is(0L));
-        assertThat(workSpec.getState(), is(State.ENQUEUED));
+        assertThat(workSpec.state, is(State.ENQUEUED));
     }
 
     @Override

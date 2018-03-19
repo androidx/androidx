@@ -17,9 +17,9 @@ package androidx.work.impl.constraints;
 
 import android.support.annotation.NonNull;
 
-import java.util.List;
-
 import androidx.work.impl.model.WorkSpec;
+
+import java.util.List;
 
 /**
  * A callback for when constraints change.

@@ -73,32 +73,32 @@ public class Work extends BaseWork {
     public static class Builder implements WorkBuilder<Work, Builder> {
 
         private boolean mBackoffCriteriaSet = false;
-        WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
+        WorkSpec mWorkSpec;
         Set<String> mTags = new HashSet<>();
 
         public Builder(@NonNull Class<? extends Worker> workerClass) {
-            mWorkSpec.setWorkerClassName(workerClass.getName());
-            mWorkSpec.setInputMergerClassName(OverwritingInputMerger.class.getName());
+            mWorkSpec = new WorkSpec(UUID.randomUUID().toString(), workerClass.getName());
+            mWorkSpec.inputMergerClassName = OverwritingInputMerger.class.getName();
         }
 
         @VisibleForTesting
         @Override
         public Builder withInitialState(@NonNull State state) {
-            mWorkSpec.setState(state);
+            mWorkSpec.state = state;
             return this;
         }
 
         @VisibleForTesting
         @Override
         public Builder withInitialRunAttemptCount(int runAttemptCount) {
-            mWorkSpec.setRunAttemptCount(runAttemptCount);
+            mWorkSpec.runAttemptCount = runAttemptCount;
             return this;
         }
 
         @VisibleForTesting
         @Override
         public Builder withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
-            mWorkSpec.setPeriodStartTime(timeUnit.toMillis(periodStartTime));
+            mWorkSpec.periodStartTime = timeUnit.toMillis(periodStartTime);
             return this;
         }
 
@@ -108,20 +108,20 @@ public class Work extends BaseWork {
                 long backoffDelay,
                 @NonNull TimeUnit timeUnit) {
             mBackoffCriteriaSet = true;
-            mWorkSpec.setBackoffPolicy(backoffPolicy);
+            mWorkSpec.backoffPolicy = backoffPolicy;
             mWorkSpec.setBackoffDelayDuration(timeUnit.toMillis(backoffDelay));
             return this;
         }
 
         @Override
         public Builder withConstraints(@NonNull Constraints constraints) {
-            mWorkSpec.setConstraints(constraints);
+            mWorkSpec.constraints = constraints;
             return this;
         }
 
         @Override
         public Builder withArguments(@NonNull Arguments arguments) {
-            mWorkSpec.setArguments(arguments);
+            mWorkSpec.arguments = arguments;
             return this;
         }
 
@@ -133,19 +133,19 @@ public class Work extends BaseWork {
 
         @Override
         public Builder withInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
-            mWorkSpec.setInitialDelay(timeUnit.toMillis(duration));
+            mWorkSpec.initialDelay = timeUnit.toMillis(duration);
             return this;
         }
 
         @Override
         public Builder withInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
-            mWorkSpec.setInputMergerClassName(inputMerger.getName());
+            mWorkSpec.inputMergerClassName = inputMerger.getName();
             return this;
         }
 
         @Override
         public Builder keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
-            mWorkSpec.setMinimumRetentionDuration(timeUnit.toMillis(duration));
+            mWorkSpec.minimumRetentionDuration = timeUnit.toMillis(duration);
             return this;
         }
 
@@ -153,7 +153,7 @@ public class Work extends BaseWork {
         public Work build() {
             if (mBackoffCriteriaSet
                     && Build.VERSION.SDK_INT >= 23
-                    && mWorkSpec.getConstraints().requiresDeviceIdle()) {
+                    && mWorkSpec.constraints.requiresDeviceIdle()) {
                 throw new IllegalArgumentException(
                         "Cannot set backoff criteria on an idle mode job");
             }

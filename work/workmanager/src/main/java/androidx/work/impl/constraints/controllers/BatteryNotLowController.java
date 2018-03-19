@@ -32,7 +32,7 @@ public class BatteryNotLowController extends ConstraintController<Boolean> {
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.getConstraints().requiresBatteryNotLow();
+        return workSpec.constraints.requiresBatteryNotLow();
     }
 
     @Override

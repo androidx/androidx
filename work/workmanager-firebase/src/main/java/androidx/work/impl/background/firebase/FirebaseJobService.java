@@ -20,15 +20,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
+import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.logger.Logger;
+
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.work.impl.ExecutionListener;
-import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.logger.Logger;
 
 /**
  * Service invoked by {@link com.firebase.jobdispatcher.FirebaseJobDispatcher} to run work tasks.

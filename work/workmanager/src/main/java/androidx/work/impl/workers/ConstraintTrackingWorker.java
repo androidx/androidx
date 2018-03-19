@@ -22,9 +22,6 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
-import java.util.Collections;
-import java.util.List;
-
 import androidx.work.Worker;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -33,6 +30,9 @@ import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Is an implementation of a {@link Worker} that can delegate to a different {@link Worker}

@@ -24,12 +24,12 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The command handler used by {@link SystemAlarmDispatcher}.

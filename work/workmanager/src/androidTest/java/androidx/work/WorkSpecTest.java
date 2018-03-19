@@ -23,12 +23,12 @@ import static org.hamcrest.Matchers.greaterThan;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import androidx.work.worker.InfiniteTestWorker;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
-
-import androidx.work.worker.InfiniteTestWorker;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkSpecTest extends WorkManagerTest {

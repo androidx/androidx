@@ -75,7 +75,7 @@ public class FirebaseJobConverterTest {
     @SmallTest
     public void testConvert_basicWorkSpec() {
         final String expectedWorkSpecId = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
-        WorkSpec workSpec = new WorkSpec(expectedWorkSpecId);
+        WorkSpec workSpec = new WorkSpec(expectedWorkSpecId, FirebaseTestWorker.class.getName());
         Job job = mConverter.convert(workSpec);
         assertThat(job.getTag(), is(expectedWorkSpecId));
         assertThat(job.getLifetime(), is(Lifetime.FOREVER));
@@ -89,9 +89,9 @@ public class FirebaseJobConverterTest {
     @SmallTest
     public void testConvert_backoffPolicy() {
         long givenBackoffDelayDuration = 50000L;
-        WorkSpec workSpec = new WorkSpec("id");
+        WorkSpec workSpec = new WorkSpec("id", FirebaseTestWorker.class.getName());
         workSpec.setBackoffDelayDuration(givenBackoffDelayDuration);
-        workSpec.setBackoffPolicy(BackoffPolicy.LINEAR);
+        workSpec.backoffPolicy = BackoffPolicy.LINEAR;
         Job job = mConverter.convert(workSpec);
 
         int expectedBackoffDelayDuration = (int) TimeUnit.SECONDS
@@ -104,8 +104,8 @@ public class FirebaseJobConverterTest {
     @SmallTest
     public void testConvert_initialDelay() {
         long givenInitialDelayDuration = 50000L;
-        WorkSpec workSpec = new WorkSpec("id");
-        workSpec.setInitialDelay(givenInitialDelayDuration);
+        WorkSpec workSpec = new WorkSpec("id", FirebaseTestWorker.class.getName());
+        workSpec.initialDelay = givenInitialDelayDuration;
         Job job = mConverter.convert(workSpec);
 
         // Initial delay is handled via an AlarmManager broadcast
@@ -156,7 +156,7 @@ public class FirebaseJobConverterTest {
         int flexSeconds = FirebaseJobConverter.convertMillisecondsToSeconds(testFlex);
         int expectedWindowStartSeconds = expectedWindowEndSeconds - flexSeconds;
 
-        WorkSpec workSpec = new WorkSpec("id");
+        WorkSpec workSpec = new WorkSpec("id", FirebaseTestWorker.class.getName());
         workSpec.setPeriodic(testInterval);
         Job job = mConverter.convert(workSpec);
 

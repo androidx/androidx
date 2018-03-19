@@ -29,9 +29,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-
 import androidx.work.Arguments;
 import androidx.work.ContentUriTriggers;
 import androidx.work.impl.model.AlarmInfo;
@@ -45,6 +42,9 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.model.WorkTagDao;
+
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A Room database for keeping track of work states.

@@ -19,6 +19,8 @@ package androidx.work.impl.background.systemjob;
 
 import static android.app.job.JobScheduler.RESULT_SUCCESS;
 
+import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
@@ -28,8 +30,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
-
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.os.PersistableBundle;
@@ -38,18 +38,18 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.Work;
+import androidx.work.WorkManagerTest;
+import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.worker.TestWorker;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.work.Work;
-import androidx.work.WorkManagerTest;
-import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.model.WorkSpec;
-import androidx.work.worker.TestWorker;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)

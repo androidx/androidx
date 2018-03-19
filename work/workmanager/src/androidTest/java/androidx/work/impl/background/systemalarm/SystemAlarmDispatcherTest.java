@@ -33,6 +33,23 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.Constraints;
+import androidx.work.DatabaseTest;
+import androidx.work.State;
+import androidx.work.Work;
+import androidx.work.impl.Processor;
+import androidx.work.impl.Scheduler;
+import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.constraints.trackers.BatteryChargingTracker;
+import androidx.work.impl.constraints.trackers.BatteryNotLowTracker;
+import androidx.work.impl.constraints.trackers.NetworkStateTracker;
+import androidx.work.impl.constraints.trackers.StorageNotLowTracker;
+import androidx.work.impl.constraints.trackers.Trackers;
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.worker.SleepTestWorker;
+import androidx.work.worker.TestWorker;
+
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.After;
 import org.junit.Before;
@@ -50,23 +67,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import androidx.work.Constraints;
-import androidx.work.DatabaseTest;
-import androidx.work.State;
-import androidx.work.Work;
-import androidx.work.impl.Processor;
-import androidx.work.impl.Scheduler;
-import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.constraints.trackers.BatteryChargingTracker;
-import androidx.work.impl.constraints.trackers.BatteryNotLowTracker;
-import androidx.work.impl.constraints.trackers.NetworkStateTracker;
-import androidx.work.impl.constraints.trackers.StorageNotLowTracker;
-import androidx.work.impl.constraints.trackers.Trackers;
-import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.worker.SleepTestWorker;
-import androidx.work.worker.TestWorker;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -315,7 +315,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                         CommandHandler.ACTION_STOP_WORK,
                         CommandHandler.ACTION_CONSTRAINTS_CHANGED));
 
-        assertThat(workSpec.getState(), is(State.ENQUEUED));
+        assertThat(workSpec.state, is(State.ENQUEUED));
     }
 
     @Test
@@ -347,7 +347,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                         CommandHandler.ACTION_DELAY_MET,
                         CommandHandler.ACTION_CONSTRAINTS_CHANGED));
 
-        assertThat(workSpec.getState(), is(State.SUCCEEDED));
+        assertThat(workSpec.state, is(State.SUCCEEDED));
     }
 
     @Test
@@ -397,7 +397,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         Set<String> capturedIds = new HashSet<>();
         List<WorkSpec> workSpecs = captor.getAllValues();
         for (WorkSpec workSpec : workSpecs) {
-            capturedIds.add(workSpec.getId());
+            capturedIds.add(workSpec.id);
         }
 
         assertThat(capturedIds.size(), is(2));

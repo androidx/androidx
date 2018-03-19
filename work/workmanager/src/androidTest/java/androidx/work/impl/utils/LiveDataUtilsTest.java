@@ -28,11 +28,11 @@ import android.support.annotation.Nullable;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.TestLifecycleOwner;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.work.TestLifecycleOwner;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)

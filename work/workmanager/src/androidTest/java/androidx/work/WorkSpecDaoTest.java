@@ -18,22 +18,22 @@ package androidx.work;
 
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-
 import static androidx.work.State.SUCCEEDED;
+
+import static org.hamcrest.CoreMatchers.equalTo;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.worker.TestWorker;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.worker.TestWorker;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkSpecDaoTest extends DatabaseTest {
@@ -62,6 +62,6 @@ public class WorkSpecDaoTest extends DatabaseTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         List<WorkSpec> eligibleWorkSpecs = workSpecDao.getEligibleWorkSpecs(startTime);
         assertThat(eligibleWorkSpecs.size(), equalTo(1));
-        assertThat(eligibleWorkSpecs.get(0).getId(), equalTo(enqueued.getId()));
+        assertThat(eligibleWorkSpecs.get(0).id, equalTo(enqueued.getId()));
     }
 }

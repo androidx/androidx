@@ -28,8 +28,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Relation;
 import android.support.annotation.NonNull;
-
-import java.util.List;
+import android.support.annotation.RestrictTo;
 
 import androidx.work.Arguments;
 import androidx.work.BackoffPolicy;
@@ -39,9 +38,14 @@ import androidx.work.State;
 import androidx.work.WorkStatus;
 import androidx.work.impl.logger.Logger;
 
+import java.util.List;
+
 /**
  * Stores information about a logical unit of work.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Entity
 public class WorkSpec {
     private static final String TAG = "WorkSpec";
@@ -49,128 +53,63 @@ public class WorkSpec {
     @ColumnInfo(name = "id")
     @PrimaryKey
     @NonNull
-    String mId;
+    public String id;
 
     @ColumnInfo(name = "state")
     @NonNull
-    State mState = ENQUEUED;
+    public State state = ENQUEUED;
 
     @ColumnInfo(name = "worker_class_name")
     @NonNull
-    String mWorkerClassName;
+    public String workerClassName;
 
     @ColumnInfo(name = "input_merger_class_name")
-    String mInputMergerClassName;
+    public String inputMergerClassName;
 
     @ColumnInfo(name = "arguments")
     @NonNull
-    Arguments mArguments = Arguments.EMPTY;
+    public Arguments arguments = Arguments.EMPTY;
 
     @ColumnInfo(name = "output")
     @NonNull
-    Arguments mOutput = Arguments.EMPTY;
+    public Arguments output = Arguments.EMPTY;
 
     @ColumnInfo(name = "initial_delay")
-    long mInitialDelay;
+    public long initialDelay;
 
     @ColumnInfo(name = "interval_duration")
-    long mIntervalDuration;
+    public long intervalDuration;
 
     @ColumnInfo(name = "flex_duration")
-    long mFlexDuration;
+    public long flexDuration;
 
     @Embedded
     @NonNull
-    Constraints mConstraints = Constraints.NONE;
+    public Constraints constraints = Constraints.NONE;
 
     @ColumnInfo(name = "run_attempt_count")
-    int mRunAttemptCount;
+    public int runAttemptCount;
 
-    // TODO(sumir): Should Backoff be disabled by default?
     @ColumnInfo(name = "backoff_policy")
     @NonNull
-    BackoffPolicy mBackoffPolicy = BackoffPolicy.EXPONENTIAL;
+    public BackoffPolicy backoffPolicy = BackoffPolicy.EXPONENTIAL;
 
     @ColumnInfo(name = "backoff_delay_duration")
-    long mBackoffDelayDuration = BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS;
+    public long backoffDelayDuration = BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS;
 
+    /**
+     * For one-off work, this is the time that the work was unblocked by prerequisites.
+     * For periodic work, this is the time that the period started.
+     */
     @ColumnInfo(name = "period_start_time")
-    long mPeriodStartTime;
+    public long periodStartTime;
 
     @ColumnInfo(name = "minimum_retention_duration")
-    long mMinimumRetentionDuration;
+    public long minimumRetentionDuration;
 
-    public WorkSpec(@NonNull String id) {
-        mId = id;
-    }
-
-    @NonNull
-    public String getId() {
-        return mId;
-    }
-
-    public void setId(@NonNull String id) {
-        mId = id;
-    }
-
-    public @NonNull State getState() {
-        return mState;
-    }
-
-    public void setState(@NonNull State state) {
-        mState = state;
-    }
-
-    public @NonNull String getWorkerClassName() {
-        return mWorkerClassName;
-    }
-
-    public void setWorkerClassName(@NonNull String workerClassName) {
-        mWorkerClassName = workerClassName;
-    }
-
-    public String getInputMergerClassName() {
-        return mInputMergerClassName;
-    }
-
-    public void setInputMergerClassName(String inputMergerClassName) {
-        mInputMergerClassName = inputMergerClassName;
-    }
-
-    public @NonNull Arguments getArguments() {
-        return mArguments;
-    }
-
-    public void setArguments(@NonNull Arguments arguments) {
-        mArguments = arguments;
-    }
-
-    public @NonNull Arguments getOutput() {
-        return mOutput;
-    }
-
-    public void setOutput(@NonNull Arguments output) {
-        mOutput = output;
-    }
-
-    public @NonNull Constraints getConstraints() {
-        return mConstraints;
-    }
-
-    public void setConstraints(@NonNull Constraints constraints) {
-        mConstraints = constraints;
-    }
-
-    public @NonNull BackoffPolicy getBackoffPolicy() {
-        return mBackoffPolicy;
-    }
-
-    public void setBackoffPolicy(@NonNull BackoffPolicy backoffPolicy) {
-        mBackoffPolicy = backoffPolicy;
-    }
-
-    public long getBackoffDelayDuration() {
-        return mBackoffDelayDuration;
+    public WorkSpec(@NonNull String id, @NonNull String workerClassName) {
+        this.id = id;
+        this.workerClassName = workerClassName;
     }
 
     /**
@@ -185,23 +124,16 @@ public class WorkSpec {
             Logger.warn(TAG, "Backoff delay duration less than minimum value");
             backoffDelayDuration = MIN_BACKOFF_MILLIS;
         }
-        mBackoffDelayDuration = backoffDelayDuration;
+        this.backoffDelayDuration = backoffDelayDuration;
     }
 
-    public long getInitialDelay() {
-        return mInitialDelay;
-    }
-
-    public void setInitialDelay(long initialDelay) {
-        mInitialDelay = initialDelay;
-    }
 
     public boolean isPeriodic() {
-        return mIntervalDuration != 0L;
+        return intervalDuration != 0L;
     }
 
     public boolean isBackedOff() {
-        return mState == ENQUEUED && mRunAttemptCount > 0;
+        return state == ENQUEUED && runAttemptCount > 0;
     }
 
     /**
@@ -240,52 +172,8 @@ public class WorkSpec {
                     intervalDuration);
             flexDuration = intervalDuration;
         }
-        mIntervalDuration = intervalDuration;
-        mFlexDuration = flexDuration;
-    }
-
-    public long getIntervalDuration() {
-        return mIntervalDuration;
-    }
-
-    public void setIntervalDuration(long intervalDuration) {
-        mIntervalDuration = intervalDuration;
-    }
-
-    public long getFlexDuration() {
-        return mFlexDuration;
-    }
-
-    public void setFlexDuration(long flexDuration) {
-        mFlexDuration = flexDuration;
-    }
-
-    public void setRunAttemptCount(int runAttemptCount) {
-        this.mRunAttemptCount = runAttemptCount;
-    }
-
-    public int getRunAttemptCount() {
-        return mRunAttemptCount;
-    }
-
-    /**
-     * For one-off work, this is the time that the work was unblocked by prerequisites.
-     * For periodic work, this is the time that the period started.
-     */
-    public long getPeriodStartTime() {
-        return mPeriodStartTime;
-    }
-
-    public void setPeriodStartTime(long periodStartTime) {
-        mPeriodStartTime = periodStartTime;
-    }
-
-    public long getMinimumRetentionDuration() {
-        return mMinimumRetentionDuration;
-    }
-
-    public void setMinimumRetentionDuration(long minimumRetentionDuration) {
-        mMinimumRetentionDuration = minimumRetentionDuration;
+        this.intervalDuration = intervalDuration;
+        this.flexDuration = flexDuration;
     }
 
     /**
@@ -315,14 +203,14 @@ public class WorkSpec {
      */
     public long calculateNextRunTime() {
         if (isBackedOff()) {
-            boolean isLinearBackoff = (mBackoffPolicy == BackoffPolicy.LINEAR);
-            long delay = isLinearBackoff ? (mBackoffDelayDuration * mRunAttemptCount)
-                    : (long) Math.scalb(mBackoffDelayDuration, mRunAttemptCount - 1);
-            return mPeriodStartTime + Math.min(BaseWork.MAX_BACKOFF_MILLIS, delay);
+            boolean isLinearBackoff = (backoffPolicy == BackoffPolicy.LINEAR);
+            long delay = isLinearBackoff ? (backoffDelayDuration * runAttemptCount)
+                    : (long) Math.scalb(backoffDelayDuration, runAttemptCount - 1);
+            return periodStartTime + Math.min(BaseWork.MAX_BACKOFF_MILLIS, delay);
         } else if (isPeriodic()) {
-            return mPeriodStartTime + mIntervalDuration - mFlexDuration;
+            return periodStartTime + intervalDuration - flexDuration;
         } else {
-            return mPeriodStartTime + mInitialDelay;
+            return periodStartTime + initialDelay;
         }
     }
 
@@ -330,7 +218,7 @@ public class WorkSpec {
      * @return <code>true</code> if the {@link WorkSpec} has constraints.
      */
     public boolean hasConstraints() {
-        return !Constraints.NONE.equals(getConstraints());
+        return !Constraints.NONE.equals(constraints);
     }
 
     @Override
@@ -340,51 +228,51 @@ public class WorkSpec {
 
         WorkSpec workSpec = (WorkSpec) o;
 
-        if (mInitialDelay != workSpec.mInitialDelay) return false;
-        if (mIntervalDuration != workSpec.mIntervalDuration) return false;
-        if (mFlexDuration != workSpec.mFlexDuration) return false;
-        if (mRunAttemptCount != workSpec.mRunAttemptCount) return false;
-        if (mBackoffDelayDuration != workSpec.mBackoffDelayDuration) return false;
-        if (mPeriodStartTime != workSpec.mPeriodStartTime) return false;
-        if (mMinimumRetentionDuration != workSpec.mMinimumRetentionDuration) return false;
-        if (!mId.equals(workSpec.mId)) return false;
-        if (mState != workSpec.mState) return false;
-        if (!mWorkerClassName.equals(workSpec.mWorkerClassName)) return false;
-        if (mInputMergerClassName != null ? !mInputMergerClassName.equals(
-                workSpec.mInputMergerClassName) : workSpec.mInputMergerClassName != null) {
+        if (initialDelay != workSpec.initialDelay) return false;
+        if (intervalDuration != workSpec.intervalDuration) return false;
+        if (flexDuration != workSpec.flexDuration) return false;
+        if (runAttemptCount != workSpec.runAttemptCount) return false;
+        if (backoffDelayDuration != workSpec.backoffDelayDuration) return false;
+        if (periodStartTime != workSpec.periodStartTime) return false;
+        if (minimumRetentionDuration != workSpec.minimumRetentionDuration) return false;
+        if (!id.equals(workSpec.id)) return false;
+        if (state != workSpec.state) return false;
+        if (!workerClassName.equals(workSpec.workerClassName)) return false;
+        if (inputMergerClassName != null ? !inputMergerClassName.equals(
+                workSpec.inputMergerClassName) : workSpec.inputMergerClassName != null) {
             return false;
         }
-        if (!mArguments.equals(workSpec.mArguments)) return false;
-        if (!mOutput.equals(workSpec.mOutput)) return false;
-        if (!mConstraints.equals(workSpec.mConstraints)) return false;
-        return mBackoffPolicy == workSpec.mBackoffPolicy;
+        if (!arguments.equals(workSpec.arguments)) return false;
+        if (!output.equals(workSpec.output)) return false;
+        if (!constraints.equals(workSpec.constraints)) return false;
+        return backoffPolicy == workSpec.backoffPolicy;
     }
 
     @Override
     public int hashCode() {
-        int result = mId.hashCode();
-        result = 31 * result + mState.hashCode();
-        result = 31 * result + mWorkerClassName.hashCode();
-        result = 31 * result + (mInputMergerClassName != null ? mInputMergerClassName.hashCode()
+        int result = id.hashCode();
+        result = 31 * result + state.hashCode();
+        result = 31 * result + workerClassName.hashCode();
+        result = 31 * result + (inputMergerClassName != null ? inputMergerClassName.hashCode()
                 : 0);
-        result = 31 * result + mArguments.hashCode();
-        result = 31 * result + mOutput.hashCode();
-        result = 31 * result + (int) (mInitialDelay ^ (mInitialDelay >>> 32));
-        result = 31 * result + (int) (mIntervalDuration ^ (mIntervalDuration >>> 32));
-        result = 31 * result + (int) (mFlexDuration ^ (mFlexDuration >>> 32));
-        result = 31 * result + mConstraints.hashCode();
-        result = 31 * result + mRunAttemptCount;
-        result = 31 * result + mBackoffPolicy.hashCode();
-        result = 31 * result + (int) (mBackoffDelayDuration ^ (mBackoffDelayDuration >>> 32));
-        result = 31 * result + (int) (mPeriodStartTime ^ (mPeriodStartTime >>> 32));
-        result = 31 * result + (int) (mMinimumRetentionDuration ^ (mMinimumRetentionDuration
+        result = 31 * result + arguments.hashCode();
+        result = 31 * result + output.hashCode();
+        result = 31 * result + (int) (initialDelay ^ (initialDelay >>> 32));
+        result = 31 * result + (int) (intervalDuration ^ (intervalDuration >>> 32));
+        result = 31 * result + (int) (flexDuration ^ (flexDuration >>> 32));
+        result = 31 * result + constraints.hashCode();
+        result = 31 * result + runAttemptCount;
+        result = 31 * result + backoffPolicy.hashCode();
+        result = 31 * result + (int) (backoffDelayDuration ^ (backoffDelayDuration >>> 32));
+        result = 31 * result + (int) (periodStartTime ^ (periodStartTime >>> 32));
+        result = 31 * result + (int) (minimumRetentionDuration ^ (minimumRetentionDuration
                 >>> 32));
         return result;
     }
 
     @Override
     public String toString() {
-        return "{WorkSpec: " + mId + "}";
+        return "{WorkSpec: " + id + "}";
     }
 
     /**

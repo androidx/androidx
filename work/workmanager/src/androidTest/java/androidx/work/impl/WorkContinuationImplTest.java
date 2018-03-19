@@ -288,7 +288,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkSpec joinWorkSpec = workSpecDao.getWorkSpec(joinId);
         assertThat(joinWorkSpec, is(not(nullValue())));
 
-        Arguments output = joinWorkSpec.getOutput();
+        Arguments output = joinWorkSpec.output;
         assertThat(output.getIntArray(intTag), is(not(nullValue())));
         assertThat(Arrays.asList(output.getIntArray(intTag)), containsInAnyOrder(0, 1));
         assertThat(output.getStringArray(stringTag), is(not(nullValue())));

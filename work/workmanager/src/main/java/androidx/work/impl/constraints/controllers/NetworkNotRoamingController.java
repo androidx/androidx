@@ -40,7 +40,7 @@ public class NetworkNotRoamingController extends ConstraintController<NetworkSta
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.getConstraints().getRequiredNetworkType() == NOT_ROAMING;
+        return workSpec.constraints.getRequiredNetworkType() == NOT_ROAMING;
     }
 
     /**

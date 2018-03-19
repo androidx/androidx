@@ -16,6 +16,13 @@
 
 package androidx.work.impl;
 
+import static androidx.work.State.BLOCKED;
+import static androidx.work.State.CANCELLED;
+import static androidx.work.State.ENQUEUED;
+import static androidx.work.State.FAILED;
+import static androidx.work.State.RUNNING;
+import static androidx.work.State.SUCCEEDED;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -26,30 +33,11 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import static androidx.work.State.BLOCKED;
-import static androidx.work.State.CANCELLED;
-import static androidx.work.State.ENQUEUED;
-import static androidx.work.State.FAILED;
-import static androidx.work.State.RUNNING;
-import static androidx.work.State.SUCCEEDED;
-
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import androidx.work.Arguments;
 import androidx.work.ArrayCreatingInputMerger;
@@ -68,6 +56,18 @@ import androidx.work.worker.FailureWorker;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkerWrapperTest extends DatabaseTest {
@@ -112,7 +112,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build()
                 .run();
         WorkSpec latestWorkSpec = mWorkSpecDao.getWorkSpec(work.getId());
-        assertThat(latestWorkSpec.getRunAttemptCount(), is(1));
+        assertThat(latestWorkSpec.runAttemptCount, is(1));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build()
                 .run();
         WorkSpec latestWorkSpec = mWorkSpecDao.getWorkSpec(work.getId());
-        assertThat(latestWorkSpec.getRunAttemptCount(), is(1));
+        assertThat(latestWorkSpec.runAttemptCount, is(1));
     }
 
     @Test
@@ -168,7 +168,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testPermanentErrorWithInvalidWorkerClass() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
-        getWorkSpec(work).setWorkerClassName("INVALID_CLASS_NAME");
+        getWorkSpec(work).workerClassName = "INVALID_CLASS_NAME";
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -182,7 +182,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testPermanentErrorWithInvalidInputMergerClass() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
-        getWorkSpec(work).setInputMergerClassName("INVALID_CLASS_NAME");
+        getWorkSpec(work).inputMergerClassName = "INVALID_CLASS_NAME";
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -253,7 +253,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
         verify(mMockScheduler).schedule(captor.capture());
-        assertThat(captor.getValue().getId(), is(work.getId()));
+        assertThat(captor.getValue().id, is(work.getId()));
     }
 
     @Test
@@ -352,7 +352,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .run();
 
         WorkSpec workSpec = mWorkSpecDao.getWorkSpec(work.getId());
-        assertThat(workSpec.getPeriodStartTime(), is(greaterThan(beforeUnblockedTime)));
+        assertThat(workSpec.periodStartTime, is(greaterThan(beforeUnblockedTime)));
     }
 
     @Test
@@ -393,7 +393,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         PeriodicWork periodicWork = new PeriodicWork.Builder(
                 TestWorker.class, intervalDuration, TimeUnit.MILLISECONDS).build();
 
-        getWorkSpec(periodicWork).setPeriodStartTime(periodStartTime);
+        getWorkSpec(periodicWork).periodStartTime = periodStartTime;
 
         insertWork(periodicWork);
 
@@ -403,7 +403,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .run();
 
         WorkSpec updatedWorkSpec = mWorkSpecDao.getWorkSpec(periodicWork.getId());
-        assertThat(updatedWorkSpec.getPeriodStartTime(), is(expectedNextPeriodStartTime));
+        assertThat(updatedWorkSpec.periodStartTime, is(expectedNextPeriodStartTime));
     }
 
     @Test
@@ -416,7 +416,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         PeriodicWork periodicWork = new PeriodicWork.Builder(
                 FailureWorker.class, intervalDuration, TimeUnit.MILLISECONDS).build();
 
-        getWorkSpec(periodicWork).setPeriodStartTime(periodStartTime);
+        getWorkSpec(periodicWork).periodStartTime = periodStartTime;
 
         insertWork(periodicWork);
 
@@ -426,7 +426,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .run();
 
         WorkSpec updatedWorkSpec = mWorkSpecDao.getWorkSpec(periodicWork.getId());
-        assertThat(updatedWorkSpec.getPeriodStartTime(), is(expectedNextPeriodStartTime));
+        assertThat(updatedWorkSpec.periodStartTime, is(expectedNextPeriodStartTime));
     }
 
     @Test
@@ -447,8 +447,8 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
         verify(mMockListener).onExecuted(periodicWorkId, true, false);
-        assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(0));
-        assertThat(periodicWorkSpecAfterFirstRun.getState(), is(ENQUEUED));
+        assertThat(periodicWorkSpecAfterFirstRun.runAttemptCount, is(0));
+        assertThat(periodicWorkSpecAfterFirstRun.state, is(ENQUEUED));
     }
 
     @Test
@@ -469,8 +469,8 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
         verify(mMockListener).onExecuted(periodicWorkId, false, false);
-        assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(0));
-        assertThat(periodicWorkSpecAfterFirstRun.getState(), is(ENQUEUED));
+        assertThat(periodicWorkSpecAfterFirstRun.runAttemptCount, is(0));
+        assertThat(periodicWorkSpecAfterFirstRun.state, is(ENQUEUED));
     }
 
     @Test
@@ -491,8 +491,8 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         WorkSpec periodicWorkSpecAfterFirstRun = mWorkSpecDao.getWorkSpec(periodicWorkId);
         verify(mMockListener).onExecuted(periodicWorkId, false, true);
-        assertThat(periodicWorkSpecAfterFirstRun.getRunAttemptCount(), is(1));
-        assertThat(periodicWorkSpecAfterFirstRun.getState(), is(ENQUEUED));
+        assertThat(periodicWorkSpecAfterFirstRun.runAttemptCount, is(1));
+        assertThat(periodicWorkSpecAfterFirstRun.state, is(ENQUEUED));
     }
 
     @Test

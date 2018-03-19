@@ -61,7 +61,7 @@ public abstract class BaseWork {
      * @return The identifier for this unit of work
      */
     public String getId() {
-        return mWorkSpec.getId();
+        return mWorkSpec.id;
     }
 
     /**

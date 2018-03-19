@@ -24,12 +24,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.logger.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Service invoked by {@link android.app.job.JobScheduler} to run work tasks.

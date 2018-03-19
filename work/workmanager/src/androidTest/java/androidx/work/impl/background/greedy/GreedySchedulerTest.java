@@ -25,14 +25,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
-
 import androidx.work.PeriodicWork;
 import androidx.work.Work;
 import androidx.work.WorkManagerTest;
@@ -40,6 +32,14 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.TestWorker;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
+
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class GreedySchedulerTest extends WorkManagerTest {
@@ -64,7 +64,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         Work work = new Work.Builder(TestWorker.class).build();
         WorkSpec workSpec = getWorkSpec(work);
         mGreedyScheduler.schedule(workSpec);
-        verify(mSpyWorkManagerImpl).startWork(workSpec.getId());
+        verify(mSpyWorkManagerImpl).startWork(workSpec.id);
     }
 
     @Test

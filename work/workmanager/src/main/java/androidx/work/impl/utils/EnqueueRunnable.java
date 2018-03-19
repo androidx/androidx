@@ -182,7 +182,7 @@ public class EnqueueRunnable implements Runnable {
                     return;
                 }
 
-                State prerequisiteState = prerequisiteWorkSpec.getState();
+                State prerequisiteState = prerequisiteWorkSpec.state;
                 hasCompletedAllPrerequisites &= (prerequisiteState == SUCCEEDED);
                 if (prerequisiteState == FAILED) {
                     hasFailedPrerequisites = true;
@@ -247,16 +247,16 @@ public class EnqueueRunnable implements Runnable {
 
             if (hasPrerequisite && !hasCompletedAllPrerequisites) {
                 if (hasFailedPrerequisites) {
-                    workSpec.setState(FAILED);
+                    workSpec.state = FAILED;
                 } else if (hasCancelledPrerequisites) {
-                    workSpec.setState(CANCELLED);
+                    workSpec.state = CANCELLED;
                 } else {
-                    workSpec.setState(BLOCKED);
+                    workSpec.state = BLOCKED;
                 }
             } else {
                 // Set scheduled times only for work without prerequisites. Dependent work
                 // will set their scheduled times when they are unblocked.
-                workSpec.setPeriodStartTime(currentTimeMillis);
+                workSpec.periodStartTime = currentTimeMillis;
             }
 
             if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT <= 25) {
@@ -292,15 +292,15 @@ public class EnqueueRunnable implements Runnable {
     private static void tryDelegateConstrainedWorkSpec(WorkSpec workSpec) {
         // requiresBatteryNotLow and requiresStorageNotLow require API 26 for JobScheduler.
         // Delegate to ConstraintTrackingWorker between API 23-25.
-        Constraints constraints = workSpec.getConstraints();
+        Constraints constraints = workSpec.constraints;
         if (constraints.requiresBatteryNotLow() || constraints.requiresStorageNotLow()) {
-            String workerClassName = workSpec.getWorkerClassName();
+            String workerClassName = workSpec.workerClassName;
             Arguments.Builder builder = new Arguments.Builder();
             // Copy all arguments
-            builder.putAll(workSpec.getArguments())
+            builder.putAll(workSpec.arguments)
                     .putString(ARGUMENT_CLASS_NAME, workerClassName);
-            workSpec.setWorkerClassName(ConstraintTrackingWorker.class.getName());
-            workSpec.setArguments(builder.build());
+            workSpec.workerClassName = ConstraintTrackingWorker.class.getName();
+            workSpec.arguments = builder.build();
         }
     }
 }

@@ -30,10 +30,6 @@ import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.work.Arguments;
 import androidx.work.InputMerger;
 import androidx.work.State;
@@ -43,6 +39,10 @@ import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A runnable that looks up the {@link WorkSpec} from the database for a given id, instantiates
@@ -87,25 +87,24 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
-        if (mWorkSpec.getState() != ENQUEUED) {
+        if (mWorkSpec.state != ENQUEUED) {
             notifyIncorrectStatus();
             return;
         }
 
         Arguments arguments;
         if (mWorkSpec.isPeriodic()) {
-            arguments = mWorkSpec.getArguments();
+            arguments = mWorkSpec.arguments;
         } else {
-            InputMerger inputMerger = InputMerger.fromClassName(
-                    mWorkSpec.getInputMergerClassName());
+            InputMerger inputMerger = InputMerger.fromClassName(mWorkSpec.inputMergerClassName);
             if (inputMerger == null) {
                 Logger.error(TAG, "Could not create Input Merger %s",
-                        mWorkSpec.getInputMergerClassName());
+                        mWorkSpec.inputMergerClassName);
                 setFailedAndNotify();
                 return;
             }
             List<Arguments> inputs = new ArrayList<>();
-            inputs.add(mWorkSpec.getArguments());
+            inputs.add(mWorkSpec.arguments);
             inputs.addAll(mWorkSpecDao.getInputsFromPrerequisites(mWorkSpecId));
             arguments = inputMerger.merge(inputs);
         }
@@ -117,7 +116,7 @@ public class WorkerWrapper implements Runnable {
         }
 
         if (mWorker == null) {
-            Logger.error(TAG, "Could for create Worker %s", mWorkSpec.getWorkerClassName());
+            Logger.error(TAG, "Could for create Worker %s", mWorkSpec.workerClassName);
             setFailedAndNotify();
             return;
         }
@@ -139,7 +138,7 @@ public class WorkerWrapper implements Runnable {
 
     private void notifyIncorrectStatus() {
         // incorrect status is treated as a false-y attempt at execution
-        State status = mWorkSpec.getState();
+        State status = mWorkSpec.state;
         if (status == RUNNING) {
             Logger.debug(TAG, "Status for %s is RUNNING;"
                     + "not doing any work and rescheduling for later execution", mWorkSpecId);
@@ -259,8 +258,8 @@ public class WorkerWrapper implements Runnable {
     private void resetPeriodicAndNotify(boolean isSuccessful) {
         mWorkDatabase.beginTransaction();
         try {
-            long currentPeriodStartTime = mWorkSpec.getPeriodStartTime();
-            long nextPeriodStartTime = currentPeriodStartTime + mWorkSpec.getIntervalDuration();
+            long currentPeriodStartTime = mWorkSpec.periodStartTime;
+            long nextPeriodStartTime = currentPeriodStartTime + mWorkSpec.intervalDuration;
             mWorkSpecDao.setPeriodStartTime(mWorkSpecId, nextPeriodStartTime);
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
             mWorkSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
@@ -320,8 +319,8 @@ public class WorkerWrapper implements Runnable {
     static Worker workerFromWorkSpec(@NonNull Context context,
             @NonNull WorkSpec workSpec,
             @NonNull Arguments arguments) {
-        String workerClassName = workSpec.getWorkerClassName();
-        String workSpecId = workSpec.getId();
+        String workerClassName = workSpec.workerClassName;
+        String workSpecId = workSpec.id;
         return workerFromClassName(context, workerClassName, workSpecId, arguments);
     }
 

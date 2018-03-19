@@ -18,11 +18,11 @@ package androidx.work.impl.constraints.trackers;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import androidx.work.impl.constraints.ConstraintListener;
 import androidx.work.impl.logger.Logger;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * A base for tracking constraints and notifying listeners of changes.

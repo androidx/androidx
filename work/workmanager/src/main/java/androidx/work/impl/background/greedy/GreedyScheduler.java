@@ -21,9 +21,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.work.State;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Scheduler;
@@ -32,6 +29,9 @@ import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A greedy {@link Scheduler} that schedules unconstrained, non-timed work.  It intentionally does
@@ -67,14 +67,14 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         int originalSize = mConstrainedWorkSpecs.size();
 
         for (WorkSpec workSpec : workSpecs) {
-            if (workSpec.getState() == State.ENQUEUED
+            if (workSpec.state == State.ENQUEUED
                     && !workSpec.isPeriodic()
-                    && workSpec.getInitialDelay() == 0L) {
+                    && workSpec.initialDelay == 0L) {
                 if (workSpec.hasConstraints()) {
-                    Logger.debug(TAG, "Starting tracking for %s", workSpec.getId());
+                    Logger.debug(TAG, "Starting tracking for %s", workSpec.id);
                     mConstrainedWorkSpecs.add(workSpec);
                 } else {
-                    mWorkManagerImpl.startWork(workSpec.getId());
+                    mWorkManagerImpl.startWork(workSpec.id);
                 }
             }
         }
@@ -116,7 +116,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
 
     private synchronized void removeConstraintTrackingFor(@NonNull String workSpecId) {
         for (int i = 0, size = mConstrainedWorkSpecs.size(); i < size; ++i) {
-            if (mConstrainedWorkSpecs.get(i).getId().equals(workSpecId)) {
+            if (mConstrainedWorkSpecs.get(i).id.equals(workSpecId)) {
                 Logger.debug(TAG, "Stopping tracking for %s", workSpecId);
                 mConstrainedWorkSpecs.remove(i);
                 mWorkConstraintsTracker.replace(mConstrainedWorkSpecs);

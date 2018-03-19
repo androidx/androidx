@@ -18,10 +18,10 @@ package androidx.work;
 
 import android.support.test.InstrumentationRegistry;
 
+import androidx.work.impl.WorkDatabase;
+
 import org.junit.After;
 import org.junit.Before;
-
-import androidx.work.impl.WorkDatabase;
 
 /**
  * An abstract class for getting an in-memory instance of the {@link WorkDatabase}.

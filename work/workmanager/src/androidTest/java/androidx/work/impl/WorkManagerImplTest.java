@@ -284,7 +284,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         expectedTriggers.add(testUri1, true);
         expectedTriggers.add(testUri2, false);
 
-        Constraints constraints = workSpec0.getConstraints();
+        Constraints constraints = workSpec0.constraints;
         assertThat(constraints, is(notNullValue()));
         assertThat(constraints.requiresCharging(), is(true));
         assertThat(constraints.requiresDeviceIdle(), is(true));
@@ -297,7 +297,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
             assertThat(constraints.getContentUriTriggers(), is(new ContentUriTriggers()));
         }
 
-        constraints = workSpec1.getConstraints();
+        constraints = workSpec1.constraints;
         assertThat(constraints, is(notNullValue()));
         assertThat(constraints.requiresCharging(), is(false));
         assertThat(constraints.requiresDeviceIdle(), is(false));
@@ -320,8 +320,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertThat(workSpec0.getInitialDelay(), is(expectedInitialDelay));
-        assertThat(workSpec1.getInitialDelay(), is(0L));
+        assertThat(workSpec0.initialDelay, is(expectedInitialDelay));
+        assertThat(workSpec1.initialDelay, is(0L));
     }
 
     @Test
@@ -336,11 +336,11 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertThat(workSpec0.getBackoffPolicy(), is(BackoffPolicy.LINEAR));
-        assertThat(workSpec0.getBackoffDelayDuration(), is(50000L));
+        assertThat(workSpec0.backoffPolicy, is(BackoffPolicy.LINEAR));
+        assertThat(workSpec0.backoffDelayDuration, is(50000L));
 
-        assertThat(workSpec1.getBackoffPolicy(), is(BackoffPolicy.EXPONENTIAL));
-        assertThat(workSpec1.getBackoffDelayDuration(), is(BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS));
+        assertThat(workSpec1.backoffPolicy, is(BackoffPolicy.EXPONENTIAL));
+        assertThat(workSpec1.backoffDelayDuration, is(BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS));
     }
 
     @Test
@@ -374,22 +374,22 @@ public class WorkManagerImplTest extends WorkManagerTest {
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.isPeriodic(), is(true));
-        assertThat(workSpec.getIntervalDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
-        assertThat(workSpec.getFlexDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
+        assertThat(workSpec.intervalDuration, is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
+        assertThat(workSpec.flexDuration, is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
     }
 
     @Test
     @SmallTest
     public void testEnqueued_work_setsPeriodStartTime() {
         Work work = new Work.Builder(TestWorker.class).build();
-        assertThat(getWorkSpec(work).getPeriodStartTime(), is(0L));
+        assertThat(getWorkSpec(work).periodStartTime, is(0L));
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
         mWorkManagerImpl.enqueue(work);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
-        assertThat(workSpec.getPeriodStartTime(), is(greaterThanOrEqualTo(beforeEnqueueTime)));
+        assertThat(workSpec.periodStartTime, is(greaterThanOrEqualTo(beforeEnqueueTime)));
     }
 
     @Test
@@ -400,14 +400,14 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
                 TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(periodicWork).getPeriodStartTime(), is(0L));
+        assertThat(getWorkSpec(periodicWork).periodStartTime, is(0L));
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
         mWorkManagerImpl.enqueue(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
-        assertThat(workSpec.getPeriodStartTime(), is(greaterThanOrEqualTo(beforeEnqueueTime)));
+        assertThat(workSpec.periodStartTime, is(greaterThanOrEqualTo(beforeEnqueueTime)));
     }
 
     @Test
@@ -1146,7 +1146,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
-        assertThat(workSpec.getWorkerClassName(), is(TestWorker.class.getName()));
+        assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
     }
 
     @Test
@@ -1161,7 +1161,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
-        assertThat(workSpec.getWorkerClassName(), is(TestWorker.class.getName()));
+        assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
     }
 
     @Test
@@ -1176,8 +1176,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
-        assertThat(workSpec.getWorkerClassName(), is(ConstraintTrackingWorker.class.getName()));
-        assertThat(workSpec.getArguments().getString(
+        assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
+        assertThat(workSpec.arguments.getString(
                 ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null),
                 is(TestWorker.class.getName()));
     }
@@ -1194,8 +1194,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
-        assertThat(workSpec.getWorkerClassName(), is(ConstraintTrackingWorker.class.getName()));
-        assertThat(workSpec.getArguments().getString(
+        assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
+        assertThat(workSpec.arguments.getString(
                 ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null),
                 is(TestWorker.class.getName()));
     }
@@ -1212,7 +1212,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
-        assertThat(workSpec.getWorkerClassName(), is(TestWorker.class.getName()));
+        assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
     }
 
     @Test
@@ -1227,7 +1227,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
-        assertThat(workSpec.getWorkerClassName(), is(TestWorker.class.getName()));
+        assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
     }
 
     private void insertWorkSpecAndTags(Work work) {

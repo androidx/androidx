@@ -18,12 +18,12 @@ package androidx.work.impl.constraints.controllers;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.work.impl.constraints.ConstraintListener;
 import androidx.work.impl.constraints.trackers.ConstraintTracker;
 import androidx.work.impl.model.WorkSpec;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A controller for a particular constraint.
@@ -78,7 +78,7 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
 
         for (WorkSpec workSpec : workSpecs) {
             if (hasConstraint(workSpec)) {
-                mMatchingWorkSpecIds.add(workSpec.getId());
+                mMatchingWorkSpecIds.add(workSpec.id);
             }
         }
 

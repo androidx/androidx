@@ -32,7 +32,7 @@ public class StorageNotLowController extends ConstraintController<Boolean> {
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.getConstraints().requiresStorageNotLow();
+        return workSpec.constraints.requiresStorageNotLow();
     }
 
     @Override

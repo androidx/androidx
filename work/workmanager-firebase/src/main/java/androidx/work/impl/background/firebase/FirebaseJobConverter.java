@@ -19,6 +19,13 @@ package androidx.work.impl.background.firebase;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
+import androidx.work.BackoffPolicy;
+import androidx.work.BaseWork;
+import androidx.work.Constraints;
+import androidx.work.ContentUriTriggers;
+import androidx.work.impl.logger.Logger;
+import androidx.work.impl.model.WorkSpec;
+
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.Job;
@@ -31,13 +38,6 @@ import com.firebase.jobdispatcher.Trigger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import androidx.work.BackoffPolicy;
-import androidx.work.BaseWork;
-import androidx.work.Constraints;
-import androidx.work.ContentUriTriggers;
-import androidx.work.impl.logger.Logger;
-import androidx.work.impl.model.WorkSpec;
 
 /**
  * Converts a {@link WorkSpec} into a {@link Job}.
@@ -54,7 +54,7 @@ class FirebaseJobConverter {
     Job convert(WorkSpec workSpec) {
         Job.Builder builder = mDispatcher.newJobBuilder()
                 .setService(FirebaseJobService.class)
-                .setTag(workSpec.getId())
+                .setTag(workSpec.id)
                 .setLifetime(Lifetime.FOREVER)
                 .setReplaceCurrent(true)
                 .setRetryStrategy(createRetryStrategy(workSpec))
@@ -64,7 +64,7 @@ class FirebaseJobConverter {
     }
 
     private void setExecutionTrigger(Job.Builder builder, WorkSpec workSpec) {
-        if (Build.VERSION.SDK_INT >= 24 && workSpec.getConstraints().hasContentUriTriggers()) {
+        if (Build.VERSION.SDK_INT >= 24 && workSpec.constraints.hasContentUriTriggers()) {
             builder.setTrigger(createContentUriTriggers(workSpec));
         } else if (workSpec.isPeriodic()) {
             builder.setTrigger(createPeriodicTrigger(workSpec));
@@ -77,7 +77,7 @@ class FirebaseJobConverter {
     @RequiresApi(24)
     private static JobTrigger.ContentUriTrigger createContentUriTriggers(WorkSpec workSpec) {
         List<ObservedUri> observedUris = new ArrayList<>();
-        ContentUriTriggers triggers = workSpec.getConstraints().getContentUriTriggers();
+        ContentUriTriggers triggers = workSpec.constraints.getContentUriTriggers();
         for (ContentUriTriggers.Trigger trigger : triggers) {
             observedUris.add(convertContentUriTrigger(trigger));
         }
@@ -90,8 +90,8 @@ class FirebaseJobConverter {
      * {@link com.firebase.jobdispatcher.GooglePlayJobWriter#writeExecutionWindowTriggerToBundle}
      */
     private static JobTrigger.ExecutionWindowTrigger createPeriodicTrigger(WorkSpec workSpec) {
-        int windowEndSeconds = convertMillisecondsToSeconds(workSpec.getIntervalDuration());
-        int flexDurationSeconds = convertMillisecondsToSeconds(workSpec.getFlexDuration());
+        int windowEndSeconds = convertMillisecondsToSeconds(workSpec.intervalDuration);
+        int flexDurationSeconds = convertMillisecondsToSeconds(workSpec.flexDuration);
         int windowStartSeconds = windowEndSeconds - flexDurationSeconds;
 
         return Trigger.executionWindow(windowStartSeconds, windowEndSeconds);
@@ -102,10 +102,10 @@ class FirebaseJobConverter {
     }
 
     private RetryStrategy createRetryStrategy(WorkSpec workSpec) {
-        int policy = workSpec.getBackoffPolicy() == BackoffPolicy.LINEAR
+        int policy = workSpec.backoffPolicy == BackoffPolicy.LINEAR
                 ? RetryStrategy.RETRY_POLICY_LINEAR : RetryStrategy.RETRY_POLICY_EXPONENTIAL;
         int initialBackoff = (int) TimeUnit.SECONDS
-                .convert(workSpec.getBackoffDelayDuration(), TimeUnit.MILLISECONDS);
+                .convert(workSpec.backoffDelayDuration, TimeUnit.MILLISECONDS);
         int maxBackoff = (int) TimeUnit.SECONDS
                 .convert(BaseWork.MAX_BACKOFF_MILLIS, TimeUnit.MILLISECONDS);
         return mDispatcher.newRetryStrategy(policy, initialBackoff, maxBackoff);
@@ -119,7 +119,7 @@ class FirebaseJobConverter {
     }
 
     private int[] getConstraints(WorkSpec workSpec) {
-        Constraints constraints = workSpec.getConstraints();
+        Constraints constraints = workSpec.constraints;
         List<Integer> mConstraints = new ArrayList<>();
 
         if (Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle()) {

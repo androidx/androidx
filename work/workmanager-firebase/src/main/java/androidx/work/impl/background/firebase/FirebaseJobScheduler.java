@@ -24,16 +24,16 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
+import androidx.work.impl.Scheduler;
+import androidx.work.impl.logger.Logger;
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.IdGenerator;
+
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-
-import androidx.work.impl.Scheduler;
-import androidx.work.impl.logger.Logger;
-import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.utils.IdGenerator;
 
 /**
  * A class that schedules work using {@link FirebaseJobDispatcher}.
@@ -80,7 +80,7 @@ public class FirebaseJobScheduler implements Scheduler {
 
     void scheduleNow(WorkSpec workSpec) {
         Job job = mJobConverter.convert(workSpec);
-        Logger.debug(TAG, "Scheduling work now, ID: %s", workSpec.getId());
+        Logger.debug(TAG, "Scheduling work now, ID: %s", workSpec.id);
         int result = mDispatcher.schedule(job);
         if (result != FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS) {
             Logger.error(TAG, "Schedule failed. Result = %s", result);
@@ -94,7 +94,7 @@ public class FirebaseJobScheduler implements Scheduler {
         if (mIdGenerator == null) {
             mIdGenerator = new IdGenerator(mAppContext);
         }
-        Logger.debug(TAG, "Scheduling work later, ID: %s", workSpec.getId());
+        Logger.debug(TAG, "Scheduling work later, ID: %s", workSpec.id);
         PendingIntent pendingIntent = createScheduleLaterPendingIntent(workSpec);
 
         // This wakes up the device at exactly the next run time.
@@ -109,7 +109,7 @@ public class FirebaseJobScheduler implements Scheduler {
 
     private PendingIntent createScheduleLaterPendingIntent(WorkSpec workSpec) {
         Intent intent = new Intent(mAppContext, FirebaseDelayedJobAlarmReceiver.class);
-        intent.putExtra(FirebaseDelayedJobAlarmReceiver.WORKSPEC_ID_KEY, workSpec.getId());
+        intent.putExtra(FirebaseDelayedJobAlarmReceiver.WORKSPEC_ID_KEY, workSpec.id);
         int requestCode = mIdGenerator.nextFirebaseAlarmId();
         return PendingIntent.getBroadcast(mAppContext, requestCode, intent, 0);
     }

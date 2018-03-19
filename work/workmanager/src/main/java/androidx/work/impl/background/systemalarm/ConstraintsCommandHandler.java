@@ -22,12 +22,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is a command handler which handles the constraints changed event.
@@ -74,7 +74,7 @@ class ConstraintsCommandHandler {
         mWorkConstraintsTracker.replace(eligibleWorkSpecs);
 
         for (WorkSpec workSpec : eligibleWorkSpecs) {
-            String workSpecId = workSpec.getId();
+            String workSpecId = workSpec.id;
             if (!workSpec.hasConstraints()
                     || mWorkConstraintsTracker.areAllConstraintsMet(workSpecId)) {
                 mEligibleWorkSpecs.add(workSpec);
@@ -82,7 +82,7 @@ class ConstraintsCommandHandler {
         }
 
         for (WorkSpec workSpec : mEligibleWorkSpecs) {
-            String workSpecId = workSpec.getId();
+            String workSpecId = workSpec.id;
             Intent intent = CommandHandler.createDelayMetIntent(mContext, workSpecId);
             Logger.debug(TAG, "Creating a delay_met command for workSpec with id (%s)", workSpecId);
             mDispatcher.postOnMainThread(

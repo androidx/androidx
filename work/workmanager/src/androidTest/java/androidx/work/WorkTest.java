@@ -47,7 +47,7 @@ public class WorkTest extends WorkManagerTest {
     public void testBuild_withInitialDelay() {
         final long expectedInitialDelay = 123L;
         Work work = mBuilder.withInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS).build();
-        assertThat(getWorkSpec(work).getInitialDelay(), is(expectedInitialDelay));
+        assertThat(getWorkSpec(work).initialDelay, is(expectedInitialDelay));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class WorkTest extends WorkManagerTest {
                         backoffDuration,
                         TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(work).getBackoffDelayDuration(), is(BaseWork.MAX_BACKOFF_MILLIS));
+        assertThat(getWorkSpec(work).backoffDelayDuration, is(BaseWork.MAX_BACKOFF_MILLIS));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class WorkTest extends WorkManagerTest {
                         backoffDuration,
                         TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(work).getBackoffDelayDuration(), is(BaseWork.MIN_BACKOFF_MILLIS));
+        assertThat(getWorkSpec(work).backoffDelayDuration, is(BaseWork.MIN_BACKOFF_MILLIS));
     }
 
     @Test

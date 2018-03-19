@@ -21,11 +21,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.List;
-
 import androidx.work.Constraints;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
+
+import java.util.List;
 
 abstract class ConstraintProxy extends BroadcastReceiver {
     private static final String TAG = "ConstraintProxy";
@@ -74,7 +74,7 @@ abstract class ConstraintProxy extends BroadcastReceiver {
         boolean networkStateProxyEnabled = false;
 
         for (WorkSpec workSpec : workSpecs) {
-            Constraints constraints = workSpec.getConstraints();
+            Constraints constraints = workSpec.constraints;
             batteryNotLowProxyEnabled |= constraints.requiresBatteryNotLow();
             batteryChargingProxyEnabled |= constraints.requiresCharging();
             storageNotLowProxyEnabled |= constraints.requiresStorageNotLow();

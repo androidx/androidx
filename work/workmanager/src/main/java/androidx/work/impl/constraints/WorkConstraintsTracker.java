@@ -20,9 +20,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.work.Constraints;
 import androidx.work.impl.constraints.controllers.BatteryChargingController;
 import androidx.work.impl.constraints.controllers.BatteryNotLowController;
@@ -34,6 +31,9 @@ import androidx.work.impl.constraints.controllers.NetworkUnmeteredController;
 import androidx.work.impl.constraints.controllers.StorageNotLowController;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tracks {@link WorkSpec}s and their {@link Constraints}, and notifies an optional

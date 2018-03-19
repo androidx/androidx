@@ -25,16 +25,16 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.DatabaseTest;
+import androidx.work.Work;
+import androidx.work.worker.InfiniteTestWorker;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.concurrent.Executors;
-
-import androidx.work.DatabaseTest;
-import androidx.work.Work;
-import androidx.work.worker.InfiniteTestWorker;
 
 @RunWith(AndroidJUnit4.class)
 public class ProcessorTest extends DatabaseTest {

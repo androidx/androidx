@@ -62,8 +62,8 @@ public class PeriodicWorkTest extends WorkManagerTest {
                 testInterval,
                 TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(periodicWork).getIntervalDuration(), is(testInterval));
-        assertThat(getWorkSpec(periodicWork).getFlexDuration(), is(testInterval));
+        assertThat(getWorkSpec(periodicWork).intervalDuration, is(testInterval));
+        assertThat(getWorkSpec(periodicWork).flexDuration, is(testInterval));
     }
 
     @Test
@@ -75,9 +75,9 @@ public class PeriodicWorkTest extends WorkManagerTest {
                 testInterval,
                 TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(periodicWork).getIntervalDuration(),
+        assertThat(getWorkSpec(periodicWork).intervalDuration,
                 is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
-        assertThat(getWorkSpec(periodicWork).getFlexDuration(),
+        assertThat(getWorkSpec(periodicWork).flexDuration,
                 is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
     }
 
@@ -93,8 +93,8 @@ public class PeriodicWorkTest extends WorkManagerTest {
                 testFlex,
                 TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(periodicWork).getIntervalDuration(), is(testInterval));
-        assertThat(getWorkSpec(periodicWork).getFlexDuration(), is(testFlex));
+        assertThat(getWorkSpec(periodicWork).intervalDuration, is(testInterval));
+        assertThat(getWorkSpec(periodicWork).flexDuration, is(testFlex));
     }
 
     @Test
@@ -109,9 +109,9 @@ public class PeriodicWorkTest extends WorkManagerTest {
                 testFlex,
                 TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(periodicWork).getIntervalDuration(),
+        assertThat(getWorkSpec(periodicWork).intervalDuration,
                 is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
-        assertThat(getWorkSpec(periodicWork).getFlexDuration(),
+        assertThat(getWorkSpec(periodicWork).flexDuration,
                 is(PeriodicWork.MIN_PERIODIC_FLEX_MILLIS));
     }
 
@@ -127,8 +127,8 @@ public class PeriodicWorkTest extends WorkManagerTest {
                 testFlex,
                 TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(periodicWork).getIntervalDuration(), is(testInterval));
-        assertThat(getWorkSpec(periodicWork).getFlexDuration(),
+        assertThat(getWorkSpec(periodicWork).intervalDuration, is(testInterval));
+        assertThat(getWorkSpec(periodicWork).flexDuration,
                 is(PeriodicWork.MIN_PERIODIC_FLEX_MILLIS));
     }
 
@@ -144,8 +144,8 @@ public class PeriodicWorkTest extends WorkManagerTest {
                 testFlex,
                 TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(periodicWork).getIntervalDuration(),
+        assertThat(getWorkSpec(periodicWork).intervalDuration,
                 is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
-        assertThat(getWorkSpec(periodicWork).getFlexDuration(), is(testFlex));
+        assertThat(getWorkSpec(periodicWork).flexDuration, is(testFlex));
     }
 }

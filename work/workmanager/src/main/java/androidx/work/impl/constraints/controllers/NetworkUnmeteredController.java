@@ -36,7 +36,7 @@ public class NetworkUnmeteredController extends ConstraintController<NetworkStat
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.getConstraints().getRequiredNetworkType() == UNMETERED;
+        return workSpec.constraints.getRequiredNetworkType() == UNMETERED;
     }
 
     @Override

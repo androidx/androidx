@@ -16,12 +16,12 @@
 
 package androidx.work.impl;
 
+import static androidx.work.impl.WorkManagerConfiguration.FIREBASE_JOB_SERVICE_CLASSNAME;
+import static androidx.work.impl.utils.PackageManagerHelper.isComponentExplicitlyEnabled;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-
-import static androidx.work.impl.WorkManagerConfiguration.FIREBASE_JOB_SERVICE_CLASSNAME;
-import static androidx.work.impl.utils.PackageManagerHelper.isComponentExplicitlyEnabled;
 
 import android.content.Context;
 import android.os.Build;
@@ -30,14 +30,14 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import androidx.work.impl.background.systemalarm.SystemAlarmScheduler;
 import androidx.work.impl.background.systemalarm.SystemAlarmService;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.background.systemjob.SystemJobService;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)

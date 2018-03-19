@@ -29,19 +29,19 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.Collections;
-import java.util.List;
-
 import androidx.work.Constraints;
 import androidx.work.Work;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.constraints.trackers.ConstraintTracker;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.TestWorker;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.Collections;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 23)
@@ -96,7 +96,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
     @SmallTest
     public void testReplace_workSpecWithConstraint_constrained() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
-        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.getId());
+        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.id);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpecWithConstraint);
 
         mTestIdleController.setDeviceActive();
@@ -109,7 +109,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
     @SmallTest
     public void testReplace_workSpecWithConstraint_unconstrained() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
-        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.getId());
+        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.id);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpecWithConstraint);
 
         mTestIdleController.setDeviceIdle();
@@ -122,7 +122,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
     @SmallTest
     public void testReplace_workSpecWithConstraint_constraintNotSet() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
-        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.getId());
+        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.id);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpecWithConstraint);
 
         mTestIdleController.replace(workSpecs);
@@ -158,7 +158,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
     @SmallTest
     public void testOnConstraintChanged_toConstrained_withMatchingWorkSpecs() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
-        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.getId());
+        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.id);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpecWithConstraint);
         mTestIdleController.replace(workSpecs);
         verify(mCallback).onConstraintNotMet(expectedWorkIds);
@@ -172,7 +172,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
     @SmallTest
     public void testOnConstraintChanged_toUnconstrained_withMatchingWorkSpecs() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
-        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.getId());
+        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.id);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpecWithConstraint);
         mTestIdleController.replace(workSpecs);
 
@@ -186,7 +186,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
     public void testIsWorkSpecConstrained_noMatchingWorkSpecs() {
         WorkSpec workSpecNoConstraints = createNoConstraintWorkSpec();
         mTestIdleController.replace(Collections.singletonList(workSpecNoConstraints));
-        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecNoConstraints.getId()),
+        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecNoConstraints.id),
                 is(false));
     }
 
@@ -195,7 +195,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
     public void testIsWorkSpecConstrained_constraintNotSet() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
         mTestIdleController.replace(Collections.singletonList(workSpecWithConstraint));
-        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecWithConstraint.getId()),
+        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecWithConstraint.id),
                 is(false));
     }
 
@@ -206,7 +206,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
 
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
         mTestIdleController.replace(Collections.singletonList(workSpecWithConstraint));
-        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecWithConstraint.getId()),
+        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecWithConstraint.id),
                 is(true));
     }
 
@@ -217,7 +217,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
 
         WorkSpec workSpecNoConstraints = createNoConstraintWorkSpec();
         mTestIdleController.replace(Collections.singletonList(workSpecNoConstraints));
-        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecNoConstraints.getId()),
+        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecNoConstraints.id),
                 is(false));
     }
 
@@ -228,7 +228,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
 
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
         mTestIdleController.replace(Collections.singletonList(workSpecWithConstraint));
-        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecWithConstraint.getId()),
+        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecWithConstraint.id),
                 is(false));
     }
 
@@ -239,7 +239,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
 
         WorkSpec workSpecNoConstraints = createNoConstraintWorkSpec();
         mTestIdleController.replace(Collections.singletonList(workSpecNoConstraints));
-        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecNoConstraints.getId()),
+        assertThat(mTestIdleController.isWorkSpecConstrained(workSpecNoConstraints.id),
                 is(false));
     }
 
@@ -251,7 +251,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
 
         @Override
         boolean hasConstraint(@NonNull WorkSpec workSpec) {
-            return workSpec.getConstraints().requiresDeviceIdle();
+            return workSpec.constraints.requiresDeviceIdle();
         }
 
         @Override

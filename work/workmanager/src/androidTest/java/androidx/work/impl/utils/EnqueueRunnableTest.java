@@ -25,11 +25,11 @@ import static org.mockito.Mockito.verify;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.impl.WorkContinuationImpl;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.work.impl.WorkContinuationImpl;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

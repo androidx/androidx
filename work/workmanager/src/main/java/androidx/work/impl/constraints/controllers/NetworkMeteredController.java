@@ -40,7 +40,7 @@ public class NetworkMeteredController extends ConstraintController<NetworkState>
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.getConstraints().getRequiredNetworkType() == METERED;
+        return workSpec.constraints.getRequiredNetworkType() == METERED;
     }
 
     /**

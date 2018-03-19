@@ -28,12 +28,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
-import java.util.concurrent.TimeUnit;
-
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.background.systemalarm.SystemAlarmService;
 import androidx.work.impl.background.systemjob.SystemJobService;
 import androidx.work.impl.logger.Logger;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * WorkManager is restarted after an app was force stopped.

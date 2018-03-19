@@ -24,8 +24,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
-import java.util.List;
-
 import androidx.work.State;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
@@ -33,6 +31,8 @@ import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkSpecDao;
+
+import java.util.List;
 
 /**
  * A {@link Runnable} to cancel work.

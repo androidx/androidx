@@ -42,7 +42,7 @@ public class NetworkConnectedController extends ConstraintController<NetworkStat
 
     @Override
     boolean hasConstraint(@NonNull WorkSpec workSpec) {
-        return workSpec.getConstraints().getRequiredNetworkType() == CONNECTED;
+        return workSpec.constraints.getRequiredNetworkType() == CONNECTED;
     }
 
     @Override

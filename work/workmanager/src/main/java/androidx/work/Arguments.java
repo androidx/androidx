@@ -20,6 +20,8 @@ import android.arch.persistence.room.TypeConverter;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
+import androidx.work.impl.logger.Logger;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,8 +30,6 @@ import java.io.ObjectOutputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.work.impl.logger.Logger;
 
 /**
  * Persistable set of key/value pairs which are passed to {@link Worker}s.

@@ -24,15 +24,15 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
-import java.util.Collections;
-import java.util.List;
-
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.WakeLocks;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This is a command handler which attempts to run a work spec given its id.
