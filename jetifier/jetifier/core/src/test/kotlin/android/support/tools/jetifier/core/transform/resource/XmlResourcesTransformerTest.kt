@@ -330,7 +330,10 @@ class XmlResourcesTransformerTest {
             proGuardMap = ProGuardTypesMap.EMPTY,
             packageMap = packageMap
         )
-        val context = TransformationContext(config, rewritingSupportLib = rewritingSupportLib)
+        val context = TransformationContext(
+            config,
+            rewritingSupportLib = rewritingSupportLib,
+            useIdentityIfTypeIsMissing = false)
         context.libraryName = libraryName
         val processor = XmlResourcesTransformer(context)
         val fileName = if (isManifestFile) {
