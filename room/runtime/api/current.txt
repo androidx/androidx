@@ -61,7 +61,7 @@ package android.arch.persistence.room {
     method public android.arch.persistence.room.RoomDatabase.Builder<T> allowMainThreadQueries();
     method public T build();
     method public android.arch.persistence.room.RoomDatabase.Builder<T> fallbackToDestructiveMigration();
-    method public android.arch.persistence.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationFrom(java.lang.Integer...);
+    method public android.arch.persistence.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationFrom(int...);
     method public android.arch.persistence.room.RoomDatabase.Builder<T> openHelperFactory(android.arch.persistence.db.SupportSQLiteOpenHelper.Factory);
     method public android.arch.persistence.room.RoomDatabase.Builder<T> setJournalMode(android.arch.persistence.room.RoomDatabase.JournalMode);
   }
