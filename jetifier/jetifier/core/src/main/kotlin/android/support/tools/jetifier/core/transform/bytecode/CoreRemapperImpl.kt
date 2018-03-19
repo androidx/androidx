@@ -66,19 +66,36 @@ class CoreRemapperImpl(
     }
 
     override fun rewriteString(value: String): String {
+        val startsWithAndroidX = context.isInReversedMode && value.startsWith("androidx")
+
         val type = JavaType.fromDotVersion(value)
         if (!context.isEligibleForRewrite(type)) {
+            if (startsWithAndroidX) {
+                Log.i(TAG, "Found string '%s' but failed to rewrite", value)
+            }
             return value
         }
 
         val result = typesMap.mapType(type)
         if (result != null) {
             changesDone = changesDone || result != type
-            Log.i(TAG, "  map string: %s -> %s", type, result)
+            Log.i(TAG, "Map string: '%s' -> '%s'", type, result)
             return result.toDotNotation()
         }
 
+        // We might be working with an internal type or field reference, e.g.
+        // AccessibilityNodeInfoCompat.PANE_TITLE_KEY. So we try to remove last segment to help it.
+        if (value.contains(".")) {
+            val subTypeResult = typesMap.mapType(type.getParentType())
+            if (subTypeResult != null) {
+                val result = subTypeResult.toDotNotation() + '.' + value.substringAfterLast('.')
+                Log.i(TAG, "Map string: '%s' -> '%s' via fallback", value, result)
+                return result
+            }
+        }
+
         // We do not treat string content mismatches as errors
+        Log.i(TAG, "Found string '%s' but failed to rewrite", value)
         return value
     }
 
