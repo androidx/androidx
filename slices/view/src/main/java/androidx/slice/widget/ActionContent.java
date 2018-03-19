@@ -77,6 +77,8 @@ public class ActionContent {
                     SUBTYPE_PRIORITY);
             mPriority = priority != null ? priority.getInt() : -1;
             return true;
+        } else if (FORMAT_ACTION.equals(slice.getFormat())) {
+            mActionItem = slice;
         }
         return false;
     }
