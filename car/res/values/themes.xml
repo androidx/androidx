@@ -33,7 +33,9 @@ limitations under the License.
         <item name="android:colorControlNormal">@color/car_body2</item>
         <item name="carDialogTheme">@style/Theme.Car.Dialog</item>
         <item name="pagedListViewStyle">@style/Widget.Car.List</item>
-        <item name="listItemStyle">@style/Widget.Car.ListItem</item>
+        <item name="listItemBackgroundColor">@color/car_card</item>
+        <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
     </style>
 
     <!-- Theme for the Car that is a passthrough for the default theme. -->
@@ -46,7 +48,9 @@ limitations under the License.
         <item name="alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
         <item name="carDialogTheme">@style/Theme.Car.Dark.Dialog</item>
         <item name="pagedListViewStyle">@style/Widget.Car.Light.List.LightDivider</item>
-        <item name="listItemStyle">@style/Widget.Car.ListItem.Dark</item>
+        <item name="listItemBackgroundColor">@color/car_card_dark</item>
+        <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
     </style>
 
     <!-- A Theme for activities that have a drawer affordance. This theme will automatically switch
@@ -146,7 +150,9 @@ limitations under the License.
          colors will darken during night mode. -->
     <style name="Theme.Car.List" parent="android:Theme">
         <item name="pagedListViewStyle">@style/Widget.Car.List</item>
-        <item name="listItemStyle">@style/Widget.Car.ListItem</item>
+        <item name="listItemBackgroundColor">@color/car_card</item>
+        <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
     </style>
 
     <!-- A theme for PagedListViews that will have a light scrollbars and light-colored items. The
@@ -158,6 +164,8 @@ limitations under the License.
     <!-- A theme for PagedListViews that will have a light scrollbars and dark-colored items. The
          colors do not change for night mode. -->
     <style name="Theme.Car.Light.List.DarkItems">
-        <item name="listItemStyle">@style/Widget.Car.ListItem.Dark</item>
+        <item name="listItemBackgroundColor">@color/car_card_dark</item>
+        <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
     </style>
 </resources>
