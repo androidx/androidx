@@ -32,7 +32,7 @@
             android:minWidth="@dimen/preference_icon_minWidth"/>
 
     <RelativeLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dip"
             android:layout_marginEnd="8dip"
