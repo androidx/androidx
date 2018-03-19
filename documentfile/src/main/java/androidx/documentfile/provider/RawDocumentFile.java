@@ -20,6 +20,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,12 +29,13 @@ import java.util.ArrayList;
 class RawDocumentFile extends DocumentFile {
     private File mFile;
 
-    RawDocumentFile(DocumentFile parent, File file) {
+    RawDocumentFile(@Nullable DocumentFile parent, File file) {
         super(parent);
         mFile = file;
     }
 
     @Override
+    @Nullable
     public DocumentFile createFile(String mimeType, String displayName) {
         // Tack on extension when valid MIME type provided
         final String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
@@ -50,6 +53,7 @@ class RawDocumentFile extends DocumentFile {
     }
 
     @Override
+    @Nullable
     public DocumentFile createDirectory(String displayName) {
         final File target = new File(mFile, displayName);
         if (target.isDirectory() || target.mkdir()) {
@@ -70,6 +74,7 @@ class RawDocumentFile extends DocumentFile {
     }
 
     @Override
+    @Nullable
     public String getType() {
         if (mFile.isDirectory()) {
             return null;

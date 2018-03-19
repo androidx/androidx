@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
@@ -32,18 +33,20 @@ class TreeDocumentFile extends DocumentFile {
     private Context mContext;
     private Uri mUri;
 
-    TreeDocumentFile(DocumentFile parent, Context context, Uri uri) {
+    TreeDocumentFile(@Nullable DocumentFile parent, Context context, Uri uri) {
         super(parent);
         mContext = context;
         mUri = uri;
     }
 
     @Override
+    @Nullable
     public DocumentFile createFile(String mimeType, String displayName) {
         final Uri result = TreeDocumentFile.createFile(mContext, mUri, mimeType, displayName);
         return (result != null) ? new TreeDocumentFile(this, mContext, result) : null;
     }
 
+    @Nullable
     private static Uri createFile(Context context, Uri self, String mimeType,
             String displayName) {
         try {
@@ -55,6 +58,7 @@ class TreeDocumentFile extends DocumentFile {
     }
 
     @Override
+    @Nullable
     public DocumentFile createDirectory(String displayName) {
         final Uri result = TreeDocumentFile.createFile(
                 mContext, mUri, DocumentsContract.Document.MIME_TYPE_DIR, displayName);
@@ -67,11 +71,13 @@ class TreeDocumentFile extends DocumentFile {
     }
 
     @Override
+    @Nullable
     public String getName() {
         return DocumentsContractApi19.getName(mContext, mUri);
     }
 
     @Override
+    @Nullable
     public String getType() {
         return DocumentsContractApi19.getType(mContext, mUri);
     }
@@ -156,7 +162,7 @@ class TreeDocumentFile extends DocumentFile {
         return resultFiles;
     }
 
-    private static void closeQuietly(AutoCloseable closeable) {
+    private static void closeQuietly(@Nullable AutoCloseable closeable) {
         if (closeable != null) {
             try {
                 closeable.close();
