@@ -35,12 +35,8 @@ class DocumentsContractApi19 {
     // DocumentsContract API level 24.
     private static final int FLAG_VIRTUAL_DOCUMENT = 1 << 9;
 
-    public static boolean isDocumentUri(Context context, Uri self) {
-        return DocumentsContract.isDocumentUri(context, self);
-    }
-
     public static boolean isVirtual(Context context, Uri self) {
-        if (!isDocumentUri(context, self)) {
+        if (!DocumentsContract.isDocumentUri(context, self)) {
             return false;
         }
 

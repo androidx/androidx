@@ -140,7 +140,7 @@ public abstract class DocumentFile {
      */
     public static boolean isDocumentUri(Context context, Uri uri) {
         if (Build.VERSION.SDK_INT >= 19) {
-            return DocumentsContractApi19.isDocumentUri(context, uri);
+            return DocumentsContract.isDocumentUri(context, uri);
         } else {
             return false;
         }
