@@ -85,7 +85,8 @@ class Processor private constructor (
         fun createProcessor(
             config: Config,
             reversedMode: Boolean = false,
-            rewritingSupportLib: Boolean = false
+            rewritingSupportLib: Boolean = false,
+            useIdentityIfTypeIsMissing: Boolean = true
         ): Processor {
             var newConfig = config
 
@@ -101,7 +102,11 @@ class Processor private constructor (
                 )
             }
 
-            val context = TransformationContext(newConfig, rewritingSupportLib, reversedMode)
+            val context = TransformationContext(
+                config = newConfig,
+                rewritingSupportLib = rewritingSupportLib,
+                isInReversedMode = reversedMode,
+                useIdentityIfTypeIsMissing = useIdentityIfTypeIsMissing)
             val transformers = if (rewritingSupportLib) {
                 createSLTransformers(context)
             } else {

@@ -183,8 +183,14 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         if (result != null) {
             return result.toDotNotation()
         }
+        if (context.useIdentityIfTypeIsMissing) {
+            Log.i(TAG, "No mapping for package: '%s' in artifact: '%s' - using identity",
+                    pckg, archiveName)
+            return packageName
+        }
+
         context.reportNoPackageMappingFoundFailure()
-        Log.e(TAG, "No mapping for package: '$pckg' in artifact: '$archiveName'")
+        Log.e(TAG, "No mapping for package: '%s' in artifact: '%s'", pckg, archiveName)
         return packageName
     }
 }
