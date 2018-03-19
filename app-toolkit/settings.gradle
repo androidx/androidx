@@ -76,6 +76,11 @@ includeProject(":room:runtime", new File(supportRoot, "room/runtime"))
 includeProject(":room:rxjava2", new File(supportRoot, "room/rxjava2"))
 includeProject(":room:testing", new File(supportRoot, "room/testing"))
 
+includeProject(":jetifier-core", new File(supportRoot, "jetifier/jetifier/core"))
+includeProject(":jetifier-gradle-plugin", new File(supportRoot, "jetifier/jetifier/gradle-plugin"))
+includeProject(":jetifier-standalone", new File(supportRoot, "jetifier/jetifier/standalone"))
+includeProject(":jetifier-preprocessor", new File(supportRoot, "jetifier/jetifier/preprocessor"))
+
 /////////////////////////////
 //
 // External
