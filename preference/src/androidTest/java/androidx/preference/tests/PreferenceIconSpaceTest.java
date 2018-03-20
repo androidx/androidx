@@ -24,6 +24,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,8 +40,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+/**
+ * Test for reserving icon space in {@link Preference}.
+ */
+@SmallTest
 @RunWith(AndroidJUnit4.class)
-@LargeTest
 public class PreferenceIconSpaceTest {
 
     private Preference mPreference;

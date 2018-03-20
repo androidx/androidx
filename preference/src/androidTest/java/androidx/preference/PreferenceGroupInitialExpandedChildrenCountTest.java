@@ -45,10 +45,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test for InitialExpandedChildrenCount in {@link androidx.preference.PreferenceGroup}.
+ * Test for InitialExpandedChildrenCount in {@link PreferenceGroup}.
  */
-@RunWith(AndroidJUnit4.class)
 @SmallTest
+@RunWith(AndroidJUnit4.class)
 public class PreferenceGroupInitialExpandedChildrenCountTest {
 
     private static final int INITIAL_EXPANDED_COUNT = 5;
@@ -170,7 +170,7 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     public void createPreferenceGroupAdapter_setExpandButtonSummary() {
         mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
         PreferenceGroupAdapter preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
-        // Preference 5 to Preference 9 are collapsed
+        // Preference 5 to preference 9 are collapsed
         CharSequence summary = mPreferenceList.get(INITIAL_EXPANDED_COUNT).getTitle();
         for (int i = INITIAL_EXPANDED_COUNT + 1; i < TOTAL_PREFERENCE; i++) {
             summary = mContext.getString(R.string.summary_collapsed_preference_list,
@@ -190,7 +190,7 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         mPreferenceList.get(INITIAL_EXPANDED_COUNT + 1).setVisible(false);
         mPreferenceList.get(INITIAL_EXPANDED_COUNT + 4).setVisible(false);
         PreferenceGroupAdapter preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
-        // Preference 5 to Preference 9 are collapsed, only preferences 5, 7, 8 are visible
+        // Preference 5 to preference 9 are collapsed, only preferences 5, 7, 8 are visible
         CharSequence summary = mPreferenceList.get(INITIAL_EXPANDED_COUNT).getTitle();
         summary = mContext.getString(R.string.summary_collapsed_preference_list,
                 summary, mPreferenceList.get(INITIAL_EXPANDED_COUNT + 2).getTitle());
@@ -369,3 +369,4 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     }
 
 }
+

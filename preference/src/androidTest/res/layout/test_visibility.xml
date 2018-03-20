@@ -16,16 +16,16 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <Preference android:summary="This preference is visible by default" />
+    <Preference android:summary="This preference is visible by default"/>
 
     <Preference
         android:summary="This preference is forced to be visible"
-        app:isPreferenceVisible="true" />
+        app:isPreferenceVisible="true"/>
 
     <Preference
         android:summary="This preference is invisible"
-        app:isPreferenceVisible="false" />
+        app:isPreferenceVisible="false"/>
 </PreferenceScreen>

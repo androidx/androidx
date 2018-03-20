@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package androidx.preference.tests;
@@ -27,6 +27,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.annotation.NonNull;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.DropDownPreference;
 import androidx.preference.Preference;
@@ -37,16 +38,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
+/**
+ * Test for comparison callbacks in {@link PreferenceManager}.
+ */
 @SmallTest
-public class SimplePreferenceComparisonCallbackTest {
+@RunWith(AndroidJUnit4.class)
+public class PreferenceComparisonCallbackTest {
 
     private Preference mPref1;
     private Preference mPref2;
     private PreferenceManager.PreferenceComparisonCallback mComparisonCallback;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         final Context context = InstrumentationRegistry.getTargetContext();
         mPref1 = new Preference(context);
         mPref2 = new Preference(context);
@@ -55,20 +59,18 @@ public class SimplePreferenceComparisonCallbackTest {
 
     /**
      * Basic sanity test, all fields blank should compare the same
-     * @throws Exception
      */
     @Test
-    public void testNull() throws Exception {
+    public void testNull() {
         assertTrue("Compare all null",
                 mComparisonCallback.arePreferenceContentsTheSame(mPref1, mPref2));
     }
 
     /**
      * Two different classes should not compare the same
-     * @throws Exception
      */
     @Test
-    public void testClassComparison() throws Exception {
+    public void testClassComparison() {
         final Preference checkboxPreference =
                 new CheckBoxPreference(InstrumentationRegistry.getTargetContext());
         assertFalse("Compare class",
@@ -77,10 +79,9 @@ public class SimplePreferenceComparisonCallbackTest {
 
     /**
      * Same instance, but detached and reattached should not compare the same
-     * @throws Exception
      */
     @Test
-    public void testDetached() throws Exception {
+    public void testDetached() {
         mPref1.onDetached();
         mPref1.onAttached();
         assertFalse("Compare same, detached",
@@ -89,10 +90,9 @@ public class SimplePreferenceComparisonCallbackTest {
 
     /**
      * Title differences should be detected
-     * @throws Exception
      */
     @Test
-    public void testTitleComparison() throws Exception {
+    public void testTitleComparison() {
         mPref1.setTitle("value 1");
 
         assertFalse("Compare non-null to null",
@@ -113,10 +113,9 @@ public class SimplePreferenceComparisonCallbackTest {
 
     /**
      * Summary differences should be detected
-     * @throws Exception
      */
     @Test
-    public void testSummaryComparison() throws Exception {
+    public void testSummaryComparison() {
         mPref1.setSummary("value 1");
 
         assertFalse("Compare non-null to null",
@@ -135,49 +134,11 @@ public class SimplePreferenceComparisonCallbackTest {
                 mComparisonCallback.arePreferenceContentsTheSame(mPref1, mPref2));
     }
 
-    private static class ComparisonDrawable extends Drawable {
-
-        private final int mId;
-
-        public ComparisonDrawable(int id) {
-            mId = id;
-        }
-
-        public int getId() {
-            return mId;
-        }
-
-        @Override
-        public void draw(Canvas canvas) {}
-
-        @Override
-        public void setAlpha(int alpha) {}
-
-        @Override
-        public void setColorFilter(ColorFilter colorFilter) {}
-
-        @Override
-        public int getOpacity() {
-            return 0;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof ComparisonDrawable && ((ComparisonDrawable)o).getId() == mId;
-        }
-
-        @Override
-        public int hashCode() {
-            return mId;
-        }
-    }
-
     /**
      * Icon differences should be detected
-     * @throws Exception
      */
     @Test
-    public void testIconComparison() throws Exception {
+    public void testIconComparison() {
         final Drawable drawable1 = new ComparisonDrawable(1);
         final Drawable drawable1a = new ComparisonDrawable(1);
         final Drawable drawable2 = new ComparisonDrawable(2);
@@ -207,10 +168,9 @@ public class SimplePreferenceComparisonCallbackTest {
 
     /**
      * Enabled differences should be detected
-     * @throws Exception
      */
     @Test
-    public void testEnabledComparison() throws Exception {
+    public void testEnabledComparison() {
         mPref1.setEnabled(true);
         mPref2.setEnabled(true);
 
@@ -232,10 +192,9 @@ public class SimplePreferenceComparisonCallbackTest {
 
     /**
      * Selectable differences should be detected
-     * @throws Exception
      */
     @Test
-    public void testSelectableComparison() throws Exception {
+    public void testSelectableComparison() {
         mPref1.setSelectable(true);
         mPref2.setSelectable(true);
 
@@ -257,10 +216,9 @@ public class SimplePreferenceComparisonCallbackTest {
 
     /**
      * For {@link TwoStatePreference} objects, checked state differences should be detected
-     * @throws Exception
      */
     @Test
-    public void testTwoStateComparison() throws Exception {
+    public void testTwoStateComparison() {
         final TwoStatePreference checkbox1 =
                 new CheckBoxPreference(InstrumentationRegistry.getTargetContext());
         final TwoStatePreference checkbox2 =
@@ -288,10 +246,9 @@ public class SimplePreferenceComparisonCallbackTest {
     /**
      * {@link DropDownPreference} is a special case, the pref object will need to re-bind the
      * spinner when recycled, so distinct instances are never evaluated as equal
-     * @throws Exception
      */
     @Test
-    public void testDropDownComparison() throws Exception {
+    public void testDropDownComparison() {
         final Preference dropdown1 =
                 new DropDownPreference(InstrumentationRegistry.getTargetContext());
         final Preference dropdown2 =
@@ -301,5 +258,45 @@ public class SimplePreferenceComparisonCallbackTest {
                 mComparisonCallback.arePreferenceContentsTheSame(dropdown1, dropdown1));
         assertFalse("Compare distinct drop down prefs",
                 mComparisonCallback.arePreferenceContentsTheSame(dropdown1, dropdown2));
+    }
+
+    private static class ComparisonDrawable extends Drawable {
+
+        private final int mId;
+
+        ComparisonDrawable(int id) {
+            mId = id;
+        }
+
+        public int getId() {
+            return mId;
+        }
+
+        @Override
+        public void draw(@NonNull Canvas canvas) {
+        }
+
+        @Override
+        public void setAlpha(int alpha) {
+        }
+
+        @Override
+        public void setColorFilter(ColorFilter colorFilter) {
+        }
+
+        @Override
+        public int getOpacity() {
+            return 0;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof ComparisonDrawable && ((ComparisonDrawable) o).getId() == mId;
+        }
+
+        @Override
+        public int hashCode() {
+            return mId;
+        }
     }
 }
