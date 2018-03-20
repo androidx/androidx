@@ -416,7 +416,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
     void deferBoundaryCallbacks(final boolean deferEmpty,
             final boolean deferBegin, final boolean deferEnd) {
         if (mBoundaryCallback == null) {
-            throw new IllegalStateException("Computing boundary");
+            throw new IllegalStateException("Can't defer BoundaryCallback, no instance");
         }
 
         /*
@@ -467,7 +467,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
         final boolean dispatchBegin = mBoundaryCallbackBeginDeferred
                 && mLowestIndexAccessed <= mConfig.prefetchDistance;
         final boolean dispatchEnd = mBoundaryCallbackEndDeferred
-                && mHighestIndexAccessed >= size() - mConfig.prefetchDistance;
+                && mHighestIndexAccessed >= size() - 1 - mConfig.prefetchDistance;
 
         if (!dispatchBegin && !dispatchEnd) {
             return;
