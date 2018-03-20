@@ -18,16 +18,10 @@ package androidx.work;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
-
-import androidx.work.impl.model.WorkSpec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -70,84 +64,23 @@ public class Work extends BaseWork {
     /**
      * Builder for {@link Work} class.
      */
-    public static class Builder implements WorkBuilder<Work, Builder> {
-
-        private boolean mBackoffCriteriaSet = false;
-        WorkSpec mWorkSpec;
-        Set<String> mTags = new HashSet<>();
+    public static class Builder extends BaseWork.Builder<Builder, Work> {
 
         public Builder(@NonNull Class<? extends Worker> workerClass) {
-            mWorkSpec = new WorkSpec(UUID.randomUUID().toString(), workerClass.getName());
+            super(workerClass);
             mWorkSpec.inputMergerClassName = OverwritingInputMerger.class.getName();
         }
 
-        @VisibleForTesting
-        @Override
-        public Builder withInitialState(@NonNull State state) {
-            mWorkSpec.state = state;
-            return this;
-        }
-
-        @VisibleForTesting
-        @Override
-        public Builder withInitialRunAttemptCount(int runAttemptCount) {
-            mWorkSpec.runAttemptCount = runAttemptCount;
-            return this;
-        }
-
-        @VisibleForTesting
-        @Override
-        public Builder withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
-            mWorkSpec.periodStartTime = timeUnit.toMillis(periodStartTime);
-            return this;
-        }
-
-        @Override
-        public Builder withBackoffCriteria(
-                @NonNull BackoffPolicy backoffPolicy,
-                long backoffDelay,
-                @NonNull TimeUnit timeUnit) {
-            mBackoffCriteriaSet = true;
-            mWorkSpec.backoffPolicy = backoffPolicy;
-            mWorkSpec.setBackoffDelayDuration(timeUnit.toMillis(backoffDelay));
-            return this;
-        }
-
-        @Override
-        public Builder withConstraints(@NonNull Constraints constraints) {
-            mWorkSpec.constraints = constraints;
-            return this;
-        }
-
-        @Override
-        public Builder withArguments(@NonNull Arguments arguments) {
-            mWorkSpec.arguments = arguments;
-            return this;
-        }
-
-        @Override
-        public Builder addTag(@NonNull String tag) {
-            mTags.add(tag);
-            return this;
-        }
-
-        @Override
         public Builder withInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
             mWorkSpec.initialDelay = timeUnit.toMillis(duration);
             return this;
         }
 
-        @Override
         public Builder withInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
             mWorkSpec.inputMergerClassName = inputMerger.getName();
             return this;
         }
 
-        @Override
-        public Builder keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
-            mWorkSpec.minimumRetentionDuration = timeUnit.toMillis(duration);
-            return this;
-        }
 
         @Override
         public Work build() {
@@ -158,6 +91,11 @@ public class Work extends BaseWork {
                         "Cannot set backoff criteria on an idle mode job");
             }
             return new Work(this);
+        }
+
+        @Override
+        protected Builder getThis() {
+            return this;
         }
     }
 }

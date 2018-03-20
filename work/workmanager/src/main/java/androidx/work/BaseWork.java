@@ -21,7 +21,9 @@ import android.support.annotation.VisibleForTesting;
 
 import androidx.work.impl.model.WorkSpec;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -89,10 +91,18 @@ public abstract class BaseWork {
     /**
      * A builder for {@link BaseWork}.
      *
-     * @param <W> The {@link BaseWork} class being created by this builder
-     * @param <B> The concrete implementation of this builder
+     * @param <B> The concrete implementation of of this Builder
+     * @param <W> The type of work object built by this Builder
      */
-    interface Builder<W, B extends Builder<W, B>> {
+    public abstract static class Builder<B extends Builder, W extends BaseWork> {
+
+        protected boolean mBackoffCriteriaSet = false;
+        protected WorkSpec mWorkSpec;
+        protected Set<String> mTags = new HashSet<>();
+
+        public Builder(@NonNull Class<? extends Worker> workerClass) {
+            mWorkSpec = new WorkSpec(UUID.randomUUID().toString(), workerClass.getName());
+        }
 
         /**
          * Change backoff policy and delay for the work.  The default is
@@ -103,37 +113,51 @@ public abstract class BaseWork {
          * @param backoffDelay Time to wait before restarting {@link Worker} in {@code timeUnit}
          *                     units
          * @param timeUnit The {@link TimeUnit} for {@code backoffDelay}
-         * @return The current {@link Builder}.
+         * @return The current {@link Builder}
          */
-        B withBackoffCriteria(
+        public B withBackoffCriteria(
                 @NonNull BackoffPolicy backoffPolicy,
                 long backoffDelay,
-                @NonNull TimeUnit timeUnit);
+                @NonNull TimeUnit timeUnit) {
+            mBackoffCriteriaSet = true;
+            mWorkSpec.backoffPolicy = backoffPolicy;
+            mWorkSpec.setBackoffDelayDuration(timeUnit.toMillis(backoffDelay));
+            return getThis();
+        }
 
         /**
          * Add constraints to the {@link Work}.
          *
          * @param constraints The constraints for the work
-         * @return The current {@link Work.Builder}.
+         * @return The current {@link Builder}
          */
-        B withConstraints(@NonNull Constraints constraints);
+        public B withConstraints(@NonNull Constraints constraints) {
+            mWorkSpec.constraints = constraints;
+            return getThis();
+        }
 
         /**
          * Add arguments to the work.
          *
          * @param arguments key/value pairs that will be provided to the {@link Worker} class
-         * @return The current {@link Builder}.
+         * @return The current {@link Builder}
          */
-        B withArguments(@NonNull Arguments arguments);
+        public B withArguments(@NonNull Arguments arguments) {
+            mWorkSpec.arguments = arguments;
+            return getThis();
+        }
 
         /**
          * Add an optional tag for the work.  This is particularly useful for modules or
          * libraries who want to query for or cancel all of their own work.
          *
          * @param tag A tag for identifying the work in queries.
-         * @return The current {@link Builder}.
+         * @return The current {@link Builder}
          */
-        B addTag(@NonNull String tag);
+        public B addTag(@NonNull String tag) {
+            mTags.add(tag);
+            return getThis();
+        }
 
         /**
          * Specifies that the results of this work should be kept for at least the specified amount
@@ -151,14 +175,19 @@ public abstract class BaseWork {
          * @param timeUnit The unit of time for {@code duration}
          * @return The current {@link Builder}
          */
-        B keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit);
+        public B keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
+            mWorkSpec.minimumRetentionDuration = timeUnit.toMillis(duration);
+            return getThis();
+        }
 
         /**
          * Builds this work object.
          *
          * @return The concrete implementation of the work associated with this builder
          */
-        W build();
+        public abstract W build();
+
+        protected abstract B getThis();
 
         /**
          * Set the initial state for this work.  Used in testing only.
@@ -167,7 +196,10 @@ public abstract class BaseWork {
          * @return The current {@link Builder}
          */
         @VisibleForTesting
-        B withInitialState(@NonNull State state);
+        public B withInitialState(@NonNull State state) {
+            mWorkSpec.state = state;
+            return getThis();
+        }
 
         /**
          * Set the initial run attempt count for this work.  Used in testing only.
@@ -176,7 +208,10 @@ public abstract class BaseWork {
          * @return The current {@link Builder}
          */
         @VisibleForTesting
-        B withInitialRunAttemptCount(int runAttemptCount);
+        public B withInitialRunAttemptCount(int runAttemptCount) {
+            mWorkSpec.runAttemptCount = runAttemptCount;
+            return getThis();
+        }
 
         /**
          * Set the period start time for this work. Used in testing only.
@@ -186,32 +221,9 @@ public abstract class BaseWork {
          * @return The current {@link Builder}
          */
         @VisibleForTesting
-        B withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit);
-    }
-
-    /**
-     * A builder for {@link Work}.
-     *
-     * @param <W> The {@link Work} class being created by this builder
-     * @param <B> The concrete implementation of this builder
-     */
-    interface WorkBuilder<W, B extends Builder<W, B>> extends Builder<W, B> {
-
-        /**
-         * Specify whether {@link Work} should run with an initial delay. The default is 0 ms.
-         *
-         * @param duration The initial delay before running WorkSpec in {@code timeUnit} units
-         * @param timeUnit The {@link TimeUnit} for {@code duration}
-         * @return The current {@link WorkBuilder}
-         */
-        B withInitialDelay(long duration, @NonNull TimeUnit timeUnit);
-
-        /**
-         * Specify an {@link InputMerger}.  The default is {@link OverwritingInputMerger}.
-         *
-         * @param inputMerger The class name of the {@link InputMerger} to use for this {@link Work}
-         * @return The current {@link WorkBuilder}
-         */
-        B withInputMerger(@NonNull Class<? extends InputMerger> inputMerger);
+        public B withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
+            mWorkSpec.periodStartTime = timeUnit.toMillis(periodStartTime);
+            return getThis();
+        }
     }
 }
