@@ -97,6 +97,8 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                     }
                     endControlFlow()
                 }
+                addStatement("$L.query($S).close()", dbVar, "PRAGMA wal_checkpoint(FULL)")
+                addStatement("$L.execSQL($S)", dbVar, "VACUUM")
             }
             endControlFlow()
         }.build()
