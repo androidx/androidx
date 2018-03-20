@@ -91,14 +91,16 @@ public class SystemJobScheduler implements Scheduler {
         // actually a list of all unfinished jobs that JobScheduler knows about for the current
         // process.
         List<JobInfo> allJobInfos = mJobScheduler.getAllPendingJobs();
-        for (JobInfo jobInfo : allJobInfos) {
-            if (workSpecId.equals(
-                    jobInfo.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID))) {
-                mJobScheduler.cancel(jobInfo.getId());
+        if (allJobInfos != null) {  // Apparently this CAN be null on API 23?
+            for (JobInfo jobInfo : allJobInfos) {
+                if (workSpecId.equals(
+                        jobInfo.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID))) {
+                    mJobScheduler.cancel(jobInfo.getId());
 
-                // See comment in #schedule.
-                if (Build.VERSION.SDK_INT != 23) {
-                    return;
+                    // See comment in #schedule.
+                    if (Build.VERSION.SDK_INT != 23) {
+                        return;
+                    }
                 }
             }
         }

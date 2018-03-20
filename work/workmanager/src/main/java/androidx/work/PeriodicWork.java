@@ -17,13 +17,7 @@ package androidx.work;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 
-import androidx.work.impl.model.WorkSpec;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,11 +44,7 @@ public class PeriodicWork extends BaseWork {
     /**
      * Builder for {@link PeriodicWork} class.
      */
-    public static class Builder implements BaseWork.Builder<PeriodicWork, Builder> {
-
-        private boolean mBackoffCriteriaSet = false;
-        WorkSpec mWorkSpec;
-        Set<String> mTags = new HashSet<>();
+    public static class Builder extends BaseWork.Builder<Builder, PeriodicWork> {
 
         /**
          * Creates a {@link PeriodicWork} to run periodically once every interval period. The
@@ -73,7 +63,7 @@ public class PeriodicWork extends BaseWork {
                 @NonNull Class<? extends Worker> workerClass,
                 long repeatInterval,
                 @NonNull TimeUnit repeatIntervalTimeUnit) {
-            mWorkSpec = new WorkSpec(UUID.randomUUID().toString(), workerClass.getName());
+            super(workerClass);
             mWorkSpec.setPeriodic(repeatIntervalTimeUnit.toMillis(repeatInterval));
         }
 
@@ -105,66 +95,10 @@ public class PeriodicWork extends BaseWork {
                 @NonNull TimeUnit repeatIntervalTimeUnit,
                 long flexInterval,
                 @NonNull TimeUnit flexIntervalTimeUnit) {
-            mWorkSpec = new WorkSpec(UUID.randomUUID().toString(), workerClass.getName());
+            super(workerClass);
             mWorkSpec.setPeriodic(
                     repeatIntervalTimeUnit.toMillis(repeatInterval),
                     flexIntervalTimeUnit.toMillis(flexInterval));
-        }
-
-        @VisibleForTesting
-        @Override
-        public Builder withInitialState(@NonNull State state) {
-            mWorkSpec.state = state;
-            return this;
-        }
-
-        @VisibleForTesting
-        @Override
-        public Builder withInitialRunAttemptCount(int runAttemptCount) {
-            mWorkSpec.runAttemptCount = runAttemptCount;
-            return this;
-        }
-
-        @VisibleForTesting
-        @Override
-        public Builder withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
-            mWorkSpec.periodStartTime = timeUnit.toMillis(periodStartTime);
-            return this;
-        }
-
-        @Override
-        public Builder withBackoffCriteria(
-                @NonNull BackoffPolicy backoffPolicy,
-                long backoffDelay,
-                @NonNull TimeUnit timeUnit) {
-            mBackoffCriteriaSet = true;
-            mWorkSpec.backoffPolicy = backoffPolicy;
-            mWorkSpec.setBackoffDelayDuration(timeUnit.toMillis(backoffDelay));
-            return this;
-        }
-
-        @Override
-        public Builder withConstraints(@NonNull Constraints constraints) {
-            mWorkSpec.constraints = constraints;
-            return this;
-        }
-
-        @Override
-        public Builder withArguments(@NonNull Arguments arguments) {
-            mWorkSpec.arguments = arguments;
-            return this;
-        }
-
-        @Override
-        public Builder addTag(@NonNull String tag) {
-            mTags.add(tag);
-            return this;
-        }
-
-        @Override
-        public Builder keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
-            mWorkSpec.minimumRetentionDuration = timeUnit.toMillis(duration);
-            return this;
         }
 
         @Override
@@ -176,6 +110,11 @@ public class PeriodicWork extends BaseWork {
                         "Cannot set backoff criteria on an idle mode job");
             }
             return new PeriodicWork(this);
+        }
+
+        @Override
+        protected PeriodicWork.Builder getThis() {
+            return this;
         }
     }
 }
