@@ -22,6 +22,7 @@ import android.arch.persistence.room.Query
 import android.arch.persistence.room.RawQuery
 import android.arch.persistence.room.Update
 import android.arch.persistence.room.ext.RoomTypeNames
+import android.arch.persistence.room.ext.SupportDbTypeNames
 import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.vo.CustomTypeConverter
 import android.arch.persistence.room.vo.Field
@@ -513,4 +514,7 @@ object ProcessorErrors {
             $typeName does not have these properties, did you mean another class?
             """.trim()
     }
+
+    val RAW_QUERY_STRING_PARAMETER_REMOVED = "RawQuery does not allow passing a string anymore." +
+            " Please use ${SupportDbTypeNames.QUERY}."
 }
