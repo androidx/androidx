@@ -23,19 +23,15 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a method in a {@link Dao} annotated class as a raw query method where you can pass the
- * query as a {@link String} or a
- * {@link android.arch.persistence.db.SupportSQLiteQuery SupportSQLiteQuery}.
+ * query as a {@link android.arch.persistence.db.SupportSQLiteQuery SupportSQLiteQuery}.
  * <pre>
  * {@literal @}Dao
  * interface RawDao {
  *     {@literal @}RawQuery
- *     User getUser(String query);
- *     {@literal @}RawQuery
  *     User getUserViaQuery(SupportSQLiteQuery query);
  * }
- * User user = rawDao.getUser("SELECT * FROM User WHERE id = 3 LIMIT 1");
  * SimpleSQLiteQuery query = new SimpleSQLiteQuery("SELECT * FROM User WHERE id = ? LIMIT 1",
- *         new Object[]{3});
+ *         new Object[]{userId});
  * User user2 = rawDao.getUserViaQuery(query);
  * </pre>
  * <p>
@@ -54,6 +50,10 @@ import java.lang.annotation.Target;
  * does not return any value, use {@link android.arch.persistence.room.RoomDatabase#query
  * RoomDatabase#query} methods.
  * <p>
+ * RawQuery methods can only be used for read queries. For write queries, use
+ * {@link android.arch.persistence.room.RoomDatabase#getOpenHelper
+ * RoomDatabase.getOpenHelper().getWritableDatabase()}.
+ * <p>
  * <b>Observable Queries:</b>
  * <p>
  * {@code RawQuery} methods can return observable types but you need to specify which tables are
@@ -62,9 +62,10 @@ import java.lang.annotation.Target;
  * {@literal @}Dao
  * interface RawDao {
  *     {@literal @}RawQuery(observedEntities = User.class)
- *     LiveData&lt;List&lt;User>> getUsers(String query);
+ *     LiveData&lt;List&lt;User>> getUsers(SupportSQLiteQuery query);
  * }
- * LiveData&lt;List&lt;User>> liveUsers = rawDao.getUsers("SELECT * FROM User ORDER BY name DESC");
+ * LiveData&lt;List&lt;User>> liveUsers = rawDao.getUsers(
+ *     new SimpleSQLiteQuery("SELECT * FROM User ORDER BY name DESC"));
  * </pre>
  * <b>Returning Pojos:</b>
  * <p>
@@ -83,12 +84,14 @@ import java.lang.annotation.Target;
  * {@literal @}Dao
  * interface RawDao {
  *     {@literal @}RawQuery
- *     NameAndLastName getNameAndLastName(String query);
+ *     NameAndLastName getNameAndLastName(SupportSQLiteQuery query);
  * }
- * NameAndLastName result = rawDao.getNameAndLastName("SELECT * FROM User WHERE id = 3")
+ * NameAndLastName result = rawDao.getNameAndLastName(
+ *      new SimpleSQLiteQuery("SELECT * FROM User WHERE id = ?", new Object[]{userId}))
  * // or
- * NameAndLastName result = rawDao.getNameAndLastName("SELECT name, lastName FROM User WHERE id =
- * 3")
+ * NameAndLastName result = rawDao.getNameAndLastName(
+ *      new SimpleSQLiteQuery("SELECT name, lastName FROM User WHERE id = ?",
+ *          new Object[]{userId})))
  * </pre>
  * <p>
  * <b>Pojos with Embedded Fields:</b>
@@ -105,10 +108,10 @@ import java.lang.annotation.Target;
  * {@literal @}Dao
  * interface RawDao {
  *     {@literal @}RawQuery
- *     UserAndPet getUserAndPet(String query);
+ *     UserAndPet getUserAndPet(SupportSQLiteQuery query);
  * }
  * UserAndPet received = rawDao.getUserAndPet(
- *         "SELECT * FROM User, Pet WHERE User.id = Pet.userId LIMIT 1")
+ *         new SimpleSQLiteQuery("SELECT * FROM User, Pet WHERE User.id = Pet.userId LIMIT 1"))
  * </pre>
  *
  * <b>Relations:</b>
@@ -125,9 +128,10 @@ import java.lang.annotation.Target;
  * {@literal @}Dao
  * interface RawDao {
  *     {@literal @}RawQuery
- *     List&lt;UserAndAllPets> getUsersAndAllPets(String query);
+ *     List&lt;UserAndAllPets> getUsersAndAllPets(SupportSQLiteQuery query);
  * }
- * List&lt;UserAndAllPets> result = rawDao.getUsersAndAllPets("SELECT * FROM users");
+ * List&lt;UserAndAllPets> result = rawDao.getUsersAndAllPets(
+ *      new SimpleSQLiteQuery("SELECT * FROM users"));
  * </pre>
  */
 @Target(ElementType.METHOD)
