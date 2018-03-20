@@ -22,10 +22,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
-
-import androidx.media.session.MediaControllerCompat;
 
 /**
  * A helper class for implementing a glue layer for {@link MediaControllerCompat}.
