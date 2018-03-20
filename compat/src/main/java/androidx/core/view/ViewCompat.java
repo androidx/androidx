@@ -1167,7 +1167,7 @@ public class ViewCompat {
         if (Build.VERSION.SDK_INT >= 16) {
             return view.getImportantForAccessibility();
         }
-        return 0;
+        return IMPORTANT_FOR_ACCESSIBILITY_AUTO;
     }
 
     /**
