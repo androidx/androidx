@@ -22,6 +22,7 @@ import static androidx.work.PeriodicWork.MIN_PERIODIC_FLEX_MILLIS;
 import static androidx.work.PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
 import static androidx.work.State.ENQUEUED;
 
+import android.arch.core.util.Function;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
@@ -38,6 +39,7 @@ import androidx.work.State;
 import androidx.work.WorkStatus;
 import androidx.work.impl.logger.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -357,4 +359,19 @@ public class WorkSpec {
             return result;
         }
     }
+
+    public static final Function<List<WorkStatusPojo>, List<WorkStatus>> WORK_STATUS_MAPPER =
+            new Function<List<WorkStatusPojo>, List<WorkStatus>>() {
+                @Override
+                public List<WorkStatus> apply(List<WorkStatusPojo> input) {
+                    if (input == null) {
+                        return null;
+                    }
+                    List<WorkStatus> output = new ArrayList<>(input.size());
+                    for (WorkStatusPojo in : input) {
+                        output.add(in.toWorkStatus());
+                    }
+                    return output;
+                }
+            };
 }
