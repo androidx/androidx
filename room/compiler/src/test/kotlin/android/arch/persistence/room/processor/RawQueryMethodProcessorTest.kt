@@ -23,11 +23,11 @@ import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.RawQuery
-import android.arch.persistence.room.ext.CommonTypeNames
 import android.arch.persistence.room.ext.PagingTypeNames
 import android.arch.persistence.room.ext.SupportDbTypeNames
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.typeName
+import android.arch.persistence.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
 import android.arch.persistence.room.vo.RawQueryMethod
@@ -70,17 +70,8 @@ class RawQueryMethodProcessorTest {
                 """
                 @RawQuery
                 abstract public int[] foo(String query);
-                """) { query, _ ->
-            assertThat(query.name, `is`("foo"))
-            assertThat(query.runtimeQueryParam, `is`(
-                    RawQueryMethod.RuntimeQueryParameter(
-                            paramName = "query",
-                            type = CommonTypeNames.STRING
-                    )
-            ))
-            assertThat(query.returnType.typeName(),
-                    `is`(ArrayTypeName.of(TypeName.INT) as TypeName))
-        }.compilesWithoutError()
+                """) { _, _ ->
+        }.failsToCompile().withErrorContaining(RAW_QUERY_STRING_PARAMETER_REMOVED)
     }
 
     @Test
@@ -211,7 +202,8 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
                 """
                 @RawQuery
-                abstract public int[] foo(String query, String query2);
+                abstract public int[] foo(SupportSQLiteQuery query,
+                                          SupportSQLiteQuery query2);
                 """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RAW_QUERY_BAD_PARAMS
@@ -223,7 +215,7 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
                 """
                 @RawQuery
-                abstract public int[] foo(String... query);
+                abstract public int[] foo(SupportSQLiteQuery... query);
                 """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.RAW_QUERY_BAD_PARAMS
@@ -235,7 +227,7 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
                 """
                 @RawQuery(observedEntities = {${COMMON.NOT_AN_ENTITY_TYPE_NAME}.class})
-                abstract public int[] foo(String query);
+                abstract public int[] foo(SupportSQLiteQuery query);
                 """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.rawQueryBadEntity(COMMON.NOT_AN_ENTITY_TYPE_NAME)
@@ -255,7 +247,7 @@ class RawQueryMethodProcessorTest {
                     public java.util.List<User> users;
                 }
                 @RawQuery(observedEntities = MyPojo.class)
-                abstract public int[] foo(String query);
+                abstract public int[] foo(SupportSQLiteQuery query);
                 """) { method, _ ->
             assertThat(method.observedTableNames, `is`(setOf("User")))
         }.compilesWithoutError()
@@ -271,7 +263,7 @@ class RawQueryMethodProcessorTest {
                     public User users;
                 }
                 @RawQuery(observedEntities = MyPojo.class)
-                abstract public int[] foo(String query);
+                abstract public int[] foo(SupportSQLiteQuery query);
                 """) { method, _ ->
             assertThat(method.observedTableNames, `is`(setOf("User")))
         }.compilesWithoutError()
