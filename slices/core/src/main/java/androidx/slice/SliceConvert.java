@@ -26,9 +26,10 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArraySet;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Convert between {@link androidx.slice.Slice} and {@link android.app.slice.Slice}
@@ -78,9 +79,9 @@ public class SliceConvert {
         return new android.app.slice.SliceSpec(spec.getType(), spec.getRevision());
     }
 
-    static List<android.app.slice.SliceSpec> unwrap(
-            List<androidx.slice.SliceSpec> supportedSpecs) {
-        List<android.app.slice.SliceSpec> ret = new ArrayList<>();
+    static Set<android.app.slice.SliceSpec> unwrap(
+            Set<androidx.slice.SliceSpec> supportedSpecs) {
+        Set<android.app.slice.SliceSpec> ret = new ArraySet<>();
         for (androidx.slice.SliceSpec spec : supportedSpecs) {
             ret.add(unwrap(spec));
         }
@@ -133,9 +134,9 @@ public class SliceConvert {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static List<androidx.slice.SliceSpec> wrap(
+    public static Set<androidx.slice.SliceSpec> wrap(
             List<android.app.slice.SliceSpec> supportedSpecs) {
-        List<androidx.slice.SliceSpec> ret = new ArrayList<>();
+        Set<androidx.slice.SliceSpec> ret = new ArraySet<>();
         for (android.app.slice.SliceSpec spec : supportedSpecs) {
             ret.add(wrap(spec));
         }

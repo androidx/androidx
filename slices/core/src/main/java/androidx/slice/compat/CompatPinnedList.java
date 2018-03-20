@@ -20,18 +20,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.SystemClock;
+import android.text.TextUtils;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
 import androidx.core.util.ObjectsCompat;
-import android.text.TextUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import androidx.slice.SliceSpec;
+
+import java.util.Set;
 
 /**
  * Tracks the current packages requesting pinning of any given slice. It will clear the
@@ -80,18 +77,18 @@ public class CompatPinnedList {
     /**
      * Get the list of specs for a pinned Uri.
      */
-    public synchronized List<SliceSpec> getSpecs(Uri uri) {
-        List<SliceSpec> specs = new ArrayList<>();
+    public synchronized ArraySet<SliceSpec> getSpecs(Uri uri) {
+        ArraySet<SliceSpec> specs = new ArraySet<>();
         SharedPreferences prefs = getPrefs();
         String specNamesStr = prefs.getString(SPEC_NAME_PREFIX + uri.toString(), null);
         String specRevsStr = prefs.getString(SPEC_REV_PREFIX + uri.toString(), null);
         if (TextUtils.isEmpty(specNamesStr) || TextUtils.isEmpty(specRevsStr)) {
-            return Collections.emptyList();
+            return new ArraySet<>();
         }
         String[] specNames = specNamesStr.split(",");
         String[] specRevs = specRevsStr.split(",");
         if (specNames.length != specRevs.length) {
-            return Collections.emptyList();
+            return new ArraySet<>();
         }
         for (int i = 0; i < specNames.length; i++) {
             specs.add(new SliceSpec(specNames[i], Integer.parseInt(specRevs[i])));
@@ -105,12 +102,12 @@ public class CompatPinnedList {
                 .commit();
     }
 
-    private void setSpecs(Uri uri, List<SliceSpec> specs) {
+    private void setSpecs(Uri uri, ArraySet<SliceSpec> specs) {
         String[] specNames = new String[specs.size()];
         String[] specRevs = new String[specs.size()];
         for (int i = 0; i < specs.size(); i++) {
-            specNames[i] = specs.get(i).getType();
-            specRevs[i] = String.valueOf(specs.get(i).getRevision());
+            specNames[i] = specs.valueAt(i).getType();
+            specRevs[i] = String.valueOf(specs.valueAt(i).getRevision());
         }
         getPrefs().edit()
                 .putString(SPEC_NAME_PREFIX + uri.toString(), TextUtils.join(",", specNames))
@@ -127,13 +124,13 @@ public class CompatPinnedList {
      * Adds a pin for a specific uri/pkg pair and returns true if the
      * uri was not previously pinned.
      */
-    public synchronized boolean addPin(Uri uri, String pkg, List<SliceSpec> specs) {
+    public synchronized boolean addPin(Uri uri, String pkg, Set<SliceSpec> specs) {
         Set<String> pins = getPins(uri);
         boolean wasNotPinned = pins.isEmpty();
         pins.add(pkg);
         setPins(uri, pins);
         if (wasNotPinned) {
-            setSpecs(uri, specs);
+            setSpecs(uri, new ArraySet<>(specs));
         } else {
             setSpecs(uri, mergeSpecs(getSpecs(uri), specs));
         }
@@ -154,21 +151,22 @@ public class CompatPinnedList {
         return pins.size() == 0;
     }
 
-    private static List<SliceSpec> mergeSpecs(List<SliceSpec> specs,
-            List<SliceSpec> supportedSpecs) {
+    private static ArraySet<SliceSpec> mergeSpecs(ArraySet<SliceSpec> specs,
+            Set<SliceSpec> supportedSpecs) {
         for (int i = 0; i < specs.size(); i++) {
-            SliceSpec s = specs.get(i);
+            SliceSpec s = specs.valueAt(i);
             SliceSpec other = findSpec(supportedSpecs, s.getType());
             if (other == null) {
-                specs.remove(i--);
+                specs.removeAt(i--);
             } else if (other.getRevision() < s.getRevision()) {
-                specs.set(i, other);
+                specs.removeAt(i--);
+                specs.add(other);
             }
         }
         return specs;
     }
 
-    private static SliceSpec findSpec(List<SliceSpec> specs, String type) {
+    private static SliceSpec findSpec(Set<SliceSpec> specs, String type) {
         for (SliceSpec spec : specs) {
             if (ObjectsCompat.equals(spec.getType(), type)) {
                 return spec;
