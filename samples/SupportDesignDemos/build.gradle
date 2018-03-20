@@ -4,7 +4,6 @@ buildscript {
 
 plugins {
     id("SupportAndroidTestAppPlugin")
-    id("androidx.tools.jetifier")
     id("kotlin-android")
 }
 
