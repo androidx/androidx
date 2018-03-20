@@ -53,7 +53,7 @@ public class RawQueryTest extends TestDatabaseTest {
 
     @Test
     public void entity_null() {
-        User user = mRawDao.getUser("SELECT * FROM User WHERE mId = 0");
+        User user = mRawDao.getUser(new SimpleSQLiteQuery("SELECT * FROM User WHERE mId = 0"));
         assertThat(user, is(nullValue()));
     }
 
@@ -61,7 +61,8 @@ public class RawQueryTest extends TestDatabaseTest {
     public void entity_one() {
         User expected = TestUtil.createUser(3);
         mUserDao.insert(expected);
-        User received = mRawDao.getUser("SELECT * FROM User WHERE mId = 3");
+        User received = mRawDao.getUser(new SimpleSQLiteQuery("SELECT * FROM User WHERE mId = ?",
+                new Object[]{3}));
         assertThat(received, is(expected));
     }
 
@@ -69,7 +70,8 @@ public class RawQueryTest extends TestDatabaseTest {
     public void entity_list() {
         List<User> expected = TestUtil.createUsersList(1, 2, 3, 4);
         mUserDao.insertAll(expected.toArray(new User[4]));
-        List<User> received = mRawDao.getUserList("SELECT * FROM User ORDER BY mId ASC");
+        List<User> received = mRawDao.getUserList(
+                new SimpleSQLiteQuery("SELECT * FROM User ORDER BY mId ASC"));
         assertThat(received, is(expected));
     }
 
@@ -84,7 +86,8 @@ public class RawQueryTest extends TestDatabaseTest {
 
     @Test
     public void entity_liveData_supportQuery() throws TimeoutException, InterruptedException {
-        liveDataTest(mRawDao.getUserLiveData("SELECT * FROM User WHERE mId = 3"));
+        liveDataTest(mRawDao.getUserLiveData(
+                new SimpleSQLiteQuery("SELECT * FROM User WHERE mId = ?", new Object[]{3})));
     }
 
     private void liveDataTest(
@@ -119,8 +122,8 @@ public class RawQueryTest extends TestDatabaseTest {
         Pet[] pets = TestUtil.createPetsForUser(3, 1, 1);
         mUserDao.insert(user);
         mPetDao.insertAll(pets);
-        UserAndPet received = mRawDao.getUserAndPet(
-                "SELECT * FROM User, Pet WHERE User.mId = Pet.mUserId LIMIT 1");
+        UserAndPet received = mRawDao.getUserAndPet(new SimpleSQLiteQuery(
+                "SELECT * FROM User, Pet WHERE User.mId = Pet.mUserId LIMIT 1"));
         assertThat(received.getUser(), is(user));
         assertThat(received.getPet(), is(pets[0]));
     }
@@ -132,7 +135,8 @@ public class RawQueryTest extends TestDatabaseTest {
         Pet[] pets = TestUtil.createPetsForUser(3, 1, 10);
         mPetDao.insertAll(pets);
         UserAndAllPets result = mRawDao
-                .getUserAndAllPets("SELECT * FROM User WHERE mId = 3");
+                .getUserAndAllPets(new SimpleSQLiteQuery("SELECT * FROM User WHERE mId = ?",
+                        new Object[]{3}));
         assertThat(result.user, is(user));
         assertThat(result.pets, is(Arrays.asList(pets)));
     }
@@ -142,7 +146,7 @@ public class RawQueryTest extends TestDatabaseTest {
         User user = TestUtil.createUser(3);
         mUserDao.insert(user);
         NameAndLastName result =
-                mRawDao.getUserNameAndLastName("SELECT * FROM User");
+                mRawDao.getUserNameAndLastName(new SimpleSQLiteQuery("SELECT * FROM User"));
         assertThat(result, is(new NameAndLastName(user.getName(), user.getLastName())));
     }
 
@@ -151,7 +155,7 @@ public class RawQueryTest extends TestDatabaseTest {
         User user = TestUtil.createUser(3);
         mUserDao.insert(user);
         NameAndLastName result =
-                mRawDao.getUserNameAndLastName(new SimpleSQLiteQuery(
+                mRawDao.getUserNameAndLastNameWithObserved(new SimpleSQLiteQuery(
                         "SELECT * FROM User WHERE mId = ?",
                         new Object[]{3}
                 ));
@@ -163,7 +167,7 @@ public class RawQueryTest extends TestDatabaseTest {
         User user = TestUtil.createUser(3);
         mUserDao.insert(user);
         RawDao.UserNameAndBirthday result = mRawDao.getUserAndBirthday(
-                "SELECT mName, mBirthday FROM user LIMIT 1");
+                new SimpleSQLiteQuery("SELECT mName, mBirthday FROM user LIMIT 1"));
         assertThat(result.name, is(user.getName()));
         assertThat(result.birthday, is(user.getBirthday()));
     }
@@ -174,7 +178,8 @@ public class RawQueryTest extends TestDatabaseTest {
         Pet[] pets = TestUtil.createPetsForUser(3, 1, 1);
         mUserDao.insert(user);
         mPetDao.insertAll(pets);
-        UserAndPet received = mRawDao.getUserAndPet("SELECT * FROM User LIMIT 1");
+        UserAndPet received = mRawDao.getUserAndPet(
+                new SimpleSQLiteQuery("SELECT * FROM User LIMIT 1"));
         assertThat(received.getUser(), is(user));
         assertThat(received.getPet(), is(nullValue()));
     }
@@ -186,8 +191,9 @@ public class RawQueryTest extends TestDatabaseTest {
         mUserDao.insertAll(users);
         mPetDao.insertAll(pets);
         List<UserAndPet> received = mRawDao.getUserAndPetList(
-                "SELECT * FROM User LEFT JOIN Pet ON (User.mId = Pet.mUserId)"
-                        + " ORDER BY mId ASC, mPetId ASC");
+                new SimpleSQLiteQuery(
+                        "SELECT * FROM User LEFT JOIN Pet ON (User.mId = Pet.mUserId)"
+                        + " ORDER BY mId ASC, mPetId ASC"));
         assertThat(received.size(), is(3));
         // row 0
         assertThat(received.get(0).getUser(), is(users[0]));
@@ -203,15 +209,15 @@ public class RawQueryTest extends TestDatabaseTest {
     @Test
     public void count() {
         mUserDao.insertAll(TestUtil.createUsersArray(3, 5, 7, 10));
-        int count = mRawDao.count("SELECT COUNT(*) FROM User");
+        int count = mRawDao.count(new SimpleSQLiteQuery("SELECT COUNT(*) FROM User"));
         assertThat(count, is(4));
     }
 
     @Test
     public void embedded_liveData() throws TimeoutException, InterruptedException {
         LiveData<List<UserAndPet>> liveData = mRawDao.getUserAndPetListObservable(
-                "SELECT * FROM User LEFT JOIN Pet ON (User.mId = Pet.mUserId)"
-                        + " ORDER BY mId ASC, mPetId ASC");
+                new SimpleSQLiteQuery("SELECT * FROM User LEFT JOIN Pet ON (User.mId = Pet.mUserId)"
+                        + " ORDER BY mId ASC, mPetId ASC"));
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 () -> liveData.observeForever(user -> {
                 })
@@ -251,10 +257,13 @@ public class RawQueryTest extends TestDatabaseTest {
         assertThat(liveData.getValue(), is(emptyList()));
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void relation_liveData() throws TimeoutException, InterruptedException {
         LiveData<UserAndAllPets> liveData = mRawDao
-                .getUserAndAllPetsObservable("SELECT * FROM User WHERE mId = 3");
+                .getUserAndAllPetsObservable(
+                        new SimpleSQLiteQuery("SELECT * FROM User WHERE mId = ?",
+                                new Object[]{3}));
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 () -> liveData.observeForever(user -> {
                 })
