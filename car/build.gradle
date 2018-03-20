@@ -4,7 +4,6 @@ import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
-    id("androidx.tools.jetifier")
 }
 
 dependencies {
