@@ -18,6 +18,7 @@ package android.arch.paging
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -406,6 +407,48 @@ class TiledPagedListTest {
         verify(boundaryCallback).onItemAtFrontLoaded(ITEMS.first())
         verify(boundaryCallback).onItemAtEndLoaded(ITEMS.last())
         verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    private fun validateCallbackForSize(initPageCount: Int, itemCount: Int) {
+        @Suppress("UNCHECKED_CAST")
+        val boundaryCallback =
+                mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<Item>
+        val listData = ITEMS.subList(0, itemCount)
+        val pagedList = createTiledPagedList(
+                loadPosition = 0,
+                initPageCount = initPageCount,
+                prefetchDistance = 0,
+                boundaryCallback = boundaryCallback,
+                listData = listData)
+        assertNotNull(pagedList[pagedList.size - 1 - PAGE_SIZE])
+        assertNull(pagedList.last()) // not completed loading
+
+        // no access near list beginning, so no callbacks yet
+        verifyNoMoreInteractions(boundaryCallback)
+        drain()
+        verifyNoMoreInteractions(boundaryCallback)
+
+        // trigger front boundary callback (via access)
+        pagedList.loadAround(0)
+        drain()
+        verify(boundaryCallback).onItemAtFrontLoaded(listData.first())
+        verifyNoMoreInteractions(boundaryCallback)
+
+        // trigger end boundary callback (via load)
+        pagedList.loadAround(pagedList.size - 1)
+        drain()
+        verify(boundaryCallback).onItemAtEndLoaded(listData.last())
+        verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    @Test
+    fun boundaryCallbackPageSize1() {
+        // verify different alignments of last page still trigger boundaryCallback correctly
+        validateCallbackForSize(2, 3 * PAGE_SIZE - 2)
+        validateCallbackForSize(2, 3 * PAGE_SIZE - 1)
+        validateCallbackForSize(2, 3 * PAGE_SIZE)
+        validateCallbackForSize(3, 3 * PAGE_SIZE + 1)
+        validateCallbackForSize(3, 3 * PAGE_SIZE + 2)
     }
 
     private fun drain() {
