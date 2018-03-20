@@ -16,40 +16,61 @@
 
 package androidx.work.impl.utils;
 
+import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
+
+import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
 /**
  * Utility methods for {@link LiveData}.
+ *
+ * @hide
  */
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LiveDataUtils {
 
     /**
-     * Creates a new {@link LiveData} object that mirrors the input, but only triggers its observers
-     * when the values actually change.
+     * Creates a new {@link LiveData} object that maps the values of {@code inputLiveData} using
+     * {@code mappingMethod} on a background thread, but only triggers its observers when the mapped
+     * values actually change.
      *
      * @param inputLiveData An input {@link LiveData}
-     * @param <T> The type of payload associated with the {@link LiveData}
-     * @return A new {@link LiveData} that triggers its observers only when the input LiveData's
-     *         value changes (as determined by an {@code equals} call)
+     * @param mappingMethod A {@link Function} that maps input of type {@code In} to output of type
+     *                      {@code Out}
+     * @param <In> The type of data for {@code inputLiveData}
+     * @param <Out> The type of data to output
+     * @return A new {@link LiveData} of type {@code Out}
      */
-    public static <T> LiveData<T> dedupedLiveDataFor(LiveData<T> inputLiveData) {
-        final MediatorLiveData<T> dedupedLiveData = new MediatorLiveData<>();
-        dedupedLiveData.addSource(inputLiveData, new Observer<T>() {
+    public static <In, Out> LiveData<Out> dedupedMappedLiveDataFor(
+            @NonNull LiveData<In> inputLiveData,
+            @NonNull final Function<In, Out> mappingMethod) {
+        final MediatorLiveData<Out> outputLiveData = new MediatorLiveData<>();
+        outputLiveData.addSource(inputLiveData, new Observer<In>() {
             @Override
-            public void onChanged(@Nullable T updatedValue) {
-                T dedupedValue = dedupedLiveData.getValue();
-                boolean valueNotSet = (dedupedValue == null && updatedValue != null);
-                boolean valueChanged = (dedupedValue != null && !dedupedValue.equals(updatedValue));
-                if (valueNotSet || valueChanged) {
-                    dedupedLiveData.setValue(updatedValue);
-                }
+            public void onChanged(@Nullable final In input) {
+                WorkManagerTaskExecutor.getInstance().executeOnBackgroundThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized (outputLiveData) {
+                            Out newOutput = mappingMethod.apply(input);
+                            Out previousOutput = outputLiveData.getValue();
+                            if (previousOutput == null && newOutput != null) {
+                                outputLiveData.postValue(newOutput);
+                            } else if (
+                                    previousOutput != null && !previousOutput.equals(newOutput)) {
+                                outputLiveData.postValue(newOutput);
+                            }
+                        }
+                    }
+                });
             }
         });
-        return dedupedLiveData;
+        return outputLiveData;
     }
 
     private LiveDataUtils() {

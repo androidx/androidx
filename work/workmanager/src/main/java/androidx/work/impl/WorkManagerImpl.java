@@ -16,9 +16,8 @@
 
 package androidx.work.impl;
 
+import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -196,22 +195,19 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     @Override
     public LiveData<WorkStatus> getStatusById(@NonNull String id) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
-        final MediatorLiveData<WorkStatus> mediatorLiveData = new MediatorLiveData<>();
-        mediatorLiveData.addSource(
-                LiveDataUtils.dedupedLiveDataFor(
-                        dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id))),
-                new Observer<List<WorkSpec.WorkStatusPojo>>() {
+        LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
+                dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id));
+        return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData,
+                new Function<List<WorkSpec.WorkStatusPojo>, WorkStatus>() {
                     @Override
-                    public void onChanged(
-                            @Nullable List<WorkSpec.WorkStatusPojo> workStatusPojos) {
+                    public WorkStatus apply(List<WorkSpec.WorkStatusPojo> input) {
                         WorkStatus workStatus = null;
-                        if (workStatusPojos != null && workStatusPojos.size() > 0) {
-                            workStatus = workStatusPojos.get(0).toWorkStatus();
+                        if (input != null && input.size() > 0) {
+                            workStatus = input.get(0).toWorkStatus();
                         }
-                        mediatorLiveData.setValue(workStatus);
+                        return workStatus;
                     }
                 });
-        return mediatorLiveData;
     }
 
     @Override
@@ -230,79 +226,33 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     @Override
     public LiveData<List<WorkStatus>> getStatusesByTag(@NonNull String tag) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        final MediatorLiveData<List<WorkStatus>> mediatorLiveData = new MediatorLiveData<>();
-        mediatorLiveData.addSource(
-                LiveDataUtils.dedupedLiveDataFor(
-                        workSpecDao.getWorkStatusPojoLiveDataForTag(tag)),
-                new Observer<List<WorkSpec.WorkStatusPojo>>() {
-                    @Override
-                    public void onChanged(
-                            @Nullable List<WorkSpec.WorkStatusPojo> workStatusPojos) {
-                        List<WorkStatus> workStatuses = null;
-                        if (workStatusPojos != null) {
-                            workStatuses = new ArrayList<>(workStatusPojos.size());
-                            for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
-                                workStatuses.add(workStatusPojo.toWorkStatus());
-                            }
-                        }
-                        mediatorLiveData.setValue(workStatuses);
-                    }
-                });
-        return mediatorLiveData;
+        LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
+                workSpecDao.getWorkStatusPojoLiveDataForTag(tag);
+        return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData, WorkSpec.WORK_STATUS_MAPPER);
     }
 
     @Override
     public List<WorkStatus> getStatusesByTagBlocking(@NonNull String tag) {
         assertBackgroundThread("Cannot call getStatusesByTagBlocking on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        List<WorkStatus> workStatuses = null;
-        List<WorkSpec.WorkStatusPojo> workStatusPojos = workSpecDao.getWorkStatusPojoForTag(tag);
-        if (workStatusPojos != null) {
-            workStatuses = new ArrayList<>(workStatusPojos.size());
-            for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
-                workStatuses.add(workStatusPojo.toWorkStatus());
-            }
-        }
-        return workStatuses;
+        List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForTag(tag);
+        return WorkSpec.WORK_STATUS_MAPPER.apply(input);
     }
 
     @Override
     public LiveData<List<WorkStatus>> getStatusesByName(@NonNull String name) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        final MediatorLiveData<List<WorkStatus>> mediatorLiveData = new MediatorLiveData<>();
-        mediatorLiveData.addSource(
-                LiveDataUtils.dedupedLiveDataFor(
-                        workSpecDao.getWorkStatusPojoLiveDataForName(name)),
-                new Observer<List<WorkSpec.WorkStatusPojo>>() {
-                    @Override
-                    public void onChanged(@Nullable List<WorkSpec.WorkStatusPojo> workStatusPojos) {
-                        List<WorkStatus> workStatuses = null;
-                        if (workStatusPojos != null) {
-                            workStatuses = new ArrayList<>(workStatusPojos.size());
-                            for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
-                                workStatuses.add(workStatusPojo.toWorkStatus());
-                            }
-                        }
-                        mediatorLiveData.setValue(workStatuses);
-                    }
-                }
-        );
-        return mediatorLiveData;
+        LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
+                workSpecDao.getWorkStatusPojoLiveDataForName(name);
+        return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData, WorkSpec.WORK_STATUS_MAPPER);
     }
 
     @Override
     public List<WorkStatus> getStatusesByNameBlocking(@NonNull String name) {
         assertBackgroundThread("Cannot call getStatusesByNameBlocking on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        List<WorkStatus> workStatuses = null;
-        List<WorkSpec.WorkStatusPojo> workStatusPojos = workSpecDao.getWorkStatusPojoForName(name);
-        if (workStatusPojos != null) {
-            workStatuses = new ArrayList<>(workStatusPojos.size());
-            for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
-                workStatuses.add(workStatusPojo.toWorkStatus());
-            }
-        }
-        return workStatuses;
+        List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForName(name);
+        return WorkSpec.WORK_STATUS_MAPPER.apply(input);
     }
 
     @Override
@@ -312,25 +262,9 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
 
     LiveData<List<WorkStatus>> getStatusesById(@NonNull List<String> workSpecIds) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
-        final MediatorLiveData<List<WorkStatus>> mediatorLiveData = new MediatorLiveData<>();
-        mediatorLiveData.addSource(
-                LiveDataUtils.dedupedLiveDataFor(
-                        dao.getWorkStatusPojoLiveDataForIds(workSpecIds)),
-                new Observer<List<WorkSpec.WorkStatusPojo>>() {
-                    @Override
-                    public void onChanged(
-                            @Nullable List<WorkSpec.WorkStatusPojo> workStatusPojos) {
-                        List<WorkStatus> workStatuses = null;
-                        if (workStatusPojos != null) {
-                            workStatuses = new ArrayList<>(workStatusPojos.size());
-                            for (WorkSpec.WorkStatusPojo workStatusPojo : workStatusPojos) {
-                                workStatuses.add(workStatusPojo.toWorkStatus());
-                            }
-                        }
-                        mediatorLiveData.setValue(workStatuses);
-                    }
-                });
-        return mediatorLiveData;
+        LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
+                dao.getWorkStatusPojoLiveDataForIds(workSpecIds);
+        return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData, WorkSpec.WORK_STATUS_MAPPER);
     }
 
     /**
