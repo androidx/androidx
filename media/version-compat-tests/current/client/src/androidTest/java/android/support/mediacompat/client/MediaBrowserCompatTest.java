@@ -71,14 +71,14 @@ import android.support.mediacompat.testlib.util.PollingCheck;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.media.MediaBrowserCompat;
-import androidx.media.MediaBrowserCompat.MediaItem;
 import androidx.media.MediaBrowserServiceCompat;
 
 import org.junit.After;

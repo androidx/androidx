@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media;
+package android.support.v4.media;
 
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;

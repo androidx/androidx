@@ -27,7 +27,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.media.MediaBrowserCompat;
 
 /**
  * A simple set of metadata for a media item suitable for display. This can be

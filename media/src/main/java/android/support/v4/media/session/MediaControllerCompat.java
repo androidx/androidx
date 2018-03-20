@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.session;
+package android.support.v4.media.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
@@ -31,15 +31,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
-import android.support.v4.media.session.IMediaControllerCallback;
-import android.support.v4.media.session.IMediaSession;
-import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
-import android.support.v4.media.session.ParcelableVolumeInfo;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.media.session.PlaybackStateCompat.CustomAction;
 import android.text.TextUtils;
 import android.util.Log;
@@ -50,7 +46,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
 import androidx.core.app.SupportActivity;
-import androidx.media.MediaBrowserCompat;
 import androidx.media.VolumeProviderCompat;
 
 import java.lang.ref.WeakReference;
