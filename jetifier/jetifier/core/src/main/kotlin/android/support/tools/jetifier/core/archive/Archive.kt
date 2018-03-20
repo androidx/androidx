@@ -111,18 +111,25 @@ class Archive(
 
     object Builder {
 
+        /**
+         * @param recursive Whether nested archives should be also extracted.
+         */
         @Throws(IOException::class)
-        fun extract(archiveFile: File): Archive {
+        fun extract(archiveFile: File, recursive: Boolean = true): Archive {
             Log.i(TAG, "Extracting: %s", archiveFile.absolutePath)
 
             val inputStream = FileInputStream(archiveFile)
             inputStream.use {
-                return extractArchive(it, archiveFile.toPath())
+                return extractArchive(it, archiveFile.toPath(), recursive)
             }
         }
 
         @Throws(IOException::class)
-        private fun extractArchive(inputStream: InputStream, relativePath: Path): Archive {
+        private fun extractArchive(
+                inputStream: InputStream,
+                relativePath: Path,
+                recursive: Boolean
+        ): Archive {
             val zipIn = ZipInputStream(inputStream)
             val files = mutableListOf<ArchiveItem>()
 
@@ -131,9 +138,9 @@ class Archive(
             while (entry != null) {
                 if (!entry.isDirectory) {
                     val entryPath = Paths.get(entry.name)
-                    if (isArchive(entry)) {
+                    if (isArchive(entry) && recursive) {
                         Log.i(TAG, "Extracting nested: %s", entryPath)
-                        files.add(extractArchive(zipIn, entryPath))
+                        files.add(extractArchive(zipIn, entryPath, recursive))
                     } else {
                         files.add(extractFile(zipIn, entryPath))
                     }
