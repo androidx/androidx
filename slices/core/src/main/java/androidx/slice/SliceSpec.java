@@ -17,6 +17,7 @@
 package androidx.slice;
 
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
@@ -83,5 +84,15 @@ public class SliceSpec {
         if (!(obj instanceof SliceSpec)) return false;
         SliceSpec other = (SliceSpec) obj;
         return mType.equals(other.mType) && mRevision == other.mRevision;
+    }
+
+    @Override
+    public int hashCode() {
+        return mType.hashCode() + Integer.hashCode(mRevision);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("SliceSpec{%s,%d}", mType, mRevision);
     }
 }

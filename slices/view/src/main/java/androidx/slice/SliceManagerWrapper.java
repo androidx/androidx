@@ -23,12 +23,15 @@ import android.app.slice.SliceSpec;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @hide
@@ -47,7 +50,7 @@ class SliceManagerWrapper extends SliceManagerBase {
     SliceManagerWrapper(Context context, android.app.slice.SliceManager manager) {
         super(context);
         mManager = manager;
-        mSpecs = unwrap(SUPPORTED_SPECS);
+        mSpecs = new ArrayList<>(unwrap(SUPPORTED_SPECS));
     }
 
     @Override
@@ -61,7 +64,7 @@ class SliceManagerWrapper extends SliceManagerBase {
     }
 
     @Override
-    public @NonNull List<androidx.slice.SliceSpec> getPinnedSpecs(@NonNull Uri uri) {
+    public @NonNull Set<androidx.slice.SliceSpec> getPinnedSpecs(@NonNull Uri uri) {
         return SliceConvert.wrap(mManager.getPinnedSpecs(uri));
     }
 

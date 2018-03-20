@@ -23,15 +23,15 @@ import android.content.IntentFilter;
 import android.content.pm.ProviderInfo;
 import android.database.ContentObserver;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.BuildCompat;
-
-import java.util.List;
-
 import androidx.slice.compat.ContentProviderWrapper;
 import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.compat.SliceProviderWrapperContainer;
+
+import java.util.Set;
 
 /**
  * A SliceProvider allows an app to provide content to be displayed in system spaces. This content
@@ -74,7 +74,7 @@ import androidx.slice.compat.SliceProviderWrapperContainer;
  */
 public abstract class SliceProvider extends ContentProviderWrapper {
 
-    private static List<SliceSpec> sSpecs;
+    private static Set<SliceSpec> sSpecs;
 
     @Override
     public void attachInfo(Context context, ProviderInfo info) {
@@ -169,7 +169,7 @@ public abstract class SliceProvider extends ContentProviderWrapper {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void setSpecs(List<SliceSpec> specs) {
+    public static void setSpecs(Set<SliceSpec> specs) {
         sSpecs = specs;
     }
 
@@ -177,7 +177,7 @@ public abstract class SliceProvider extends ContentProviderWrapper {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static List<SliceSpec> getCurrentSpecs() {
+    public static Set<SliceSpec> getCurrentSpecs() {
         return sSpecs;
     }
 }

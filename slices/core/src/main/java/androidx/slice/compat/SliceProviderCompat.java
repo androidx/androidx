@@ -40,21 +40,23 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
+import android.util.ArraySet;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.core.util.Preconditions;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.SliceSpec;
 import androidx.slice.core.R;
 import androidx.slice.core.SliceHints;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @hide
@@ -163,7 +165,7 @@ public class SliceProviderCompat extends ContentProvider {
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                         "Slice binding requires the permission BIND_SLICE");
             }
-            List<SliceSpec> specs = getSpecs(extras);
+            Set<SliceSpec> specs = getSpecs(extras);
 
             Slice s = handleBindSlice(uri, specs, getCallingPackage());
             Bundle b = new Bundle();
@@ -174,7 +176,7 @@ public class SliceProviderCompat extends ContentProvider {
             Uri uri = mSliceProvider.onMapIntentToUri(intent);
             Bundle b = new Bundle();
             if (uri != null) {
-                List<SliceSpec> specs = getSpecs(extras);
+                Set<SliceSpec> specs = getSpecs(extras);
                 Slice s = handleBindSlice(uri, specs, getCallingPackage());
                 b.putParcelable(EXTRA_SLICE, s.toBundle());
             } else {
@@ -189,7 +191,7 @@ public class SliceProviderCompat extends ContentProvider {
             return b;
         } else if (method.equals(METHOD_PIN)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
-            List<SliceSpec> specs = getSpecs(extras);
+            Set<SliceSpec> specs = getSpecs(extras);
             String pkg = extras.getString(EXTRA_PKG);
             if (mPinnedList.addPin(uri, pkg, specs)) {
                 handleSlicePinned(uri);
@@ -251,7 +253,7 @@ public class SliceProviderCompat extends ContentProvider {
         }
     }
 
-    private Slice handleBindSlice(final Uri sliceUri, final List<SliceSpec> specs,
+    private Slice handleBindSlice(final Uri sliceUri, final Set<SliceSpec> specs,
             final String callingPkg) {
         // This can be removed once Slice#bindSlice is removed and everyone is using
         // SliceManager#bindSlice.
@@ -335,7 +337,7 @@ public class SliceProviderCompat extends ContentProvider {
         }
     }
 
-    private Slice onBindSliceStrict(Uri sliceUri, List<SliceSpec> specs, String callingPackage) {
+    private Slice onBindSliceStrict(Uri sliceUri, Set<SliceSpec> specs, String callingPackage) {
         ThreadPolicy oldPolicy = StrictMode.getThreadPolicy();
         try {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
@@ -359,7 +361,7 @@ public class SliceProviderCompat extends ContentProvider {
      * Compat version of {@link Slice#bindSlice}.
      */
     public static Slice bindSlice(Context context, Uri uri,
-            List<SliceSpec> supportedSpecs) {
+            Set<SliceSpec> supportedSpecs) {
         ContentProviderClient provider = context.getContentResolver()
                 .acquireContentProviderClient(uri);
         if (provider == null) {
@@ -387,7 +389,7 @@ public class SliceProviderCompat extends ContentProvider {
         }
     }
 
-    private static void addSpecs(Bundle extras, List<SliceSpec> supportedSpecs) {
+    private static void addSpecs(Bundle extras, Set<SliceSpec> supportedSpecs) {
         ArrayList<String> types = new ArrayList<>();
         ArrayList<Integer> revs = new ArrayList<>();
         for (SliceSpec spec : supportedSpecs) {
@@ -398,8 +400,8 @@ public class SliceProviderCompat extends ContentProvider {
         extras.putIntegerArrayList(EXTRA_SUPPORTED_SPECS_REVS, revs);
     }
 
-    private static List<SliceSpec> getSpecs(Bundle extras) {
-        ArrayList<SliceSpec> specs = new ArrayList<>();
+    private static Set<SliceSpec> getSpecs(Bundle extras) {
+        ArraySet<SliceSpec> specs = new ArraySet<>();
         ArrayList<String> types = extras.getStringArrayList(EXTRA_SUPPORTED_SPECS);
         ArrayList<Integer> revs = extras.getIntegerArrayList(EXTRA_SUPPORTED_SPECS_REVS);
         for (int i = 0; i < types.size(); i++) {
@@ -412,7 +414,7 @@ public class SliceProviderCompat extends ContentProvider {
      * Compat version of {@link Slice#bindSlice}.
      */
     public static Slice bindSlice(Context context, Intent intent,
-            List<SliceSpec> supportedSpecs) {
+            Set<SliceSpec> supportedSpecs) {
         ContentResolver resolver = context.getContentResolver();
 
         // Check if the intent has data for the slice uri on it and use that
@@ -459,7 +461,7 @@ public class SliceProviderCompat extends ContentProvider {
      * Compat version of {@link android.app.slice.SliceManager#pinSlice}.
      */
     public static void pinSlice(Context context, Uri uri,
-            List<SliceSpec> supportedSpecs) {
+            Set<SliceSpec> supportedSpecs) {
         ContentProviderClient provider = context.getContentResolver()
                 .acquireContentProviderClient(uri);
         if (provider == null) {
@@ -483,7 +485,7 @@ public class SliceProviderCompat extends ContentProvider {
      * Compat version of {@link android.app.slice.SliceManager#unpinSlice}.
      */
     public static void unpinSlice(Context context, Uri uri,
-            List<SliceSpec> supportedSpecs) {
+            Set<SliceSpec> supportedSpecs) {
         ContentProviderClient provider = context.getContentResolver()
                 .acquireContentProviderClient(uri);
         if (provider == null) {
@@ -506,7 +508,7 @@ public class SliceProviderCompat extends ContentProvider {
     /**
      * Compat version of {@link android.app.slice.SliceManager#getPinnedSpecs(Uri)}.
      */
-    public static List<SliceSpec> getPinnedSpecs(Context context, Uri uri) {
+    public static Set<SliceSpec> getPinnedSpecs(Context context, Uri uri) {
         ContentProviderClient provider = context.getContentResolver()
                 .acquireContentProviderClient(uri);
         if (provider == null) {
