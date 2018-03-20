@@ -20,6 +20,8 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 
+import static androidx.slice.core.SliceHints.ICON_IMAGE;
+
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.app.RemoteInput;
@@ -28,8 +30,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Icon;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewParent;
@@ -39,10 +39,13 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.List;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
+
+import java.util.List;
 
 /**
  * @hide
@@ -75,15 +78,15 @@ public class ActionRow extends FrameLayout {
         mColor = color;
         for (int i = 0; i < mActionsGroup.getChildCount(); i++) {
             View view = mActionsGroup.getChildAt(i);
-            SliceItem item = (SliceItem) view.getTag();
-            boolean tint = !item.hasHint(HINT_NO_TINT);
+            int mode = (Integer) view.getTag();
+            boolean tint = mode == ICON_IMAGE;
             if (tint) {
                 ((ImageView) view).setImageTintList(ColorStateList.valueOf(mColor));
             }
         }
     }
 
-    private ImageView addAction(Icon icon, boolean allowTint, SliceItem image) {
+    private ImageView addAction(Icon icon, boolean allowTint) {
         ImageView imageView = new ImageView(getContext());
         imageView.setPadding(mIconPadding, mIconPadding, mIconPadding, mIconPadding);
         imageView.setScaleType(ScaleType.FIT_CENTER);
@@ -93,7 +96,7 @@ public class ActionRow extends FrameLayout {
         }
         imageView.setBackground(SliceViewUtil.getDrawable(getContext(),
                 android.R.attr.selectableItemBackground));
-        imageView.setTag(image);
+        imageView.setTag(allowTint);
         addAction(imageView);
         return imageView;
     }
@@ -117,7 +120,7 @@ public class ActionRow extends FrameLayout {
             if (input != null && image != null
                     && input.getRemoteInput().getAllowFreeFormInput()) {
                 boolean tint = !image.hasHint(HINT_NO_TINT);
-                addAction(image.getIcon(), tint, image).setOnClickListener(
+                addAction(image.getIcon(), tint).setOnClickListener(
                         new OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -127,16 +130,17 @@ public class ActionRow extends FrameLayout {
                         });
                 createRemoteInputView(mColor, getContext());
             } else if (action.hasHint(Slice.HINT_SHORTCUT)) {
-                final ActionContent ac = new ActionContent(action);
-                SliceItem iconItem = ac.getIconItem();
-                if (iconItem != null && ac.getActionItem() != null) {
-                    boolean tint = !iconItem.hasHint(HINT_NO_TINT);
-                    addAction(iconItem.getIcon(), tint, image).setOnClickListener(
+                final SliceActionImpl ac = new SliceActionImpl(action);
+                Icon iconItem = ac.getIcon();
+                if (iconItem != null && ac.getAction() != null) {
+                    boolean tint = ac.getImageMode() == ICON_IMAGE;
+                    addAction(iconItem, tint).setOnClickListener(
                             new OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     try {
-                                        ac.getActionItem().getAction().send();
+                                        // TODO - should log events here
+                                        ac.getAction().send();
                                     } catch (CanceledException e) {
                                         e.printStackTrace();
                                     }
