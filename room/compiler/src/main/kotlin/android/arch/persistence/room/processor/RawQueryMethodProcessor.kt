@@ -23,6 +23,7 @@ import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.toListOfClassTypes
 import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.parser.SqlParser
+import android.arch.persistence.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import android.arch.persistence.room.vo.RawQueryMethod
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -126,9 +127,9 @@ class RawQueryMethodProcessor(
             val stringType = elementUtils.getTypeElement("java.lang.String").asType()
             val isString = types.isAssignable(param, stringType)
             if (isString) {
-                return RawQueryMethod.RuntimeQueryParameter(
-                        paramName = executableElement.parameters[0].simpleName.toString(),
-                        type = stringType.typeName())
+                // special error since this was initially allowed but removed in 1.1 beta1
+                context.logger.e(executableElement, RAW_QUERY_STRING_PARAMETER_REMOVED)
+                return null
             }
         }
         context.logger.e(executableElement, ProcessorErrors.RAW_QUERY_BAD_PARAMS)

@@ -32,46 +32,40 @@ import java.util.List;
 @Dao
 public interface RawDao {
     @RawQuery
-    User getUser(String query);
-
-    @RawQuery
-    UserAndAllPets getUserAndAllPets(String query);
+    UserAndAllPets getUserAndAllPets(SupportSQLiteQuery query);
 
     @RawQuery(observedEntities = UserAndAllPets.class)
-    LiveData<UserAndAllPets> getUserAndAllPetsObservable(String query);
+    LiveData<UserAndAllPets> getUserAndAllPetsObservable(SupportSQLiteQuery query);
 
     @RawQuery
     User getUser(SupportSQLiteQuery query);
 
     @RawQuery
-    UserAndPet getUserAndPet(String query);
+    UserAndPet getUserAndPet(SupportSQLiteQuery query);
 
     @RawQuery
-    NameAndLastName getUserNameAndLastName(String query);
-
-    @RawQuery(observedEntities = User.class)
     NameAndLastName getUserNameAndLastName(SupportSQLiteQuery query);
 
-    @RawQuery
-    int count(String query);
+    @RawQuery(observedEntities = User.class)
+    NameAndLastName getUserNameAndLastNameWithObserved(SupportSQLiteQuery query);
 
     @RawQuery
-    List<User> getUserList(String query);
+    int count(SupportSQLiteQuery query);
 
     @RawQuery
-    List<UserAndPet> getUserAndPetList(String query);
+    List<User> getUserList(SupportSQLiteQuery query);
+
+    @RawQuery
+    List<UserAndPet> getUserAndPetList(SupportSQLiteQuery query);
 
     @RawQuery(observedEntities = UserAndPet.class)
-    LiveData<List<UserAndPet>> getUserAndPetListObservable(String query);
-
-    @RawQuery(observedEntities = User.class)
-    LiveData<User> getUserLiveData(String query);
+    LiveData<List<UserAndPet>> getUserAndPetListObservable(SupportSQLiteQuery query);
 
     @RawQuery(observedEntities = User.class)
     LiveData<User> getUserLiveData(SupportSQLiteQuery query);
 
     @RawQuery
-    UserNameAndBirthday getUserAndBirthday(String query);
+    UserNameAndBirthday getUserAndBirthday(SupportSQLiteQuery query);
 
     class UserNameAndBirthday {
         @ColumnInfo(name = "mName")
