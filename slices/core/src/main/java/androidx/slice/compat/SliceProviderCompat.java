@@ -43,7 +43,6 @@ import android.os.StrictMode.ThreadPolicy;
 import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.core.util.Preconditions;
@@ -56,7 +55,6 @@ import androidx.slice.core.SliceHints;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @hide
@@ -82,24 +80,17 @@ public class SliceProviderCompat extends ContentProvider {
     public static final String EXTRA_PROVIDER_PKG = "provider_pkg";
     private static final String DATA_PREFIX = "slice_data_";
 
+    private static final long SLICE_BIND_ANR = 2000;
+
     private static final boolean DEBUG = false;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private SliceProvider mSliceProvider;
     private CompatPinnedList mPinnedList;
-    private String mBindingPkg;
+
+    private String mCallback;
 
     public SliceProviderCompat(SliceProvider provider) {
         mSliceProvider = provider;
-    }
-
-    /**
-     * Return the package name of the caller that initiated the binding request
-     * currently happening. The returned package will have been
-     * verified to belong to the calling UID. Returns {@code null} if not
-     * currently performing an {@link SliceProvider#onBindSlice(Uri)}.
-     */
-    public final @Nullable String getBindingPackage() {
-        return mBindingPkg;
     }
 
     @Override
@@ -214,42 +205,22 @@ public class SliceProviderCompat extends ContentProvider {
     }
 
     private void handleSlicePinned(final Uri sliceUri) {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
+        mCallback = "onSlicePinned";
+        mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
+        try {
             mSliceProvider.onSlicePinned(sliceUri);
-        } else {
-            final CountDownLatch latch = new CountDownLatch(1);
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    mSliceProvider.onSlicePinned(sliceUri);
-                    latch.countDown();
-                }
-            });
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        } finally {
+            mHandler.removeCallbacks(mAnr);
         }
     }
 
     private void handleSliceUnpinned(final Uri sliceUri) {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
+        mCallback = "onSliceUnpinned";
+        mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
+        try {
             mSliceProvider.onSliceUnpinned(sliceUri);
-        } else {
-            final CountDownLatch latch = new CountDownLatch(1);
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    mSliceProvider.onSliceUnpinned(sliceUri);
-                    latch.countDown();
-                }
-            });
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        } finally {
+            mHandler.removeCallbacks(mAnr);
         }
     }
 
@@ -269,25 +240,7 @@ public class SliceProviderCompat extends ContentProvider {
                 return createPermissionSlice(getContext(), sliceUri, pkg);
             }
         }
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            return onBindSliceStrict(sliceUri, specs, callingPkg);
-        } else {
-            final CountDownLatch latch = new CountDownLatch(1);
-            final Slice[] output = new Slice[1];
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    output[0] = onBindSliceStrict(sliceUri, specs, callingPkg);
-                    latch.countDown();
-                }
-            });
-            try {
-                latch.await();
-                return output[0];
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        return onBindSliceStrict(sliceUri, specs);
     }
 
     /**
@@ -337,8 +290,10 @@ public class SliceProviderCompat extends ContentProvider {
         }
     }
 
-    private Slice onBindSliceStrict(Uri sliceUri, Set<SliceSpec> specs, String callingPackage) {
+    private Slice onBindSliceStrict(Uri sliceUri, Set<SliceSpec> specs) {
         ThreadPolicy oldPolicy = StrictMode.getThreadPolicy();
+        mCallback = "onBindSlice";
+        mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
         try {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectAll()
@@ -346,11 +301,10 @@ public class SliceProviderCompat extends ContentProvider {
                     .build());
             SliceProvider.setSpecs(specs);
             try {
-                mBindingPkg = callingPackage;
                 return mSliceProvider.onBindSlice(sliceUri);
             } finally {
-                mBindingPkg = null;
                 SliceProvider.setSpecs(null);
+                mHandler.removeCallbacks(mAnr);
             }
         } finally {
             StrictMode.setThreadPolicy(oldPolicy);
@@ -580,4 +534,12 @@ public class SliceProviderCompat extends ContentProvider {
             return null;
         }
     }
+
+    private final Runnable mAnr = new Runnable() {
+        @Override
+        public void run() {
+            Process.sendSignal(Process.myPid(), Process.SIGNAL_QUIT);
+            Log.wtf(TAG, "Timed out while handling slice callback " + mCallback);
+        }
+    };
 }
