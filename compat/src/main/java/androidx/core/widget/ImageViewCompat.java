@@ -24,61 +24,30 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link ImageView}.
  */
 public class ImageViewCompat {
-    interface ImageViewCompatImpl {
-        ColorStateList getImageTintList(ImageView view);
-
-        void setImageTintList(ImageView view, ColorStateList tintList);
-
-        PorterDuff.Mode getImageTintMode(ImageView view);
-
-        void setImageTintMode(ImageView view, PorterDuff.Mode mode);
-    }
-
-    static class BaseViewCompatImpl implements ImageViewCompatImpl {
-        @Override
-        public ColorStateList getImageTintList(ImageView view) {
-            return (view instanceof TintableImageSourceView)
-                    ? ((TintableImageSourceView) view).getSupportImageTintList()
-                    : null;
-        }
-
-        @Override
-        public void setImageTintList(ImageView view, ColorStateList tintList) {
-            if (view instanceof TintableImageSourceView) {
-                ((TintableImageSourceView) view).setSupportImageTintList(tintList);
-            }
-        }
-
-        @Override
-        public void setImageTintMode(ImageView view, PorterDuff.Mode mode) {
-            if (view instanceof TintableImageSourceView) {
-                ((TintableImageSourceView) view).setSupportImageTintMode(mode);
-            }
-        }
-
-        @Override
-        public PorterDuff.Mode getImageTintMode(ImageView view) {
-            return (view instanceof TintableImageSourceView)
-                    ? ((TintableImageSourceView) view).getSupportImageTintMode()
-                    : null;
-        }
-    }
-
-    @RequiresApi(21)
-    static class LollipopViewCompatImpl extends BaseViewCompatImpl {
-        @Override
-        public ColorStateList getImageTintList(ImageView view) {
+    /**
+     * Return the tint applied to the image drawable, if specified.
+     */
+    @Nullable
+    public static ColorStateList getImageTintList(@NonNull ImageView view) {
+        if (Build.VERSION.SDK_INT >= 21) {
             return view.getImageTintList();
         }
+        return (view instanceof TintableImageSourceView)
+                ? ((TintableImageSourceView) view).getSupportImageTintList()
+                : null;
+    }
 
-        @Override
-        public void setImageTintList(ImageView view, ColorStateList tintList) {
+    /**
+     * Applies a tint to the image drawable.
+     */
+    public static void setImageTintList(@NonNull ImageView view,
+            @Nullable ColorStateList tintList) {
+        if (Build.VERSION.SDK_INT >= 21) {
             view.setImageTintList(tintList);
 
             if (Build.VERSION.SDK_INT == 21) {
@@ -94,10 +63,31 @@ public class ImageViewCompat {
                     view.setImageDrawable(imageViewDrawable);
                 }
             }
+        } else if (view instanceof TintableImageSourceView) {
+            ((TintableImageSourceView) view).setSupportImageTintList(tintList);
         }
+    }
 
-        @Override
-        public void setImageTintMode(ImageView view, PorterDuff.Mode mode) {
+    /**
+     * Return the blending mode used to apply the tint to the image drawable, if specified.
+     */
+    @Nullable
+    public static PorterDuff.Mode getImageTintMode(@NonNull ImageView view) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.getImageTintMode();
+        }
+        return (view instanceof TintableImageSourceView)
+                ? ((TintableImageSourceView) view).getSupportImageTintMode()
+                : null;
+    }
+
+    /**
+     * Specifies the blending mode used to apply the tint specified by
+     * {@link #setImageTintList(android.widget.ImageView, android.content.res.ColorStateList)}
+     * to the image drawable. The default mode is {@link PorterDuff.Mode#SRC_IN}.
+     */
+    public static void setImageTintMode(@NonNull ImageView view, @Nullable PorterDuff.Mode mode) {
+        if (Build.VERSION.SDK_INT >= 21) {
             view.setImageTintMode(mode);
 
             if (Build.VERSION.SDK_INT == 21) {
@@ -113,54 +103,9 @@ public class ImageViewCompat {
                     view.setImageDrawable(imageViewDrawable);
                 }
             }
+        } else if (view instanceof TintableImageSourceView) {
+            ((TintableImageSourceView) view).setSupportImageTintMode(mode);
         }
-
-        @Override
-        public PorterDuff.Mode getImageTintMode(ImageView view) {
-            return view.getImageTintMode();
-        }
-    }
-
-    static final ImageViewCompatImpl IMPL;
-    static {
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            IMPL = new LollipopViewCompatImpl();
-        } else {
-            IMPL = new BaseViewCompatImpl();
-        }
-    }
-
-    /**
-     * Return the tint applied to the image drawable, if specified.
-     */
-    @Nullable
-    public static ColorStateList getImageTintList(@NonNull ImageView view) {
-        return IMPL.getImageTintList(view);
-    }
-
-    /**
-     * Applies a tint to the image drawable.
-     */
-    public static void setImageTintList(@NonNull ImageView view,
-            @Nullable ColorStateList tintList) {
-        IMPL.setImageTintList(view, tintList);
-    }
-
-    /**
-     * Return the blending mode used to apply the tint to the image drawable, if specified.
-     */
-    @Nullable
-    public static PorterDuff.Mode getImageTintMode(@NonNull ImageView view) {
-        return IMPL.getImageTintMode(view);
-    }
-
-    /**
-     * Specifies the blending mode used to apply the tint specified by
-     * {@link #setImageTintList(android.widget.ImageView, android.content.res.ColorStateList)}
-     * to the image drawable. The default mode is {@link PorterDuff.Mode#SRC_IN}.
-     */
-    public static void setImageTintMode(@NonNull ImageView view, @Nullable PorterDuff.Mode mode) {
-        IMPL.setImageTintMode(view, mode);
     }
 
     private ImageViewCompat() {}
