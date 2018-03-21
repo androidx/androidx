@@ -105,12 +105,12 @@ public abstract class SliceProvider extends ContentProviderWrapper {
     public abstract boolean onCreateSliceProvider();
 
     /**
-     * Implemented to create a slice. Will be called on the main thread.
+     * Implemented to create a slice.
      * <p>
      * onBindSlice should return as quickly as possible so that the UI tied
      * to this slice can be responsive. No network or other IO will be allowed
      * during onBindSlice. Any loading that needs to be done should happen
-     * off the main thread with a call to {@link ContentResolver#notifyChange(Uri, ContentObserver)}
+     * in the background with a call to {@link ContentResolver#notifyChange(Uri, ContentObserver)}
      * when the app is ready to provide the complete data in onBindSlice.
      * <p>
      *
