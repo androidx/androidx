@@ -22,8 +22,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import java.util.ArrayList;
-
 public class ListPreferenceDialogFragmentCompat extends PreferenceDialogFragmentCompat {
 
     private static final String SAVE_STATE_INDEX = "ListPreferenceDialogFragment.index";
@@ -60,8 +58,8 @@ public class ListPreferenceDialogFragmentCompat extends PreferenceDialogFragment
             mEntryValues = preference.getEntryValues();
         } else {
             mClickedDialogEntryIndex = savedInstanceState.getInt(SAVE_STATE_INDEX, 0);
-            mEntries = getCharSequenceArray(savedInstanceState, SAVE_STATE_ENTRIES);
-            mEntryValues = getCharSequenceArray(savedInstanceState, SAVE_STATE_ENTRY_VALUES);
+            mEntries = savedInstanceState.getCharSequenceArray(SAVE_STATE_ENTRIES);
+            mEntryValues = savedInstanceState.getCharSequenceArray(SAVE_STATE_ENTRY_VALUES);
         }
     }
 
@@ -69,24 +67,8 @@ public class ListPreferenceDialogFragmentCompat extends PreferenceDialogFragment
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(SAVE_STATE_INDEX, mClickedDialogEntryIndex);
-        putCharSequenceArray(outState, SAVE_STATE_ENTRIES, mEntries);
-        putCharSequenceArray(outState, SAVE_STATE_ENTRY_VALUES, mEntryValues);
-    }
-
-    private static void putCharSequenceArray(Bundle out, String key, CharSequence[] entries) {
-        final ArrayList<String> stored = new ArrayList<>(entries.length);
-
-        for (final CharSequence cs : entries) {
-            stored.add(cs.toString());
-        }
-
-        out.putStringArrayList(key, stored);
-    }
-
-    private static CharSequence[] getCharSequenceArray(Bundle in, String key) {
-        final ArrayList<String> stored = in.getStringArrayList(key);
-
-        return stored == null ? null : stored.toArray(new CharSequence[stored.size()]);
+        outState.putCharSequenceArray(SAVE_STATE_ENTRIES, mEntries);
+        outState.putCharSequenceArray(SAVE_STATE_ENTRY_VALUES, mEntryValues);
     }
 
     private ListPreference getListPreference() {
