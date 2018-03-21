@@ -38,9 +38,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A container for multiple
- * {@link Preference} objects. It is a base class for  Preference objects that are
- * parents, such as {@link PreferenceCategory} and {@link PreferenceScreen}.
+ * A container for multiple {@link Preference} objects. It is a base class for preference
+ * objects that are parents, such as {@link PreferenceCategory} and {@link PreferenceScreen}.
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
@@ -54,24 +53,18 @@ import java.util.List;
  */
 public abstract class PreferenceGroup extends Preference {
     private static final String TAG = "PreferenceGroup";
-
-    /**
-     * The container for child {@link Preference}s. This is sorted based on the
-     * ordering, please use {@link #addPreference(Preference)} instead of adding
-     * to this directly.
-     */
-    private List<Preference> mPreferenceList;
-
-    private boolean mOrderingAsAdded = true;
-
-    private int mCurrentPreferenceOrder = 0;
-
-    private boolean mAttachedToHierarchy = false;
-
-    private int mInitialExpandedChildrenCount = Integer.MAX_VALUE;
-
     private final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
     private final Handler mHandler = new Handler();
+    /**
+     * The container for child {@link Preference}s. This is sorted based on the ordering, please
+     * use {@link #addPreference(Preference)} instead of adding to this directly.
+     */
+    private List<Preference> mPreferenceList;
+    private boolean mOrderingAsAdded = true;
+    private int mCurrentPreferenceOrder = 0;
+    private boolean mAttachedToHierarchy = false;
+    private int mInitialExpandedChildrenCount = Integer.MAX_VALUE;
+
     private final Runnable mClearRecycleCacheRunnable = new Runnable() {
         @Override
         public void run() {
@@ -110,14 +103,14 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     /**
-     * Whether to order the {@link Preference} children of this group as they
-     * are added. If this is false, the ordering will follow each Preference
-     * order and default to alphabetic for those without an order.
-     * <p>
-     * If this is called after preferences are added, they will not be
-     * re-ordered in the order they were added, hence call this method early on.
+     * Whether to order the {@link Preference} children of this group as they are added. If this
+     * is false, the ordering will follow each Preference order and default to alphabetic for
+     * those without an order.
      *
-     * @param orderingAsAdded Whether to order according to the order added.
+     * <p>If this is called after preferences are added, they will not be re-ordered in the
+     * order they were added, hence call this method early on.
+     *
+     * @param orderingAsAdded Whether to order according to the order added
      * @see Preference#setOrder(int)
      */
     public void setOrderingAsAdded(boolean orderingAsAdded) {
@@ -127,7 +120,7 @@ public abstract class PreferenceGroup extends Preference {
     /**
      * Whether this group is ordering preferences in the order they are added.
      *
-     * @return Whether this group orders based on the order the children are added.
+     * @return Whether this group orders based on the order the children are added
      * @see #setOrderingAsAdded(boolean)
      */
     public boolean isOrderingAsAdded() {
@@ -136,19 +129,16 @@ public abstract class PreferenceGroup extends Preference {
 
     /**
      * Sets the maximal number of children that are shown when the preference group is launched
-     * where the rest of the children will be hidden.
-     * If some children are hidden an expand button will be provided to show all the hidden
-     * children. Any child in any level of the hierarchy that is also a preference group (e.g.
-     * preference category) will not be counted towards the limit. But instead the children of such
-     * group will be counted.
-     * By default, all children will be shown, so the default value of this attribute is equal to
-     * Integer.MAX_VALUE.
-     * <p>
-     * Note: The group should have a key defined if an expandable preference is present to
+     * where the rest of the children will be hidden. If some children are hidden an expand
+     * button will be provided to show all the hidden children. Any child in any level of the
+     * hierarchy that is also a preference group (e.g. preference category) will not be counted
+     * towards the limit. But instead the children of such group will be counted. By default, all
+     * children will be shown, so the default value of this attribute is equal to Integer.MAX_VALUE.
+     *
+     * <p>Note: The group should have a key defined if an expandable preference is present to
      * correctly persist state.
      *
-     * @param expandedCount the number of children that is initially shown.
-     *
+     * @param expandedCount The number of children that is initially shown
      * @attr ref R.styleable#PreferenceGroup_initialExpandedChildrenCount
      */
     public void setInitialExpandedChildrenCount(int expandedCount) {
@@ -162,8 +152,7 @@ public abstract class PreferenceGroup extends Preference {
     /**
      * Gets the maximal number of children that are initially shown.
      *
-     * @return the maximal number of children that are initially shown.
-     *
+     * @return The maximal number of children that are initially shown
      * @attr ref R.styleable#PreferenceGroup_initialExpandedChildrenCount
      */
     public int getInitialExpandedChildrenCount() {
@@ -179,7 +168,8 @@ public abstract class PreferenceGroup extends Preference {
 
     /**
      * Returns the number of children {@link Preference}s.
-     * @return The number of preference children in this group.
+     *
+     * @return The number of preference children in this group
      */
     public int getPreferenceCount() {
         return mPreferenceList.size();
@@ -188,19 +178,18 @@ public abstract class PreferenceGroup extends Preference {
     /**
      * Returns the {@link Preference} at a particular index.
      *
-     * @param index The index of the {@link Preference} to retrieve.
-     * @return The {@link Preference}.
+     * @param index The index of the {@link Preference} to retrieve
+     * @return The {@link Preference}
      */
     public Preference getPreference(int index) {
         return mPreferenceList.get(index);
     }
 
     /**
-     * Adds a {@link Preference} at the correct position based on the
-     * preference's order.
+     * Adds a {@link Preference} at the correct position based on the preference's order.
      *
-     * @param preference The preference to add.
-     * @return Whether the preference is now in this group.
+     * @param preference The preference to add
+     * @return Whether the preference is now in this group
      */
     public boolean addPreference(Preference preference) {
         if (mPreferenceList.contains(preference)) {
@@ -227,7 +216,7 @@ public abstract class PreferenceGroup extends Preference {
             if (preference instanceof PreferenceGroup) {
                 // TODO: fix (method is called tail recursively when inflating,
                 // so we won't end up properly passing this flag down to children
-                ((PreferenceGroup)preference).setOrderingAsAdded(mOrderingAsAdded);
+                ((PreferenceGroup) preference).setOrderingAsAdded(mOrderingAsAdded);
             }
         }
 
@@ -240,7 +229,7 @@ public abstract class PreferenceGroup extends Preference {
             return false;
         }
 
-        synchronized(this) {
+        synchronized (this) {
             mPreferenceList.add(insertionIndex, preference);
         }
 
@@ -268,8 +257,8 @@ public abstract class PreferenceGroup extends Preference {
     /**
      * Removes a {@link Preference} from this group.
      *
-     * @param preference The preference to remove.
-     * @return Whether the preference was found and removed.
+     * @param preference The preference to remove
+     * @return Whether the preference was found and removed
      */
     public boolean removePreference(Preference preference) {
         final boolean returnValue = removePreferenceInt(preference);
@@ -278,7 +267,7 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     private boolean removePreferenceInt(Preference preference) {
-        synchronized(this) {
+        synchronized (this) {
             preference.onPrepareForRemoval();
             if (preference.getParent() == this) {
                 preference.assignParent(null);
@@ -312,10 +301,10 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     /**
-     * Removes all {@link Preference Preferences} from this group.
+     * Removes all {@link Preference}s from this group.
      */
     public void removeAll() {
-        synchronized(this) {
+        synchronized (this) {
             List<Preference> preferenceList = mPreferenceList;
             for (int i = preferenceList.size() - 1; i >= 0; i--) {
                 removePreferenceInt(preferenceList.get(0));
@@ -327,8 +316,8 @@ public abstract class PreferenceGroup extends Preference {
     /**
      * Prepares a {@link Preference} to be added to the group.
      *
-     * @param preference The preference to add.
-     * @return Whether to allow adding the preference (true), or not (false).
+     * @param preference The preference to add
+     * @return Whether to allow adding the preference ({@code true}), or not ({@code false})
      */
     protected boolean onPrepareAddPreference(Preference preference) {
         preference.onParentChanged(this, shouldDisableDependents());
@@ -336,17 +325,16 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     /**
-     * Finds a {@link Preference} based on its key. If two {@link Preference}
-     * share the same key (not recommended), the first to appear will be
-     * returned (to retrieve the other preference with the same key, call this
-     * method on the first preference). If this preference has the key, it will
-     * not be returned.
-     * <p>
-     * This will recursively search for the preference into children that are
-     * also {@link PreferenceGroup PreferenceGroups}.
+     * Finds a {@link Preference} based on its key. If two {@link Preference}s share the same key
+     * (not recommended), the first to appear will be returned (to retrieve the other preference
+     * with the same key, call this method on the first preference). If this preference has the
+     * key, it will not be returned.
      *
-     * @param key The key of the preference to retrieve.
-     * @return The {@link Preference} with the key, or null.
+     * <p>This will recursively search for the preference into children that are also
+     * {@link PreferenceGroup}s.
+     *
+     * @param key The key of the preference to retrieve
+     * @return The {@link Preference} with the key, or null
      */
     public Preference findPreference(CharSequence key) {
         if (TextUtils.equals(getKey(), key)) {
@@ -362,7 +350,7 @@ public abstract class PreferenceGroup extends Preference {
             }
 
             if (preference instanceof PreferenceGroup) {
-                final Preference returnedPreference = ((PreferenceGroup)preference)
+                final Preference returnedPreference = ((PreferenceGroup) preference)
                         .findPreference(key);
                 if (returnedPreference != null) {
                     return returnedPreference;
@@ -374,11 +362,11 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     /**
-     * Whether this preference group should be shown on the same screen as its
-     * contained preferences.
+     * Whether this preference group should be shown on the same screen as its contained
+     * preferences.
      *
-     * @return True if the contained preferences should be shown on the same
-     *         screen as this preference.
+     * @return {@code true} if the contained preferences should be shown on the same screen as this
+     * preference.
      */
     protected boolean isOnSameScreenAsChildren() {
         return true;
@@ -386,6 +374,7 @@ public abstract class PreferenceGroup extends Preference {
 
     /**
      * Returns true if we're between {@link #onAttached()} and {@link #onPrepareForRemoval()}
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -484,7 +473,7 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     /**
-     * Interface for PreferenceGroup Adapters to implement so that
+     * Interface for PreferenceGroup adapters to implement so that
      * {@link androidx.preference.PreferenceFragment#scrollToPreference(String)} and
      * {@link androidx.preference.PreferenceFragment#scrollToPreference(Preference)} or
      * {@link PreferenceFragmentCompat#scrollToPreference(String)} and
@@ -494,18 +483,20 @@ public abstract class PreferenceGroup extends Preference {
     public interface PreferencePositionCallback {
 
         /**
-         * Return the adapter position of the first {@link Preference} with the specified key
+         * Returns the adapter position of the first {@link Preference} with the specified key.
+         *
          * @param key Key of {@link Preference} to find
-         * @return Adapter position of the {@link Preference} or
-         *         {@link RecyclerView#NO_POSITION} if not found
+         * @return Adapter position of the {@link Preference} or {@link RecyclerView#NO_POSITION}
+         * if not found
          */
         int getPreferenceAdapterPosition(String key);
 
         /**
-         * Return the adapter position of the specified {@link Preference} object
+         * Returns the adapter position of the specified {@link Preference} object
+         *
          * @param preference {@link Preference} object to find
-         * @return Adapter position of the {@link Preference} or
-         *         {@link RecyclerView#NO_POSITION} if not found
+         * @return Adapter position of the {@link Preference} or {@link RecyclerView#NO_POSITION}
+         * if not found
          */
         int getPreferenceAdapterPosition(Preference preference);
     }
@@ -514,6 +505,18 @@ public abstract class PreferenceGroup extends Preference {
      * A class for managing the instance state of a {@link PreferenceGroup}.
      */
     static class SavedState extends Preference.BaseSavedState {
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
 
         int mInitialExpandedChildrenCount;
 
@@ -532,18 +535,5 @@ public abstract class PreferenceGroup extends Preference {
             super.writeToParcel(dest, flags);
             dest.writeInt(mInitialExpandedChildrenCount);
         }
-
-        public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
-                    @Override
-                    public SavedState createFromParcel(Parcel in) {
-                        return new SavedState(in);
-                    }
-
-                    @Override
-                    public SavedState[] newArray(int size) {
-                        return new SavedState[size];
-                    }
-                };
     }
 }

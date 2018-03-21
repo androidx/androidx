@@ -43,61 +43,60 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * Shows a hierarchy of {@link Preference} objects as
- * lists. These preferences will
- * automatically save to {@link android.content.SharedPreferences} as the user interacts with
- * them. To retrieve an instance of {@link android.content.SharedPreferences} that the
- * preference hierarchy in this fragment will use, call
- * {@link PreferenceManager#getDefaultSharedPreferences(android.content.Context)}
- * with a context in the same package as this fragment.
- * <p>
- * Furthermore, the preferences shown will follow the visual style of system
- * preferences. It is easy to create a hierarchy of preferences (that can be
- * shown on multiple screens) via XML. For these reasons, it is recommended to
- * use this fragment (as a superclass) to deal with preferences in applications.
- * <p>
- * A {@link PreferenceScreen} object should be at the top of the preference
- * hierarchy. Furthermore, subsequent {@link PreferenceScreen} in the hierarchy
- * denote a screen break--that is the preferences contained within subsequent
- * {@link PreferenceScreen} should be shown on another screen. The preference
- * framework handles this by calling {@link #onNavigateToScreen(PreferenceScreen)}.
- * <p>
- * The preference hierarchy can be formed in multiple ways:
+ * Shows a hierarchy of {@link Preference} objects as lists. These preferences will automatically
+ * save to {@link android.content.SharedPreferences} as the user interacts with them. To retrieve
+ * an instance of {@link android.content.SharedPreferences} that the preference hierarchy in this
+ * fragment will use, call
+ * {@link PreferenceManager#getDefaultSharedPreferences(android.content.Context)} with a context
+ * in the same package as this fragment.
+ *
+ * <p>Furthermore, the preferences shown will follow the visual style of system preferences. It is
+ * easy to create a hierarchy of preferences (that can be shown on multiple screens) via XML. For
+ * these reasons, it is recommended to use this fragment (as a superclass) to deal with
+ * preferences in applications.
+ *
+ * <p>A {@link PreferenceScreen} object should be at the top of the preference hierarchy.
+ * Furthermore, subsequent {@link PreferenceScreen} in the hierarchy denote a screen break--that
+ * is the preferences contained within subsequent {@link PreferenceScreen} should be shown on
+ * another screen. The preference framework handles this by calling
+ * {@link #onNavigateToScreen(PreferenceScreen)}.
+ *
+ * <p>The preference hierarchy can be formed in multiple ways:
+ *
  * <li> From an XML file specifying the hierarchy
  * <li> From different {@link android.app.Activity Activities} that each specify its own
  * preferences in an XML file via {@link android.app.Activity} meta-data
  * <li> From an object hierarchy rooted with {@link PreferenceScreen}
- * <p>
- * To inflate from XML, use the {@link #addPreferencesFromResource(int)}. The
- * root element should be a {@link PreferenceScreen}. Subsequent elements can point
- * to actual {@link Preference} subclasses. As mentioned above, subsequent
- * {@link PreferenceScreen} in the hierarchy will result in the screen break.
- * <p>
- * To specify an object hierarchy rooted with {@link PreferenceScreen}, use
+ *
+ * <p>To inflate from XML, use the {@link #addPreferencesFromResource(int)}. The root element
+ * should be a {@link PreferenceScreen}. Subsequent elements can point to actual
+ * {@link Preference} subclasses. As mentioned above, subsequent {@link PreferenceScreen} in the
+ * hierarchy will result in the screen break.
+ *
+ * <p>To specify an object hierarchy rooted with {@link PreferenceScreen}, use
  * {@link #setPreferenceScreen(PreferenceScreen)}.
- * <p>
- * As a convenience, this fragment implements a click listener for any
- * preference in the current hierarchy, see
- * {@link #onPreferenceTreeClick(Preference)}.
+ *
+ * <p>As a convenience, this fragment implements a click listener for any preference in the current
+ * hierarchy, see {@link #onPreferenceTreeClick(Preference)}.
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
- * <p>For information about using {@code PreferenceFragment},
- * read the <a href="{@docRoot}guide/topics/ui/settings.html">Settings</a>
- * guide.</p>
+ * <p>For information about using {@code PreferenceFragment}, read the
+ * <a href="{@docRoot}guide/topics/ui/settings.html">Settings</a> guide.</p>
  * </div>
  *
  * <a name="SampleCode"></a>
  * <h3>Sample Code</h3>
  *
- * <p>The following sample code shows a simple preference fragment that is
- * populated from a resource.  The resource it loads is:</p>
+ * <p>The following sample code shows a simple preference fragment that is populated from a
+ * resource. The resource it loads is:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml preferences}
+ * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml
+ *      preferences}
  *
- * <p>The fragment implementation itself simply populates the preferences
- * when created.  Note that the preferences framework takes care of loading
- * the current values out of the app preferences and writing them when changed:</p>
+ * <p>The fragment implementation itself simply populates the preferences when created.  Note
+ * that the preferences framework takes care of loading the current values out of the app
+ * preferences and writing them when changed:</p>
  *
  * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/android/supportpreference/FragmentSupportPreferences.java
  *      support_fragment}
@@ -112,8 +111,8 @@ public abstract class PreferenceFragment extends Fragment implements
         DialogPreference.TargetFragment {
 
     /**
-     * Fragment argument used to specify the tag of the desired root
-     * {@link androidx.preference.PreferenceScreen} object.
+     * Fragment argument used to specify the tag of the desired root {@link PreferenceScreen}
+     * object.
      */
     public static final String ARG_PREFERENCE_ROOT =
             "androidx.preference.PreferenceFragmentCompat.PREFERENCE_ROOT";
@@ -123,23 +122,21 @@ public abstract class PreferenceFragment extends Fragment implements
     private static final String DIALOG_FRAGMENT_TAG =
             "androidx.preference.PreferenceFragment.DIALOG";
 
+    private static final int MSG_BIND_PREFERENCES = 1;
+
+    private final DividerDecoration mDividerDecoration = new DividerDecoration();
     private PreferenceManager mPreferenceManager;
     private RecyclerView mList;
     private boolean mHavePrefs;
     private boolean mInitDone;
-
     private Context mStyledContext;
-
     private int mLayoutResId = androidx.preference.R.layout.preference_list_fragment;
+    private Runnable mSelectPreferenceRunnable;
 
-    private final DividerDecoration mDividerDecoration = new DividerDecoration();
-
-    private static final int MSG_BIND_PREFERENCES = 1;
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-
                 case MSG_BIND_PREFERENCES:
                     bindPreferences();
                     break;
@@ -153,53 +150,6 @@ public abstract class PreferenceFragment extends Fragment implements
             mList.focusableViewAvailable(mList);
         }
     };
-
-    private Runnable mSelectPreferenceRunnable;
-
-    /**
-     * Interface that PreferenceFragment's containing activity should
-     * implement to be able to process preference items that wish to
-     * switch to a specified fragment.
-     */
-    public interface OnPreferenceStartFragmentCallback {
-        /**
-         * Called when the user has clicked on a Preference that has
-         * a fragment class name associated with it.  The implementation
-         * should instantiate and switch to an instance of the given
-         * fragment.
-         * @param caller The fragment requesting navigation.
-         * @param pref The preference requesting the fragment.
-         * @return true if the fragment creation has been handled
-         */
-        boolean onPreferenceStartFragment(PreferenceFragment caller, Preference pref);
-    }
-
-    /**
-     * Interface that PreferenceFragment's containing activity should
-     * implement to be able to process preference items that wish to
-     * switch to a new screen of preferences.
-     */
-    public interface OnPreferenceStartScreenCallback {
-        /**
-         * Called when the user has clicked on a PreferenceScreen item in order to navigate to a new
-         * screen of preferences.
-         * @param caller The fragment requesting navigation.
-         * @param pref The preference screen to navigate to.
-         * @return true if the screen navigation has been handled
-         */
-        boolean onPreferenceStartScreen(PreferenceFragment caller, PreferenceScreen pref);
-    }
-
-    public interface OnPreferenceDisplayDialogCallback {
-
-        /**
-         *
-         * @param caller The fragment containing the preference requesting the dialog.
-         * @param pref The preference requesting the dialog.
-         * @return true if the dialog creation has been handled.
-         */
-        boolean onPreferenceDisplayDialog(@NonNull PreferenceFragment caller, Preference pref);
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -230,10 +180,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * Subclasses are expected to call {@link #setPreferenceScreen(PreferenceScreen)} either
      * directly or via helper methods such as {@link #addPreferencesFromResource(int)}.
      *
-     * @param savedInstanceState If the fragment is being re-created from
-     *                           a previous saved state, this is the state.
-     * @param rootKey If non-null, this preference fragment should be rooted at the
-     *                {@link androidx.preference.PreferenceScreen} with this key.
+     * @param savedInstanceState If the fragment is being re-created from a previous saved state,
+     *                           this is the state.
+     * @param rootKey            If non-null, this preference fragment should be rooted at the
+     *                           {@link PreferenceScreen} with this key.
      */
     public abstract void onCreatePreferences(Bundle savedInstanceState, String rootKey);
 
@@ -298,12 +248,12 @@ public abstract class PreferenceFragment extends Fragment implements
     }
 
     /**
-     * Sets the drawable that will be drawn between each item in the list.
-     * <p>
-     * <strong>Note:</strong> If the drawable does not have an intrinsic
-     * height, you should also call {@link #setDividerHeight(int)}.
+     * Sets the {@link Drawable} that will be drawn between each item in the list.
      *
-     * @param divider the drawable to use
+     * <p><strong>Note:</strong> If the drawable does not have an intrinsic height, you should also
+     * call {@link #setDividerHeight(int)}.
+     *
+     * @param divider The drawable to use
      * @attr ref R.styleable#PreferenceFragment_android_divider
      */
     public void setDivider(Drawable divider) {
@@ -312,9 +262,9 @@ public abstract class PreferenceFragment extends Fragment implements
 
     /**
      * Sets the height of the divider that will be drawn between each item in the list. Calling
-     * this will override the intrinsic height as set by {@link #setDivider(Drawable)}
+     * this will override the intrinsic height as set by {@link #setDivider(Drawable)}.
      *
-     * @param height The new height of the divider in pixels.
+     * @param height The new height of the divider in pixels
      * @attr ref R.styleable#PreferenceFragment_android_dividerHeight
      */
     public void setDividerHeight(int height) {
@@ -390,7 +340,8 @@ public abstract class PreferenceFragment extends Fragment implements
 
     /**
      * Returns the {@link PreferenceManager} used by this fragment.
-     * @return The {@link PreferenceManager}.
+     *
+     * @return The {@link PreferenceManager} used by this fragment
      */
     public PreferenceManager getPreferenceManager() {
         return mPreferenceManager;
@@ -399,7 +350,7 @@ public abstract class PreferenceFragment extends Fragment implements
     /**
      * Sets the root of the preference hierarchy that this fragment is showing.
      *
-     * @param preferenceScreen The root {@link PreferenceScreen} of the preference hierarchy.
+     * @param preferenceScreen The root {@link PreferenceScreen} of the preference hierarchy
      */
     public void setPreferenceScreen(PreferenceScreen preferenceScreen) {
         if (mPreferenceManager.setPreferences(preferenceScreen) && preferenceScreen != null) {
@@ -414,8 +365,7 @@ public abstract class PreferenceFragment extends Fragment implements
     /**
      * Gets the root of the preference hierarchy that this fragment is showing.
      *
-     * @return The {@link PreferenceScreen} that is the root of the preference
-     *         hierarchy.
+     * @return The {@link PreferenceScreen} that is the root of the preference hierarchy
      */
     public PreferenceScreen getPreferenceScreen() {
         return mPreferenceManager.getPreferenceScreen();
@@ -425,7 +375,7 @@ public abstract class PreferenceFragment extends Fragment implements
      * Inflates the given XML resource and adds the preference hierarchy to the current
      * preference hierarchy.
      *
-     * @param preferencesResId The XML resource ID to inflate.
+     * @param preferencesResId The XML resource ID to inflate
      */
     public void addPreferencesFromResource(@XmlRes int preferencesResId) {
         requirePreferenceManager();
@@ -438,10 +388,10 @@ public abstract class PreferenceFragment extends Fragment implements
      * Inflates the given XML resource and replaces the current preference hierarchy (if any) with
      * the preference hierarchy rooted at {@code key}.
      *
-     * @param preferencesResId The XML resource ID to inflate.
-     * @param key The preference key of the {@link androidx.preference.PreferenceScreen}
-     *            to use as the root of the preference hierarchy, or null to use the root
-     *            {@link androidx.preference.PreferenceScreen}.
+     * @param preferencesResId The XML resource ID to inflate
+     * @param key              The preference key of the {@link PreferenceScreen} to use as the
+     *                         root of the preference hierarchy, or {@code null} to use the root
+     *                         {@link PreferenceScreen}.
      */
     public void setPreferencesFromResource(@XmlRes int preferencesResId, @Nullable String key) {
         requirePreferenceManager();
@@ -484,14 +434,13 @@ public abstract class PreferenceFragment extends Fragment implements
     }
 
     /**
-     * Called by
-     * {@link androidx.preference.PreferenceScreen#onClick()} in order to navigate to a
-     * new screen of preferences. Calls
-     * {@link PreferenceFragment.OnPreferenceStartScreenCallback#onPreferenceStartScreen}
-     * if the target fragment or containing activity implements
+     * Called by {@link PreferenceScreen#onClick()} in order to navigate to a new screen of
+     * preferences. Calls
+     * {@link PreferenceFragment.OnPreferenceStartScreenCallback#onPreferenceStartScreen} if the
+     * target fragment or containing activity implements
      * {@link PreferenceFragment.OnPreferenceStartScreenCallback}.
-     * @param preferenceScreen The {@link androidx.preference.PreferenceScreen} to
-     *                         navigate to.
+     *
+     * @param preferenceScreen The {@link PreferenceScreen} to navigate to
      */
     @Override
     public void onNavigateToScreen(PreferenceScreen preferenceScreen) {
@@ -506,13 +455,6 @@ public abstract class PreferenceFragment extends Fragment implements
         }
     }
 
-    /**
-     * Finds a {@link Preference} based on its key.
-     *
-     * @param key The key of the preference to retrieve.
-     * @return The {@link Preference} with the key, or null.
-     * @see androidx.preference.PreferenceGroup#findPreference(CharSequence)
-     */
     @Override
     public Preference findPreference(CharSequence key) {
         if (mPreferenceManager == null) {
@@ -564,17 +506,17 @@ public abstract class PreferenceFragment extends Fragment implements
     }
 
     /**
-     * Creates the {@link RecyclerView} used to display the preferences.
-     * Subclasses may override this to return a customized
-     * {@link RecyclerView}.
-     * @param inflater The LayoutInflater object that can be used to inflate the
-     *                 {@link RecyclerView}.
-     * @param parent The parent {@link android.view.View} that the RecyclerView will be attached to.
-     *               This method should not add the view itself, but this can be used to generate
-     *               the LayoutParams of the view.
+     * Creates the {@link RecyclerView} used to display the preferences. Subclasses may override
+     * this to return a customized {@link RecyclerView}.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate the
+     *                           {@link RecyclerView}.
+     * @param parent             The parent view that the RecyclerView will be attached to.
+     *                           This method should not add the view itself, but this can be used
+     *                           to generate the layout params of the view.
      * @param savedInstanceState If non-null, this view is being re-constructed from a previous
-     *                           saved state as given here
-     * @return A new RecyclerView object to be placed into the view hierarchy
+     *                           saved state as given here.
+     * @return A new {@link RecyclerView} object to be placed into the view hierarchy
      */
     public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState) {
@@ -590,10 +532,10 @@ public abstract class PreferenceFragment extends Fragment implements
     }
 
     /**
-     * Called from {@link #onCreateRecyclerView} to create the
-     * {@link RecyclerView.LayoutManager} for the created
-     * {@link RecyclerView}.
-     * @return A new {@link RecyclerView.LayoutManager} instance.
+     * Called from {@link #onCreateRecyclerView} to create the {@link RecyclerView.LayoutManager}
+     * for the created {@link RecyclerView}.
+     *
+     * @return A new {@link RecyclerView.LayoutManager} instance
      */
     public RecyclerView.LayoutManager onCreateLayoutManager() {
         return new LinearLayoutManager(getActivity());
@@ -602,8 +544,8 @@ public abstract class PreferenceFragment extends Fragment implements
     /**
      * Creates the root adapter.
      *
-     * @param preferenceScreen Preference screen object to create the adapter for.
-     * @return An adapter that contains the preferences contained in this {@link PreferenceScreen}.
+     * @param preferenceScreen The {@link PreferenceScreen} object to create the adapter for
+     * @return An adapter that contains the preferences contained in this {@link PreferenceScreen}
      */
     protected RecyclerView.Adapter onCreateAdapter(PreferenceScreen preferenceScreen) {
         return new PreferenceGroupAdapter(preferenceScreen);
@@ -614,7 +556,7 @@ public abstract class PreferenceFragment extends Fragment implements
      * override this method to display custom dialogs or to handle dialogs for custom preference
      * classes.
      *
-     * @param preference The Preference object requesting the dialog.
+     * @param preference The {@link Preference} object requesting the dialog
      */
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
@@ -654,8 +596,9 @@ public abstract class PreferenceFragment extends Fragment implements
     }
 
     /**
-     * Basically a wrapper for getParentFragment which is v17+. Used by the leanback preference lib.
-     * @return Fragment to possibly use as a callback
+     * A wrapper for getParentFragment which is v17+. Used by the leanback preference library.
+     *
+     * @return The {@link Fragment} to possibly use as a callback
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -681,7 +624,7 @@ public abstract class PreferenceFragment extends Fragment implements
                         throw new IllegalStateException("Adapter must implement "
                                 + "PreferencePositionCallback");
                     } else {
-                        // Adapter was set to null, so don't scroll I guess?
+                        // Adapter was set to null, so don't scroll
                         return;
                     }
                 }
@@ -707,6 +650,52 @@ public abstract class PreferenceFragment extends Fragment implements
         } else {
             r.run();
         }
+    }
+
+    /**
+     * Interface that the fragment's containing activity should implement to be able to process
+     * preference items that wish to switch to a specified fragment.
+     */
+    public interface OnPreferenceStartFragmentCallback {
+        /**
+         * Called when the user has clicked on a Preference that has a fragment class name
+         * associated with it. The implementation should instantiate and switch to an instance
+         * of the given fragment.
+         *
+         * @param caller The fragment requesting navigation
+         * @param pref   The preference requesting the fragment
+         * @return {@code true} if the fragment creation has been handled
+         */
+        boolean onPreferenceStartFragment(PreferenceFragment caller, Preference pref);
+    }
+
+    /**
+     * Interface that the fragment's containing activity should implement to be able to process
+     * preference items that wish to switch to a new screen of preferences.
+     */
+    public interface OnPreferenceStartScreenCallback {
+        /**
+         * Called when the user has clicked on a {@link PreferenceScreen} in order to navigate to
+         * a new screen of preferences.
+         *
+         * @param caller The fragment requesting navigation
+         * @param pref   The preference screen to navigate to
+         * @return {@code true} if the screen navigation has been handled
+         */
+        boolean onPreferenceStartScreen(PreferenceFragment caller, PreferenceScreen pref);
+    }
+
+    /**
+     * Interface that the fragment's containing activity should implement to be able to process
+     * preference items that wish to display a dialog.
+     */
+    public interface OnPreferenceDisplayDialogCallback {
+        /**
+         * @param caller The fragment containing the preference requesting the dialog
+         * @param pref   The preference requesting the dialog
+         * @return {@code true} if the dialog creation has been handled
+         */
+        boolean onPreferenceDisplayDialog(@NonNull PreferenceFragment caller, Preference pref);
     }
 
     private static class ScrollToPreferenceObserver extends RecyclerView.AdapterDataObserver {

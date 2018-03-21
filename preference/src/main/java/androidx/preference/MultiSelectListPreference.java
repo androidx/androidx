@@ -32,11 +32,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A {@link androidx.preference.Preference} that displays a list of entries as
- * a dialog.
- * <p>
- * This preference will store a set of strings into the SharedPreferences.
- * This set will contain one or more mValues from the
+ * A {@link Preference} that displays a list of entries as a dialog.
+ *
+ * <p>This preference saves a set of strings. This set will contain one or more mValues from the
  * {@link #setEntryValues(CharSequence[])} array.
  *
  * @attr name android:entries
@@ -81,13 +79,12 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     }
 
     /**
-     * Sets the human-readable entries to be shown in the list. This will be
-     * shown in subsequent dialogs.
-     * <p>
-     * Each entry must have a corresponding index in
-     * {@link #setEntryValues(CharSequence[])}.
+     * Sets the human-readable entries to be shown in the list. This will be shown in subsequent
+     * dialogs.
      *
-     * @param entries The entries.
+     * <p>Each entry must have a corresponding index in {@link #setEntryValues(CharSequence[])}.
+     *
+     * @param entries The entries
      * @see #setEntryValues(CharSequence[])
      */
     public void setEntries(CharSequence[] entries) {
@@ -95,8 +92,8 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     }
 
     /**
+     * @param entriesResId The entries array as a resource
      * @see #setEntries(CharSequence[])
-     * @param entriesResId The entries array as a resource.
      */
     public void setEntries(@ArrayRes int entriesResId) {
         setEntries(getContext().getResources().getTextArray(entriesResId));
@@ -105,7 +102,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     /**
      * The list of entries to be shown in the list in subsequent dialogs.
      *
-     * @return The list as an array.
+     * @return The list as an array
      */
     @Override
     public CharSequence[] getEntries() {
@@ -113,19 +110,19 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     }
 
     /**
-     * The array to find the value to save for a preference when an entry from
-     * entries is selected. If a user clicks on the second item in entries, the
-     * second item in this array will be saved to the preference.
+     * The array to find the value to save for a preference when an entry from entries is
+     * selected. If a user clicks on the second item in entries, the second item in this array
+     * will be saved to the preference.
      *
-     * @param entryValues The array to be used as mValues to save for the preference.
+     * @param entryValues The array to be used as mValues to save for the preference
      */
     public void setEntryValues(CharSequence[] entryValues) {
         mEntryValues = entryValues;
     }
 
     /**
+     * @param entryValuesResId The entry mValues array as a resource
      * @see #setEntryValues(CharSequence[])
-     * @param entryValuesResId The entry mValues array as a resource.
      */
     public void setEntryValues(@ArrayRes int entryValuesResId) {
         setEntryValues(getContext().getResources().getTextArray(entryValuesResId));
@@ -134,7 +131,7 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     /**
      * Returns the array of mValues to be saved for the preference.
      *
-     * @return The array of mValues.
+     * @return The array of mValues
      */
     @Override
     public CharSequence[] getEntryValues() {
@@ -142,10 +139,9 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     }
 
     /**
-     * Sets the value of the key. This should contain entries in
-     * {@link #getEntryValues()}.
+     * Sets the values for the key. This should contain entries in {@link #getEntryValues()}.
      *
-     * @param values The mValues to set for the key.
+     * @param values The mValues to set for the key
      */
     @Override
     public void setValues(Set<String> values) {
@@ -156,7 +152,9 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     }
 
     /**
-     * Retrieves the current value of the key.
+     * Retrieves the current values of the key.
+     *
+     * @return The set of current values
      */
     @Override
     public Set<String> getValues() {
@@ -166,8 +164,8 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     /**
      * Returns the index of the given value (in the entry mValues array).
      *
-     * @param value The value whose index should be returned.
-     * @return The index of the value, or -1 if not found.
+     * @param value The value whose index should be returned
+     * @return The index of the value, or -1 if not found
      */
     public int findIndexOfValue(String value) {
         if (value != null && mEntryValues != null) {
@@ -238,6 +236,19 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
     }
 
     private static class SavedState extends BaseSavedState {
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
+
         Set<String> mValues;
 
         SavedState(Parcel source) {
@@ -260,18 +271,5 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
             dest.writeInt(mValues.size());
             dest.writeStringArray(mValues.toArray(new String[mValues.size()]));
         }
-
-        public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
-                    @Override
-                    public SavedState createFromParcel(Parcel in) {
-                        return new SavedState(in);
-                    }
-
-                    @Override
-                    public SavedState[] newArray(int size) {
-                        return new SavedState[size];
-                    }
-                };
     }
 }

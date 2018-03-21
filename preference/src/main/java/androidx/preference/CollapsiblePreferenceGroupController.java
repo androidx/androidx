@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A controller to handle advanced children display logic with collapsible functionality.
+ * A controller to handle child visibility logic when dealing with expandable preferences.
  */
 final class CollapsiblePreferenceGroupController {
 
@@ -31,8 +31,8 @@ final class CollapsiblePreferenceGroupController {
     private final Context mContext;
 
     /**
-     * Whether there is a child PreferenceGroup that has an expandable preference. This is used to
-     * avoid unnecessary preference tree rebuilds when no such group exists.
+     * Whether there is a child {@link PreferenceGroup} that has an expandable preference. This
+     * is used to avoid unnecessary preference tree rebuilds when no such group exists.
      */
     private boolean mHasExpandablePreference = false;
 
@@ -43,10 +43,10 @@ final class CollapsiblePreferenceGroupController {
     }
 
     /**
-     * Generates the visible section of the PreferenceGroup.
+     * Generates the visible section of the {@link PreferenceGroup}.
      *
-     * @param group the root preference group to be processed
-     * @return the flattened and visible section of the PreferenceGroup
+     * @param group The root preference group to be processed
+     * @return The flattened and visible section of the preference group
      */
     public List<Preference> createVisiblePreferencesList(PreferenceGroup group) {
         return createInnerVisiblePreferencesList(group);
@@ -117,8 +117,8 @@ final class CollapsiblePreferenceGroupController {
     /**
      * Called when a preference has changed its visibility.
      *
-     * @param preference The preference whose visibility has changed.
-     * @return {@code true} if view update has been handled by this controller.
+     * @param preference The preference whose visibility has changed
+     * @return {@code true} if view update has been handled by this controller
      */
     public boolean onPreferenceVisibilityChange(Preference preference) {
         if (mHasExpandablePreference) {
@@ -146,8 +146,7 @@ final class CollapsiblePreferenceGroupController {
     }
 
     /**
-     * A {@link Preference} that provides capability to expand the collapsed items in the
-     * {@link PreferenceGroup}.
+     * A {@link Preference} that expands the collapsed items in the {@link PreferenceGroup}.
      */
     static class ExpandButton extends Preference {
         ExpandButton(Context context, List<Preference> collapsedPreferences) {

@@ -27,9 +27,8 @@ import androidx.preference.DialogPreference;
 import java.util.Set;
 
 /**
- * Stub superclass for {@link androidx.preference.MultiSelectListPreference} so that we
- * can reference it from
- * {@link androidx.preference.MultiSelectListPreferenceDialogFragmentCompat}
+ * Stub superclass for {@link androidx.preference.MultiSelectListPreference} so that we can
+ * reference it from {@link androidx.preference.MultiSelectListPreferenceDialogFragmentCompat}.
  *
  * @hide
  */
@@ -40,7 +39,8 @@ public abstract class AbstractMultiSelectListPreference extends DialogPreference
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public AbstractMultiSelectListPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AbstractMultiSelectListPreference(Context context, AttributeSet attrs,
+            int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -53,7 +53,10 @@ public abstract class AbstractMultiSelectListPreference extends DialogPreference
     }
 
     public abstract CharSequence[] getEntries();
+
     public abstract Set<String> getValues();
+
     public abstract CharSequence[] getEntryValues();
+
     public abstract void setValues(Set<String> values);
 }

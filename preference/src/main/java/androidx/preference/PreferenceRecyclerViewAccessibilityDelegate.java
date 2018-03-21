@@ -28,7 +28,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
 
 /**
- * The AccessibilityDelegate used by the RecyclerView that displays Views for Preferences.
+ * The accessibility delegate used by the {@link RecyclerView} that displays views for
+ * {@link Preference}s.
  *
  * @hide
  */

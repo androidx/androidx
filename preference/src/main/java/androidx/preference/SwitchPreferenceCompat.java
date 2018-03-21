@@ -31,16 +31,16 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.res.TypedArrayUtils;
 
 /**
-* A {@link Preference} that provides a two-state toggleable option.
-* <p>
-* This preference will store a boolean into the SharedPreferences.
-*
-* @attr name android:summaryOff
-* @attr name android:summaryOn
-* @attr name android:switchTextOff
-* @attr name android:switchTextOn
-* @attr name android:disableDependentsState
-*/
+ * A {@link Preference} that provides a two-state toggleable option.
+ *
+ * <p>This preference will save a boolean value to {@link android.content.SharedPreferences}.
+ *
+ * @attr name android:summaryOff
+ * @attr name android:summaryOn
+ * @attr name android:switchTextOff
+ * @attr name android:switchTextOn
+ * @attr name android:disableDependentsState
+ */
 public class SwitchPreferenceCompat extends TwoStatePreference {
     private final Listener mListener = new Listener();
 
@@ -48,32 +48,17 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     private CharSequence mSwitchOn;
     private CharSequence mSwitchOff;
 
-    private class Listener implements CompoundButton.OnCheckedChangeListener {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (!callChangeListener(isChecked)) {
-                // Listener didn't like it, change it back.
-                // CompoundButton will make sure we don't recurse.
-                buttonView.setChecked(!isChecked);
-                return;
-            }
-
-            SwitchPreferenceCompat.this.setChecked(isChecked);
-        }
-    }
-
     /**
      * Construct a new SwitchPreference with the given style options.
      *
-     * @param context The Context that will style this preference
-     * @param attrs Style attributes that differ from the default
-     * @param defStyleAttr An attribute in the current theme that contains a
-     *        reference to a style resource that supplies default values for
-     *        the view. Can be 0 to not look for defaults.
-     * @param defStyleRes A resource identifier of a style resource that
-     *        supplies default values for the view, used only if
-     *        defStyleAttr is 0 or can not be found in the theme. Can be 0
-     *        to not look for defaults.
+     * @param context      The {@link Context} that will style this preference
+     * @param attrs        Style attributes that differ from the default
+     * @param defStyleAttr An attribute in the current theme that contains a reference to a style
+     *                     resource that supplies default values for the view. Can be 0 to not
+     *                     look for defaults.
+     * @param defStyleRes  A resource identifier of a style resource that supplies default values
+     *                     for the view, used only if defStyleAttr is 0 or can not be found in the
+     *                     theme. Can be 0 to not look for defaults.
      */
     public SwitchPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
@@ -106,11 +91,11 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     /**
      * Construct a new SwitchPreference with the given style options.
      *
-     * @param context The Context that will style this preference
-     * @param attrs Style attributes that differ from the default
-     * @param defStyleAttr An attribute in the current theme that contains a
-     *        reference to a style resource that supplies default values for
-     *        the view. Can be 0 to not look for defaults.
+     * @param context      The {@link Context} that will style this preference
+     * @param attrs        Style attributes that differ from the default
+     * @param defStyleAttr An attribute in the current theme that contains a reference to a style
+     *                     resource that supplies default values for the view. Can be 0 to not
+     *                     look for defaults.
      */
     public SwitchPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
@@ -119,8 +104,8 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     /**
      * Construct a new SwitchPreference with the given style options.
      *
-     * @param context The Context that will style this preference
-     * @param attrs Style attributes that differ from the default
+     * @param context The {@link Context} that will style this preference
+     * @param attrs   Style attributes that differ from the default
      */
     public SwitchPreferenceCompat(Context context, AttributeSet attrs) {
         this(context, attrs, R.attr.switchPreferenceCompatStyle);
@@ -129,7 +114,7 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     /**
      * Construct a new SwitchPreference with default style options.
      *
-     * @param context The Context that will style this preference
+     * @param context The {@link Context} that will style this preference
      */
     public SwitchPreferenceCompat(Context context) {
         this(context, null);
@@ -145,7 +130,7 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
 
     /**
      * Set the text displayed on the switch widget in the on state.
-     * This should be a very short string; one word if possible.
+     * This should be a very short string, one word if possible.
      *
      * @param onText Text to display in the on state
      */
@@ -156,33 +141,13 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
 
     /**
      * Set the text displayed on the switch widget in the off state.
-     * This should be a very short string; one word if possible.
+     * This should be a very short string, one word if possible.
      *
      * @param offText Text to display in the off state
      */
     public void setSwitchTextOff(CharSequence offText) {
         mSwitchOff = offText;
         notifyChanged();
-    }
-
-    /**
-     * Set the text displayed on the switch widget in the on state.
-     * This should be a very short string; one word if possible.
-     *
-     * @param resId The text as a string resource ID
-     */
-    public void setSwitchTextOn(int resId) {
-        setSwitchTextOn(getContext().getString(resId));
-    }
-
-    /**
-     * Set the text displayed on the switch widget in the off state.
-     * This should be a very short string; one word if possible.
-     *
-     * @param resId The text as a string resource ID
-     */
-    public void setSwitchTextOff(int resId) {
-        setSwitchTextOff(getContext().getString(resId));
     }
 
     /**
@@ -193,10 +158,30 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     }
 
     /**
+     * Set the text displayed on the switch widget in the on state.
+     * This should be a very short string, one word if possible.
+     *
+     * @param resId The text as a string resource ID
+     */
+    public void setSwitchTextOn(int resId) {
+        setSwitchTextOn(getContext().getString(resId));
+    }
+
+    /**
      * @return The text that will be displayed on the switch widget in the off state
      */
     public CharSequence getSwitchTextOff() {
         return mSwitchOff;
+    }
+
+    /**
+     * Set the text displayed on the switch widget in the off state.
+     * This should be a very short string, one word if possible.
+     *
+     * @param resId The text as a string resource ID
+     */
+    public void setSwitchTextOff(int resId) {
+        setSwitchTextOff(getContext().getString(resId));
     }
 
     /**
@@ -236,6 +221,20 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
             switchView.setTextOn(mSwitchOn);
             switchView.setTextOff(mSwitchOff);
             switchView.setOnCheckedChangeListener(mListener);
+        }
+    }
+
+    private class Listener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (!callChangeListener(isChecked)) {
+                // Listener didn't like it, change it back.
+                // CompoundButton will make sure we don't recurse.
+                buttonView.setChecked(!isChecked);
+                return;
+            }
+
+            SwitchPreferenceCompat.this.setChecked(isChecked);
         }
     }
 }

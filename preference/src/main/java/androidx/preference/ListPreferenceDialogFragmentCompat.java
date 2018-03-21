@@ -44,6 +44,22 @@ public class ListPreferenceDialogFragmentCompat extends PreferenceDialogFragment
         return fragment;
     }
 
+    private static void putCharSequenceArray(Bundle out, String key, CharSequence[] entries) {
+        final ArrayList<String> stored = new ArrayList<>(entries.length);
+
+        for (final CharSequence cs : entries) {
+            stored.add(cs.toString());
+        }
+
+        out.putStringArrayList(key, stored);
+    }
+
+    private static CharSequence[] getCharSequenceArray(Bundle in, String key) {
+        final ArrayList<String> stored = in.getStringArrayList(key);
+
+        return stored == null ? null : stored.toArray(new CharSequence[stored.size()]);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,22 +89,6 @@ public class ListPreferenceDialogFragmentCompat extends PreferenceDialogFragment
         putCharSequenceArray(outState, SAVE_STATE_ENTRY_VALUES, mEntryValues);
     }
 
-    private static void putCharSequenceArray(Bundle out, String key, CharSequence[] entries) {
-        final ArrayList<String> stored = new ArrayList<>(entries.length);
-
-        for (final CharSequence cs : entries) {
-            stored.add(cs.toString());
-        }
-
-        out.putStringArrayList(key, stored);
-    }
-
-    private static CharSequence[] getCharSequenceArray(Bundle in, String key) {
-        final ArrayList<String> stored = in.getStringArrayList(key);
-
-        return stored == null ? null : stored.toArray(new CharSequence[stored.size()]);
-    }
-
     private ListPreference getListPreference() {
         return (ListPreference) getPreference();
     }
@@ -103,21 +103,16 @@ public class ListPreferenceDialogFragmentCompat extends PreferenceDialogFragment
                     public void onClick(DialogInterface dialog, int which) {
                         mClickedDialogEntryIndex = which;
 
-                        /*
-                         * Clicking on an item simulates the positive button
-                         * click, and dismisses the dialog.
-                         */
+                        // Clicking on an item simulates the positive button click, and dismisses
+                        // the dialog.
                         ListPreferenceDialogFragmentCompat.this.onClick(dialog,
                                 DialogInterface.BUTTON_POSITIVE);
                         dialog.dismiss();
                     }
                 });
 
-        /*
-         * The typical interaction for list-based dialogs is to have
-         * click-on-an-item dismiss the dialog instead of the user having to
-         * press 'Ok'.
-         */
+        // The typical interaction for list-based dialogs is to have click-on-an-item dismiss the
+        // dialog instead of the user having to press 'Ok'.
         builder.setPositiveButton(null, null);
     }
 

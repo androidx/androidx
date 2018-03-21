@@ -41,11 +41,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * Abstract base class which presents a dialog associated with a
- * {@link androidx.preference.DialogPreference}. Since the preference object may
- * not be available during fragment re-creation, the necessary information for displaying the dialog
- * is read once during the initial call to {@link #onCreate(Bundle)} and saved/restored in the saved
- * instance state. Custom subclasses should also follow this pattern.
+ * Abstract base class which presents a dialog associated with a {@link DialogPreference}. Since
+ * the preference object may not be available during fragment re-creation, the necessary
+ * information for displaying the dialog is read once during the initial call to
+ * {@link #onCreate(Bundle)} and saved/restored in the saved instance state. Custom subclasses
+ * should also follow this pattern.
  */
 public abstract class PreferenceDialogFragment extends DialogFragment implements
         DialogInterface.OnClickListener {
@@ -167,8 +167,7 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
      * Get the preference that requested this dialog. Available after {@link #onCreate(Bundle)} has
      * been called on the {@link PreferenceFragment} which launched this dialog.
      *
-     * @return The {@link DialogPreference} associated with this
-     * dialog.
+     * @return The {@link DialogPreference} associated with this dialog
      */
     public DialogPreference getPreference() {
         if (mPreference == null) {
@@ -183,16 +182,17 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
     /**
      * Prepares the dialog builder to be shown when the preference is clicked.
      * Use this to set custom properties on the dialog.
-     * <p>
-     * Do not {@link AlertDialog.Builder#create()} or
-     * {@link AlertDialog.Builder#show()}.
+     *
+     * <p>Do not {@link AlertDialog.Builder#create()} or {@link AlertDialog.Builder#show()}.
      */
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {}
+    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+    }
 
     /**
-     * Returns whether the preference needs to display a soft input method when the dialog
-     * is displayed. Default is false. Subclasses should override this method if they need
-     * the soft input method brought up automatically.
+     * Returns whether the preference needs to display a soft input method when the dialog is
+     * displayed. Default is false. Subclasses should override this method if they need the soft
+     * input method brought up automatically.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -209,11 +209,10 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
     }
 
     /**
-     * Creates the content view for the dialog (if a custom content view is
-     * required). By default, it inflates the dialog layout resource if it is
-     * set.
+     * Creates the content view for the dialog (if a custom content view is required).
+     * By default, it inflates the dialog layout resource if it is set.
      *
-     * @return The content View for the dialog.
+     * @return The content view for the dialog
      * @see DialogPreference#setLayoutResource(int)
      */
     protected View onCreateDialogView(Context context) {
@@ -227,11 +226,11 @@ public abstract class PreferenceDialogFragment extends DialogFragment implements
     }
 
     /**
-     * Binds views in the content View of the dialog to data.
-     * <p>
-     * Make sure to call through to the superclass implementation.
+     * Binds views in the content view of the dialog to data.
      *
-     * @param view The content View of the dialog, if it is custom.
+     * <p>Make sure to call through to the superclass implementation.
+     *
+     * @param view The content view of the dialog, if it is custom
      */
     protected void onBindDialogView(View view) {
         View dialogMessageView = view.findViewById(android.R.id.message);

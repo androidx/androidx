@@ -21,19 +21,20 @@ import androidx.annotation.Nullable;
 import java.util.Set;
 
 /**
- * A data store interface to be implemented and provided to the Preferences framework. This can be
- * used to replace the default {@link android.content.SharedPreferences}, if needed.
+ * A data store interface to be implemented and provided to the {@link Preference} framework.
+ * This can be used to replace the default {@link android.content.SharedPreferences}, if needed.
  *
- * <p>In most cases you want to use {@link android.content.SharedPreferences} as it is automatically
- * backed up and migrated to new devices. However, providing custom data store to preferences can be
- * useful if your app stores its preferences in a local db, cloud or they are device specific like
- * "Developer settings". It might be also useful when you want to use the preferences UI but
- * the data are not supposed to be stored at all because they are valid per session only.
+ * <p>In most cases you want to use {@link android.content.SharedPreferences} as it is
+ * automatically backed up and migrated to new devices. However, providing custom data store to
+ * preferences can be useful if your app stores its preferences in a local database, cloud, or
+ * they are device specific like "Developer settings". It might be also useful when you want to
+ * use the preferences UI but the data is not supposed to be stored at all because they are only
+ * valid per session.
  *
- * <p>Once a put method is called it is full responsibility of the data store implementation to
- * safely store the given values. Time expensive operations need to be done in the background to
- * prevent from blocking the UI. You also need to have a plan on how to serialize the data in case
- * the activity holding this object gets destroyed.
+ * <p>Once a put method is called it is the full responsibility of the data store implementation
+ * to safely store the given values. Time expensive operations need to be done in the background
+ * to prevent from blocking the UI. You also need to have a plan on how to serialize the data in
+ * case the activity holding this object gets destroyed.
  *
  * <p>By default, all "put" methods throw {@link UnsupportedOperationException}.
  *
@@ -47,8 +48,8 @@ public abstract class PreferenceDataStore {
      *
      * <p>Once the value is set the data store is responsible for holding it.
      *
-     * @param key the name of the preference to modify
-     * @param value the new value for the preference
+     * @param key   The name of the preference to modify
+     * @param value The new value for the preference
      * @see #getString(String, String)
      */
     public void putString(String key, @Nullable String value) {
@@ -56,12 +57,12 @@ public abstract class PreferenceDataStore {
     }
 
     /**
-     * Sets a set of Strings to the data store.
+     * Sets a set of {@link String}s to the data store.
      *
      * <p>Once the value is set the data store is responsible for holding it.
      *
-     * @param key the name of the preference to modify
-     * @param values the set of new values for the preference
+     * @param key    The name of the preference to modify
+     * @param values The set of new values for the preference
      * @see #getStringSet(String, Set<String>)
      */
     public void putStringSet(String key, @Nullable Set<String> values) {
@@ -73,8 +74,8 @@ public abstract class PreferenceDataStore {
      *
      * <p>Once the value is set the data store is responsible for holding it.
      *
-     * @param key the name of the preference to modify
-     * @param value the new value for the preference
+     * @param key   The name of the preference to modify
+     * @param value The new value for the preference
      * @see #getInt(String, int)
      */
     public void putInt(String key, int value) {
@@ -86,8 +87,8 @@ public abstract class PreferenceDataStore {
      *
      * <p>Once the value is set the data store is responsible for holding it.
      *
-     * @param key the name of the preference to modify
-     * @param value the new value for the preference
+     * @param key   The name of the preference to modify
+     * @param value The new value for the preference
      * @see #getLong(String, long)
      */
     public void putLong(String key, long value) {
@@ -99,8 +100,8 @@ public abstract class PreferenceDataStore {
      *
      * <p>Once the value is set the data store is responsible for holding it.
      *
-     * @param key the name of the preference to modify
-     * @param value the new value for the preference
+     * @param key   The name of the preference to modify
+     * @param value The new value for the preference
      * @see #getFloat(String, float)
      */
     public void putFloat(String key, float value) {
@@ -112,8 +113,8 @@ public abstract class PreferenceDataStore {
      *
      * <p>Once the value is set the data store is responsible for holding it.
      *
-     * @param key the name of the preference to modify
-     * @param value the new value for the preference
+     * @param key   The name of the preference to modify
+     * @param value The new value for the preference
      * @see #getBoolean(String, boolean)
      */
     public void putBoolean(String key, boolean value) {
@@ -123,9 +124,9 @@ public abstract class PreferenceDataStore {
     /**
      * Retrieves a {@link String} value from the data store.
      *
-     * @param key the name of the preference to retrieve
-     * @param defValue value to return if this preference does not exist in the storage
-     * @return the value from the data store or the default return value
+     * @param key      The name of the preference to retrieve
+     * @param defValue Value to return if this preference does not exist in the storage
+     * @return The value from the data store or the default return value
      * @see #putString(String, String)
      */
     @Nullable
@@ -136,9 +137,9 @@ public abstract class PreferenceDataStore {
     /**
      * Retrieves a set of Strings from the data store.
      *
-     * @param key the name of the preference to retrieve
-     * @param defValues values to return if this preference does not exist in the storage
-     * @return the values from the data store or the default return values
+     * @param key       The name of the preference to retrieve
+     * @param defValues Values to return if this preference does not exist in the storage
+     * @return The values from the data store or the default return values
      * @see #putStringSet(String, Set<String>)
      */
     @Nullable
@@ -149,9 +150,9 @@ public abstract class PreferenceDataStore {
     /**
      * Retrieves an {@link Integer} value from the data store.
      *
-     * @param key the name of the preference to retrieve
-     * @param defValue value to return if this preference does not exist in the storage
-     * @return the value from the data store or the default return value
+     * @param key      The name of the preference to retrieve
+     * @param defValue Value to return if this preference does not exist in the storage
+     * @return The value from the data store or the default return value
      * @see #putInt(String, int)
      */
     public int getInt(String key, int defValue) {
@@ -161,9 +162,9 @@ public abstract class PreferenceDataStore {
     /**
      * Retrieves a {@link Long} value from the data store.
      *
-     * @param key the name of the preference to retrieve
-     * @param defValue value to return if this preference does not exist in the storage
-     * @return the value from the data store or the default return value
+     * @param key      The name of the preference to retrieve
+     * @param defValue Value to return if this preference does not exist in the storage
+     * @return The value from the data store or the default return value
      * @see #putLong(String, long)
      */
     public long getLong(String key, long defValue) {
@@ -173,9 +174,9 @@ public abstract class PreferenceDataStore {
     /**
      * Retrieves a {@link Float} value from the data store.
      *
-     * @param key the name of the preference to retrieve
-     * @param defValue value to return if this preference does not exist in the storage
-     * @return the value from the data store or the default return value
+     * @param key      The name of the preference to retrieve
+     * @param defValue Value to return if this preference does not exist in the storage
+     * @return The value from the data store or the default return value
      * @see #putFloat(String, float)
      */
     public float getFloat(String key, float defValue) {
@@ -185,8 +186,8 @@ public abstract class PreferenceDataStore {
     /**
      * Retrieves a {@link Boolean} value from the data store.
      *
-     * @param key the name of the preference to retrieve
-     * @param defValue value to return if this preference does not exist in the storage
+     * @param key      The name of the preference to retrieve
+     * @param defValue Value to return if this preference does not exist in the storage
      * @return the value from the data store or the default return value
      * @see #getBoolean(String, boolean)
      */
