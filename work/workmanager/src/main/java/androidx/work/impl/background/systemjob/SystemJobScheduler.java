@@ -42,8 +42,8 @@ public class SystemJobScheduler implements Scheduler {
 
     private static final String TAG = "SystemJobScheduler";
 
-    private JobScheduler mJobScheduler;
-    private SystemJobInfoConverter mSystemJobInfoConverter;
+    private final JobScheduler mJobScheduler;
+    private final SystemJobInfoConverter mSystemJobInfoConverter;
 
     public SystemJobScheduler(Context context) {
         this((JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE),

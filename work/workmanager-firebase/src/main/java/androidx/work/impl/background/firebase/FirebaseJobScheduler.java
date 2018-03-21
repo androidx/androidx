@@ -45,13 +45,14 @@ public class FirebaseJobScheduler implements Scheduler {
 
     private static final String TAG = "FirebaseJobScheduler";
 
-    private Context mAppContext;
-    private FirebaseJobDispatcher mDispatcher;
-    private FirebaseJobConverter mJobConverter;
+    private final Context mAppContext;
+    private final FirebaseJobDispatcher mDispatcher;
+    private final FirebaseJobConverter mJobConverter;
+
     private IdGenerator mIdGenerator;
     private AlarmManager mAlarmManager;
 
-    public FirebaseJobScheduler(Context context) {
+    public FirebaseJobScheduler(@NonNull Context context) {
         mAppContext = context.getApplicationContext();
         boolean isPlayServicesAvailable = GoogleApiAvailability.getInstance()
                 .isGooglePlayServicesAvailable(mAppContext) == ConnectionResult.SUCCESS;

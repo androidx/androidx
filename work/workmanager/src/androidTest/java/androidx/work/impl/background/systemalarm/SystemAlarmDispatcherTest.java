@@ -152,7 +152,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, intent, START_ID));
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
-        assertThat(mLatch.getCount(), is(0L));
     }
 
     @Test
@@ -199,7 +198,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     @Test
-    public void testSchedule_withStopWhenCancelled() throws InterruptedException {
+    public void testDelayMet_withStopWhenCancelled() throws InterruptedException {
         Work work = new Work.Builder(SleepTestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
@@ -207,7 +206,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         insertWork(work);
         String workSpecId = work.getId();
 
-        final Intent scheduleWork = CommandHandler.createScheduleWorkIntent(mContext, workSpecId);
+        final Intent scheduleWork = CommandHandler.createDelayMetIntent(mContext, workSpecId);
         final Intent stopWork = CommandHandler.createStopWorkIntent(mContext, workSpecId);
 
         mSpyDispatcher.postOnMainThread(
@@ -252,6 +251,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testConstraintsChanged_withNoConstraints() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class)
+                .withScheduleRequestedAt(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
@@ -265,6 +265,24 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         assertThat(mLatch.getCount(), is(0L));
         verify(mSpyProcessor, times(1)).startWork(workSpecId);
+    }
+
+    @Test
+    public void testConstraintsChangedMarkedNotScheduled_withNoConstraints()
+            throws InterruptedException {
+        Work work = new Work.Builder(TestWorker.class)
+                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .build();
+
+        insertWork(work);
+        String workSpecId = work.getId();
+        final Intent constraintChanged = CommandHandler.createConstraintsChangedIntent(mContext);
+        mSpyDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, constraintChanged, START_ID));
+
+        mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
+        assertThat(mLatch.getCount(), is(0L));
+        verify(mSpyProcessor, times(0)).startWork(workSpecId);
     }
 
     @Test

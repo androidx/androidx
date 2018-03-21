@@ -25,8 +25,11 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.WorkDatabase;
+import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.model.WorkSpecDao;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -171,25 +174,17 @@ public class CommandHandler implements ExecutionListener {
         Bundle extras = intent.getExtras();
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
         Logger.debug(TAG, "Handling schedule work for %s", workSpecId);
-        WorkSpec workSpec = dispatcher.getWorkManager()
-                .getWorkDatabase()
-                .workSpecDao()
-                .getWorkSpec(workSpecId);
 
-        Intent delayMet = CommandHandler.createDelayMetIntent(mContext, workSpecId);
+        WorkManagerImpl workManager = dispatcher.getWorkManager();
+        WorkDatabase workDatabase = workManager.getWorkDatabase();
+        WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+
+        WorkSpec workSpec = workSpecDao.getWorkSpec(workSpecId);
         long triggerAt = workSpec.calculateNextRunTime();
 
         if (!workSpec.hasConstraints()) {
-            if (triggerAt <= System.currentTimeMillis()) {
-                // We should be already processing this worker
-                // Request dispatcher to treat this as a delayMet intent
-                Logger.debug(TAG, "triggerAt is in the past. Processing the worker %s", workSpecId);
-                dispatcher.postOnMainThread(
-                        new SystemAlarmDispatcher.AddRunnable(dispatcher, delayMet, startId));
-            } else {
-                Logger.debug(TAG, "Setting up Alarms for %s", workSpecId);
-                Alarms.setAlarm(mContext, dispatcher.getWorkManager(), workSpecId, triggerAt);
-            }
+            Logger.debug(TAG, "Setting up Alarms for %s", workSpecId);
+            Alarms.setAlarm(mContext, dispatcher.getWorkManager(), workSpecId, triggerAt);
         } else {
             // Schedule an alarm irrespective of whether all constraints matched.
             Logger.debug(TAG, "Opportunistically setting an alarm for %s", workSpecId);

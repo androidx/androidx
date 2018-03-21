@@ -33,9 +33,11 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.background.systemalarm.SystemAlarmService;
 import androidx.work.impl.background.systemjob.SystemJobService;
+import androidx.work.impl.model.WorkSpecDao;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,12 +49,18 @@ public class ForceStopRunnableTest {
 
     private Context mContext;
     private WorkManagerImpl mWorkManager;
+    private WorkDatabase mWorkDatabase;
+    private WorkSpecDao mWorkSpecDao;
     private ForceStopRunnable mRunnable;
 
     @Before
     public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         mWorkManager = mock(WorkManagerImpl.class);
+        mWorkDatabase = mock(WorkDatabase.class);
+        mWorkSpecDao = mock(WorkSpecDao.class);
+        when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
+        when(mWorkDatabase.workSpecDao()).thenReturn(mWorkSpecDao);
         mRunnable = new ForceStopRunnable(mContext, mWorkManager);
     }
 

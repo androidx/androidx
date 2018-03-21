@@ -16,6 +16,7 @@
 
 package androidx.work.impl.utils;
 
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -30,6 +31,8 @@ import androidx.work.impl.WorkContinuationImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -45,9 +48,30 @@ public class EnqueueRunnableTest {
     @Test
     public void testScheduleWorkInBackground_isCalled() {
         EnqueueRunnable runnable = spy(new EnqueueRunnable(mWorkContinuation));
-        doNothing().when(runnable).addToDatabase();
+        // For some reason when().thenReturn() does not seem to work here. :(
+        // TODO(rahulrav@) Figure out why.
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return true;
+            }
+        }).when(runnable).addToDatabase();
         doNothing().when(runnable).scheduleWorkInBackground();
         runnable.run();
         verify(runnable, times(1)).scheduleWorkInBackground();
+    }
+
+    @Test
+    public void testScheduleWorkInBackground_isNotCalled() {
+        EnqueueRunnable runnable = spy(new EnqueueRunnable(mWorkContinuation));
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return false;
+            }
+        }).when(runnable).addToDatabase();
+        doNothing().when(runnable).scheduleWorkInBackground();
+        runnable.run();
+        verify(runnable, times(0)).scheduleWorkInBackground();
     }
 }

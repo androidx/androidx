@@ -29,6 +29,7 @@ import android.support.annotation.NonNull;
 
 import androidx.work.Arguments;
 import androidx.work.State;
+import androidx.work.impl.Scheduler;
 
 import java.util.List;
 
@@ -209,16 +210,6 @@ public interface WorkSpecDao {
     LiveData<List<WorkSpec.WorkStatusPojo>> getWorkStatusPojoLiveDataForName(String name);
 
     /**
-     * Retrieves {@link WorkSpec}s that have state {@code ENQUEUED} or {@code RUNNING}
-     *
-     * @return A list of {@link WorkSpec}s.
-     */
-    @Query("SELECT * FROM workspec WHERE (state=" + EnumTypeConverters.StateIds.ENQUEUED
-            + " OR state=" + EnumTypeConverters.StateIds.RUNNING
-            + ") AND period_start_time<=:startTime")
-    List<WorkSpec> getEligibleWorkSpecs(long startTime);
-
-    /**
      * Gets all inputs coming from prerequisites for a particular {@link WorkSpec}.  These are
      * {@link Arguments} set via {@code Worker#setOutput()}.
      *
@@ -248,4 +239,35 @@ public interface WorkSpecDao {
     @Query("SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES
             + " AND id IN (SELECT work_spec_id FROM workname WHERE name=:name)")
     List<String> getUnfinishedWorkWithName(@NonNull String name);
+
+    /**
+     * Marks a {@link WorkSpec} as scheduled.
+     *
+     * @param id        The identifier for the {@link WorkSpec}
+     * @param startTime The time at which the {@link WorkSpec} was scheduled.
+     * @return The number of rows that were updated (should be 0 or 1)
+     */
+    @Query("UPDATE workspec SET schedule_requested_at=:startTime WHERE id=:id")
+    int markWorkSpecScheduled(@NonNull String id, long startTime);
+
+    /**
+     * Resets the scheduled state on the {@link WorkSpec}s that are not in a a completed state.
+     * @return The number of rows that were updated
+     */
+    @Query("UPDATE workspec SET schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+            + " WHERE state NOT IN " + COMPLETED_STATES)
+    int resetScheduledState();
+
+    /**
+     * @return The List of {@link WorkSpec}s that are eligible to be scheduled.
+     */
+    @Query("SELECT * from workspec WHERE "
+            + "state=" + EnumTypeConverters.StateIds.ENQUEUED
+            + " LIMIT "
+                + "(SELECT " + Scheduler.MAX_SCHEDULER_LIMIT + "-COUNT(*) FROM workspec WHERE"
+                    + " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+                    + " AND state NOT IN " + COMPLETED_STATES
+                + ")"
+    )
+    List<WorkSpec> getEligibleWorkForScheduling();
 }

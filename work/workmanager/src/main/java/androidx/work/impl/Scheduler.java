@@ -29,6 +29,11 @@ import androidx.work.impl.model.WorkSpec;
 public interface Scheduler {
 
     /**
+     * The maximum number of {@link WorkSpec}s that can be scheduled at a given point in time.
+     */
+    int MAX_SCHEDULER_LIMIT = 100;
+
+    /**
      * Schedule the given {@link WorkSpec}s for background execution.  The Scheduler does NOT need
      * to check if there are any dependencies.
      *

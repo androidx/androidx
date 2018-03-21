@@ -105,6 +105,8 @@ public class SystemJobServiceTest extends WorkManagerTest {
         assertThat(workSpecDao.getState(work.getId()), is(State.RUNNING));
 
         mSystemJobService.onStopJob(mockParams);
+        // TODO(rahulrav): Figure out why this test is flaky.
+        Thread.sleep(1000L);
         assertThat(workSpecDao.getState(work.getId()), is(State.ENQUEUED));
     }
 
