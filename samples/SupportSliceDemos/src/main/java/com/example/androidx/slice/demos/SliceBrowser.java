@@ -19,7 +19,6 @@ package com.example.androidx.slice.demos;
 import static com.example.androidx.slice.demos.SampleSliceProvider.URI_PATHS;
 import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
 
-import android.arch.lifecycle.LiveData;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -45,6 +44,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.LiveData;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.widget.EventInfo;

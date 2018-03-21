@@ -1,16 +1,16 @@
 -keepattributes *Annotation*
 
--keepclassmembers enum android.arch.lifecycle.Lifecycle$Event {
+-keepclassmembers enum androidx.lifecycle.Lifecycle$Event {
     <fields>;
 }
 
--keep class * implements android.arch.lifecycle.LifecycleObserver {
+-keep class * implements androidx.lifecycle.LifecycleObserver {
 }
 
--keep class * implements android.arch.lifecycle.GeneratedAdapter {
+-keep class * implements androidx.lifecycle.GeneratedAdapter {
     <init>(...);
 }
 
 -keepclassmembers class ** {
-    @android.arch.lifecycle.OnLifecycleEvent *;
+    @androidx.lifecycle.OnLifecycleEvent *;
 }

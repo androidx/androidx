@@ -17,7 +17,6 @@ package androidx.slice.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -26,6 +25,7 @@ import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
+import androidx.lifecycle.LiveData;
 import androidx.slice.Slice;
 import androidx.slice.SliceManager;
 import androidx.slice.SliceSpec;

@@ -1,4 +1,4 @@
-package android.arch.persistence.room {
+package androidx.room {
 
   public class EmptyResultSetException extends java.lang.RuntimeException {
     ctor public EmptyResultSetException(java.lang.String);
@@ -6,7 +6,7 @@ package android.arch.persistence.room {
 
   public class RxRoom {
     ctor public RxRoom();
-    method public static io.reactivex.Flowable<java.lang.Object> createFlowable(android.arch.persistence.room.RoomDatabase, java.lang.String...);
+    method public static io.reactivex.Flowable<java.lang.Object> createFlowable(androidx.room.RoomDatabase, java.lang.String...);
     field public static final java.lang.Object NOTHING;
   }
 

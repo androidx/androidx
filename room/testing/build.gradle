@@ -24,12 +24,12 @@ plugins {
 }
 
 dependencies {
-    api(project(":room:common"))
-    api(project(":room:runtime"))
-    api(project(":persistence:db"))
-    api(project(":persistence:db-framework"))
-    api(project(":room:migration"))
-    api(project(":arch:runtime"))
+    api(project(":room:room-common"))
+    api(project(":room:room-runtime"))
+    api(project(":sqlite:sqlite"))
+    api(project(":sqlite:sqlite-framework"))
+    api(project(":room:room-migration"))
+    api(project(":arch:core-runtime"))
     api(SUPPORT_CORE_UTILS, libs.support_exclude_config)
     api(JUNIT)
 }
