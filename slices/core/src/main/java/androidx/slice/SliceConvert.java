@@ -27,6 +27,7 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
+import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.List;
 import java.util.Set;
@@ -51,7 +52,7 @@ public class SliceConvert {
                     builder.addSubSlice(unwrap(item.getSlice()), item.getSubType());
                     break;
                 case FORMAT_IMAGE:
-                    builder.addIcon(item.getIcon(), item.getSubType(), item.getHints());
+                    builder.addIcon(item.getIcon().toIcon(), item.getSubType(), item.getHints());
                     break;
                 case FORMAT_REMOTE_INPUT:
                     builder.addRemoteInput(item.getRemoteInput(), item.getSubType(),
@@ -102,7 +103,8 @@ public class SliceConvert {
                     builder.addSubSlice(wrap(item.getSlice()), item.getSubType());
                     break;
                 case FORMAT_IMAGE:
-                    builder.addIcon(item.getIcon(), item.getSubType(), item.getHints());
+                    builder.addIcon(IconCompat.createFromIcon(item.getIcon()),
+                            item.getSubType(), item.getHints());
                     break;
                 case FORMAT_REMOTE_INPUT:
                     builder.addRemoteInput(item.getRemoteInput(), item.getSubType(),

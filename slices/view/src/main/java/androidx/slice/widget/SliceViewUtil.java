@@ -29,18 +29,19 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
+import android.text.format.DateUtils;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
-import android.text.format.DateUtils;
-import android.view.Gravity;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
+import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.Calendar;
 
@@ -139,25 +140,24 @@ public class SliceViewUtil {
     /**
      */
     @RequiresApi(23)
-    public static Icon createIconFromDrawable(Drawable d) {
+    public static IconCompat createIconFromDrawable(Drawable d) {
         if (d instanceof BitmapDrawable) {
-            return Icon.createWithBitmap(((BitmapDrawable) d).getBitmap());
+            return IconCompat.createWithBitmap(((BitmapDrawable) d).getBitmap());
         }
         Bitmap b = Bitmap.createBitmap(d.getIntrinsicWidth(), d.getIntrinsicHeight(),
                 Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(b);
         d.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         d.draw(canvas);
-        return Icon.createWithBitmap(b);
+        return IconCompat.createWithBitmap(b);
     }
 
     /**
      */
-    @RequiresApi(23)
     public static void createCircledIcon(@NonNull Context context, int iconSizePx,
-            Icon icon, boolean isLarge, ViewGroup parent) {
+            IconCompat icon, boolean isLarge, ViewGroup parent) {
         ImageView v = new ImageView(context);
-        v.setImageIcon(icon);
+        v.setImageDrawable(icon.loadDrawable(context));
         v.setScaleType(isLarge ? ImageView.ScaleType.CENTER_CROP
                 : ImageView.ScaleType.CENTER_INSIDE);
         parent.addView(v);

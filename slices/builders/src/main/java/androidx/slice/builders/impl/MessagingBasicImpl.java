@@ -19,8 +19,9 @@ package androidx.slice.builders.impl;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.drawable.Icon;
-import androidx.annotation.RestrictTo;
 
+import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
 
@@ -44,7 +45,7 @@ public class MessagingBasicImpl extends TemplateBuilderImpl implements
     public void apply(Slice.Builder builder) {
         if (mLastMessage != null) {
             if (mLastMessage.mIcon != null) {
-                builder.addIcon(mLastMessage.mIcon, null);
+                builder.addIcon(IconCompat.createFromIcon(mLastMessage.mIcon), null);
             }
             if (mLastMessage.mText != null) {
                 builder.addText(mLastMessage.mText, null);

@@ -19,12 +19,12 @@ package androidx.slice.builders.impl;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.builders.SliceAction;
 
 /**
@@ -123,12 +123,11 @@ public interface GridRowBuilder {
         /**
          * Adds an image to the cell. There can be at most one image, the first one added
          * will be used, others will be ignored.
-         *
-         * @param image the image to display in the cell.
+         *  @param image the image to display in the cell.
          * @param imageMode the mode that image should be displayed in.
          */
         @NonNull
-        void addImage(@NonNull Icon image, int imageMode);
+        void addImage(@NonNull IconCompat image, int imageMode);
 
         /**
          * Adds an image to the cell. There can be at most one image, the first one added
@@ -139,7 +138,7 @@ public interface GridRowBuilder {
          * until updated.l.
          */
         @NonNull
-        void addImage(@NonNull Icon image, int imageMode, boolean isLoading);
+        void addImage(@NonNull IconCompat image, int imageMode, boolean isLoading);
 
         /**
          * Sets the action to be invoked if the user taps on this cell in the row.
