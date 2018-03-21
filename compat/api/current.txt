@@ -878,6 +878,19 @@ package androidx.core.graphics {
     method public static boolean hasGlyph(android.graphics.Paint, java.lang.String);
   }
 
+  public final class PathSegment {
+    ctor public PathSegment(android.graphics.PointF, float, android.graphics.PointF, float);
+    method public android.graphics.PointF getEnd();
+    method public float getEndFraction();
+    method public android.graphics.PointF getStart();
+    method public float getStartFraction();
+  }
+
+  public final class PathUtils {
+    method public static java.util.Collection<androidx.core.graphics.PathSegment> flatten(android.graphics.Path);
+    method public static java.util.Collection<androidx.core.graphics.PathSegment> flatten(android.graphics.Path, float);
+  }
+
 }
 
 package androidx.core.graphics.drawable {
