@@ -44,6 +44,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.slice.core.test.R;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,8 +53,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import androidx.slice.core.test.R;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -68,7 +68,7 @@ public class SliceTest {
         sFlag = false;
         Slice.bindSlice(mContext,
                 BASE_URI.buildUpon().appendPath("set_flag").build(),
-                Collections.<SliceSpec>emptyList());
+                Collections.<SliceSpec>emptySet());
         assertFalse(sFlag);
     }
 
@@ -79,14 +79,14 @@ public class SliceTest {
 
     @Test
     public void testSliceUri() {
-        Slice s = Slice.bindSlice(mContext, BASE_URI, Collections.<SliceSpec>emptyList());
+        Slice s = Slice.bindSlice(mContext, BASE_URI, Collections.<SliceSpec>emptySet());
         assertEquals(BASE_URI, s.getUri());
     }
 
     @Test
     public void testSubSlice() {
         Uri uri = BASE_URI.buildUpon().appendPath("subslice").build();
-        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptyList());
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
         assertEquals(uri, s.getUri());
         assertEquals(1, s.getItems().size());
 
@@ -101,7 +101,7 @@ public class SliceTest {
     @Test
     public void testText() {
         Uri uri = BASE_URI.buildUpon().appendPath("text").build();
-        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptyList());
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
         assertEquals(uri, s.getUri());
         assertEquals(1, s.getItems().size());
 
@@ -114,7 +114,7 @@ public class SliceTest {
     @Test
     public void testIcon() {
         Uri uri = BASE_URI.buildUpon().appendPath("icon").build();
-        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptyList());
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
         assertEquals(uri, s.getUri());
         assertEquals(1, s.getItems().size());
 
@@ -138,7 +138,7 @@ public class SliceTest {
         mContext.registerReceiver(receiver,
                 new IntentFilter(mContext.getPackageName() + ".action"));
         Uri uri = BASE_URI.buildUpon().appendPath("action").build();
-        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptyList());
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
         assertEquals(uri, s.getUri());
         assertEquals(1, s.getItems().size());
 
@@ -161,7 +161,7 @@ public class SliceTest {
     @Test
     public void testInt() {
         Uri uri = BASE_URI.buildUpon().appendPath("int").build();
-        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptyList());
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
         assertEquals(uri, s.getUri());
         assertEquals(1, s.getItems().size());
 
@@ -173,7 +173,7 @@ public class SliceTest {
     @Test
     public void testTimestamp() {
         Uri uri = BASE_URI.buildUpon().appendPath("timestamp").build();
-        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptyList());
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
         assertEquals(uri, s.getUri());
         assertEquals(1, s.getItems().size());
 
@@ -187,7 +187,7 @@ public class SliceTest {
         // Note this tests that hints are propagated through to the client but not that any specific
         // hints have any effects.
         Uri uri = BASE_URI.buildUpon().appendPath("hints").build();
-        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptyList());
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
         assertEquals(uri, s.getUri());
 
         assertEquals(Arrays.asList(HINT_LIST), s.getHints());

@@ -25,13 +25,14 @@ import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArraySet;
 import androidx.slice.Slice;
 import androidx.slice.SliceManager;
 import androidx.slice.SliceSpec;
 import androidx.slice.SliceSpecs;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Class with factory methods for creating LiveData that observes slices.
@@ -57,8 +58,8 @@ public final class SliceLiveData {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public static final List<SliceSpec> SUPPORTED_SPECS = Arrays.asList(SliceSpecs.BASIC,
-            SliceSpecs.LIST, OLD_BASIC, OLD_LIST);
+    public static final Set<SliceSpec> SUPPORTED_SPECS = new ArraySet<>(
+            Arrays.asList(SliceSpecs.BASIC, SliceSpecs.LIST, OLD_BASIC, OLD_LIST));
 
     /**
      * Produces an {@link LiveData} that tracks a Slice for a given Uri. To use

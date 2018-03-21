@@ -48,10 +48,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -60,6 +56,11 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.core.os.BuildCompat;
 import androidx.slice.compat.SliceProviderCompat;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A slice is a piece of app content and actions that can be surfaced outside of the app.
@@ -441,7 +442,7 @@ public final class Slice {
     @SuppressWarnings("NewApi") // Lint doesn't understand BuildCompat.
     @Nullable
     public static Slice bindSlice(Context context, @NonNull Uri uri,
-            List<SliceSpec> supportedSpecs) {
+            Set<SliceSpec> supportedSpecs) {
         if (BuildCompat.isAtLeastP()) {
             return callBindSlice(context, uri, supportedSpecs);
         } else {
@@ -451,8 +452,8 @@ public final class Slice {
 
     @RequiresApi(28)
     private static Slice callBindSlice(Context context, Uri uri,
-            List<SliceSpec> supportedSpecs) {
+            Set<SliceSpec> supportedSpecs) {
         return SliceConvert.wrap(context.getSystemService(SliceManager.class)
-                .bindSlice(uri, unwrap(supportedSpecs)));
+                .bindSlice(uri, new ArrayList<>(unwrap(supportedSpecs))));
     }
 }
