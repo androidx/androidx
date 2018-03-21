@@ -22,12 +22,12 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 
-import java.util.List;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.slice.builders.SliceAction;
+
+import java.util.List;
 
 /**
  * @hide
@@ -42,7 +42,7 @@ public interface ListBuilder {
     /**
      * Add a grid row to the list builder.
      */
-    void addGrid(TemplateBuilderImpl impl);
+    void addGridRow(TemplateBuilderImpl impl);
 
     /**
      * Adds a header to this template.
@@ -108,7 +108,7 @@ public interface ListBuilder {
      */
     TemplateBuilderImpl createRowBuilder(Uri uri);
     /**
-     * Create a builder that implements {@link GridBuilder}.
+     * Create a builder that implements {@link GridRowBuilder}.
      */
     TemplateBuilderImpl createGridBuilder();
     /**

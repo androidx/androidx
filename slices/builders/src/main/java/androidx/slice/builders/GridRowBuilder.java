@@ -38,41 +38,17 @@ import java.util.function.Consumer;
  * A grid row is composed of cells, each cell can have a combination of text and images. For more
  * details see {@link CellBuilder}.
  * </p>
- * @deprecated TO BE REMOVED; please use {@link GridRowBuilder} instead.
  */
-@Deprecated
-public class GridBuilder extends TemplateSliceBuilder {
+public class GridRowBuilder extends TemplateSliceBuilder {
 
     private androidx.slice.builders.impl.GridRowBuilder mImpl;
     private boolean mHasSeeMore;
 
     /**
-     * Indicates that an image should be presented as an icon and it can be tinted.
-     *
-     * @deprecated use {@link ListBuilder#ICON_IMAGE}
-     */
-    @Deprecated
-    public static final int ICON_IMAGE = 0;
-    /**
-     * Indicates that an image should be presented in a smaller size and it shouldn't be tinted.
-     *
-     * @deprecated use {@link ListBuilder#SMALL_IMAGE}
-     */
-    @Deprecated
-    public static final int SMALL_IMAGE = 1;
-    /**
-     * Indicates that an image presented in a larger size and it shouldn't be tinted.
-     *
-     * @deprecated use {@link ListBuilder#LARGE_IMAGE}
-     */
-    @Deprecated
-    public static final int LARGE_IMAGE = 2;
-
-    /**
      * Create a builder which will construct a slice displayed in a grid format.
      * @param parent The builder constructing the parent slice.
      */
-    public GridBuilder(@NonNull ListBuilder parent) {
+    public GridRowBuilder(@NonNull ListBuilder parent) {
         super(parent.getImpl().createGridBuilder());
     }
 
@@ -85,7 +61,7 @@ public class GridBuilder extends TemplateSliceBuilder {
      * Add a cell to the grid builder.
      */
     @NonNull
-    public GridBuilder addCell(@NonNull CellBuilder builder) {
+    public GridRowBuilder addCell(@NonNull CellBuilder builder) {
         mImpl.addCell((TemplateBuilderImpl) builder.mImpl);
         return this;
     }
@@ -95,7 +71,7 @@ public class GridBuilder extends TemplateSliceBuilder {
      */
     @RequiresApi(Build.VERSION_CODES.N)
     @NonNull
-    public GridBuilder addCell(@NonNull Consumer<CellBuilder> c) {
+    public GridRowBuilder addCell(@NonNull Consumer<CellBuilder> c) {
         CellBuilder b = new CellBuilder(this);
         c.accept(b);
         return addCell(b);
@@ -117,7 +93,7 @@ public class GridBuilder extends TemplateSliceBuilder {
      * </p>
      */
     @NonNull
-    public GridBuilder addSeeMoreCell(@NonNull CellBuilder builder) {
+    public GridRowBuilder addSeeMoreCell(@NonNull CellBuilder builder) {
         if (mHasSeeMore) {
             throw new IllegalStateException("Trying to add see more cell when one has "
                     + "already been added");
@@ -144,7 +120,7 @@ public class GridBuilder extends TemplateSliceBuilder {
      */
     @RequiresApi(Build.VERSION_CODES.N)
     @NonNull
-    public GridBuilder addSeeMoreCell(@NonNull Consumer<CellBuilder> c) {
+    public GridRowBuilder addSeeMoreCell(@NonNull Consumer<CellBuilder> c) {
         CellBuilder b = new CellBuilder(this);
         c.accept(b);
         return addSeeMoreCell(b);
@@ -160,7 +136,7 @@ public class GridBuilder extends TemplateSliceBuilder {
      * </p>
      */
     @NonNull
-    public GridBuilder addSeeMoreAction(@NonNull PendingIntent intent) {
+    public GridRowBuilder addSeeMoreAction(@NonNull PendingIntent intent) {
         if (mHasSeeMore) {
             throw new IllegalStateException("Trying to add see more action when one has "
                     + "already been added");
@@ -174,7 +150,7 @@ public class GridBuilder extends TemplateSliceBuilder {
      * Sets the intent to send when the slice is activated.
      */
     @NonNull
-    public GridBuilder setPrimaryAction(@NonNull SliceAction action) {
+    public GridRowBuilder setPrimaryAction(@NonNull SliceAction action) {
         mImpl.setPrimaryAction(action);
         return this;
     }
@@ -183,7 +159,7 @@ public class GridBuilder extends TemplateSliceBuilder {
      * Sets the content description for the entire grid row.
      */
     @NonNull
-    public GridBuilder setContentDescription(@NonNull CharSequence description) {
+    public GridRowBuilder setContentDescription(@NonNull CharSequence description) {
         mImpl.setContentDescription(description);
         return this;
     }
@@ -212,10 +188,7 @@ public class GridBuilder extends TemplateSliceBuilder {
      *
      * A cell can have at most two text items and one image.
      * </p>
-     *
-     * @deprecated TO BE REMOVED; please use {@link GridRowBuilder.CellBuilder} instead.
      */
-    @Deprecated
     public static final class CellBuilder extends TemplateSliceBuilder {
         private androidx.slice.builders.impl.GridRowBuilder.CellBuilder mImpl;
 
@@ -223,7 +196,7 @@ public class GridBuilder extends TemplateSliceBuilder {
          * Create a builder which will construct a slice displayed as a cell in a grid.
          * @param parent The builder constructing the parent slice.
          */
-        public CellBuilder(@NonNull GridBuilder parent) {
+        public CellBuilder(@NonNull GridRowBuilder parent) {
             super(parent.mImpl.createGridRowBuilder());
         }
 
@@ -231,7 +204,7 @@ public class GridBuilder extends TemplateSliceBuilder {
          * Create a builder which will construct a slice displayed as a cell in a grid.
          * @param uri Uri to tag for this slice.
          */
-        public CellBuilder(@NonNull GridBuilder parent, @NonNull Uri uri) {
+        public CellBuilder(@NonNull GridRowBuilder parent, @NonNull Uri uri) {
             super(parent.mImpl.createGridRowBuilder(uri));
         }
 
@@ -290,62 +263,6 @@ public class GridBuilder extends TemplateSliceBuilder {
         public CellBuilder addTitleText(@Nullable CharSequence text, boolean isLoading) {
             mImpl.addTitleText(text, isLoading);
             return this;
-        }
-
-        /**
-         * Adds an image to the cell that should be displayed as large as the cell allows.
-         * There can be at most one image, the first one added will be used, others will be ignored.
-         *
-         * @param image the image to display in the cell.
-         */
-        @NonNull
-        @Deprecated
-        public CellBuilder addLargeImage(@NonNull Icon image) {
-            return addImage(image, ListBuilder.LARGE_IMAGE, false /* isLoading */);
-        }
-
-        /**
-         * Adds an image to the cell that should be displayed as large as the cell allows.
-         * There can be at most one image, the first one added will be used, others will be ignored.
-         * <p>
-         * Use this method to specify content that will appear in the template once it's been
-         * loaded.
-         * </p>
-         * @param isLoading indicates whether the app is doing work to load the added content in the
-         *                  background or not.
-         */
-        @NonNull
-        @Deprecated
-        public CellBuilder addLargeImage(@Nullable Icon image, boolean isLoading) {
-            return addImage(image, ListBuilder.LARGE_IMAGE, isLoading);
-        }
-
-        /**
-         * Adds an image to the cell. There can be at most one image, the first one added
-         * will be used, others will be ignored.
-         *
-         * @param image the image to display in the cell.
-         */
-        @NonNull
-        @Deprecated
-        public CellBuilder addImage(@NonNull Icon image) {
-            return addImage(image, ListBuilder.SMALL_IMAGE, false /* isLoading */);
-        }
-
-        /**
-         * Adds an image to the cell. There can be at most one image, the first one added
-         * will be used, others will be ignored.
-         * <p>
-         * Use this method to specify content that will appear in the template once it's been
-         * loaded.
-         * </p>
-         * @param isLoading indicates whether the app is doing work to load the added content in the
-         *                  background or not.
-         */
-        @NonNull
-        @Deprecated
-        public CellBuilder addImage(@Nullable Icon image, boolean isLoading) {
-            return addImage(image, ListBuilder.SMALL_IMAGE, isLoading);
         }
 
         /**
