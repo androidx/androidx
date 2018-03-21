@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.session;
+package android.support.v4.media.session;
 
 import android.app.Activity;
 import android.app.PendingIntent;

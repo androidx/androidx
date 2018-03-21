@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media;
+package android.support.v4.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
@@ -62,9 +62,8 @@ import android.os.Messenger;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.support.v4.media.MediaDescriptionCompat;
-import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.IMediaSession;
+import android.support.v4.media.session.MediaControllerCompat.TransportControls;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.ResultReceiver;
 import android.text.TextUtils;
@@ -77,7 +76,8 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.app.BundleCompat;
-import androidx.media.session.MediaControllerCompat.TransportControls;
+import androidx.media.MediaBrowserCompatUtils;
+import androidx.media.MediaBrowserServiceCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
