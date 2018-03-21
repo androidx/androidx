@@ -31,26 +31,26 @@ import androidx.slice.builders.SliceAction;
  * @hide
  */
 @RestrictTo(LIBRARY)
-public interface GridBuilder {
+public interface GridRowBuilder {
     /**
      * Create an TemplateBuilderImpl that implements {@link CellBuilder}.
      */
-    TemplateBuilderImpl createGridBuilder();
+    TemplateBuilderImpl createGridRowBuilder();
 
     /**
      * Create an TemplateBuilderImpl that implements {@link CellBuilder} with the specified Uri.
      */
-    TemplateBuilderImpl createGridBuilder(Uri uri);
+    TemplateBuilderImpl createGridRowBuilder(Uri uri);
 
     /**
-     * Add a cell to this builder. Expected to be a builder from {@link #createGridBuilder}.
+     * Add a cell to this builder. Expected to be a builder from {@link #createGridRowBuilder}.
      */
     void addCell(TemplateBuilderImpl impl);
 
     /**
      * If all content in a slice cannot be shown, the cell added here will be displayed where the
      * content is cut off. This cell should have an affordance to take the user to an activity to
-     * see all of the content. Expected to be a builder from {@link #createGridBuilder}.
+     * see all of the content. Expected to be a builder from {@link #createGridRowBuilder}.
      * <p>
      * Only one see more affordance can be added, this throws {@link IllegalStateException} if
      * a row or action has been previously added.

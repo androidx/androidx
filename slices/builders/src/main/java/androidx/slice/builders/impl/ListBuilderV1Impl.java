@@ -41,9 +41,6 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -51,6 +48,9 @@ import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceSpec;
 import androidx.slice.builders.SliceAction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @hide
@@ -96,7 +96,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @NonNull
     @Override
-    public void addGrid(@NonNull TemplateBuilderImpl builder) {
+    public void addGridRow(@NonNull TemplateBuilderImpl builder) {
         getBuilder().addSubSlice(builder.build());
     }
 
@@ -280,7 +280,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @Override
     public TemplateBuilderImpl createGridBuilder() {
-        return new GridBuilderListV1Impl(this);
+        return new GridRowBuilderListV1Impl(this);
     }
 
     /**
