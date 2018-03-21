@@ -24,7 +24,7 @@ import android.view.Window;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(23)
-class AppCompatDelegateImplV23 extends AppCompatDelegateImplV9 {
+class AppCompatDelegateImplV23 extends AppCompatDelegateImplBase {
 
     private final UiModeManager mUiModeManager;
 
