@@ -469,7 +469,7 @@ public abstract class Visibility extends Transition {
     }
 
     private static class DisappearListener extends AnimatorListenerAdapter
-            implements TransitionListener, AnimatorUtilsApi14.AnimatorPauseListenerCompat {
+            implements TransitionListener, AnimatorUtils.AnimatorPauseListenerCompat {
 
         private final View mView;
         private final int mFinalVisibility;

@@ -23,22 +23,19 @@ import android.view.ViewGroup;
 
 class GhostViewUtils {
 
-    private static final GhostViewImpl.Creator CREATOR;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            CREATOR = new GhostViewApi21.Creator();
-        } else {
-            CREATOR = new GhostViewApi14.Creator();
-        }
-    }
-
     static GhostViewImpl addGhost(View view, ViewGroup viewGroup, Matrix matrix) {
-        return CREATOR.addGhost(view, viewGroup, matrix);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return GhostViewApi21.addGhost(view, viewGroup, matrix);
+        }
+        return GhostViewApi14.addGhost(view, viewGroup);
     }
 
     static void removeGhost(View view) {
-        CREATOR.removeGhost(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            GhostViewApi21.removeGhost(view);
+        } else {
+            GhostViewApi14.removeGhost(view);
+        }
     }
 
 }

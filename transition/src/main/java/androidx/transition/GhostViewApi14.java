@@ -26,7 +26,6 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 
 /**
@@ -40,58 +39,51 @@ import androidx.core.view.ViewCompat;
  * that, this view is sized as large as the parent FrameLayout (except padding) while the platform
  * version becomes as large as the target view.
  */
-@RequiresApi(14)
 @SuppressLint("ViewConstructor")
 class GhostViewApi14 extends View implements GhostViewImpl {
 
-    static class Creator implements GhostViewImpl.Creator {
-
-        @Override
-        public GhostViewImpl addGhost(View view, ViewGroup viewGroup, Matrix matrix) {
-            GhostViewApi14 ghostView = getGhostView(view);
-            if (ghostView == null) {
-                FrameLayout frameLayout = findFrameLayout(viewGroup);
-                if (frameLayout == null) {
-                    return null;
-                }
-                ghostView = new GhostViewApi14(view);
-                frameLayout.addView(ghostView);
+    static GhostViewImpl addGhost(View view, ViewGroup viewGroup) {
+        GhostViewApi14 ghostView = getGhostView(view);
+        if (ghostView == null) {
+            FrameLayout frameLayout = findFrameLayout(viewGroup);
+            if (frameLayout == null) {
+                return null;
             }
-            ghostView.mReferences++;
-            return ghostView;
+            ghostView = new GhostViewApi14(view);
+            frameLayout.addView(ghostView);
         }
+        ghostView.mReferences++;
+        return ghostView;
+    }
 
-        @Override
-        public void removeGhost(View view) {
-            GhostViewApi14 ghostView = getGhostView(view);
-            if (ghostView != null) {
-                ghostView.mReferences--;
-                if (ghostView.mReferences <= 0) {
-                    ViewParent parent = ghostView.getParent();
-                    if (parent instanceof ViewGroup) {
-                        ViewGroup group = (ViewGroup) parent;
-                        group.endViewTransition(ghostView);
-                        group.removeView(ghostView);
-                    }
+    static void removeGhost(View view) {
+        GhostViewApi14 ghostView = getGhostView(view);
+        if (ghostView != null) {
+            ghostView.mReferences--;
+            if (ghostView.mReferences <= 0) {
+                ViewParent parent = ghostView.getParent();
+                if (parent instanceof ViewGroup) {
+                    ViewGroup group = (ViewGroup) parent;
+                    group.endViewTransition(ghostView);
+                    group.removeView(ghostView);
                 }
             }
         }
+    }
 
-        /**
-         * Find the closest FrameLayout in the ascendant hierarchy from the specified {@code
-         * viewGroup}.
-         */
-        private static FrameLayout findFrameLayout(ViewGroup viewGroup) {
-            while (!(viewGroup instanceof FrameLayout)) {
-                ViewParent parent = viewGroup.getParent();
-                if (!(parent instanceof ViewGroup)) {
-                    return null;
-                }
-                viewGroup = (ViewGroup) parent;
+    /**
+     * Find the closest FrameLayout in the ascendant hierarchy from the specified {@code
+     * viewGroup}.
+     */
+    private static FrameLayout findFrameLayout(ViewGroup viewGroup) {
+        while (!(viewGroup instanceof FrameLayout)) {
+            ViewParent parent = viewGroup.getParent();
+            if (!(parent instanceof ViewGroup)) {
+                return null;
             }
-            return (FrameLayout) viewGroup;
+            viewGroup = (ViewGroup) parent;
         }
-
+        return (FrameLayout) viewGroup;
     }
 
     /** The target view */
