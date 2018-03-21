@@ -30,7 +30,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.LongDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.media.session.MediaControllerCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

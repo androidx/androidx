@@ -15,10 +15,17 @@
  */
 package androidx.media;
 
+import android.support.v4.media.MediaBrowserCompat;
+
+import androidx.annotation.RestrictTo;
+
 /**
  * Defines the communication protocol for media browsers and media browser services.
+ *
+ * @hide
  */
-class MediaBrowserProtocol {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class MediaBrowserProtocol {
 
     public static final String DATA_CALLBACK_TOKEN = "data_callback_token";
     public static final String DATA_CALLING_UID = "data_calling_uid";
