@@ -1004,9 +1004,9 @@ package androidx.leanback.graphics {
 package androidx.leanback.media {
 
   public class MediaControllerAdapter extends androidx.leanback.media.PlayerAdapter {
-    ctor public MediaControllerAdapter(androidx.media.session.MediaControllerCompat);
+    ctor public MediaControllerAdapter(android.support.v4.media.session.MediaControllerCompat);
     method public android.graphics.drawable.Drawable getMediaArt(android.content.Context);
-    method public androidx.media.session.MediaControllerCompat getMediaController();
+    method public android.support.v4.media.session.MediaControllerCompat getMediaController();
     method public java.lang.CharSequence getMediaSubtitle();
     method public java.lang.CharSequence getMediaTitle();
     method public void pause();
@@ -1015,12 +1015,12 @@ package androidx.leanback.media {
 
   public abstract deprecated class MediaControllerGlue extends androidx.leanback.media.PlaybackControlGlue {
     ctor public MediaControllerGlue(android.content.Context, int[], int[]);
-    method public void attachToMediaController(androidx.media.session.MediaControllerCompat);
+    method public void attachToMediaController(android.support.v4.media.session.MediaControllerCompat);
     method public void detach();
     method public int getCurrentPosition();
     method public int getCurrentSpeedId();
     method public android.graphics.drawable.Drawable getMediaArt();
-    method public final androidx.media.session.MediaControllerCompat getMediaController();
+    method public final android.support.v4.media.session.MediaControllerCompat getMediaController();
     method public int getMediaDuration();
     method public java.lang.CharSequence getMediaSubtitle();
     method public java.lang.CharSequence getMediaTitle();

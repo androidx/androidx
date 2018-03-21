@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media;
+package android.support.v4.media;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,7 +29,7 @@ import java.util.List;
 @RequiresApi(21)
 class MediaBrowserCompatApi21 {
     static final String NULL_MEDIA_ITEM_ID =
-            "androidx.media.MediaBrowserCompat.NULL_MEDIA_ITEM";
+            "android.support.v4.media.MediaBrowserCompat.NULL_MEDIA_ITEM";
 
     public static Object createConnectionCallback(ConnectionCallback callback) {
         return new ConnectionCallbackProxy<>(callback);

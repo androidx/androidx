@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNECT;
@@ -60,6 +60,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.IMediaSession;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.ResultReceiver;
@@ -130,7 +131,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY)
     public static final String KEY_MEDIA_ITEM = "media_item";
 
     /**
@@ -138,19 +139,32 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY)
     public static final String KEY_SEARCH_RESULTS = "search_results";
 
     static final int RESULT_FLAG_OPTION_NOT_HANDLED = 1 << 0;
     static final int RESULT_FLAG_ON_LOAD_ITEM_NOT_IMPLEMENTED = 1 << 1;
     static final int RESULT_FLAG_ON_SEARCH_NOT_IMPLEMENTED = 1 << 2;
 
-    static final int RESULT_ERROR = -1;
-    static final int RESULT_OK = 0;
-    static final int RESULT_PROGRESS_UPDATE = 1;
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static final int RESULT_ERROR = -1;
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static final int RESULT_OK = 0;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static final int RESULT_PROGRESS_UPDATE = 1;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag=true, value = { RESULT_FLAG_OPTION_NOT_HANDLED,
             RESULT_FLAG_ON_LOAD_ITEM_NOT_IMPLEMENTED, RESULT_FLAG_ON_SEARCH_NOT_IMPLEMENTED })
