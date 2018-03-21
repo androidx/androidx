@@ -200,7 +200,7 @@ public abstract class AppCompatDelegate {
         } else if (Build.VERSION.SDK_INT >= 23) {
             return new AppCompatDelegateImplV23(context, window, callback);
         } else {
-            return new AppCompatDelegateImplV9(context, window, callback);
+            return new AppCompatDelegateImplBase(context, window, callback);
         }
     }
 
