@@ -63,11 +63,15 @@ public class FragmentController {
     /**
      * Returns a {@link LoaderManager}.
      *
-     * @deprecated Loaders are managed separately from FragmentController
+     * @deprecated Loaders are managed separately from FragmentController and this now throws an
+     * {@link UnsupportedOperationException}. Use {@link LoaderManager#getInstance} to obtain a
+     * LoaderManager.
+     * @see LoaderManager#getInstance
      */
     @Deprecated
     public LoaderManager getSupportLoaderManager() {
-        return null;
+        throw new UnsupportedOperationException("Loaders are managed separately from "
+                + "FragmentController, use LoaderManager.getInstance() to obtain a LoaderManager.");
     }
 
     /**
