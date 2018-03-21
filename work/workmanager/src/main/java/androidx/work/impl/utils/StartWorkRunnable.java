@@ -18,6 +18,7 @@ package androidx.work.impl.utils;
 
 import android.support.annotation.RestrictTo;
 
+import androidx.work.impl.RuntimeExtras;
 import androidx.work.impl.WorkManagerImpl;
 
 /**
@@ -32,14 +33,19 @@ public class StartWorkRunnable implements Runnable {
 
     private WorkManagerImpl mWorkManagerImpl;
     private String mWorkSpecId;
+    private RuntimeExtras mRuntimeExtras;
 
-    public StartWorkRunnable(WorkManagerImpl workManagerImpl, String workSpecId) {
+    public StartWorkRunnable(
+            WorkManagerImpl workManagerImpl,
+            String workSpecId,
+            RuntimeExtras runtimeExtras) {
         mWorkManagerImpl = workManagerImpl;
         mWorkSpecId = workSpecId;
+        mRuntimeExtras = runtimeExtras;
     }
 
     @Override
     public void run() {
-        mWorkManagerImpl.getProcessor().startWork(mWorkSpecId);
+        mWorkManagerImpl.getProcessor().startWork(mWorkSpecId, mRuntimeExtras);
     }
 }

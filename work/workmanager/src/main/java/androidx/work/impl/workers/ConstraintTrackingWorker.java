@@ -71,8 +71,12 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
         }
         // Instantiate the delegated worker. Use the same workSpecId, and the same Arguments
         // as this Worker's Arguments are a superset of the delegate's Worker's Arguments.
-        mDelegate = WorkerWrapper.workerFromClassName(getAppContext(), className, getId(),
-                getArguments());
+        mDelegate = WorkerWrapper.workerFromClassName(
+                getAppContext(),
+                className,
+                getId(),
+                getArguments(),
+                getRuntimeExtras());
 
         if (mDelegate == null) {
             Logger.debug(TAG, "No worker to delegate to.");

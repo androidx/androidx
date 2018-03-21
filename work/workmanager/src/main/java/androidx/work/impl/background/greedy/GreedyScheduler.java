@@ -17,6 +17,7 @@
 package androidx.work.impl.background.greedy;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
@@ -71,8 +72,13 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
                     && !workSpec.isPeriodic()
                     && workSpec.initialDelay == 0L) {
                 if (workSpec.hasConstraints()) {
-                    Logger.debug(TAG, "Starting tracking for %s", workSpec.id);
-                    mConstrainedWorkSpecs.add(workSpec);
+                    // Exclude content URI triggers - we don't know how to handle them here so the
+                    // background scheduler should take care of them.
+                    if (Build.VERSION.SDK_INT < 24
+                            || !workSpec.constraints.hasContentUriTriggers()) {
+                        Logger.debug(TAG, "Starting tracking for %s", workSpec.id);
+                        mConstrainedWorkSpecs.add(workSpec);
+                    }
                 } else {
                     mWorkManagerImpl.startWork(workSpec.id);
                 }

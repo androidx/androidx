@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import android.app.job.JobParameters;
 import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
+import android.net.Uri;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
@@ -36,6 +37,7 @@ import androidx.work.BaseWork;
 import androidx.work.State;
 import androidx.work.Work;
 import androidx.work.WorkManagerTest;
+import androidx.work.Worker;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
@@ -143,6 +145,38 @@ public class SystemJobServiceTest extends WorkManagerTest {
         assertThat(mSystemJobService.onStartJob(mockParams), is(false));
     }
 
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 24)
+    public void testStartJob_PassesContentUriTriggers() throws InterruptedException {
+        Work work = new Work.Builder(ContentUriTriggerLoggingWorker.class).build();
+        insertWork(work);
+
+        final String[] testContentAuthorities = new String[] {
+                work.getId(),
+                "yet another " + work.getId()
+        };
+
+        final Uri[] testContentUris = new Uri[] {
+                Uri.parse("http://www.android.com"),
+                Uri.parse("http://www.google.com")
+        };
+
+        JobParameters mockParams = createMockJobParameters(work.getId());
+        when(mockParams.getTriggeredContentAuthorities()).thenReturn(testContentAuthorities);
+        when(mockParams.getTriggeredContentUris()).thenReturn(testContentUris);
+
+        assertThat(ContentUriTriggerLoggingWorker.sTimesUpdated, is(0));
+        assertThat(mSystemJobService.onStartJob(mockParams), is(true));
+
+        Thread.sleep(1000L);
+
+        assertThat(ContentUriTriggerLoggingWorker.sTimesUpdated, is(1));
+        assertThat(ContentUriTriggerLoggingWorker.sTriggeredContentAuthorities,
+                is(testContentAuthorities));
+        assertThat(ContentUriTriggerLoggingWorker.sTriggeredContentUris, is(testContentUris));
+    }
+
     private JobParameters createMockJobParameters(String id) {
         JobParameters jobParameters = mock(JobParameters.class);
 
@@ -155,5 +189,22 @@ public class SystemJobServiceTest extends WorkManagerTest {
 
     private void insertWork(BaseWork work) {
         mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
+    }
+
+    public static class ContentUriTriggerLoggingWorker extends Worker {
+
+        static int sTimesUpdated = 0;
+        static String[] sTriggeredContentAuthorities;
+        static Uri[] sTriggeredContentUris;
+
+        @Override
+        public WorkerResult doWork() {
+            synchronized (ContentUriTriggerLoggingWorker.class) {
+                ++sTimesUpdated;
+                sTriggeredContentAuthorities = getTriggeredContentAuthorities();
+                sTriggeredContentUris = getTriggeredContentUris();
+            }
+            return WorkerResult.SUCCESS;
+        }
     }
 }

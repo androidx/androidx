@@ -139,7 +139,11 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
 
         ConstraintTrackingWorker worker =
                 (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
-                        mContext, ConstraintTrackingWorker.class.getName(), workSpecId, arguments);
+                        mContext,
+                        ConstraintTrackingWorker.class.getName(),
+                        workSpecId,
+                        arguments,
+                        null);
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
@@ -183,7 +187,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        arguments);
+                        arguments,
+                        null);
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
@@ -226,7 +231,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        arguments);
+                        arguments,
+                        null);
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
@@ -277,7 +283,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        arguments);
+                        arguments,
+                        null);
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
