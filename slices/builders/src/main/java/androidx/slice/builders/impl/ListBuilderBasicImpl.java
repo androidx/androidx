@@ -340,7 +340,7 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         /**
          */
         @Override
-        public void setSummarySubtitle(CharSequence summarySubtitle, boolean isLoading) {
+        public void setSummary(CharSequence summarySubtitle, boolean isLoading) {
 
         }
 

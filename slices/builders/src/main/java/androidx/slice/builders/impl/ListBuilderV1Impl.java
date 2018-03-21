@@ -603,7 +603,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         /**
          */
         @Override
-        public void setSummarySubtitle(CharSequence summarySubtitle, boolean isLoading) {
+        public void setSummary(CharSequence summarySubtitle, boolean isLoading) {
             mSummaryItem = new SliceItem(summarySubtitle, FORMAT_TEXT, null,
                     new String[] {HINT_SUMMARY});
             if (isLoading) {

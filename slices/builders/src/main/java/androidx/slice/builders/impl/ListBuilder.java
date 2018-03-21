@@ -325,7 +325,7 @@ public interface ListBuilder {
          * will be used. The summary is used when the parent template is presented in a
          * small format.
          */
-        void setSummarySubtitle(CharSequence summarySubtitle, boolean isLoading);
+        void setSummary(CharSequence summarySubtitle, boolean isLoading);
 
         /**
          * Sets the action to invoke when the header is activated.
