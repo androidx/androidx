@@ -114,8 +114,8 @@ public class NightModeTestCase {
         // Set MODE_NIGHT_AUTO so that we will change to night mode automatically
         final NightModeActivity newActivity =
                 setLocalNightModeAndWaitForRecreate(activity, AppCompatDelegate.MODE_NIGHT_AUTO);
-        final AppCompatDelegateImplV14 newDelegate =
-                (AppCompatDelegateImplV14) newActivity.getDelegate();
+        final AppCompatDelegateImplV9 newDelegate =
+                (AppCompatDelegateImplV9) newActivity.getDelegate();
 
         // Update the fake twilight manager to be in night and trigger a fake 'time' change
         mActivityTestRule.runOnUiThread(new Runnable() {
