@@ -452,87 +452,14 @@ public class ViewCompat {
     private static Method sDispatchFinishTemporaryDetach;
     private static boolean sTempDetachBound;
 
+    private static WeakHashMap<View, String> sTransitionNameMap;
+    private static WeakHashMap<View, ViewPropertyAnimatorCompat> sViewPropertyAnimatorMap = null;
+
+    private static Method sChildrenDrawingOrderMethod;
+    private static Field sAccessibilityDelegateField;
+    private static boolean sAccessibilityDelegateCheckFailed = false;
+
     static class ViewCompatBaseImpl {
-        private static WeakHashMap<View, String> sTransitionNameMap;
-        WeakHashMap<View, ViewPropertyAnimatorCompat> mViewPropertyAnimatorCompatMap = null;
-        private static Method sChildrenDrawingOrderMethod;
-        static Field sAccessibilityDelegateField;
-        static boolean sAccessibilityDelegateCheckFailed = false;
-
-        public void setAccessibilityDelegate(View v,
-                @Nullable AccessibilityDelegateCompat delegate) {
-            v.setAccessibilityDelegate(delegate == null ? null : delegate.getBridge());
-        }
-
-        public boolean hasAccessibilityDelegate(View v) {
-            if (sAccessibilityDelegateCheckFailed) {
-                return false; // View implementation might have changed.
-            }
-            if (sAccessibilityDelegateField == null) {
-                try {
-                    sAccessibilityDelegateField = View.class
-                            .getDeclaredField("mAccessibilityDelegate");
-                    sAccessibilityDelegateField.setAccessible(true);
-                } catch (Throwable t) {
-                    sAccessibilityDelegateCheckFailed = true;
-                    return false;
-                }
-            }
-            try {
-                return sAccessibilityDelegateField.get(v) != null;
-            } catch (Throwable t) {
-                sAccessibilityDelegateCheckFailed = true;
-                return false;
-            }
-        }
-
-        public ViewPropertyAnimatorCompat animate(View view) {
-            if (mViewPropertyAnimatorCompatMap == null) {
-                mViewPropertyAnimatorCompatMap = new WeakHashMap<>();
-            }
-            ViewPropertyAnimatorCompat vpa = mViewPropertyAnimatorCompatMap.get(view);
-            if (vpa == null) {
-                vpa = new ViewPropertyAnimatorCompat(view);
-                mViewPropertyAnimatorCompatMap.put(view, vpa);
-            }
-            return vpa;
-        }
-
-        public void setTransitionName(View view, String transitionName) {
-            if (sTransitionNameMap == null) {
-                sTransitionNameMap = new WeakHashMap<>();
-            }
-            sTransitionNameMap.put(view, transitionName);
-        }
-
-        public String getTransitionName(View view) {
-            if (sTransitionNameMap == null) {
-                return null;
-            }
-            return sTransitionNameMap.get(view);
-        }
-
-        public void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
-            if (sChildrenDrawingOrderMethod == null) {
-                try {
-                    sChildrenDrawingOrderMethod = ViewGroup.class
-                            .getDeclaredMethod("setChildrenDrawingOrderEnabled", boolean.class);
-                } catch (NoSuchMethodException e) {
-                    Log.e(TAG, "Unable to find childrenDrawingOrderEnabled", e);
-                }
-                sChildrenDrawingOrderMethod.setAccessible(true);
-            }
-            try {
-                sChildrenDrawingOrderMethod.invoke(viewGroup, enabled);
-            } catch (IllegalAccessException e) {
-                Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
-            } catch (InvocationTargetException e) {
-                Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
-            }
-        }
-
         public void offsetLeftAndRight(View view, int offset) {
             view.offsetLeftAndRight(offset);
             if (view.getVisibility() == View.VISIBLE) {
@@ -567,16 +494,6 @@ public class ViewCompat {
     @RequiresApi(21)
     static class ViewCompatApi21Impl extends ViewCompatBaseImpl {
         private static ThreadLocal<Rect> sThreadLocalRect;
-
-        @Override
-        public void setTransitionName(View view, String transitionName) {
-            view.setTransitionName(transitionName);
-        }
-
-        @Override
-        public String getTransitionName(View view) {
-            return view.getTransitionName();
-        }
 
         @Override
         public void offsetLeftAndRight(View view, int offset) {
@@ -859,7 +776,7 @@ public class ViewCompat {
      */
     public static void setAccessibilityDelegate(@NonNull View v,
             AccessibilityDelegateCompat delegate) {
-        IMPL.setAccessibilityDelegate(v, delegate);
+        v.setAccessibilityDelegate(delegate == null ? null : delegate.getBridge());
     }
 
     /**
@@ -1039,7 +956,25 @@ public class ViewCompat {
      * @return True if the View has an accessibility delegate
      */
     public static boolean hasAccessibilityDelegate(@NonNull View v) {
-        return IMPL.hasAccessibilityDelegate(v);
+        if (sAccessibilityDelegateCheckFailed) {
+            return false; // View implementation might have changed.
+        }
+        if (sAccessibilityDelegateField == null) {
+            try {
+                sAccessibilityDelegateField = View.class
+                        .getDeclaredField("mAccessibilityDelegate");
+                sAccessibilityDelegateField.setAccessible(true);
+            } catch (Throwable t) {
+                sAccessibilityDelegateCheckFailed = true;
+                return false;
+            }
+        }
+        try {
+            return sAccessibilityDelegateField.get(v) != null;
+        } catch (Throwable t) {
+            sAccessibilityDelegateCheckFailed = true;
+            return false;
+        }
     }
 
     /**
@@ -1915,7 +1850,15 @@ public class ViewCompat {
      */
     @NonNull
     public static ViewPropertyAnimatorCompat animate(@NonNull View view) {
-        return IMPL.animate(view);
+        if (sViewPropertyAnimatorMap == null) {
+            sViewPropertyAnimatorMap = new WeakHashMap<>();
+        }
+        ViewPropertyAnimatorCompat vpa = sViewPropertyAnimatorMap.get(view);
+        if (vpa == null) {
+            vpa = new ViewPropertyAnimatorCompat(view);
+            sViewPropertyAnimatorMap.put(view, vpa);
+        }
+        return vpa;
     }
 
     /**
@@ -2226,7 +2169,14 @@ public class ViewCompat {
      * @param transitionName The name of the View to uniquely identify it for Transitions.
      */
     public static void setTransitionName(@NonNull View view, String transitionName) {
-        IMPL.setTransitionName(view, transitionName);
+        if (Build.VERSION.SDK_INT >= 21) {
+            view.setTransitionName(transitionName);
+        } else {
+            if (sTransitionNameMap == null) {
+                sTransitionNameMap = new WeakHashMap<>();
+            }
+            sTransitionNameMap.put(view, transitionName);
+        }
     }
 
     /**
@@ -2241,7 +2191,13 @@ public class ViewCompat {
      */
     @Nullable
     public static String getTransitionName(@NonNull View view) {
-        return IMPL.getTransitionName(view);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return view.getTransitionName();
+        }
+        if (sTransitionNameMap == null) {
+            return null;
+        }
+        return sTransitionNameMap.get(view);
     }
 
     /**
@@ -2279,7 +2235,24 @@ public class ViewCompat {
      */
     @Deprecated
     public static void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
-       IMPL.setChildrenDrawingOrderEnabled(viewGroup, enabled);
+        if (sChildrenDrawingOrderMethod == null) {
+            try {
+                sChildrenDrawingOrderMethod = ViewGroup.class
+                        .getDeclaredMethod("setChildrenDrawingOrderEnabled", boolean.class);
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, "Unable to find childrenDrawingOrderEnabled", e);
+            }
+            sChildrenDrawingOrderMethod.setAccessible(true);
+        }
+        try {
+            sChildrenDrawingOrderMethod.invoke(viewGroup, enabled);
+        } catch (IllegalAccessException e) {
+            Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
+        } catch (InvocationTargetException e) {
+            Log.e(TAG, "Unable to invoke childrenDrawingOrderEnabled", e);
+        }
     }
 
     /**

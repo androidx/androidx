@@ -24,7 +24,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Field;
 
@@ -68,7 +67,7 @@ public final class LayoutInflaterCompat {
      * that already had a Factory2 registered. We work around that bug here. If we can't we
      * log an error.
      */
-    static void forceSetFactory2(LayoutInflater inflater, LayoutInflater.Factory2 factory) {
+    private static void forceSetFactory2(LayoutInflater inflater, LayoutInflater.Factory2 factory) {
         if (!sCheckedField) {
             try {
                 sLayoutInflaterFactory2Field = LayoutInflater.class.getDeclaredField("mFactory2");
@@ -87,61 +86,6 @@ public final class LayoutInflaterCompat {
                 Log.e(TAG, "forceSetFactory2 could not set the Factory2 on LayoutInflater "
                         + inflater + "; inflation may have unexpected results.", e);
             }
-        }
-    }
-
-    static class LayoutInflaterCompatBaseImpl {
-        @SuppressWarnings("deprecation")
-        public void setFactory(LayoutInflater inflater, LayoutInflaterFactory factory) {
-            final LayoutInflater.Factory2 factory2 = factory != null
-                    ? new Factory2Wrapper(factory) : null;
-            setFactory2(inflater, factory2);
-        }
-
-        public void setFactory2(LayoutInflater inflater, LayoutInflater.Factory2 factory) {
-            inflater.setFactory2(factory);
-
-            final LayoutInflater.Factory f = inflater.getFactory();
-            if (f instanceof LayoutInflater.Factory2) {
-                // The merged factory is now set to getFactory(), but not getFactory2() (pre-v21).
-                // We will now try and force set the merged factory to mFactory2
-                forceSetFactory2(inflater, (LayoutInflater.Factory2) f);
-            } else {
-                // Else, we will force set the original wrapped Factory2
-                forceSetFactory2(inflater, factory);
-            }
-        }
-
-        @SuppressWarnings("deprecation")
-        public LayoutInflaterFactory getFactory(LayoutInflater inflater) {
-            LayoutInflater.Factory factory = inflater.getFactory();
-            if (factory instanceof Factory2Wrapper) {
-                return ((Factory2Wrapper) factory).mDelegateFactory;
-            }
-            return null;
-        }
-    }
-
-    @RequiresApi(21)
-    static class LayoutInflaterCompatApi21Impl extends LayoutInflaterCompatBaseImpl {
-        @SuppressWarnings("deprecation")
-        @Override
-        public void setFactory(LayoutInflater inflater, LayoutInflaterFactory factory) {
-            inflater.setFactory2(factory != null ? new Factory2Wrapper(factory) : null);
-        }
-
-        @Override
-        public void setFactory2(LayoutInflater inflater, LayoutInflater.Factory2 factory) {
-            inflater.setFactory2(factory);
-        }
-    }
-
-    static final LayoutInflaterCompatBaseImpl IMPL;
-    static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            IMPL = new LayoutInflaterCompatApi21Impl();
-        } else {
-            IMPL = new LayoutInflaterCompatBaseImpl();
         }
     }
 
@@ -164,7 +108,23 @@ public final class LayoutInflaterCompat {
     @Deprecated
     public static void setFactory(
             @NonNull LayoutInflater inflater, @NonNull LayoutInflaterFactory factory) {
-        IMPL.setFactory(inflater, factory);
+        if (Build.VERSION.SDK_INT >= 21) {
+            inflater.setFactory2(factory != null ? new Factory2Wrapper(factory) : null);
+        } else {
+            final LayoutInflater.Factory2 factory2 = factory != null
+                    ? new Factory2Wrapper(factory) : null;
+            inflater.setFactory2(factory2);
+
+            final LayoutInflater.Factory f = inflater.getFactory();
+            if (f instanceof LayoutInflater.Factory2) {
+                // The merged factory is now set to getFactory(), but not getFactory2() (pre-v21).
+                // We will now try and force set the merged factory to mFactory2
+                forceSetFactory2(inflater, (LayoutInflater.Factory2) f);
+            } else {
+                // Else, we will force set the original wrapped Factory2
+                forceSetFactory2(inflater, factory2);
+            }
+        }
     }
 
     /**
@@ -176,7 +136,19 @@ public final class LayoutInflaterCompat {
      */
     public static void setFactory2(
             @NonNull LayoutInflater inflater, @NonNull LayoutInflater.Factory2 factory) {
-        IMPL.setFactory2(inflater, factory);
+        inflater.setFactory2(factory);
+
+        if (Build.VERSION.SDK_INT < 21) {
+            final LayoutInflater.Factory f = inflater.getFactory();
+            if (f instanceof LayoutInflater.Factory2) {
+                // The merged factory is now set to getFactory(), but not getFactory2() (pre-v21).
+                // We will now try and force set the merged factory to mFactory2
+                forceSetFactory2(inflater, (LayoutInflater.Factory2) f);
+            } else {
+                // Else, we will force set the original wrapped Factory2
+                forceSetFactory2(inflater, factory);
+            }
+        }
     }
 
     /**
@@ -194,6 +166,10 @@ public final class LayoutInflaterCompat {
      */
     @Deprecated
     public static LayoutInflaterFactory getFactory(LayoutInflater inflater) {
-        return IMPL.getFactory(inflater);
+        LayoutInflater.Factory factory = inflater.getFactory();
+        if (factory instanceof Factory2Wrapper) {
+            return ((Factory2Wrapper) factory).mDelegateFactory;
+        }
+        return null;
     }
 }
