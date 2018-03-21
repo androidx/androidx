@@ -56,7 +56,7 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
     public WorkConstraintsTracker(Context context, @Nullable WorkConstraintsCallback callback) {
         Context appContext = context.getApplicationContext();
         mCallback = callback;
-        mConstraintControllers = new ConstraintController[]{
+        mConstraintControllers = new ConstraintController[] {
                 new BatteryChargingController(appContext, this),
                 new BatteryNotLowController(appContext, this),
                 new StorageNotLowController(appContext, this),

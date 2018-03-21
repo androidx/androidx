@@ -71,6 +71,17 @@ public class Processor implements ExecutionListener {
      * @return {@code true} if the work was successfully enqueued for processing
      */
     public synchronized boolean startWork(String id) {
+        return startWork(id, null);
+    }
+
+    /**
+     * Starts a given unit of work in the background.
+     *
+     * @param id The work id to execute.
+     * @param runtimeExtras The {@link RuntimeExtras} for this work, if any.
+     * @return {@code true} if the work was successfully enqueued for processing
+     */
+    public synchronized boolean startWork(String id, RuntimeExtras runtimeExtras) {
         // Work may get triggered multiple times if they have passing constraints and new work with
         // those constraints are added.
         if (mEnqueuedWorkMap.containsKey(id)) {
@@ -81,6 +92,7 @@ public class Processor implements ExecutionListener {
         WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
                 .withListener(this)
                 .withSchedulers(mSchedulers)
+                .withRuntimeExtras(runtimeExtras)
                 .build();
         mEnqueuedWorkMap.put(id, mExecutorService.submit(workWrapper));
         Logger.debug(TAG, "%s: processing %s", getClass().getSimpleName(), id);

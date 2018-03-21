@@ -58,6 +58,7 @@ public class WorkerWrapper implements Runnable {
     private String mWorkSpecId;
     private ExecutionListener mListener;
     private List<Scheduler> mSchedulers;
+    private RuntimeExtras mRuntimeExtras;
     private WorkSpec mWorkSpec;
     Worker mWorker;
 
@@ -70,6 +71,7 @@ public class WorkerWrapper implements Runnable {
         mWorkSpecId = builder.mWorkSpecId;
         mListener = builder.mListener;
         mSchedulers = builder.mSchedulers;
+        mRuntimeExtras = builder.mRuntimeExtras;
         mWorker = builder.mWorker;
 
         mWorkDatabase = builder.mWorkDatabase;
@@ -112,7 +114,7 @@ public class WorkerWrapper implements Runnable {
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.
         if (mWorker == null) {
-            mWorker = workerFromWorkSpec(mAppContext, mWorkSpec, arguments);
+            mWorker = workerFromWorkSpec(mAppContext, mWorkSpec, arguments, mRuntimeExtras);
         }
 
         if (mWorker == null) {
@@ -318,10 +320,16 @@ public class WorkerWrapper implements Runnable {
 
     static Worker workerFromWorkSpec(@NonNull Context context,
             @NonNull WorkSpec workSpec,
-            @NonNull Arguments arguments) {
+            @NonNull Arguments arguments,
+            @Nullable RuntimeExtras runtimeExtras) {
         String workerClassName = workSpec.workerClassName;
         String workSpecId = workSpec.id;
-        return workerFromClassName(context, workerClassName, workSpecId, arguments);
+        return workerFromClassName(
+                context,
+                workerClassName,
+                workSpecId,
+                arguments,
+                runtimeExtras);
     }
 
     /**
@@ -341,15 +349,25 @@ public class WorkerWrapper implements Runnable {
             @NonNull Context context,
             @NonNull String workerClassName,
             @NonNull String workSpecId,
-            @NonNull Arguments arguments) {
+            @NonNull Arguments arguments,
+            @Nullable RuntimeExtras runtimeExtras) {
         Context appContext = context.getApplicationContext();
         try {
             Class<?> clazz = Class.forName(workerClassName);
             Worker worker = (Worker) clazz.newInstance();
             Method internalInitMethod = Worker.class.getDeclaredMethod(
-                    "internalInit", Context.class, String.class, Arguments.class);
+                    "internalInit",
+                    Context.class,
+                    String.class,
+                    Arguments.class,
+                    RuntimeExtras.class);
             internalInitMethod.setAccessible(true);
-            internalInitMethod.invoke(worker, appContext, workSpecId, arguments);
+            internalInitMethod.invoke(
+                    worker,
+                    appContext,
+                    workSpecId,
+                    arguments,
+                    runtimeExtras);
             return worker;
         } catch (Exception e) {
             Log.e(TAG, "Trouble instantiating " + workerClassName, e);
@@ -370,6 +388,7 @@ public class WorkerWrapper implements Runnable {
         private String mWorkSpecId;
         private ExecutionListener mListener;
         private List<Scheduler> mSchedulers;
+        private RuntimeExtras mRuntimeExtras;
 
         public Builder(@NonNull Context context,
                 @NonNull WorkDatabase database,
@@ -390,11 +409,20 @@ public class WorkerWrapper implements Runnable {
         }
 
         /**
-         * @param schedulers The list of {@link Scheduler}'s used for scheduling {@link Worker}'s.
+         * @param schedulers The list of {@link Scheduler}s used for scheduling {@link Worker}s.
          * @return The instance of {@link Builder} for chaining.
          */
         public Builder withSchedulers(List<Scheduler> schedulers) {
             mSchedulers = schedulers;
+            return this;
+        }
+
+        /**
+         * @param runtimeExtras The {@link RuntimeExtras} for the {@link Worker}.
+         * @return The instance of {@link Builder} for chaining.
+         */
+        public Builder withRuntimeExtras(RuntimeExtras runtimeExtras) {
+            mRuntimeExtras = runtimeExtras;
             return this;
         }
 

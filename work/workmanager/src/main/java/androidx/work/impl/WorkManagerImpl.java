@@ -273,7 +273,18 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void startWork(String workSpecId) {
-        mTaskExecutor.executeOnBackgroundThread(new StartWorkRunnable(this, workSpecId));
+        startWork(workSpecId, null);
+    }
+
+    /**
+     * @param workSpecId The {@link WorkSpec} id to start
+     * @param runtimeExtras The {@link RuntimeExtras} associated with this work
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void startWork(String workSpecId, RuntimeExtras runtimeExtras) {
+        mTaskExecutor.executeOnBackgroundThread(
+                new StartWorkRunnable(this, workSpecId, runtimeExtras));
     }
 
     /**

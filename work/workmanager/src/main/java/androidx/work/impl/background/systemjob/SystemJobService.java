@@ -19,12 +19,14 @@ package androidx.work.impl.background.systemjob;
 import android.annotation.TargetApi;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.os.Build;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.RuntimeExtras;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.logger.Logger;
 
@@ -86,7 +88,18 @@ public class SystemJobService extends JobService implements ExecutionListener {
             mJobParameters.put(workSpecId, params);
         }
 
-        mWorkManagerImpl.startWork(workSpecId);
+        RuntimeExtras runtimeExtras = null;
+        if (Build.VERSION.SDK_INT >= 24) {
+            if (params.getTriggeredContentUris() != null
+                    || params.getTriggeredContentAuthorities() != null) {
+                runtimeExtras = new RuntimeExtras();
+                runtimeExtras.triggeredContentUris = params.getTriggeredContentUris();
+                runtimeExtras.triggeredContentAuthorities =
+                        params.getTriggeredContentAuthorities();
+            }
+        }
+
+        mWorkManagerImpl.startWork(workSpecId, runtimeExtras);
         return true;
     }
 

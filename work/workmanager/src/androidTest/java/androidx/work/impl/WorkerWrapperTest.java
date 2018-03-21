@@ -514,8 +514,11 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testFromWorkSpec_hasAppContext() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
-        Worker worker =
-                WorkerWrapper.workerFromWorkSpec(mContext, getWorkSpec(work), Arguments.EMPTY);
+        Worker worker = WorkerWrapper.workerFromWorkSpec(
+                mContext,
+                getWorkSpec(work),
+                Arguments.EMPTY,
+                null);
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getAppContext(), is(equalTo(mContext.getApplicationContext())));
@@ -529,13 +532,21 @@ public class WorkerWrapperTest extends DatabaseTest {
         Arguments arguments = new Arguments.Builder().putString(key, expectedValue).build();
 
         Work work = new Work.Builder(TestWorker.class).withArguments(arguments).build();
-        Worker worker = WorkerWrapper.workerFromWorkSpec(mContext, getWorkSpec(work), arguments);
+        Worker worker = WorkerWrapper.workerFromWorkSpec(
+                mContext,
+                getWorkSpec(work),
+                arguments,
+                null);
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getArguments().getString(key, null), is(expectedValue));
 
         work = new Work.Builder(TestWorker.class).build();
-        worker = WorkerWrapper.workerFromWorkSpec(mContext, getWorkSpec(work), Arguments.EMPTY);
+        worker = WorkerWrapper.workerFromWorkSpec(
+                mContext,
+                getWorkSpec(work),
+                Arguments.EMPTY,
+                null);
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getArguments().size(), is(0));
