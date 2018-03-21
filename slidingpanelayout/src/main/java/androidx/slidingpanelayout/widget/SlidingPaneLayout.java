@@ -41,7 +41,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
@@ -196,18 +195,6 @@ public class SlidingPaneLayout extends ViewGroup {
     private final Rect mTmpRect = new Rect();
 
     final ArrayList<DisableLayerRunnable> mPostedRunnables = new ArrayList<>();
-
-    static final SlidingPanelLayoutImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 17) {
-            IMPL = new SlidingPanelLayoutImplJBMR1();
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            IMPL = new SlidingPanelLayoutImplJB();
-        } else {
-            IMPL = new SlidingPanelLayoutImplBase();
-        }
-    }
 
     /**
      * Listener for monitoring events about sliding panes.
@@ -1020,8 +1007,56 @@ public class SlidingPaneLayout extends ViewGroup {
         return result;
     }
 
+    private Method mGetDisplayList;
+    private Field mRecreateDisplayList;
+    private boolean mDisplayListReflectionLoaded;
+
     void invalidateChildRegion(View v) {
-        IMPL.invalidateChildRegion(this, v);
+        if (Build.VERSION.SDK_INT >= 17) {
+            ViewCompat.setLayerPaint(v, ((LayoutParams) v.getLayoutParams()).dimPaint);
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= 16) {
+            // Private API hacks! Nasty! Bad!
+            //
+            // In Jellybean, some optimizations in the hardware UI renderer
+            // prevent a changed Paint on a View using a hardware layer from having
+            // the intended effect. This twiddles some internal bits on the view to force
+            // it to recreate the display list.
+            if (!mDisplayListReflectionLoaded) {
+                try {
+                    mGetDisplayList = View.class.getDeclaredMethod("getDisplayList",
+                            (Class[]) null);
+                } catch (NoSuchMethodException e) {
+                    Log.e(TAG, "Couldn't fetch getDisplayList method; dimming won't work right.",
+                            e);
+                }
+                try {
+                    mRecreateDisplayList = View.class.getDeclaredField("mRecreateDisplayList");
+                    mRecreateDisplayList.setAccessible(true);
+                } catch (NoSuchFieldException e) {
+                    Log.e(TAG, "Couldn't fetch mRecreateDisplayList field; dimming will be slow.",
+                            e);
+                }
+                mDisplayListReflectionLoaded = true;
+            }
+            if (mGetDisplayList == null || mRecreateDisplayList == null) {
+                // Slow path. REALLY slow path. Let's hope we don't get here.
+                v.invalidate();
+                return;
+            }
+
+            try {
+                mRecreateDisplayList.setBoolean(v, true);
+                mGetDisplayList.invoke(v, (Object[]) null);
+            } catch (Exception e) {
+                Log.e(TAG, "Error refreshing display list state", e);
+            }
+        }
+
+        ViewCompat.postInvalidateOnAnimation(this, v.getLeft(), v.getTop(), v.getRight(),
+                v.getBottom());
     }
 
     /**
@@ -1473,71 +1508,6 @@ public class SlidingPaneLayout extends ViewGroup {
                 return new SavedState[size];
             }
         };
-    }
-
-    interface SlidingPanelLayoutImpl {
-        void invalidateChildRegion(SlidingPaneLayout parent, View child);
-    }
-
-    static class SlidingPanelLayoutImplBase implements SlidingPanelLayoutImpl {
-        @Override
-        public void invalidateChildRegion(SlidingPaneLayout parent, View child) {
-            ViewCompat.postInvalidateOnAnimation(parent, child.getLeft(), child.getTop(),
-                    child.getRight(), child.getBottom());
-        }
-    }
-
-    @RequiresApi(16)
-    static class SlidingPanelLayoutImplJB extends SlidingPanelLayoutImplBase {
-        /*
-         * Private API hacks! Nasty! Bad!
-         *
-         * In Jellybean, some optimizations in the hardware UI renderer
-         * prevent a changed Paint on a View using a hardware layer from having
-         * the intended effect. This twiddles some internal bits on the view to force
-         * it to recreate the display list.
-         */
-        private Method mGetDisplayList;
-        private Field mRecreateDisplayList;
-
-        SlidingPanelLayoutImplJB() {
-            try {
-                mGetDisplayList = View.class.getDeclaredMethod("getDisplayList", (Class[]) null);
-            } catch (NoSuchMethodException e) {
-                Log.e(TAG, "Couldn't fetch getDisplayList method; dimming won't work right.", e);
-            }
-            try {
-                mRecreateDisplayList = View.class.getDeclaredField("mRecreateDisplayList");
-                mRecreateDisplayList.setAccessible(true);
-            } catch (NoSuchFieldException e) {
-                Log.e(TAG, "Couldn't fetch mRecreateDisplayList field; dimming will be slow.", e);
-            }
-        }
-
-        @Override
-        public void invalidateChildRegion(SlidingPaneLayout parent, View child) {
-            if (mGetDisplayList != null && mRecreateDisplayList != null) {
-                try {
-                    mRecreateDisplayList.setBoolean(child, true);
-                    mGetDisplayList.invoke(child, (Object[]) null);
-                } catch (Exception e) {
-                    Log.e(TAG, "Error refreshing display list state", e);
-                }
-            } else {
-                // Slow path. REALLY slow path. Let's hope we don't get here.
-                child.invalidate();
-                return;
-            }
-            super.invalidateChildRegion(parent, child);
-        }
-    }
-
-    @RequiresApi(17)
-    static class SlidingPanelLayoutImplJBMR1 extends SlidingPanelLayoutImplBase {
-        @Override
-        public void invalidateChildRegion(SlidingPaneLayout parent, View child) {
-            ViewCompat.setLayerPaint(child, ((LayoutParams) child.getLayoutParams()).dimPaint);
-        }
     }
 
     class AccessibilityDelegate extends AccessibilityDelegateCompat {
