@@ -66,8 +66,7 @@ class TiledPagedList<T> extends PagedList<T>
                 boolean deferEnd = !deferEmpty
                         && ((type == PageResult.INIT && pageResult.trailingNulls == 0)
                                 || (type == PageResult.TILE
-                                        && pageResult.positionOffset
-                                                == (size - size % mConfig.pageSize)));
+                                        && (pageResult.positionOffset + mConfig.pageSize >= size)));
                 deferBoundaryCallbacks(deferEmpty, deferBegin, deferEnd);
             }
         }
