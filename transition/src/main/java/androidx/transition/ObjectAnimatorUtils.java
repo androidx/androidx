@@ -24,18 +24,11 @@ import android.util.Property;
 
 class ObjectAnimatorUtils {
 
-    private static final ObjectAnimatorUtilsImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            IMPL = new ObjectAnimatorUtilsApi21();
-        } else {
-            IMPL = new ObjectAnimatorUtilsApi14();
-        }
-    }
-
     static <T> ObjectAnimator ofPointF(T target, Property<T, PointF> property, Path path) {
-        return IMPL.ofPointF(target, property, path);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return ObjectAnimator.ofObject(target, property, null, path);
+        }
+        return ObjectAnimator.ofFloat(target, new PathProperty<>(property, path), 0f, 1f);
     }
 
 }
