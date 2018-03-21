@@ -60,7 +60,6 @@ import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media.session.MediaButtonReceiver;
-import androidx.media.session.MediaControllerCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -26,7 +26,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.session.MediaSessionCompat;
 
-import androidx.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 
 import org.junit.After;
 import org.junit.Before;
