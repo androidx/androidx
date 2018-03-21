@@ -59,7 +59,6 @@ import android.widget.TextView;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.view.ActionMode;
@@ -90,8 +89,7 @@ import androidx.core.widget.PopupWindowCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 
-@RequiresApi(14)
-class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
+abstract class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         implements MenuBuilder.Callback, LayoutInflater.Factory2 {
 
     private static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT < 21;
@@ -122,6 +120,8 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
     private PanelFeatureState mPreparedPanel;
 
     private boolean mLongPressBackDown;
+
+    private boolean mIsDestroyed;
 
     boolean mInvalidatePanelMenuPosted;
     int mInvalidatePanelMenuFeatures;
@@ -312,7 +312,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
             mWindow.getDecorView().removeCallbacks(mInvalidatePanelMenuRunnable);
         }
 
-        super.onDestroy();
+        mIsDestroyed = true;
 
         if (mActionBar != null) {
             mActionBar.onDestroy();
@@ -341,7 +341,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
             // A pending invalidation will typically be resolved before the posted message
             // would run normally in order to satisfy instance state restoration.
             PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, false);
-            if (!isDestroyed() && (st == null || st.menu == null)) {
+            if (!mIsDestroyed && (st == null || st.menu == null)) {
                 invalidatePanelMenu(FEATURE_SUPPORT_ACTION_BAR);
             }
         }
@@ -637,8 +637,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         }
     }
 
-    @Override
-    void onPanelClosed(final int featureId, Menu menu) {
+    void onPanelClosed(final int featureId) {
         if (featureId == FEATURE_SUPPORT_ACTION_BAR) {
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
@@ -654,22 +653,19 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         }
     }
 
-    @Override
-    boolean onMenuOpened(final int featureId, Menu menu) {
+    void onMenuOpened(final int featureId) {
         if (featureId == FEATURE_SUPPORT_ACTION_BAR) {
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.dispatchMenuVisibilityChanged(true);
             }
-            return true;
         }
-        return false;
     }
 
     @Override
     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
         final Window.Callback cb = getWindowCallback();
-        if (cb != null && !isDestroyed()) {
+        if (cb != null && !mIsDestroyed) {
             final PanelFeatureState panel = findMenuPanel(menu.getRootMenu());
             if (panel != null) {
                 return cb.onMenuItemSelected(panel.featureId, item);
@@ -732,7 +728,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         }
 
         ActionMode mode = null;
-        if (mAppCompatCallback != null && !isDestroyed()) {
+        if (mAppCompatCallback != null && !mIsDestroyed) {
             try {
                 mode = mAppCompatCallback.onWindowStartingSupportActionMode(callback);
             } catch (AbstractMethodError ame) {
@@ -901,7 +897,6 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         return false;
     }
 
-    @Override
     boolean onKeyShortcut(int keyCode, KeyEvent ev) {
         // Let the Action Bar have a chance at handling the shortcut
         ActionBar ab = getSupportActionBar();
@@ -938,7 +933,6 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         return false;
     }
 
-    @Override
     boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
             // If this is a MENU event, let the Activity have a go.
@@ -1115,7 +1109,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
 
     private void openPanel(final PanelFeatureState st, KeyEvent event) {
         // Already open, return
-        if (st.isOpen || isDestroyed()) {
+        if (st.isOpen || mIsDestroyed) {
             return;
         }
 
@@ -1224,7 +1218,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
             final Window.Callback cb = getWindowCallback();
 
             if (!mDecorContentParent.isOverflowMenuShowing() || !toggleMenuMode) {
-                if (cb != null && !isDestroyed()) {
+                if (cb != null && !mIsDestroyed) {
                     // If we have a menu invalidation pending, do it now.
                     if (mInvalidatePanelMenuPosted &&
                             (mInvalidatePanelMenuFeatures & (1 << FEATURE_OPTIONS_PANEL)) != 0) {
@@ -1244,7 +1238,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
                 }
             } else {
                 mDecorContentParent.hideOverflowMenu();
-                if (!isDestroyed()) {
+                if (!mIsDestroyed) {
                     final PanelFeatureState st = getPanelState(FEATURE_OPTIONS_PANEL, true);
                     cb.onPanelClosed(FEATURE_SUPPORT_ACTION_BAR, st.menu);
                 }
@@ -1325,7 +1319,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
     }
 
     private boolean preparePanel(PanelFeatureState st, KeyEvent event) {
-        if (isDestroyed()) {
+        if (mIsDestroyed) {
             return false;
         }
 
@@ -1436,7 +1430,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         mClosingActionMenu = true;
         mDecorContentParent.dismissPopups();
         Window.Callback cb = getWindowCallback();
-        if (cb != null && !isDestroyed()) {
+        if (cb != null && !mIsDestroyed) {
             cb.onPanelClosed(FEATURE_SUPPORT_ACTION_BAR, menu);
         }
         mClosingActionMenu = false;
@@ -1500,7 +1494,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
                 mDecorContentParent.canShowOverflowMenu() &&
                 !ViewConfiguration.get(mContext).hasPermanentMenuKey()) {
             if (!mDecorContentParent.isOverflowMenuShowing()) {
-                if (!isDestroyed() && preparePanel(st, event)) {
+                if (!mIsDestroyed && preparePanel(st, event)) {
                     handled = mDecorContentParent.showOverflowMenu();
                 }
             } else {
@@ -1562,7 +1556,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         if ((panel != null) && (!panel.isOpen))
             return;
 
-        if (!isDestroyed()) {
+        if (!mIsDestroyed) {
             // We need to be careful which callback we dispatch the call to. We can not dispatch
             // this to the Window's callback since that will call back into this method and cause a
             // crash. Instead we need to dispatch down to the original Activity/Dialog/etc.
@@ -1868,7 +1862,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         public boolean onOpenSubMenu(MenuBuilder subMenu) {
             if (subMenu == null && mHasActionBar) {
                 Window.Callback cb = getWindowCallback();
-                if (cb != null && !isDestroyed()) {
+                if (cb != null && !mIsDestroyed) {
                     cb.onMenuOpened(FEATURE_SUPPORT_ACTION_BAR, subMenu);
                 }
             }
