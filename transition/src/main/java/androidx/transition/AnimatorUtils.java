@@ -22,29 +22,59 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+
 class AnimatorUtils {
-
-    private static final AnimatorUtilsImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 19) {
-            IMPL = new AnimatorUtilsApi19();
-        } else {
-            IMPL = new AnimatorUtilsApi14();
-        }
-    }
 
     static void addPauseListener(@NonNull Animator animator,
             @NonNull AnimatorListenerAdapter listener) {
-        IMPL.addPauseListener(animator, listener);
+        if (Build.VERSION.SDK_INT >= 19) {
+            animator.addPauseListener(listener);
+        }
     }
 
     static void pause(@NonNull Animator animator) {
-        IMPL.pause(animator);
+        if (Build.VERSION.SDK_INT >= 19) {
+            animator.pause();
+        } else {
+            final ArrayList<Animator.AnimatorListener> listeners = animator.getListeners();
+            if (listeners != null) {
+                for (int i = 0, size = listeners.size(); i < size; i++) {
+                    final Animator.AnimatorListener listener = listeners.get(i);
+                    if (listener instanceof AnimatorPauseListenerCompat) {
+                        ((AnimatorPauseListenerCompat) listener).onAnimationPause(animator);
+                    }
+                }
+            }
+        }
     }
 
     static void resume(@NonNull Animator animator) {
-        IMPL.resume(animator);
+        if (Build.VERSION.SDK_INT >= 19) {
+            animator.resume();
+        } else {
+            final ArrayList<Animator.AnimatorListener> listeners = animator.getListeners();
+            if (listeners != null) {
+                for (int i = 0, size = listeners.size(); i < size; i++) {
+                    final Animator.AnimatorListener listener = listeners.get(i);
+                    if (listener instanceof AnimatorPauseListenerCompat) {
+                        ((AnimatorPauseListenerCompat) listener).onAnimationResume(animator);
+                    }
+                }
+            }
+        }
     }
 
+    /**
+     * Listeners can implement this interface in addition to the platform AnimatorPauseListener to
+     * make them compatible with API level 18 and below. Animators will not be paused or resumed,
+     * but the callbacks here are invoked.
+     */
+    interface AnimatorPauseListenerCompat {
+
+        void onAnimationPause(Animator animation);
+
+        void onAnimationResume(Animator animation);
+
+    }
 }

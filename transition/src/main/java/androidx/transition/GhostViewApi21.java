@@ -39,38 +39,32 @@ class GhostViewApi21 implements GhostViewImpl {
     private static Method sRemoveGhostMethod;
     private static boolean sRemoveGhostMethodFetched;
 
-    static class Creator implements GhostViewImpl.Creator {
-
-        @Override
-        public GhostViewImpl addGhost(View view, ViewGroup viewGroup, Matrix matrix) {
-            fetchAddGhostMethod();
-            if (sAddGhostMethod != null) {
-                try {
-                    return new GhostViewApi21(
-                            (View) sAddGhostMethod.invoke(null, view, viewGroup, matrix));
-                } catch (IllegalAccessException e) {
-                    // Do nothing
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e.getCause());
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public void removeGhost(View view) {
-            fetchRemoveGhostMethod();
-            if (sRemoveGhostMethod != null) {
-                try {
-                    sRemoveGhostMethod.invoke(null, view);
-                } catch (IllegalAccessException e) {
-                    // Do nothing
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e.getCause());
-                }
+    static GhostViewImpl addGhost(View view, ViewGroup viewGroup, Matrix matrix) {
+        fetchAddGhostMethod();
+        if (sAddGhostMethod != null) {
+            try {
+                return new GhostViewApi21(
+                        (View) sAddGhostMethod.invoke(null, view, viewGroup, matrix));
+            } catch (IllegalAccessException e) {
+                // Do nothing
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e.getCause());
             }
         }
+        return null;
+    }
 
+    static void removeGhost(View view) {
+        fetchRemoveGhostMethod();
+        if (sRemoveGhostMethod != null) {
+            try {
+                sRemoveGhostMethod.invoke(null, view);
+            } catch (IllegalAccessException e) {
+                // Do nothing
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e.getCause());
+            }
+        }
     }
 
     /** A handle to the platform android.view.GhostView. */

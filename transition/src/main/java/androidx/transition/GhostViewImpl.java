@@ -16,22 +16,10 @@
 
 package androidx.transition;
 
-import android.graphics.Matrix;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.RequiresApi;
-
-@RequiresApi(14)
 interface GhostViewImpl {
-
-    interface Creator {
-
-        GhostViewImpl addGhost(View view, ViewGroup viewGroup, Matrix matrix);
-
-        void removeGhost(View view);
-
-    }
 
     void setVisibility(int visibility);
 
