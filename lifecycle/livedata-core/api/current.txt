@@ -1,21 +1,21 @@
-package android.arch.lifecycle {
+package androidx.lifecycle {
 
   public abstract class LiveData<T> {
     ctor public LiveData();
     method public T getValue();
     method public boolean hasActiveObservers();
     method public boolean hasObservers();
-    method public void observe(android.arch.lifecycle.LifecycleOwner, android.arch.lifecycle.Observer<? super T>);
-    method public void observeForever(android.arch.lifecycle.Observer<? super T>);
+    method public void observe(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Observer<? super T>);
+    method public void observeForever(androidx.lifecycle.Observer<? super T>);
     method protected void onActive();
     method protected void onInactive();
     method protected void postValue(T);
-    method public void removeObserver(android.arch.lifecycle.Observer<? super T>);
-    method public void removeObservers(android.arch.lifecycle.LifecycleOwner);
+    method public void removeObserver(androidx.lifecycle.Observer<? super T>);
+    method public void removeObservers(androidx.lifecycle.LifecycleOwner);
     method protected void setValue(T);
   }
 
-  public class MutableLiveData<T> extends android.arch.lifecycle.LiveData {
+  public class MutableLiveData<T> extends androidx.lifecycle.LiveData {
     ctor public MutableLiveData();
     method public void postValue(T);
     method public void setValue(T);

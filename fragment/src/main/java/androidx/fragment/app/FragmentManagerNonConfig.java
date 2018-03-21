@@ -17,8 +17,9 @@
 
 package androidx.fragment.app;
 
-import android.arch.lifecycle.ViewModelStore;
 import android.os.Parcelable;
+
+import androidx.lifecycle.ViewModelStore;
 
 import java.util.List;
 

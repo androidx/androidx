@@ -21,11 +21,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.ViewModelStore;
-import android.arch.lifecycle.ViewModelStoreOwner;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.test.filters.SmallTest;
@@ -33,6 +28,11 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.ViewModelStore;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.test.DelayLoaderCallbacks;
 import androidx.loader.app.test.DummyLoaderCallbacks;
 import androidx.loader.app.test.EmptyActivity;

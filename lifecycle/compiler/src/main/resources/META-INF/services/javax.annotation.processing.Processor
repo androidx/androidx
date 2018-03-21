@@ -1,1 +1,1 @@
-android.arch.lifecycle.LifecycleProcessor
+androidx.lifecycle.LifecycleProcessor
