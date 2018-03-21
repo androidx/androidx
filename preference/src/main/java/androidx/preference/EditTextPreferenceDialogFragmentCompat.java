@@ -70,6 +70,8 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
         }
 
         mEditText.setText(mText);
+        // Place cursor at the end
+        mEditText.setSelection(mText.length());
     }
 
     private EditTextPreference getEditTextPreference() {
