@@ -25,7 +25,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
 
@@ -46,160 +45,75 @@ import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
  */
 public class AccessibilityDelegateCompat {
 
-    static class AccessibilityDelegateBaseImpl {
-        public AccessibilityDelegate newAccessibilityDelegateBridge(
-                final AccessibilityDelegateCompat compat) {
-            return new AccessibilityDelegate() {
-                @Override
-                public boolean dispatchPopulateAccessibilityEvent(View host,
-                        AccessibilityEvent event) {
-                    return compat.dispatchPopulateAccessibilityEvent(host, event);
-                }
+    private static final class AccessibilityDelegateAdapter extends AccessibilityDelegate {
+        private final AccessibilityDelegateCompat mCompat;
 
-                @Override
-                public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
-                    compat.onInitializeAccessibilityEvent(host, event);
-                }
-
-                @Override
-                public void onInitializeAccessibilityNodeInfo(
-                        View host, AccessibilityNodeInfo info) {
-                    compat.onInitializeAccessibilityNodeInfo(host,
-                            AccessibilityNodeInfoCompat.wrap(info));
-                }
-
-                @Override
-                public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
-                    compat.onPopulateAccessibilityEvent(host, event);
-                }
-
-                @Override
-                public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
-                        AccessibilityEvent event) {
-                    return compat.onRequestSendAccessibilityEvent(host, child, event);
-                }
-
-                @Override
-                public void sendAccessibilityEvent(View host, int eventType) {
-                    compat.sendAccessibilityEvent(host, eventType);
-                }
-
-                @Override
-                public void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event) {
-                    compat.sendAccessibilityEventUnchecked(host, event);
-                }
-            };
-        }
-
-        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(
-                AccessibilityDelegate delegate, View host) {
-            // Do nothing. Added in API 16.
-            return null;
-        }
-
-        public boolean performAccessibilityAction(AccessibilityDelegate delegate, View host,
-                int action, Bundle args) {
-            // Do nothing. Added in API 16.
-            return false;
-        }
-    }
-
-    @RequiresApi(16)
-    static class AccessibilityDelegateApi16Impl extends AccessibilityDelegateBaseImpl {
-        @Override
-        public AccessibilityDelegate newAccessibilityDelegateBridge(
-                final AccessibilityDelegateCompat compat) {
-            return new AccessibilityDelegate()  {
-                @Override
-                public boolean dispatchPopulateAccessibilityEvent(View host,
-                        AccessibilityEvent event) {
-                    return compat.dispatchPopulateAccessibilityEvent(host, event);
-                }
-
-                @Override
-                public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
-                    compat.onInitializeAccessibilityEvent(host, event);
-                }
-
-                @Override
-                public void onInitializeAccessibilityNodeInfo(
-                        View host, AccessibilityNodeInfo info) {
-                    compat.onInitializeAccessibilityNodeInfo(host,
-                            AccessibilityNodeInfoCompat.wrap(info));
-                }
-
-                @Override
-                public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
-                    compat.onPopulateAccessibilityEvent(host, event);
-                }
-
-                @Override
-                public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
-                        AccessibilityEvent event) {
-                    return compat.onRequestSendAccessibilityEvent(host, child, event);
-                }
-
-                @Override
-                public void sendAccessibilityEvent(View host, int eventType) {
-                    compat.sendAccessibilityEvent(host, eventType);
-                }
-
-                @Override
-                public void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event) {
-                    compat.sendAccessibilityEventUnchecked(host, event);
-                }
-
-                @Override
-                public AccessibilityNodeProvider getAccessibilityNodeProvider(View host) {
-                    AccessibilityNodeProviderCompat provider =
-                        compat.getAccessibilityNodeProvider(host);
-                    return (provider != null)
-                            ? (AccessibilityNodeProvider) provider.getProvider() : null;
-                }
-
-                @Override
-                public boolean performAccessibilityAction(View host, int action, Bundle args) {
-                    return compat.performAccessibilityAction(host, action, args);
-                }
-            };
+        AccessibilityDelegateAdapter(AccessibilityDelegateCompat compat) {
+            mCompat = compat;
         }
 
         @Override
-        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(
-                AccessibilityDelegate delegate, View host) {
-            Object provider = delegate.getAccessibilityNodeProvider(host);
-            if (provider != null) {
-                return new AccessibilityNodeProviderCompat(provider);
-            }
-            return null;
+        public boolean dispatchPopulateAccessibilityEvent(View host,
+                AccessibilityEvent event) {
+            return mCompat.dispatchPopulateAccessibilityEvent(host, event);
         }
 
         @Override
-        public boolean performAccessibilityAction(AccessibilityDelegate delegate, View host,
-                int action, Bundle args) {
-            return delegate.performAccessibilityAction(host, action, args);
+        public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
+            mCompat.onInitializeAccessibilityEvent(host, event);
+        }
+
+        @Override
+        public void onInitializeAccessibilityNodeInfo(
+                View host, AccessibilityNodeInfo info) {
+            mCompat.onInitializeAccessibilityNodeInfo(host,
+                    AccessibilityNodeInfoCompat.wrap(info));
+        }
+
+        @Override
+        public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
+            mCompat.onPopulateAccessibilityEvent(host, event);
+        }
+
+        @Override
+        public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
+                AccessibilityEvent event) {
+            return mCompat.onRequestSendAccessibilityEvent(host, child, event);
+        }
+
+        @Override
+        public void sendAccessibilityEvent(View host, int eventType) {
+            mCompat.sendAccessibilityEvent(host, eventType);
+        }
+
+        @Override
+        public void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event) {
+            mCompat.sendAccessibilityEventUnchecked(host, event);
+        }
+
+        @Override
+        public AccessibilityNodeProvider getAccessibilityNodeProvider(View host) {
+            AccessibilityNodeProviderCompat provider =
+                    mCompat.getAccessibilityNodeProvider(host);
+            return (provider != null)
+                    ? (AccessibilityNodeProvider) provider.getProvider() : null;
+        }
+
+        @Override
+        public boolean performAccessibilityAction(View host, int action, Bundle args) {
+            return mCompat.performAccessibilityAction(host, action, args);
         }
     }
 
-    private static final AccessibilityDelegateBaseImpl IMPL;
-    private static final AccessibilityDelegate DEFAULT_DELEGATE;
+    private static final AccessibilityDelegate DEFAULT_DELEGATE = new AccessibilityDelegate();
 
-    static {
-        if (Build.VERSION.SDK_INT >= 16) { // JellyBean
-            IMPL = new AccessibilityDelegateApi16Impl();
-        } else {
-            IMPL = new AccessibilityDelegateBaseImpl();
-        }
-        DEFAULT_DELEGATE = new AccessibilityDelegate();
-    }
-
-    final AccessibilityDelegate mBridge;
+    private final AccessibilityDelegate mBridge;
 
     /**
      * Creates a new instance.
      */
     public AccessibilityDelegateCompat() {
-        mBridge = IMPL.newAccessibilityDelegateBridge(this);
+        mBridge = new AccessibilityDelegateAdapter(this);
     }
 
     /**
@@ -369,7 +283,13 @@ public class AccessibilityDelegateCompat {
      * @see AccessibilityNodeProviderCompat
      */
     public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View host) {
-        return IMPL.getAccessibilityNodeProvider(DEFAULT_DELEGATE, host);
+        if (Build.VERSION.SDK_INT >= 16) {
+            Object provider = DEFAULT_DELEGATE.getAccessibilityNodeProvider(host);
+            if (provider != null) {
+                return new AccessibilityNodeProviderCompat(provider);
+            }
+        }
+        return null;
     }
 
     /**
@@ -389,6 +309,9 @@ public class AccessibilityDelegateCompat {
      *      View#performAccessibilityAction(int, Bundle)
      */
     public boolean performAccessibilityAction(View host, int action, Bundle args) {
-        return IMPL.performAccessibilityAction(DEFAULT_DELEGATE, host, action, args);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return DEFAULT_DELEGATE.performAccessibilityAction(host, action, args);
+        }
+        return false;
     }
 }

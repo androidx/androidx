@@ -24,16 +24,6 @@ import android.util.Property;
 
 class PropertyValuesHolderUtils {
 
-    private static final PropertyValuesHolderUtilsImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            IMPL = new PropertyValuesHolderUtilsApi21();
-        } else {
-            IMPL = new PropertyValuesHolderUtilsApi14();
-        }
-    }
-
     /**
      * Constructs and returns a PropertyValuesHolder with a given property and
      * a Path along which the values should be animated. This variant supports a
@@ -45,7 +35,10 @@ class PropertyValuesHolderUtils {
      * @return PropertyValuesHolder The constructed PropertyValuesHolder object.
      */
     static PropertyValuesHolder ofPointF(Property<?, PointF> property, Path path) {
-        return IMPL.ofPointF(property, path);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return PropertyValuesHolder.ofObject(property, null, path);
+        }
+        return PropertyValuesHolder.ofFloat(new PathProperty<>(property, path), 0f, 1f);
     }
 
 }
