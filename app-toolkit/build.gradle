@@ -26,3 +26,5 @@ buildscript {
         classpath build_libs.kotlin.gradle_plugin
     }
 }
+
+apply from: 'buildSrc/jetify.gradle'
