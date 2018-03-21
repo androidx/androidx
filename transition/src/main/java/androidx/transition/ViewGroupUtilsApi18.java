@@ -26,20 +26,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @RequiresApi(18)
-class ViewGroupUtilsApi18 extends ViewGroupUtilsApi14 {
+class ViewGroupUtilsApi18 {
 
     private static final String TAG = "ViewUtilsApi18";
 
     private static Method sSuppressLayoutMethod;
     private static boolean sSuppressLayoutMethodFetched;
 
-    @Override
-    public ViewGroupOverlayImpl getOverlay(@NonNull ViewGroup group) {
-        return new ViewGroupOverlayApi18(group);
-    }
-
-    @Override
-    public void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
+    static void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
         fetchSuppressLayoutMethod();
         if (sSuppressLayoutMethod != null) {
             try {
@@ -52,7 +46,7 @@ class ViewGroupUtilsApi18 extends ViewGroupUtilsApi14 {
         }
     }
 
-    private void fetchSuppressLayoutMethod() {
+    private static void fetchSuppressLayoutMethod() {
         if (!sSuppressLayoutMethodFetched) {
             try {
                 sSuppressLayoutMethod = ViewGroup.class.getDeclaredMethod("suppressLayout",

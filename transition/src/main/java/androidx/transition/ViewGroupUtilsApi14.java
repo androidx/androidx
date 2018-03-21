@@ -21,14 +21,12 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-@RequiresApi(14)
-class ViewGroupUtilsApi14 implements ViewGroupUtilsImpl {
+class ViewGroupUtilsApi14 {
 
     private static final String TAG = "ViewGroupUtilsApi14";
 
@@ -42,13 +40,7 @@ class ViewGroupUtilsApi14 implements ViewGroupUtilsImpl {
     private static Method sCancelMethod;
     private static boolean sCancelMethodFetched;
 
-    @Override
-    public ViewGroupOverlayImpl getOverlay(@NonNull ViewGroup group) {
-        return ViewGroupOverlayApi14.createFrom(group);
-    }
-
-    @Override
-    public void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
+    static void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
         // Prepare the dummy LayoutTransition
         if (sEmptyLayoutTransition == null) {
             sEmptyLayoutTransition = new LayoutTransition() {
