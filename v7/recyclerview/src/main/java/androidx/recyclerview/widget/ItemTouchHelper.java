@@ -1375,8 +1375,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                 | ((START | END) << DIRECTION_FLAG_COUNT)
                 | ((START | END) << (2 * DIRECTION_FLAG_COUNT));
 
-        private static final ItemTouchUIUtil sUICallback;
-
         private static final int ABS_HORIZONTAL_DIR_FLAGS = LEFT | RIGHT
                 | ((LEFT | RIGHT) << DIRECTION_FLAG_COUNT)
                 | ((LEFT | RIGHT) << (2 * DIRECTION_FLAG_COUNT));
@@ -1402,14 +1400,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         private static final long DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000;
 
         private int mCachedMaxScrollSpeed = -1;
-
-        static {
-            if (Build.VERSION.SDK_INT >= 21) {
-                sUICallback = new ItemTouchUIUtilImpl.Api21Impl();
-            } else {
-                sUICallback = new ItemTouchUIUtilImpl.BaseImpl();
-            }
-        }
 
         /**
          * Returns the {@link ItemTouchUIUtil} that is used by the {@link Callback} class for
@@ -1454,7 +1444,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         @SuppressWarnings("WeakerAccess")
         @NonNull
         public static ItemTouchUIUtil getDefaultUIUtil() {
-            return sUICallback;
+            return ItemTouchUIUtilImpl.INSTANCE;
         }
 
         /**
@@ -1884,7 +1874,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          */
         public void onSelectedChanged(@Nullable ViewHolder viewHolder, int actionState) {
             if (viewHolder != null) {
-                sUICallback.onSelected(viewHolder.itemView);
+                ItemTouchUIUtilImpl.INSTANCE.onSelected(viewHolder.itemView);
             }
         }
 
@@ -2026,7 +2016,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * @param viewHolder   The View that was interacted by the user.
          */
         public void clearView(@NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder) {
-            sUICallback.clearView(viewHolder.itemView);
+            ItemTouchUIUtilImpl.INSTANCE.clearView(viewHolder.itemView);
         }
 
         /**
@@ -2059,8 +2049,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
                 @NonNull ViewHolder viewHolder,
                 float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            sUICallback.onDraw(c, recyclerView, viewHolder.itemView, dX, dY, actionState,
-                    isCurrentlyActive);
+            ItemTouchUIUtilImpl.INSTANCE.onDraw(c, recyclerView, viewHolder.itemView, dX, dY,
+                    actionState, isCurrentlyActive);
         }
 
         /**
@@ -2093,8 +2083,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
                 ViewHolder viewHolder,
                 float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            sUICallback.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY, actionState,
-                    isCurrentlyActive);
+            ItemTouchUIUtilImpl.INSTANCE.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY,
+                    actionState, isCurrentlyActive);
         }
 
         /**
