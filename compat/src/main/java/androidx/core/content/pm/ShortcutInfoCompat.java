@@ -93,7 +93,7 @@ public class ShortcutInfoCompat {
                     badge = mContext.getApplicationInfo().loadIcon(pm);
                 }
             }
-            mIcon.addToShortcutIntent(outIntent, badge);
+            mIcon.addToShortcutIntent(outIntent, badge, mContext);
         }
         return outIntent;
     }
