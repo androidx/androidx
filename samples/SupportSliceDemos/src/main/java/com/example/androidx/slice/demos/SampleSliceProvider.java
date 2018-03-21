@@ -39,7 +39,7 @@ import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
-import androidx.slice.builders.GridBuilder;
+import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.MessagingSliceBuilder;
 import androidx.slice.builders.SliceAction;
@@ -214,10 +214,10 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createCatSlice(Uri sliceUri, boolean customSeeMore) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri);
-        GridBuilder gb = new GridBuilder(b);
+        GridRowBuilder gb = new GridRowBuilder(b);
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "See cats you follow");
         if (customSeeMore) {
-            GridBuilder.CellBuilder cb = new GridBuilder.CellBuilder(gb);
+            GridRowBuilder.CellBuilder cb = new GridRowBuilder.CellBuilder(gb);
             cb.addImage(Icon.createWithResource(getContext(), R.drawable.ic_right_caret),
                     ICON_IMAGE);
             cb.setContentIntent(pi);
@@ -226,59 +226,59 @@ public class SampleSliceProvider extends SliceProvider {
         } else {
             gb.addSeeMoreAction(pi);
         }
-        gb.addCell(new GridBuilder.CellBuilder(gb)
+        gb.addCell(new GridRowBuilder.CellBuilder(gb)
                     .addImage(Icon.createWithResource(getContext(), R.drawable.cat_1), SMALL_IMAGE)
                     .addTitleText("Oreo"))
-                .addCell(new GridBuilder.CellBuilder(gb)
+                .addCell(new GridRowBuilder.CellBuilder(gb)
                         .addImage(Icon.createWithResource(getContext(), R.drawable.cat_2),
                                 SMALL_IMAGE)
                         .addTitleText("Silver"))
-                .addCell(new GridBuilder.CellBuilder(gb)
+                .addCell(new GridRowBuilder.CellBuilder(gb)
                         .addImage(Icon.createWithResource(getContext(), R.drawable.cat_3),
                                 SMALL_IMAGE)
                         .addTitleText("Drake"))
-                .addCell(new GridBuilder.CellBuilder(gb)
+                .addCell(new GridRowBuilder.CellBuilder(gb)
                         .addImage(Icon.createWithResource(getContext(), R.drawable.cat_5),
                                 SMALL_IMAGE)
                         .addTitleText("Olive"))
-                .addCell(new GridBuilder.CellBuilder(gb)
+                .addCell(new GridRowBuilder.CellBuilder(gb)
                         .addImage(Icon.createWithResource(getContext(), R.drawable.cat_4),
                                 SMALL_IMAGE)
                         .addTitleText("Lady Marmalade"))
-                .addCell(new GridBuilder.CellBuilder(gb)
+                .addCell(new GridRowBuilder.CellBuilder(gb)
                         .addImage(Icon.createWithResource(getContext(), R.drawable.cat_6),
                                 SMALL_IMAGE)
                         .addTitleText("Grapefruit"));
-        return b.addGrid(gb).build();
+        return b.addGridRow(gb).build();
     }
 
     private Slice createContact2(Uri sliceUri) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri);
         ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(b);
-        GridBuilder gb = new GridBuilder(b);
+        GridRowBuilder gb = new GridRowBuilder(b);
         return b.setColor(0xff3949ab)
                 .addRow(rb
                         .setTitle("Mady Pitza")
                         .setSubtitle("Frequently contacted contact")
                         .addEndItem(Icon.createWithResource(getContext(), R.drawable.mady),
                                 SMALL_IMAGE))
-                .addGrid(gb
-                        .addCell(new GridBuilder.CellBuilder(gb)
+                .addGridRow(gb
+                        .addCell(new GridRowBuilder.CellBuilder(gb)
                                 .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call),
                                         ICON_IMAGE)
                                 .addText("Call")
                                 .setContentIntent(getBroadcastIntent(ACTION_TOAST, "call")))
-                        .addCell(new GridBuilder.CellBuilder(gb)
+                        .addCell(new GridRowBuilder.CellBuilder(gb)
                                 .addImage(Icon.createWithResource(getContext(), R.drawable.ic_text),
                                         ICON_IMAGE)
                                 .addText("Text")
                                 .setContentIntent(getBroadcastIntent(ACTION_TOAST, "text")))
-                        .addCell(new GridBuilder.CellBuilder(gb)
+                        .addCell(new GridRowBuilder.CellBuilder(gb)
                                 .addImage(Icon.createWithResource(getContext(),
                                         R.drawable.ic_video), ICON_IMAGE)
                                 .setContentIntent(getBroadcastIntent(ACTION_TOAST, "video"))
                                 .addText("Video"))
-                        .addCell(new GridBuilder.CellBuilder(gb)
+                        .addCell(new GridRowBuilder.CellBuilder(gb)
                                 .addImage(Icon.createWithResource(getContext(),
                                         R.drawable.ic_email), ICON_IMAGE)
                                 .addText("Email")

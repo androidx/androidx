@@ -25,9 +25,6 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 
-import java.util.List;
-import java.util.function.Consumer;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -38,6 +35,9 @@ import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.ListBuilderBasicImpl;
 import androidx.slice.builders.impl.ListBuilderV1Impl;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Builder to construct slice content in a list format.
@@ -120,10 +120,36 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Add a grid row to the list builder.
+     *
+     * @deprecated TO BE REMOVED; use {@link #addGridRow(GridRowBuilder)} instead
      */
     @NonNull
+    @Deprecated
     public ListBuilder addGrid(@NonNull GridBuilder builder) {
-        mImpl.addGrid((TemplateBuilderImpl) builder.getImpl());
+        mImpl.addGridRow((TemplateBuilderImpl) builder.getImpl());
+        return this;
+    }
+
+    /**
+     * Add a grid row to the list builder.
+     *
+     * @deprecated TO BE REMOVED; use {@link #addGridRow(GridRowBuilder)} instead
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @NonNull
+    @Deprecated
+    public ListBuilder addGrid(@NonNull Consumer<GridBuilder> c) {
+        GridBuilder b = new GridBuilder(this);
+        c.accept(b);
+        return addGrid(b);
+    }
+
+    /**
+     * Add a grid row to the list builder.
+     */
+    @NonNull
+    public ListBuilder addGridRow(@NonNull GridRowBuilder builder) {
+        mImpl.addGridRow((TemplateBuilderImpl) builder.getImpl());
         return this;
     }
 
@@ -132,10 +158,10 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
-    public ListBuilder addGrid(@NonNull Consumer<GridBuilder> c) {
-        GridBuilder b = new GridBuilder(this);
+    public ListBuilder addGridRow(@NonNull Consumer<GridRowBuilder> c) {
+        GridRowBuilder b = new GridRowBuilder(this);
         c.accept(b);
-        return addGrid(b);
+        return addGridRow(b);
     }
 
     /**
