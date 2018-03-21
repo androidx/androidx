@@ -26,7 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @RequiresApi(19)
-class ViewUtilsApi19 extends ViewUtilsApi18 {
+class ViewUtilsApi19 extends ViewUtilsBase {
 
     private static final String TAG = "ViewUtilsApi19";
 

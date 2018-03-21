@@ -21,24 +21,11 @@ import android.view.View;
 import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
-@RequiresApi(14)
-class ViewUtilsApi14 implements ViewUtilsImpl {
+class ViewUtilsBase {
 
     private float[] mMatrixValues;
 
-    @Override
-    public ViewOverlayImpl getOverlay(@NonNull View view) {
-        return ViewOverlayApi14.createFrom(view);
-    }
-
-    @Override
-    public WindowIdImpl getWindowId(@NonNull View view) {
-        return new WindowIdApi14(view.getWindowToken());
-    }
-
-    @Override
     public void setTransitionAlpha(@NonNull View view, float alpha) {
         Float savedAlpha = (Float) view.getTag(R.id.save_non_transition_alpha);
         if (savedAlpha != null) {
@@ -48,7 +35,6 @@ class ViewUtilsApi14 implements ViewUtilsImpl {
         }
     }
 
-    @Override
     public float getTransitionAlpha(@NonNull View view) {
         Float savedAlpha = (Float) view.getTag(R.id.save_non_transition_alpha);
         if (savedAlpha != null) {
@@ -58,14 +44,12 @@ class ViewUtilsApi14 implements ViewUtilsImpl {
         }
     }
 
-    @Override
     public void saveNonTransitionAlpha(@NonNull View view) {
         if (view.getTag(R.id.save_non_transition_alpha) == null) {
             view.setTag(R.id.save_non_transition_alpha, view.getAlpha());
         }
     }
 
-    @Override
     public void clearNonTransitionAlpha(@NonNull View view) {
         // We don't clear the saved value when the view is hidden; that's the situation we are
         // saving this value for.
@@ -74,7 +58,6 @@ class ViewUtilsApi14 implements ViewUtilsImpl {
         }
     }
 
-    @Override
     public void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix) {
         final ViewParent parent = view.getParent();
         if (parent instanceof View) {
@@ -89,7 +72,6 @@ class ViewUtilsApi14 implements ViewUtilsImpl {
         }
     }
 
-    @Override
     public void transformMatrixToLocal(@NonNull View view, @NonNull Matrix matrix) {
         final ViewParent parent = view.getParent();
         if (parent instanceof View) {
@@ -107,7 +89,6 @@ class ViewUtilsApi14 implements ViewUtilsImpl {
         }
     }
 
-    @Override
     public void setAnimationMatrix(@NonNull View view, Matrix matrix) {
         if (matrix == null || matrix.isIdentity()) {
             view.setPivotX(view.getWidth() / 2);
@@ -141,7 +122,6 @@ class ViewUtilsApi14 implements ViewUtilsImpl {
         }
     }
 
-    @Override
     public void setLeftTopRightBottom(View v, int left, int top, int right, int bottom) {
         v.setLeft(left);
         v.setTop(top);

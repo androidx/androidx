@@ -34,7 +34,7 @@ import java.lang.reflect.Field;
  */
 class ViewUtils {
 
-    private static final ViewUtilsImpl IMPL;
+    private static final ViewUtilsBase IMPL;
     private static final String TAG = "ViewUtils";
 
     private static Field sViewFlagsField;
@@ -48,10 +48,8 @@ class ViewUtils {
             IMPL = new ViewUtilsApi21();
         } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new ViewUtilsApi19();
-        } else if (Build.VERSION.SDK_INT >= 18) {
-            IMPL = new ViewUtilsApi18();
         } else {
-            IMPL = new ViewUtilsApi14();
+            IMPL = new ViewUtilsBase();
         }
     }
 
@@ -92,14 +90,20 @@ class ViewUtils {
      * Backward-compatible {@link View#getOverlay()}.
      */
     static ViewOverlayImpl getOverlay(@NonNull View view) {
-        return IMPL.getOverlay(view);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return new ViewOverlayApi18(view);
+        }
+        return ViewOverlayApi14.createFrom(view);
     }
 
     /**
      * Backward-compatible {@link View#getWindowId()}.
      */
     static WindowIdImpl getWindowId(@NonNull View view) {
-        return IMPL.getWindowId(view);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return new WindowIdApi18(view);
+        }
+        return new WindowIdApi14(view.getWindowToken());
     }
 
     static void setTransitionAlpha(@NonNull View view, float alpha) {
