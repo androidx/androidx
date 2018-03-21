@@ -28,7 +28,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -75,36 +74,6 @@ public final class TaskStackBuilder implements Iterable<Intent> {
     public interface SupportParentable {
         @Nullable
         Intent getSupportParentActivityIntent();
-    }
-
-    static class TaskStackBuilderBaseImpl {
-        public PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
-                int flags, Bundle options) {
-            intents[0] = new Intent(intents[0]).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
-            return PendingIntent.getActivities(context, requestCode, intents, flags);
-        }
-    }
-
-    @RequiresApi(16)
-    static class TaskStackBuilderApi16Impl extends TaskStackBuilderBaseImpl {
-        @Override
-        public PendingIntent getPendingIntent(Context context, Intent[] intents, int requestCode,
-                int flags, Bundle options) {
-            intents[0] = new Intent(intents[0]).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
-            return PendingIntent.getActivities(context, requestCode, intents, flags, options);
-        }
-    }
-
-    private static final TaskStackBuilderBaseImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 16) {
-            IMPL = new TaskStackBuilderApi16Impl();
-        } else {
-            IMPL = new TaskStackBuilderBaseImpl();
-        }
     }
 
     private final ArrayList<Intent> mIntents = new ArrayList<Intent>();
@@ -367,8 +336,13 @@ public final class TaskStackBuilder implements Iterable<Intent> {
         Intent[] intents = mIntents.toArray(new Intent[mIntents.size()]);
         intents[0] = new Intent(intents[0]).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
-        // Appropriate flags will be added by the call below.
-        return IMPL.getPendingIntent(mSourceContext, intents, requestCode, flags, options);
+
+        if (Build.VERSION.SDK_INT >= 16) {
+            return PendingIntent.getActivities(mSourceContext, requestCode, intents, flags,
+                    options);
+        } else {
+            return PendingIntent.getActivities(mSourceContext, requestCode, intents, flags);
+        }
     }
 
     /**
