@@ -19,12 +19,13 @@ package androidx.slice;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.BuildCompat;
 
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -125,7 +126,7 @@ public abstract class SliceManager {
      * @see SliceSpec
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract @NonNull List<SliceSpec> getPinnedSpecs(@NonNull Uri uri);
+    public abstract @NonNull Set<SliceSpec> getPinnedSpecs(@NonNull Uri uri);
 
     /**
      * Turns a slice Uri into slice content.

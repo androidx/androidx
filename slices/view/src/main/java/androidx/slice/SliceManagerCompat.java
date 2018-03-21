@@ -21,14 +21,14 @@ import static androidx.slice.widget.SliceLiveData.SUPPORTED_SPECS;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-
-import java.util.List;
-
 import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.widget.SliceLiveData;
+
+import java.util.Set;
 
 
 /**
@@ -52,7 +52,7 @@ class SliceManagerCompat extends SliceManagerBase {
     }
 
     @Override
-    public @NonNull List<SliceSpec> getPinnedSpecs(@NonNull Uri uri) {
+    public @NonNull Set<SliceSpec> getPinnedSpecs(@NonNull Uri uri) {
         return SliceProviderCompat.getPinnedSpecs(mContext, uri);
     }
 
