@@ -1,3 +1,3 @@
--keep class * extends android.arch.lifecycle.AndroidViewModel {
+-keep class * extends androidx.lifecycle.AndroidViewModel {
     <init>(android.app.Application);
 }

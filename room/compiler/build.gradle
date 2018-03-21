@@ -44,8 +44,8 @@ dependencies {
     // taken from ButterKnife
     def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
     def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
-    compile(project(":room:common"))
-    compile(project(":room:migration"))
+    compile(project(":room:room-common"))
+    compile(project(":room:room-migration"))
     compile(KOTLIN_STDLIB)
     compile(AUTO_COMMON)
     compile(JAVAPOET)
@@ -54,16 +54,16 @@ dependencies {
     compile(KOTLIN_METADATA)
     compile(APACHE_COMMONS_CODEC)
     testCompile(GOOGLE_COMPILE_TESTING)
-    testCompile project(":paging:common")
+    testCompile project(":paging:paging-common")
     testCompile(JUNIT)
     testCompile(INTELLIJ_ANNOTATIONS)
     testCompile(JSR250)
     testCompile(MOCKITO_CORE)
     testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$SupportConfig.CURRENT_SDK_VERSION/",
             include : "android.jar")
-    testCompile fileTree(dir: "${new File(project(":room:runtime").buildDir, "libJar")}",
+    testCompile fileTree(dir: "${new File(project(":room:room-runtime").buildDir, "libJar")}",
             include : "*.jar")
-    testCompile fileTree(dir: "${new File(project(":persistence:db").buildDir, "libJar")}",
+    testCompile fileTree(dir: "${new File(project(":sqlite:sqlite").buildDir, "libJar")}",
             include : "*.jar")
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
@@ -74,13 +74,13 @@ def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
     inputs.file("$projectDir/SQLite.g4")
     classpath configurations.runtime
     main "org.antlr.v4.Tool"
-    args "SQLite.g4", "-visitor", "-o", new File(outFolder, "android/arch/persistence/room/parser").path,
-            "-package", "android.arch.persistence.room.parser"
+    args "SQLite.g4", "-visitor", "-o", new File(outFolder, "androidx/room/parser").path,
+            "-package", "androidx.room.parser"
 }
 
 tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
-tasks.findByName("compileKotlin").dependsOn(":room:runtime:jarDebug")
-tasks.findByName("compileKotlin").dependsOn(":persistence:db:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarDebug")
 
 supportLibrary {
     name = "Android Room Compiler"

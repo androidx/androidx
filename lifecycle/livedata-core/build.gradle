@@ -24,11 +24,11 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":arch:common"))
-    implementation(project(":arch:runtime"))
-    api(project(":lifecycle:common"))
+    implementation(project(":arch:core-common"))
+    implementation(project(":arch:core-runtime"))
+    api(project(":lifecycle:lifecycle-common"))
 
-    testImplementation(project(":lifecycle:runtime"))
+    testImplementation(project(":lifecycle:lifecycle-runtime"))
     testImplementation(project(":arch:core-testing"))
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

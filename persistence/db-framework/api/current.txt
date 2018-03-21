@@ -1,8 +1,8 @@
-package android.arch.persistence.db.framework {
+package androidx.sqlite.db.framework {
 
-  public final class FrameworkSQLiteOpenHelperFactory implements android.arch.persistence.db.SupportSQLiteOpenHelper.Factory {
+  public final class FrameworkSQLiteOpenHelperFactory implements androidx.sqlite.db.SupportSQLiteOpenHelper.Factory {
     ctor public FrameworkSQLiteOpenHelperFactory();
-    method public android.arch.persistence.db.SupportSQLiteOpenHelper create(android.arch.persistence.db.SupportSQLiteOpenHelper.Configuration);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper create(androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration);
   }
 
 }

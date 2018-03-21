@@ -1,6 +1,6 @@
-package android.arch.lifecycle {
+package androidx.lifecycle {
 
-  public class AndroidViewModel extends android.arch.lifecycle.ViewModel {
+  public class AndroidViewModel extends androidx.lifecycle.ViewModel {
     ctor public AndroidViewModel(android.app.Application);
     method public <T extends android.app.Application> T getApplication();
   }
@@ -11,24 +11,24 @@ package android.arch.lifecycle {
   }
 
   public class ViewModelProvider {
-    ctor public ViewModelProvider(android.arch.lifecycle.ViewModelStoreOwner, android.arch.lifecycle.ViewModelProvider.Factory);
-    ctor public ViewModelProvider(android.arch.lifecycle.ViewModelStore, android.arch.lifecycle.ViewModelProvider.Factory);
-    method public <T extends android.arch.lifecycle.ViewModel> T get(java.lang.Class<T>);
-    method public <T extends android.arch.lifecycle.ViewModel> T get(java.lang.String, java.lang.Class<T>);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner, androidx.lifecycle.ViewModelProvider.Factory);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore, androidx.lifecycle.ViewModelProvider.Factory);
+    method public <T extends androidx.lifecycle.ViewModel> T get(java.lang.Class<T>);
+    method public <T extends androidx.lifecycle.ViewModel> T get(java.lang.String, java.lang.Class<T>);
   }
 
-  public static class ViewModelProvider.AndroidViewModelFactory extends android.arch.lifecycle.ViewModelProvider.NewInstanceFactory {
+  public static class ViewModelProvider.AndroidViewModelFactory extends androidx.lifecycle.ViewModelProvider.NewInstanceFactory {
     ctor public ViewModelProvider.AndroidViewModelFactory(android.app.Application);
-    method public static android.arch.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application);
+    method public static androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application);
   }
 
   public static abstract interface ViewModelProvider.Factory {
-    method public abstract <T extends android.arch.lifecycle.ViewModel> T create(java.lang.Class<T>);
+    method public abstract <T extends androidx.lifecycle.ViewModel> T create(java.lang.Class<T>);
   }
 
-  public static class ViewModelProvider.NewInstanceFactory implements android.arch.lifecycle.ViewModelProvider.Factory {
+  public static class ViewModelProvider.NewInstanceFactory implements androidx.lifecycle.ViewModelProvider.Factory {
     ctor public ViewModelProvider.NewInstanceFactory();
-    method public <T extends android.arch.lifecycle.ViewModel> T create(java.lang.Class<T>);
+    method public <T extends androidx.lifecycle.ViewModel> T create(java.lang.Class<T>);
   }
 
   public class ViewModelStore {
@@ -37,7 +37,7 @@ package android.arch.lifecycle {
   }
 
   public abstract interface ViewModelStoreOwner {
-    method public abstract android.arch.lifecycle.ViewModelStore getViewModelStore();
+    method public abstract androidx.lifecycle.ViewModelStore getViewModelStore();
   }
 
 }

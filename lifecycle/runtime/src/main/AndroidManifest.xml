@@ -16,5 +16,5 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.arch.lifecycle">
+          package="androidx.lifecycle">
 </manifest>
