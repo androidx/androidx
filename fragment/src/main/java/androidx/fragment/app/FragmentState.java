@@ -16,12 +16,13 @@
 
 package androidx.fragment.app;
 
-import android.arch.lifecycle.ViewModelStore;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
+import androidx.lifecycle.ViewModelStore;
 
 final class FragmentState implements Parcelable {
     final String mClassName;

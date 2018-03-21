@@ -16,15 +16,15 @@
 
 package bar;
 
-import android.arch.lifecycle.GeneratedAdapter;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.MethodCallsLogger;
+import androidx.lifecycle.GeneratedAdapter;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MethodCallsLogger;
 import foo.DifferentPackagesBase1_LifecycleAdapter;
 import java.lang.Override;
 import javax.annotation.Generated;
 
-@Generated("android.arch.lifecycle.LifecycleProcessor")
+@Generated("androidx.lifecycle.LifecycleProcessor")
 public class DifferentPackagesDerived1_LifecycleAdapter implements GeneratedAdapter {
   final DifferentPackagesDerived1 mReceiver;
 

@@ -15,13 +15,13 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.arch.paging.integration.testapp">
+          package="androidx.paging.integration.testapp">
     <application
         android:allowBackup="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
         <activity
-            android:name=".PagedListSampleActivity"
+            android:name="androidx.paging.integration.testapp.PagedListSampleActivity"
             android:label="PagedList Sample">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

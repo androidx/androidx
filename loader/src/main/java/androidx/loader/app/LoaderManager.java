@@ -16,13 +16,13 @@
 
 package androidx.loader.app;
 
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.ViewModelStoreOwner;
 import android.os.Bundle;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.content.Loader;
 
 import java.io.FileDescriptor;

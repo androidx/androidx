@@ -21,15 +21,15 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LifecycleRegistry;
 import android.content.Context;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
 import androidx.loader.app.test.DelayLoader;
 import androidx.loader.app.test.DummyLoaderCallbacks;
 import androidx.loader.app.test.EmptyActivity;
@@ -74,7 +74,12 @@ public class LoaderInfoTest {
         assertFalse("isCallbackWaitingForData should be false before setCallback",
                 loaderInfo.isCallbackWaitingForData());
 
-        loaderInfo.setCallback(mActivityRule.getActivity(), loaderCallback);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loaderInfo.setCallback(mActivityRule.getActivity(), loaderCallback);
+            }
+        });
         assertTrue("isCallbackWaitingForData should be true immediately after setCallback",
                 loaderInfo.isCallbackWaitingForData());
 

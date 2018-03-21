@@ -16,11 +16,11 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.arch.lifecycle.reactivestreams.test">
+          package="androidx.lifecycle.reactivestreams.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
-        <activity android:name="android.arch.lifecycle.viewmodeltest.ViewModelActivity"
+        <activity android:name="androidx.lifecycle.viewmodeltest.ViewModelActivity"
                   android:theme="@style/Base.Theme.AppCompat">
         </activity>
     </application>

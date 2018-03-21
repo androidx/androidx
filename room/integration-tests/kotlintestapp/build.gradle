@@ -39,13 +39,13 @@ android {
 }
 
 dependencies {
-    implementation(project(":room:common"))
-    implementation(project(":persistence:db"))
-    implementation(project(":persistence:db-framework"))
-    implementation(project(":room:runtime"))
-    implementation(project(":arch:runtime"))
-    implementation(project(":lifecycle:extensions"))
-    kaptAndroidTest project(":room:compiler")
+    implementation(project(":room:room-common"))
+    implementation(project(":sqlite:sqlite"))
+    implementation(project(":sqlite:sqlite-framework"))
+    implementation(project(":room:room-runtime"))
+    implementation(project(":arch:core-runtime"))
+    implementation(project(":lifecycle:lifecycle-extensions"))
+    kaptAndroidTest project(":room:room-compiler")
 
     androidTestImplementation(TEST_RUNNER) {
         exclude module: 'support-annotations'
@@ -56,12 +56,12 @@ dependencies {
         exclude module: "hamcrest-core"
     })
     // IJ's gradle integration just cannot figure this out ...
-    androidTestImplementation project(':lifecycle:extensions')
-    androidTestImplementation project(':lifecycle:common')
-    androidTestImplementation project(':lifecycle:runtime')
-    androidTestImplementation project(':room:guava')
-    androidTestImplementation project(':room:testing')
-    androidTestImplementation project(':room:rxjava2')
+    androidTestImplementation project(':lifecycle:lifecycle-extensions')
+    androidTestImplementation project(':lifecycle:lifecycle-common')
+    androidTestImplementation project(':lifecycle:lifecycle-runtime')
+    androidTestImplementation project(':room:room-guava')
+    androidTestImplementation project(':room:room-testing')
+    androidTestImplementation project(':room:room-rxjava2')
     androidTestImplementation project(':arch:core-testing')
     androidTestImplementation(GUAVA_ANDROID)
     androidTestImplementation(RX_JAVA)

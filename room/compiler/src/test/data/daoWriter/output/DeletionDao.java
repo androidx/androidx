@@ -1,10 +1,10 @@
 package foo.bar;
 
-import android.arch.persistence.db.SupportSQLiteStatement;
-import android.arch.persistence.room.EntityDeletionOrUpdateAdapter;
-import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.SharedSQLiteStatement;
-import android.arch.persistence.room.util.StringUtil;
+import androidx.room.EntityDeletionOrUpdateAdapter;
+import androidx.room.RoomDatabase;
+import androidx.room.SharedSQLiteStatement;
+import androidx.room.util.StringUtil;
+import androidx.sqlite.db.SupportSQLiteStatement;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
@@ -12,7 +12,7 @@ import java.lang.SuppressWarnings;
 import java.util.List;
 import javax.annotation.Generated;
 
-@Generated("android.arch.persistence.room.RoomProcessor")
+@Generated("androidx.room.RoomProcessor")
 @SuppressWarnings("unchecked")
 public class DeletionDao_Impl implements DeletionDao {
   private final RoomDatabase __db;
