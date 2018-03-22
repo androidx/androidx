@@ -42,6 +42,11 @@
             android:theme="@style/Theme.SampleDrawerLayout"/>
 
         <activity
+            android:name="androidx.appcompat.app.DrawerInteractionActivity"
+            android:label="@string/drawer_layout_activity"
+            android:theme="@style/Theme.SampleDrawerLayout"/>
+
+        <activity
             android:name="androidx.appcompat.app.DrawerLayoutDoubleActivity"
             android:label="@string/drawer_layout_activity"
             android:theme="@style/Theme.SampleDrawerLayout"/>
