@@ -23,8 +23,8 @@ import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.executor.ArchTaskExecutor;
-import androidx.executor.TaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.TaskExecutor;
 import androidx.room.EmptyResultSetException;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.User;

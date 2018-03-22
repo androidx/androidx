@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.executor.testing;
+package androidx.arch.core.executor.testing;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
 
 import org.junit.Rule;
 import org.junit.Test;

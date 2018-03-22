@@ -18,7 +18,7 @@ package androidx.room;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
 
 import java.util.Set;
 import java.util.concurrent.Callable;

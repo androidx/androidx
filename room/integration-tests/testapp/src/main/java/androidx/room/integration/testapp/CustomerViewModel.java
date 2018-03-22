@@ -19,7 +19,7 @@ package androidx.room.integration.testapp;
 import android.app.Application;
 
 import androidx.annotation.WorkerThread;
-import androidx.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.paging.DataSource;

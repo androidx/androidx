@@ -24,8 +24,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 
 import androidx.annotation.NonNull;
-import androidx.executor.ArchTaskExecutor;
-import androidx.executor.testing.CountingTaskExecutorRule;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.paging.DataSource;

@@ -16,7 +16,7 @@
 
 package androidx.lifecycle.util;
 
-import androidx.executor.TaskExecutor;
+import androidx.arch.core.executor.TaskExecutor;
 
 public class InstantTaskExecutor extends TaskExecutor {
     @Override

@@ -29,9 +29,9 @@ import static org.mockito.Mockito.verify;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.executor.ArchTaskExecutor;
-import androidx.executor.TaskExecutor;
-import androidx.executor.TaskExecutorWithFakeMainThread;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.TaskExecutor;
+import androidx.arch.core.executor.TaskExecutorWithFakeMainThread;
 import androidx.lifecycle.util.InstantTaskExecutor;
 
 import org.junit.After;

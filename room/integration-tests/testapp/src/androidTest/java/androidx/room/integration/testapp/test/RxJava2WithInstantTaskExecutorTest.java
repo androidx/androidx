@@ -20,7 +20,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.executor.testing.InstantTaskExecutorRule;
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.vo.User;

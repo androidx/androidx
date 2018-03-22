@@ -18,7 +18,7 @@ package androidx.room.guava;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 import androidx.annotation.RestrictTo;
-import androidx.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.room.RoomSQLiteQuery;
 
 import com.google.common.util.concurrent.FutureCallback;
