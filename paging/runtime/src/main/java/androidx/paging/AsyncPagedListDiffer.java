@@ -18,7 +18,7 @@ package androidx.paging;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.AdapterListUpdateCallback;
 import androidx.recyclerview.widget.AsyncDifferConfig;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.executor;
+package androidx.arch.core.executor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

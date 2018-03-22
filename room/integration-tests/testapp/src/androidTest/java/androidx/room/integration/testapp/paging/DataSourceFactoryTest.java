@@ -26,8 +26,8 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.Nullable;
-import androidx.executor.ArchTaskExecutor;
-import androidx.executor.testing.CountingTaskExecutorRule;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;

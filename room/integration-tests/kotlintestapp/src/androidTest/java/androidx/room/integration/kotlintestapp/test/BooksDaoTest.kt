@@ -18,7 +18,7 @@ package androidx.room.integration.kotlintestapp.test
 
 import android.database.sqlite.SQLiteConstraintException
 import android.support.test.filters.SmallTest
-import androidx.executor.ArchTaskExecutor
+import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
