@@ -119,7 +119,7 @@ public class ShadowOverlayContainer extends FrameLayout {
      * Return true if the platform sdk supports shadow.
      */
     public static boolean supportsShadow() {
-        return StaticShadowHelper.getInstance().supportsShadow();
+        return StaticShadowHelper.supportsShadow();
     }
 
     /**
@@ -135,7 +135,7 @@ public class ShadowOverlayContainer extends FrameLayout {
      * to parent.
      */
     public static void prepareParentForShadow(ViewGroup parent) {
-        StaticShadowHelper.getInstance().prepareParent(parent);
+        StaticShadowHelper.prepareParent(parent);
     }
 
     /**
@@ -226,7 +226,7 @@ public class ShadowOverlayContainer extends FrameLayout {
                         this, mUnfocusedZ, mFocusedZ, mRoundedCornerRadius);
                 break;
             case SHADOW_STATIC:
-                mShadowImpl = StaticShadowHelper.getInstance().addStaticShadow(this);
+                mShadowImpl = StaticShadowHelper.addStaticShadow(this);
                 break;
         }
         if (hasColorDimOverlay) {
