@@ -19,6 +19,7 @@ package com.example.androidx.slice.demos;
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
+import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
 
@@ -46,6 +47,7 @@ import androidx.slice.builders.SliceAction;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Examples of using slice template builders.
@@ -141,7 +143,8 @@ public class SampleSliceProvider extends SliceProvider {
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
                 "open weather app"), Icon.createWithResource(getContext(), R.drawable.weather_1),
                 "Weather is happening!");
-        return new ListBuilder(getContext(), sliceUri).addGrid(gb -> gb
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
+                .addGrid(gb -> gb
                 .setPrimaryAction(primaryAction)
                 .addCell(cb -> cb
                         .addImage(Icon.createWithResource(getContext(), R.drawable.weather_1),
@@ -172,7 +175,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createGallery(Uri sliceUri) {
-        return new ListBuilder(getContext(), sliceUri)
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xff4285F4)
                 .addRow(b -> b
                     .setTitle("Family trip to Hawaii")
@@ -213,7 +216,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createCatSlice(Uri sliceUri, boolean customSeeMore) {
-        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb = new GridRowBuilder(b);
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "See cats you follow");
         if (customSeeMore) {
@@ -253,7 +256,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createContact2(Uri sliceUri) {
-        ListBuilder b = new ListBuilder(getContext(), sliceUri);
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(b);
         GridRowBuilder gb = new GridRowBuilder(b);
         return b.setColor(0xff3949ab)
@@ -295,7 +298,7 @@ public class SampleSliceProvider extends SliceProvider {
                 "See contact info"), Icon.createWithResource(getContext(),
                 R.drawable.mady), SMALL_IMAGE, "Mady");
 
-        return new ListBuilder(getContext(), sliceUri)
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xff3949ab)
                 .setHeader(b -> b
                         .setTitle("Mady Pitza")
@@ -345,7 +348,7 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createNoteSlice(Uri sliceUri) {
         // TODO: Remote input.
-        return new ListBuilder(getContext(), sliceUri)
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xfff4b400)
                 .addRow(b -> b.setTitle("Create new note"))
                 .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
@@ -361,7 +364,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createReservationSlice(Uri sliceUri) {
-        return new ListBuilder(getContext(), sliceUri)
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xffFF5252)
                 .setHeader(b -> b
                     .setTitle("Upcoming trip to Seattle")
@@ -399,7 +402,7 @@ public class SampleSliceProvider extends SliceProvider {
 
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "get ride"),
                 Icon.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
-        return new ListBuilder(getContext(), sliceUri)
+        return new ListBuilder(getContext(), sliceUri, -TimeUnit.MINUTES.toMillis(2))
                 .setColor(0xff0F9D58)
                 .setHeader(b -> b
                     .setTitle("Get ride")
@@ -422,7 +425,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createCustomToggleSlice(Uri sliceUri) {
-        return new ListBuilder(getContext(), sliceUri)
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xffff4081)
                 .addRow(b -> b
                     .setTitle("Custom toggle")
@@ -435,7 +438,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createTwoCustomToggleSlices(Uri sliceUri) {
-        return new ListBuilder(getContext(), sliceUri)
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xffff4081)
                 .addRow(b -> b
                         .setTitle("2 toggles")
@@ -480,7 +483,7 @@ public class SampleSliceProvider extends SliceProvider {
         String toggleCDString = wifiEnabled ? "Turn wifi off" : "Turn wifi on";
         String sliceCDString = wifiEnabled ? "Wifi connected to " + state
                 : "Wifi disconnected, 10 networks available";
-        ListBuilder lb = new ListBuilder(getContext(), sliceUri)
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xff4285f4)
                 .setHeader(b -> b
                     .setTitle("Wi-fi")
@@ -531,7 +534,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createStarRatingInputRange(Uri sliceUri) {
-        return new ListBuilder(getContext(), sliceUri)
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xffff4081)
                 .addInputRange(c -> c
                         .setTitle("Star rating")
@@ -544,7 +547,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createDownloadProgressRange(Uri sliceUri) {
-        return new ListBuilder(getContext(), sliceUri)
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xffff4081)
                 .addRange(c -> c
                         .setTitle("Download progress")
@@ -577,7 +580,7 @@ public class SampleSliceProvider extends SliceProvider {
             update(1500, mListSummaries, 1, "12 miles | 12 min | $9.00", sliceUri, r);
             update(1700, mListSummaries, 2, "5 miles | 10 min | $8.00", sliceUri, r);
         }
-        Slice s = new ListBuilder(getContext(), sliceUri)
+        Slice s = new ListBuilder(getContext(), sliceUri, -TimeUnit.MINUTES.toMillis(5))
                 .addRow(b -> b
                         .setTitle("Work")
                         .setSubtitle(mListSummaries.get(0, ""), updating)
@@ -610,7 +613,7 @@ public class SampleSliceProvider extends SliceProvider {
             update(1500, mGridSummaries, 3, "33 min", sliceUri, r);
             update(1000, mGridSummaries, 4, "12 min", sliceUri, r);
         }
-        Slice s = new ListBuilder(getContext(), sliceUri)
+        Slice s = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setHeader(hb -> hb
                         .setTitle(mGridSummaries.get(0, ""), updating)
                         .setSubtitle(mGridSummaries.get(1, ""), updating))

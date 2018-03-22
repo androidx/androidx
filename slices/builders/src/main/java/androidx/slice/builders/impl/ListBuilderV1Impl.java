@@ -31,9 +31,13 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
+import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
+import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
+import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 import static androidx.slice.core.SliceHints.SUBTYPE_RANGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
 
@@ -71,6 +75,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @Override
     public void apply(Slice.Builder builder) {
+        builder.addTimestamp(System.currentTimeMillis(), SUBTYPE_MILLIS, HINT_LAST_UPDATED);
         if (mSliceHeader != null) {
             builder.addSubSlice(mSliceHeader);
         }
@@ -249,6 +254,14 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             sb.addText(keywords.get(i), null);
         }
         getBuilder().addSubSlice(sb.addHints(HINT_KEY_WORDS).build());
+    }
+
+    /**
+     */
+    @Override
+    public void setTtl(long ttl) {
+        long expiry = ttl == INFINITY ? INFINITY : System.currentTimeMillis() + ttl;
+        getBuilder().addTimestamp(expiry, SUBTYPE_MILLIS, HINT_TTL);
     }
 
     /**

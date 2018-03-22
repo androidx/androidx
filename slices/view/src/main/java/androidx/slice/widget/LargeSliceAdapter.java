@@ -27,8 +27,6 @@ import static androidx.slice.widget.SliceView.MODE_LARGE;
 
 import android.app.slice.Slice;
 import android.content.Context;
-import androidx.annotation.RestrictTo;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.ArrayMap;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -36,13 +34,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
+import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @hide
@@ -56,6 +56,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     static final int TYPE_MESSAGE       = 4;
     static final int TYPE_MESSAGE_LOCAL = 5;
 
+    static final int HEADER_INDEX = 0;
+
     private final IdGenerator mIdGen = new IdGenerator();
     private final Context mContext;
     private List<SliceWrapper> mSlices = new ArrayList<>();
@@ -63,6 +65,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     private int mColor;
     private AttributeSet mAttrs;
     private List<SliceItem> mSliceActions;
+    private boolean mShowLastUpdated;
+    private long mLastUpdated;
 
     public LargeSliceAdapter(Context context) {
         mContext = context;
@@ -78,9 +82,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
      */
     public void setSliceActions(List<SliceItem> actions) {
         mSliceActions = actions;
-        if (getItemCount() > 0) {
-            notifyItemChanged(0); // Header item (index 0) displays the actions
-        }
+        notifyHeaderChanged();
     }
 
     /**
@@ -106,6 +108,22 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     public void setStyle(AttributeSet attrs) {
         mAttrs = attrs;
         notifyDataSetChanged();
+    }
+
+    /**
+     * Sets whether the last updated time should be shown on the slice.
+     */
+    public void setShowLastUpdated(boolean showLastUpdated) {
+        mShowLastUpdated = showLastUpdated;
+        notifyHeaderChanged();
+    }
+
+    /**
+     * Sets when the slice was last updated.
+     */
+    public void setLastUpdated(long lastUpdated) {
+        mLastUpdated = lastUpdated;
+        notifyHeaderChanged();
     }
 
     @Override
@@ -134,13 +152,21 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     public void onBindViewHolder(SliceViewHolder holder, int position) {
         SliceWrapper slice = mSlices.get(position);
         if (holder.mSliceView != null) {
-            final boolean isHeader = position == 0;
+            final boolean isHeader = position == HEADER_INDEX;
             holder.mSliceView.setTint(mColor);
             holder.mSliceView.setStyle(mAttrs);
             holder.mSliceView.setSliceItem(slice.mItem, isHeader, position, mSliceObserver);
             if (isHeader && holder.mSliceView instanceof RowView) {
                 holder.mSliceView.setSliceActions(mSliceActions);
+                holder.mSliceView.setLastUpdated(mLastUpdated);
+                holder.mSliceView.setShowLastUpdated(mShowLastUpdated);
             }
+        }
+    }
+
+    private void notifyHeaderChanged() {
+        if (getItemCount() > 0) {
+            notifyItemChanged(HEADER_INDEX);
         }
     }
 

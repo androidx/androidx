@@ -22,4 +22,6 @@
     <string name="abc_slice_more">More</string>
     <!-- String to indicate there is more content to display in a list [CHAR LIMIT=none] -->
     <string name="abc_slice_show_more">Show more</string>
+    <!-- Format string indicating how old the content in the template is. [CHAR LIMIT=150]-->
+    <string name="abc_slice_updated">Updated <xliff:g id="time" example="5 min ago">%1$s</xliff:g></string>
 </resources>
