@@ -32,6 +32,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.ColorInt;
+import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 
 /**
@@ -148,8 +149,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     };
 
     void setSearchOrbZ(float fraction) {
-        ShadowHelper.getInstance().setZ(mSearchOrbView,
-                mUnfocusedZ + fraction * (mFocusedZ - mUnfocusedZ));
+        ViewCompat.setZ(mSearchOrbView, mUnfocusedZ + fraction * (mFocusedZ - mUnfocusedZ));
     }
 
     public SearchOrbView(Context context) {
@@ -206,7 +206,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         setSearchOrbZ(0);
 
         // Icon has no background, but must be on top of the search orb view
-        ShadowHelper.getInstance().setZ(mIcon, mFocusedZ);
+        ViewCompat.setZ(mIcon, mFocusedZ);
     }
 
     int getLayoutResourceId() {
