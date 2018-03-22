@@ -56,6 +56,7 @@ import android.view.animation.Transformation;
 import androidx.annotation.CallSuper;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.collection.ArraySet;
@@ -110,6 +111,7 @@ public abstract class FragmentManager {
          * {@link FragmentTransaction#addToBackStack(String)
          * FragmentTransaction.addToBackStack(String)} when creating this entry.
          */
+        @Nullable
         public String getName();
 
         /**
@@ -130,12 +132,14 @@ public abstract class FragmentManager {
          * Return the full bread crumb title for the entry, or null if it
          * does not have one.
          */
+        @Nullable
         public CharSequence getBreadCrumbTitle();
 
         /**
          * Return the short bread crumb title for the entry, or null if it
          * does not have one.
          */
+        @Nullable
         public CharSequence getBreadCrumbShortTitle();
     }
 
@@ -162,6 +166,7 @@ public abstract class FragmentManager {
      * in the state, and if changes are made after the state is saved then they
      * will be lost.</p>
      */
+    @NonNull
     public abstract FragmentTransaction beginTransaction();
 
     /**
@@ -205,6 +210,7 @@ public abstract class FragmentManager {
      * on the back stack associated with this ID are searched.
      * @return The fragment if found or null otherwise.
      */
+    @Nullable
     public abstract Fragment findFragmentById(@IdRes int id);
 
     /**
@@ -215,7 +221,8 @@ public abstract class FragmentManager {
      * on the back stack are searched.
      * @return The fragment if found or null otherwise.
      */
-    public abstract Fragment findFragmentByTag(String tag);
+    @Nullable
+    public abstract Fragment findFragmentByTag(@Nullable String tag);
 
     /**
      * Flag for {@link #popBackStack(String, int)}
@@ -256,7 +263,7 @@ public abstract class FragmentManager {
      * the named state itself is popped. If null, only the top state is popped.
      * @param flags Either 0 or {@link #POP_BACK_STACK_INCLUSIVE}.
      */
-    public abstract void popBackStack(String name, int flags);
+    public abstract void popBackStack(@Nullable String name, int flags);
 
     /**
      * Like {@link #popBackStack(String, int)}, but performs the operation immediately
@@ -264,7 +271,7 @@ public abstract class FragmentManager {
      * afterwards without forcing the start of postponed Transactions.
      * @return Returns true if there was something popped, else false.
      */
-    public abstract boolean popBackStackImmediate(String name, int flags);
+    public abstract boolean popBackStackImmediate(@Nullable String name, int flags);
 
     /**
      * Pop all back stack states up to the one with the given identifier.
@@ -299,18 +306,21 @@ public abstract class FragmentManager {
      * Return the BackStackEntry at index <var>index</var> in the back stack;
      * entries start index 0 being the bottom of the stack.
      */
+    @NonNull
     public abstract BackStackEntry getBackStackEntryAt(int index);
 
     /**
      * Add a new listener for changes to the fragment back stack.
      */
-    public abstract void addOnBackStackChangedListener(OnBackStackChangedListener listener);
+    public abstract void addOnBackStackChangedListener(
+            @NonNull OnBackStackChangedListener listener);
 
     /**
      * Remove a listener that was previously added with
      * {@link #addOnBackStackChangedListener(OnBackStackChangedListener)}.
      */
-    public abstract void removeOnBackStackChangedListener(OnBackStackChangedListener listener);
+    public abstract void removeOnBackStackChangedListener(
+            @NonNull OnBackStackChangedListener listener);
 
     /**
      * Put a reference to a fragment in a Bundle.  This Bundle can be
@@ -322,7 +332,8 @@ public abstract class FragmentManager {
      * @param key The name of the entry in the bundle.
      * @param fragment The Fragment whose reference is to be stored.
      */
-    public abstract void putFragment(Bundle bundle, String key, Fragment fragment);
+    public abstract void putFragment(@NonNull Bundle bundle, @NonNull String key,
+            @NonNull Fragment fragment);
 
     /**
      * Retrieve the current Fragment instance for a reference previously
@@ -333,7 +344,8 @@ public abstract class FragmentManager {
      * @return Returns the current Fragment instance that is associated with
      * the given reference.
      */
-    public abstract Fragment getFragment(Bundle bundle, String key);
+    @Nullable
+    public abstract Fragment getFragment(@NonNull Bundle bundle, @NonNull String key);
 
     /**
      * Get a list of all fragments that are currently added to the FragmentManager.
@@ -346,6 +358,7 @@ public abstract class FragmentManager {
      *
      * @return A list of all fragments that are added to the FragmentManager.
      */
+    @NonNull
     public abstract List<Fragment> getFragments();
 
     /**
@@ -370,6 +383,7 @@ public abstract class FragmentManager {
      * @return The generated state.  This will be null if there was no
      * interesting state created by the fragment.
      */
+    @Nullable
     public abstract Fragment.SavedState saveFragmentInstanceState(Fragment f);
 
     /**
@@ -386,7 +400,7 @@ public abstract class FragmentManager {
      * @param cb Callbacks to register
      * @param recursive true to automatically register this callback for all child FragmentManagers
      */
-    public abstract void registerFragmentLifecycleCallbacks(FragmentLifecycleCallbacks cb,
+    public abstract void registerFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb,
             boolean recursive);
 
     /**
@@ -396,7 +410,8 @@ public abstract class FragmentManager {
      *
      * @param cb Callbacks to unregister
      */
-    public abstract void unregisterFragmentLifecycleCallbacks(FragmentLifecycleCallbacks cb);
+    public abstract void unregisterFragmentLifecycleCallbacks(
+            @NonNull FragmentLifecycleCallbacks cb);
 
     /**
      * Return the currently active primary navigation fragment for this FragmentManager.
@@ -410,6 +425,7 @@ public abstract class FragmentManager {
      *
      * @return the fragment designated as the primary navigation fragment
      */
+    @Nullable
     public abstract Fragment getPrimaryNavigationFragment();
 
     /**
@@ -458,7 +474,8 @@ public abstract class FragmentManager {
          * @param f Fragment changing state
          * @param context Context that the Fragment is being attached to
          */
-        public void onFragmentPreAttached(FragmentManager fm, Fragment f, Context context) {}
+        public void onFragmentPreAttached(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @NonNull Context context) {}
 
         /**
          * Called after the fragment has been attached to its host. Its host will have had
@@ -468,7 +485,8 @@ public abstract class FragmentManager {
          * @param f Fragment changing state
          * @param context Context that the Fragment was attached to
          */
-        public void onFragmentAttached(FragmentManager fm, Fragment f, Context context) {}
+        public void onFragmentAttached(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @NonNull Context context) {}
 
         /**
          * Called right before the fragment's {@link Fragment#onCreate(Bundle)} method is called.
@@ -479,8 +497,8 @@ public abstract class FragmentManager {
          * @param f Fragment changing state
          * @param savedInstanceState Saved instance bundle from a previous instance
          */
-        public void onFragmentPreCreated(FragmentManager fm, Fragment f,
-                Bundle savedInstanceState) {}
+        public void onFragmentPreCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @Nullable Bundle savedInstanceState) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -491,7 +509,8 @@ public abstract class FragmentManager {
          * @param f Fragment changing state
          * @param savedInstanceState Saved instance bundle from a previous instance
          */
-        public void onFragmentCreated(FragmentManager fm, Fragment f, Bundle savedInstanceState) {}
+        public void onFragmentCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @Nullable Bundle savedInstanceState) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -502,8 +521,8 @@ public abstract class FragmentManager {
          * @param f Fragment changing state
          * @param savedInstanceState Saved instance bundle from a previous instance
          */
-        public void onFragmentActivityCreated(FragmentManager fm, Fragment f,
-                Bundle savedInstanceState) {}
+        public void onFragmentActivityCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @Nullable Bundle savedInstanceState) {}
 
         /**
          * Called after the fragment has returned a non-null view from the FragmentManager's
@@ -514,8 +533,8 @@ public abstract class FragmentManager {
          * @param v View returned by the fragment
          * @param savedInstanceState Saved instance bundle from a previous instance
          */
-        public void onFragmentViewCreated(FragmentManager fm, Fragment f, View v,
-                Bundle savedInstanceState) {}
+        public void onFragmentViewCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @NonNull View v, @Nullable Bundle savedInstanceState) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -524,7 +543,7 @@ public abstract class FragmentManager {
          * @param fm Host FragmentManager
          * @param f Fragment changing state
          */
-        public void onFragmentStarted(FragmentManager fm, Fragment f) {}
+        public void onFragmentStarted(@NonNull FragmentManager fm, @NonNull Fragment f) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -533,7 +552,7 @@ public abstract class FragmentManager {
          * @param fm Host FragmentManager
          * @param f Fragment changing state
          */
-        public void onFragmentResumed(FragmentManager fm, Fragment f) {}
+        public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -542,7 +561,7 @@ public abstract class FragmentManager {
          * @param fm Host FragmentManager
          * @param f Fragment changing state
          */
-        public void onFragmentPaused(FragmentManager fm, Fragment f) {}
+        public void onFragmentPaused(@NonNull FragmentManager fm, @NonNull Fragment f) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -551,7 +570,7 @@ public abstract class FragmentManager {
          * @param fm Host FragmentManager
          * @param f Fragment changing state
          */
-        public void onFragmentStopped(FragmentManager fm, Fragment f) {}
+        public void onFragmentStopped(@NonNull FragmentManager fm, @NonNull Fragment f) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -561,7 +580,8 @@ public abstract class FragmentManager {
          * @param f Fragment changing state
          * @param outState Saved state bundle for the fragment
          */
-        public void onFragmentSaveInstanceState(FragmentManager fm, Fragment f, Bundle outState) {}
+        public void onFragmentSaveInstanceState(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @NonNull Bundle outState) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -570,7 +590,7 @@ public abstract class FragmentManager {
          * @param fm Host FragmentManager
          * @param f Fragment changing state
          */
-        public void onFragmentViewDestroyed(FragmentManager fm, Fragment f) {}
+        public void onFragmentViewDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -579,7 +599,7 @@ public abstract class FragmentManager {
          * @param fm Host FragmentManager
          * @param f Fragment changing state
          */
-        public void onFragmentDestroyed(FragmentManager fm, Fragment f) {}
+        public void onFragmentDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -588,7 +608,7 @@ public abstract class FragmentManager {
          * @param fm Host FragmentManager
          * @param f Fragment changing state
          */
-        public void onFragmentDetached(FragmentManager fm, Fragment f) {}
+        public void onFragmentDetached(@NonNull FragmentManager fm, @NonNull Fragment f) {}
     }
 }
 
@@ -672,7 +692,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     FragmentHostCallback mHost;
     FragmentContainer mContainer;
     Fragment mParent;
-    Fragment mPrimaryNav;
+    @Nullable Fragment mPrimaryNav;
 
     static Field sAnimationListenerField = null;
 
@@ -799,12 +819,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public void popBackStack(final String name, final int flags) {
+    public void popBackStack(@Nullable final String name, final int flags) {
         enqueueAction(new PopBackStackState(name, -1, flags), false);
     }
 
     @Override
-    public boolean popBackStackImmediate(String name, int flags) {
+    public boolean popBackStackImmediate(@Nullable String name, int flags) {
         checkStateLoss();
         return popBackStackImmediate(name, -1, flags);
     }
@@ -898,6 +918,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
+    @Nullable
     public Fragment getFragment(Bundle bundle, String key) {
         int index = bundle.getInt(key, -1);
         if (index == -1) {
@@ -952,6 +973,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
+    @Nullable
     public Fragment.SavedState saveFragmentInstanceState(Fragment fragment) {
         if (fragment.mIndex < 0) {
             throwException( new IllegalStateException("Fragment " + fragment
@@ -1989,6 +2011,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
+    @Nullable
     public Fragment findFragmentById(int id) {
         // First look through added fragments.
         for (int i = mAdded.size() - 1; i >= 0; i--) {
@@ -2010,7 +2033,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public Fragment findFragmentByTag(String tag) {
+    @Nullable
+    public Fragment findFragmentByTag(@Nullable String tag) {
         if (tag != null) {
             // First look through added fragments.
             for (int i=mAdded.size()-1; i>=0; i--) {
@@ -3382,6 +3406,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
+    @Nullable
     public Fragment getPrimaryNavigationFragment() {
         return mPrimaryNav;
     }
@@ -3404,7 +3429,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentPreAttached(Fragment f, Context context, boolean onlyRecursive) {
+    void dispatchOnFragmentPreAttached(@NonNull Fragment f, @NonNull Context context,
+            boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3419,7 +3445,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentAttached(Fragment f, Context context, boolean onlyRecursive) {
+    void dispatchOnFragmentAttached(@NonNull Fragment f, @NonNull Context context,
+            boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3434,7 +3461,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentPreCreated(Fragment f, Bundle savedInstanceState,
+    void dispatchOnFragmentPreCreated(@NonNull Fragment f, @Nullable Bundle savedInstanceState,
             boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
@@ -3450,7 +3477,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentCreated(Fragment f, Bundle savedInstanceState, boolean onlyRecursive) {
+    void dispatchOnFragmentCreated(@NonNull Fragment f, @Nullable Bundle savedInstanceState,
+            boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3465,7 +3493,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentActivityCreated(Fragment f, Bundle savedInstanceState,
+    void dispatchOnFragmentActivityCreated(@NonNull Fragment f, @Nullable Bundle savedInstanceState,
             boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
@@ -3481,8 +3509,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentViewCreated(Fragment f, View v, Bundle savedInstanceState,
-            boolean onlyRecursive) {
+    void dispatchOnFragmentViewCreated(@NonNull Fragment f, @NonNull View v,
+            @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3497,7 +3525,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentStarted(Fragment f, boolean onlyRecursive) {
+    void dispatchOnFragmentStarted(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3512,7 +3540,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentResumed(Fragment f, boolean onlyRecursive) {
+    void dispatchOnFragmentResumed(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3527,7 +3555,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentPaused(Fragment f, boolean onlyRecursive) {
+    void dispatchOnFragmentPaused(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3542,7 +3570,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentStopped(Fragment f, boolean onlyRecursive) {
+    void dispatchOnFragmentStopped(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3557,7 +3585,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentSaveInstanceState(Fragment f, Bundle outState, boolean onlyRecursive) {
+    void dispatchOnFragmentSaveInstanceState(@NonNull Fragment f, @NonNull Bundle outState,
+            boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3572,7 +3601,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentViewDestroyed(Fragment f, boolean onlyRecursive) {
+    void dispatchOnFragmentViewDestroyed(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3587,7 +3616,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentDestroyed(Fragment f, boolean onlyRecursive) {
+    void dispatchOnFragmentDestroyed(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3602,7 +3631,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
-    void dispatchOnFragmentDetached(Fragment f, boolean onlyRecursive) {
+    void dispatchOnFragmentDetached(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
