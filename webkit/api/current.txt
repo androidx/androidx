@@ -1,5 +1,27 @@
 package androidx.webkit {
 
+  public abstract class ServiceWorkerClientCompat {
+    ctor public ServiceWorkerClientCompat();
+    method public abstract android.webkit.WebResourceResponse shouldInterceptRequest(android.webkit.WebResourceRequest);
+  }
+
+  public abstract class ServiceWorkerControllerCompat {
+    method public static androidx.webkit.ServiceWorkerControllerCompat getInstance();
+    method public abstract androidx.webkit.ServiceWorkerWebSettingsCompat getServiceWorkerWebSettings();
+    method public abstract void setServiceWorkerClient(androidx.webkit.ServiceWorkerClientCompat);
+  }
+
+  public abstract class ServiceWorkerWebSettingsCompat {
+    method public abstract boolean getAllowContentAccess();
+    method public abstract boolean getAllowFileAccess();
+    method public abstract boolean getBlockNetworkLoads();
+    method public abstract int getCacheMode();
+    method public abstract void setAllowContentAccess(boolean);
+    method public abstract void setAllowFileAccess(boolean);
+    method public abstract void setBlockNetworkLoads(boolean);
+    method public abstract void setCacheMode(int);
+  }
+
   public class WebSettingsCompat {
     method public static int getDisabledActionModeMenuItems(android.webkit.WebSettings);
     method public static boolean getOffscreenPreRaster(android.webkit.WebSettings);
