@@ -35,7 +35,8 @@ import androidx.annotation.RestrictTo;
 import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
-import androidx.slice.SliceUtils;
+import androidx.slice.SliceMetadata;
+import androidx.slice.builders.ListBuilder;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -122,6 +123,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
 
     private boolean mShowActions = false;
     private boolean mIsScrollable = true;
+    private boolean mShowLastUpdated = true;
 
     private final int mShortcutSize;
     private final int mMinLargeHeight;
@@ -261,15 +263,14 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
      */
     public void setSlice(@Nullable Slice slice) {
         if (slice != null) {
-            if (mCurrentSlice == null || mCurrentSlice.getUri() != slice.getUri()) {
-                // New slice, new actions
-                mActions = SliceUtils.getSliceActions(slice);
+            if (mCurrentSlice == null || !mCurrentSlice.getUri().equals(slice.getUri())) {
                 mCurrentView.resetView();
             }
         } else {
             // No slice, no actions
             mActions = null;
         }
+        mActions = SliceMetadata.getSliceActions(slice);
         mCurrentSlice = slice;
         reinflate();
     }
@@ -290,14 +291,14 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
      * It is required that the slice be set on this view before actions can be set, otherwise
      * this will throw {@link IllegalStateException}. If any of the actions supplied are not
      * available for the slice set on this view (i.e. the action is not returned by
-     * {@link SliceUtils#getSliceActions(Slice)} this will throw {@link IllegalArgumentException}.
+     * {@link SliceMetadata#getSliceActions()} this will throw {@link IllegalArgumentException}.
      */
     public void setSliceActions(@Nullable List<SliceItem> newActions) {
         // Check that these actions are part of available set
         if (mCurrentSlice == null) {
             throw new IllegalStateException("Trying to set actions on a view without a slice");
         }
-        List<SliceItem> availableActions = SliceUtils.getSliceActions(mCurrentSlice);
+        List<SliceItem> availableActions = SliceMetadata.getSliceActions(mCurrentSlice);
         if (availableActions != null && newActions != null) {
             for (int i = 0; i < newActions.size(); i++) {
                 if (!availableActions.contains(newActions.get(i))) {
@@ -344,6 +345,18 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     public void setTint(int tintColor) {
         mThemeTintColor = tintColor;
         mCurrentView.setTint(tintColor);
+    }
+
+    /**
+     * Sets whether this view should display when the slice was last updated.
+     *
+     * @param showLastUpdated whether the view should display when the slice was last updated.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setShowLastUpdated(boolean showLastUpdated) {
+        mShowLastUpdated = showLastUpdated;
+        mCurrentView.setShowLastUpdated(showLastUpdated);
     }
 
     /**
@@ -435,6 +448,16 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         mCurrentView.setStyle(mAttrs);
         mCurrentView.setTint(getTintColor());
         mCurrentView.setVisibility(lc.isValid() ? View.VISIBLE : View.GONE);
+
+        // Check if the slice content is expired and show when it was last updated
+        SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
+        long lastUpdated = sliceMetadata.getLastUpdatedTime();
+        long expiry = sliceMetadata.getExpiry();
+        long now = System.currentTimeMillis();
+        mCurrentView.setLastUpdated(lastUpdated);
+        boolean expired = expiry != ListBuilder.INFINITY && now > expiry;
+        mCurrentView.setShowLastUpdated(mShowLastUpdated && expired);
+
         // Set the slice
         mCurrentView.setSlice(mCurrentSlice);
         updateActions();
