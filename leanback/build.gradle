@@ -23,7 +23,6 @@ android {
     sourceSets {
         main.java.srcDirs += [
                 'common',
-                'jbmr2',
                 'kitkat',
                 'api21',
         ]
