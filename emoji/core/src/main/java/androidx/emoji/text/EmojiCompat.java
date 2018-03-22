@@ -98,6 +98,11 @@ public class EmojiCompat {
             "android.support.text.emoji.emojiCompat_replaceAll";
 
     /**
+     * EmojiCompat instance is constructed, however the initialization did not start yet.
+     */
+    public static final int LOAD_STATE_DEFAULT = 3;
+
+    /**
      * EmojiCompat is initializing.
      */
     public static final int LOAD_STATE_LOADING = 0;
@@ -117,7 +122,7 @@ public class EmojiCompat {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @IntDef({LOAD_STATE_LOADING, LOAD_STATE_SUCCEEDED, LOAD_STATE_FAILED})
+    @IntDef({LOAD_STATE_DEFAULT, LOAD_STATE_LOADING, LOAD_STATE_SUCCEEDED, LOAD_STATE_FAILED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface LoadState {
     }
@@ -144,6 +149,26 @@ public class EmojiCompat {
     @IntDef({REPLACE_STRATEGY_DEFAULT, REPLACE_STRATEGY_NON_EXISTENT, REPLACE_STRATEGY_ALL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ReplaceStrategy {
+    }
+
+    /**
+     * {@link EmojiCompat} will start loading metadata when {@link #init(Config)} is called.
+     */
+    public static final int LOAD_STRATEGY_DEFAULT = 0;
+
+    /**
+     * {@link EmojiCompat} will wait for {@link #load()} to be called by developer in order to
+     * start loading metadata.
+     */
+    public static final int LOAD_STRATEGY_MANUAL = 1;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({LOAD_STRATEGY_DEFAULT, LOAD_STRATEGY_MANUAL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface LoadStrategy {
     }
 
     /**
@@ -207,18 +232,25 @@ public class EmojiCompat {
     private final int mEmojiSpanIndicatorColor;
 
     /**
+     * @see Config#setMetadataLoadStrategy(int)
+     */
+    @LoadStrategy private final int mMetadataLoadStrategy;
+
+    /**
      * Private constructor for singleton instance.
      *
      * @see #init(Config)
      */
     private EmojiCompat(@NonNull final Config config) {
         mInitLock = new ReentrantReadWriteLock();
+        mLoadState = LOAD_STATE_DEFAULT;
         mReplaceAll = config.mReplaceAll;
         mUseEmojiAsDefaultStyle = config.mUseEmojiAsDefaultStyle;
         mEmojiAsDefaultStyleExceptions = config.mEmojiAsDefaultStyleExceptions;
         mEmojiSpanIndicatorEnabled = config.mEmojiSpanIndicatorEnabled;
         mEmojiSpanIndicatorColor = config.mEmojiSpanIndicatorColor;
         mMetadataLoader = config.mMetadataLoader;
+        mMetadataLoadStrategy = config.mMetadataLoadStrategy;
         mMainHandler = new Handler(Looper.getMainLooper());
         mInitCallbacks = new ArraySet<>();
         if (config.mInitCallbacks != null && !config.mInitCallbacks.isEmpty()) {
@@ -308,15 +340,51 @@ public class EmojiCompat {
         }
     }
 
-    private void loadMetadata() {
+    /**
+     * When {@link Config#setMetadataLoadStrategy(int)} is set to {@link #LOAD_STRATEGY_MANUAL},
+     * this function starts loading the metadata. Calling the function when
+     * {@link Config#setMetadataLoadStrategy(int)} is {@code not} set to
+     * {@link #LOAD_STRATEGY_MANUAL} will throw an exception. The load will {@code not} start if:
+     * <ul>
+     *     <li>the metadata is already loaded successfully and {@link #getLoadState()} is
+     *     {@link #LOAD_STATE_SUCCEEDED}.
+     *     </li>
+     *      <li>a previous load attempt is not finished yet and {@link #getLoadState()} is
+     *     {@link #LOAD_STATE_LOADING}.</li>
+     * </ul>
+     *
+     * @throws IllegalStateException when {@link Config#setMetadataLoadStrategy(int)} is not set
+     * to {@link #LOAD_STRATEGY_MANUAL}
+     */
+    public void load() {
+        Preconditions.checkState(mMetadataLoadStrategy == LOAD_STRATEGY_MANUAL,
+                "Set metadataLoadStrategy to LOAD_STRATEGY_MANUAL to execute manual loading");
+        if (isInitialized()) return;
+
         mInitLock.writeLock().lock();
         try {
+            if (mLoadState == LOAD_STATE_LOADING) return;
             mLoadState = LOAD_STATE_LOADING;
         } finally {
             mInitLock.writeLock().unlock();
         }
 
         mHelper.loadMetadata();
+    }
+
+    private void loadMetadata() {
+        mInitLock.writeLock().lock();
+        try {
+            if (mMetadataLoadStrategy == LOAD_STRATEGY_DEFAULT) {
+                mLoadState = LOAD_STATE_LOADING;
+            }
+        } finally {
+            mInitLock.writeLock().unlock();
+        }
+
+        if (getLoadState() == LOAD_STATE_LOADING) {
+            mHelper.loadMetadata();
+        }
     }
 
     private void onMetadataLoadSuccess() {
@@ -393,8 +461,8 @@ public class EmojiCompat {
      * Returns loading state of the EmojiCompat instance. When used on devices running API 18 or
      * below always returns {@link #LOAD_STATE_SUCCEEDED}.
      *
-     * @return one of {@link #LOAD_STATE_LOADING}, {@link #LOAD_STATE_SUCCEEDED},
-     * {@link #LOAD_STATE_FAILED}
+     * @return one of {@link #LOAD_STATE_DEFAULT}, {@link #LOAD_STATE_LOADING},
+     * {@link #LOAD_STATE_SUCCEEDED}, {@link #LOAD_STATE_FAILED}
      */
     public @LoadState int getLoadState() {
         mInitLock.readLock().lock();
@@ -809,6 +877,7 @@ public class EmojiCompat {
         private Set<InitCallback> mInitCallbacks;
         private boolean mEmojiSpanIndicatorEnabled;
         private int mEmojiSpanIndicatorColor = Color.GREEN;
+        @LoadStrategy private int mMetadataLoadStrategy = LOAD_STRATEGY_DEFAULT;
 
         /**
          * Default constructor.
@@ -938,6 +1007,21 @@ public class EmojiCompat {
          */
         public Config setEmojiSpanIndicatorColor(@ColorInt int color) {
             mEmojiSpanIndicatorColor = color;
+            return this;
+        }
+
+        /**
+         * Determines the strategy to start loading the metadata. By default {@link EmojiCompat}
+         * will start loading the metadata during {@link EmojiCompat#init(Config)}. When set to
+         * {@link EmojiCompat#LOAD_STRATEGY_MANUAL}, you should call {@link EmojiCompat#load()} to
+         * initiate metadata loading.
+         *
+         * @param strategy one of {@link EmojiCompat#LOAD_STRATEGY_DEFAULT},
+         *                  {@link EmojiCompat#LOAD_STRATEGY_MANUAL}
+         *
+         */
+        public Config setMetadataLoadStrategy(@LoadStrategy int strategy) {
+            mMetadataLoadStrategy = strategy;
             return this;
         }
 
