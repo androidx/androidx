@@ -28,6 +28,8 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
+import static androidx.slice.core.SliceHints.HINT_TTL;
 
 import android.content.Context;
 
@@ -36,7 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
-import androidx.slice.SliceUtils;
+import androidx.slice.SliceMetadata;
 import androidx.slice.core.SliceQuery;
 
 import java.util.ArrayList;
@@ -62,22 +64,12 @@ public class ListContent {
     }
 
     /**
-     * Resets the content.
-     */
-    public void reset() {
-        mColorItem = null;
-        mHeaderItem = null;
-        mRowItems.clear();
-    }
-
-    /**
      * @return whether this row has content that is valid to display.
      */
     private boolean populate(Slice slice) {
-        reset();
         mColorItem = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         // Find slice actions
-        mSliceActions = SliceUtils.getSliceActions(slice);
+        mSliceActions = SliceMetadata.getSliceActions(slice);
         // Find header
         mHeaderItem = findHeaderItem(slice);
         if (mHeaderItem != null) {
@@ -89,8 +81,9 @@ public class ListContent {
         for (int i = 0; i < children.size(); i++) {
             final SliceItem child = children.get(i);
             final String format = child.getFormat();
-            if (!child.hasAnyHints(HINT_ACTIONS, HINT_SEE_MORE, HINT_KEY_WORDS)
-                    && (FORMAT_ACTION.equals(format) || FORMAT_SLICE.equals(format))) {
+            boolean isNonRowContent = child.hasAnyHints(HINT_ACTIONS, HINT_SEE_MORE, HINT_KEY_WORDS,
+                    HINT_TTL, HINT_LAST_UPDATED);
+            if (!isNonRowContent && (FORMAT_ACTION.equals(format) || FORMAT_SLICE.equals(format))) {
                 if (mHeaderItem == null && !child.hasHint(HINT_LIST_ITEM)) {
                     mHeaderItem = child;
                     mRowItems.add(0, child);
@@ -221,7 +214,7 @@ public class ListContent {
     private static SliceItem findHeaderItem(@NonNull Slice slice) {
         // See if header is specified
         String[] nonHints = new String[] {HINT_LIST_ITEM, HINT_SHORTCUT, HINT_ACTIONS,
-                HINT_KEY_WORDS};
+                HINT_KEY_WORDS, HINT_TTL, HINT_LAST_UPDATED};
         SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, nonHints);
         if (header != null && isValidHeader(header)) {
             return header;

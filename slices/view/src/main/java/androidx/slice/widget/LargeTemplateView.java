@@ -17,16 +17,16 @@
 package androidx.slice.widget;
 
 import android.content.Context;
+import android.util.AttributeSet;
+
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.AttributeSet;
+import androidx.slice.Slice;
+import androidx.slice.SliceItem;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.slice.Slice;
-import androidx.slice.SliceItem;
 
 /**
  * @hide
@@ -100,6 +100,18 @@ public class LargeTemplateView extends SliceChildView {
     public void setStyle(AttributeSet attrs) {
         super.setStyle(attrs);
         mAdapter.setStyle(attrs);
+    }
+
+    @Override
+    public void setShowLastUpdated(boolean showLastUpdated) {
+        super.setShowLastUpdated(showLastUpdated);
+        mAdapter.setShowLastUpdated(showLastUpdated);
+    }
+
+    @Override
+    public void setLastUpdated(long lastUpdated) {
+        super.setLastUpdated(lastUpdated);
+        mAdapter.setLastUpdated(lastUpdated);
     }
 
     private void populate() {
