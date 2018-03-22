@@ -21,7 +21,6 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.SUBTYPE_MAX;
-import static android.app.slice.Slice.SUBTYPE_TOGGLE;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -46,6 +45,7 @@ import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -68,7 +68,6 @@ import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -92,7 +91,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private TextView mSecondaryText;
     private TextView mLastUpdatedText;
     private View mDivider;
-    private ArrayList<SliceActionView> mToggles = new ArrayList<>();
+    private ArrayMap<SliceActionImpl, SliceActionView> mToggles = new ArrayMap<>();
     private LinearLayout mEndContainer;
     private ProgressBar mRangeBar;
     private View mSeeMoreView;
@@ -269,11 +268,12 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         addSubtitle(subtitleItem);
 
         SliceItem primaryAction = mRowContent.getPrimaryAction();
-        if (primaryAction != null) {
+        if (primaryAction != null && primaryAction != startItem) {
             mRowAction = new SliceActionImpl(primaryAction);
             if (mRowAction.isToggle()) {
                 // If primary action is a toggle, add it and we're done
                 addAction(mRowAction, mTintColor, mEndContainer, false /* isStart */);
+                // TODO: if start item is tappable, touch feedback should exclude it
                 setViewClickable(mRootView, true);
                 return;
             }
@@ -294,12 +294,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             // Use these if we have them instead
             endItems = mHeaderActions;
         }
-        boolean hasRowAction = mRowAction != null;
-        if (endItems.isEmpty()) {
-            if (hasRowAction) setViewClickable(mRootView, true);
-            return;
-        }
-
         // If we're here we might be able to show end items
         int itemCount = 0;
         boolean firstItemIsADefaultToggle = false;
@@ -308,7 +302,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             final SliceItem endItem = endItems.get(i);
             if (itemCount < MAX_END_ITEMS) {
                 if (addItem(endItem, mTintColor, false /* isStart */)) {
-                    if (FORMAT_ACTION.equals(endItem.getFormat())) {
+                    if (SliceQuery.find(endItem, FORMAT_ACTION) != null) {
                         hasEndItemAction = true;
                     }
                     itemCount++;
@@ -321,19 +315,21 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
 
         // If there is a row action and the first end item is a default toggle, show the divider.
-        mDivider.setVisibility(hasRowAction && firstItemIsADefaultToggle
+        mDivider.setVisibility(mRowAction != null && firstItemIsADefaultToggle
                 ? View.VISIBLE : View.GONE);
-        if (hasRowAction) {
-            if (itemCount > 0 && hasEndItemAction) {
-                setViewClickable(mContent, true);
+        boolean hasStartAction = startItem != null
+                && SliceQuery.find(startItem, FORMAT_ACTION) != null;
+
+        if (mRowAction != null) {
+            // If there are outside actions make only the content bit clickable
+            // TODO: if start item is an image touch feedback should include it
+            setViewClickable((hasEndItemAction || hasStartAction) ? mContent : mRootView, true);
+        } else if (hasEndItemAction != hasStartAction && (itemCount == 1 || hasStartAction)) {
+            // Single action; make whole row clickable for it
+            if (!mToggles.isEmpty()) {
+                mRowAction = mToggles.keySet().iterator().next();
             } else {
-                setViewClickable(mRootView, true);
-            }
-        } else if (mRowContent.endItemsContainAction() && itemCount == 1) {
-            // If the only end item is an action, make the whole row clickable.
-            SliceItem unwrappedActionItem = endItems.get(0).getSlice().getItems().get(0);
-            if (!SUBTYPE_TOGGLE.equals(unwrappedActionItem.getSubType())) {
-                mRowAction = new SliceActionImpl(endItems.get(0));
+                mRowAction = new SliceActionImpl(hasEndItemAction ? endItems.get(0) : startItem);
             }
             setViewClickable(mRootView, true);
         }
@@ -445,9 +441,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             info.setPosition(EventInfo.POSITION_START, 0, 1);
         }
         sav.setAction(actionContent, info, mObserver, color);
-
         if (isToggle) {
-            mToggles.add(sav);
+            mToggles.put(actionContent, sav);
         }
     }
 
@@ -460,7 +455,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         int imageMode = 0;
         SliceItem timeStamp = null;
         ViewGroup container = isStart ? mStartContainer : mEndContainer;
-        if (FORMAT_SLICE.equals(sliceItem.getFormat())) {
+        if (FORMAT_SLICE.equals(sliceItem.getFormat())
+                || FORMAT_ACTION.equals(sliceItem.getFormat())) {
             if (sliceItem.hasHint(HINT_SHORTCUT)) {
                 addAction(new SliceActionImpl(sliceItem), color, container, isStart);
                 return true;
@@ -529,21 +525,25 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (mRowAction != null && mRowAction.getActionItem() != null && !mRowAction.isToggle()) {
-            // Check for a row action
-            try {
-                mRowAction.getActionItem().fireAction(null, null);
-                if (mObserver != null) {
-                    EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
-                            EventInfo.ROW_TYPE_LIST, mRowIndex);
-                    mObserver.onSliceAction(info, mRowAction.getSliceItem());
+        if (mRowAction != null && mRowAction.getActionItem() != null) {
+            // Check if it's a row click for a toggle, in this case need to update the UI
+            if (mRowAction.isToggle() && !(view instanceof SliceActionView)) {
+                SliceActionView sav = mToggles.get(mRowAction);
+                if (sav != null) {
+                    sav.toggle();
                 }
-            } catch (CanceledException e) {
-                Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+            } else {
+                try {
+                    mRowAction.getActionItem().fireAction(null, null);
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
+                                EventInfo.ROW_TYPE_LIST, mRowIndex);
+                        mObserver.onSliceAction(info, mRowAction.getSliceItem());
+                    }
+                } catch (CanceledException e) {
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+                }
             }
-        } else if (mToggles.size() == 1) {
-            // If there is only one toggle and no row action, just toggle it.
-            mToggles.get(0).toggle();
         }
     }
 
