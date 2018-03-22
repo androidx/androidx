@@ -37,7 +37,7 @@ import androidx.work.BaseWork;
 import androidx.work.Constraints;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.State;
-import androidx.work.impl.Scheduler;
+import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -66,17 +66,17 @@ public class EnqueueRunnable implements Runnable {
     private static final String TAG = "EnqueueRunnable";
 
     private final WorkContinuationImpl mWorkContinuation;
-    private final List<BaseWork> mWorkToBeScheduled;
 
     public EnqueueRunnable(@NonNull WorkContinuationImpl workContinuation) {
         mWorkContinuation = workContinuation;
-        mWorkToBeScheduled = new ArrayList<>();
     }
 
     @Override
     public void run() {
-        addToDatabase();
-        scheduleWorkInBackground();
+        boolean needsScheduling = addToDatabase();
+        if (needsScheduling) {
+            scheduleWorkInBackground();
+        }
     }
 
     /**
@@ -84,13 +84,14 @@ public class EnqueueRunnable implements Runnable {
      * Schedules work on the background scheduler, if transaction is successful.
      */
     @VisibleForTesting
-    public void addToDatabase() {
+    public boolean addToDatabase() {
         WorkManagerImpl workManagerImpl = mWorkContinuation.getWorkManagerImpl();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
         workDatabase.beginTransaction();
         try {
-            processContinuation(mWorkContinuation, mWorkToBeScheduled);
+            boolean needsScheduling = processContinuation(mWorkContinuation);
             workDatabase.setTransactionSuccessful();
+            return needsScheduling;
         } finally {
             workDatabase.endTransaction();
         }
@@ -101,38 +102,28 @@ public class EnqueueRunnable implements Runnable {
      */
     @VisibleForTesting
     public void scheduleWorkInBackground() {
-        // Schedule in the background. This list contains work that does not have prerequisites.
-        for (Scheduler scheduler : mWorkContinuation.getWorkManagerImpl().getSchedulers()) {
-            for (BaseWork work : mWorkToBeScheduled) {
-                scheduler.schedule(work.getWorkSpec());
-            }
-        }
+        WorkManagerImpl workManager = mWorkContinuation.getWorkManagerImpl();
+        Schedulers.schedule(workManager.getWorkDatabase(), workManager.getSchedulers());
     }
 
-    private static void processContinuation(
-            @NonNull WorkContinuationImpl workContinuation,
-            @NonNull List<BaseWork> workToBeScheduled) {
-
+    private static boolean processContinuation(@NonNull WorkContinuationImpl workContinuation) {
         List<WorkContinuationImpl> parents = workContinuation.getParents();
         if (parents != null) {
             for (WorkContinuationImpl parent : parents) {
                 // When chaining off a completed continuation we need to pay
                 // attention to parents that may have been marked as enqueued before.
                 if (!parent.isEnqueued()) {
-                    processContinuation(parent, workToBeScheduled);
+                    processContinuation(parent);
                 } else {
                     Logger.warn(TAG, "Already enqueued work ids (%s).",
                             TextUtils.join(", ", parent.getIds()));
                 }
             }
         }
-        enqueueContinuation(workContinuation, workToBeScheduled);
+        return enqueueContinuation(workContinuation);
     }
 
-    private static void enqueueContinuation(
-            @NonNull WorkContinuationImpl workContinuation,
-            @NonNull List<BaseWork> workToBeScheduled) {
-
+    private static boolean enqueueContinuation(@NonNull WorkContinuationImpl workContinuation) {
         List<WorkContinuationImpl> parents = workContinuation.getParents();
         Set<String> prerequisiteIds = new HashSet<>();
         if (parents != null) {
@@ -141,27 +132,28 @@ public class EnqueueRunnable implements Runnable {
             }
         }
 
-        enqueueWorkWithPrerequisites(
+        boolean needsScheduling = enqueueWorkWithPrerequisites(
                 workContinuation.getWorkManagerImpl(),
                 workContinuation.getWork(),
                 prerequisiteIds.toArray(new String[0]),
                 workContinuation.getName(),
-                workContinuation.getExistingWorkPolicy(),
-                workToBeScheduled);
+                workContinuation.getExistingWorkPolicy());
 
         workContinuation.markEnqueued();
+        return needsScheduling;
     }
 
     /**
      * Enqueues the {@link WorkSpec}'s while keeping track of the prerequisites.
+     *
+     * @return {@code true} If there is any scheduling to be done.
      */
-    private static void enqueueWorkWithPrerequisites(
+    private static boolean enqueueWorkWithPrerequisites(
             WorkManagerImpl workManagerImpl,
             @NonNull List<? extends BaseWork> workList,
             String[] prerequisiteIds,
             String name,
-            ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<BaseWork> workToBeScheduled) {
+            ExistingWorkPolicy existingWorkPolicy) {
 
         long currentTimeMillis = System.currentTimeMillis();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
@@ -179,7 +171,7 @@ public class EnqueueRunnable implements Runnable {
                 WorkSpec prerequisiteWorkSpec = workDatabase.workSpecDao().getWorkSpec(id);
                 if (prerequisiteWorkSpec == null) {
                     Logger.error(TAG, "Prerequisite %s doesn't exist; not enqueuing", id);
-                    return;
+                    return false;
                 }
 
                 State prerequisiteState = prerequisiteWorkSpec.state;
@@ -226,7 +218,7 @@ public class EnqueueRunnable implements Runnable {
                     if (existingWorkPolicy == KEEP) {
                         for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
                             if (idAndState.state == ENQUEUED || idAndState.state == RUNNING) {
-                                return;
+                                return false;
                             }
                         }
                     }
@@ -242,6 +234,7 @@ public class EnqueueRunnable implements Runnable {
             }
         }
 
+        boolean needsScheduling = false;
         for (BaseWork work : workList) {
             WorkSpec workSpec = work.getWorkSpec();
 
@@ -263,6 +256,11 @@ public class EnqueueRunnable implements Runnable {
                 tryDelegateConstrainedWorkSpec(workSpec);
             }
 
+            // If we have one WorkSpec with an enqueued state, then we need to schedule.
+            if (workSpec.state == ENQUEUED) {
+                needsScheduling = true;
+            }
+
             workDatabase.workSpecDao().insertWorkSpec(workSpec);
 
             if (hasPrerequisite) {
@@ -280,13 +278,7 @@ public class EnqueueRunnable implements Runnable {
                 workDatabase.workNameDao().insert(new WorkName(name, work.getId()));
             }
         }
-
-        // If there are no prerequisites (or they have all been completed), then add then to the
-        // list of work items that can be scheduled in the background. The actual scheduling is
-        // typically done after the transaction has settled.
-        if (!hasPrerequisite || hasCompletedAllPrerequisites) {
-            workToBeScheduled.addAll(workList);
-        }
+        return needsScheduling;
     }
 
     private static void tryDelegateConstrainedWorkSpec(WorkSpec workSpec) {

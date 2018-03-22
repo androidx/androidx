@@ -304,16 +304,13 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void rescheduleEligibleWork() {
-        // Using getters here so we can use from a mocked instance
-        // of WorkManagerImpl.
-        List<WorkSpec> eligibleWorkSpecs = getWorkDatabase()
-                .workSpecDao()
-                .getEligibleWorkSpecs(Long.MAX_VALUE);
+        // Reset scheduled state.
+        getWorkDatabase().workSpecDao().resetScheduledState();
 
         // Delegate to the WorkManager's schedulers.
-        for (Scheduler scheduler : getSchedulers()) {
-            scheduler.schedule(eligibleWorkSpecs.toArray(new WorkSpec[0]));
-        }
+        // Using getters here so we can use from a mocked instance
+        // of WorkManagerImpl.
+        Schedulers.schedule(getWorkDatabase(), getSchedulers());
     }
 
     private void assertBackgroundThread(String errorMessage) {

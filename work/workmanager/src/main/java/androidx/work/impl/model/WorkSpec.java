@@ -26,6 +26,7 @@ import android.arch.core.util.Function;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Relation;
 import android.support.annotation.NonNull;
@@ -48,9 +49,12 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Entity
+@Entity(
+        indices = {@Index(value = {"schedule_requested_at"})}
+)
 public class WorkSpec {
     private static final String TAG = "WorkSpec";
+    public static final long SCHEDULE_NOT_REQUESTED_YET = -1;
 
     @ColumnInfo(name = "id")
     @PrimaryKey
@@ -108,6 +112,9 @@ public class WorkSpec {
 
     @ColumnInfo(name = "minimum_retention_duration")
     public long minimumRetentionDuration;
+
+    @ColumnInfo(name = "schedule_requested_at")
+    public long scheduleRequestedAt = SCHEDULE_NOT_REQUESTED_YET;
 
     public WorkSpec(@NonNull String id, @NonNull String workerClassName) {
         this.id = id;
@@ -237,11 +244,13 @@ public class WorkSpec {
         if (backoffDelayDuration != workSpec.backoffDelayDuration) return false;
         if (periodStartTime != workSpec.periodStartTime) return false;
         if (minimumRetentionDuration != workSpec.minimumRetentionDuration) return false;
+        if (scheduleRequestedAt != workSpec.scheduleRequestedAt) return false;
         if (!id.equals(workSpec.id)) return false;
         if (state != workSpec.state) return false;
         if (!workerClassName.equals(workSpec.workerClassName)) return false;
         if (inputMergerClassName != null ? !inputMergerClassName.equals(
-                workSpec.inputMergerClassName) : workSpec.inputMergerClassName != null) {
+                workSpec.inputMergerClassName)
+                : workSpec.inputMergerClassName != null) {
             return false;
         }
         if (!arguments.equals(workSpec.arguments)) return false;
@@ -255,8 +264,7 @@ public class WorkSpec {
         int result = id.hashCode();
         result = 31 * result + state.hashCode();
         result = 31 * result + workerClassName.hashCode();
-        result = 31 * result + (inputMergerClassName != null ? inputMergerClassName.hashCode()
-                : 0);
+        result = 31 * result + (inputMergerClassName != null ? inputMergerClassName.hashCode() : 0);
         result = 31 * result + arguments.hashCode();
         result = 31 * result + output.hashCode();
         result = 31 * result + (int) (initialDelay ^ (initialDelay >>> 32));
@@ -267,8 +275,8 @@ public class WorkSpec {
         result = 31 * result + backoffPolicy.hashCode();
         result = 31 * result + (int) (backoffDelayDuration ^ (backoffDelayDuration >>> 32));
         result = 31 * result + (int) (periodStartTime ^ (periodStartTime >>> 32));
-        result = 31 * result + (int) (minimumRetentionDuration ^ (minimumRetentionDuration
-                >>> 32));
+        result = 31 * result + (int) (minimumRetentionDuration ^ (minimumRetentionDuration >>> 32));
+        result = 31 * result + (int) (scheduleRequestedAt ^ (scheduleRequestedAt >>> 32));
         return result;
     }
 

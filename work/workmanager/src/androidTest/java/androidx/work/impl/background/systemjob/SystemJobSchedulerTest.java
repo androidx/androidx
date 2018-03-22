@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.content.Context;
 import android.os.PersistableBundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
@@ -62,6 +63,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
 
     @Before
     public void setUp() {
+        Context context = InstrumentationRegistry.getTargetContext();
         mJobScheduler = mock(JobScheduler.class);
         doReturn(RESULT_SUCCESS).when(mJobScheduler).schedule(any(JobInfo.class));
 
@@ -79,7 +81,8 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
 
         mSystemJobScheduler =
                 spy(new SystemJobScheduler(mJobScheduler,
-                        new SystemJobInfoConverter(InstrumentationRegistry.getTargetContext())));
+                        new SystemJobInfoConverter(context)));
+
         doNothing().when(mSystemJobScheduler).scheduleInternal(any(WorkSpec.class));
     }
 

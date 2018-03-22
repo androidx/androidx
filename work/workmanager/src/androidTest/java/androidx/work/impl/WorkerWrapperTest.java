@@ -31,6 +31,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
@@ -83,7 +85,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Before
     public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext();
-        mWorkSpecDao = mDatabase.workSpecDao();
+        mWorkSpecDao = spy(mDatabase.workSpecDao());
         mDependencyDao = mDatabase.dependencyDao();
         mMockListener = mock(ExecutionListener.class);
         mMockScheduler = mock(Scheduler.class);
@@ -108,6 +110,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Work work = new Work.Builder(TestWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
                 .withListener(mMockListener)
                 .build()
                 .run();
@@ -121,6 +124,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Work work = new Work.Builder(FailureWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
                 .withListener(mMockListener)
                 .build()
                 .run();
@@ -185,6 +189,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         getWorkSpec(work).inputMergerClassName = "INVALID_CLASS_NAME";
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
                 .withListener(mMockListener)
                 .build()
                 .run();
@@ -224,7 +229,8 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testDependencies() {
         Work prerequisiteWork = new Work.Builder(TestWorker.class).build();
-        Work work = new Work.Builder(TestWorker.class).withInitialState(BLOCKED).build();
+        Work work = new Work.Builder(TestWorker.class)
+                .withInitialState(BLOCKED).build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
 
         mDatabase.beginTransaction();
@@ -273,7 +279,9 @@ public class WorkerWrapperTest extends DatabaseTest {
             mDatabase.endTransaction();
         }
 
-        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId()).build().run();
+        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
+                .build().run();
 
         List<Arguments> arguments = mWorkSpecDao.getInputsFromPrerequisites(work.getId());
         assertThat(arguments.size(), is(1));
@@ -312,11 +320,17 @@ public class WorkerWrapperTest extends DatabaseTest {
         }
 
         // Run the prerequisites.
-        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork1.getId()).build().run();
-        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork2.getId()).build().run();
+        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork1.getId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
+                .build().run();
+
+        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork2.getId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
+                .build().run();
 
         // Create and run the dependent work.
         WorkerWrapper workerWrapper = new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
                 .build();
         workerWrapper.run();
 
@@ -550,5 +564,45 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getArguments().size(), is(0));
+    }
+
+    @Test
+    @SmallTest
+    public void testSuccess_withPendingScheduledWork() {
+        Work work = new Work.Builder(TestWorker.class).build();
+        insertWork(work);
+
+        Work unscheduled = new Work.Builder(TestWorker.class).build();
+        insertWork(unscheduled);
+
+        new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
+                .withListener(mMockListener)
+                .build()
+                .run();
+
+        verify(mMockScheduler, times(1)).schedule(unscheduled.getWorkSpec());
+        verify(mMockListener).onExecuted(work.getId(), true, false);
+        assertThat(mWorkSpecDao.getState(work.getId()), is(SUCCEEDED));
+    }
+
+    @Test
+    @SmallTest
+    public void testFailure_withPendingScheduledWork() {
+        Work work = new Work.Builder(FailureWorker.class).build();
+        insertWork(work);
+
+        Work unscheduled = new Work.Builder(TestWorker.class).build();
+        insertWork(unscheduled);
+
+        new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
+                .withListener(mMockListener)
+                .build()
+                .run();
+
+        verify(mMockScheduler, times(1)).schedule(unscheduled.getWorkSpec());
+        verify(mMockListener).onExecuted(work.getId(), false, false);
+        assertThat(mWorkSpecDao.getState(work.getId()), is(FAILED));
     }
 }

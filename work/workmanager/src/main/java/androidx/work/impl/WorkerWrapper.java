@@ -230,6 +230,8 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.endTransaction();
             notifyListener(false, false);
         }
+
+        Schedulers.schedule(mWorkDatabase, mSchedulers);
     }
 
     private void recursivelyFailWorkAndDependents(String workSpecId) {
@@ -273,8 +275,6 @@ public class WorkerWrapper implements Runnable {
     }
 
     private void setSucceededAndNotify() {
-        List<String> unblockedWorkIds = new ArrayList<>();
-
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setState(SUCCEEDED, mWorkSpecId);
@@ -293,7 +293,6 @@ public class WorkerWrapper implements Runnable {
                     Logger.debug(TAG, "Setting status to enqueued for %s", dependentWorkId);
                     mWorkSpecDao.setState(ENQUEUED, dependentWorkId);
                     mWorkSpecDao.setPeriodStartTime(dependentWorkId, currentTimeMillis);
-                    unblockedWorkIds.add(dependentWorkId);
                 }
             }
 
@@ -303,19 +302,8 @@ public class WorkerWrapper implements Runnable {
             notifyListener(true, false);
         }
 
-        if (mSchedulers != null) {
-            int unblockedWorkCount = unblockedWorkIds.size();
-            if (unblockedWorkCount > 0) {
-                Logger.debug(TAG,
-                        "Setting status to enqueued for %s items that were dependent on %s",
-                        unblockedWorkCount, mWorkSpecId);
-            }
-
-            WorkSpec[] unblockedWorkSpecs = mWorkSpecDao.getWorkSpecs(unblockedWorkIds);
-            for (Scheduler scheduler : mSchedulers) {
-                scheduler.schedule(unblockedWorkSpecs);
-            }
-        }
+        // This takes of scheduling the dependent workers as they have been marked ENQUEUED.
+        Schedulers.schedule(mWorkDatabase, mSchedulers);
     }
 
     static Worker workerFromWorkSpec(@NonNull Context context,

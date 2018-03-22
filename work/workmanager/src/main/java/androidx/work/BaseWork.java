@@ -80,7 +80,7 @@ public abstract class BaseWork {
     /**
      * Gets the tags associated with this unit of work.
      *
-     * @return THe tags for this unit of work
+     * @return The tags for this unit of work
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -194,7 +194,9 @@ public abstract class BaseWork {
          *
          * @param state The {@link State} to set
          * @return The current {@link Builder}
+         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
         public B withInitialState(@NonNull State state) {
             mWorkSpec.state = state;
@@ -206,7 +208,9 @@ public abstract class BaseWork {
          *
          * @param runAttemptCount The initial run attempt count
          * @return The current {@link Builder}
+         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
         public B withInitialRunAttemptCount(int runAttemptCount) {
             mWorkSpec.runAttemptCount = runAttemptCount;
@@ -219,10 +223,29 @@ public abstract class BaseWork {
          * @param periodStartTime the period start time in {@code timeUnit} units
          * @param timeUnit The {@link TimeUnit} for {@code periodStartTime}
          * @return The current {@link Builder}
+         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
         public B withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
             mWorkSpec.periodStartTime = timeUnit.toMillis(periodStartTime);
+            return getThis();
+        }
+
+        /**
+         * Set when the scheduler actually schedules the worker.
+         *
+         * @param scheduleRequestedAt The time at which the scheduler scheduled a worker.
+         * @param timeUnit            The {@link TimeUnit} for {@code scheduleRequestedAt}
+         * @return The current {@link Builder}
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @VisibleForTesting
+        public B withScheduleRequestedAt(
+                long scheduleRequestedAt,
+                @NonNull TimeUnit timeUnit) {
+            mWorkSpec.scheduleRequestedAt = timeUnit.toMillis(scheduleRequestedAt);
             return getThis();
         }
     }

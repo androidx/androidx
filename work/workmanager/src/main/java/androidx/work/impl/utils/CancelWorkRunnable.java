@@ -27,6 +27,7 @@ import android.support.annotation.WorkerThread;
 import androidx.work.State;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
+import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.DependencyDao;
@@ -52,6 +53,10 @@ public abstract class CancelWorkRunnable implements Runnable {
         for (Scheduler scheduler : workManagerImpl.getSchedulers()) {
             scheduler.cancel(workSpecId);
         }
+    }
+
+    void reschedulePendingWorkers(WorkManagerImpl workManagerImpl) {
+        Schedulers.schedule(workManagerImpl.getWorkDatabase(), workManagerImpl.getSchedulers());
     }
 
     private void recursivelyCancelWorkAndDependents(WorkDatabase workDatabase, String workSpecId) {
@@ -85,6 +90,7 @@ public abstract class CancelWorkRunnable implements Runnable {
             @Override
             public void run() {
                 cancel(workManagerImpl, id);
+                reschedulePendingWorkers(workManagerImpl);
             }
         };
     }
@@ -115,6 +121,7 @@ public abstract class CancelWorkRunnable implements Runnable {
                 } finally {
                     workDatabase.endTransaction();
                 }
+                reschedulePendingWorkers(workManagerImpl);
             }
         };
     }
@@ -145,6 +152,7 @@ public abstract class CancelWorkRunnable implements Runnable {
                 } finally {
                     workDatabase.endTransaction();
                 }
+                reschedulePendingWorkers(workManagerImpl);
             }
         };
     }

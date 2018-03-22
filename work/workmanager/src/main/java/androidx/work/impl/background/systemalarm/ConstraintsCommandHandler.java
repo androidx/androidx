@@ -60,11 +60,17 @@ class ConstraintsCommandHandler {
 
     @WorkerThread
     void handleConstraintsChanged() {
-        long maxStartTime = System.currentTimeMillis();
-
-        List<WorkSpec> eligibleWorkSpecs = mDispatcher.getWorkManager().getWorkDatabase()
+        List<WorkSpec> candidates = mDispatcher.getWorkManager().getWorkDatabase()
                 .workSpecDao()
-                .getEligibleWorkSpecs(maxStartTime);
+                .getEligibleWorkForScheduling();
+
+        // Filter candidates that are marked as SCHEDULE_NOT_REQUESTED_AT
+        List<WorkSpec> eligibleWorkSpecs = new ArrayList<>(candidates.size());
+        for (WorkSpec candidate: candidates) {
+            if (candidate.scheduleRequestedAt != WorkSpec.SCHEDULE_NOT_REQUESTED_YET) {
+                eligibleWorkSpecs.add(candidate);
+            }
+        }
 
         // Update constraint proxy to potentially disable proxies for previously
         // completed WorkSpecs.

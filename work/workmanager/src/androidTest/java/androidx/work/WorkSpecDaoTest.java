@@ -16,11 +16,15 @@
 
 package androidx.work;
 
-import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
-
+import static androidx.work.State.BLOCKED;
+import static androidx.work.State.FAILED;
 import static androidx.work.State.SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -40,7 +44,7 @@ public class WorkSpecDaoTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testSystemAlarmEligibleWorkSpecs() {
+    public void testEligibleWorkSpecsForScheduling() {
         long startTime = System.currentTimeMillis();
         Work work = new Work.Builder(TestWorker.class)
                 .withPeriodStartTime(
@@ -60,8 +64,83 @@ public class WorkSpecDaoTest extends DatabaseTest {
         insertWork(enqueued);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        List<WorkSpec> eligibleWorkSpecs = workSpecDao.getEligibleWorkSpecs(startTime);
-        assertThat(eligibleWorkSpecs.size(), equalTo(1));
-        assertThat(eligibleWorkSpecs.get(0).id, equalTo(enqueued.getId()));
+        List<WorkSpec> eligibleWorkSpecs = workSpecDao.getEligibleWorkForScheduling();
+        assertThat(eligibleWorkSpecs.size(), equalTo(2));
+        assertThat(eligibleWorkSpecs,
+                containsInAnyOrder(work.getWorkSpec(), enqueued.getWorkSpec()));
+    }
+
+    @Test
+    @SmallTest
+    public void testScheduledWorkSpecCount() {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        long startTime = System.currentTimeMillis();
+        Work enqueued = new Work.Builder(TestWorker.class)
+                .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
+                .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .build();
+        Work succeeded = new Work.Builder(TestWorker.class)
+                .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
+                .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .withInitialState(SUCCEEDED)
+                .build();
+        Work failed = new Work.Builder(TestWorker.class)
+                .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
+                .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .withInitialState(FAILED)
+                .build();
+
+        insertWork(enqueued);
+        workSpecDao.markWorkSpecScheduled(enqueued.getId(), startTime);
+
+        insertWork(succeeded);
+        insertWork(failed);
+
+        List<WorkSpec> eligibleWorkSpecs = workSpecDao.getEligibleWorkForScheduling();
+        assertThat(eligibleWorkSpecs, notNullValue());
+        assertThat(eligibleWorkSpecs.size(), is(1));
+        assertThat(eligibleWorkSpecs, containsInAnyOrder(enqueued.getWorkSpec()));
+    }
+
+    @Test
+    @SmallTest
+    public void testResetScheduledState() {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        long startTime = System.currentTimeMillis();
+        Work enqueued = new Work.Builder(TestWorker.class)
+                .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
+                .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .build();
+        Work succeeded = new Work.Builder(TestWorker.class)
+                .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
+                .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .withInitialState(SUCCEEDED)
+                .build();
+        Work blocked = new Work.Builder(TestWorker.class)
+                .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
+                .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .withInitialState(BLOCKED)
+                .build();
+        Work failed = new Work.Builder(TestWorker.class)
+                .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
+                .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
+                .withInitialState(FAILED)
+                .build();
+
+        insertWork(enqueued);
+        workSpecDao.markWorkSpecScheduled(enqueued.getId(), startTime);
+
+        insertWork(succeeded);
+        insertWork(failed);
+        insertWork(blocked);
+
+        workSpecDao.resetScheduledState();
+
+        List<WorkSpec> eligibleWorkSpecs = workSpecDao.getEligibleWorkForScheduling();
+        assertThat(eligibleWorkSpecs.size(), is(1));
+        // Not using contains in any order as the scheduleRequestedAt changes post reset.
+        assertThat(eligibleWorkSpecs.get(0).id, is(enqueued.getId()));
     }
 }
