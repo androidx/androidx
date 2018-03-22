@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.executor.testing;
+package androidx.arch.core.executor.testing;
 
-import androidx.executor.ArchTaskExecutor;
-import androidx.executor.TaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.TaskExecutor;
 
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;

@@ -26,8 +26,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import androidx.annotation.Nullable;
-import androidx.executor.ArchTaskExecutor;
-import androidx.executor.testing.InstantTaskExecutorRule;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.util.InstantTaskExecutor;
 
 import org.junit.Before;

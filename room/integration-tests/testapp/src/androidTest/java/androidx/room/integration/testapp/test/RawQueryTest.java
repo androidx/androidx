@@ -26,7 +26,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.executor.testing.CountingTaskExecutorRule;
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 import androidx.room.integration.testapp.dao.RawDao;
 import androidx.room.integration.testapp.vo.NameAndLastName;
