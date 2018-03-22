@@ -33,25 +33,25 @@ import androidx.slice.builders.SliceAction;
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class GridBuilderBasicImpl extends TemplateBuilderImpl implements GridBuilder {
+public class GridRowBuilderBasicImpl extends TemplateBuilderImpl implements GridRowBuilder {
 
     /**
      */
-    public GridBuilderBasicImpl(@NonNull ListBuilderBasicImpl parent) {
+    public GridRowBuilderBasicImpl(@NonNull ListBuilderBasicImpl parent) {
         super(parent.createChildBuilder(), null);
     }
 
     /**
      */
     @Override
-    public TemplateBuilderImpl createGridBuilder() {
+    public TemplateBuilderImpl createGridRowBuilder() {
         return new CellBuilder(this);
     }
 
     /**
      */
     @Override
-    public TemplateBuilderImpl createGridBuilder(Uri uri) {
+    public TemplateBuilderImpl createGridRowBuilder(Uri uri) {
         return new CellBuilder(uri);
     }
 
@@ -96,11 +96,11 @@ public class GridBuilderBasicImpl extends TemplateBuilderImpl implements GridBui
     /**
      */
     public static final class CellBuilder extends TemplateBuilderImpl implements
-            GridBuilder.CellBuilder {
+            GridRowBuilder.CellBuilder {
 
         /**
          */
-        public CellBuilder(@NonNull GridBuilderBasicImpl parent) {
+        public CellBuilder(@NonNull GridRowBuilderBasicImpl parent) {
             super(parent.createChildBuilder(), null);
         }
 

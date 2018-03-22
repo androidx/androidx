@@ -34,25 +34,25 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 
-import java.util.ArrayList;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.builders.SliceAction;
 
+import java.util.ArrayList;
+
 /**
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBuilder {
+public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements GridRowBuilder {
 
     private SliceAction mPrimaryAction;
 
     /**
      */
-    public GridBuilderListV1Impl(@NonNull ListBuilderV1Impl parent) {
+    public GridRowBuilderListV1Impl(@NonNull ListBuilderV1Impl parent) {
         super(parent.createChildBuilder(), null);
     }
 
@@ -81,14 +81,14 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
     /**
      */
     @Override
-    public TemplateBuilderImpl createGridBuilder() {
+    public TemplateBuilderImpl createGridRowBuilder() {
         return new CellBuilder(this);
     }
 
     /**
      */
     @Override
-    public TemplateBuilderImpl createGridBuilder(Uri uri) {
+    public TemplateBuilderImpl createGridRowBuilder(Uri uri) {
         return new CellBuilder(uri);
     }
 
@@ -136,13 +136,13 @@ public class GridBuilderListV1Impl extends TemplateBuilderImpl implements GridBu
     /**
      */
     public static final class CellBuilder extends TemplateBuilderImpl implements
-            GridBuilder.CellBuilder {
+            GridRowBuilder.CellBuilder {
 
         private PendingIntent mContentIntent;
 
         /**
          */
-        public CellBuilder(@NonNull GridBuilderListV1Impl parent) {
+        public CellBuilder(@NonNull GridRowBuilderListV1Impl parent) {
             super(parent.createChildBuilder(), null);
         }
 

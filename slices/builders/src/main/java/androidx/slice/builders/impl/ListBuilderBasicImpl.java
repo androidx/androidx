@@ -23,14 +23,14 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 
-import java.util.List;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
 import androidx.slice.builders.SliceAction;
+
+import java.util.List;
 
 /**
  * @hide
@@ -54,7 +54,7 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     /**
      */
     @Override
-    public void addGrid(TemplateBuilderImpl impl) {
+    public void addGridRow(TemplateBuilderImpl impl) {
         // Do nothing.
     }
 
@@ -129,7 +129,7 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
      */
     @Override
     public TemplateBuilderImpl createGridBuilder() {
-        return new GridBuilderBasicImpl(this);
+        return new GridRowBuilderBasicImpl(this);
     }
 
     @Override
