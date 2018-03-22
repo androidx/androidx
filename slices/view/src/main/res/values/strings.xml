@@ -24,4 +24,6 @@
     <string name="abc_slice_show_more">Show more</string>
     <!-- Format string indicating how old the content in the template is. [CHAR LIMIT=150]-->
     <string name="abc_slice_updated">Updated <xliff:g id="time" example="5 min ago">%1$s</xliff:g></string>
+    <!-- Text indicating that there was a failure connecting to the app providing the slice [CHAR LIMIT=none]-->
+    <string name="abc_slice_error">Couldn\'t connect</string>
 </resources>
