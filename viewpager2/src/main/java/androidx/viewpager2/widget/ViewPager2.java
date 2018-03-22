@@ -455,11 +455,6 @@ public class ViewPager2 extends ViewGroup {
                 getClass().getSimpleName() + " does not support direct child views");
     }
 
-    /** @see RecyclerView#addOnScrollListener(RecyclerView.OnScrollListener) */
-    public void addOnScrollListener(RecyclerView.OnScrollListener listener) {
-        mRecyclerView.addOnScrollListener(listener);
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // TODO(b/70666622): consider margin support
