@@ -519,7 +519,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             vh.mImageView.setBackgroundColor(bgColor);
             vh.mOverviewFrame.setBackground(null);
         }
-        RoundedRectHelper.getInstance().setClipToRoundedOutline(vh.mOverviewFrame, true);
+        RoundedRectHelper.setClipToRoundedOutline(vh.mOverviewFrame, true);
 
         if (scaleImage) {
             vh.mImageView.setScaleType(ImageView.ScaleType.FIT_START);

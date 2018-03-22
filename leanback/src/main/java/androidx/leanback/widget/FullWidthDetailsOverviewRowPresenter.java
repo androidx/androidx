@@ -546,7 +546,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
             overview.findViewById(R.id.details_overview_actions_background)
                     .setBackgroundColor(mActionsBackgroundColor);
         }
-        RoundedRectHelper.getInstance().setClipToRoundedOutline(overview, true);
+        RoundedRectHelper.setClipToRoundedOutline(overview, true);
 
         if (!getSelectEffectEnabled()) {
             vh.mOverviewFrame.setForeground(null);

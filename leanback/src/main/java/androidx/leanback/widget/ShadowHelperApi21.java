@@ -58,8 +58,4 @@ class ShadowHelperApi21 {
         ShadowImpl impl = (ShadowImpl) object;
         impl.mShadowContainer.setZ(impl.mNormalZ + level * (impl.mFocusedZ - impl.mNormalZ));
     }
-
-    public static void setZ(View view, float z) {
-        view.setZ(z);
-    }
 }
