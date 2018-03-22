@@ -51,15 +51,15 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Row item is in small template format and can be used to construct list items for use
@@ -305,11 +305,18 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     }
 
     private void addRange(final SliceItem range) {
-        final ProgressBar progressBar;
-        if (FORMAT_ACTION.equals(range.getFormat())) {
-            // An input range is displayed as a seek bar
-            progressBar = mSeekBar;
-            mSeekBar.setVisibility(View.VISIBLE);
+        final boolean isSeekBar = FORMAT_ACTION.equals(range.getFormat());
+        final ProgressBar progressBar = isSeekBar ? mSeekBar : mProgressBar;
+        SliceItem max = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MAX);
+        if (max != null) {
+            progressBar.setMax(max.getInt());
+        }
+        SliceItem progress = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_VALUE);
+        if (progress != null) {
+            progressBar.setProgress(progress.getInt());
+        }
+        progressBar.setVisibility(View.VISIBLE);
+        if (isSeekBar) {
             SliceItem thumb = SliceQuery.find(range, FORMAT_IMAGE);
             if (thumb != null) {
                 mSeekBar.setThumb(thumb.getIcon().loadDrawable(getContext()));
@@ -331,18 +338,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) { }
             });
-        } else {
-            // A range is displayed as a progress bar.
-            progressBar = mProgressBar;
-            mProgressBar.setVisibility(View.VISIBLE);
-        }
-        SliceItem max = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MAX);
-        if (max != null) {
-            progressBar.setMax(max.getInt());
-        }
-        SliceItem progress = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_VALUE);
-        if (progress != null) {
-            progressBar.setProgress(progress.getInt());
         }
     }
 
