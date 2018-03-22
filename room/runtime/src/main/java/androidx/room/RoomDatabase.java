@@ -31,7 +31,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.app.ActivityManagerCompat;
-import androidx.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;

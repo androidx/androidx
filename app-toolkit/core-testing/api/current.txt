@@ -1,4 +1,4 @@
-package androidx.executor.testing {
+package androidx.arch.core.executor.testing {
 
   public class CountingTaskExecutorRule extends org.junit.rules.TestWatcher {
     ctor public CountingTaskExecutorRule();

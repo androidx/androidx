@@ -28,7 +28,7 @@ import androidx.annotation.WorkerThread;
 import androidx.arch.core.internal.SafeIterableMap;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
-import androidx.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteStatement;
 

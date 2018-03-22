@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.executor.testing;
+package androidx.arch.core.executor.testing;
 
 import static org.junit.Assert.assertTrue;
 
-import androidx.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
 
 import org.junit.Rule;
 import org.junit.Test;

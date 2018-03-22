@@ -19,7 +19,7 @@ package androidx.paging;
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.lifecycle.ComputableLiveData;
 import androidx.lifecycle.LiveData;
 
