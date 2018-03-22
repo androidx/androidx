@@ -16,107 +16,52 @@
 package androidx.leanback.widget;
 
 import android.os.Build;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.RequiresApi;
-
+import androidx.leanback.R;
 
 /**
  * Helper for static (nine patch) shadows.
  */
 final class StaticShadowHelper {
-
-    final static StaticShadowHelper sInstance = new StaticShadowHelper();
-    boolean mSupportsShadow;
-    ShadowHelperVersionImpl mImpl;
-
-    /**
-     * Interface implemented by classes that support Shadow.
-     */
-    static interface ShadowHelperVersionImpl {
-        public void prepareParent(ViewGroup parent);
-        public Object addStaticShadow(ViewGroup shadowContainer);
-        public void setShadowFocusLevel(Object impl, float level);
-    }
-
-    /**
-     * Interface used when we do not support Shadow animations.
-     */
-    private static final class ShadowHelperStubImpl implements ShadowHelperVersionImpl {
-        ShadowHelperStubImpl() {
-        }
-
-        @Override
-        public void prepareParent(ViewGroup parent) {
-            // do nothing
-        }
-
-        @Override
-        public Object addStaticShadow(ViewGroup shadowContainer) {
-            // do nothing
-            return null;
-        }
-
-        @Override
-        public void setShadowFocusLevel(Object impl, float level) {
-            // do nothing
-        }
-    }
-
-    /**
-     * Implementation used on JBMR2 (and above).
-     */
-    @RequiresApi(19)
-    private static final class ShadowHelperJbmr2Impl implements ShadowHelperVersionImpl {
-        ShadowHelperJbmr2Impl() {
-        }
-
-        @Override
-        public void prepareParent(ViewGroup parent) {
-            ShadowHelperJbmr2.prepareParent(parent);
-        }
-
-        @Override
-        public Object addStaticShadow(ViewGroup shadowContainer) {
-            return ShadowHelperJbmr2.addShadow(shadowContainer);
-        }
-
-        @Override
-        public void setShadowFocusLevel(Object impl, float level) {
-            ShadowHelperJbmr2.setShadowFocusLevel(impl, level);
-        }
-    }
-
-    /**
-     * Returns the StaticShadowHelper.
-     */
     private StaticShadowHelper() {
+    }
+
+    static boolean supportsShadow() {
+        return Build.VERSION.SDK_INT >= 21;
+    }
+
+    static void prepareParent(ViewGroup parent) {
         if (Build.VERSION.SDK_INT >= 21) {
-            mSupportsShadow = true;
-            mImpl = new ShadowHelperJbmr2Impl();
-        } else {
-            mSupportsShadow = false;
-            mImpl = new ShadowHelperStubImpl();
+            parent.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);
         }
     }
 
-    public static StaticShadowHelper getInstance() {
-        return sInstance;
+    static Object addStaticShadow(ViewGroup shadowContainer) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            shadowContainer.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);
+            LayoutInflater inflater = LayoutInflater.from(shadowContainer.getContext());
+            inflater.inflate(R.layout.lb_shadow, shadowContainer, true);
+            ShadowImpl impl = new ShadowImpl();
+            impl.mNormalShadow = shadowContainer.findViewById(R.id.lb_shadow_normal);
+            impl.mFocusShadow = shadowContainer.findViewById(R.id.lb_shadow_focused);
+            return impl;
+        }
+        return null;
     }
 
-    public boolean supportsShadow() {
-        return mSupportsShadow;
+    static void setShadowFocusLevel(Object impl, float level) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            ShadowImpl shadowImpl = (ShadowImpl) impl;
+            shadowImpl.mNormalShadow.setAlpha(1 - level);
+            shadowImpl.mFocusShadow.setAlpha(level);
+        }
     }
 
-    public void prepareParent(ViewGroup parent) {
-        mImpl.prepareParent(parent);
-    }
-
-    public Object addStaticShadow(ViewGroup shadowContainer) {
-        return mImpl.addStaticShadow(shadowContainer);
-    }
-
-    public void setShadowFocusLevel(Object impl, float level) {
-        mImpl.setShadowFocusLevel(impl, level);
+    static class ShadowImpl {
+        View mNormalShadow;
+        View mFocusShadow;
     }
 }

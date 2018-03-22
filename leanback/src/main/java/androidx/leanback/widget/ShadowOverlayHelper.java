@@ -280,7 +280,7 @@ public final class ShadowOverlayHelper {
      * Return true if the platform sdk supports shadow.
      */
     public static boolean supportsShadow() {
-        return StaticShadowHelper.getInstance().supportsShadow();
+        return StaticShadowHelper.supportsShadow();
     }
 
     /**
@@ -316,7 +316,7 @@ public final class ShadowOverlayHelper {
      */
     public void prepareParentForShadow(ViewGroup parent) {
         if (mShadowType == SHADOW_STATIC) {
-            StaticShadowHelper.getInstance().prepareParent(parent);
+            StaticShadowHelper.prepareParent(parent);
         }
     }
 
@@ -458,7 +458,7 @@ public final class ShadowOverlayHelper {
                     ShadowHelper.setShadowFocusLevel(impl, level);
                     break;
                 case SHADOW_STATIC:
-                    StaticShadowHelper.getInstance().setShadowFocusLevel(impl, level);
+                    StaticShadowHelper.setShadowFocusLevel(impl, level);
                     break;
             }
         }
