@@ -167,7 +167,7 @@ public final class LivePagedListBuilder<Key, Value> {
             @NonNull final DataSource.Factory<Key, Value> dataSourceFactory,
             @NonNull final Executor mainThreadExecutor,
             @NonNull final Executor backgroundThreadExecutor) {
-        return new ComputableLiveData<PagedList<Value>>(backgroundThreadExecutor) {
+        return new ComputableLiveData<PagedList<Value>>() {
             @Nullable
             private PagedList<Value> mList;
             @Nullable
