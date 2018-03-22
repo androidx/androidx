@@ -100,6 +100,14 @@ public interface ListBuilder {
     void setKeywords(List<String> keywords);
 
     /**
+     * Sets the time-to-live for this slice, i.e. how long the data contained in the slice
+     * can remain fresh.
+     *
+     * @param ttl the length in milliseconds that this content can live for.
+     */
+    void setTtl(long ttl);
+
+    /**
      * Create a builder that implements {@link RowBuilder}.
      */
     TemplateBuilderImpl createRowBuilder();

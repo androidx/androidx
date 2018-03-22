@@ -35,7 +35,11 @@ import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -79,6 +83,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private LinearLayout mContent;
     private TextView mPrimaryText;
     private TextView mSecondaryText;
+    private TextView mLastUpdatedText;
     private View mDivider;
     private ArrayList<CompoundButton> mToggles = new ArrayList<>();
     private LinearLayout mEndContainer;
@@ -108,6 +113,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mContent = (LinearLayout) findViewById(android.R.id.content);
         mPrimaryText = (TextView) findViewById(android.R.id.title);
         mSecondaryText = (TextView) findViewById(android.R.id.summary);
+        mLastUpdatedText = (TextView) findViewById(R.id.last_updated);
         mDivider = findViewById(R.id.divider);
         mEndContainer = (LinearLayout) findViewById(android.R.id.widget_frame);
         mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
@@ -138,6 +144,14 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     @Override
     public void setSliceActions(List<SliceItem> actions) {
         mHeaderActions = actions;
+        if (mRowContent != null) {
+            populateViews();
+        }
+    }
+
+    @Override
+    public void setShowLastUpdated(boolean showLastUpdated) {
+        super.setShowLastUpdated(showLastUpdated);
         if (mRowContent != null) {
             populateViews();
         }
@@ -208,17 +222,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mPrimaryText.setTextColor(mTitleColor);
         mPrimaryText.setVisibility(titleItem != null ? View.VISIBLE : View.GONE);
 
-        final SliceItem subTitle = getMode() == MODE_SMALL
+        final SliceItem subtitleItem = getMode() == MODE_SMALL
                 ? mRowContent.getSummaryItem()
                 : mRowContent.getSubtitleItem();
-        if (subTitle != null) {
-            mSecondaryText.setText(subTitle.getText());
-        }
-        mSecondaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
-                ? mHeaderSubtitleSize
-                : mSubtitleSize);
-        mSecondaryText.setTextColor(mSubtitleColor);
-        mSecondaryText.setVisibility(subTitle != null ? View.VISIBLE : View.GONE);
+        addSubtitle(subtitleItem);
 
         final SliceItem range = mRowContent.getRange();
         if (range != null) {
@@ -236,9 +243,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 return;
             }
         }
-        List<SliceItem> endItems = mRowContent.getEndItems();
 
-        // If we're here we might be able to show end items
+        // If we're here we can can show end items; check for top level actions first
+        List<SliceItem> endItems = mRowContent.getEndItems();
         String desiredFormat = FORMAT_ACTION;
         if (mIsHeader && mHeaderActions != null && mHeaderActions.size() > 0) {
             // Use these if we have them instead
@@ -302,6 +309,35 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 setViewClickable(this, true);
             }
         }
+    }
+
+    private void addSubtitle(final SliceItem subtitleItem) {
+        CharSequence subtitleTimeString = null;
+        if (mShowLastUpdated) {
+            subtitleTimeString = getResources().getString(R.string.abc_slice_updated,
+                    SliceViewUtil.getRelativeTimeString(mLastUpdated));
+        }
+        CharSequence subtitle = subtitleItem != null ? subtitleItem.getText() : null;
+        if (!TextUtils.isEmpty(subtitle)) {
+            mSecondaryText.setText(subtitle);
+            mSecondaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
+                    ? mHeaderSubtitleSize
+                    : mSubtitleSize);
+            mSecondaryText.setTextColor(mSubtitleColor);
+        }
+        if (subtitleTimeString != null) {
+            if (!TextUtils.isEmpty(subtitle)) {
+                subtitleTimeString = " \u00B7 " + subtitleTimeString;
+            }
+            SpannableString sp = new SpannableString(subtitleTimeString);
+            sp.setSpan(new StyleSpan(Typeface.ITALIC), 0, subtitleTimeString.length(), 0);
+            mLastUpdatedText.setText(sp);
+            mLastUpdatedText.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                    mIsHeader ? mHeaderSubtitleSize : mSubtitleSize);
+            mLastUpdatedText.setTextColor(mSubtitleColor);
+        }
+        mLastUpdatedText.setVisibility(TextUtils.isEmpty(subtitleTimeString) ? GONE : VISIBLE);
+        mSecondaryText.setVisibility(TextUtils.isEmpty(subtitle) ? GONE : VISIBLE);
     }
 
     private void addRange(final SliceItem range) {
