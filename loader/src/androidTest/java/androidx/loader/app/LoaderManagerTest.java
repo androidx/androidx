@@ -23,8 +23,8 @@ import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
@@ -35,10 +35,9 @@ import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.test.DelayLoaderCallbacks;
 import androidx.loader.app.test.DummyLoaderCallbacks;
-import androidx.loader.app.test.EmptyActivity;
 import androidx.loader.content.Loader;
 
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -49,24 +48,26 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 public class LoaderManagerTest {
 
-    @Rule
-    public ActivityTestRule<EmptyActivity> mActivityRule =
-            new ActivityTestRule<>(EmptyActivity.class);
+    private LoaderManager mLoaderManager;
+
+    @Before
+    public void setup() {
+        mLoaderManager = LoaderManager.getInstance(new LoaderOwner());
+    }
 
     @Test
     public void testDestroyFromOnCreateLoader() throws Throwable {
-        final LoaderOwner loaderOwner = new LoaderOwner();
         final CountDownLatch onCreateLoaderLatch = new CountDownLatch(1);
-        mActivityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                LoaderManager.getInstance(loaderOwner).initLoader(65, null,
+                mLoaderManager.initLoader(65, null,
                         new DummyLoaderCallbacks(mock(Context.class)) {
                             @NonNull
                             @Override
                             public Loader<Boolean> onCreateLoader(int id, Bundle args) {
                                 try {
-                                    LoaderManager.getInstance(loaderOwner).destroyLoader(65);
+                                    mLoaderManager.destroyLoader(65);
                                     fail("Calling destroyLoader in onCreateLoader should throw an "
                                             + "IllegalStateException");
                                 } catch (IllegalStateException e) {
@@ -87,18 +88,17 @@ public class LoaderManagerTest {
      */
     @Test
     public void testDestroyFromOnLoadFinished() throws Throwable {
-        final LoaderOwner loaderOwner = new LoaderOwner();
         final CountDownLatch onLoadFinishedLatch = new CountDownLatch(1);
-        mActivityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                LoaderManager.getInstance(loaderOwner).initLoader(43, null,
+                mLoaderManager.initLoader(43, null,
                         new DummyLoaderCallbacks(mock(Context.class)) {
                             @Override
                             public void onLoadFinished(@NonNull Loader<Boolean> loader,
                                     Boolean data) {
                                 super.onLoadFinished(loader, data);
-                                LoaderManager.getInstance(loaderOwner).destroyLoader(43);
+                                mLoaderManager.destroyLoader(43);
                             }
                         });
             }
@@ -108,16 +108,14 @@ public class LoaderManagerTest {
 
     @Test
     public void testDestroyLoaderBeforeDeliverData() throws Throwable {
-        final LoaderOwner loaderOwner = new LoaderOwner();
-        final LoaderManager loaderManager = LoaderManager.getInstance(loaderOwner);
         final DelayLoaderCallbacks callback =
                 new DelayLoaderCallbacks(mock(Context.class), new CountDownLatch(1));
-        mActivityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                loaderManager.initLoader(37, null, callback);
+                mLoaderManager.initLoader(37, null, callback);
                 // Immediately destroy it before it has a chance to deliver data
-                loaderManager.destroyLoader(37);
+                mLoaderManager.destroyLoader(37);
             }
         });
         assertFalse("LoaderCallbacks should not be reset if they never received data",
@@ -128,23 +126,21 @@ public class LoaderManagerTest {
 
     @Test
     public void testDestroyLoaderAfterDeliverData() throws Throwable {
-        final LoaderOwner loaderOwner = new LoaderOwner();
-        final LoaderManager loaderManager = LoaderManager.getInstance(loaderOwner);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         final DelayLoaderCallbacks callback =
                 new DelayLoaderCallbacks(mock(Context.class), countDownLatch);
-        mActivityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                loaderManager.initLoader(38, null, callback);
+                mLoaderManager.initLoader(38, null, callback);
             }
         });
         // Wait for the Loader to return data
         countDownLatch.await(1, TimeUnit.SECONDS);
-        mActivityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                loaderManager.destroyLoader(38);
+                mLoaderManager.destroyLoader(38);
             }
         });
         assertTrue("LoaderCallbacks should be reset after destroyLoader()",
@@ -156,19 +152,17 @@ public class LoaderManagerTest {
 
     @Test
     public void testRestartLoaderBeforeDeliverData() throws Throwable {
-        final LoaderOwner loaderOwner = new LoaderOwner();
-        final LoaderManager loaderManager = LoaderManager.getInstance(loaderOwner);
         final DelayLoaderCallbacks initialCallback =
                 new DelayLoaderCallbacks(mock(Context.class), new CountDownLatch(1));
         CountDownLatch restartCountDownLatch = new CountDownLatch(1);
         final DelayLoaderCallbacks restartCallback =
                 new DelayLoaderCallbacks(mock(Context.class), restartCountDownLatch);
-        mActivityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                loaderManager.initLoader(44, null, initialCallback);
+                mLoaderManager.initLoader(44, null, initialCallback);
                 // Immediately restart it before it has a chance to deliver data
-                loaderManager.restartLoader(44, null, restartCallback);
+                mLoaderManager.restartLoader(44, null, restartCallback);
             }
         });
         assertFalse("Initial LoaderCallbacks should not be reset after restartLoader()",
@@ -180,15 +174,13 @@ public class LoaderManagerTest {
 
     @Test
     public void testRestartLoaderAfterDeliverData() throws Throwable {
-        final LoaderOwner loaderOwner = new LoaderOwner();
-        final LoaderManager loaderManager = LoaderManager.getInstance(loaderOwner);
         CountDownLatch initialCountDownLatch = new CountDownLatch(1);
         final DelayLoaderCallbacks initialCallback =
                 new DelayLoaderCallbacks(mock(Context.class), initialCountDownLatch);
-        mActivityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                loaderManager.initLoader(45, null, initialCallback);
+                mLoaderManager.initLoader(45, null, initialCallback);
             }
         });
         // Wait for the first Loader to return data
@@ -196,10 +188,10 @@ public class LoaderManagerTest {
         CountDownLatch restartCountDownLatch = new CountDownLatch(1);
         final DelayLoaderCallbacks restartCallback =
                 new DelayLoaderCallbacks(mock(Context.class), restartCountDownLatch);
-        mActivityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                loaderManager.restartLoader(45, null, restartCallback);
+                mLoaderManager.restartLoader(45, null, restartCallback);
             }
         });
         assertFalse("Initial LoaderCallbacks should not be reset after restartLoader()",
@@ -213,15 +205,13 @@ public class LoaderManagerTest {
 
     @Test
     public void testRestartLoaderMultiple() throws Throwable {
-        final LoaderOwner loaderOwner = new LoaderOwner();
-        final LoaderManager loaderManager = LoaderManager.getInstance(loaderOwner);
         CountDownLatch initialCountDownLatch = new CountDownLatch(1);
         final DelayLoaderCallbacks initialCallback =
                 new DelayLoaderCallbacks(mock(Context.class), initialCountDownLatch);
-        mActivityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                loaderManager.initLoader(46, null, initialCallback);
+                mLoaderManager.initLoader(46, null, initialCallback);
             }
         });
         // Wait for the first Loader to return data
@@ -231,12 +221,12 @@ public class LoaderManagerTest {
         CountDownLatch restartCountDownLatch = new CountDownLatch(1);
         final DelayLoaderCallbacks restartCallback =
                 new DelayLoaderCallbacks(mock(Context.class), restartCountDownLatch);
-        mActivityRule.runOnUiThread(new Runnable() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                loaderManager.restartLoader(46, null, intermediateCallback);
+                mLoaderManager.restartLoader(46, null, intermediateCallback);
                 // Immediately replace the restarted Loader with yet another Loader
-                loaderManager.restartLoader(46, null, restartCallback);
+                mLoaderManager.restartLoader(46, null, restartCallback);
             }
         });
         assertFalse("Initial LoaderCallbacks should not be reset after restartLoader()",
@@ -252,22 +242,19 @@ public class LoaderManagerTest {
 
     @Test(expected = IllegalStateException.class)
     public void enforceOnMainThread_initLoader() {
-        LoaderOwner loaderOwner = new LoaderOwner();
-        LoaderManager.getInstance(loaderOwner).initLoader(-1, null,
+        mLoaderManager.initLoader(-1, null,
                 new DummyLoaderCallbacks(mock(Context.class)));
     }
 
     @Test(expected = IllegalStateException.class)
     public void enforceOnMainThread_restartLoader() {
-        LoaderOwner loaderOwner = new LoaderOwner();
-        LoaderManager.getInstance(loaderOwner).restartLoader(-1, null,
+        mLoaderManager.restartLoader(-1, null,
                 new DummyLoaderCallbacks(mock(Context.class)));
     }
 
     @Test(expected = IllegalStateException.class)
     public void enforceOnMainThread_destroyLoader() {
-        LoaderOwner loaderOwner = new LoaderOwner();
-        LoaderManager.getInstance(loaderOwner).destroyLoader(-1);
+        mLoaderManager.destroyLoader(-1);
     }
 
     class LoaderOwner implements LifecycleOwner, ViewModelStoreOwner {
