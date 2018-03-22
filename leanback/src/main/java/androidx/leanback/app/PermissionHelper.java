@@ -18,7 +18,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.os.Build;
 
 import androidx.annotation.RestrictTo;
-import androidx.fragment.app.Fragment;
 
 /**
  * @hide
@@ -31,11 +30,6 @@ public class PermissionHelper {
         if (Build.VERSION.SDK_INT >= 23) {
             fragment.requestPermissions(permissions, requestCode);
         }
-    }
-
-    public static void requestPermissions(Fragment fragment,
-            String[] permissions, int requestCode) {
-        fragment.requestPermissions(permissions, requestCode);
     }
 
 }

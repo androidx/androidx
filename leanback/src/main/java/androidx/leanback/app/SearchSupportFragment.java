@@ -232,8 +232,8 @@ public class SearchSupportFragment extends Fragment {
             new SearchBar.SearchBarPermissionListener() {
         @Override
         public void requestAudioPermission() {
-            PermissionHelper.requestPermissions(SearchSupportFragment.this,
-                    new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_PERMISSION_REQUEST_CODE);
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
+                    AUDIO_PERMISSION_REQUEST_CODE);
         }
     };
 
