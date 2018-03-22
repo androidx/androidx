@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.core.util.LogWriter;
 import androidx.core.view.ViewCompat;
 
@@ -214,7 +215,7 @@ final class BackStackRecord extends FragmentTransaction implements
     int mTransitionStyle;
     boolean mAddToBackStack;
     boolean mAllowAddToBackStack = true;
-    String mName;
+    @Nullable String mName;
     boolean mCommitted;
     int mIndex = -1;
 
@@ -348,6 +349,7 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
+    @Nullable
     public CharSequence getBreadCrumbTitle() {
         if (mBreadCrumbTitleRes != 0) {
             return mManager.mHost.getContext().getText(mBreadCrumbTitleRes);
@@ -356,6 +358,7 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
+    @Nullable
     public CharSequence getBreadCrumbShortTitle() {
         if (mBreadCrumbShortTitleRes != 0) {
             return mManager.mHost.getContext().getText(mBreadCrumbShortTitleRes);
@@ -372,7 +375,7 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
-    public FragmentTransaction add(Fragment fragment, String tag) {
+    public FragmentTransaction add(Fragment fragment, @Nullable String tag) {
         doAddOp(0, fragment, tag, OP_ADD);
         return this;
     }
@@ -384,12 +387,12 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
-    public FragmentTransaction add(int containerViewId, Fragment fragment, String tag) {
+    public FragmentTransaction add(int containerViewId, Fragment fragment, @Nullable String tag) {
         doAddOp(containerViewId, fragment, tag, OP_ADD);
         return this;
     }
 
-    private void doAddOp(int containerViewId, Fragment fragment, String tag, int opcmd) {
+    private void doAddOp(int containerViewId, Fragment fragment, @Nullable String tag, int opcmd) {
         final Class fragmentClass = fragment.getClass();
         final int modifiers = fragmentClass.getModifiers();
         if (fragmentClass.isAnonymousClass() || !Modifier.isPublic(modifiers)
@@ -432,7 +435,8 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
-    public FragmentTransaction replace(int containerViewId, Fragment fragment, String tag) {
+    public FragmentTransaction replace(int containerViewId, Fragment fragment,
+            @Nullable String tag) {
         if (containerViewId == 0) {
             throw new IllegalArgumentException("Must use non-zero containerViewId");
         }
@@ -477,7 +481,7 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
-    public FragmentTransaction setPrimaryNavigationFragment(Fragment fragment) {
+    public FragmentTransaction setPrimaryNavigationFragment(@Nullable Fragment fragment) {
         addOp(new Op(OP_SET_PRIMARY_NAV, fragment));
 
         return this;
@@ -536,7 +540,7 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
-    public FragmentTransaction addToBackStack(String name) {
+    public FragmentTransaction addToBackStack(@Nullable String name) {
         if (!mAllowAddToBackStack) {
             throw new IllegalStateException(
                     "This FragmentTransaction is not allowed to be added to the back stack.");
@@ -569,7 +573,7 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
-    public FragmentTransaction setBreadCrumbTitle(CharSequence text) {
+    public FragmentTransaction setBreadCrumbTitle(@Nullable CharSequence text) {
         mBreadCrumbTitleRes = 0;
         mBreadCrumbTitleText = text;
         return this;
@@ -583,7 +587,7 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
-    public FragmentTransaction setBreadCrumbShortTitle(CharSequence text) {
+    public FragmentTransaction setBreadCrumbShortTitle(@Nullable CharSequence text) {
         mBreadCrumbShortTitleRes = 0;
         mBreadCrumbShortTitleText = text;
         return this;
@@ -1008,6 +1012,7 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
+    @Nullable
     public String getName() {
         return mName;
     }

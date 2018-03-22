@@ -28,6 +28,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.util.Preconditions;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -40,26 +41,27 @@ import java.io.PrintWriter;
  * applicable to the host.
  */
 public abstract class FragmentHostCallback<E> extends FragmentContainer {
-    private final Activity mActivity;
-    final Context mContext;
-    private final Handler mHandler;
-    final int mWindowAnimations;
+    @Nullable private final Activity mActivity;
+    @NonNull private final Context mContext;
+    @NonNull private final Handler mHandler;
+    private final int mWindowAnimations;
     final FragmentManagerImpl mFragmentManager = new FragmentManagerImpl();
 
-    public FragmentHostCallback(Context context, Handler handler, int windowAnimations) {
+    public FragmentHostCallback(@NonNull Context context, @NonNull Handler handler,
+            int windowAnimations) {
         this(context instanceof Activity ? (Activity) context : null, context, handler,
                 windowAnimations);
     }
 
-    FragmentHostCallback(FragmentActivity activity) {
+    FragmentHostCallback(@NonNull FragmentActivity activity) {
         this(activity, activity /*context*/, activity.mHandler, 0 /*windowAnimations*/);
     }
 
-    FragmentHostCallback(Activity activity, Context context, Handler handler,
-            int windowAnimations) {
+    FragmentHostCallback(@Nullable Activity activity, @NonNull Context context,
+            @NonNull Handler handler, int windowAnimations) {
         mActivity = activity;
-        mContext = context;
-        mHandler = handler;
+        mContext = Preconditions.checkNotNull(context, "context == null");
+        mHandler = Preconditions.checkNotNull(handler, "handler == null");
         mWindowAnimations = windowAnimations;
     }
 
@@ -183,14 +185,17 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
         return true;
     }
 
+    @Nullable
     Activity getActivity() {
         return mActivity;
     }
 
+    @NonNull
     Context getContext() {
         return mContext;
     }
 
+    @NonNull
     Handler getHandler() {
         return mHandler;
     }
