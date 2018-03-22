@@ -17,7 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import android.support.test.InstrumentationRegistry
-import androidx.executor.testing.InstantTaskExecutorRule
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.room.integration.kotlintestapp.TestDatabase
 import androidx.room.integration.kotlintestapp.dao.BooksDao

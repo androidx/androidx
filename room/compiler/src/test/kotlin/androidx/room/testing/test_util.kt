@@ -134,7 +134,7 @@ fun createVerifierFromEntities(invocation: TestInvocation): DatabaseVerifier {
 
 /**
  * Create mocks of [Element] and [TypeMirror] so that they can be used for instantiating a fake
- * [android.arch.persistence.room.vo.Field].
+ * [androidx.room.vo.Field].
  */
 fun mockElementAndType(): Pair<Element, TypeMirror> {
     val element = mock(Element::class.java)

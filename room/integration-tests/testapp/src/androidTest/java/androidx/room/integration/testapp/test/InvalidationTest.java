@@ -27,7 +27,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
-import androidx.executor.testing.CountingTaskExecutorRule;
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.room.InvalidationTracker;
 import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;

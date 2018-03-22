@@ -18,7 +18,7 @@ package androidx.lifecycle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
 
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;

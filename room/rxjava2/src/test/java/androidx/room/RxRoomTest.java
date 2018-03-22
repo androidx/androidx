@@ -25,7 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import androidx.executor.JunitTaskExecutorRule;
+import androidx.arch.core.executor.JunitTaskExecutorRule;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;

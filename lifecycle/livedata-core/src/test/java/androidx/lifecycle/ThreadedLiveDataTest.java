@@ -24,8 +24,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import androidx.annotation.Nullable;
-import androidx.executor.JunitTaskExecutorRule;
-import androidx.executor.TaskExecutor;
+import androidx.arch.core.executor.JunitTaskExecutorRule;
+import androidx.arch.core.executor.TaskExecutor;
 
 import org.junit.Before;
 import org.junit.Rule;

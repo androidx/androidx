@@ -35,7 +35,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
-import androidx.executor.JunitTaskExecutorRule;
+import androidx.arch.core.executor.JunitTaskExecutorRule;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteStatement;

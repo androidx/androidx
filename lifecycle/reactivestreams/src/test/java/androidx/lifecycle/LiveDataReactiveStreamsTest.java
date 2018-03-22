@@ -24,8 +24,8 @@ import static org.junit.Assert.fail;
 import android.support.test.filters.SmallTest;
 
 import androidx.annotation.Nullable;
-import androidx.executor.ArchTaskExecutor;
-import androidx.executor.TaskExecutor;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.TaskExecutor;
 
 import org.junit.After;
 import org.junit.Before;
