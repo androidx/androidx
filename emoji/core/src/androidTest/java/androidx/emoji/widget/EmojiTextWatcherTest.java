@@ -109,4 +109,15 @@ public class EmojiTextWatcherTest {
         verify(mEmojiCompat, times(1)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
                 eq(EmojiCompat.REPLACE_STRATEGY_ALL));
     }
+
+    @Test
+    public void testFilter_withManualLoadStrategy() {
+        final Spannable testString = new SpannableString("abc");
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_DEFAULT);
+
+        mTextWatcher.onTextChanged(testString, 0, 0, 1);
+
+        verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt());
+        verify(mEmojiCompat, times(1)).registerInitCallback(any(EmojiCompat.InitCallback.class));
+    }
 }

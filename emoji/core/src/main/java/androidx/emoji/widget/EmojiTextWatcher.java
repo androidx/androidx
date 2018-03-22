@@ -80,6 +80,7 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
                             mEmojiReplaceStrategy);
                     break;
                 case EmojiCompat.LOAD_STATE_LOADING:
+                case EmojiCompat.LOAD_STATE_DEFAULT:
                     EmojiCompat.get().registerInitCallback(getInitCallback());
                     break;
                 case EmojiCompat.LOAD_STATE_FAILED:
