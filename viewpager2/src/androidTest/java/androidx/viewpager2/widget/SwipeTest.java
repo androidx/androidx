@@ -251,9 +251,10 @@ public class SwipeTest {
         RecyclerView recyclerView = (RecyclerView) viewPager.getChildAt(0); // HACK
         mSwiper = new PageSwiper(mTestConfig.mTotalPages, recyclerView);
 
-        if (Build.VERSION.SDK_INT < 16) { // TODO(b/71500143): remove temporary workaround
-            RecyclerView mRecyclerView = (RecyclerView) viewPager.getChildAt(0);
-            mRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
+        // Disabling edge animations on API < 16. Espresso discourages animations altogether, but
+        // keeping them for now where they work - as closer to the real environment.
+        if (Build.VERSION.SDK_INT < 16) {
+            recyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
         }
 
         onView(withId(R.id.view_pager)).check(matches(isDisplayed()));
