@@ -477,10 +477,7 @@ public abstract class PreferenceGroup extends Preference {
             return;
         }
         SavedState groupState = (SavedState) state;
-        if (mInitialExpandedChildrenCount != groupState.mInitialExpandedChildrenCount) {
-            mInitialExpandedChildrenCount = groupState.mInitialExpandedChildrenCount;
-            notifyHierarchyChanged();
-        }
+        mInitialExpandedChildrenCount = groupState.mInitialExpandedChildrenCount;
         super.onRestoreInstanceState(groupState.getSuperState());
     }
 

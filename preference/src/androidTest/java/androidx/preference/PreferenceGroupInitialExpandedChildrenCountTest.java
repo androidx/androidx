@@ -59,7 +59,6 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     private Context mContext;
     private PreferenceManager mPreferenceManager;
     private PreferenceScreen mScreen;
-    private Handler mHandler;
     private List<Preference> mPreferenceList;
 
     @Before
@@ -74,18 +73,6 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         // Add 10 preferences to the screen and to the cache
         mPreferenceList = new ArrayList<>();
         createTestPreferences(mScreen, mPreferenceList, TOTAL_PREFERENCE);
-
-        // Execute the handler task immediately
-        mHandler = spy(new Handler());
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) {
-                Object[] args = invocation.getArguments();
-                Message message = (Message) args[0];
-                mHandler.dispatchMessage(message);
-                return null;
-            }
-        }).when(mHandler).sendMessageDelayed(any(Message.class), anyLong());
     }
 
     /**
@@ -163,7 +150,7 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     }
 
     /**
-     * Verifies that correct summary is set for the expand button.
+     * Verifies that the correct summary is set for the expand button.
      */
     @Test
     @UiThreadTest
@@ -181,7 +168,7 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     }
 
     /**
-     * Verifies that summary for the expand button only lists visible preferences.
+     * Verifies that the summary for the expand button only lists visible preferences.
      */
     @Test
     @UiThreadTest
@@ -209,13 +196,13 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
 
         // First showing 5 preference with expand button
-        PreferenceGroupAdapter preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
+        PreferenceGroupAdapter preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
         assertPreferencesAreCollapsed(preferenceGroupAdapter);
 
         // Click the expand button, should review all preferences
         final Preference expandButton = preferenceGroupAdapter.getItem(INITIAL_EXPANDED_COUNT);
         expandButton.performClick();
+        preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
         assertPreferencesAreExpanded(preferenceGroupAdapter);
     }
 
@@ -226,25 +213,37 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     @Test
     @UiThreadTest
     public void onPreferenceVisibilityChange_shouldSyncPreferencesIfCollapsed() {
+        // Execute the handler task immediately
+        final Handler handler = spy(new Handler());
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                Message message = (Message) args[0];
+                handler.dispatchMessage(message);
+                return null;
+            }
+        }).when(handler).sendMessageDelayed(any(Message.class), anyLong());
+
         // No limit set, should not sync preference
         PreferenceGroupAdapter preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
+                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, handler);
         preferenceGroupAdapter.onPreferenceVisibilityChange(mPreferenceList.get(3));
-        verify(mHandler, never()).sendMessageDelayed(any(Message.class), anyLong());
+        verify(handler, never()).sendMessageDelayed(any(Message.class), anyLong());
 
         // Has limit set, should sync preference
         mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
         preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
+                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, handler);
         preferenceGroupAdapter.onPreferenceVisibilityChange(mPreferenceList.get(3));
-        verify(mHandler).sendMessageDelayed(any(Message.class), anyLong());
+        verify(handler).sendMessageDelayed(any(Message.class), anyLong());
 
         // Preferences expanded already, should not sync preference
         final Preference expandButton = preferenceGroupAdapter.getItem(INITIAL_EXPANDED_COUNT);
         expandButton.performClick();
-        reset(mHandler);
+        reset(handler);
         preferenceGroupAdapter.onPreferenceVisibilityChange(mPreferenceList.get(3));
-        verify(mHandler, never()).sendMessageDelayed(any(Message.class), anyLong());
+        verify(handler, never()).sendMessageDelayed(any(Message.class), anyLong());
     }
 
     /**
@@ -269,8 +268,8 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     }
 
     /**
-     * Verifies that if we restore to the same number of preferences to show, it will not update
-     * anything.
+     * Verifies that if we restore to the same number of preferences to show, the number of
+     * preferences to show will be the same.
      */
     @Test
     @UiThreadTest
@@ -280,21 +279,23 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         // Initialized as expanded, restore as expanded, should remain expanded
         state = new PreferenceGroup.SavedState(
                 Preference.BaseSavedState.EMPTY_STATE, Integer.MAX_VALUE);
-        PreferenceGroupAdapter preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
-        mScreen.onRestoreInstanceState(state);
+        PreferenceGroupAdapter preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
         assertPreferencesAreExpanded(preferenceGroupAdapter);
-        verify(mHandler, never()).sendMessageDelayed(any(Message.class), anyLong());
+
+        mScreen.onRestoreInstanceState(state);
+        preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
+        assertPreferencesAreExpanded(preferenceGroupAdapter);
 
         // Initialized as collapsed, restore as collapsed, should remain collapsed
         mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
         state = new PreferenceGroup.SavedState(
                 Preference.BaseSavedState.EMPTY_STATE, INITIAL_EXPANDED_COUNT);
-        preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
-        mScreen.onRestoreInstanceState(state);
+        preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
         assertPreferencesAreCollapsed(preferenceGroupAdapter);
-        verify(mHandler, never()).sendMessageDelayed(any(Message.class), anyLong());
+
+        mScreen.onRestoreInstanceState(state);
+        preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
+        assertPreferencesAreCollapsed(preferenceGroupAdapter);
     }
 
     /**
@@ -310,10 +311,8 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         // Initialized as expanded, restore as collapsed, should collapse
         state.mInitialExpandedChildrenCount = INITIAL_EXPANDED_COUNT;
         mScreen.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
-        PreferenceGroupAdapter preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
         mScreen.onRestoreInstanceState(state);
-        verify(mHandler).sendMessageDelayed(any(Message.class), anyLong());
+        PreferenceGroupAdapter preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
         assertPreferencesAreCollapsed(preferenceGroupAdapter);
     }
 
@@ -330,10 +329,8 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         // Initialized as collapsed, restore as expanded, should expand
         state.mInitialExpandedChildrenCount = Integer.MAX_VALUE;
         mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
-        PreferenceGroupAdapter preferenceGroupAdapter =
-                PreferenceGroupAdapter.createInstanceWithCustomHandler(mScreen, mHandler);
         mScreen.onRestoreInstanceState(state);
-        verify(mHandler).sendMessageDelayed(any(Message.class), anyLong());
+        PreferenceGroupAdapter preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
         assertPreferencesAreExpanded(preferenceGroupAdapter);
     }
 
@@ -367,5 +364,4 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         preferenceList.add(category);
         createTestPreferences(category, preferenceList, numPreference);
     }
-
 }

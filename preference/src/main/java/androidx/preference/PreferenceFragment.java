@@ -315,21 +315,6 @@ public abstract class PreferenceFragment extends Fragment implements
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (mHavePrefs) {
-            bindPreferences();
-            if (mSelectPreferenceRunnable != null) {
-                mSelectPreferenceRunnable.run();
-                mSelectPreferenceRunnable = null;
-            }
-        }
-
-        mInitDone = true;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
         if (savedInstanceState != null) {
             Bundle container = savedInstanceState.getBundle(PREFERENCES_TAG);
             if (container != null) {
@@ -339,6 +324,16 @@ public abstract class PreferenceFragment extends Fragment implements
                 }
             }
         }
+
+        if (mHavePrefs) {
+            bindPreferences();
+            if (mSelectPreferenceRunnable != null) {
+                mSelectPreferenceRunnable.run();
+                mSelectPreferenceRunnable = null;
+            }
+        }
+
+        mInitDone = true;
     }
 
     @Override
