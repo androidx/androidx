@@ -18,6 +18,7 @@ package androidx.slice.widget;
 
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 import static android.app.slice.Slice.HINT_NO_TINT;
+import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.SUBTYPE_TOGGLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
@@ -318,7 +319,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                     SliceViewUtil.getRelativeTimeString(mLastUpdated));
         }
         CharSequence subtitle = subtitleItem != null ? subtitleItem.getText() : null;
-        if (!TextUtils.isEmpty(subtitle)) {
+        boolean subtitleExists = !TextUtils.isEmpty(subtitle)
+                        || (subtitleItem != null && subtitleItem.hasHint(HINT_PARTIAL));
+        if (subtitleExists) {
             mSecondaryText.setText(subtitle);
             mSecondaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
                     ? mHeaderSubtitleSize
@@ -337,7 +340,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             mLastUpdatedText.setTextColor(mSubtitleColor);
         }
         mLastUpdatedText.setVisibility(TextUtils.isEmpty(subtitleTimeString) ? GONE : VISIBLE);
-        mSecondaryText.setVisibility(TextUtils.isEmpty(subtitle) ? GONE : VISIBLE);
+        mSecondaryText.setVisibility(subtitleExists ? VISIBLE : GONE);
     }
 
     private void addRange(final SliceItem range) {
