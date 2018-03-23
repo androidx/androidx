@@ -95,6 +95,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // When instantiated from saved state, this is the saved state.
     Bundle mSavedFragmentState;
     SparseArray<Parcelable> mSavedViewState;
+    // If the userVisibleHint is changed before the state is set,
+    // it is stored here
+    @Nullable Boolean mSavedUserVisibleHint;
 
     // Index into active fragment array.
     int mIndex = -1;
@@ -957,8 +960,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mSavedFragmentState != null) {
             // Ensure that if the user visible hint is set before the Fragment has
             // restored its state that we don't lose the new value
-            mSavedFragmentState.putBoolean(FragmentManagerImpl.USER_VISIBLE_HINT_TAG,
-                    mUserVisibleHint);
+            mSavedUserVisibleHint = mUserVisibleHint;
         }
     }
 

@@ -1334,8 +1334,13 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                                 f.mTargetRequestCode = f.mSavedFragmentState.getInt(
                                         FragmentManagerImpl.TARGET_REQUEST_CODE_STATE_TAG, 0);
                             }
-                            f.mUserVisibleHint = f.mSavedFragmentState.getBoolean(
-                                    FragmentManagerImpl.USER_VISIBLE_HINT_TAG, true);
+                            if (f.mSavedUserVisibleHint != null) {
+                                f.mUserVisibleHint = f.mSavedUserVisibleHint;
+                                f.mSavedUserVisibleHint = null;
+                            } else {
+                                f.mUserVisibleHint = f.mSavedFragmentState.getBoolean(
+                                        FragmentManagerImpl.USER_VISIBLE_HINT_TAG, true);
+                            }
                             if (!f.mUserVisibleHint) {
                                 f.mDeferStart = true;
                                 if (newState > Fragment.STOPPED) {
