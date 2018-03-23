@@ -16,13 +16,17 @@
 
 package androidx.core.graphics;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+
+import java.util.Objects;
 
 /**
  * A set of color-related utility methods, building upon those available in {@code Color}.
@@ -58,6 +62,69 @@ public final class ColorUtils {
                 Color.blue(background), bgAlpha, a);
 
         return Color.argb(a, r, g, b);
+    }
+
+    /**
+     * Composites two translucent colors together. More specifically, adds two colors using
+     * the {@linkplain android.graphics.PorterDuff.Mode#SRC_OVER source over} blending mode. The
+     * colors must not be pre-multiplied and the result is a non pre-multiplied color.
+     * <p>
+     * If the two colors have different color spaces, the foreground color is converted to the
+     * color space of the background color.
+     * <p>
+     * The following example creates a purple color by blending opaque blue with
+     * semi-translucent red:
+     *
+     * <pre>{@code
+     * Color purple = ColorUtils.compositeColors(
+     *         Color.valueOf(1f, 0f, 0f, 0.5f),
+     *         Color.valueOf(0f, 0f, 1f));
+     * }</pre>
+     *
+     * <em>Note:</em> This method requires API 26 or newer.
+     *
+     * @throws IllegalArgumentException if the
+     * {@linkplain android.graphics.Color#getModel models} of the colors do not match
+     */
+    @RequiresApi(26)
+    @NonNull
+    public static Color compositeColors(@NonNull Color foreground, @NonNull Color background) {
+        if (!Objects.equals(foreground.getModel(), background.getModel())) {
+            throw new IllegalArgumentException(
+                    "Color models must match (" + foreground.getModel() + " vs. "
+                            + background.getModel() + ")");
+        }
+
+        Color s = Objects.equals(background.getColorSpace(), foreground.getColorSpace())
+                ? foreground
+                : foreground.convert(background.getColorSpace());
+
+        float[] src = s.getComponents();
+        float[] dst = background.getComponents();
+
+        float sa = s.alpha();
+        // Destination alpha pre-composited
+        float da = background.alpha() * (1.0f - sa);
+
+        // Index of the alpha component
+        @SuppressLint("Range") // TODO Remove after upgrading Android Gradle Plugin to 3.1 or newer.
+        int ai = background.getComponentCount() - 1;
+
+        // Final alpha: src_alpha + dst_alpha * (1 - src_alpha)
+        dst[ai] = sa + da;
+
+        // Divide by final alpha to return non pre-multiplied color
+        if (dst[ai] > 0) {
+            sa /= dst[ai];
+            da /= dst[ai];
+        }
+
+        // Composite non-alpha components
+        for (int i = 0; i < ai; i++) {
+            dst[i] = src[i] * sa + dst[i] * da;
+        }
+
+        return Color.valueOf(dst, background.getColorSpace());
     }
 
     private static int compositeAlpha(int foregroundAlpha, int backgroundAlpha) {
