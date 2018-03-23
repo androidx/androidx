@@ -32,6 +32,7 @@ GENERATED_CONFIG="$JETIFIER_DIR/core/src/main/resources/default.generated.config
 PREPROCESSOR_DISTRO_PATH="$BUILD_DIR/jetifier-preprocessor/build/distributions/jetifier-preprocessor.zip"
 PREPROCESSOR_BIN_PATH="$OUT_DIR/jetifier-preprocessor/bin/jetifier-preprocessor"
 SUPPORT_LIBS_BUILD_NUMBER="4631572"
+APP_TOOLKIT_BUILD_NUMBER="4669041"
 SUPPORT_LIBS_DOWNLOADED="$OUT_DIR/supportLibs/downloaded"
 SUPPORT_LIBS_UNPACKED="$OUT_DIR/supportLibs/unpacked"
 
@@ -65,7 +66,6 @@ mkdir $OUT_DIR
 echo "OUT dir is at '$OUT_DIR'"
 
 function getPreRenamedSupportLib() {
-	INPUT_FILENAME="top-of-tree-m2repository-$SUPPORT_LIBS_BUILD_NUMBER.zip"
 	printSectionStart "Downloading all affected support libraries"
 	mkdir -p "$SUPPORT_LIBS_DOWNLOADED"
 
@@ -79,13 +79,13 @@ function getPreRenamedSupportLib() {
 	fi
 
 	cd "$SUPPORT_LIBS_DOWNLOADED"
-	"$FETCH_ARTIFACT" --bid "$SUPPORT_LIBS_BUILD_NUMBER" --target support_library "$INPUT_FILENAME" "$SUPPORT_LIBS_DOWNLOADED/support-lib-${SUPPORT_LIBS_BUILD_NUMBER}.zip"
-	"$FETCH_ARTIFACT" --bid "$SUPPORT_LIBS_BUILD_NUMBER" --target support_library_app_toolkit "$INPUT_FILENAME" "$SUPPORT_LIBS_DOWNLOADED/arch-${SUPPORT_LIBS_BUILD_NUMBER}.zip"
+	"$FETCH_ARTIFACT" --bid "$SUPPORT_LIBS_BUILD_NUMBER" --target support_library "top-of-tree-m2repository-$SUPPORT_LIBS_BUILD_NUMBER.zip" "$SUPPORT_LIBS_DOWNLOADED/support-lib.zip"
+	"$FETCH_ARTIFACT" --bid "$APP_TOOLKIT_BUILD_NUMBER" --target support_library_app_toolkit "top-of-tree-m2repository-$APP_TOOLKIT_BUILD_NUMBER.zip" "$SUPPORT_LIBS_DOWNLOADED/arch.zip"
 	cd -
 
 
-	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/support-lib-${SUPPORT_LIBS_BUILD_NUMBER}.zip" -d "$SUPPORT_LIBS_UNPACKED"
-	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/arch-${SUPPORT_LIBS_BUILD_NUMBER}.zip" -d "$SUPPORT_LIBS_UNPACKED"
+	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/support-lib.zip" -d "$SUPPORT_LIBS_UNPACKED"
+	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/arch.zip" -d "$SUPPORT_LIBS_UNPACKED"
 	find "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/" -type f -name "*design-*28.0.0*.aar" -exec cp '{}' -t "$SUPPORT_LIBS_UNPACKED" \;
 	find "$SUPPORT_LIBS_UNPACKED" -type f -name "jetifier*" -exec rm -f {} \;
 }
