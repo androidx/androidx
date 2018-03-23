@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,29 +21,23 @@ import androidx.build.SupportLibraryExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(project(":arch:core-common"))
-    api(project(":lifecycle:lifecycle-common"))
-    api(project(":lifecycle:lifecycle-livedata"))
-    api(project(":lifecycle:lifecycle-runtime"))
-    api(SUPPORT_ANNOTATIONS)
-    api(REACTIVE_STREAMS)
-
-    annotationProcessor(NULLAWAY)
+    api(project(":sqlite:sqlite"))
+    api(KOTLIN_STDLIB)
 
     testImplementation(JUNIT)
-    testImplementation(RX_JAVA)
-    testImplementation(project(":arch:core-testing"))
+    testImplementation(MOCKITO_CORE)
 }
 
 supportLibrary {
-    name = "Android Lifecycle Reactivestreams"
+    name = "Android DB KTX"
     publish = true
-    mavenVersion = LibraryVersions.LIFECYCLES_EXT
-    mavenGroup = LibraryGroups.LIFECYCLE
-    inceptionYear = "2017"
-    description = "Android Lifecycle Reactivestreams"
+    mavenVersion = LibraryVersions.ROOM
+    mavenGroup = LibraryGroups.PERSISTENCE
+    inceptionYear = "2018"
+    description = "Kotlin extensions for DB"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }
