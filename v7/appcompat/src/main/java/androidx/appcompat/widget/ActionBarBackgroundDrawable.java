@@ -18,12 +18,12 @@ package androidx.appcompat.widget;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
+import android.graphics.Outline;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.NonNull;
 
-@RequiresApi(9)
 class ActionBarBackgroundDrawable extends Drawable {
 
     final ActionBarContainer mContainer;
@@ -61,4 +61,17 @@ class ActionBarBackgroundDrawable extends Drawable {
         return PixelFormat.UNKNOWN;
     }
 
+    @Override
+    public void getOutline(@NonNull Outline outline) {
+        if (mContainer.mIsSplit) {
+            if (mContainer.mSplitBackground != null) {
+                mContainer.mSplitBackground.getOutline(outline);
+            }
+        } else {
+            // ignore the stacked background for shadow casting
+            if (mContainer.mBackground != null) {
+                mContainer.mBackground.getOutline(outline);
+            }
+        }
+    }
 }

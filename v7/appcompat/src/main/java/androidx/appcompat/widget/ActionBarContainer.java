@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -59,9 +58,7 @@ public class ActionBarContainer extends FrameLayout {
         super(context, attrs);
 
         // Set a transparent background so that we project appropriately.
-        final Drawable bg = Build.VERSION.SDK_INT >= 21
-                ? new ActionBarBackgroundDrawableV21(this)
-                : new ActionBarBackgroundDrawable(this);
+        final Drawable bg = new ActionBarBackgroundDrawable(this);
         ViewCompat.setBackground(this, bg);
 
         TypedArray a = context.obtainStyledAttributes(attrs,
