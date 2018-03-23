@@ -72,6 +72,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder addSeeMoreAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder addSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder);
     method public androidx.slice.builders.ListBuilder addSeeMoreRow(java.util.function.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
+    method public androidx.slice.builders.ListBuilder setColor(int);
     method public androidx.slice.builders.ListBuilder setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
     method public androidx.slice.builders.ListBuilder setHeader(java.util.function.Consumer<androidx.slice.builders.ListBuilder.HeaderBuilder>);
     method public androidx.slice.builders.ListBuilder setKeywords(java.util.List<java.lang.String>);
