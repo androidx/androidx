@@ -62,7 +62,6 @@ import androidx.annotation.StringRes;
 import androidx.collection.ArraySet;
 import androidx.core.util.DebugUtils;
 import androidx.core.util.LogWriter;
-import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelStore;
 
@@ -670,6 +669,16 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     static final String VIEW_STATE_TAG = "android:view_state";
     static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
+    private static final class FragmentLifecycleCallbacksHolder {
+        final FragmentLifecycleCallbacks mCallback;
+        final boolean mRecursive;
+
+        FragmentLifecycleCallbacksHolder(FragmentLifecycleCallbacks callback, boolean recursive) {
+            mCallback = callback;
+            mRecursive = recursive;
+        }
+    }
+
     ArrayList<OpGenerator> mPendingActions;
     boolean mExecutingActions;
 
@@ -685,7 +694,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     ArrayList<Integer> mAvailBackStackIndices;
 
     ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
-    private final CopyOnWriteArrayList<Pair<FragmentLifecycleCallbacks, Boolean>>
+    private final CopyOnWriteArrayList<FragmentLifecycleCallbacksHolder>
             mLifecycleCallbacks = new CopyOnWriteArrayList<>();
 
     int mCurState = Fragment.INITIALIZING;
@@ -3414,14 +3423,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     @Override
     public void registerFragmentLifecycleCallbacks(FragmentLifecycleCallbacks cb,
             boolean recursive) {
-        mLifecycleCallbacks.add(new Pair<>(cb, recursive));
+        mLifecycleCallbacks.add(new FragmentLifecycleCallbacksHolder(cb, recursive));
     }
 
     @Override
     public void unregisterFragmentLifecycleCallbacks(FragmentLifecycleCallbacks cb) {
         synchronized (mLifecycleCallbacks) {
             for (int i = 0, N = mLifecycleCallbacks.size(); i < N; i++) {
-                if (mLifecycleCallbacks.get(i).first == cb) {
+                if (mLifecycleCallbacks.get(i).mCallback == cb) {
                     mLifecycleCallbacks.remove(i);
                     break;
                 }
@@ -3438,9 +3447,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentPreAttached(f, context, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentPreAttached(this, f, context);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentPreAttached(this, f, context);
             }
         }
     }
@@ -3454,9 +3463,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentAttached(f, context, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentAttached(this, f, context);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentAttached(this, f, context);
             }
         }
     }
@@ -3470,9 +3479,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentPreCreated(f, savedInstanceState, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentPreCreated(this, f, savedInstanceState);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentPreCreated(this, f, savedInstanceState);
             }
         }
     }
@@ -3486,9 +3495,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentCreated(f, savedInstanceState, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentCreated(this, f, savedInstanceState);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentCreated(this, f, savedInstanceState);
             }
         }
     }
@@ -3502,9 +3511,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentActivityCreated(f, savedInstanceState, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentActivityCreated(this, f, savedInstanceState);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentActivityCreated(this, f, savedInstanceState);
             }
         }
     }
@@ -3518,9 +3527,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentViewCreated(f, v, savedInstanceState, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentViewCreated(this, f, v, savedInstanceState);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentViewCreated(this, f, v, savedInstanceState);
             }
         }
     }
@@ -3533,9 +3542,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentStarted(f, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentStarted(this, f);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentStarted(this, f);
             }
         }
     }
@@ -3548,9 +3557,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentResumed(f, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentResumed(this, f);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentResumed(this, f);
             }
         }
     }
@@ -3563,9 +3572,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentPaused(f, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentPaused(this, f);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentPaused(this, f);
             }
         }
     }
@@ -3578,9 +3587,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentStopped(f, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentStopped(this, f);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentStopped(this, f);
             }
         }
     }
@@ -3594,9 +3603,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentSaveInstanceState(f, outState, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentSaveInstanceState(this, f, outState);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentSaveInstanceState(this, f, outState);
             }
         }
     }
@@ -3609,9 +3618,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentViewDestroyed(f, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentViewDestroyed(this, f);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentViewDestroyed(this, f);
             }
         }
     }
@@ -3624,9 +3633,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentDestroyed(f, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentDestroyed(this, f);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentDestroyed(this, f);
             }
         }
     }
@@ -3639,9 +3648,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         .dispatchOnFragmentDetached(f, true);
             }
         }
-        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
-            if (!onlyRecursive || p.second) {
-                p.first.onFragmentDetached(this, f);
+        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
+            if (!onlyRecursive || holder.mRecursive) {
+                holder.mCallback.onFragmentDetached(this, f);
             }
         }
     }
