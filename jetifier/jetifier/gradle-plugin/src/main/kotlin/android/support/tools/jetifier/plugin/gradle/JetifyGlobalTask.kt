@@ -1,7 +1,7 @@
 package android.support.tools.jetifier.plugin.gradle
 
-import android.support.tools.jetifier.core.FileMapping
 import android.support.tools.jetifier.core.config.ConfigParser
+import android.support.tools.jetifier.processor.FileMapping
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration

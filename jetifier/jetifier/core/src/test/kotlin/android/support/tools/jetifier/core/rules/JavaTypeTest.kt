@@ -16,6 +16,7 @@
 
 package android.support.tools.jetifier.core.rules
 
+import android.support.tools.jetifier.core.type.JavaType
 import com.google.common.truth.Truth
 import org.junit.Test
 
