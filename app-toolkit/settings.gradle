@@ -59,6 +59,7 @@ includeProject(":lifecycle:lifecycle-extensions", new File(supportRoot, "lifecyc
 includeProject(":lifecycle:lifecycle-livedata-core", new File(supportRoot, "lifecycle/livedata-core"))
 includeProject(":lifecycle:lifecycle-livedata", new File(supportRoot, "lifecycle/livedata"))
 includeProject(":lifecycle:lifecycle-reactivestreams", new File(supportRoot, "lifecycle/reactivestreams"))
+includeProject(":lifecycle:lifecycle-reactivestreams-ktx", new File(supportRoot, "lifecycle/reactivestreams/ktx"))
 includeProject(":lifecycle:lifecycle-runtime", new File(supportRoot, "lifecycle/runtime"))
 includeProject(":lifecycle:lifecycle-viewmodel", new File(supportRoot, "lifecycle/viewmodel"))
 includeProject(":paging:integration-tests:testapp", new File(supportRoot, "paging/integration-tests/testapp"))
