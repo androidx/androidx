@@ -19,14 +19,6 @@ package androidx.car.drawer;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import androidx.annotation.AnimRes;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -34,10 +26,18 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 
-import java.util.ArrayDeque;
-
+import androidx.annotation.AnimRes;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.widget.Toolbar;
 import androidx.car.R;
 import androidx.car.widget.PagedListView;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayDeque;
 
 /**
  * A controller that will handle the set up of the navigation drawer. It will hook up the
@@ -105,6 +105,10 @@ public class CarDrawerController {
 
         resolveThemeColors();
         setupDrawerToggling();
+
+        // Update the colors of the drawer title and arrow. Since this is called when the controller
+        // is first created, the drawer will be closed.
+        updateTitleAndArrowColor(/* drawerOpen= */ false);
     }
 
     private void resolveThemeColors() {
@@ -134,9 +138,7 @@ public class CarDrawerController {
             mAdapterStack.removeLast();
         }
         mAdapterStack.addLast(rootAdapter);
-
-        setToolbarTitleFrom(rootAdapter);
-        mDrawerList.setAdapter(rootAdapter);
+        setDisplayAdapter(rootAdapter);
     }
 
     /**
@@ -200,10 +202,6 @@ public class CarDrawerController {
      * controller's internal Toolbar.
      */
     private void setToolbarTitleFrom(CarDrawerAdapter adapter) {
-        if (adapter.getTitle() == null) {
-            throw new RuntimeException("CarDrawerAdapter must supply a title via setTitle()");
-        }
-
         mToolbar.setTitle(adapter.getTitle());
         adapter.setTitleChangeListener(mToolbar::setTitle);
     }
