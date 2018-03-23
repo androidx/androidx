@@ -19,6 +19,7 @@ package androidx.webkit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -233,6 +234,24 @@ public class WebViewCompatTest {
             new URL(WebViewCompat.getSafeBrowsingPrivacyPolicyUrl().toString());
         } catch (MalformedURLException e) {
             Assert.fail("The privacy policy URL should be a well-formed URL");
+        }
+    }
+
+    /**
+     * WebViewCompat.getCurrentWebViewPackage should be null on pre-L devices.
+     * On L+ devices WebViewCompat.getCurrentWebViewPackage should be null only in exceptional
+     * circumstances - like when the WebView APK is being updated, or for Wear devices. The L+
+     * devices used in support library testing should have a non-null WebView package.
+     */
+    @Test
+    public void testGetCurrentWebViewPackage() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            assertNull(WebViewCompat.getCurrentWebViewPackage(
+                    InstrumentationRegistry.getTargetContext()));
+        } else {
+            assertNotNull(
+                    WebViewCompat.getCurrentWebViewPackage(
+                            InstrumentationRegistry.getTargetContext()));
         }
     }
 }
