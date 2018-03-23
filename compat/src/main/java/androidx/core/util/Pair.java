@@ -53,11 +53,7 @@ public class Pair<F, S> {
             return false;
         }
         Pair<?, ?> p = (Pair<?, ?>) o;
-        return objectsEqual(p.first, first) && objectsEqual(p.second, second);
-    }
-
-    private static boolean objectsEqual(Object a, Object b) {
-        return a == b || (a != null && a.equals(b));
+        return ObjectsCompat.equals(p.first, first) && ObjectsCompat.equals(p.second, second);
     }
 
     /**
