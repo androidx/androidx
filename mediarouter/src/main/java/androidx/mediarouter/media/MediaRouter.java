@@ -43,6 +43,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.hardware.display.DisplayManagerCompat;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.VolumeProviderCompat;
 import androidx.mediarouter.app.MediaRouteDiscoveryFragment;
@@ -783,10 +784,6 @@ public final class MediaRouter {
         }
     }
 
-    static <T> boolean equal(T a, T b) {
-        return a == b || (a != null && b != null && a.equals(b));
-    }
-
     /**
      * Provides information about a media route.
      * <p>
@@ -1490,15 +1487,15 @@ public final class MediaRouter {
             int changes = 0;
             mDescriptor = descriptor;
             if (descriptor != null) {
-                if (!equal(mName, descriptor.getName())) {
+                if (!ObjectsCompat.equals(mName, descriptor.getName())) {
                     mName = descriptor.getName();
                     changes |= CHANGE_GENERAL;
                 }
-                if (!equal(mDescription, descriptor.getDescription())) {
+                if (!ObjectsCompat.equals(mDescription, descriptor.getDescription())) {
                     mDescription = descriptor.getDescription();
                     changes |= CHANGE_GENERAL;
                 }
-                if (!equal(mIconUri, descriptor.getIconUri())) {
+                if (!ObjectsCompat.equals(mIconUri, descriptor.getIconUri())) {
                     mIconUri = descriptor.getIconUri();
                     changes |= CHANGE_GENERAL;
                 }
@@ -1548,11 +1545,11 @@ public final class MediaRouter {
                     mPresentationDisplay = null;
                     changes |= CHANGE_GENERAL | CHANGE_PRESENTATION_DISPLAY;
                 }
-                if (!equal(mExtras, descriptor.getExtras())) {
+                if (!ObjectsCompat.equals(mExtras, descriptor.getExtras())) {
                     mExtras = descriptor.getExtras();
                     changes |= CHANGE_GENERAL;
                 }
-                if (!equal(mSettingsIntent, descriptor.getSettingsActivity())) {
+                if (!ObjectsCompat.equals(mSettingsIntent, descriptor.getSettingsActivity())) {
                     mSettingsIntent = descriptor.getSettingsActivity();
                     changes |= CHANGE_GENERAL;
                 }
