@@ -89,7 +89,18 @@ function getPreRenamedSupportLib() {
 	find "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/" -type f -name "*design-*28.0.0*.aar" -exec cp '{}' -t "$SUPPORT_LIBS_UNPACKED" \;
 	find "$SUPPORT_LIBS_UNPACKED" -type f -name "jetifier*" -exec rm -f {} \;
 }
+
+DATA_BINDING_VERSION=`curl https://dl.google.com/dl/android/maven2/com/android/databinding/baseLibrary/maven-metadata.xml|xmllint --format -|grep latest|awk '{split($NAME,a,"[><]"); print a[3]}'`
+function pullDataBinding() {
+	NAME=$1
+	TYPE=$2
+	curl "https://dl.google.com/dl/android/maven2/com/android/databinding/$NAME/$DATA_BINDING_VERSION/$NAME-$DATA_BINDING_VERSION.$TYPE" -o "$SUPPORT_LIBS_UNPACKED/databinding-$NAME.$TYPE"
+}
+
 getPreRenamedSupportLib
+pullDataBinding "baseLibrary" "jar"
+pullDataBinding "adapters" "aar"
+pullDataBinding "library" "aar"
 
 printSectionStart "Preparing Jetifier"
 buildProjectUsingGradle $JETIFIER_DIR/../..
