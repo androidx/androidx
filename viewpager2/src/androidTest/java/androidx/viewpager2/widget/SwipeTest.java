@@ -92,7 +92,7 @@ public class SwipeTest {
             // value change
             if (mTestConfig.mStepToNewValue.containsKey(currentStep)) {
                 expectedValues[currentPage] = mTestConfig.mStepToNewValue.get(currentStep);
-                activity.updatePage(currentPage, expectedValues[currentPage]);
+                updatePage(currentPage, expectedValues[currentPage], activity);
                 assertStateCorrect(expectedValues[currentPage], activity);
             }
 
@@ -107,6 +107,16 @@ public class SwipeTest {
             currentPage = nextPage;
             assertStateCorrect(expectedValues[currentPage], activity);
         }
+    }
+
+    private static void updatePage(final int pageIx, final int newValue,
+            final BaseActivity activity) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.updatePage(pageIx, newValue);
+            }
+        });
     }
 
     private void assertStateCorrect(int expectedValue, BaseActivity activity) {
