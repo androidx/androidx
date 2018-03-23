@@ -31,6 +31,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -85,6 +86,11 @@ class SliceManagerWrapper extends SliceManagerBase {
     @Override
     public androidx.slice.Slice bindSlice(@NonNull Intent intent) {
         return SliceConvert.wrap(mManager.bindSlice(intent, mSpecs));
+    }
+
+    @Override
+    public Collection<Uri> getSliceDescendants(Uri uri) {
+        return mManager.getSliceDescendants(uri);
     }
 
     @Nullable
