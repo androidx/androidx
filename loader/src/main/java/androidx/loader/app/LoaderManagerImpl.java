@@ -380,6 +380,10 @@ class LoaderManagerImpl extends LoaderManager {
         try {
             mLoaderViewModel.startCreatingLoader();
             Loader<D> loader = callback.onCreateLoader(id, args);
+            if (loader == null) {
+                throw new IllegalArgumentException("Object returned from onCreateLoader "
+                        + "must not be null");
+            }
             if (loader.getClass().isMemberClass()
                     && !Modifier.isStatic(loader.getClass().getModifiers())) {
                 throw new IllegalArgumentException("Object returned from onCreateLoader "
