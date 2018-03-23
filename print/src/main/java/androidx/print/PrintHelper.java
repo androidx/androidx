@@ -112,6 +112,10 @@ public final class PrintHelper {
 
     private final PrintHelperStub mImpl;
 
+    @ScaleMode int mScaleMode = SCALE_MODE_FILL;
+    @ColorMode int mColorMode = COLOR_MODE_COLOR;
+    @Orientation int mOrientation = ORIENTATION_LANDSCAPE;
+
     /**
      * Gets whether the system supports printing.
      *
@@ -126,37 +130,6 @@ public final class PrintHelper {
      * Implementation used when we do not support printing
      */
     private static class PrintHelperStub {
-        @ScaleMode int mScaleMode = SCALE_MODE_FILL;
-        @ColorMode int mColorMode = COLOR_MODE_COLOR;
-        @Orientation int mOrientation = ORIENTATION_LANDSCAPE;
-
-        public void setScaleMode(@ScaleMode int scaleMode) {
-            mScaleMode = scaleMode;
-        }
-
-        @ScaleMode
-        public int getScaleMode() {
-            return mScaleMode;
-        }
-
-        @ColorMode
-        public int getColorMode() {
-            return mColorMode;
-        }
-
-        public void setColorMode(@ColorMode int colorMode) {
-            mColorMode = colorMode;
-        }
-
-        public void setOrientation(@Orientation int orientation) {
-            mOrientation = orientation;
-        }
-
-        @Orientation
-        public int getOrientation() {
-            return mOrientation;
-        }
-
         public void printBitmap(String jobName, Bitmap bitmap, OnPrintFinishCallback callback) {
         }
 
@@ -169,7 +142,7 @@ public final class PrintHelper {
      * Kitkat specific PrintManager API implementation.
      */
     @RequiresApi(19)
-    private static class PrintHelperApi19 extends PrintHelperStub {
+    private class PrintHelperApi19 extends PrintHelperStub {
         private static final String LOG_TAG = "PrintHelperApi19";
         // will be <= 300 dpi on A4 (8.3×11.7) paper (worst case of 150 dpi)
         private static final int MAX_PRINT_SIZE = 3500;
@@ -191,93 +164,8 @@ public final class PrintHelper {
          */
         private final boolean mIsMinMarginsHandlingCorrect = Build.VERSION.SDK_INT != 23;
 
-        @ScaleMode int mScaleMode = SCALE_MODE_FILL;
-
-        @ColorMode int mColorMode = COLOR_MODE_COLOR;
-
-        @Orientation int mOrientation;
-
         PrintHelperApi19(Context context) {
             mContext = context;
-        }
-
-        /**
-         * Selects whether the image will fill the paper and be cropped
-         * <p/>
-         * {@link #SCALE_MODE_FIT}
-         * or whether the image will be scaled but leave white space
-         * {@link #SCALE_MODE_FILL}.
-         *
-         * @param scaleMode {@link #SCALE_MODE_FIT} or
-         *                  {@link #SCALE_MODE_FILL}
-         */
-        @Override
-        public void setScaleMode(@ScaleMode int scaleMode) {
-            mScaleMode = scaleMode;
-        }
-
-        /**
-         * Returns the scale mode with which the image will fill the paper.
-         *
-         * @return The scale Mode: {@link #SCALE_MODE_FIT} or
-         * {@link #SCALE_MODE_FILL}
-         */
-        @ScaleMode
-        @Override
-        public int getScaleMode() {
-            return mScaleMode;
-        }
-
-        /**
-         * Sets whether the image will be printed in color (default)
-         * {@link #COLOR_MODE_COLOR} or in back and white
-         * {@link #COLOR_MODE_MONOCHROME}.
-         *
-         * @param colorMode The color mode which is one of
-         *                  {@link #COLOR_MODE_COLOR} and {@link #COLOR_MODE_MONOCHROME}.
-         */
-        @Override
-        public void setColorMode(@ColorMode int colorMode) {
-            mColorMode = colorMode;
-        }
-
-        /**
-         * Sets whether to select landscape (default), {@link #ORIENTATION_LANDSCAPE}
-         * or portrait {@link #ORIENTATION_PORTRAIT}
-         * @param orientation The page orientation which is one of
-         *                    {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}.
-         */
-        @Override
-        public void setOrientation(@Orientation int orientation) {
-            mOrientation = orientation;
-        }
-
-        /**
-         * Gets the page orientation with which the image will be printed.
-         *
-         * @return The preferred orientation which is one of
-         * {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}
-         */
-        @Orientation
-        @Override
-        public int getOrientation() {
-            /// Unset defaults to landscape but might turn image
-            if (mOrientation == 0) {
-                return ORIENTATION_LANDSCAPE;
-            }
-            return mOrientation;
-        }
-
-        /**
-         * Gets the color mode with which the image will be printed.
-         *
-         * @return The color mode which is one of {@link #COLOR_MODE_COLOR}
-         * and {@link #COLOR_MODE_MONOCHROME}.
-         */
-        @ColorMode
-        @Override
-        public int getColorMode() {
-            return mColorMode;
         }
 
         /**
@@ -286,7 +174,7 @@ public final class PrintHelper {
          * @param bitmap The bitmap to be printed.
          * @return true iff the picture should best be printed on a portrait orientation paper.
          */
-        private static boolean isPortrait(Bitmap bitmap) {
+        private boolean isPortrait(Bitmap bitmap) {
             return bitmap.getWidth() <= bitmap.getHeight();
         }
 
@@ -833,7 +721,7 @@ public final class PrintHelper {
      *                  {@link #SCALE_MODE_FILL}
      */
     public void setScaleMode(@ScaleMode int scaleMode) {
-        mImpl.setScaleMode(scaleMode);
+        mScaleMode = scaleMode;
     }
 
     /**
@@ -844,7 +732,7 @@ public final class PrintHelper {
      */
     @ScaleMode
     public int getScaleMode() {
-        return mImpl.getScaleMode();
+        return mScaleMode;
     }
 
     /**
@@ -856,7 +744,7 @@ public final class PrintHelper {
      * {@link #COLOR_MODE_COLOR} and {@link #COLOR_MODE_MONOCHROME}.
      */
     public void setColorMode(@ColorMode int colorMode) {
-        mImpl.setColorMode(colorMode);
+        mColorMode = colorMode;
     }
 
     /**
@@ -867,7 +755,7 @@ public final class PrintHelper {
      */
     @ColorMode
     public int getColorMode() {
-        return mImpl.getColorMode();
+        return mColorMode;
     }
 
     /**
@@ -878,7 +766,7 @@ public final class PrintHelper {
      *                    {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}.
      */
     public void setOrientation(int orientation) {
-        mImpl.setOrientation(orientation);
+        mOrientation = orientation;
     }
 
     /**
@@ -888,7 +776,11 @@ public final class PrintHelper {
      * {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}.
      */
     public int getOrientation() {
-        return mImpl.getOrientation();
+        // Unset defaults to landscape but might turn image
+        if (Build.VERSION.SDK_INT >= 19 && mOrientation == 0) {
+            return ORIENTATION_LANDSCAPE;
+        }
+        return mOrientation;
     }
 
 
