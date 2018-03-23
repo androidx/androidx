@@ -32,7 +32,7 @@ import androidx.core.os.BuildCompat;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.internal.WebViewProviderAdapter;
-import androidx.webkit.internal.WebViewProviderFactoryAdapter;
+import androidx.webkit.internal.WebViewProviderFactory;
 
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 
@@ -307,7 +307,7 @@ public class WebViewCompat {
         return new WebViewProviderAdapter(createProvider(webview));
     }
 
-    private static WebViewProviderFactoryAdapter getFactory() {
+    private static WebViewProviderFactory getFactory() {
         return WebViewGlueCommunicator.getFactory();
     }
 

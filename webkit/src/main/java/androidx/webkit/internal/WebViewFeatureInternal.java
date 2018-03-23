@@ -77,6 +77,11 @@ public enum WebViewFeatureInternal {
                 WebViewGlueCommunicator.getFactory().getWebViewFeatures();
     }
 
+
+    public static String[] getWebViewApkFeaturesForTesting() {
+        return LAZY_HOLDER.WEBVIEW_APK_FEATURES;
+    }
+
     /**
      * Utility method for throwing an exception explaining that the feature the app trying to use
      * isn't supported.
