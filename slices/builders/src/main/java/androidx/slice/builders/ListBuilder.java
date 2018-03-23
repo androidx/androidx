@@ -229,10 +229,17 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Sets the color to tint items displayed by this template (e.g. icons).
-     * @hide
+     * Sets the color to use on tintable items within the list builder.
+     * Things that might be tinted are:
+     * <ul>
+     *     <li>Any {@link SliceAction}s within your slice.
+     *     </li>
+     *     <li>UI controls such as {@link android.widget.Switch}s or {@link android.widget.SeekBar}s
+     *     </li>
+     *     <li>Tinting the {@link androidx.slice.widget.SliceView#MODE_SHORTCUT} representation
+     *     </li>
+     * </ul>
      */
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public ListBuilder setColor(@ColorInt int color) {
         mImpl.setColor(color);
