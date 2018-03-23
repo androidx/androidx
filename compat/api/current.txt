@@ -870,6 +870,7 @@ package androidx.core.graphics {
     method public static void colorToLAB(int, double[]);
     method public static void colorToXYZ(int, double[]);
     method public static int compositeColors(int, int);
+    method public static android.graphics.Color compositeColors(android.graphics.Color, android.graphics.Color);
     method public static double distanceEuclidean(double[], double[]);
     method public static int setAlphaComponent(int, int);
   }
