@@ -33,6 +33,7 @@ import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.provider.Settings;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.SparseArray;
@@ -580,27 +581,34 @@ public class SampleSliceProvider extends SliceProvider {
             update(1500, mListSummaries, 1, "12 miles | 12 min | $9.00", sliceUri, r);
             update(1700, mListSummaries, 2, "5 miles | 10 min | $8.00", sliceUri, r);
         }
-        Slice s = new ListBuilder(getContext(), sliceUri, -TimeUnit.MINUTES.toMillis(5))
+        CharSequence work = mListSummaries.get(0, "");
+        CharSequence home = mListSummaries.get(1, "");
+        CharSequence school = mListSummaries.get(2, "");
+        Slice s = new ListBuilder(getContext(), sliceUri, -TimeUnit.MINUTES.toMillis(50))
                 .addRow(b -> b
                         .setTitle("Work")
-                        .setSubtitle(mListSummaries.get(0, ""), updating)
+                        .setSubtitle(work,
+                                updating || TextUtils.isEmpty(work))
                         .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_work),
                                 ICON_IMAGE))
                 .addRow(b -> b
                         .setTitle("Home")
-                        .setSubtitle(mListSummaries.get(1, ""), updating)
+                        .setSubtitle(mListSummaries.get(1, ""),
+                                updating || TextUtils.isEmpty(home))
                         .addEndItem(
                                 Icon.createWithResource(getContext(), R.drawable.ic_home),
                                 ICON_IMAGE))
                 .addRow(b -> b
                         .setTitle("School")
-                        .setSubtitle(mListSummaries.get(2, ""), updating)
+                        .setSubtitle(mListSummaries.get(2, ""),
+                                updating || TextUtils.isEmpty(school))
                         .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_school),
                                 ICON_IMAGE))
                 .build();
         return s;
     }
 
+    // TODO: Should test large image grids
     private Slice createLoadingGridSlice(Uri sliceUri) {
         boolean updating = mGridLastUpdate == 0
                 || mGridLastUpdate < (System.currentTimeMillis() - 10 * System.currentTimeMillis());
@@ -613,26 +621,36 @@ public class SampleSliceProvider extends SliceProvider {
             update(1500, mGridSummaries, 3, "33 min", sliceUri, r);
             update(1000, mGridSummaries, 4, "12 min", sliceUri, r);
         }
+        CharSequence title = mGridSummaries.get(0, "");
+        CharSequence subtitle = mGridSummaries.get(1, "");
+        CharSequence home = mGridSummaries.get(2, "");
+        CharSequence work = mGridSummaries.get(3, "");
+        CharSequence school = mGridSummaries.get(4, "");
         Slice s = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setHeader(hb -> hb
-                        .setTitle(mGridSummaries.get(0, ""), updating)
-                        .setSubtitle(mGridSummaries.get(1, ""), updating))
+                        .setTitle(title,
+                                updating || TextUtils.isEmpty(title))
+                        .setSubtitle(subtitle,
+                                updating || TextUtils.isEmpty(subtitle)))
                 .addGrid(gb -> gb
                     .addCell(cb -> cb
                             .addImage(Icon.createWithResource(getContext(), R.drawable.ic_home),
                                     ICON_IMAGE)
                             .addTitleText("Home")
-                            .addText(mGridSummaries.get(2, ""), updating))
+                            .addText(home,
+                                    updating || TextUtils.isEmpty(home)))
                     .addCell(cb -> cb
                             .addImage(Icon.createWithResource(getContext(), R.drawable.ic_work),
                                     ICON_IMAGE)
                             .addTitleText("Work")
-                            .addText(mGridSummaries.get(3, ""), updating))
+                            .addText(work,
+                                    updating || TextUtils.isEmpty(work)))
                     .addCell(cb -> cb
                             .addImage(Icon.createWithResource(getContext(), R.drawable.ic_school),
                                     ICON_IMAGE)
                             .addTitleText("School")
-                            .addText(mGridSummaries.get(4, ""), updating)))
+                            .addText(school,
+                                    updating || TextUtils.isEmpty(school))))
                     .build();
         return s;
     }
