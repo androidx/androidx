@@ -23,6 +23,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -41,9 +42,11 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.transition.test.R;
 
 import org.junit.Before;
 import org.junit.Test;
+
 
 @MediumTest
 public class FadeTest extends BaseTest {
@@ -210,6 +213,51 @@ public class FadeTest extends BaseTest {
         // Confirm that the view still has the original alpha value
         assertThat(mView.getVisibility(), is(View.VISIBLE));
         assertEquals(0.5f, mView.getAlpha(), 0.01f);
+    }
+
+    // After a transition, a transitioned view as part of a scene should not be removed
+    @Test
+    public void endVisibilityIsCorrect() throws Throwable {
+        final TransitionActivity activity = rule.getActivity();
+        final Scene[] scenes = new Scene[2];
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View view = activity.getLayoutInflater().inflate(R.layout.scene11, mRoot, false);
+
+                scenes[0] = new Scene(mRoot, view);
+                scenes[0].enter();
+                scenes[1] = Scene.getSceneForLayout(mRoot, R.layout.scene12, activity);
+            }
+        });
+
+        assertNotNull(activity.findViewById(R.id.redSquare));
+
+        // We don't really care how short the duration is, so let's make it really short
+        final Fade fade = new Fade();
+        fade.setDuration(1);
+        Transition.TransitionListener listener = mock(Transition.TransitionListener.class);
+        fade.addListener(listener);
+
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.go(scenes[1], fade);
+            }
+        });
+        // should be much shorter than 1 second, but why worry about it?
+        verify(listener, timeout(1000)).onTransitionEnd(any(Transition.class));
+
+        assertNotNull(activity.findViewById(R.id.redSquare));
+
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.go(scenes[0], fade);
+            }
+        });
+        verify(listener, timeout(1000)).onTransitionStart(any(Transition.class));
+        assertNotNull(activity.findViewById(R.id.redSquare));
     }
 
     private void changeVisibility(final Fade fade, final ViewGroup container, final View target,
