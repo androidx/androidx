@@ -21,15 +21,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import android.support.test.filters.SmallTest;
-
 import androidx.annotation.Nullable;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.executor.TaskExecutor;
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -47,8 +45,9 @@ import io.reactivex.processors.ReplayProcessor;
 import io.reactivex.schedulers.TestScheduler;
 import io.reactivex.subjects.AsyncSubject;
 
-@SmallTest
 public class LiveDataReactiveStreamsTest {
+    @Rule public final TestRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+
     private LifecycleOwner mLifecycleOwner;
 
     private final List<String> mLiveDataOutput = new ArrayList<>();
@@ -62,7 +61,6 @@ public class LiveDataReactiveStreamsTest {
     private final ReplayProcessor<String> mOutputProcessor = ReplayProcessor.create();
 
     private static final TestScheduler sBackgroundScheduler = new TestScheduler();
-    private Thread mTestThread;
 
     @Before
     public void init() {
@@ -77,31 +75,6 @@ public class LiveDataReactiveStreamsTest {
                 return mRegistry;
             }
         };
-        mTestThread = Thread.currentThread();
-        ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
-
-            @Override
-            public void executeOnDiskIO(Runnable runnable) {
-                throw new IllegalStateException();
-            }
-
-            @Override
-            public void postToMainThread(Runnable runnable) {
-                // Wrong implementation, but it is fine for test
-                runnable.run();
-            }
-
-            @Override
-            public boolean isMainThread() {
-                return Thread.currentThread() == mTestThread;
-            }
-
-        });
-    }
-
-    @After
-    public void removeExecutorDelegate() {
-        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     @Test

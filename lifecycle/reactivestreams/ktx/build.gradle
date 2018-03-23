@@ -20,30 +20,26 @@ import androidx.build.LibraryVersions
 import androidx.build.SupportLibraryExtension
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+  id("SupportAndroidLibraryPlugin")
+  id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    api(project(":arch:core-common"))
-    api(project(":lifecycle:lifecycle-common"))
-    api(project(":lifecycle:lifecycle-livedata"))
-    api(project(":lifecycle:lifecycle-runtime"))
-    api(SUPPORT_ANNOTATIONS)
-    api(REACTIVE_STREAMS)
+  api(project(":lifecycle:lifecycle-reactivestreams"))
+  api(KOTLIN_STDLIB)
 
-    annotationProcessor(NULLAWAY)
-
-    testImplementation(JUNIT)
-    testImplementation(RX_JAVA)
-    testImplementation(project(":arch:core-testing"))
+  testImplementation(JUNIT)
+  testImplementation(RX_JAVA)
+  testImplementation(TRUTH)
+  testImplementation(project(":arch:core-testing"))
 }
 
 supportLibrary {
-    name = "Android Lifecycle Reactivestreams"
-    publish = true
-    mavenVersion = LibraryVersions.LIFECYCLES_EXT
-    mavenGroup = LibraryGroups.LIFECYCLE
-    inceptionYear = "2017"
-    description = "Android Lifecycle Reactivestreams"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+  name = "Android Lifecycle ReactiveStreams KTX"
+  publish = true
+  mavenVersion = LibraryVersions.LIFECYCLES_EXT
+  mavenGroup = LibraryGroups.LIFECYCLE
+  inceptionYear = "2018"
+  description = "Kotlin extensions for Lifecycle ReactiveStreams"
+  url = SupportLibraryExtension.ARCHITECTURE_URL
 }
