@@ -17,6 +17,7 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_SUMMARY;
@@ -273,7 +274,9 @@ public class RowContent {
     }
 
     private static boolean hasText(SliceItem textSlice) {
-        return textSlice != null && !TextUtils.isEmpty(textSlice.getText());
+        return textSlice != null
+                && (textSlice.hasHint(HINT_PARTIAL)
+                    || !TextUtils.isEmpty(textSlice.getText()));
     }
 
     /**
