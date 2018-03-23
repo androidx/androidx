@@ -244,6 +244,66 @@ class PackageMap(private val rules: List<PackageRule>) {
             PackageRule(
                 from = "androidx/slice/builders",
                 to = "androidx/slice/builders"
+            ),
+            PackageRule(
+                from = "android/arch/paging/runtime",
+                to = "androidx/paging/runtime"
+            ),
+            PackageRule(
+                from = "android/arch/core/testing",
+                to = "androidx/arch/core/testing"
+            ),
+            PackageRule(
+                from = "android/arch/core",
+                to = "androidx/arch/core"
+            ),
+            PackageRule(
+                from = "android/arch/persistence/db/framework",
+                to = "androidx/sqlite/db/framework"
+            ),
+            PackageRule(
+                from = "android/arch/persistence/db",
+                to = "androidx/sqlite/db"
+            ),
+            PackageRule(
+                from = "android/arch/persistence/room/rxjava2",
+                to = "androidx/room/rxjava2"
+            ),
+            PackageRule(
+                from = "android/arch/persistence/room/guava",
+                to = "androidx/room/guava"
+            ),
+            PackageRule(
+                from = "android/arch/persistence/room/testing",
+                to = "androidx/room/testing"
+            ),
+            PackageRule(
+                from = "android/arch/persistence/room",
+                to = "androidx/room"
+            ),
+            PackageRule(
+                from = "android/arch/lifecycle/extensions",
+                to = "androidx/lifecycle/extensions"
+            ),
+            PackageRule(
+                from = "android/arch/lifecycle/livedata/core",
+                to = "androidx/lifecycle/livedata/core"
+            ),
+            PackageRule(
+                from = "android/arch/lifecycle",
+                to = "androidx/lifecycle"
+            ),
+            PackageRule(
+                from = "android/arch/lifecycle/viewmodel",
+                to = "androidx/lifecycle/viewmodel"
+            ),
+            PackageRule(
+                from = "android/arch/lifecycle/livedata",
+                to = "androidx/lifecycle/livedata"
+            ),
+            PackageRule(
+                from = "android/arch/lifecycle/reactivestreams",
+                to = "androidx/lifecycle/reactivestreams"
             )
         )
 
