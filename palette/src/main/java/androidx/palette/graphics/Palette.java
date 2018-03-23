@@ -80,9 +80,10 @@ public final class Palette {
     public interface PaletteAsyncListener {
 
         /**
-         * Called when the {@link Palette} has been generated.
+         * Called when the {@link Palette} has been generated. {@code null} will be passed when an
+         * error occurred during generation.
          */
-        void onGenerated(@NonNull Palette palette);
+        void onGenerated(@Nullable Palette palette);
     }
 
     static final int DEFAULT_RESIZE_BITMAP_AREA = 112 * 112;
@@ -152,7 +153,7 @@ public final class Palette {
     private final Map<Target, Swatch> mSelectedSwatches;
     private final SparseBooleanArray mUsedColors;
 
-    private final Swatch mDominantSwatch;
+    @Nullable private final Swatch mDominantSwatch;
 
     Palette(List<Swatch> swatches, List<Target> targets) {
         mSwatches = swatches;
@@ -360,6 +361,7 @@ public final class Palette {
         mUsedColors.clear();
     }
 
+    @Nullable
     private Swatch generateScoredTarget(final Target target) {
         final Swatch maxScoreSwatch = getMaxScoredSwatchForTarget(target);
         if (maxScoreSwatch != null && target.isExclusive()) {
@@ -369,6 +371,7 @@ public final class Palette {
         return maxScoreSwatch;
     }
 
+    @Nullable
     private Swatch getMaxScoredSwatchForTarget(final Target target) {
         float maxScore = 0;
         Swatch maxScoreSwatch = null;
@@ -419,6 +422,7 @@ public final class Palette {
         return saturationScore + luminanceScore + populationScore;
     }
 
+    @Nullable
     private Swatch findDominantSwatch() {
         int maxPop = Integer.MIN_VALUE;
         Swatch maxSwatch = null;
@@ -430,12 +434,6 @@ public final class Palette {
             }
         }
         return maxSwatch;
-    }
-
-    private static float[] copyHslValues(Swatch color) {
-        final float[] newHsl = new float[3];
-        System.arraycopy(color.getHsl(), 0, newHsl, 0, 3);
-        return newHsl;
     }
 
     /**
@@ -451,7 +449,7 @@ public final class Palette {
         private int mTitleTextColor;
         private int mBodyTextColor;
 
-        private float[] mHsl;
+        @Nullable private float[] mHsl;
 
         public Swatch(@ColorInt int color, int population) {
             mRed = Color.red(color);
@@ -600,8 +598,8 @@ public final class Palette {
      * Builder class for generating {@link Palette} instances.
      */
     public static final class Builder {
-        private final List<Swatch> mSwatches;
-        private final Bitmap mBitmap;
+        @Nullable private final List<Swatch> mSwatches;
+        @Nullable private final Bitmap mBitmap;
 
         private final List<Target> mTargets = new ArrayList<>();
 
@@ -610,7 +608,7 @@ public final class Palette {
         private int mResizeMaxDimension = -1;
 
         private final List<Filter> mFilters = new ArrayList<>();
-        private Rect mRegion;
+        @Nullable private Rect mRegion;
 
         /**
          * Construct a new {@link Builder} using a source {@link Bitmap}
@@ -831,9 +829,12 @@ public final class Palette {
                 if (logger != null) {
                     logger.addSplit("Color quantization completed");
                 }
-            } else {
+            } else if (mSwatches != null) {
                 // Else we're using the provided swatches
                 swatches = mSwatches;
+            } else {
+                // The constructors enforce either a bitmap or swatches are present.
+                throw new AssertionError();
             }
 
             // Now create a Palette instance
@@ -863,6 +864,7 @@ public final class Palette {
 
             return new AsyncTask<Bitmap, Void, Palette>() {
                 @Override
+                @Nullable
                 protected Palette doInBackground(Bitmap... params) {
                     try {
                         return generate();
@@ -873,7 +875,7 @@ public final class Palette {
                 }
 
                 @Override
-                protected void onPostExecute(Palette colorExtractor) {
+                protected void onPostExecute(@Nullable Palette colorExtractor) {
                     listener.onGenerated(colorExtractor);
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mBitmap);
