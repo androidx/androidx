@@ -24,6 +24,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -35,6 +36,7 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -240,6 +242,9 @@ public class DrawerLayout extends ViewGroup {
     private Drawable mShadowRight = null;
 
     private final ArrayList<View> mNonDrawerViews;
+
+    private Rect mChildHitRect;
+    private Matrix mChildInvertedMatrix;
 
     /**
      * Listener for monitoring events about drawers.
@@ -748,6 +753,59 @@ public class DrawerLayout extends ViewGroup {
             return mTitleRight;
         }
         return null;
+    }
+
+    /**
+     * Returns true if x and y coord in DrawerLayout's coordinate space are inside the bounds of the
+     * child's coordinate space.
+     */
+    private boolean isInBoundsOfChild(float x, float y, View child) {
+        if (mChildHitRect == null) {
+            mChildHitRect = new Rect();
+        }
+        child.getHitRect(mChildHitRect);
+        return mChildHitRect.contains((int) x, (int) y);
+    }
+
+    /**
+     * Copied from ViewGroup#dispatchTransformedGenericPointerEvent(MotionEvent, View) then modified
+     * in order to make calls that are otherwise too visibility restricted to make.
+     */
+    private boolean dispatchTransformedGenericPointerEvent(MotionEvent event, View child) {
+        boolean handled;
+        final Matrix childMatrix = child.getMatrix();
+        if (!childMatrix.isIdentity()) {
+            MotionEvent transformedEvent = getTransformedMotionEvent(event, child);
+            handled = child.dispatchGenericMotionEvent(transformedEvent);
+            transformedEvent.recycle();
+        } else {
+            final float offsetX = getScrollX() - child.getLeft();
+            final float offsetY = getScrollY() - child.getTop();
+            event.offsetLocation(offsetX, offsetY);
+            handled = child.dispatchGenericMotionEvent(event);
+            event.offsetLocation(-offsetX, -offsetY);
+        }
+        return handled;
+    }
+
+    /**
+     * Copied from ViewGroup#getTransformedMotionEvent(MotionEvent, View) then  modified in order to
+     * make calls that are otherwise too visibility restricted to make.
+     */
+    private MotionEvent getTransformedMotionEvent(MotionEvent event, View child) {
+        final float offsetX = getScrollX() - child.getLeft();
+        final float offsetY = getScrollY() - child.getTop();
+        final MotionEvent transformedEvent = MotionEvent.obtain(event);
+        transformedEvent.offsetLocation(offsetX, offsetY);
+        final Matrix childMatrix = child.getMatrix();
+        if (!childMatrix.isIdentity()) {
+            if (mChildInvertedMatrix == null) {
+                mChildInvertedMatrix = new Matrix();
+            }
+            childMatrix.invert(mChildInvertedMatrix);
+            transformedEvent.transform(mChildInvertedMatrix);
+        }
+        return transformedEvent;
     }
 
     /**
@@ -1469,6 +1527,43 @@ public class DrawerLayout extends ViewGroup {
         }
 
         return interceptForDrag || interceptForTap || hasPeekingDrawer() || mChildrenCanceledTouch;
+    }
+
+    @Override
+    public boolean dispatchGenericMotionEvent(MotionEvent event) {
+
+        // If this is not a pointer event, or if this is an hover exit, or we are not displaying
+        // that the content view can't be interacted with, then don't override and do anything
+        // special.
+        if ((event.getSource() & InputDevice.SOURCE_CLASS_POINTER) == 0
+                || event.getAction() == MotionEvent.ACTION_HOVER_EXIT
+                || mScrimOpacity <= 0) {
+            return super.dispatchGenericMotionEvent(event);
+        }
+
+        final int childrenCount = getChildCount();
+        if (childrenCount != 0) {
+            final float x = event.getX();
+            final float y = event.getY();
+
+            // Walk through children from top to bottom.
+            for (int i = childrenCount - 1; i >= 0; i--) {
+                final View child = getChildAt(i);
+
+                // If the event is out of bounds or the child is the content view, don't dispatch
+                // to it.
+                if (!isInBoundsOfChild(x, y, child) || isContentView(child)) {
+                    continue;
+                }
+
+                // If a child handles it, return true.
+                if (dispatchTransformedGenericPointerEvent(event, child)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
