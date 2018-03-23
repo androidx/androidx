@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -238,6 +239,25 @@ public class LoaderManagerTest {
         restartCountDownLatch.await(1, TimeUnit.SECONDS);
         assertTrue("Initial Loader should be reset after its replacement Loader delivers data",
                 initialCallback.mLoader.isReset());
+    }
+
+    @UiThreadTest
+    @Test(expected = IllegalArgumentException.class)
+    public void enforceNonNullLoader() {
+        mLoaderManager.initLoader(-1, null, new LoaderManager.LoaderCallbacks<Object>() {
+            @Override
+            public Loader<Object> onCreateLoader(int id, Bundle args) {
+                return null;
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Object> loader, Object data) {
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Object> loader) {
+            }
+        });
     }
 
     @Test(expected = IllegalStateException.class)
