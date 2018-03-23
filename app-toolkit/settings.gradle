@@ -76,6 +76,7 @@ includeProject(":room:room-rxjava2", new File(supportRoot, "room/rxjava2"))
 includeProject(":room:room-testing", new File(supportRoot, "room/testing"))
 includeProject(":sqlite:sqlite", new File(supportRoot, "persistence/db"))
 includeProject(":sqlite:sqlite-framework", new File(supportRoot, "persistence/db-framework"))
+includeProject(":sqlite:sqlite-ktx", new File(supportRoot, "persistence/db/ktx"))
 
 includeProject(":jetifier-core", new File(supportRoot, "jetifier/jetifier/core"))
 includeProject(":jetifier-gradle-plugin", new File(supportRoot, "jetifier/jetifier/gradle-plugin"))
