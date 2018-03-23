@@ -24,6 +24,8 @@ import static androidx.slice.compat.SliceProviderCompat.EXTRA_INTENT;
 import static androidx.slice.compat.SliceProviderCompat.EXTRA_PKG;
 import static androidx.slice.compat.SliceProviderCompat.EXTRA_PROVIDER_PKG;
 import static androidx.slice.compat.SliceProviderCompat.EXTRA_SLICE;
+import static androidx.slice.compat.SliceProviderCompat.EXTRA_SLICE_DESCENDANTS;
+import static androidx.slice.compat.SliceProviderCompat.METHOD_GET_DESCENDANTS;
 import static androidx.slice.compat.SliceProviderCompat.METHOD_GET_PINNED_SPECS;
 import static androidx.slice.compat.SliceProviderCompat.METHOD_MAP_INTENT;
 import static androidx.slice.compat.SliceProviderCompat.METHOD_MAP_ONLY_INTENT;
@@ -65,6 +67,9 @@ import androidx.slice.compat.CompatPinnedList;
 import androidx.slice.compat.SliceProviderWrapperContainer;
 import androidx.slice.core.R;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -214,8 +219,24 @@ public abstract class SliceProvider extends ContentProvider implements
             Bundle b = new Bundle();
             addSpecs(b, mPinnedList.getSpecs(uri));
             return b;
+        } else if (method.equals(METHOD_GET_DESCENDANTS)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            Bundle b = new Bundle();
+            b.putParcelableArrayList(EXTRA_SLICE_DESCENDANTS,
+                    new ArrayList<>(handleGetDescendants(uri)));
+            return b;
         }
         return super.call(method, arg, extras);
+    }
+
+    private Collection<Uri> handleGetDescendants(Uri uri) {
+        mCallback = "onGetSliceDescendants";
+        mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
+        try {
+            return onGetSliceDescendants(uri);
+        } finally {
+            mHandler.removeCallbacks(mAnr);
+        }
     }
 
     private void handleSlicePinned(final Uri sliceUri) {
@@ -404,6 +425,20 @@ public abstract class SliceProvider extends ContentProvider implements
     public @NonNull Uri onMapIntentToUri(Intent intent) {
         throw new UnsupportedOperationException(
                 "This provider has not implemented intent to uri mapping");
+    }
+
+    /**
+     * Obtains a list of slices that are descendants of the specified Uri.
+     * <p>
+     * Implementing this is optional for a SliceProvider, but does provide a good
+     * discovery mechanism for finding slice Uris.
+     *
+     * @param uri The uri to look for descendants under.
+     * @return All slices within the space.
+     * @see androidx.slice.SliceManager#getSliceDescendants(Uri)
+     */
+    public Collection<Uri> onGetSliceDescendants(Uri uri) {
+        return Collections.emptyList();
     }
 
     @Nullable
