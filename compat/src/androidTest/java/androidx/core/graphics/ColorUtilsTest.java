@@ -16,10 +16,16 @@
 
 package androidx.core.graphics;
 
+import static android.graphics.ColorSpace.Named.CIE_LAB;
+import static android.graphics.ColorSpace.Named.SRGB;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.graphics.Color;
+import android.graphics.ColorSpace;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -80,6 +86,57 @@ public class ColorUtilsTest {
         sEntryList.add(new TestEntry(0xFF311B92).setHsl(251.09f, 0.687f, 0.339f)
                 .setLab(21.988, 44.301, -60.942).setXyz(6.847, 3.512, 27.511)
                 .setWhiteMinAlpha30(0.39f).setWhiteMinAlpha45(0.54f));
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test public void addColorsDifferentModels() {
+        Color lab = Color.valueOf(54.0f, 80.0f, 70.0f, 1.0f, ColorSpace.get(CIE_LAB));
+        Color rgb = Color.valueOf(0.0f, 0.5f, 0.0f, 0.5f, ColorSpace.get(SRGB));
+        try {
+            ColorUtils.compositeColors(rgb, lab);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("Color models must match (RGB vs. LAB)", e.getMessage());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test public void addColorsSameColorSpace() {
+        Color result = ColorUtils.compositeColors(Color.valueOf(0x7f007f00),
+                Color.valueOf(0x7f7f0000));
+        assertEquals(0.16f, result.red(), 1e-2f);
+        assertEquals(0.33f, result.green(), 1e-2f);
+        assertEquals(0.00f, result.blue(), 1e-2f);
+        assertEquals(0.75f, result.alpha(), 1e-2f);
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test public void addColorsDifferentColorSpace() {
+        ColorSpace p3 = ColorSpace.get(ColorSpace.Named.DISPLAY_P3);
+        Color red = Color.valueOf(0.5f, 0.0f, 0.0f, 0.5f, p3);
+        Color green = Color.valueOf(0x7f007f00);
+
+        Color mixed = ColorUtils.compositeColors(green, red);
+        assertEquals(p3, mixed.getColorSpace());
+        assertEquals(0.31f, mixed.red(), 1e-2f);
+        assertEquals(0.33f, mixed.green(), 1e-2f);
+        assertEquals(0.09f, mixed.blue(), 1e-2f);
+        assertEquals(0.75f, mixed.alpha(), 1e-2f);
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test public void addColorsZeroAlpha() {
+        // Test potential divide by zero
+        assertEquals(0, ColorUtils.compositeColors(Color.valueOf(0x00007f00),
+                Color.valueOf(0x007f0000)).toArgb());
+
+        // Test low alpha
+        Color result = ColorUtils.compositeColors(Color.valueOf(0.0f, 1.0f, 0.0f, 0.0001f),
+                Color.valueOf(1.0f, 0.0f, 0.0f, 0.0001f));
+        assertEquals(0.50f, result.red(), 1e-2f);
+        assertEquals(0.50f, result.green(), 1e-2f);
+        assertEquals(0.00f, result.blue(), 1e-2f);
+        assertEquals(2e-4f, result.alpha(), 1e-5f);
     }
 
     @Test
