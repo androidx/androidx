@@ -25,7 +25,6 @@ import android.os.CancellationSignal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import androidx.core.content.res.FontResourcesParserCompat.FontFileResourceEntry;
@@ -40,8 +39,7 @@ import java.io.InputStream;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@RequiresApi(14)
-class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
+class TypefaceCompatBaseImpl {
     private static final String TAG = "TypefaceCompatBaseImpl";
     private static final String CACHE_FILE_PREFIX = "cached_font_";
 
@@ -104,7 +102,6 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         }
     }
 
-    @Override
     public Typeface createFromFontInfo(Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts, int style) {
         // When we load from file, we can only load one font so just take the first one.
@@ -138,7 +135,6 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     }
 
     @Nullable
-    @Override
     public Typeface createFromFontFamilyFilesResourceEntry(Context context,
             FontFamilyFilesResourceEntry entry, Resources resources, int style) {
         FontFileResourceEntry best = findBestEntry(entry, style);
@@ -153,7 +149,6 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
      * Used by Resources to load a font resource of type font file.
      */
     @Nullable
-    @Override
     public Typeface createFromResourcesFontFile(
             Context context, Resources resources, int id, String path, int style) {
         final File tmpFile = TypefaceCompatUtil.getTempFile(context);

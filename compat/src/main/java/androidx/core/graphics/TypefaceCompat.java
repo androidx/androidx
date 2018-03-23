@@ -45,7 +45,7 @@ import androidx.core.provider.FontsContractCompat.FontInfo;
 public class TypefaceCompat {
     private static final String TAG = "TypefaceCompat";
 
-    private static final TypefaceCompatImpl sTypefaceCompatImpl;
+    private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
     static {
         if (BuildCompat.isAtLeastP()) {
             sTypefaceCompatImpl = new TypefaceCompatApi28Impl();
@@ -65,20 +65,6 @@ public class TypefaceCompat {
      * Cache for Typeface objects dynamically loaded from assets.
      */
     private static final LruCache<String, Typeface> sTypefaceCache = new LruCache<>(16);
-
-    interface TypefaceCompatImpl {
-        // Create Typeface from XML which root node is "font-family"
-        Typeface createFromFontFamilyFilesResourceEntry(
-                Context context, FontFamilyFilesResourceEntry entry, Resources resources,
-                int style);
-
-        Typeface createFromFontInfo(Context context,
-                @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts,
-                int style);
-
-        Typeface createFromResourcesFontFile(
-                Context context, Resources resources, int id, String path, int style);
-    }
 
     private TypefaceCompat() {}
 
