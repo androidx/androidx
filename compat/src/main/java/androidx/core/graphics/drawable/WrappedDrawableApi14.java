@@ -192,6 +192,16 @@ class WrappedDrawableApi14 extends Drawable
     }
 
     @Override
+    public void setAutoMirrored(boolean mirrored) {
+        mDrawable.setAutoMirrored(mirrored);
+    }
+
+    @Override
+    public boolean isAutoMirrored() {
+        return mDrawable.isAutoMirrored();
+    }
+
+    @Override
     @Nullable
     public ConstantState getConstantState() {
         if (mState != null && mState.canConstantState()) {
