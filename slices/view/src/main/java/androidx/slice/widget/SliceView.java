@@ -36,7 +36,7 @@ import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceMetadata;
-import androidx.slice.builders.ListBuilder;
+import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -455,7 +455,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         long expiry = sliceMetadata.getExpiry();
         long now = System.currentTimeMillis();
         mCurrentView.setLastUpdated(lastUpdated);
-        boolean expired = expiry != ListBuilder.INFINITY && now > expiry;
+        boolean expired = expiry != SliceHints.INFINITY && now > expiry;
         mCurrentView.setShowLastUpdated(mShowLastUpdated && expired);
 
         // Set the slice
