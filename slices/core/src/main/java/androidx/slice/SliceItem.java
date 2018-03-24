@@ -26,16 +26,17 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import android.app.PendingIntent;
 import android.app.RemoteInput;
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Pair;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
-import android.text.TextUtils;
-import android.util.Pair;
+import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -178,9 +179,8 @@ public class SliceItem {
     /**
      * @return The icon held by this {@link android.app.slice.SliceItem#FORMAT_IMAGE} SliceItem
      */
-    @RequiresApi(23)
-    public Icon getIcon() {
-        return (Icon) mObj;
+    public IconCompat getIcon() {
+        return (IconCompat) mObj;
     }
 
     /**
@@ -292,6 +292,8 @@ public class SliceItem {
     private void writeObj(Bundle dest, Object obj, String type) {
         switch (type) {
             case FORMAT_IMAGE:
+                dest.putBundle(OBJ, ((IconCompat) obj).toBundle());
+                break;
             case FORMAT_REMOTE_INPUT:
                 dest.putParcelable(OBJ, (Parcelable) obj);
                 break;
@@ -317,6 +319,7 @@ public class SliceItem {
     private static Object readObj(String type, Bundle in) {
         switch (type) {
             case FORMAT_IMAGE:
+                return IconCompat.createFromBundle(in.getBundle(OBJ));
             case FORMAT_REMOTE_INPUT:
                 return in.getParcelable(OBJ);
             case FORMAT_SLICE:

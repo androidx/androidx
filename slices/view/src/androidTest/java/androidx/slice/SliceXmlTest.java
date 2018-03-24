@@ -27,11 +27,12 @@ import static junit.framework.Assert.assertTrue;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -115,7 +116,7 @@ public class SliceXmlTest {
                 .addSubSlice(new Slice.Builder(Uri.parse("content://pkg/slice/sub"))
                         .addTimestamp(System.currentTimeMillis(), null, "Hint")
                         .build())
-                .addIcon(Icon.createWithBitmap(b), null)
+                .addIcon(IconCompat.createWithBitmap(b), null)
                 .addText("Some text", null)
                 .addAction(null, new Slice.Builder(Uri.parse("content://pkg/slice/sub"))
                         .addText("Action text", null)

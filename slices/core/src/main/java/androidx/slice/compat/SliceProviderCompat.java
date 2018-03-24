@@ -31,6 +31,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
@@ -339,7 +340,11 @@ public class SliceProviderCompat extends ContentProvider {
             // Manager will kill this process shortly anyway.
             return null;
         } finally {
-            provider.close();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                provider.close();
+            } else {
+                provider.release();
+            }
         }
     }
 

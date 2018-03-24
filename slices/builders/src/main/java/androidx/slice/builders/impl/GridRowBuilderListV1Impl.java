@@ -31,12 +31,12 @@ import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 
 import android.app.PendingIntent;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.builders.SliceAction;
 
@@ -193,7 +193,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
          */
         @NonNull
         @Override
-        public void addImage(@NonNull Icon image, int imageMode) {
+        public void addImage(@NonNull IconCompat image, int imageMode) {
             addImage(image, imageMode, false /* isLoading */);
         }
 
@@ -201,7 +201,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
          */
         @NonNull
         @Override
-        public void addImage(@Nullable Icon image, int imageMode, boolean isLoading) {
+        public void addImage(@Nullable IconCompat image, int imageMode, boolean isLoading) {
             ArrayList<String> hints = new ArrayList<>();
             if (imageMode != ICON_IMAGE) {
                 hints.add(HINT_NO_TINT);

@@ -25,6 +25,7 @@ plugins {
 dependencies {
     implementation(project(":slices-core"))
     implementation project(":annotation")
+    implementation project(path: ':core')
 }
 
 supportLibrary {

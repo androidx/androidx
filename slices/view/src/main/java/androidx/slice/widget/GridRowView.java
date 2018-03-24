@@ -327,7 +327,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
             addedView = tv;
         } else if (FORMAT_IMAGE.equals(format)) {
             ImageView iv = new ImageView(getContext());
-            iv.setImageIcon(item.getIcon());
+            iv.setImageDrawable(item.getIcon().loadDrawable(getContext()));
             LinearLayout.LayoutParams lp;
             if (item.hasHint(HINT_LARGE)) {
                 iv.setScaleType(ScaleType.CENTER_CROP);
