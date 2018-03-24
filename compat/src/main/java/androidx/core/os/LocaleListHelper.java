@@ -24,7 +24,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.Size;
 
@@ -40,7 +39,6 @@ import java.util.Locale;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@RequiresApi(14)
 final class LocaleListHelper {
     private final Locale[] mList;
     // This is a comma-separated list of the locales in the LocaleListHelper created at construction

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -34,7 +33,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.custom.ContextWrapperFrameLayout;
 import androidx.appcompat.test.R;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -81,8 +79,6 @@ public class LayoutInflaterFactoryTestCase {
     }
 
     // Propagation of themed context to children only works on API 11+.
-    @SdkSuppress(minSdkVersion = 11)
-    @RequiresApi(11)
     @UiThreadTest
     @Test
     @SmallTest

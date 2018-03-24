@@ -24,7 +24,6 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.internal.view.SupportSubMenu;
 
@@ -33,7 +32,6 @@ import androidx.core.internal.view.SupportSubMenu;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@RequiresApi(14)
 class SubMenuWrapperICS extends MenuWrapperICS implements SubMenu {
 
     SubMenuWrapperICS(Context context, SupportSubMenu subMenu) {
