@@ -22,6 +22,7 @@ import static android.view.Window.FEATURE_OPTIONS_PANEL;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.UiModeManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -49,6 +50,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+import android.view.KeyboardShortcutGroup;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -68,6 +70,7 @@ import android.widget.TextView;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -103,7 +106,9 @@ import androidx.core.widget.PopupWindowCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 
-class AppCompatDelegateImplBase extends AppCompatDelegate
+import java.util.List;
+
+class AppCompatDelegateImpl extends AppCompatDelegate
         implements MenuBuilder.Callback, LayoutInflater.Factory2 {
 
     private static final boolean DEBUG = false;
@@ -234,17 +239,17 @@ class AppCompatDelegateImplBase extends AppCompatDelegate
 
     private AppCompatViewInflater mAppCompatViewInflater;
 
-    AppCompatDelegateImplBase(Context context, Window window, AppCompatCallback callback) {
+    AppCompatDelegateImpl(Context context, Window window, AppCompatCallback callback) {
         mContext = context;
         mWindow = window;
         mAppCompatCallback = callback;
 
         mOriginalWindowCallback = mWindow.getCallback();
-        if (mOriginalWindowCallback instanceof AppCompatWindowCallbackV14) {
+        if (mOriginalWindowCallback instanceof AppCompatWindowCallback) {
             throw new IllegalStateException(
                     "AppCompat has already installed itself into the Window");
         }
-        mAppCompatWindowCallback = wrapWindowCallback(mOriginalWindowCallback);
+        mAppCompatWindowCallback = new AppCompatWindowCallback(mOriginalWindowCallback);
         // Now install the new callback
         mWindow.setCallback(mAppCompatWindowCallback);
 
@@ -295,10 +300,6 @@ class AppCompatDelegateImplBase extends AppCompatDelegate
 
     final ActionBar peekSupportActionBar() {
         return mActionBar;
-    }
-
-    Window.Callback wrapWindowCallback(Window.Callback callback) {
-        return new AppCompatWindowCallbackV14(callback);
     }
 
     final Window.Callback getWindowCallback() {
@@ -1281,7 +1282,7 @@ class AppCompatDelegateImplBase extends AppCompatDelegate
         if (layoutInflater.getFactory() == null) {
             LayoutInflaterCompat.setFactory2(layoutInflater, this);
         } else {
-            if (!(layoutInflater.getFactory2() instanceof AppCompatDelegateImplBase)) {
+            if (!(layoutInflater.getFactory2() instanceof AppCompatDelegateImpl)) {
                 Log.i(TAG, "The Activity's LayoutInflater already has a Factory installed"
                         + " so we can not install AppCompat's");
             }
@@ -2023,6 +2024,14 @@ class AppCompatDelegateImplBase extends AppCompatDelegate
     int mapNightMode(@NightMode final int mode) {
         switch (mode) {
             case MODE_NIGHT_AUTO:
+                if (Build.VERSION.SDK_INT >= 23) {
+                    UiModeManager uiModeManager = mContext.getSystemService(UiModeManager.class);
+                    if (uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_AUTO) {
+                        // If we're set to AUTO and the system's auto night mode is already enabled,
+                        // we'll just let the system handle it by returning FOLLOW_SYSTEM
+                        return MODE_NIGHT_FOLLOW_SYSTEM;
+                    }
+                }
                 ensureAutoNightModeManager();
                 return mAutoNightModeManager.getApplyableNightMode();
             case MODE_NIGHT_UNSPECIFIED:
@@ -2465,7 +2474,7 @@ class AppCompatDelegateImplBase extends AppCompatDelegate
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent event) {
-            return AppCompatDelegateImplBase.this.dispatchKeyEvent(event)
+            return AppCompatDelegateImpl.this.dispatchKeyEvent(event)
                     || super.dispatchKeyEvent(event);
         }
 
@@ -2494,21 +2503,21 @@ class AppCompatDelegateImplBase extends AppCompatDelegate
     }
 
 
-    class AppCompatWindowCallbackV14 extends WindowCallbackWrapper {
-        AppCompatWindowCallbackV14(Window.Callback callback) {
+    class AppCompatWindowCallback extends WindowCallbackWrapper {
+        AppCompatWindowCallback(Window.Callback callback) {
             super(callback);
         }
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent event) {
-            return AppCompatDelegateImplBase.this.dispatchKeyEvent(event)
+            return AppCompatDelegateImpl.this.dispatchKeyEvent(event)
                     || super.dispatchKeyEvent(event);
         }
 
         @Override
         public boolean dispatchKeyShortcutEvent(KeyEvent event) {
             return super.dispatchKeyShortcutEvent(event)
-                    || AppCompatDelegateImplBase.this.onKeyShortcut(event.getKeyCode(), event);
+                    || AppCompatDelegateImpl.this.onKeyShortcut(event.getKeyCode(), event);
         }
 
         @Override
@@ -2557,19 +2566,23 @@ class AppCompatDelegateImplBase extends AppCompatDelegate
         @Override
         public boolean onMenuOpened(int featureId, Menu menu) {
             super.onMenuOpened(featureId, menu);
-            AppCompatDelegateImplBase.this.onMenuOpened(featureId);
+            AppCompatDelegateImpl.this.onMenuOpened(featureId);
             return true;
         }
 
         @Override
         public void onPanelClosed(int featureId, Menu menu) {
             super.onPanelClosed(featureId, menu);
-            AppCompatDelegateImplBase.this.onPanelClosed(featureId);
+            AppCompatDelegateImpl.this.onPanelClosed(featureId);
         }
 
         @Override
         public android.view.ActionMode onWindowStartingActionMode(
                 android.view.ActionMode.Callback callback) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                // No-op on API 23+
+                return null;
+            }
             // We wrap in a support action mode on v14+ if enabled
             if (isHandleNativeActionModesEnabled()) {
                 return startAsSupportActionMode(callback);
@@ -2597,6 +2610,36 @@ class AppCompatDelegateImplBase extends AppCompatDelegate
                 return callbackWrapper.getActionModeWrapper(supportActionMode);
             }
             return null;
+        }
+
+        @Override
+        @RequiresApi(23)
+        public android.view.ActionMode onWindowStartingActionMode(
+            android.view.ActionMode.Callback callback, int type) {
+            if (isHandleNativeActionModesEnabled()) {
+                switch (type) {
+                    case android.view.ActionMode.TYPE_PRIMARY:
+                        // We only take over if the type is TYPE_PRIMARY
+                        return startAsSupportActionMode(callback);
+                }
+            }
+            // Else, let the call fall through to the wrapped callback
+            return super.onWindowStartingActionMode(callback, type);
+        }
+
+        @Override
+        @RequiresApi(24)
+        public void onProvideKeyboardShortcuts(
+            List<KeyboardShortcutGroup> data, Menu menu, int deviceId) {
+            final PanelFeatureState panel = getPanelState(Window.FEATURE_OPTIONS_PANEL, true);
+            if (panel != null && panel.menu != null) {
+                // The menu provided is one created by PhoneWindow which we don't actually use.
+                // Instead we'll pass through our own...
+                super.onProvideKeyboardShortcuts(data, panel.menu, deviceId);
+            } else {
+                // If we don't have a menu, jump pass through the original instead
+                super.onProvideKeyboardShortcuts(data, menu, deviceId);
+            }
         }
     }
 
@@ -2681,7 +2724,7 @@ class AppCompatDelegateImplBase extends AppCompatDelegate
 
         @Override
         public Context getActionBarThemedContext() {
-            return AppCompatDelegateImplBase.this.getActionBarThemedContext();
+            return AppCompatDelegateImpl.this.getActionBarThemedContext();
         }
 
         @Override
