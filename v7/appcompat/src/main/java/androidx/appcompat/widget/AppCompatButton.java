@@ -72,7 +72,7 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
         mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
         mBackgroundTintHelper.loadFromAttributes(attrs, defStyleAttr);
 
-        mTextHelper = AppCompatTextHelper.create(this);
+        mTextHelper = new AppCompatTextHelper(this);
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
         mTextHelper.applyCompoundDrawablesTints();
     }
