@@ -311,11 +311,6 @@ public final class DrawableCompat {
                 return new WrappedDrawableApi21(drawable);
             }
             return drawable;
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            if (!(drawable instanceof TintAwareDrawable)) {
-                return new WrappedDrawableApi19(drawable);
-            }
-            return drawable;
         } else {
             if (!(drawable instanceof TintAwareDrawable)) {
                 return new WrappedDrawableApi14(drawable);
