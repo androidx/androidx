@@ -38,12 +38,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.core.test.R;
 
 import org.junit.Test;
@@ -120,8 +120,14 @@ public class SliceTest {
 
         SliceItem item = s.getItems().get(0);
         assertEquals(FORMAT_IMAGE, item.getFormat());
-        assertEquals(Icon.createWithResource(mContext, R.drawable.size_48x48).toString(),
-                item.getIcon().toString());
+        assertEquivalent(IconCompat.createWithResource(mContext, R.drawable.size_48x48),
+                item.getIcon());
+    }
+
+    private void assertEquivalent(IconCompat first, IconCompat second) {
+        assertEquals(first.getType(), second.getType());
+        assertEquals(first.getResId(), second.getResId());
+        assertEquals(first.getResPackage(), second.getResPackage());
     }
 
     @Test

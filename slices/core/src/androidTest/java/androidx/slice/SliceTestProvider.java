@@ -23,9 +23,9 @@ import static android.app.slice.Slice.HINT_TITLE;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice.Builder;
 import androidx.slice.core.test.R;
 
@@ -49,7 +49,7 @@ public class SliceTestProvider extends androidx.slice.SliceProvider {
                 return new Slice.Builder(sliceUri).addText("Expected text", "text").build();
             case "/icon":
                 return new Slice.Builder(sliceUri).addIcon(
-                        Icon.createWithResource(getContext(), R.drawable.size_48x48),
+                        IconCompat.createWithResource(getContext(), R.drawable.size_48x48),
                         "icon").build();
             case "/action":
                 Builder builder = new Builder(sliceUri);
@@ -65,7 +65,7 @@ public class SliceTestProvider extends androidx.slice.SliceProvider {
                 return new Slice.Builder(sliceUri)
                         .addHints(HINT_LIST)
                         .addText("Text", null, HINT_TITLE)
-                        .addIcon(Icon.createWithResource(getContext(), R.drawable.size_48x48),
+                        .addIcon(IconCompat.createWithResource(getContext(), R.drawable.size_48x48),
                                 null, HINT_NO_TINT, HINT_LARGE)
                         .build();
         }

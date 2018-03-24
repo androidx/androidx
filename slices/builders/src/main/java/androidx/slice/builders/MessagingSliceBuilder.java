@@ -23,18 +23,19 @@ import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-
-import java.util.function.Consumer;
-
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.MessagingBasicImpl;
 import androidx.slice.builders.impl.MessagingBuilder;
 import androidx.slice.builders.impl.MessagingListV1Impl;
 import androidx.slice.builders.impl.MessagingV1Impl;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
+
+import java.util.function.Consumer;
 
 /**
  * Builder to construct slice content in a messaging format.
@@ -116,6 +117,14 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
          */
         public MessageBuilder addSource(Icon source) {
             mImpl.addSource(source);
+            return this;
+        }
+
+        /**
+         * Add the icon used to display contact in the messaging experience
+         */
+        public MessageBuilder addSource(IconCompat source) {
+            mImpl.addSource(source.toIcon());
             return this;
         }
 

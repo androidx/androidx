@@ -19,8 +19,10 @@ package androidx.slice.builders {
     ctor public GridBuilder.CellBuilder(androidx.slice.builders.GridBuilder, android.net.Uri);
     method public deprecated androidx.slice.builders.GridBuilder.CellBuilder addImage(android.graphics.drawable.Icon);
     method public deprecated androidx.slice.builders.GridBuilder.CellBuilder addImage(android.graphics.drawable.Icon, boolean);
-    method public androidx.slice.builders.GridBuilder.CellBuilder addImage(android.graphics.drawable.Icon, int);
-    method public androidx.slice.builders.GridBuilder.CellBuilder addImage(android.graphics.drawable.Icon, int, boolean);
+    method public deprecated androidx.slice.builders.GridBuilder.CellBuilder addImage(android.graphics.drawable.Icon, int);
+    method public deprecated androidx.slice.builders.GridBuilder.CellBuilder addImage(android.graphics.drawable.Icon, int, boolean);
+    method public androidx.slice.builders.GridBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.GridBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat, int, boolean);
     method public deprecated androidx.slice.builders.GridBuilder.CellBuilder addLargeImage(android.graphics.drawable.Icon);
     method public deprecated androidx.slice.builders.GridBuilder.CellBuilder addLargeImage(android.graphics.drawable.Icon, boolean);
     method public androidx.slice.builders.GridBuilder.CellBuilder addText(java.lang.CharSequence);
@@ -45,8 +47,8 @@ package androidx.slice.builders {
   public static final class GridRowBuilder.CellBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor public GridRowBuilder.CellBuilder(androidx.slice.builders.GridRowBuilder);
     ctor public GridRowBuilder.CellBuilder(androidx.slice.builders.GridRowBuilder, android.net.Uri);
-    method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(android.graphics.drawable.Icon, int);
-    method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(android.graphics.drawable.Icon, int, boolean);
+    method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat, int, boolean);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addText(java.lang.CharSequence);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addText(java.lang.CharSequence, boolean);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addTitleText(java.lang.CharSequence);
@@ -100,7 +102,8 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setMax(int);
-    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setThumb(android.graphics.drawable.Icon);
+    method public deprecated androidx.slice.builders.ListBuilder.InputRangeBuilder setThumb(android.graphics.drawable.Icon);
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setThumb(androidx.core.graphics.drawable.IconCompat);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setTitle(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setValue(int);
   }
@@ -120,8 +123,12 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(long);
     method public deprecated androidx.slice.builders.ListBuilder.RowBuilder addEndItem(android.graphics.drawable.Icon);
     method public deprecated androidx.slice.builders.ListBuilder.RowBuilder addEndItem(android.graphics.drawable.Icon, boolean);
-    method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(android.graphics.drawable.Icon, int);
-    method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(android.graphics.drawable.Icon, int, boolean);
+    method public deprecated androidx.slice.builders.ListBuilder.RowBuilder addEndItem(android.graphics.drawable.Icon, int);
+    method public deprecated androidx.slice.builders.ListBuilder.RowBuilder addEndItem(android.graphics.drawable.Icon, int, boolean);
+    method public deprecated androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat);
+    method public deprecated androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat, boolean);
+    method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat, int, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.slice.builders.SliceAction, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setContentDescription(java.lang.CharSequence);
@@ -133,20 +140,27 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(long);
     method public deprecated androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(android.graphics.drawable.Icon);
     method public deprecated androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(android.graphics.drawable.Icon, boolean);
-    method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(android.graphics.drawable.Icon, int);
-    method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(android.graphics.drawable.Icon, int, boolean);
+    method public deprecated androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(android.graphics.drawable.Icon, int);
+    method public deprecated androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(android.graphics.drawable.Icon, int, boolean);
+    method public deprecated androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat);
+    method public deprecated androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, boolean);
+    method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.slice.builders.SliceAction, boolean);
   }
 
   public class SliceAction implements androidx.slice.core.SliceAction {
-    ctor public SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, java.lang.CharSequence);
-    ctor public SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, int, java.lang.CharSequence);
-    ctor public SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, java.lang.CharSequence, boolean);
+    ctor public deprecated SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, java.lang.CharSequence);
+    ctor public deprecated SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, int, java.lang.CharSequence);
+    ctor public deprecated SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, java.lang.CharSequence, boolean);
+    ctor public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, java.lang.CharSequence);
+    ctor public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, java.lang.CharSequence);
+    ctor public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, java.lang.CharSequence, boolean);
     ctor public SliceAction(android.app.PendingIntent, java.lang.CharSequence, boolean);
     method public android.app.PendingIntent getAction();
     method public java.lang.CharSequence getContentDescription();
-    method public android.graphics.drawable.Icon getIcon();
+    method public androidx.core.graphics.drawable.IconCompat getIcon();
     method public int getImageMode();
     method public int getPriority();
     method public java.lang.CharSequence getTitle();

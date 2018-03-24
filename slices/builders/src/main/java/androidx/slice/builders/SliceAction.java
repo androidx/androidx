@@ -26,6 +26,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.core.SliceActionImpl;
 
@@ -37,6 +38,33 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     private SliceActionImpl mSliceAction;
 
     /**
+     * @deprecated TO BE REMOVED
+     */
+    @Deprecated
+    public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+            @NonNull CharSequence actionTitle) {
+        this(action, actionIcon, ICON_IMAGE, actionTitle);
+    }
+
+    /**
+     * @deprecated TO BE REMOVED
+     */
+    @Deprecated
+    public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+            @ListBuilder.ImageMode int imageMode, @NonNull CharSequence actionTitle) {
+        this(action, IconCompat.createFromIcon(actionIcon), imageMode, actionTitle);
+    }
+
+    /**
+     * @deprecated TO BE REMOVED
+     */
+    @Deprecated
+    public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+            @NonNull CharSequence actionTitle, boolean isChecked) {
+        this(action, IconCompat.createFromIcon(actionIcon), actionTitle, isChecked);
+    }
+
+    /**
      * Construct a SliceAction representing a tappable icon.
      *
      * @param action the pending intent to invoke for this action.
@@ -44,7 +72,7 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionTitle the title for this action, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
      */
-    public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+    public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @NonNull CharSequence actionTitle) {
         this(action, actionIcon, ICON_IMAGE, actionTitle);
     }
@@ -66,7 +94,7 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @see ListBuilder#SMALL_IMAGE
      * @see ListBuilder#LARGE_IMAGE
      */
-    public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+    public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @ListBuilder.ImageMode int imageMode, @NonNull CharSequence actionTitle) {
         mSliceAction = new SliceActionImpl(action, actionIcon, imageMode, actionTitle);
     }
@@ -81,7 +109,7 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      *                    been set via {@link #setContentDescription(CharSequence)}.
      * @param isChecked the state of the toggle.
      */
-    public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+    public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @NonNull CharSequence actionTitle, boolean isChecked) {
         mSliceAction = new SliceActionImpl(action, actionIcon, actionTitle, isChecked);
     }
@@ -145,7 +173,7 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      */
     @Nullable
     @Override
-    public Icon getIcon() {
+    public IconCompat getIcon() {
         return mSliceAction.getIcon();
     }
 
