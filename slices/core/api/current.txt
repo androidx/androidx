@@ -36,3 +36,22 @@ package androidx.slice {
 
 }
 
+package androidx.slice.core {
+
+  public abstract interface SliceAction {
+    method public abstract android.app.PendingIntent getAction();
+    method public abstract java.lang.CharSequence getContentDescription();
+    method public abstract android.graphics.drawable.Icon getIcon();
+    method public abstract int getImageMode();
+    method public abstract int getPriority();
+    method public abstract java.lang.CharSequence getTitle();
+    method public abstract boolean isChecked();
+    method public abstract boolean isDefaultToggle();
+    method public abstract boolean isToggle();
+    method public abstract androidx.slice.core.SliceAction setChecked(boolean);
+    method public abstract androidx.slice.core.SliceAction setContentDescription(java.lang.CharSequence);
+    method public abstract androidx.slice.core.SliceAction setPriority(int);
+  }
+
+}
+

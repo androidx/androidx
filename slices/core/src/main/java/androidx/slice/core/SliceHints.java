@@ -18,6 +18,7 @@ package androidx.slice.core;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -76,4 +77,31 @@ public class SliceHints {
      * January 1, 1970 UTC.
      */
     public static final String SUBTYPE_MILLIS = "millis";
+
+    @IntDef({
+            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
+    })
+    public @interface ImageMode{}
+
+    /**
+     * Indicates that an image should be presented as an icon and it can be tinted.
+     */
+    public static final int ICON_IMAGE = 0;
+    /**
+     * Indicates that an image should be presented in a smaller size and it shouldn't be tinted.
+     */
+    public static final int SMALL_IMAGE = 1;
+    /**
+     * Indicates that an image presented in a larger size and it shouldn't be tinted.
+     */
+    public static final int LARGE_IMAGE = 2;
+    /**
+     * Indicates that an image mode is unknown.
+     */
+    public static final int UNKNOWN_IMAGE = 3;
+
+    /**
+     * Constant representing infinity.
+     */
+    public static final long INFINITY = -1;
 }

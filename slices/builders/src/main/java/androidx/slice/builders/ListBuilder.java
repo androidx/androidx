@@ -35,6 +35,7 @@ import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.ListBuilderBasicImpl;
 import androidx.slice.builders.impl.ListBuilderV1Impl;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
+import androidx.slice.core.SliceHints;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -68,27 +69,31 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
-            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE
+            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
     })
     public @interface ImageMode{}
 
     /**
      * Indicates that an image should be presented as an icon and it can be tinted.
      */
-    public static final int ICON_IMAGE = 0;
+    public static final int ICON_IMAGE = SliceHints.ICON_IMAGE;
     /**
      * Indicates that an image should be presented in a smaller size and it shouldn't be tinted.
      */
-    public static final int SMALL_IMAGE = 1;
+    public static final int SMALL_IMAGE = SliceHints.SMALL_IMAGE;
     /**
      * Indicates that an image presented in a larger size and it shouldn't be tinted.
      */
-    public static final int LARGE_IMAGE = 2;
+    public static final int LARGE_IMAGE = SliceHints.LARGE_IMAGE;
+    /**
+     * Indicates that an image mode is unknown.
+     */
+    public static final int UNKNOWN_IMAGE = SliceHints.UNKNOWN_IMAGE;
 
     /**
      * Constant representing infinity.
      */
-    public static final long INFINITY = -1;
+    public static final long INFINITY = SliceHints.INFINITY;
 
     /**
      * Create a builder which will construct a slice that will display rows of content.
@@ -853,7 +858,7 @@ public class ListBuilder extends TemplateSliceBuilder {
                         + "in a row, set a custom icon for each toggle.");
             }
             mImpl.addEndItem(action, isLoading);
-            mHasDefaultToggle = action.isDefaultToggle();
+            mHasDefaultToggle = action.getImpl().isDefaultToggle();
             mHasEndActionOrToggle = true;
             return this;
         }
