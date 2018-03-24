@@ -210,7 +210,7 @@ public class SelfDestructiveThread {
         }
     }
 
-    private void onInvokeRunnable(Runnable runnable) {
+    void onInvokeRunnable(Runnable runnable) {
         runnable.run();
         synchronized (mLock) {
             mHandler.removeMessages(MSG_DESTRUCTION);
@@ -219,7 +219,7 @@ public class SelfDestructiveThread {
         }
     }
 
-    private void onDestruction() {
+    void onDestruction() {
         synchronized (mLock) {
             if (mHandler.hasMessages(MSG_INVOKE_RUNNABLE)) {
                 // This happens if post() is called after onDestruction and before synchronization

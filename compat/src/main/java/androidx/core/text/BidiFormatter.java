@@ -82,7 +82,7 @@ public final class BidiFormatter {
     /**
      * The default text direction heuristic.
      */
-    private static final TextDirectionHeuristicCompat DEFAULT_TEXT_DIRECTION_HEURISTIC = FIRSTSTRONG_LTR;
+    static final TextDirectionHeuristicCompat DEFAULT_TEXT_DIRECTION_HEURISTIC = FIRSTSTRONG_LTR;
 
     /**
      * Unicode "Left-To-Right Embedding" (LRE) character.
@@ -214,12 +214,12 @@ public final class BidiFormatter {
     private static final int FLAG_STEREO_RESET = 2;
     private static final int DEFAULT_FLAGS = FLAG_STEREO_RESET;
 
-    private static final BidiFormatter DEFAULT_LTR_INSTANCE = new BidiFormatter(
+    static final BidiFormatter DEFAULT_LTR_INSTANCE = new BidiFormatter(
             false /* LTR context */,
             DEFAULT_FLAGS,
             DEFAULT_TEXT_DIRECTION_HEURISTIC);
 
-    private static final BidiFormatter DEFAULT_RTL_INSTANCE = new BidiFormatter(
+    static final BidiFormatter DEFAULT_RTL_INSTANCE = new BidiFormatter(
             true /* RTL context */,
             DEFAULT_FLAGS,
             DEFAULT_TEXT_DIRECTION_HEURISTIC);
@@ -259,7 +259,7 @@ public final class BidiFormatter {
      * @param flags The option flags.
      * @param heuristic The default text direction heuristic.
      */
-    private BidiFormatter(boolean isRtlContext, int flags, TextDirectionHeuristicCompat heuristic) {
+    BidiFormatter(boolean isRtlContext, int flags, TextDirectionHeuristicCompat heuristic) {
         mIsRtlContext = isRtlContext;
         mFlags = flags;
         mDefaultTextDirectionHeuristicCompat = heuristic;
@@ -512,7 +512,7 @@ public final class BidiFormatter {
      * @param locale The Locale whose directionality will be checked to be RTL or LTR
      * @return true if the {@code locale} directionality is RTL. False otherwise.
      */
-    private static boolean isRtlLocale(Locale locale) {
+    static boolean isRtlLocale(Locale locale) {
         return (TextUtilsCompat.getLayoutDirectionFromLocale(locale) == ViewCompat.LAYOUT_DIRECTION_RTL);
     }
 

@@ -2921,7 +2921,7 @@ public class NotificationCompat {
         private final RemoteInput[] mDataOnlyRemoteInputs;
 
         private boolean mAllowGeneratedReplies;
-        private boolean mShowsUserInterface = true;
+        boolean mShowsUserInterface = true;
 
         private final @SemanticAction int mSemanticAction;
 
