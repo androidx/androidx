@@ -44,6 +44,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 
@@ -55,7 +56,7 @@ import androidx.slice.SliceItem;
 public class SliceActionImpl implements SliceAction {
 
     private PendingIntent mAction;
-    private Icon mIcon;
+    private IconCompat mIcon;
     private int mImageMode = UNKNOWN_IMAGE;
     private CharSequence mTitle;
     private CharSequence mContentDescription;
@@ -72,7 +73,7 @@ public class SliceActionImpl implements SliceAction {
      * @param actionTitle the title for this action, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
      */
-    public SliceActionImpl(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+    public SliceActionImpl(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @NonNull CharSequence actionTitle) {
         this(action, actionIcon, ICON_IMAGE, actionTitle);
     }
@@ -94,7 +95,7 @@ public class SliceActionImpl implements SliceAction {
      * @see SliceHints#SMALL_IMAGE
      * @see SliceHints#LARGE_IMAGE
      */
-    public SliceActionImpl(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+    public SliceActionImpl(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @SliceHints.ImageMode int imageMode, @NonNull CharSequence actionTitle) {
         mAction = action;
         mIcon = actionIcon;
@@ -112,7 +113,7 @@ public class SliceActionImpl implements SliceAction {
      *                    been set via {@link #setContentDescription(CharSequence)}.
      * @param isChecked the state of the toggle.
      */
-    public SliceActionImpl(@NonNull PendingIntent action, @NonNull Icon actionIcon,
+    public SliceActionImpl(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @NonNull CharSequence actionTitle, boolean isChecked) {
         this(action, actionIcon, ICON_IMAGE, actionTitle);
         mIsChecked = isChecked;
@@ -226,7 +227,7 @@ public class SliceActionImpl implements SliceAction {
      */
     @Nullable
     @Override
-    public Icon getIcon() {
+    public IconCompat getIcon() {
         return mIcon;
     }
 

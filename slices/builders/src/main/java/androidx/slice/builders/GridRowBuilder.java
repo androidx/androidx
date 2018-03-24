@@ -19,7 +19,6 @@ package androidx.slice.builders;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 
@@ -27,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
 
 import java.util.function.Consumer;
@@ -277,7 +277,8 @@ public class GridRowBuilder extends TemplateSliceBuilder {
          * @see ListBuilder#LARGE_IMAGE
          */
         @NonNull
-        public CellBuilder addImage(@NonNull Icon image, @ListBuilder.ImageMode int imageMode) {
+        public CellBuilder addImage(@NonNull IconCompat image,
+                @ListBuilder.ImageMode int imageMode) {
             return addImage(image, imageMode, false /* isLoading */);
         }
 
@@ -298,8 +299,8 @@ public class GridRowBuilder extends TemplateSliceBuilder {
          * @see ListBuilder#LARGE_IMAGE
          */
         @NonNull
-        public CellBuilder addImage(@Nullable Icon image, @ListBuilder.ImageMode int imageMode,
-                boolean isLoading) {
+        public CellBuilder addImage(@Nullable IconCompat image,
+                @ListBuilder.ImageMode int imageMode, boolean isLoading) {
             mImpl.addImage(image, imageMode, isLoading);
             return this;
         }

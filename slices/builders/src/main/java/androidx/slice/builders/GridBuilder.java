@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
 
 import java.util.function.Consumer;
@@ -333,19 +334,32 @@ public class GridBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * Adds an image to the cell. There can be at most one image, the first one added
-         * will be used, others will be ignored.
-         * <p>
-         * Use this method to specify content that will appear in the template once it's been
-         * loaded.
-         * </p>
-         * @param isLoading indicates whether the app is doing work to load the added content in the
-         *                  background or not.
+         * @deprecated TO BE REMOVED
          */
         @NonNull
         @Deprecated
         public CellBuilder addImage(@Nullable Icon image, boolean isLoading) {
             return addImage(image, ListBuilder.SMALL_IMAGE, isLoading);
+        }
+
+        /**
+         * @deprecated TO BE REMOVED
+         */
+        @NonNull
+        @Deprecated
+        public CellBuilder addImage(@NonNull Icon image, @ListBuilder.ImageMode int imageMode) {
+            return addImage(image, imageMode, false /* isLoading */);
+        }
+
+        /**
+         * @deprecated TO BE REMOVED
+         */
+        @NonNull
+        @Deprecated
+        public CellBuilder addImage(@Nullable Icon image, @ListBuilder.ImageMode int imageMode,
+                boolean isLoading) {
+            mImpl.addImage(IconCompat.createFromIcon(image), imageMode, isLoading);
+            return this;
         }
 
         /**
@@ -360,7 +374,8 @@ public class GridBuilder extends TemplateSliceBuilder {
          * @see ListBuilder#LARGE_IMAGE
          */
         @NonNull
-        public CellBuilder addImage(@NonNull Icon image, @ListBuilder.ImageMode int imageMode) {
+        public CellBuilder addImage(@NonNull IconCompat image,
+                @ListBuilder.ImageMode int imageMode) {
             return addImage(image, imageMode, false /* isLoading */);
         }
 
@@ -381,7 +396,8 @@ public class GridBuilder extends TemplateSliceBuilder {
          * @see ListBuilder#LARGE_IMAGE
          */
         @NonNull
-        public CellBuilder addImage(@Nullable Icon image, @ListBuilder.ImageMode int imageMode,
+        public CellBuilder addImage(@Nullable IconCompat image,
+                @ListBuilder.ImageMode int imageMode,
                 boolean isLoading) {
             mImpl.addImage(image, imageMode, isLoading);
             return this;

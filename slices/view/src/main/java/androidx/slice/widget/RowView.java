@@ -39,7 +39,6 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.graphics.drawable.Icon;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
@@ -60,6 +59,7 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceActionImpl;
@@ -390,7 +390,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         // Check if this is a custom toggle
         final CompoundButton toggle;
         if (actionContent.isToggle() && !actionContent.isDefaultToggle()) {
-            Icon checkedIcon = actionContent.getIcon();
+            IconCompat checkedIcon = actionContent.getIcon();
             if (color != -1) {
                 // TODO - Should custom toggle buttons be tinted? What if the app wants diff
                 // colors per state?
@@ -441,7 +441,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
      */
     private boolean addItem(SliceItem sliceItem, int color, boolean isStart, int padding,
             final EventInfo info) {
-        Icon icon = null;
+        IconCompat icon = null;
         int imageMode = 0;
         SliceItem timeStamp = null;
         SliceActionImpl actionContent = null;
@@ -473,7 +473,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         View addedView = null;
         if (icon != null) {
             ImageView iv = new ImageView(getContext());
-            iv.setImageIcon(icon);
+            iv.setImageDrawable(icon.loadDrawable(getContext()));
             int size = mImageSize;
             if (imageMode == ICON_IMAGE) {
                 if (color != -1) {
