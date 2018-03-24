@@ -30,12 +30,12 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
-import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
-import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
-import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
 import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
+import static androidx.slice.core.SliceHints.ICON_IMAGE;
+import static androidx.slice.core.SliceHints.LARGE_IMAGE;
+import static androidx.slice.core.SliceHints.SMALL_IMAGE;
 
 import android.app.slice.Slice;
 import android.content.Context;
@@ -45,7 +45,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
-import androidx.slice.builders.ListBuilder;
+import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -66,7 +66,7 @@ public class GridContent {
     private SliceItem mSeeMoreItem;
     private int mMaxCellLineCount;
     private boolean mHasImage;
-    private @ListBuilder.ImageMode int mLargestImageMode;
+    private @SliceHints.ImageMode int mLargestImageMode;
     private SliceItem mContentDescr;
 
     private int mBigPicMinHeight;
