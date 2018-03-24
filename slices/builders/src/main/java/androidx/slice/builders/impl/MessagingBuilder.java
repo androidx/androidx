@@ -19,6 +19,7 @@ package androidx.slice.builders.impl;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.drawable.Icon;
+
 import androidx.annotation.RestrictTo;
 
 /**

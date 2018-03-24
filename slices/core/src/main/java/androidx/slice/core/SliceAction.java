@@ -17,11 +17,11 @@
 package androidx.slice.core;
 
 import android.app.PendingIntent;
-import android.graphics.drawable.Icon;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.IconCompat;
 
 /**
  * Interface for a slice action, supports tappable icons, custom toggle icons, and default toggles.
@@ -52,11 +52,11 @@ public interface SliceAction {
     PendingIntent getAction();
 
     /**
-     * @return the {@link Icon} to display for this action. This can be null when the action
+     * @return the {@link IconCompat} to display for this action. This can be null when the action
      * represented is a default toggle.
      */
     @Nullable
-    Icon getIcon();
+    IconCompat getIcon();
 
     /**
      * @return the title for this action.

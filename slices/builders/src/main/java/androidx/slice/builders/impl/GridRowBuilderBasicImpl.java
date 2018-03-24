@@ -19,12 +19,12 @@ package androidx.slice.builders.impl;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.builders.SliceAction;
 
@@ -141,14 +141,14 @@ public class GridRowBuilderBasicImpl extends TemplateBuilderImpl implements Grid
          */
         @NonNull
         @Override
-        public void addImage(@NonNull Icon image, int imageMode) {
+        public void addImage(@NonNull IconCompat image, int imageMode) {
         }
 
         /**
          */
         @NonNull
         @Override
-        public void addImage(@Nullable Icon image, int imageMode, boolean isLoading) {
+        public void addImage(@Nullable IconCompat image, int imageMode, boolean isLoading) {
         }
 
         /**

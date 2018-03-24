@@ -29,7 +29,6 @@ import android.app.slice.Slice;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.Icon;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewParent;
@@ -41,6 +40,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.widget.ImageViewCompat;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
@@ -81,18 +82,18 @@ public class ActionRow extends FrameLayout {
             int mode = (Integer) view.getTag();
             boolean tint = mode == ICON_IMAGE;
             if (tint) {
-                ((ImageView) view).setImageTintList(ColorStateList.valueOf(mColor));
+                ImageViewCompat.setImageTintList((ImageView) view, ColorStateList.valueOf(mColor));
             }
         }
     }
 
-    private ImageView addAction(Icon icon, boolean allowTint) {
+    private ImageView addAction(IconCompat icon, boolean allowTint) {
         ImageView imageView = new ImageView(getContext());
         imageView.setPadding(mIconPadding, mIconPadding, mIconPadding, mIconPadding);
         imageView.setScaleType(ScaleType.FIT_CENTER);
-        imageView.setImageIcon(icon);
+        imageView.setImageDrawable(icon.loadDrawable(getContext()));
         if (allowTint) {
-            imageView.setImageTintList(ColorStateList.valueOf(mColor));
+            ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(mColor));
         }
         imageView.setBackground(SliceViewUtil.getDrawable(getContext(),
                 android.R.attr.selectableItemBackground));
@@ -131,7 +132,7 @@ public class ActionRow extends FrameLayout {
                 createRemoteInputView(mColor, getContext());
             } else if (action.hasHint(Slice.HINT_SHORTCUT)) {
                 final SliceActionImpl ac = new SliceActionImpl(action);
-                Icon iconItem = ac.getIcon();
+                IconCompat iconItem = ac.getIcon();
                 if (iconItem != null && ac.getAction() != null) {
                     boolean tint = ac.getImageMode() == ICON_IMAGE;
                     addAction(iconItem, tint).setOnClickListener(

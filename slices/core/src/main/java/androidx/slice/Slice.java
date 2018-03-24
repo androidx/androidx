@@ -45,7 +45,6 @@ import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.app.slice.SliceManager;
 import android.content.Context;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -56,6 +55,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.BuildCompat;
 import androidx.slice.compat.SliceProviderCompat;
 
@@ -294,7 +294,7 @@ public final class Slice {
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
          */
-        public Builder addIcon(Icon icon, @Nullable String subType,
+        public Builder addIcon(IconCompat icon, @Nullable String subType,
                 @SliceHint String... hints) {
             mItems.add(new SliceItem(icon, FORMAT_IMAGE, subType, hints));
             return this;
@@ -305,7 +305,7 @@ public final class Slice {
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
          */
-        public Builder addIcon(Icon icon, @Nullable String subType,
+        public Builder addIcon(IconCompat icon, @Nullable String subType,
                 @SliceHint List<String> hints) {
             return addIcon(icon, subType, hints.toArray(new String[hints.size()]));
         }

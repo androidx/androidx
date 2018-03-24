@@ -27,7 +27,6 @@ import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
@@ -35,6 +34,7 @@ import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder;
@@ -118,33 +118,34 @@ public class SliceCreator {
 
     private Slice createWeather(Uri sliceUri) {
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
-                "open weather app"), Icon.createWithResource(getContext(), R.drawable.weather_1),
+                "open weather app"),
+                IconCompat.createWithResource(getContext(), R.drawable.weather_1),
                 "Weather is happening!");
         ListBuilder b = new ListBuilder(getContext(), sliceUri, -TimeUnit.HOURS.toMillis(8));
         GridRowBuilder gb = new GridRowBuilder(b);
         gb.setPrimaryAction(primaryAction);
         gb.addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_1),
-                                SMALL_IMAGE)
-                        .addText("MON")
-                        .addTitleText("69\u00B0"))
+                .addImage(IconCompat.createWithResource(getContext(), R.drawable.weather_1),
+                        SMALL_IMAGE)
+                .addText("MON")
+                .addTitleText("69\u00B0"))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_2),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.weather_2),
                                 SMALL_IMAGE)
                         .addText("TUE")
                         .addTitleText("71\u00B0"))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_3),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.weather_3),
                                 SMALL_IMAGE)
                         .addText("WED")
                         .addTitleText("76\u00B0"))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_4),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.weather_4),
                                 SMALL_IMAGE)
                         .addText("THU")
                         .addTitleText("72\u00B0"))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.weather_1),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.weather_1),
                                 SMALL_IMAGE)
                         .addText("FRI")
                         .addTitleText("68\u00B0"));
@@ -157,25 +158,25 @@ public class SliceCreator {
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "see more of your gallery");
         gb.addSeeMoreAction(pi);
         gb.addCell(new GridRowBuilder.CellBuilder(gb)
-                .addImage(Icon.createWithResource(getContext(), R.drawable.slices_1),
+                .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_1),
                         LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_2),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_2),
                                 LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_3),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_3),
                                 LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_4),
                                 LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_2),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_2),
                                 LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_3),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_3),
                                 LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.slices_4),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_4),
                                 LARGE_IMAGE));
         return b.addGridRow(gb).build();
     }
@@ -186,7 +187,7 @@ public class SliceCreator {
         GridRowBuilder.CellBuilder cb = new GridRowBuilder.CellBuilder(gb);
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "See cats you follow");
         if (customSeeMore) {
-            cb.addImage(Icon.createWithResource(getContext(), R.drawable.ic_right_caret),
+            cb.addImage(IconCompat.createWithResource(getContext(), R.drawable.ic_right_caret),
                     ICON_IMAGE);
             cb.setContentIntent(pi);
             cb.addText("All cats");
@@ -195,27 +196,27 @@ public class SliceCreator {
             gb.addSeeMoreAction(pi);
         }
         gb.addCell(new GridRowBuilder.CellBuilder(gb)
-                    .addImage(Icon.createWithResource(getContext(), R.drawable.cat_1),
-                            SMALL_IMAGE)
-                    .addTitleText("Oreo"))
+                .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_1),
+                        SMALL_IMAGE)
+                .addTitleText("Oreo"))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_2),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_2),
                                 SMALL_IMAGE)
                         .addTitleText("Silver"))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_3),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_3),
                                 SMALL_IMAGE)
                         .addTitleText("Drake"))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_5),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_5),
                                 SMALL_IMAGE)
                         .addTitleText("Olive"))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_4),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_4),
                                 SMALL_IMAGE)
                         .addTitleText("Lady Marmalade"))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(Icon.createWithResource(getContext(), R.drawable.cat_6),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_6),
                                 SMALL_IMAGE)
                         .addTitleText("Grapefruit"));
         return b.addGridRow(gb).build();
@@ -225,7 +226,7 @@ public class SliceCreator {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(b);
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST,
-                "See contact info"), Icon.createWithResource(getContext(),
+                "See contact info"), IconCompat.createWithResource(getContext(),
                 R.drawable.mady), SMALL_IMAGE, "Mady");
         GridRowBuilder gb = new GridRowBuilder(b);
         return b.setColor(0xff3949ab)
@@ -235,25 +236,29 @@ public class SliceCreator {
                         .addEndItem(primaryAction))
                 .addGridRow(gb
                         .addCell(new GridRowBuilder.CellBuilder(gb)
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_call),
-                                    ICON_IMAGE)
-                            .addText("Call")
-                            .setContentIntent(getBroadcastIntent(ACTION_TOAST, "call")))
+                                .addImage(IconCompat.createWithResource(getContext(),
+                                        R.drawable.ic_call),
+                                        ICON_IMAGE)
+                                .addText("Call")
+                                .setContentIntent(getBroadcastIntent(ACTION_TOAST, "call")))
                         .addCell(new GridRowBuilder.CellBuilder(gb)
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_text),
-                                    ICON_IMAGE)
-                            .addText("Text")
-                            .setContentIntent(getBroadcastIntent(ACTION_TOAST, "text")))
+                                .addImage(IconCompat.createWithResource(getContext(),
+                                        R.drawable.ic_text),
+                                        ICON_IMAGE)
+                                .addText("Text")
+                                .setContentIntent(getBroadcastIntent(ACTION_TOAST, "text")))
                         .addCell(new GridRowBuilder.CellBuilder(gb)
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_video),
-                                    ICON_IMAGE)
-                            .setContentIntent(getBroadcastIntent(ACTION_TOAST, "video"))
-                            .addText("Video"))
+                                .addImage(IconCompat.createWithResource(getContext(),
+                                        R.drawable.ic_video),
+                                        ICON_IMAGE)
+                                .setContentIntent(getBroadcastIntent(ACTION_TOAST, "video"))
+                                .addText("Video"))
                         .addCell(new GridRowBuilder.CellBuilder(gb)
-                            .addImage(Icon.createWithResource(getContext(), R.drawable.ic_email),
-                                    ICON_IMAGE)
-                            .addText("Email")
-                            .setContentIntent(getBroadcastIntent(ACTION_TOAST, "email"))))
+                                .addImage(IconCompat.createWithResource(getContext(),
+                                        R.drawable.ic_email),
+                                        ICON_IMAGE)
+                                .addText("Email")
+                                .setContentIntent(getBroadcastIntent(ACTION_TOAST, "email"))))
                 .build();
     }
 
@@ -264,7 +269,7 @@ public class SliceCreator {
                 .add(new MessagingSliceBuilder.MessageBuilder(mb)
                         .addText("yo home \uD83C\uDF55, I emailed you the info")
                         .addTimestamp(System.currentTimeMillis() - 20 * DateUtils.MINUTE_IN_MILLIS)
-                        .addSource(Icon.createWithResource(getContext(), R.drawable.mady)))
+                        .addSource(IconCompat.createWithResource(getContext(), R.drawable.mady)))
                 .add(new MessagingSliceBuilder.MessageBuilder(mb)
                         .addText("just bought my tickets")
                         .addTimestamp(System.currentTimeMillis() - 10 * DateUtils.MINUTE_IN_MILLIS))
@@ -272,7 +277,7 @@ public class SliceCreator {
                         .addText("yay! can't wait for getContext() weekend!\n"
                                 + "\uD83D\uDE00")
                         .addTimestamp(System.currentTimeMillis() - 5 * DateUtils.MINUTE_IN_MILLIS)
-                        .addSource(Icon.createWithResource(getContext(), R.drawable.mady)))
+                        .addSource(IconCompat.createWithResource(getContext(), R.drawable.mady)))
                 .build();
 
     }
@@ -282,17 +287,17 @@ public class SliceCreator {
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
         return lb.setColor(0xfff4b400)
                 .addRow(new ListBuilder.RowBuilder(lb)
-                    .setTitle("Create new note")
-                    .setSubtitle("with this note taking app")
-                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
-                            Icon.createWithResource(getContext(), R.drawable.ic_create),
-                            "Create note"))
-                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "voice note"),
-                            Icon.createWithResource(getContext(), R.drawable.ic_voice),
-                            "Voice note"))
-                    .addEndItem(new SliceAction(getIntent("android.media.action.IMAGE_CAPTURE"),
-                            Icon.createWithResource(getContext(), R.drawable.ic_camera),
-                            "Photo note")))
+                        .setTitle("Create new note")
+                        .setSubtitle("with this note taking app")
+                        .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
+                                IconCompat.createWithResource(getContext(), R.drawable.ic_create),
+                                "Create note"))
+                        .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "voice note"),
+                                IconCompat.createWithResource(getContext(), R.drawable.ic_voice),
+                                "Voice note"))
+                        .addEndItem(new SliceAction(getIntent("android.media.action.IMAGE_CAPTURE"),
+                                IconCompat.createWithResource(getContext(), R.drawable.ic_camera),
+                                "Photo note")))
                 .build();
     }
 
@@ -305,7 +310,7 @@ public class SliceCreator {
         SpannableString workSubtitle = new SpannableString("44 miles | 1 hour 45 min | $31.41");
         workSubtitle.setSpan(colorSpan, 27, workSubtitle.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "get ride"),
-                Icon.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
+                IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
         Long ttl = showUpdated
                 ? -TimeUnit.MINUTES.toMillis(2) // negative for testing
                 : INFINITY;
@@ -320,13 +325,13 @@ public class SliceCreator {
                         .setTitle("Work")
                         .setSubtitle(workSubtitle)
                         .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "work"),
-                                Icon.createWithResource(getContext(), R.drawable.ic_work),
+                                IconCompat.createWithResource(getContext(), R.drawable.ic_work),
                                 "Get ride work")))
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .setTitle("Home")
                         .setSubtitle(homeSubtitle)
                         .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "home"),
-                                Icon.createWithResource(getContext(), R.drawable.ic_home),
+                                IconCompat.createWithResource(getContext(), R.drawable.ic_home),
                                 "Get ride home")))
                 .build();
     }
@@ -335,10 +340,12 @@ public class SliceCreator {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, -TimeUnit.HOURS.toMillis(1));
         return b.setColor(0xffff4081)
                 .addRow(new ListBuilder.RowBuilder(b)
-                    .setTitle("Custom toggle")
-                    .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "star toggled"),
-                            Icon.createWithResource(getContext(), R.drawable.toggle_star),
-                            "Toggle star", true /* isChecked */)))
+                        .setTitle("Custom toggle")
+                        .addEndItem(
+                                new SliceAction(getBroadcastIntent(ACTION_TOAST, "star toggled"),
+                                        IconCompat.createWithResource(getContext(),
+                                                R.drawable.toggle_star),
+                                        "Toggle star", true /* isChecked */)))
                 .build();
     }
 
@@ -350,11 +357,11 @@ public class SliceCreator {
                         .setSubtitle("each supports two states")
                         .addEndItem(new SliceAction(
                                 getBroadcastIntent(ACTION_TOAST, "first star toggled"),
-                                Icon.createWithResource(getContext(), R.drawable.toggle_star),
+                                IconCompat.createWithResource(getContext(), R.drawable.toggle_star),
                                 "Toggle star", true /* isChecked */))
                         .addEndItem(new SliceAction(
                                 getBroadcastIntent(ACTION_TOAST, "second star toggled"),
-                                Icon.createWithResource(getContext(), R.drawable.toggle_star),
+                                IconCompat.createWithResource(getContext(), R.drawable.toggle_star),
                                 "Toggle star", false /* isChecked */)))
                 .build();
     }
@@ -383,33 +390,34 @@ public class SliceCreator {
         boolean finalWifiEnabled = wifiEnabled;
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
         SliceAction primaryAction = new SliceAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
-                Icon.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
+                IconCompat.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
         lb.setColor(0xff4285f4);
         lb.addRow(new ListBuilder.RowBuilder(lb)
                 .setTitle("Wi-fi")
-                .setTitleItem(Icon.createWithResource(getContext(), R.drawable.ic_wifi), ICON_IMAGE)
+                .setTitleItem(IconCompat.createWithResource(getContext(), R.drawable.ic_wifi),
+                        ICON_IMAGE)
                 .setSubtitle(state)
                 .addEndItem(new SliceAction(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
                         "Toggle wifi", finalWifiEnabled))
                 .setPrimaryAction(primaryAction));
 
         // Add keywords
-        String[] keywords = new String[] {"internet", "wifi", "data", "network"};
+        String[] keywords = new String[]{"internet", "wifi", "data", "network"};
         lb.setKeywords(Arrays.asList(keywords));
 
         // Add fake wifi networks
-        int[] wifiIcons = new int[] {R.drawable.ic_wifi_full, R.drawable.ic_wifi_low,
+        int[] wifiIcons = new int[]{R.drawable.ic_wifi_full, R.drawable.ic_wifi_low,
                 R.drawable.ic_wifi_fair};
         for (int i = 0; i < 10; i++) {
             final int iconId = wifiIcons[i % wifiIcons.length];
-            Icon icon = Icon.createWithResource(getContext(), iconId);
+            IconCompat icon = IconCompat.createWithResource(getContext(), iconId);
             final String networkName = "Network" + i;
             ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb)
                     .setTitleItem(icon, ICON_IMAGE)
                     .setTitle("Network" + networkName);
             boolean locked = i % 3 == 0;
             if (locked) {
-                rb.addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_lock));
+                rb.addEndItem(IconCompat.createWithResource(getContext(), R.drawable.ic_lock));
             }
             String message = locked ? "Open wifi password dialog" : "Connect to " + networkName;
             rb.setPrimaryAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, message), icon,
@@ -419,7 +427,8 @@ public class SliceCreator {
         if (customSeeMore) {
             lb.addSeeMoreRow(new ListBuilder.RowBuilder(lb)
                     .setTitle("See all available networks")
-                    .addEndItem(Icon.createWithResource(getContext(), R.drawable.ic_right_caret))
+                    .addEndItem(
+                            IconCompat.createWithResource(getContext(), R.drawable.ic_right_caret))
                     .setPrimaryAction(primaryAction));
         } else {
             lb.addSeeMoreAction(primaryAction.getAction());
@@ -431,26 +440,26 @@ public class SliceCreator {
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb1 = new GridRowBuilder(lb);
         gb1.addCell(new GridRowBuilder.CellBuilder(gb1)
-                .addImage(Icon.createWithResource(getContext(), R.drawable.reservation),
+                .addImage(IconCompat.createWithResource(getContext(), R.drawable.reservation),
                         LARGE_IMAGE)
                 .setContentDescription("Image of your reservation in Seattle"));
         GridRowBuilder gb2 = new GridRowBuilder(lb);
         gb2.addCell(new GridRowBuilder.CellBuilder(gb2)
-                    .addTitleText("Check In")
-                    .addText("12:00 PM, Feb 1"))
+                .addTitleText("Check In")
+                .addText("12:00 PM, Feb 1"))
                 .addCell(new GridRowBuilder.CellBuilder(gb2)
-                    .addTitleText("Check Out")
-                    .addText("11:00 AM, Feb 19"));
+                        .addTitleText("Check Out")
+                        .addText("11:00 AM, Feb 19"));
         return lb.setColor(0xffFF5252)
                 .setHeader(new ListBuilder.HeaderBuilder(lb)
                         .setTitle("Upcoming trip to Seattle")
                         .setSubtitle("Feb 1 - 19 | 2 guests"))
                 .addAction(new SliceAction(
                         getBroadcastIntent(ACTION_TOAST, "show location on map"),
-                        Icon.createWithResource(getContext(), R.drawable.ic_location),
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_location),
                         "Show reservation location"))
                 .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "contact host"),
-                        Icon.createWithResource(getContext(), R.drawable.ic_text),
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_text),
                         "Contact host"))
                 .addGridRow(gb1)
                 .addGridRow(gb2)

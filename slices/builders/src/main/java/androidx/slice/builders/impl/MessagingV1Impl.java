@@ -19,8 +19,9 @@ package androidx.slice.builders.impl;
 import static android.app.slice.Slice.SUBTYPE_MESSAGE;
 
 import android.graphics.drawable.Icon;
-import androidx.annotation.RestrictTo;
 
+import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
 
@@ -71,7 +72,8 @@ public class MessagingV1Impl extends TemplateBuilderImpl implements MessagingBui
          */
         @Override
         public void addSource(Icon source) {
-            getBuilder().addIcon(source, android.app.slice.Slice.SUBTYPE_SOURCE);
+            getBuilder().addIcon(IconCompat.createFromIcon(source),
+                    android.app.slice.Slice.SUBTYPE_SOURCE);
         }
 
         /**

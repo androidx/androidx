@@ -23,12 +23,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
-import androidx.annotation.RestrictTo;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
+
+import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -125,7 +126,7 @@ class SliceXml {
                                 int w = Integer.parseInt(split[0]);
                                 int h = Integer.parseInt(split[1]);
                                 Bitmap image = Bitmap.createBitmap(w, h, Bitmap.Config.ALPHA_8);
-                                b.addIcon(Icon.createWithBitmap(image), subtype, hints);
+                                b.addIcon(IconCompat.createWithBitmap(image), subtype, hints);
                             }
                         }
                         break;
