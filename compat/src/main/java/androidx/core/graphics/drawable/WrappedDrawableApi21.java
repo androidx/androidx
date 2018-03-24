@@ -36,7 +36,7 @@ import androidx.annotation.RequiresApi;
 import java.lang.reflect.Method;
 
 @RequiresApi(21)
-class WrappedDrawableApi21 extends WrappedDrawableApi19 {
+class WrappedDrawableApi21 extends WrappedDrawableApi14 {
     private static final String TAG = "WrappedDrawableApi21";
     private static Method sIsProjectedDrawableMethod;
 
