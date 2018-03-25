@@ -143,7 +143,7 @@ public final class FingerprintManagerCompat {
     }
 
     @RequiresApi(23)
-    private static CryptoObject unwrapCryptoObject(FingerprintManager.CryptoObject cryptoObject) {
+    static CryptoObject unwrapCryptoObject(FingerprintManager.CryptoObject cryptoObject) {
         if (cryptoObject == null) {
             return null;
         } else if (cryptoObject.getCipher() != null) {
