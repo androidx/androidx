@@ -171,7 +171,7 @@ public class FontsContractCompat {
     /* package */ static final int RESULT_CODE_WRONG_CERTIFICATES = -2;
     // Note -3 is used by FontRequestCallback to indicate the font failed to load.
 
-    private static final LruCache<String, Typeface> sTypefaceCache = new LruCache<>(16);
+    static final LruCache<String, Typeface> sTypefaceCache = new LruCache<>(16);
 
     private static final int BACKGROUND_THREAD_KEEP_ALIVE_DURATION_MS = 10000;
     private static final SelfDestructiveThread sBackgroundThread =
@@ -179,7 +179,7 @@ public class FontsContractCompat {
                     BACKGROUND_THREAD_KEEP_ALIVE_DURATION_MS);
 
     @NonNull
-    private static TypefaceResult getFontInternal(final Context context, final FontRequest request,
+    static TypefaceResult getFontInternal(final Context context, final FontRequest request,
             int style) {
         FontFamilyResult result;
         try {
@@ -200,9 +200,9 @@ public class FontsContractCompat {
         return new TypefaceResult(null, resultCode);
     }
 
-    private static final Object sLock = new Object();
+    static final Object sLock = new Object();
     @GuardedBy("sLock")
-    private static final SimpleArrayMap<String, ArrayList<ReplyCallback<TypefaceResult>>>
+    static final SimpleArrayMap<String, ArrayList<ReplyCallback<TypefaceResult>>>
             sPendingReplies = new SimpleArrayMap<>();
 
     private static final class TypefaceResult {

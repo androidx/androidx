@@ -335,8 +335,8 @@ public class FrameMetricsAggregator {
         private static final int NANOS_PER_MS = 1000000;
         // rounding value adds half a millisecond, for rounding to nearest ms
         private static final int NANOS_ROUNDING_VALUE = NANOS_PER_MS / 2;
-        private int mTrackingFlags;
-        private SparseIntArray[] mMetrics = new SparseIntArray[LAST_INDEX + 1];
+        int mTrackingFlags;
+        SparseIntArray[] mMetrics = new SparseIntArray[LAST_INDEX + 1];
         private ArrayList<WeakReference<Activity>> mActivities = new ArrayList<>();
         private static HandlerThread sHandlerThread = null;
         private static Handler sHandler = null;
