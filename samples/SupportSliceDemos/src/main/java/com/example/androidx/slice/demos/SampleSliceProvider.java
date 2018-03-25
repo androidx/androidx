@@ -558,26 +558,36 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createStarRatingInputRange(Uri sliceUri) {
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        SliceAction primaryAction =
+                new SliceAction(getBroadcastIntent(ACTION_TOAST, "open star rating"), icon, "Rate");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xffff4081)
                 .addInputRange(c -> c
                         .setTitle("Star rating")
-                        .setThumb(
-                                IconCompat.createWithResource(getContext(), R.drawable.ic_star_on))
-                        .setAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
+                        .setSubtitle("Pick a rating from 0 to 5")
+                        .setThumb(icon)
+                        .setInputAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
                         .setMax(5)
                         .setValue(3)
+                        .setPrimaryAction(primaryAction)
                         .setContentDescription("Slider for star ratings"))
                 .build();
     }
 
     private Slice createDownloadProgressRange(Uri sliceUri) {
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        SliceAction primaryAction =
+                new SliceAction(
+                        getBroadcastIntent(ACTION_TOAST, "open download"), icon, "Download");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xffff4081)
                 .addRange(c -> c
                         .setTitle("Download progress")
+                        .setSubtitle("Download is happening")
                         .setMax(100)
-                        .setValue(75))
+                        .setValue(75)
+                        .setPrimaryAction(primaryAction))
                 .build();
     }
 

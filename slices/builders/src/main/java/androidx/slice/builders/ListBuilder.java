@@ -429,6 +429,28 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
+         * Set the subtitle.
+         */
+        @NonNull
+        public RangeBuilder setSubtitle(@NonNull CharSequence title) {
+            mImpl.setSubtitle(title);
+            return this;
+        }
+
+        /**
+         * Set the primary action for this row.
+         * <p>
+         * The action specified here will be sent when the whole row is clicked. If this
+         * is the first row in a {@link ListBuilder} this action will also be used to define
+         * the {@link androidx.slice.widget.SliceView#MODE_SHORTCUT} representation of the slice.
+         */
+        @NonNull
+        public RangeBuilder setPrimaryAction(@NonNull SliceAction action) {
+            mImpl.setPrimaryAction(action);
+            return this;
+        }
+
+        /**
          * Sets the content description.
          */
         @NonNull
@@ -480,13 +502,33 @@ public class ListBuilder extends TemplateSliceBuilder {
             return this;
         }
 
+        /**
+         * Set the subtitle.
+         */
+        @NonNull
+        public InputRangeBuilder setSubtitle(@NonNull CharSequence title) {
+            mImpl.setSubtitle(title);
+            return this;
+        }
+
+        /**
+         * Set the {@link PendingIntent} to send when the current value is updated.
+         *
+         * @deprecated TO BE REMOVED; use {@link InputRangeBuilder#setInputAction(PendingIntent)}
+         */
+        @Deprecated
+        @NonNull
+        public InputRangeBuilder setAction(@NonNull PendingIntent action) {
+            mImpl.setInputAction(action);
+            return this;
+        }
 
         /**
          * Set the {@link PendingIntent} to send when the current value is updated.
          */
         @NonNull
-        public InputRangeBuilder setAction(@NonNull PendingIntent action) {
-            mImpl.setAction(action);
+        public InputRangeBuilder setInputAction(@NonNull PendingIntent action) {
+            mImpl.setInputAction(action);
             return this;
         }
 
@@ -504,6 +546,21 @@ public class ListBuilder extends TemplateSliceBuilder {
         @NonNull
         public InputRangeBuilder setThumb(@NonNull IconCompat thumb) {
             mImpl.setThumb(thumb);
+            return this;
+        }
+
+        /**
+         * Set the primary action for this row.
+         * <p>
+         * The action specified here will be sent when the whole row is clicked, whereas
+         * the action specified via {@link #setAction(PendingIntent)} is used when the slider
+         * is interacted with. Additionally, if this is the first row in a {@link ListBuilder} this
+         * action will also be used to define the
+         * {@link androidx.slice.widget.SliceView#MODE_SHORTCUT} representation of the slice.
+         */
+        @NonNull
+        public InputRangeBuilder setPrimaryAction(@NonNull SliceAction action) {
+            mImpl.setPrimaryAction(action);
             return this;
         }
 

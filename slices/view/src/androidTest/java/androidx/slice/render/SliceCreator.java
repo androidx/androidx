@@ -58,7 +58,7 @@ public class SliceCreator {
 
     public static final String[] URI_PATHS = {"message", "wifi", "wifi2", "note", "ride",
             "ride-ttl", "toggle", "toggle2", "contact", "gallery", "subscription", "subscription2",
-            "weather", "reservation"};
+            "weather", "reservation", "inputrange", "range"};
 
     private final Context mContext;
 
@@ -112,6 +112,10 @@ public class SliceCreator {
                 return createWeather(sliceUri);
             case "/reservation":
                 return createReservationSlice(sliceUri);
+            case "/inputrange":
+                return createStarRatingInputRange(sliceUri);
+            case "/range":
+                return createDownloadProgressRange(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -463,6 +467,41 @@ public class SliceCreator {
                         "Contact host"))
                 .addGridRow(gb1)
                 .addGridRow(gb2)
+                .build();
+    }
+
+
+    private Slice createStarRatingInputRange(Uri sliceUri) {
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        SliceAction primaryAction =
+                new SliceAction(getBroadcastIntent(ACTION_TOAST, "open star rating"), icon, "Rate");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        return lb.setColor(0xffff4081)
+                .addInputRange(new ListBuilder.InputRangeBuilder(lb)
+                        .setTitle("Star rating")
+                        .setSubtitle("Pick a rating from 0 to 5")
+                        .setThumb(icon)
+                        .setInputAction(getBroadcastIntent(ACTION_TOAST, "range changed"))
+                        .setMax(5)
+                        .setValue(3)
+                        .setPrimaryAction(primaryAction)
+                        .setContentDescription("Slider for star ratings"))
+                .build();
+    }
+
+    private Slice createDownloadProgressRange(Uri sliceUri) {
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        SliceAction primaryAction =
+                new SliceAction(
+                        getBroadcastIntent(ACTION_TOAST, "open download"), icon, "Download");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        return lb.setColor(0xffff4081)
+                .addRange(new ListBuilder.RangeBuilder(lb)
+                        .setTitle("Download progress")
+                        .setSubtitle("Download is happening")
+                        .setMax(100)
+                        .setValue(75)
+                        .setPrimaryAction(primaryAction))
                 .build();
     }
 

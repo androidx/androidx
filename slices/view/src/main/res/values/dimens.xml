@@ -42,6 +42,8 @@
     <dimen name="abc_slice_row_max_height">60dp</dimen>
     <!-- Min height of a row showing an input field that is active -->
     <dimen name="abc_slice_row_active_input_height">120dp</dimen>
+    <!-- Max height of of a row view with a range element -->
+    <dimen name="abc_slice_row_range_max_height">86dp</dimen>
 
     <!-- Grid view sizes-->
     <!-- Height of a grid row displaying only text or only small images (but not both) -->

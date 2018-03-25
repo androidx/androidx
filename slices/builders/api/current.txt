@@ -99,9 +99,12 @@ package androidx.slice.builders {
 
   public static class ListBuilder.InputRangeBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor public ListBuilder.InputRangeBuilder(androidx.slice.builders.ListBuilder);
-    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setAction(android.app.PendingIntent);
+    method public deprecated androidx.slice.builders.ListBuilder.InputRangeBuilder setAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setContentDescription(java.lang.CharSequence);
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setInputAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setMax(int);
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setSubtitle(java.lang.CharSequence);
     method public deprecated androidx.slice.builders.ListBuilder.InputRangeBuilder setThumb(android.graphics.drawable.Icon);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setThumb(androidx.core.graphics.drawable.IconCompat);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setTitle(java.lang.CharSequence);
@@ -112,6 +115,8 @@ package androidx.slice.builders {
     ctor public ListBuilder.RangeBuilder(androidx.slice.builders.ListBuilder);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setMax(int);
+    method public androidx.slice.builders.ListBuilder.RangeBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
+    method public androidx.slice.builders.ListBuilder.RangeBuilder setSubtitle(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setTitle(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setValue(int);
   }
