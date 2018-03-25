@@ -36,18 +36,18 @@ import java.util.Arrays;
  */
 public class ShortcutInfoCompat {
 
-    private Context mContext;
-    private String mId;
+    Context mContext;
+    String mId;
 
-    private Intent[] mIntents;
-    private ComponentName mActivity;
+    Intent[] mIntents;
+    ComponentName mActivity;
 
-    private CharSequence mLabel;
-    private CharSequence mLongLabel;
-    private CharSequence mDisabledMessage;
+    CharSequence mLabel;
+    CharSequence mLongLabel;
+    CharSequence mDisabledMessage;
 
-    private IconCompat mIcon;
-    private boolean mIsAlwaysBadged;
+    IconCompat mIcon;
+    boolean mIsAlwaysBadged;
 
     private ShortcutInfoCompat() { }
 
