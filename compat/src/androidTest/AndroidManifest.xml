@@ -52,7 +52,6 @@
 
         <activity android:name="androidx.core.widget.ContentLoadingProgressBarActivity"/>
 
-        <activity android:name="androidx.core.widget.TextViewTestActivity"/>
         <activity android:name="androidx.core.app.FrameMetricsActivity"/>
         <activity android:name="androidx.core.app.FrameMetricsSubActivity"/>
 
