@@ -423,7 +423,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                     if (mObserver != null) {
                         final EventInfo info = new EventInfo(getMode(),
                                 EventInfo.ACTION_TYPE_TOGGLE,
-                                EventInfo.ROW_TYPE_LIST, mRowIndex);
+                                EventInfo.ROW_TYPE_TOGGLE, mRowIndex);
                         info.state = isChecked ? EventInfo.STATE_ON : EventInfo.STATE_OFF;
                         mObserver.onSliceAction(info, actionContent.getSliceItem());
                     }

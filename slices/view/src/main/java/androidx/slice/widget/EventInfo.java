@@ -29,7 +29,13 @@ public class EventInfo {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
-            ROW_TYPE_SHORTCUT, ROW_TYPE_LIST, ROW_TYPE_GRID, ROW_TYPE_MESSAGING
+            ROW_TYPE_SHORTCUT,
+            ROW_TYPE_LIST,
+            ROW_TYPE_GRID,
+            ROW_TYPE_MESSAGING,
+            ROW_TYPE_TOGGLE,
+            ROW_TYPE_SLIDER,
+            ROW_TYPE_PROGRESS,
     })
     public @interface SliceRowType {}
 
@@ -49,6 +55,18 @@ public class EventInfo {
      * Indicates the row is represented as a messaging template.
      */
     public static final int ROW_TYPE_MESSAGING = 2;
+    /**
+     * Indicates the row represents a toggleable item.
+     */
+    public static final int ROW_TYPE_TOGGLE = 3;
+    /**
+     * Indicates the row represents an range input slider.
+     */
+    public static final int ROW_TYPE_SLIDER = 4;
+    /**
+     * Indicates the row represents a progress indicator.
+     */
+    public static final int ROW_TYPE_PROGRESS = 5;
 
     /**
      * @hide
@@ -268,6 +286,12 @@ public class EventInfo {
                 return "MESSAGING";
             case ROW_TYPE_SHORTCUT:
                 return "SHORTCUT";
+            case ROW_TYPE_TOGGLE:
+                return "TOGGLE";
+            case ROW_TYPE_SLIDER:
+                return "SLIDER";
+            case ROW_TYPE_PROGRESS:
+                return "PROGRESS";
             default:
                 return "unknown row type: " + type;
         }

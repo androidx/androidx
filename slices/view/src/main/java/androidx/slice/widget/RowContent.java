@@ -44,6 +44,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceAction;
+import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -65,6 +67,7 @@ public class RowContent {
     private SliceItem mSubtitleItem;
     private SliceItem mSummaryItem;
     private ArrayList<SliceItem> mEndItems = new ArrayList<>();
+    private ArrayList<SliceAction> mToggleItems = new ArrayList<>();
     private SliceItem mRange;
     private SliceItem mContentDescr;
     private boolean mEndItemsContainAction;
@@ -164,15 +167,24 @@ public class RowContent {
                     }
                 } else if (desiredFormat == null) {
                     desiredFormat = item.getFormat();
-                    mEndItems.add(item);
-                    mEndItemsContainAction |= isAction;
+                    processContent(item, isAction);
                 } else if (desiredFormat.equals(item.getFormat())) {
-                    mEndItems.add(item);
-                    mEndItemsContainAction |= isAction;
+                    processContent(item, isAction);
                 }
             }
         }
         return isValid();
+    }
+
+    private void processContent(@NonNull SliceItem item, boolean isAction) {
+        if (isAction) {
+            SliceAction ac = new SliceActionImpl(item);
+            if (ac.isToggle()) {
+                mToggleItems.add(ac);
+            }
+        }
+        mEndItems.add(item);
+        mEndItemsContainAction |= isAction;
     }
 
     /**
@@ -233,6 +245,13 @@ public class RowContent {
      */
     public ArrayList<SliceItem> getEndItems() {
         return mEndItems;
+    }
+
+    /**
+     * @return a list of toggles associated with this row.
+     */
+    public ArrayList<SliceAction> getToggleItems() {
+        return mToggleItems;
     }
 
     /**
