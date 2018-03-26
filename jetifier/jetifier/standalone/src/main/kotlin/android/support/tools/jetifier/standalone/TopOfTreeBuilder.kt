@@ -16,10 +16,10 @@
 
 package android.support.tools.jetifier.standalone
 
-import android.support.tools.jetifier.core.archive.Archive
-import android.support.tools.jetifier.core.archive.ArchiveFile
-import android.support.tools.jetifier.core.archive.ArchiveItemVisitor
-import android.support.tools.jetifier.core.transform.pom.PomDocument
+import android.support.tools.jetifier.processor.archive.Archive
+import android.support.tools.jetifier.processor.archive.ArchiveFile
+import android.support.tools.jetifier.processor.archive.ArchiveItemVisitor
+import android.support.tools.jetifier.processor.transform.pom.PomDocument
 import java.io.File
 import java.nio.file.Paths
 import java.security.MessageDigest

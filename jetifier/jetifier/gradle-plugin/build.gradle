@@ -24,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    compile project(':jetifier-core')
+    compile project(':jetifier-processor')
     compile(KOTLIN_STDLIB)
     compileOnly gradleApi()
 }

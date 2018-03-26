@@ -16,10 +16,10 @@
 
 package android.support.tools.jetifier.plugin.gradle
 
-import android.support.tools.jetifier.core.FileMapping
-import android.support.tools.jetifier.core.Processor
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.utils.Log
+import android.support.tools.jetifier.processor.FileMapping
+import android.support.tools.jetifier.processor.Processor
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.logging.Logger
 import java.io.File

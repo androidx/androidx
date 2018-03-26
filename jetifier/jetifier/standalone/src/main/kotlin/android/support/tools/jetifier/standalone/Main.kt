@@ -16,11 +16,11 @@
 
 package android.support.tools.jetifier.standalone
 
-import android.support.tools.jetifier.core.FileMapping
-import android.support.tools.jetifier.core.Processor
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.config.ConfigParser
 import android.support.tools.jetifier.core.utils.Log
+import android.support.tools.jetifier.processor.FileMapping
+import android.support.tools.jetifier.processor.Processor
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
