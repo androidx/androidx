@@ -96,6 +96,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 true,
                 Executors.newSingleThreadExecutor());
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
+        WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
     }
 
@@ -106,6 +107,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
             mWorkManagerImpl.cancelWorkById(id);
         }
         mDatabase.close();
+        WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
