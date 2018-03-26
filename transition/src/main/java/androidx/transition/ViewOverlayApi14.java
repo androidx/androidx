@@ -28,7 +28,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 
@@ -36,7 +35,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-@RequiresApi(14)
 class ViewOverlayApi14 implements ViewOverlayImpl {
 
     /**

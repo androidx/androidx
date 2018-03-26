@@ -19,12 +19,9 @@ package androidx.transition;
 import android.animation.TypeEvaluator;
 import android.graphics.Rect;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * This evaluator can be used to perform type interpolation between <code>Rect</code> values.
  */
-@RequiresApi(14)
 class RectEvaluator implements TypeEvaluator<Rect> {
 
     /**

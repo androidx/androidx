@@ -28,11 +28,9 @@ import static org.mockito.Mockito.when;
 
 import android.app.Instrumentation;
 import android.graphics.Point;
-import android.os.Build;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
-import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -42,7 +40,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.test.R;
 
 import org.junit.Before;
@@ -52,7 +49,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 
-@RequiresApi(13)
 @RunWith(AndroidJUnit4.class)
 public class DragStartHelperTest {
 
@@ -169,7 +165,6 @@ public class DragStartHelperTest {
     }
 
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseClick() throws Throwable {
         final DragStartListener listener = createListener(true);
@@ -184,7 +179,6 @@ public class DragStartHelperTest {
     }
 
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mousePressWithSecondaryButton() throws Throwable {
         final DragStartListener listener = createListener(true);
@@ -201,7 +195,6 @@ public class DragStartHelperTest {
     }
 
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseDrag() throws Throwable {
         final DragStartListener listener = createListener(true);
@@ -220,7 +213,6 @@ public class DragStartHelperTest {
     }
 
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseDragWithNonprimaryButton() throws Throwable {
         final DragStartListener listener = createListener(true);
@@ -240,7 +232,6 @@ public class DragStartHelperTest {
     }
 
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseDragUsingTouchListener() throws Throwable {
         final DragStartListener listener = createListener(true);
@@ -266,7 +257,6 @@ public class DragStartHelperTest {
     }
 
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseDragWhenListenerReturnsFalse() throws Throwable {
         final DragStartListener listener = createListener(false);
@@ -290,7 +280,6 @@ public class DragStartHelperTest {
     }
 
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Test
     public void mouseLongPress() throws Throwable {
         final DragStartListener listener = createListener(true);

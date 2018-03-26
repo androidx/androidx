@@ -19,11 +19,9 @@ package androidx.transition;
 import android.util.SparseArray;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
 
-@RequiresApi(14)
 class TransitionValuesMaps {
 
     final ArrayMap<View, TransitionValues> mViewValues = new ArrayMap<>();

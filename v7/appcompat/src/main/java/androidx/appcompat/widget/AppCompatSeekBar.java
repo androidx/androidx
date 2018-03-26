@@ -21,7 +21,6 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.R;
 
 /**
@@ -63,7 +62,6 @@ public class AppCompatSeekBar extends SeekBar {
         mAppCompatSeekBarHelper.drawableStateChanged();
     }
 
-    @RequiresApi(11)
     @Override
     public void jumpDrawablesToCurrentState() {
         super.jumpDrawablesToCurrentState();
