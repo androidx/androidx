@@ -400,7 +400,7 @@ public final class HeifWriter implements AutoCloseable {
 
             try {
                 int gridRows = format.getInteger(MediaFormat.KEY_GRID_ROWS);
-                int gridCols = format.getInteger(MediaFormat.KEY_GRID_COLS);
+                int gridCols = format.getInteger(MediaFormat.KEY_GRID_COLUMNS);
                 mNumTiles = gridRows * gridCols;
             } catch (NullPointerException | ClassCastException  e) {
                 mNumTiles = 1;

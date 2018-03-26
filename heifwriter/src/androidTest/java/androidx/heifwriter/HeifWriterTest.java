@@ -555,10 +555,10 @@ public class HeifWriterTest {
             MediaExtractor extractor = new MediaExtractor();
             extractor.setDataSource(filename);
             MediaFormat format = extractor.getTrackFormat(0);
-            int gridWidth = format.getInteger(MediaFormat.KEY_GRID_WIDTH);
-            int gridHeight = format.getInteger(MediaFormat.KEY_GRID_HEIGHT);
+            int gridWidth = format.getInteger(MediaFormat.KEY_TILE_WIDTH);
+            int gridHeight = format.getInteger(MediaFormat.KEY_TILE_HEIGHT);
             int gridRows = format.getInteger(MediaFormat.KEY_GRID_ROWS);
-            int gridCols = format.getInteger(MediaFormat.KEY_GRID_COLS);
+            int gridCols = format.getInteger(MediaFormat.KEY_GRID_COLUMNS);
             assertTrue("Wrong grid width or cols",
                     ((width + gridWidth - 1) / gridWidth) == gridCols);
             assertTrue("Wrong grid height or rows",
