@@ -42,6 +42,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Pair;
 import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder;
@@ -91,7 +92,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        Icon icon = Icon.createWithBitmap(b);
+        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
 
         SliceAction action1 = new SliceAction(pi, icon, "action1");
         SliceAction action2 = new SliceAction(pi, icon, "action2");
@@ -122,7 +123,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        Icon icon = Icon.createWithBitmap(b);
+        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
 
         SliceAction primaryAction = new SliceAction(pi, icon, "action");
 
@@ -145,7 +146,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        Icon icon = Icon.createWithBitmap(b);
+        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
 
         SliceAction primaryAction = new SliceAction(pi, icon, "action");
         SliceAction endAction = new SliceAction(pi, "toogle action", false);
@@ -168,7 +169,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        Icon icon = Icon.createWithBitmap(b);
+        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
 
         SliceAction primaryAction = new SliceAction(pi, icon, "action");
         SliceAction sliceAction = new SliceAction(pi, "another action", true);
@@ -191,7 +192,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        Icon icon = Icon.createWithBitmap(b);
+        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
 
         SliceAction endAction1 = new SliceAction(pi, icon, "action");
         SliceAction endAction2 = new SliceAction(pi, "toogle action", false);
@@ -311,15 +312,15 @@ public class SliceMetadataTest {
         grb.addCell(new GridRowBuilder.CellBuilder(grb)
                 .addText("some text")
                 .addText("more text")
-                .addImage(icon, ICON_IMAGE));
+                .addImage(IconCompat.createFromIcon(icon), ICON_IMAGE));
         grb.addCell(new GridRowBuilder.CellBuilder(grb)
                 .addText("some text")
                 .addText("more text")
-                .addImage(icon, ICON_IMAGE));
+                .addImage(IconCompat.createFromIcon(icon), ICON_IMAGE));
         grb.addCell(new GridRowBuilder.CellBuilder(grb)
                 .addText("some text")
                 .addText("more text")
-                .addImage(icon, ICON_IMAGE));
+                .addImage(IconCompat.createFromIcon(icon), ICON_IMAGE));
         lb.addGridRow(grb);
 
         Slice gridSlice = lb.build();
@@ -406,7 +407,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        Icon icon = Icon.createWithBitmap(b);
+        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
 
         SliceAction toggleAction = new SliceAction(pi, icon, "toggle", false /* isChecked */);
         SliceAction toggleAction2 = new SliceAction(pi, icon, "toggle2", true /* isChecked */);
