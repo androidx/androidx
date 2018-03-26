@@ -16,7 +16,6 @@
 
 package androidx.room;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.executor.ArchTaskExecutor;
 
@@ -29,13 +28,14 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Scheduler;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
 
 /**
  * Helper class to add RxJava2 support to Room.
@@ -103,22 +103,12 @@ public class RxRoom {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static <T> Flowable<T> createFlowable(final RoomDatabase database,
             final String[] tableNames, final Callable<T> callable) {
+        final Maybe<T> maybe = Maybe.fromCallable(callable);
         return createFlowable(database, tableNames).observeOn(sAppToolkitIOScheduler)
-                .map(new Function<Object, Optional<T>>() {
+                .flatMapMaybe(new Function<Object, MaybeSource<T>>() {
                     @Override
-                    public Optional<T> apply(@NonNull Object o) throws Exception {
-                        T data = callable.call();
-                        return new Optional<>(data);
-                    }
-                }).filter(new Predicate<Optional<T>>() {
-                    @Override
-                    public boolean test(@NonNull Optional<T> optional) throws Exception {
-                        return optional.mValue != null;
-                    }
-                }).map(new Function<Optional<T>, T>() {
-                    @Override
-                    public T apply(@NonNull Optional<T> optional) throws Exception {
-                        return optional.mValue;
+                    public MaybeSource<T> apply(Object o) throws Exception {
+                        return maybe;
                     }
                 });
     }
@@ -174,15 +164,6 @@ public class RxRoom {
             if (!isDisposed()) {
                 mActual.run();
             }
-        }
-    }
-
-    static class Optional<T> {
-        @Nullable
-        final T mValue;
-
-        Optional(@Nullable T value) {
-            this.mValue = value;
         }
     }
 }
