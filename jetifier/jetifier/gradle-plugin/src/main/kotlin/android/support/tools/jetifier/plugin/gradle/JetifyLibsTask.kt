@@ -16,7 +16,7 @@
 
 package android.support.tools.jetifier.plugin.gradle
 
-import android.support.tools.jetifier.core.FileMapping
+import android.support.tools.jetifier.processor.FileMapping
 import android.support.tools.jetifier.core.config.ConfigParser
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -52,7 +52,6 @@ open class JetifyLibsTask : DefaultTask() {
             }
             return project.tasks.create(TASK_NAME, JetifyLibsTask::class.java)
         }
-
     }
 
     private val outputDir = File(project.buildDir, OUTPUT_DIR_APPENDIX)

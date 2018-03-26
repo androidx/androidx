@@ -79,6 +79,7 @@ includeProject(":sqlite:sqlite-framework", new File(supportRoot, "persistence/db
 includeProject(":sqlite:sqlite-ktx", new File(supportRoot, "persistence/db/ktx"))
 
 includeProject(":jetifier-core", new File(supportRoot, "jetifier/jetifier/core"))
+includeProject(":jetifier-processor", new File(supportRoot, "jetifier/jetifier/processor"))
 includeProject(":jetifier-gradle-plugin", new File(supportRoot, "jetifier/jetifier/gradle-plugin"))
 includeProject(":jetifier-standalone", new File(supportRoot, "jetifier/jetifier/standalone"))
 includeProject(":jetifier-preprocessor", new File(supportRoot, "jetifier/jetifier/preprocessor"))

@@ -16,11 +16,11 @@
 
 package android.support.tools.jetifier.core.config
 
-import android.support.tools.jetifier.core.rules.RewriteRule
-import android.support.tools.jetifier.core.transform.pom.PomRewriteRule
-import android.support.tools.jetifier.core.map.TypesMap
-import android.support.tools.jetifier.core.transform.PackageMap
-import android.support.tools.jetifier.core.transform.proguard.ProGuardTypesMap
+import android.support.tools.jetifier.core.PackageMap
+import android.support.tools.jetifier.core.RewriteRule
+import android.support.tools.jetifier.core.pom.PomRewriteRule
+import android.support.tools.jetifier.core.proguard.ProGuardTypesMap
+import android.support.tools.jetifier.core.type.TypesMap
 import com.google.gson.annotations.SerializedName
 
 /**
