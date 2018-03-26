@@ -46,7 +46,7 @@
     <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_1"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@id/ws_nav_drawer_guide_start"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
@@ -54,7 +54,7 @@
     <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_2"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="ContentDescription"
@@ -63,7 +63,7 @@
     <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_3"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/ws_nav_drawer_guide_end"
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
