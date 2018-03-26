@@ -26,6 +26,7 @@ import android.provider.DocumentsContract;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(19)
@@ -43,14 +44,17 @@ class DocumentsContractApi19 {
         return (getFlags(context, self) & FLAG_VIRTUAL_DOCUMENT) != 0;
     }
 
+    @Nullable
     public static String getName(Context context, Uri self) {
         return queryForString(context, self, DocumentsContract.Document.COLUMN_DISPLAY_NAME, null);
     }
 
+    @Nullable
     private static String getRawType(Context context, Uri self) {
         return queryForString(context, self, DocumentsContract.Document.COLUMN_MIME_TYPE, null);
     }
 
+    @Nullable
     public static String getType(Context context, Uri self) {
         final String rawType = getRawType(context, self);
         if (DocumentsContract.Document.MIME_TYPE_DIR.equals(rawType)) {
@@ -149,8 +153,9 @@ class DocumentsContractApi19 {
         }
     }
 
+    @Nullable
     private static String queryForString(Context context, Uri self, String column,
-            String defaultValue) {
+            @Nullable String defaultValue) {
         final ContentResolver resolver = context.getContentResolver();
 
         Cursor c = null;
@@ -194,7 +199,7 @@ class DocumentsContractApi19 {
         }
     }
 
-    private static void closeQuietly(AutoCloseable closeable) {
+    private static void closeQuietly(@Nullable AutoCloseable closeable) {
         if (closeable != null) {
             try {
                 closeable.close();

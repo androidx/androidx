@@ -20,6 +20,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.provider.DocumentsContract;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(19)
@@ -27,7 +28,7 @@ class SingleDocumentFile extends DocumentFile {
     private Context mContext;
     private Uri mUri;
 
-    SingleDocumentFile(DocumentFile parent, Context context, Uri uri) {
+    SingleDocumentFile(@Nullable DocumentFile parent, Context context, Uri uri) {
         super(parent);
         mContext = context;
         mUri = uri;
@@ -49,11 +50,13 @@ class SingleDocumentFile extends DocumentFile {
     }
 
     @Override
+    @Nullable
     public String getName() {
         return DocumentsContractApi19.getName(mContext, mUri);
     }
 
     @Override
+    @Nullable
     public String getType() {
         return DocumentsContractApi19.getType(mContext, mUri);
     }
