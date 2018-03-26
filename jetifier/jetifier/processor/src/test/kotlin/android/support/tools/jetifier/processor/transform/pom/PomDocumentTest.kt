@@ -16,14 +16,15 @@
 
 package android.support.tools.jetifier.processor.transform.pom
 
-import android.support.tools.jetifier.processor.archive.ArchiveFile
+import android.support.tools.jetifier.core.PackageMap
 import android.support.tools.jetifier.core.config.Config
-import android.support.tools.jetifier.core.type.TypesMap
 import android.support.tools.jetifier.core.pom.PomDependency
 import android.support.tools.jetifier.core.pom.PomRewriteRule
-import android.support.tools.jetifier.core.PackageMap
-import android.support.tools.jetifier.processor.transform.TransformationContext
 import android.support.tools.jetifier.core.proguard.ProGuardTypesMap
+import android.support.tools.jetifier.core.rule.RewriteRulesMap
+import android.support.tools.jetifier.core.type.TypesMap
+import android.support.tools.jetifier.processor.archive.ArchiveFile
+import android.support.tools.jetifier.processor.transform.TransformationContext
 import com.google.common.truth.Truth
 import org.junit.Test
 import java.nio.charset.StandardCharsets
@@ -397,10 +398,10 @@ class PomDocumentTest {
         val file = ArchiveFile(Paths.get("pom.xml"), given.toByteArray())
         val pomDocument = PomDocument.loadFrom(file)
         val config = Config(
-                restrictToPackagePrefixes = emptyList(),
-                rewriteRules = emptyList(),
+                restrictToPackagePrefixes = emptySet(),
+                rulesMap = RewriteRulesMap.EMPTY,
                 typesMap = TypesMap.EMPTY,
-                slRules = emptyList(),
+                slRules = emptySet(),
                 pomRewriteRules = rules,
                 proGuardMap = ProGuardTypesMap.EMPTY,
                 packageMap = PackageMap.EMPTY)

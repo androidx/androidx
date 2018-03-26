@@ -45,22 +45,14 @@ class CoreRemapperImpl(
     val classRemapper = ClassRemapper(visitor, CustomRemapper(this))
 
     override fun rewriteType(type: JavaType): JavaType {
-        if (!context.isEligibleForRewrite(type)) {
-            return type
-        }
-
-        val result = typesMap.mapType(type)
+        val result = context.typeRewriter.rewriteType(type)
         if (result != null) {
             changesDone = changesDone || result != type
-            Log.i(TAG, "  map: %s -> %s", type, result)
             return result
         }
 
-        if (context.useIdentityIfTypeIsMissing) {
-            Log.i(TAG, "No mapping for %s - using identity", type)
-        } else {
+        if (!context.useFallbackIfTypeIsMissing) {
             context.reportNoMappingFoundFailure()
-            Log.e(TAG, "No mapping for: " + type)
         }
         return type
     }
@@ -69,14 +61,14 @@ class CoreRemapperImpl(
         val startsWithAndroidX = context.isInReversedMode && value.startsWith("androidx")
 
         val type = JavaType.fromDotVersion(value)
-        if (!context.isEligibleForRewrite(type)) {
+        if (!context.typeRewriter.isEligibleForRewrite(type)) {
             if (startsWithAndroidX) {
-                Log.i(TAG, "Found string '%s' but failed to rewrite", value)
+                Log.i(TAG, "Found & ignored string '%s'", value)
             }
             return value
         }
 
-        val result = typesMap.mapType(type)
+        val result = context.config.typesMap.mapType(type)
         if (result != null) {
             changesDone = changesDone || result != type
             Log.i(TAG, "Map string: '%s' -> '%s'", type, result)
@@ -86,11 +78,20 @@ class CoreRemapperImpl(
         // We might be working with an internal type or field reference, e.g.
         // AccessibilityNodeInfoCompat.PANE_TITLE_KEY. So we try to remove last segment to help it.
         if (value.contains(".")) {
-            val subTypeResult = typesMap.mapType(type.getParentType())
+            val subTypeResult = context.config.typesMap.mapType(type.getParentType())
             if (subTypeResult != null) {
                 val result = subTypeResult.toDotNotation() + '.' + value.substringAfterLast('.')
-                Log.i(TAG, "Map string: '%s' -> '%s' via fallback", value, result)
+                Log.i(TAG, "Map string: '%s' -> '%s' via type fallback", value, result)
                 return result
+            }
+        }
+
+        // Try rewrite rules
+        if (context.useFallbackIfTypeIsMissing) {
+            val result = context.config.rulesMap.rewriteType(type)
+            if (result != null) {
+                Log.i(TAG, "Map string: '%s' -> '%s' via fallback", value, result)
+                return result.toDotNotation()
             }
         }
 
@@ -106,23 +107,16 @@ class CoreRemapperImpl(
 
         val owner = path.toFile().path.replace('\\', '/').removeSuffix(".class")
         val type = JavaType(owner)
-        if (!context.isEligibleForRewrite(type)) {
-            return path
-        }
-
         val result = rewriteType(type)
         if (result != type) {
             changesDone = true
             return path.fileSystem.getPath(result.fullName + ".class")
         }
 
-        if (context.useIdentityIfTypeIsMissing) {
-            Log.i(TAG, "No mapping for: %s", type)
-            return path
+        if (!context.useFallbackIfTypeIsMissing) {
+            context.reportNoMappingFoundFailure()
         }
 
-        context.reportNoMappingFoundFailure()
-        Log.e(TAG, "No mapping for: %s", type)
         return path
     }
 }

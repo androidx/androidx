@@ -16,7 +16,7 @@
 
 package android.support.tools.jetifier.core.type
 
-import android.support.tools.jetifier.core.RewriteRule
+import android.support.tools.jetifier.core.rule.RewriteRule
 import android.support.tools.jetifier.core.utils.Log
 
 /**
@@ -39,6 +39,8 @@ data class TypesMap(private val types: Map<JavaType, JavaType>) {
             throw IllegalArgumentException("Types map does not support nested types!")
         }
     }
+
+    constructor(vararg types: Pair<JavaType, JavaType>) : this(types.toMap())
 
     /** Returns JSON data model of this class */
     fun toJson(): JsonData {

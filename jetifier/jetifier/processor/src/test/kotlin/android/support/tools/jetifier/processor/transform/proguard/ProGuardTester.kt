@@ -16,10 +16,11 @@
 
 package android.support.tools.jetifier.processor.transform.proguard
 
-import android.support.tools.jetifier.core.RewriteRule
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.proguard.ProGuardType
 import android.support.tools.jetifier.core.proguard.ProGuardTypesMap
+import android.support.tools.jetifier.core.rule.RewriteRule
+import android.support.tools.jetifier.core.rule.RewriteRulesMap
 import android.support.tools.jetifier.core.type.JavaType
 import android.support.tools.jetifier.core.type.TypesMap
 import android.support.tools.jetifier.processor.archive.ArchiveFile
@@ -36,10 +37,10 @@ class ProGuardTester {
     private var javaTypes = emptyList<Pair<String, String>>()
     private var rewriteRules = emptyList<Pair<String, String>>()
     private var proGuardTypes = emptyList<Pair<ProGuardType, ProGuardType>>()
-    private var prefixes = emptyList<String>()
+    private var prefixes = emptySet<String>()
 
     fun forGivenPrefixes(vararg prefixes: String): ProGuardTester {
-        this.prefixes = prefixes.toList()
+        this.prefixes = prefixes.toSet()
         return this
     }
 
@@ -75,8 +76,10 @@ class ProGuardTester {
     private fun createConfig(): Config {
         return Config(
             restrictToPackagePrefixes = prefixes,
-            rewriteRules = rewriteRules.map { RewriteRule(it.first, it.second) },
-            slRules = emptyList(),
+            rulesMap = RewriteRulesMap(rewriteRules
+                .map { RewriteRule(it.first, it.second) }
+                .toSet()),
+            slRules = emptySet(),
             pomRewriteRules = emptySet(),
             typesMap = TypesMap(
                 types = javaTypes.map { JavaType(it.first) to JavaType(it.second) }.toMap()
@@ -102,7 +105,7 @@ class ProGuardTester {
     class ProGuardTesterForType(private val config: Config, private val given: String) {
 
         fun getsRewrittenTo(expectedType: String) {
-            val context = TransformationContext(config, useIdentityIfTypeIsMissing = false)
+            val context = TransformationContext(config, useFallbackIfTypeIsMissing = false)
             val mapper = ProGuardTypesMapper(context)
             val result = mapper.replaceType(given)
 
