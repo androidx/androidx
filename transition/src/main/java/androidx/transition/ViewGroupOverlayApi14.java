@@ -21,9 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
-@RequiresApi(14)
 class ViewGroupOverlayApi14 extends ViewOverlayApi14 implements ViewGroupOverlayImpl {
 
     ViewGroupOverlayApi14(Context context, ViewGroup hostView, View requestingView) {

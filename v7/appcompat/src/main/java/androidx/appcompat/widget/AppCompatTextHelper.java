@@ -32,7 +32,6 @@ import android.util.TypedValue;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.content.res.ResourcesCompat;
@@ -40,7 +39,6 @@ import androidx.core.widget.TextViewCompat;
 
 import java.lang.ref.WeakReference;
 
-@RequiresApi(9)
 class AppCompatTextHelper {
 
     // Enum for the "typeface" XML parameter.
