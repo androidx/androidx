@@ -30,7 +30,7 @@ public class CarUxRestrictionsTestUtils {
         return new CarUxRestrictions(true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED, 0);
     }
 
-    public static CarUxRestrictions getUnrestricted() {
-        return new CarUxRestrictions(false, CarUxRestrictions.UX_RESTRICTIONS_UNRESTRICTED, 0);
+    public static CarUxRestrictions getBaseline() {
+        return new CarUxRestrictions(false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE, 0);
     }
 }
