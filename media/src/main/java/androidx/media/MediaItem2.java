@@ -19,13 +19,16 @@ package androidx.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.UUID;
 
 /**
  * @hide
@@ -57,56 +60,102 @@ public class MediaItem2 {
      */
     public static final int FLAG_PLAYABLE = 1 << 1;
 
-    //private final MediaItem2Provider mProvider;
+    private static final String KEY_ID = "android.media.mediaitem2.id";
+    private static final String KEY_FLAGS = "android.media.mediaitem2.flags";
+    private static final String KEY_METADATA = "android.media.mediaitem2.metadata";
+    private static final String KEY_UUID = "android.media.mediaitem2.uuid";
 
-//    /**
-//     * Create a new media item
-//     * @hide
-//     */
-//    public MediaItem2(MediaItem2Provider provider) {
-//        mProvider = provider;
-//    }
+    private final String mId;
+    private final int mFlags;
+    private final UUID mUUID;
+    private MediaMetadata2 mMetadata;
+    private DataSourceDesc mDataSourceDesc;
 
-//    /**
-//     * @hide
-//     */
-//    public MediaItem2Provider getProvider() {
-//        return mProvider;
-//    }
+    private MediaItem2(@NonNull String mediaId, @Nullable DataSourceDesc dsd,
+            @Nullable MediaMetadata2 metadata, @Flags int flags) {
+        this(mediaId, dsd, metadata, flags, null);
+    }
 
+    private MediaItem2(@NonNull String mediaId, @Nullable DataSourceDesc dsd,
+            @Nullable MediaMetadata2 metadata, @Flags int flags, @Nullable UUID uuid) {
+        if (mediaId == null) {
+            throw new IllegalArgumentException("mediaId shouldn't be null");
+        }
+        if (metadata != null && !TextUtils.equals(mediaId, metadata.getMediaId())) {
+            throw new IllegalArgumentException("metadata's id should be matched with the mediaid");
+        }
+
+        mId = mediaId;
+        mDataSourceDesc = dsd;
+        mMetadata = metadata;
+        mFlags = flags;
+        mUUID = (uuid == null) ? UUID.randomUUID() : uuid;
+    }
     /**
      * Return this object as a bundle to share between processes.
      *
      * @return a new bundle instance
      */
     public Bundle toBundle() {
-        //return mProvider.toBundle_impl();
-        return null;
+        Bundle bundle = new Bundle();
+        bundle.putString(KEY_ID, mId);
+        bundle.putInt(KEY_FLAGS, mFlags);
+        if (mMetadata != null) {
+            bundle.putBundle(KEY_METADATA, mMetadata.toBundle());
+        }
+        bundle.putString(KEY_UUID, mUUID.toString());
+        return bundle;
     }
 
     /**
-     * TODO: javadoc
+     * Create a MediaItem2 from the {@link Bundle}.
+     *
+     * @param bundle The bundle which was published by {@link MediaItem2#toBundle()}.
+     * @return The newly created MediaItem2
      */
     public static MediaItem2 fromBundle(Bundle bundle) {
-        //return ApiLoader.getProvider().fromBundle_MediaItem2(context, bundle);
-        return null;
+        if (bundle == null) {
+            return null;
+        }
+        final String uuidString = bundle.getString(KEY_UUID);
+        return fromBundle(bundle, UUID.fromString(uuidString));
     }
 
     /**
-     * TODO: javadoc
+     * Create a MediaItem2 from the {@link Bundle} with the specified {@link UUID}.
+     * If {@link UUID}
+     * can be null for creating new.
+     *
+     * @param bundle The bundle which was published by {@link MediaItem2#toBundle()}.
+     * @param uuid A {@link UUID} to override. Can be {@link null} for override.
+     * @return The newly created MediaItem2
      */
+    static MediaItem2 fromBundle(@NonNull Bundle bundle, @Nullable UUID uuid) {
+        if (bundle == null) {
+            return null;
+        }
+        final String id = bundle.getString(KEY_ID);
+        final Bundle metadataBundle = bundle.getBundle(KEY_METADATA);
+        final MediaMetadata2 metadata = metadataBundle != null
+                ? MediaMetadata2.fromBundle(metadataBundle) : null;
+        final int flags = bundle.getInt(KEY_FLAGS);
+        return new MediaItem2(id, null, metadata, flags, uuid);
+    }
+
     @Override
     public String toString() {
-        //return mProvider.toString_impl();
-        return null;
+        final StringBuilder sb = new StringBuilder("MediaItem2{");
+        sb.append("mFlags=").append(mFlags);
+        sb.append(", mMetadata=").append(mMetadata);
+        sb.append('}');
+        return sb.toString();
     }
 
     /**
      * Gets the flags of the item.
      */
     public @Flags int getFlags() {
-        //return mProvider.getFlags_impl();
-        return 0;
+        return mFlags;
     }
 
     /**
@@ -114,8 +163,7 @@ public class MediaItem2 {
      * @see #FLAG_BROWSABLE
      */
     public boolean isBrowsable() {
-        //return mProvider.isBrowsable_impl();
-        return false;
+        return (mFlags & FLAG_BROWSABLE) != 0;
     }
 
     /**
@@ -123,8 +171,7 @@ public class MediaItem2 {
      * @see #FLAG_PLAYABLE
      */
     public boolean isPlayable() {
-        //return mProvider.isPlayable_impl();
-        return false;
+        return (mFlags & FLAG_PLAYABLE) != 0;
     }
 
     /**
@@ -134,49 +181,54 @@ public class MediaItem2 {
      * @param metadata metadata to update
      */
     public void setMetadata(@Nullable MediaMetadata2 metadata) {
-        //mProvider.setMetadata_impl(metadata);
+        if (metadata != null && !TextUtils.equals(mId, metadata.getMediaId())) {
+            throw new IllegalArgumentException("metadata's id should be matched with the mediaId");
+        }
+        mMetadata = metadata;
     }
 
     /**
      * Returns the metadata of the media.
      */
     public @Nullable MediaMetadata2 getMetadata() {
-        //return mProvider.getMetadata_impl();
-        return null;
+        return mMetadata;
     }
 
     /**
      * Returns the media id for this item.
      */
     public /*@NonNull*/ String getMediaId() {
-        //return mProvider.getMediaId_impl();
-        return null;
+        return mId;
     }
 
     /**
-     * TODO: Fix {link DataSourceDesc}
-     * Return the {link DataSourceDesc}
+     * Return the {@link DataSourceDesc}
      * <p>
      * Can be {@code null} if the MediaItem2 came from another process and anonymized
      *
      * @return data source descriptor
      */
-    public @Nullable Object /*DataSourceDesc*/ getDataSourceDesc() {
-        //return mProvider.getDataSourceDesc_impl();
-        return null;
+    public @Nullable DataSourceDesc getDataSourceDesc() {
+        return mDataSourceDesc;
     }
 
     @Override
     public boolean equals(Object obj) {
-        //return mProvider.equals_impl(obj);
-        return false;
+        if (!(obj instanceof MediaItem2)) {
+            return false;
+        }
+        MediaItem2 other = (MediaItem2) obj;
+        return mUUID.equals(other.mUUID);
     }
 
     /**
      * Build {@link MediaItem2}
      */
     public static final class Builder {
-        //private final MediaItem2Provider.BuilderProvider mProvider;
+        private @Flags int mFlags;
+        private String mMediaId;
+        private MediaMetadata2 mMetadata;
+        private DataSourceDesc mDataSourceDesc;
 
         /**
          * Constructor for {@link Builder}
@@ -184,7 +236,7 @@ public class MediaItem2 {
          * @param flags
          */
         public Builder(@Flags int flags) {
-            //mProvider = ApiLoader.getProvider().createMediaItem2Builder(context, this, flags);
+            mFlags = flags;
         }
 
         /**
@@ -201,7 +253,7 @@ public class MediaItem2 {
          * @return this instance for chaining
          */
         public Builder setMediaId(@Nullable String mediaId) {
-            //return mProvider.setMediaId_impl(mediaId);
+            mMediaId = mediaId;
             return this;
         }
 
@@ -217,7 +269,7 @@ public class MediaItem2 {
          * @return this instance for chaining
          */
         public Builder setMetadata(@Nullable MediaMetadata2 metadata) {
-            //return mProvider.setMetadata_impl(metadata);
+            mMetadata = metadata;
             return this;
         }
 
@@ -227,8 +279,8 @@ public class MediaItem2 {
          * @param dataSourceDesc data source descriptor
          * @return this instance for chaining
          */
-        public Builder setDataSourceDesc(@Nullable Object /*DataSourceDesc*/ dataSourceDesc) {
-            //return mProvider.setDataSourceDesc_impl(dataSourceDesc);
+        public Builder setDataSourceDesc(@Nullable DataSourceDesc dataSourceDesc) {
+            mDataSourceDesc = dataSourceDesc;
             return this;
         }
 
@@ -238,8 +290,13 @@ public class MediaItem2 {
          * @return a new {@link MediaItem2}.
          */
         public MediaItem2 build() {
-            //return mProvider.build_impl();
-            return null;
+            String id = (mMetadata != null)
+                    ? mMetadata.getString(MediaMetadata2.METADATA_KEY_MEDIA_ID) : null;
+            if (id == null) {
+                //  TODO(jaewan): Double check if its sufficient (e.g. Use UUID instead?)
+                id = (mMediaId != null) ? mMediaId : toString();
+            }
+            return new MediaItem2(id, mDataSourceDesc, mMetadata, mFlags);
         }
     }
 }
