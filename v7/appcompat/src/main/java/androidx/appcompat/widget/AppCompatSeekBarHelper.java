@@ -24,7 +24,6 @@ import android.util.AttributeSet;
 import android.widget.SeekBar;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.R;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
@@ -142,7 +141,6 @@ class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
         }
     }
 
-    @RequiresApi(11)
     void jumpDrawablesToCurrentState() {
         if (mTickMark != null) {
             mTickMark.jumpToCurrentState();

@@ -19,9 +19,7 @@ package androidx.transition;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
-@RequiresApi(14)
 interface ViewGroupOverlayImpl extends ViewOverlayImpl {
 
     /**

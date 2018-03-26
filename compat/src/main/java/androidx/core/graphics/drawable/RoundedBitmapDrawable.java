@@ -32,7 +32,6 @@ import android.view.Gravity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * A Drawable that wraps a bitmap and can be drawn with rounded corners. You can create a
@@ -44,7 +43,6 @@ import androidx.annotation.RequiresApi;
  * {@link android.graphics.Canvas}.
  * </p>
  */
-@RequiresApi(9)
 public abstract class RoundedBitmapDrawable extends Drawable {
     private static final int DEFAULT_PAINT_FLAGS =
             Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG;

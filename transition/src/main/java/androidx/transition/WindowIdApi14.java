@@ -18,9 +18,6 @@ package androidx.transition;
 
 import android.os.IBinder;
 
-import androidx.annotation.RequiresApi;
-
-@RequiresApi(14)
 class WindowIdApi14 implements WindowIdImpl {
 
     private final IBinder mToken;
