@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
-import android.media.DataSourceDesc;
 import android.media.MediaPlayer;
 import android.media.session.MediaController;
 import android.media.session.PlaybackState;
@@ -346,9 +345,9 @@ public class VideoView2 extends ViewGroup {
      * @param dataSource the {@link DataSourceDesc} object to play.
      * @see #setMediaItem
      */
-    public void setDataSource(@NonNull DataSourceDesc dataSource) {
+    //public void setDataSource(@NonNull DataSourceDesc dataSource) {
         //mProvider.setDataSource_impl(dataSource);
-    }
+    //}
 
     /**
      * Selects which view will be used to render video between SurfacView and TextureView.
