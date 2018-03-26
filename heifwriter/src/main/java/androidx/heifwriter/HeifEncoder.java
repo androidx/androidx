@@ -244,9 +244,9 @@ public final class HeifEncoder implements AutoCloseable,
         }
 
         if (useGrid) {
-            codecFormat.setInteger(MediaFormat.KEY_GRID_WIDTH, gridWidth);
-            codecFormat.setInteger(MediaFormat.KEY_GRID_HEIGHT, gridHeight);
-            codecFormat.setInteger(MediaFormat.KEY_GRID_COLS, gridCols);
+            codecFormat.setInteger(MediaFormat.KEY_TILE_WIDTH, gridWidth);
+            codecFormat.setInteger(MediaFormat.KEY_TILE_HEIGHT, gridHeight);
+            codecFormat.setInteger(MediaFormat.KEY_GRID_COLUMNS, gridCols);
             codecFormat.setInteger(MediaFormat.KEY_GRID_ROWS, gridRows);
         }
 
@@ -809,10 +809,10 @@ public final class HeifEncoder implements AutoCloseable,
                 format.setInteger(MediaFormat.KEY_HEIGHT, mHeight);
 
                 if (mNumTiles > 1) {
-                    format.setInteger(MediaFormat.KEY_GRID_WIDTH, mGridWidth);
-                    format.setInteger(MediaFormat.KEY_GRID_HEIGHT, mGridHeight);
+                    format.setInteger(MediaFormat.KEY_TILE_WIDTH, mGridWidth);
+                    format.setInteger(MediaFormat.KEY_TILE_HEIGHT, mGridHeight);
                     format.setInteger(MediaFormat.KEY_GRID_ROWS, mGridRows);
-                    format.setInteger(MediaFormat.KEY_GRID_COLS, mGridCols);
+                    format.setInteger(MediaFormat.KEY_GRID_COLUMNS, mGridCols);
                 }
             }
 
