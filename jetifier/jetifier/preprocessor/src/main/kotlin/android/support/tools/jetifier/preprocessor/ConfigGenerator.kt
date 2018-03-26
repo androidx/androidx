@@ -16,10 +16,10 @@
 
 package android.support.tools.jetifier.preprocessor
 
-import android.support.tools.jetifier.core.archive.Archive
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.config.ConfigParser
-import android.support.tools.jetifier.core.map.LibraryMapGenerator
+import android.support.tools.jetifier.processor.archive.Archive
+import android.support.tools.jetifier.processor.type.LibraryMapGenerator
 import java.io.File
 import java.nio.file.Path
 
