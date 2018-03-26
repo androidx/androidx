@@ -1086,6 +1086,10 @@ package androidx.core.os {
     field public static final java.lang.String MEDIA_UNKNOWN = "unknown";
   }
 
+  public final class HandlerCompat {
+    method public static boolean postDelayed(android.os.Handler, java.lang.Runnable, java.lang.Object, long);
+  }
+
   public final class LocaleListCompat {
     method public static androidx.core.os.LocaleListCompat create(java.util.Locale...);
     method public static androidx.core.os.LocaleListCompat forLanguageTags(java.lang.String);
