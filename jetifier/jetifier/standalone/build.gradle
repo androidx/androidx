@@ -22,7 +22,7 @@ plugins {
 mainClassName = "android.support.tools.jetifier.standalone.MainKt"
 
 dependencies {
-    compile project(':jetifier-core')
+    compile project(':jetifier-processor')
     compile group: 'commons-cli', name: 'commons-cli', version: '1.3.1'
 }
 
