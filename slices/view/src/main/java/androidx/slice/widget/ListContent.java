@@ -39,6 +39,8 @@ import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceMetadata;
+import androidx.slice.core.SliceAction;
+import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 
 import java.util.ArrayList;
@@ -202,12 +204,57 @@ public class ListContent {
     }
 
     /**
+     * @return the type of template that the header represents.
+     */
+    public int getHeaderTemplateType() {
+        if (mHeaderItem != null) {
+            if (mHeaderItem.hasHint(HINT_HORIZONTAL)) {
+                return EventInfo.ROW_TYPE_GRID;
+            } else {
+                RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+                SliceItem actionItem = rc.getPrimaryAction();
+                SliceAction primaryAction = null;
+                if (actionItem != null) {
+                    primaryAction = new SliceActionImpl(actionItem);
+                }
+                if (rc.getRange() != null) {
+                    return FORMAT_ACTION.equals(rc.getRange().getFormat())
+                            ? EventInfo.ROW_TYPE_SLIDER
+                            : EventInfo.ROW_TYPE_PROGRESS;
+                } else if (primaryAction != null && primaryAction.isToggle()) {
+                    return EventInfo.ROW_TYPE_TOGGLE;
+                } else if (mSliceActions != null) {
+                    for (int i = 0; i < mSliceActions.size(); i++) {
+                        if (new SliceActionImpl(mSliceActions.get(i)).isToggle()) {
+                            return EventInfo.ROW_TYPE_TOGGLE;
+                        }
+                    }
+                    return EventInfo.ROW_TYPE_LIST;
+                } else {
+                    return rc.getToggleItems().size() > 0
+                            ? EventInfo.ROW_TYPE_TOGGLE
+                            : EventInfo.ROW_TYPE_LIST;
+                }
+            }
+        }
+        return EventInfo.ROW_TYPE_LIST;
+    }
+
+    /**
      * @return the primary action for this list; i.e. action on the header or first row.
      */
     @Nullable
     public SliceItem getPrimaryAction() {
-        RowContent rc = new RowContent(mContext, mHeaderItem, false);
-        return rc.getPrimaryAction();
+        if (mHeaderItem != null) {
+            if (mHeaderItem.hasHint(HINT_HORIZONTAL)) {
+                GridContent gc = new GridContent(mContext, mHeaderItem);
+                return gc.getContentIntent();
+            } else {
+                RowContent rc = new RowContent(mContext, mHeaderItem, false);
+                return rc.getPrimaryAction();
+            }
+        }
+        return null;
     }
 
     @Nullable

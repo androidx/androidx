@@ -17,8 +17,10 @@
 package androidx.slice;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
@@ -26,6 +28,10 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
+import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
+import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_PROGRESS;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -34,7 +40,15 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Pair;
+import androidx.slice.core.SliceAction;
+import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
+import androidx.slice.widget.EventInfo;
+import androidx.slice.widget.GridContent;
+import androidx.slice.widget.ListContent;
+import androidx.slice.widget.RowContent;
+import androidx.slice.widget.SliceView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +84,11 @@ public class SliceMetadata {
     private Context mContext;
     private long mExpiry;
     private long mLastUpdated;
+    private ListContent mListContent;
+    private SliceItem mHeaderItem;
+    private SliceActionImpl mPrimaryAction;
     private List<SliceItem> mSliceActions;
+    private @EventInfo.SliceRowType int mTemplateType;
 
     /**
      * Create a SliceMetadata object to provide access to some information around the slice and
@@ -104,6 +122,15 @@ public class SliceMetadata {
             mLastUpdated = updatedItem.getTimestamp();
         }
         mSliceActions = getSliceActions(mSlice);
+
+        mListContent = new ListContent(context, slice);
+        mHeaderItem = mListContent.getHeaderItem();
+        mTemplateType = mListContent.getHeaderTemplateType();
+
+        SliceItem action = mListContent.getPrimaryAction();
+        if (action != null) {
+            mPrimaryAction = new SliceActionImpl(action);
+        }
     }
 
     /**
@@ -112,6 +139,78 @@ public class SliceMetadata {
     @Nullable
     public List<SliceItem> getSliceActions() {
         return mSliceActions;
+    }
+
+    /**
+     * @return the primary action for this slice, null if none specified.
+     */
+    @Nullable
+    public SliceAction getPrimaryAction() {
+        return mPrimaryAction;
+    }
+
+    /**
+     * @return the type of row that is used for the header of this slice, -1 if unknown.
+     */
+    public @EventInfo.SliceRowType int getHeaderType() {
+        return mTemplateType;
+    }
+
+    /**
+     * @return whether this slice has content to show when presented
+     * in {@link SliceView#MODE_LARGE}.
+     */
+    public boolean hasLargeMode() {
+        boolean isHeaderFullGrid = false;
+        if (mHeaderItem != null && mHeaderItem.hasHint(HINT_HORIZONTAL)) {
+            GridContent gc = new GridContent(mContext, mHeaderItem);
+            isHeaderFullGrid = gc.hasImage() && gc.getMaxCellLineCount() > 1;
+        }
+        return mListContent.getRowItems().size() > 1 || isHeaderFullGrid;
+    }
+
+    /**
+     * @return the toggles associated with the header of this slice.
+     */
+    public List<SliceAction> getToggles() {
+        List<SliceAction> toggles = new ArrayList<>();
+        // Is it the primary action?
+        if (mPrimaryAction != null && mPrimaryAction.isToggle()) {
+            toggles.add(mPrimaryAction);
+        } else if (mSliceActions != null && mSliceActions.size() > 0) {
+            for (int i = 0; i < mSliceActions.size(); i++) {
+                SliceAction action = new SliceActionImpl(mSliceActions.get(i));
+                if (action.isToggle()) {
+                    toggles.add(action);
+                }
+            }
+        } else {
+            RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+            toggles = rc.getToggleItems();
+        }
+        return toggles;
+    }
+
+    /**
+     * Gets the range information associated with a progress bar or input range associated with this
+     * slice, if it exists.
+     *
+     * @return a pair where the first item is the current value of the range and the second item is
+     * the maximum value of the range.
+     */
+    @Nullable
+    public Pair<Integer, Integer> getRange() {
+        if (mTemplateType == ROW_TYPE_SLIDER
+                || mTemplateType == ROW_TYPE_PROGRESS) {
+            RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+            SliceItem range = rc.getRange();
+            SliceItem maxItem = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MAX);
+            SliceItem currentItem = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_VALUE);
+            int max = maxItem != null ? maxItem.getInt() : -1;
+            int current = currentItem != null ? currentItem.getInt() : -1;
+            return new Pair<>(current, max);
+        }
+        return null;
     }
 
     /**
