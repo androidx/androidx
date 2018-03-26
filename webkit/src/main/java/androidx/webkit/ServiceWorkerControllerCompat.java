@@ -24,6 +24,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.FrameworkServiceWorkerController;
+import androidx.webkit.internal.ServiceWorkerControllerAdapter;
+import androidx.webkit.internal.WebViewGlueCommunicator;
 
 // TODO(gsennton) guard APIs with isFeatureSupported(String)
 
@@ -79,7 +81,8 @@ public abstract class ServiceWorkerControllerCompat {
     }
 
     private static ServiceWorkerControllerCompat getSupportLibraryControllerCompat() {
-        return null; // TODO(gsennton) implement this
+        return new ServiceWorkerControllerAdapter(
+                WebViewGlueCommunicator.getFactory().getServiceWorkerController());
     }
 
     /**
