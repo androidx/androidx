@@ -18,6 +18,7 @@ package androidx.webkit.internal;
 
 import android.webkit.WebView;
 
+import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface;
@@ -69,5 +70,14 @@ public class WebViewProviderFactoryAdapter {
      */
     public String[] getWebViewFeatures() {
         return mImpl.getSupportedFeatures();
+    }
+
+    /**
+     * Adapter method for fetching the support library class representing
+     * {@link android.webkit.ServiceWorkerController}.
+     */
+    public ServiceWorkerControllerBoundaryInterface getServiceWorkerController() {
+        return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                ServiceWorkerControllerBoundaryInterface.class, mImpl.getServiceWorkerController());
     }
 }
