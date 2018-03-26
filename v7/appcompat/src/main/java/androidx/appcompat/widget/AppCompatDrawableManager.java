@@ -43,7 +43,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.collection.ArrayMap;
@@ -781,7 +780,6 @@ public final class AppCompatDrawableManager {
         }
     }
 
-    @RequiresApi(11)
     private static class AvdcInflateDelegate implements InflateDelegate {
         AvdcInflateDelegate() {
         }
