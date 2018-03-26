@@ -18,11 +18,9 @@ package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -89,7 +87,7 @@ public class MediaItem2 {
     /**
      * TODO: javadoc
      */
-    public static MediaItem2 fromBundle(Context context, Bundle bundle) {
+    public static MediaItem2 fromBundle(Bundle bundle) {
         //return ApiLoader.getProvider().fromBundle_MediaItem2(context, bundle);
         return null;
     }
@@ -183,10 +181,9 @@ public class MediaItem2 {
         /**
          * Constructor for {@link Builder}
          *
-         * @param context
          * @param flags
          */
-        public Builder(@NonNull Context context, @Flags int flags) {
+        public Builder(@Flags int flags) {
             //mProvider = ApiLoader.getProvider().createMediaItem2Builder(context, this, flags);
         }
 

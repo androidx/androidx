@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Notification;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
@@ -219,14 +218,12 @@ public abstract class MediaSessionService2 extends Service {
         /**
          * Default constructor
          *
-         * @param context context
          * @param notificationId notification id to be used for
          *      {@link android.app.NotificationManager#notify(int, Notification)}.
          * @param notification a notification to make session service foreground service. Media
          *      style notification is recommended here.
          */
-        public MediaNotification(@NonNull Context context,
-                int notificationId, @NonNull Notification notification) {
+        public MediaNotification(int notificationId, @NonNull Notification notification) {
 //            mProvider = ApiLoader.getProvider().createMediaSessionService2MediaNotification(
 //                    context, this, notificationId, notification);
         }

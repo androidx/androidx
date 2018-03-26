@@ -18,11 +18,9 @@ package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -134,11 +132,10 @@ public final class Rating2 {
     /**
      * Create an instance from bundle object, previoulsy created by {@link #toBundle()}
      *
-     * @param context context
      * @param bundle bundle
      * @return new Rating2 instance or {@code null} for error
      */
-    public static Rating2 fromBundle(@NonNull Context context, @Nullable Bundle bundle) {
+    public static Rating2 fromBundle(@Nullable Bundle bundle) {
         //return ApiLoader.getProvider().fromBundle_Rating2(context, bundle);
         return null;
     }
@@ -156,14 +153,13 @@ public final class Rating2 {
      * Return a Rating2 instance with no rating.
      * Create and return a new Rating2 instance with no rating known for the given
      * rating style.
-     * @param context context
+     *
      * @param ratingStyle one of {@link #RATING_HEART}, {@link #RATING_THUMB_UP_DOWN},
      *    {@link #RATING_3_STARS}, {@link #RATING_4_STARS}, {@link #RATING_5_STARS},
      *    or {@link #RATING_PERCENTAGE}.
      * @return null if an invalid rating style is passed, a new Rating2 instance otherwise.
      */
-    public static @Nullable Rating2 newUnratedRating(@NonNull Context context,
-            @Style int ratingStyle) {
+    public static @Nullable Rating2 newUnratedRating(@Style int ratingStyle) {
         //return ApiLoader.getProvider().newUnratedRating_Rating2(context, ratingStyle);
         return null;
     }
@@ -172,11 +168,11 @@ public final class Rating2 {
      * Return a Rating2 instance with a heart-based rating.
      * Create and return a new Rating2 instance with a rating style of {@link #RATING_HEART},
      * and a heart-based rating.
-     * @param context context
+     *
      * @param hasHeart true for a "heart selected" rating, false for "heart unselected".
      * @return a new Rating2 instance.
      */
-    public static @Nullable Rating2 newHeartRating(@NonNull Context context, boolean hasHeart) {
+    public static @Nullable Rating2 newHeartRating(boolean hasHeart) {
         //return ApiLoader.getProvider().newHeartRating_Rating2(context, hasHeart);
         return null;
     }
@@ -185,11 +181,11 @@ public final class Rating2 {
      * Return a Rating2 instance with a thumb-based rating.
      * Create and return a new Rating2 instance with a {@link #RATING_THUMB_UP_DOWN}
      * rating style, and a "thumb up" or "thumb down" rating.
-     * @param context context
+     *
      * @param thumbIsUp true for a "thumb up" rating, false for "thumb down".
      * @return a new Rating2 instance.
      */
-    public static @Nullable Rating2 newThumbRating(@NonNull Context context, boolean thumbIsUp) {
+    public static @Nullable Rating2 newThumbRating(boolean thumbIsUp) {
         //return ApiLoader.getProvider().newThumbRating_Rating2(context, thumbIsUp);
         return null;
     }
@@ -199,7 +195,7 @@ public final class Rating2 {
      * Create and return a new Rating2 instance with one of the star-base rating styles
      * and the given integer or fractional number of stars. Non integer values can for instance
      * be used to represent an average rating value, which might not be an integer number of stars.
-     * @param context context
+     *
      * @param starRatingStyle one of {@link #RATING_3_STARS}, {@link #RATING_4_STARS},
      *     {@link #RATING_5_STARS}.
      * @param starRating a number ranging from 0.0f to 3.0f, 4.0f or 5.0f according to
@@ -207,8 +203,8 @@ public final class Rating2 {
      * @return null if the rating style is invalid, or the rating is out of range,
      *     a new Rating2 instance otherwise.
      */
-    public static @Nullable Rating2 newStarRating(@NonNull Context context,
-            @StarStyle int starRatingStyle, float starRating) {
+    public static @Nullable Rating2 newStarRating(@StarStyle int starRatingStyle,
+            float starRating) {
 //        return ApiLoader.getProvider().newStarRating_Rating2(
 //                context, starRatingStyle, starRating);
         return null;
@@ -218,18 +214,18 @@ public final class Rating2 {
      * Return a Rating2 instance with a percentage-based rating.
      * Create and return a new Rating2 instance with a {@link #RATING_PERCENTAGE}
      * rating style, and a rating of the given percentage.
-     * @param context context
+     *
      * @param percent the value of the rating
      * @return null if the rating is out of range, a new Rating2 instance otherwise.
      */
-    public static @Nullable Rating2 newPercentageRating(@NonNull Context context, float percent) {
+    public static @Nullable Rating2 newPercentageRating(float percent) {
         //return ApiLoader.getProvider().newPercentageRating_Rating2(context, percent);
         return null;
     }
 
     /**
      * Return whether there is a rating value available.
-     * @return true if the instance was not created with {@link #newUnratedRating(Context, int)}.
+     * @return true if the instance was not created with {@link #newUnratedRating(int)}.
      */
     public boolean isRated() {
         //return mProvider.isRated_impl();

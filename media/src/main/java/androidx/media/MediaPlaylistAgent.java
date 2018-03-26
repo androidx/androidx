@@ -18,8 +18,6 @@ package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.content.Context;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -156,7 +154,7 @@ public abstract class MediaPlaylistAgent {
     /**
      * TODO: add javadoc
      */
-    public MediaPlaylistAgent(@NonNull Context context) {
+    public MediaPlaylistAgent() {
         //mProvider = ApiLoader.getProvider().createMediaPlaylistAgent(context, this);
     }
 

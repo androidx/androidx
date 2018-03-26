@@ -436,7 +436,7 @@ public class MediaSession2 implements AutoCloseable {
         /**
          * TODO: javadoc
          */
-        public Command(@NonNull Context context, int commandCode) {
+        public Command(int commandCode) {
 //            mProvider = ApiLoader.getProvider().createMediaSession2Command(
 //                    this, commandCode, null, null);
         }
@@ -444,7 +444,7 @@ public class MediaSession2 implements AutoCloseable {
         /**
          * TODO: javadoc
          */
-        public Command(@NonNull Context context, @NonNull String action, @Nullable Bundle extras) {
+        public Command(@NonNull String action, @Nullable Bundle extras) {
             if (action == null) {
                 throw new IllegalArgumentException("action shouldn't be null");
             }
@@ -513,7 +513,7 @@ public class MediaSession2 implements AutoCloseable {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public static Command fromBundle(@NonNull Context context, @NonNull Bundle command) {
+        public static Command fromBundle(@NonNull Bundle command) {
             //return ApiLoader.getProvider().fromBundle_MediaSession2Command(context, command);
             return null;
         }
@@ -528,7 +528,7 @@ public class MediaSession2 implements AutoCloseable {
         /**
          * TODO: javadoc
          */
-        public CommandGroup(@NonNull Context context) {
+        public CommandGroup() {
 //            mProvider = ApiLoader.getProvider().createMediaSession2CommandGroup(
 //                    context, this, null);
         }
@@ -536,7 +536,7 @@ public class MediaSession2 implements AutoCloseable {
         /**
          * TODO: javadoc
          */
-        public CommandGroup(@NonNull Context context, @Nullable CommandGroup others) {
+        public CommandGroup(@Nullable CommandGroup others) {
 //            mProvider = ApiLoader.getProvider().createMediaSession2CommandGroup(
 //                    context, this, others);
         }
@@ -630,15 +630,6 @@ public class MediaSession2 implements AutoCloseable {
      */
     // TODO(jaewan): Move this to updatable for default implementation (b/74091963)
     public abstract static class SessionCallback {
-        private final Context mContext;
-
-        public SessionCallback(@NonNull Context context) {
-            if (context == null) {
-                throw new IllegalArgumentException("context shouldn't be null");
-            }
-            mContext = context;
-        }
-
         /**
          * Called when a controller is created for this session. Return allowed commands for
          * controller. By default it allows all connection requests and commands.
@@ -653,7 +644,7 @@ public class MediaSession2 implements AutoCloseable {
          */
         public @Nullable CommandGroup onConnect(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller) {
-            CommandGroup commands = new CommandGroup(mContext);
+            CommandGroup commands = new CommandGroup();
             commands.addAllPredefinedCommands();
             return commands;
         }

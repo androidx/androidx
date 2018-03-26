@@ -18,7 +18,6 @@ package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -699,12 +698,10 @@ public final class MediaMetadata2 {
      * Creates the {@link MediaMetadata2} from the bundle that previously returned by
      * {@link #toBundle()}.
      *
-     * @param context context
      * @param bundle bundle for the metadata
      * @return a new MediaMetadata2
      */
-    public static @NonNull MediaMetadata2 fromBundle(@NonNull Context context,
-            @Nullable Bundle bundle) {
+    public static @NonNull MediaMetadata2 fromBundle(@Nullable Bundle bundle) {
         //return ApiLoader.getProvider().fromBundle_MediaMetadata2(context, bundle);
         return null;
     }
@@ -720,7 +717,7 @@ public final class MediaMetadata2 {
          * Create an empty Builder. Any field that should be included in the
          * {@link MediaMetadata2} must be added.
          */
-        public Builder(@NonNull Context context) {
+        public Builder() {
             //mProvider = ApiLoader.getProvider().createMediaMetadata2Builder(context, this);
         }
 
@@ -731,7 +728,7 @@ public final class MediaMetadata2 {
          *
          * @param source
          */
-        public Builder(@NonNull Context context, @NonNull MediaMetadata2 source) {
+        public Builder(@NonNull MediaMetadata2 source) {
 //            mProvider =
 //                    ApiLoader.getProvider().createMediaMetadata2Builder(context, this, source);
         }

@@ -19,7 +19,6 @@ package androidx.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -27,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.Builder;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
-import androidx.media.MediaSession2.ControllerInfo;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -74,10 +72,6 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          * Callback for the {@link MediaLibrarySession}.
          */
         public static class MediaLibrarySessionCallback extends MediaSession2.SessionCallback {
-            public MediaLibrarySessionCallback(@NonNull Context context) {
-                super(context);
-            }
-
             /**
              * Called to get the root information for browsing by a particular client.
              * <p>
@@ -403,8 +397,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          * @param rootId The root id for browsing.
          * @param extras Any extras about the library service.
          */
-        public LibraryRoot(@NonNull Context context,
-                @NonNull String rootId, @Nullable Bundle extras) {
+        public LibraryRoot(@NonNull String rootId, @Nullable Bundle extras) {
 //            mProvider = ApiLoader.getProvider().createMediaLibraryService2LibraryRoot(
 //                    context, this, rootId, extras);
         }

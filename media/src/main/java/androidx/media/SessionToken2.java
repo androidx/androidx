@@ -158,10 +158,11 @@ public final class SessionToken2 {
 
     /**
      * Create a token from the bundle, exported by {@link #toBundle()}.
+     *
      * @param bundle
      * @return
      */
-    public static SessionToken2 fromBundle(@NonNull Context context, @NonNull Bundle bundle) {
+    public static SessionToken2 fromBundle(@NonNull Bundle bundle) {
         //return ApiLoader.getProvider().fromBundle_SessionToken2(context, bundle);
         return null;
     }

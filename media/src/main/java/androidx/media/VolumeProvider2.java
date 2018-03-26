@@ -18,11 +18,9 @@ package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.content.Context;
 import android.media.AudioManager;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -80,7 +78,7 @@ public abstract class VolumeProvider2 {
      * @param maxVolume The maximum allowed volume.
      * @param currentVolume The current volume on the output.
      */
-    public VolumeProvider2(@NonNull Context context, @ControlType int controlType,
+    public VolumeProvider2(@ControlType int controlType,
             int maxVolume, int currentVolume) {
 //        mProvider = ApiLoader.getProvider().createVolumeProvider2(
 //                context, this, controlType, maxVolume, currentVolume);
