@@ -19,10 +19,15 @@ package androidx.slice {
   public class SliceMetadata {
     method public static androidx.slice.SliceMetadata from(android.content.Context, androidx.slice.Slice);
     method public long getExpiry();
+    method public int getHeaderType();
     method public long getLastUpdatedTime();
     method public int getLoadingState();
+    method public androidx.slice.core.SliceAction getPrimaryAction();
+    method public androidx.core.util.Pair<java.lang.Integer, java.lang.Integer> getRange();
     method public java.util.List<androidx.slice.SliceItem> getSliceActions();
     method public java.util.List<java.lang.String> getSliceKeywords();
+    method public java.util.List<androidx.slice.core.SliceAction> getToggles();
+    method public boolean hasLargeMode();
     field public static final int LOADED_ALL = 2; // 0x2
     field public static final int LOADED_NONE = 0; // 0x0
     field public static final int LOADED_PARTIAL = 1; // 0x1
@@ -66,7 +71,10 @@ package androidx.slice.widget {
     field public static final int ROW_TYPE_GRID = 1; // 0x1
     field public static final int ROW_TYPE_LIST = 0; // 0x0
     field public static final int ROW_TYPE_MESSAGING = 2; // 0x2
+    field public static final int ROW_TYPE_PROGRESS = 5; // 0x5
     field public static final int ROW_TYPE_SHORTCUT = -1; // 0xffffffff
+    field public static final int ROW_TYPE_SLIDER = 4; // 0x4
+    field public static final int ROW_TYPE_TOGGLE = 3; // 0x3
     field public static final int STATE_OFF = 0; // 0x0
     field public static final int STATE_ON = 1; // 0x1
     field public int actionCount;
