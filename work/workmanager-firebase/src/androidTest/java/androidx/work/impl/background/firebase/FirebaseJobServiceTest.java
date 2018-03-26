@@ -75,7 +75,7 @@ public class FirebaseJobServiceTest {
         mFirebaseJobService.onStartJob(mockParams);
 
         // TODO(sumir): Remove later.  Put here because WorkerWrapper sets state to RUNNING.
-        Thread.sleep(1000L);
+        Thread.sleep(5000L);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work.getId()), is(State.RUNNING));

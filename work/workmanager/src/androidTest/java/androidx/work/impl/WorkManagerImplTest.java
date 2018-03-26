@@ -68,7 +68,6 @@ import androidx.work.PeriodicWork;
 import androidx.work.TestLifecycleOwner;
 import androidx.work.Work;
 import androidx.work.WorkContinuation;
-import androidx.work.WorkManagerTest;
 import androidx.work.WorkStatus;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
@@ -96,7 +95,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
-public class WorkManagerImplTest extends WorkManagerTest {
+public class WorkManagerImplTest {
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
 
@@ -128,6 +127,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 true,
                 Executors.newSingleThreadExecutor());
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
+        WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
     }
 
@@ -138,6 +138,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
             mWorkManagerImpl.cancelWorkById(id);
         }
         mDatabase.close();
+        WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
@@ -382,7 +383,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
     @SmallTest
     public void testEnqueued_work_setsPeriodStartTime() {
         Work work = new Work.Builder(TestWorker.class).build();
-        assertThat(getWorkSpec(work).periodStartTime, is(0L));
+        assertThat(work.getWorkSpec().periodStartTime, is(0L));
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
@@ -400,7 +401,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
                 PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
                 TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(periodicWork).periodStartTime, is(0L));
+        assertThat(periodicWork.getWorkSpec().periodStartTime, is(0L));
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
@@ -1066,7 +1067,7 @@ public class WorkManagerImplTest extends WorkManagerTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         Work work = new Work.Builder(TestWorker.class).withInitialState(RUNNING).build();
-        workSpecDao.insertWorkSpec(getWorkSpec(work));
+        workSpecDao.insertWorkSpec(work.getWorkSpec());
 
         assertThat(workSpecDao.getState(work.getId()), is(RUNNING));
 
@@ -1231,8 +1232,8 @@ public class WorkManagerImplTest extends WorkManagerTest {
     }
 
     private void insertWorkSpecAndTags(Work work) {
-        mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
-        for (String tag : getTags(work)) {
+        mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
+        for (String tag : work.getTags()) {
             mDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
         }
     }

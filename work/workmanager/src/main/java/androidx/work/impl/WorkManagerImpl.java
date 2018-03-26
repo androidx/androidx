@@ -65,6 +65,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     private Processor mProcessor;
 
     private static WorkManagerImpl sInstance = null;
+    private static WorkManagerImpl sDefaultInstance = null;
 
     /**
      * Retrieves the singleton instance of {@link WorkManagerImpl}.
@@ -77,9 +78,21 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     public static synchronized WorkManagerImpl getInstance(Context context) {
         if (sInstance == null) {
             context = context.getApplicationContext();
-            sInstance = new WorkManagerImpl(context, new WorkManagerConfiguration(context));
+            if (sDefaultInstance == null) {
+                sDefaultInstance =
+                        new WorkManagerImpl(context, new WorkManagerConfiguration(context));
+            }
+            sInstance = sDefaultInstance;
         }
         return sInstance;
+    }
+
+    /**
+     * @param delegate The delegate for {@link WorkManagerImpl} for testing; {@code null} to use the
+     *                 default instance
+     */
+    public static synchronized void setDelegate(WorkManagerImpl delegate) {
+        sInstance = delegate;
     }
 
     WorkManagerImpl(Context context, WorkManagerConfiguration configuration) {
