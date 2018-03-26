@@ -160,15 +160,20 @@ public class SliceMetadata {
     }
 
     /**
-     * @return the expiry for the content in this slice, or {@link Long#MAX_VALUE} if there is no
-     * expiry specified.
+     * A slice contains an expiry to indicate when the content in the slice might no longer be
+     * valid.
+     *
+     * @return the time, measured in milliseconds, between the expiry time of this slice and
+     * midnight, January 1, 1970 UTC, or {@link androidx.slice.builders.ListBuilder#INFINITY} if
+     * the slice is not time-sensitive.
      */
     public long getExpiry() {
         return mExpiry;
     }
 
     /**
-     * @return when the slice was created or last updated.
+     * @return the time, measured in milliseconds, between when the slice was created or last
+     * updated, and midnight, January 1, 1970 UTC.
      */
     public long getLastUpdatedTime() {
         return mLastUpdated;
