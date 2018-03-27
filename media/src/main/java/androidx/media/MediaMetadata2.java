@@ -547,7 +547,7 @@ public final class MediaMetadata2 {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @StringDef({METADATA_KEY_RADIO_FREQUENCY})
+    @StringDef({})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FloatKey {}
 
@@ -1039,12 +1039,7 @@ public final class MediaMetadata2 {
         }
 
         /**
-         * Put a float value into the metadata. Custom keys may be used, but if
-         * the METADATA_KEYs defined in this class are used they may only be one
-         * of the following:
-         * <ul>
-         * <li>{@link #METADATA_KEY_RADIO_FREQUENCY}</li>
-         * </ul>
+         * Put a float value into the metadata. Custom keys may be used.
          *
          * @param key The key for referencing this value
          * @param value The float value to store

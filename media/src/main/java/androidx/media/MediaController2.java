@@ -33,9 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.MediaPlaylistAgent.RepeatMode;
 import androidx.media.MediaPlaylistAgent.ShuffleMode;
-import androidx.media.MediaSession2.Command;
 import androidx.media.MediaSession2.CommandButton;
-import androidx.media.MediaSession2.CommandGroup;
 import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.MediaSession2.ErrorCode;
 
@@ -57,7 +55,7 @@ import java.util.concurrent.Executor;
  * When controlling {@link MediaSessionService2}, the {@link MediaController2} would be
  * available only if the session service allows this controller by
  * {@link MediaSession2.SessionCallback#onConnect(MediaSession2, ControllerInfo)} for the service.
- * Wait {@link ControllerCallback#onConnected(MediaController2, CommandGroup)} or
+ * Wait {@link ControllerCallback#onConnected(MediaController2, SessionCommandGroup2)} or
  * {@link ControllerCallback#onDisconnected(MediaController2)} for the result.
  * <p>
  * A controller can be created through token from {@link MediaSessionManager} if you hold the
@@ -86,7 +84,7 @@ public class MediaController2 implements AutoCloseable {
          * @param allowedCommands commands that's allowed by the session.
          */
         public void onConnected(@NonNull MediaController2 controller,
-                @NonNull CommandGroup allowedCommands) { }
+                @NonNull SessionCommandGroup2 allowedCommands) { }
 
         /**
          * Called when the session refuses the controller or the controller is disconnected from
@@ -104,7 +102,8 @@ public class MediaController2 implements AutoCloseable {
          * Called when the session set the custom layout through the
          * {@link MediaSession2#setCustomLayout(ControllerInfo, List)}.
          * <p>
-         * Can be called before {@link #onConnected(MediaController2, CommandGroup)} is called.
+         * Can be called before {@link #onConnected(MediaController2, SessionCommandGroup2)}
+         * is called.
          *
          * @param controller the controller for this event
          * @param layout
@@ -128,7 +127,7 @@ public class MediaController2 implements AutoCloseable {
          * @param commands newly allowed commands
          */
         public void onAllowedCommandsChanged(@NonNull MediaController2 controller,
-                @NonNull CommandGroup commands) { }
+                @NonNull SessionCommandGroup2 commands) { }
 
         /**
          * Called when the session sent a custom command.
@@ -139,7 +138,7 @@ public class MediaController2 implements AutoCloseable {
          * @param receiver
          */
         public void onCustomCommand(@NonNull MediaController2 controller,
-                @NonNull Command command, @Nullable Bundle args,
+                @NonNull SessionCommand2 command, @Nullable Bundle args,
                 @Nullable ResultReceiver receiver) { }
 
         /**
@@ -207,43 +206,37 @@ public class MediaController2 implements AutoCloseable {
          * Called when a playlist is changed.
          *
          * @param controller the controller for this event
-         * @param playlistAgent playlist agent for this event
          * @param list new playlist
          * @param metadata new metadata
          */
         public void onPlaylistChanged(@NonNull MediaController2 controller,
-                @NonNull MediaPlaylistAgent playlistAgent, @NonNull List<MediaItem2> list,
-                @Nullable MediaMetadata2 metadata) { }
+                @NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) { }
 
         /**
          * Called when a playlist metadata is changed.
          *
          * @param controller the controller for this event
-         * @param playlistAgent playlist agent for this event
          * @param metadata new metadata
          */
         public void onPlaylistMetadataChanged(@NonNull MediaController2 controller,
-                @NonNull MediaPlaylistAgent playlistAgent, @Nullable MediaMetadata2 metadata) { }
+                @Nullable MediaMetadata2 metadata) { }
 
         /**
          * Called when the shuffle mode is changed.
          *
          * @param controller the controller for this event
-         * @param playlistAgent playlist agent for this event
          * @param shuffleMode repeat mode
          * @see MediaPlaylistAgent#SHUFFLE_MODE_NONE
          * @see MediaPlaylistAgent#SHUFFLE_MODE_ALL
          * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
          */
         public void onShuffleModeChanged(@NonNull MediaController2 controller,
-                @NonNull MediaPlaylistAgent playlistAgent,
                 @MediaPlaylistAgent.ShuffleMode int shuffleMode) { }
 
         /**
          * Called when the repeat mode is changed.
          *
          * @param controller the controller for this event
-         * @param playlistAgent playlist agent for this event
          * @param repeatMode repeat mode
          * @see MediaPlaylistAgent#REPEAT_MODE_NONE
          * @see MediaPlaylistAgent#REPEAT_MODE_ONE
@@ -251,7 +244,6 @@ public class MediaController2 implements AutoCloseable {
          * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
          */
         public void onRepeatModeChanged(@NonNull MediaController2 controller,
-                @NonNull MediaPlaylistAgent playlistAgent,
                 @MediaPlaylistAgent.RepeatMode int repeatMode) { }
     }
 
@@ -707,7 +699,7 @@ public class MediaController2 implements AutoCloseable {
      * @param args optional argument
      * @param cb optional result receiver
      */
-    public void sendCustomCommand(@NonNull Command command, @Nullable Bundle args,
+    public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args,
             @Nullable ResultReceiver cb) {
         //mProvider.sendCustomCommand_impl(command, args, cb);
     }
@@ -770,7 +762,8 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Inserts the media item to the playlist at position index.
+     * Adds the media item to the playlist at position index. Index equals or greater than
+     * the current playlist size will add the item at the end of the playlist.
      * <p>
      * This will not change the currently playing media item.
      * If index is less than or equal to the current index of the playlist,
