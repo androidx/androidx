@@ -2113,6 +2113,7 @@ package androidx.leanback.widget {
     method protected void onCreate(androidx.leanback.widget.ItemBridgeAdapter.ViewHolder);
     method public final androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
     method protected void onDetachedFromWindow(androidx.leanback.widget.ItemBridgeAdapter.ViewHolder);
+    method public final boolean onFailedToRecycleView(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method protected void onUnbind(androidx.leanback.widget.ItemBridgeAdapter.ViewHolder);
     method public final void onViewAttachedToWindow(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public final void onViewDetachedFromWindow(androidx.recyclerview.widget.RecyclerView.ViewHolder);
