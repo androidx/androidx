@@ -7,7 +7,6 @@ package androidx.slice {
   }
 
   public class SliceConvert {
-    ctor public SliceConvert();
     method public static android.app.slice.Slice unwrap(androidx.slice.Slice);
     method public static androidx.slice.Slice wrap(android.app.slice.Slice);
   }

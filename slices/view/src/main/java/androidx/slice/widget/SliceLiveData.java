@@ -134,4 +134,7 @@ public final class SliceLiveData {
             }
         };
     }
+
+    private SliceLiveData() {
+    }
 }
