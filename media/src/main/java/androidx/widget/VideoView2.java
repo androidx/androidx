@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.SessionToken2;
@@ -345,9 +346,9 @@ public class VideoView2 extends ViewGroup {
      * @param dataSource the {@link DataSourceDesc} object to play.
      * @see #setMediaItem
      */
-    //public void setDataSource(@NonNull DataSourceDesc dataSource) {
+    public void setDataSource(@NonNull DataSourceDesc dataSource) {
         //mProvider.setDataSource_impl(dataSource);
-    //}
+    }
 
     /**
      * Selects which view will be used to render video between SurfacView and TextureView.
