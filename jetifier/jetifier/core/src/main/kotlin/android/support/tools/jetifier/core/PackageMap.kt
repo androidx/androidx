@@ -304,6 +304,14 @@ class PackageMap(private val rules: List<PackageRule>) {
             PackageRule(
                 from = "android/arch/lifecycle/reactivestreams",
                 to = "androidx/lifecycle/reactivestreams"
+            ),
+            PackageRule(
+                from = "android/support/multidex/instrumentation",
+                to = "androidx/multidex/instrumentation"
+            ),
+            PackageRule(
+                from = "android/support/multidex",
+                to = "androidx/multidex"
             )
         )
 
