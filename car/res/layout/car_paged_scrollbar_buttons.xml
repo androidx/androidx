@@ -44,6 +44,7 @@
         android:gravity="center"
         android:layout_marginBottom="@dimen/car_padding_3"
         android:layout_marginTop="@dimen/car_padding_3"
+        android:visibility="gone"
         android:text="A" />
 
     <FrameLayout

@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsHelper;
@@ -37,10 +36,11 @@ import androidx.recyclerview.widget.RecyclerView;
  * Base adapter for displaying items in the car navigation drawer, which uses a
  * {@link PagedListView}.
  *
- * <p>Subclasses must set the title that will be displayed when displaying the contents of the
- * drawer via {@link #setTitle(CharSequence)}. The title can be updated at any point later on. The
- * title of the root adapter will also be the main title showed in the toolbar when the drawer is
- * closed. See {@link CarDrawerController#setRootAdapter(CarDrawerAdapter)} for more information.
+ * <p>Subclasses can optionally set the title that will be displayed when displaying the contents
+ * of the drawer via {@link #setTitle(CharSequence)}. The title can be updated at any point later
+ * on. The title of the root adapter will also be the main title showed in the toolbar when the
+ * drawer is closed. See {@link CarDrawerController#setRootAdapter(CarDrawerAdapter)} for more
+ * information.
  *
  * <p>This class also takes care of implementing the PageListView.ItemCamp contract and subclasses
  * should implement {@link #getActualItemCount()}.
@@ -90,7 +90,7 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
          * Called when {@link #setTitle(CharSequence)} has been called and the title has been
          * changed.
          */
-        void onTitleChanged(CharSequence newTitle);
+        void onTitleChanged(@Nullable CharSequence newTitle);
     }
 
     protected CarDrawerAdapter(Context context, boolean showDisabledListOnEmpty) {
@@ -113,11 +113,7 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
     }
 
     /** Updates the title to display in the toolbar for this Adapter. */
-    public final void setTitle(@NonNull CharSequence title) {
-        if (title == null) {
-            throw new IllegalArgumentException("setTitle() cannot be passed a null title!");
-        }
-
+    public final void setTitle(@Nullable CharSequence title) {
         mTitle = title;
 
         if (mTitleChangeListener != null) {
