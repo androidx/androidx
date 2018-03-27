@@ -273,17 +273,25 @@ public class ActivityOptionsCompat {
 
         @Override
         public void requestUsageTimeReport(PendingIntent receiver) {
-            mActivityOptions.requestUsageTimeReport(receiver);
+            if (Build.VERSION.SDK_INT >= 23) {
+                mActivityOptions.requestUsageTimeReport(receiver);
+            }
         }
 
         @Override
         public ActivityOptionsCompat setLaunchBounds(@Nullable Rect screenSpacePixelRect) {
+            if (Build.VERSION.SDK_INT < 24) {
+                return this;
+            }
             return new ActivityOptionsCompatImpl(
                     mActivityOptions.setLaunchBounds(screenSpacePixelRect));
         }
 
         @Override
         public Rect getLaunchBounds() {
+            if (Build.VERSION.SDK_INT < 24) {
+                return null;
+            }
             return mActivityOptions.getLaunchBounds();
         }
     }

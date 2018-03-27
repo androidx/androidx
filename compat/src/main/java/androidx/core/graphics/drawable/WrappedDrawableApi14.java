@@ -27,6 +27,7 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * Drawable which delegates all calls to its wrapped {@link Drawable}.
@@ -192,11 +193,13 @@ class WrappedDrawableApi14 extends Drawable
     }
 
     @Override
+    @RequiresApi(19)
     public void setAutoMirrored(boolean mirrored) {
         mDrawable.setAutoMirrored(mirrored);
     }
 
     @Override
+    @RequiresApi(19)
     public boolean isAutoMirrored() {
         return mDrawable.isAutoMirrored();
     }
