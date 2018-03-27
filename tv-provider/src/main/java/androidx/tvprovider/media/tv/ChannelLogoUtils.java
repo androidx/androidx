@@ -165,4 +165,10 @@ public class ChannelLogoUtils {
         urlConnection.setReadTimeout(READ_TIMEOUT_MS_FOR_URLCONNECTION);
         return urlConnection;
     }
+
+    /** @deprecated This type should not be instantiated as it contains only static methods. */
+    @Deprecated
+    @SuppressWarnings("PrivateConstructorForUtilityClass")
+    public ChannelLogoUtils() {
+    }
 }

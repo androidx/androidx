@@ -1703,7 +1703,7 @@ package androidx.leanback.widget {
   }
 
   public class FocusHighlightHelper {
-    ctor public FocusHighlightHelper();
+    ctor public deprecated FocusHighlightHelper();
     method public static void setupBrowseItemFocusHighlight(androidx.leanback.widget.ItemBridgeAdapter, int, boolean);
     method public static deprecated void setupHeaderItemFocusHighlight(androidx.leanback.widget.VerticalGridView);
     method public static deprecated void setupHeaderItemFocusHighlight(androidx.leanback.widget.VerticalGridView, boolean);
