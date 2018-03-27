@@ -20,9 +20,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -34,6 +31,8 @@ import android.view.WindowManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.widget.DayNightStyle;
 import androidx.car.widget.ListItem;
@@ -42,6 +41,7 @@ import androidx.car.widget.ListItemProvider;
 import androidx.car.widget.PagedListView;
 import androidx.car.widget.PagedScrollBarView;
 import androidx.car.widget.TextListItem;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A subclass of {@link Dialog} that is tailored for the car environment. This dialog can display a
@@ -167,16 +167,23 @@ public class CarListDialog extends Dialog {
         mScrollBarView = getWindow().findViewById(R.id.scrollbar);
         mScrollBarView.setDayNightStyle(DayNightStyle.FORCE_NIGHT);
 
-        mScrollBarView.setPaginationListener(direction -> {
-            switch (direction) {
-                case PagedScrollBarView.PaginationListener.PAGE_UP:
-                    mList.pageUp();
-                    break;
-                case PagedScrollBarView.PaginationListener.PAGE_DOWN:
-                    mList.pageDown();
-                    break;
-                default:
-                    Log.e(TAG, "Unknown pagination direction (" + direction + ")");
+        mScrollBarView.setPaginationListener(new PagedScrollBarView.PaginationListener() {
+            @Override
+            public void onPaginate(int direction) {
+                switch (direction) {
+                    case PagedScrollBarView.PaginationListener.PAGE_UP:
+                        mList.pageUp();
+                        break;
+                    case PagedScrollBarView.PaginationListener.PAGE_DOWN:
+                        mList.pageDown();
+                        break;
+                    default:
+                        Log.e(TAG, "Unknown pagination direction (" + direction + ")");
+                }
+            }
+
+            @Override
+            public void onAlphaJump() {
             }
         });
     }
