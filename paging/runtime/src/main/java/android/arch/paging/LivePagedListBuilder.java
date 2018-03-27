@@ -116,12 +116,9 @@ public final class LivePagedListBuilder<Key, Value> {
     }
 
     /**
-     * Sets executor which will be used for background loading of pages.
+     * Sets executor used for background loading of PagedLists, and the pages within.
      * <p>
      * If not set, defaults to the Arch components I/O thread.
-     * <p>
-     * Does not affect initial load, which will be always be done on done on the Arch components
-     * I/O thread.
      *
      * @param backgroundThreadExecutor Executor for background DataSource loading.
      * @return this
