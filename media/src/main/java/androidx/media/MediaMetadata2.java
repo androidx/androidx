@@ -21,11 +21,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+import androidx.collection.ArrayMap;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -41,6 +43,8 @@ import java.util.Set;
 //     it was insufficient for controller to display media contents.
 @RestrictTo(LIBRARY_GROUP)
 public final class MediaMetadata2 {
+    private static final String TAG = "MediaMetadata2";
+
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
      * information about the title of the media.
@@ -359,26 +363,30 @@ public final class MediaMetadata2 {
     public static final String METADATA_KEY_MEDIA_URI = "android.media.metadata.MEDIA_URI";
 
     /**
+     * @hide
      * The metadata key for a {@link Float} typed value to retrieve the information about the
      * radio frequency if this metadata represents radio content.
      *
      * @see Builder#putFloat(String, float)
      * @see #getFloat(String)
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final String METADATA_KEY_RADIO_FREQUENCY =
             "android.media.metadata.RADIO_FREQUENCY";
 
     /**
+     * @hide
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
-     * information about the radio callsign if this metadata represents radio content.
+     * information about the radio program name if this metadata represents radio content.
      *
-     * @see Builder#putText(String, CharSequence)
-     * @see Builder#putString(String, String)
+     * @see MediaMetadata2.Builder#putText(String, CharSequence)
+     * @see MediaMetadata2.Builder#putString(String, String)
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_RADIO_CALLSIGN =
-            "android.media.metadata.RADIO_CALLSIGN";
+    @RestrictTo(LIBRARY_GROUP)
+    public static final String METADATA_KEY_RADIO_PROGRAM_NAME =
+            "android.media.metadata.RADIO_PROGRAM_NAME";
 
     /**
      * The metadata key for a {@link Long} typed value to retrieve the information about the
@@ -505,7 +513,7 @@ public final class MediaMetadata2 {
             METADATA_KEY_DATE, METADATA_KEY_GENRE, METADATA_KEY_ALBUM_ARTIST, METADATA_KEY_ART_URI,
             METADATA_KEY_ALBUM_ART_URI, METADATA_KEY_DISPLAY_TITLE, METADATA_KEY_DISPLAY_SUBTITLE,
             METADATA_KEY_DISPLAY_DESCRIPTION, METADATA_KEY_DISPLAY_ICON_URI,
-            METADATA_KEY_MEDIA_ID, METADATA_KEY_MEDIA_URI, METADATA_KEY_RADIO_CALLSIGN})
+            METADATA_KEY_MEDIA_ID, METADATA_KEY_MEDIA_URI, METADATA_KEY_RADIO_PROGRAM_NAME})
     @Retention(RetentionPolicy.SOURCE)
     public @interface TextKey {}
 
@@ -543,14 +551,79 @@ public final class MediaMetadata2 {
     @Retention(RetentionPolicy.SOURCE)
     public @interface FloatKey {}
 
-    //private final MediaMetadata2Provider mProvider;
+    static final int METADATA_TYPE_LONG = 0;
+    static final int METADATA_TYPE_TEXT = 1;
+    static final int METADATA_TYPE_BITMAP = 2;
+    static final int METADATA_TYPE_RATING = 3;
+    static final int METADATA_TYPE_FLOAT = 4;
+    static final ArrayMap<String, Integer> METADATA_KEYS_TYPE;
 
-//    /**
-//     * @hide
-//     */
-//    public MediaMetadata2(MediaMetadata2Provider provider) {
-//        mProvider = provider;
-//    }
+    static {
+        METADATA_KEYS_TYPE = new ArrayMap<>();
+        METADATA_KEYS_TYPE.put(METADATA_KEY_TITLE, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ARTIST, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_DURATION, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_AUTHOR, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_WRITER, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_COMPOSER, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_COMPILATION, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_DATE, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_YEAR, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_GENRE, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_TRACK_NUMBER, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_NUM_TRACKS, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_DISC_NUMBER, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM_ARTIST, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ART, METADATA_TYPE_BITMAP);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ART_URI, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM_ART, METADATA_TYPE_BITMAP);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ALBUM_ART_URI, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_USER_RATING, METADATA_TYPE_RATING);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_RATING, METADATA_TYPE_RATING);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_TITLE, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_SUBTITLE, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_DESCRIPTION, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_ICON, METADATA_TYPE_BITMAP);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_ICON_URI, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_MEDIA_ID, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_BT_FOLDER_TYPE, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_MEDIA_URI, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_ADVERTISEMENT, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_DOWNLOAD_STATUS, METADATA_TYPE_LONG);
+    }
+
+    private static final @MediaMetadata2.TextKey
+    String[] PREFERRED_DESCRIPTION_ORDER = {
+            METADATA_KEY_TITLE,
+            METADATA_KEY_ARTIST,
+            METADATA_KEY_ALBUM,
+            METADATA_KEY_ALBUM_ARTIST,
+            METADATA_KEY_WRITER,
+            METADATA_KEY_AUTHOR,
+            METADATA_KEY_COMPOSER
+    };
+
+    private static final @MediaMetadata2.BitmapKey
+    String[] PREFERRED_BITMAP_ORDER = {
+            METADATA_KEY_DISPLAY_ICON,
+            METADATA_KEY_ART,
+            METADATA_KEY_ALBUM_ART
+    };
+
+    private static final @MediaMetadata2.TextKey
+    String[] PREFERRED_URI_ORDER = {
+            METADATA_KEY_DISPLAY_ICON_URI,
+            METADATA_KEY_ART_URI,
+            METADATA_KEY_ALBUM_ART_URI
+    };
+
+    final Bundle mBundle;
+
+    MediaMetadata2(Bundle bundle) {
+        mBundle = new Bundle(bundle);
+        mBundle.setClassLoader(MediaMetadata2.class.getClassLoader());
+    }
 
     /**
      * Returns true if the given key is contained in the metadata
@@ -559,8 +632,10 @@ public final class MediaMetadata2 {
      * @return true if the key exists in this metadata, false otherwise
      */
     public boolean containsKey(@NonNull String key) {
-        //return mProvider.containsKey_impl(key);
-        return false;
+        if (key == null) {
+            throw new IllegalArgumentException("key shouldn't be null");
+        }
+        return mBundle.containsKey(key);
     }
 
     /**
@@ -572,8 +647,10 @@ public final class MediaMetadata2 {
      * @return a CharSequence value, or null
      */
     public @Nullable CharSequence getText(@NonNull @TextKey String key) {
-        //return mProvider.getText_impl(key);
-        return null;
+        if (key == null) {
+            throw new IllegalArgumentException("key shouldn't be null");
+        }
+        return mBundle.getCharSequence(key);
     }
 
     /**
@@ -585,8 +662,7 @@ public final class MediaMetadata2 {
      * @see #METADATA_KEY_MEDIA_ID
      */
     public @Nullable String getMediaId() {
-        //return mProvider.getMediaId_impl();
-        return null;
+        return getString(METADATA_KEY_MEDIA_ID);
     }
 
     /**
@@ -598,7 +674,13 @@ public final class MediaMetadata2 {
      * @return a String value, or null
      */
     public @Nullable String getString(@NonNull @TextKey String key) {
-        //return mProvider.getString_impl(key);
+        if (key == null) {
+            throw new IllegalArgumentException("key shouldn't be null");
+        }
+        CharSequence text = mBundle.getCharSequence(key);
+        if (text != null) {
+            return text.toString();
+        }
         return null;
     }
 
@@ -610,8 +692,10 @@ public final class MediaMetadata2 {
      * @return a long value
      */
     public long getLong(@NonNull @LongKey String key) {
-        //return mProvider.getLong_impl(key);
-        return 0;
+        if (key == null) {
+            throw new IllegalArgumentException("key shouldn't be null");
+        }
+        return mBundle.getLong(key, 0);
     }
 
     /**
@@ -625,20 +709,18 @@ public final class MediaMetadata2 {
      * @return A {@link Rating2} or {@code null}
      */
     public @Nullable Rating2 getRating(@NonNull @RatingKey String key) {
-        //return mProvider.getRating_impl(key);
-        return null;
-    }
-
-    /**
-     * Return a {@link Bitmap} for the given key or null if no bitmap exists for
-     * the given key.
-     *
-     * @param key The key the value is stored under
-     * @return A {@link Bitmap} or null
-     */
-    public @Nullable Bitmap getBitmap(@NonNull @BitmapKey String key) {
-        //return mProvider.getBitmap_impl(key);
-        return null;
+        if (key == null) {
+            throw new IllegalArgumentException("key shouldn't be null");
+        }
+        // TODO(jaewan): Add backward compatibility
+        Rating2 rating = null;
+        try {
+            rating = Rating2.fromBundle(mBundle.getBundle(key));
+        } catch (Exception e) {
+            // ignore, value was not a rating
+            Log.w(TAG, "Failed to retrieve a key as Rating.", e);
+        }
+        return rating;
     }
 
     /**
@@ -649,8 +731,31 @@ public final class MediaMetadata2 {
      * @return a float value
      */
     public float getFloat(@NonNull @FloatKey String key) {
-        //return mProvider.getFloat_impl(key);
-        return 0f;
+        if (key == null) {
+            throw new IllegalArgumentException("key shouldn't be null");
+        }
+        return mBundle.getFloat(key);
+    }
+
+    /**
+     * Return a {@link Bitmap} for the given key or null if no bitmap exists for
+     * the given key.
+     *
+     * @param key The key the value is stored under
+     * @return A {@link Bitmap} or null
+     */
+    public @Nullable Bitmap getBitmap(@NonNull @BitmapKey String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("key shouldn't be null");
+        }
+        Bitmap bmp = null;
+        try {
+            bmp = mBundle.getParcelable(key);
+        } catch (Exception e) {
+            // ignore, value was not a bitmap
+            Log.w(TAG, "Failed to retrieve a key as Bitmap.", e);
+        }
+        return bmp;
     }
 
     /**
@@ -659,7 +764,12 @@ public final class MediaMetadata2 {
      * @return A {@link Bundle} or {@code null}
      */
     public @Nullable Bundle getExtras() {
-        //return mProvider.getExtras_impl();
+        try {
+            return mBundle.getBundle(METADATA_KEY_EXTRAS);
+        } catch (Exception e) {
+            // ignore, value was not an bundle
+            Log.w(TAG, "Failed to retrieve an extra");
+        }
         return null;
     }
 
@@ -669,8 +779,7 @@ public final class MediaMetadata2 {
      * @return The number of fields in the metadata.
      */
     public int size() {
-        //return mProvider.size_impl();
-        return 0;
+        return mBundle.size();
     }
 
     /**
@@ -678,9 +787,8 @@ public final class MediaMetadata2 {
      *
      * @return a Set of String keys
      */
-    public /*@NonNull*/ Set<String> keySet() {
-        //return mProvider.keySet_impl();
-        return null;
+    public @NonNull Set<String> keySet() {
+        return mBundle.keySet();
     }
 
     /**
@@ -689,9 +797,8 @@ public final class MediaMetadata2 {
      *
      * @return The Bundle backing this metadata.
      */
-    public /*@NonNull*/ Bundle toBundle() {
-        //return mProvider.toBundle_impl();
-        return null;
+    public @NonNull Bundle toBundle() {
+        return mBundle;
     }
 
     /**
@@ -699,26 +806,25 @@ public final class MediaMetadata2 {
      * {@link #toBundle()}.
      *
      * @param bundle bundle for the metadata
-     * @return a new MediaMetadata2
+     * @return a new MediaMetadata2x
      */
     public static @NonNull MediaMetadata2 fromBundle(@Nullable Bundle bundle) {
-        //return ApiLoader.getProvider().fromBundle_MediaMetadata2(context, bundle);
-        return null;
+        return (bundle == null) ? null : new MediaMetadata2(bundle);
     }
 
     /**
-     * Use to build MediaMetadata2 objects. The system defined metadata keys must
+     * Use to build MediaMetadata2x objects. The system defined metadata keys must
      * use the appropriate data type.
      */
     public static final class Builder {
-        //private final MediaMetadata2Provider.BuilderProvider mProvider;
+        final Bundle mBundle;
 
         /**
          * Create an empty Builder. Any field that should be included in the
          * {@link MediaMetadata2} must be added.
          */
         public Builder() {
-            //mProvider = ApiLoader.getProvider().createMediaMetadata2Builder(context, this);
+            mBundle = new Bundle();
         }
 
         /**
@@ -729,16 +835,32 @@ public final class MediaMetadata2 {
          * @param source
          */
         public Builder(@NonNull MediaMetadata2 source) {
-//            mProvider =
-//                    ApiLoader.getProvider().createMediaMetadata2Builder(context, this, source);
+            mBundle = new Bundle(source.toBundle());
         }
 
-//        /**
-//         * @hide
-//         */
-//        public Builder(@NonNull MediaMetadata2Provider.BuilderProvider provider) {
-//            mProvider = provider;
-//        }
+        /**
+         * Create a Builder using a {@link MediaMetadata2} instance to set
+         * initial values, but replace bitmaps with a scaled down copy if they
+         * are larger than maxBitmapSize.
+         *
+         * @param source The original metadata to copy.
+         * @param maxBitmapSize The maximum height/width for bitmaps contained
+         *            in the metadata.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public Builder(MediaMetadata2 source, int maxBitmapSize) {
+            this(source);
+            for (String key : mBundle.keySet()) {
+                Object value = mBundle.get(key);
+                if (value instanceof Bitmap) {
+                    Bitmap bmp = (Bitmap) value;
+                    if (bmp.getHeight() > maxBitmapSize || bmp.getWidth() > maxBitmapSize) {
+                        putBitmap(key, scaleBitmap(bmp, maxBitmapSize));
+                    }
+                }
+            }
+        }
 
         /**
          * Put a CharSequence value into the metadata. Custom keys may be used,
@@ -760,7 +882,6 @@ public final class MediaMetadata2 {
          * <li>{@link #METADATA_KEY_DISPLAY_SUBTITLE}</li>
          * <li>{@link #METADATA_KEY_DISPLAY_DESCRIPTION}</li>
          * <li>{@link #METADATA_KEY_DISPLAY_ICON_URI}</li>
-         * <li>{@link #METADATA_KEY_RADIO_CALLSIGN}</li>
          * </ul>
          *
          * @param key The key for referencing this value
@@ -769,7 +890,16 @@ public final class MediaMetadata2 {
          */
         public @NonNull Builder putText(@NonNull @TextKey String key,
                 @Nullable CharSequence value) {
-            //return mProvider.putText_impl(key, value);
+            if (key == null) {
+                throw new IllegalArgumentException("key shouldn't be null");
+            }
+            if (METADATA_KEYS_TYPE.containsKey(key)) {
+                if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_TEXT) {
+                    throw new IllegalArgumentException("The " + key
+                            + " key cannot be used to put a CharSequence");
+                }
+            }
+            mBundle.putCharSequence(key, value);
             return this;
         }
 
@@ -793,7 +923,6 @@ public final class MediaMetadata2 {
          * <li>{@link #METADATA_KEY_DISPLAY_SUBTITLE}</li>
          * <li>{@link #METADATA_KEY_DISPLAY_DESCRIPTION}</li>
          * <li>{@link #METADATA_KEY_DISPLAY_ICON_URI}</li>
-         * <li>{@link #METADATA_KEY_RADIO_CALLSIGN}</li>
          * </ul>
          *
          * @param key The key for referencing this value
@@ -802,7 +931,16 @@ public final class MediaMetadata2 {
          */
         public @NonNull Builder putString(@NonNull @TextKey String key,
                 @Nullable String value) {
-            //return mProvider.putString_impl(key, value);
+            if (key == null) {
+                throw new IllegalArgumentException("key shouldn't be null");
+            }
+            if (METADATA_KEYS_TYPE.containsKey(key)) {
+                if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_TEXT) {
+                    throw new IllegalArgumentException("The " + key
+                            + " key cannot be used to put a String");
+                }
+            }
+            mBundle.putCharSequence(key, value);
             return this;
         }
 
@@ -826,7 +964,16 @@ public final class MediaMetadata2 {
          * @return The Builder to allow chaining
          */
         public @NonNull Builder putLong(@NonNull @LongKey String key, long value) {
-            //return mProvider.putLong_impl(key, value);
+            if (key == null) {
+                throw new IllegalArgumentException("key shouldn't be null");
+            }
+            if (METADATA_KEYS_TYPE.containsKey(key)) {
+                if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_LONG) {
+                    throw new IllegalArgumentException("The " + key
+                            + " key cannot be used to put a long");
+                }
+            }
+            mBundle.putLong(key, value);
             return this;
         }
 
@@ -843,8 +990,18 @@ public final class MediaMetadata2 {
          * @param value The String value to store
          * @return The Builder to allow chaining
          */
-        public @NonNull Builder putRating(@NonNull @RatingKey String key, @Nullable Rating2 value) {
-            //return mProvider.putRating_impl(key, value);
+        public @NonNull Builder putRating(@NonNull @RatingKey String key,
+                @Nullable Rating2 value) {
+            if (key == null) {
+                throw new IllegalArgumentException("key shouldn't be null");
+            }
+            if (METADATA_KEYS_TYPE.containsKey(key)) {
+                if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_RATING) {
+                    throw new IllegalArgumentException("The " + key
+                            + " key cannot be used to put a Rating");
+                }
+            }
+            mBundle.putBundle(key, (value == null) ? null : value.toBundle());
             return this;
         }
 
@@ -866,8 +1023,18 @@ public final class MediaMetadata2 {
          * @param value The Bitmap to store
          * @return The Builder to allow chaining
          */
-        public @NonNull Builder putBitmap(@NonNull @BitmapKey String key, @Nullable Bitmap value) {
-            //return mProvider.putBitmap_impl(key, value);
+        public @NonNull Builder putBitmap(@NonNull @BitmapKey String key,
+                @Nullable Bitmap value) {
+            if (key == null) {
+                throw new IllegalArgumentException("key shouldn't be null");
+            }
+            if (METADATA_KEYS_TYPE.containsKey(key)) {
+                if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_BITMAP) {
+                    throw new IllegalArgumentException("The " + key
+                            + " key cannot be used to put a Bitmap");
+                }
+            }
+            mBundle.putParcelable(key, value);
             return this;
         }
 
@@ -884,7 +1051,16 @@ public final class MediaMetadata2 {
          * @return The Builder to allow chaining
          */
         public @NonNull Builder putFloat(@NonNull @LongKey String key, float value) {
-            //return mProvider.putFloat_impl(key, value);
+            if (key == null) {
+                throw new IllegalArgumentException("key shouldn't be null");
+            }
+            if (METADATA_KEYS_TYPE.containsKey(key)) {
+                if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_FLOAT) {
+                    throw new IllegalArgumentException("The " + key
+                            + " key cannot be used to put a float");
+                }
+            }
+            mBundle.putFloat(key, value);
             return this;
         }
 
@@ -895,18 +1071,27 @@ public final class MediaMetadata2 {
          * @return The Builder to allow chaining
          */
         public Builder setExtras(@Nullable Bundle extras) {
-            //return mProvider.setExtras_impl(extras);
+            mBundle.putBundle(METADATA_KEY_EXTRAS, extras);
             return this;
         }
 
         /**
          * Creates a {@link MediaMetadata2} instance with the specified fields.
          *
-         * @return The new MediaMetadata2 instance
+         * @return The new MediaMetadata2x instance
          */
-        public /*@NonNull*/ MediaMetadata2 build() {
-            //return mProvider.build_impl();
-            return null;
+        public @NonNull MediaMetadata2 build() {
+            return new MediaMetadata2(mBundle);
+        }
+
+        private Bitmap scaleBitmap(Bitmap bmp, int maxSize) {
+            float maxSizeF = maxSize;
+            float widthScale = maxSizeF / bmp.getWidth();
+            float heightScale = maxSizeF / bmp.getHeight();
+            float scale = Math.min(widthScale, heightScale);
+            int height = (int) (bmp.getHeight() * scale);
+            int width = (int) (bmp.getWidth() * scale);
+            return Bitmap.createScaledBitmap(bmp, width, height, true);
         }
     }
 }
