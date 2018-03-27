@@ -18,4 +18,11 @@
     <!-- The main theme for all activities within the Car Demo. -->
     <style name="CarTheme" parent="Theme.Car.Light.NoActionBar">
     </style>
+
+    <!-- A theme for activities within the Car Demo that have a drawer. -->
+    <style name="CarDrawerTheme" parent="Theme.Car.Light.NoActionBar.Drawer">
+        <item name="android:colorPrimary">@color/car_grey_200</item>
+        <item name="android:colorPrimaryDark">@color/car_grey_400</item>
+        <item name="drawerClosedHeaderColor">@color/car_title2_dark</item>
+    </style>
 </resources>
