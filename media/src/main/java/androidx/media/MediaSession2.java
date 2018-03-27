@@ -18,19 +18,26 @@ package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
+import static androidx.media.SessionToken2.TYPE_LIBRARY_SERVICE;
+import static androidx.media.SessionToken2.TYPE_SESSION;
+import static androidx.media.SessionToken2.TYPE_SESSION_SERVICE;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IInterface;
+import android.os.Process;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.text.TextUtils;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
@@ -697,7 +704,6 @@ public class MediaSession2 implements AutoCloseable {
             super(context);
         }
 
-
         @Override
         public @NonNull Builder setPlayer(@NonNull MediaPlayerBase player) {
             return super.setPlayer(player);
@@ -982,11 +988,27 @@ public class MediaSession2 implements AutoCloseable {
         mSessionActivity = sessionActivity;
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-        // TODO: Set values properly
-        mSessionToken = null;
-        updatePlayer(player, playlistAgent, volumeProvider);
+        // TODO: Set callback values properly
         mPlayerEventCallback = null;
         mPlaylistEventCallback = null;
+
+        // Infer type from the id and package name.
+        String libraryService = getServiceName(context, MediaLibraryService2.SERVICE_INTERFACE, id);
+        String sessionService = getServiceName(context, MediaSessionService2.SERVICE_INTERFACE, id);
+        if (sessionService != null && libraryService != null) {
+            throw new IllegalArgumentException("Ambiguous session type. Multiple"
+                    + " session services define the same id=" + id);
+        } else if (libraryService != null) {
+            mSessionToken = new SessionToken2(Process.myUid(), TYPE_LIBRARY_SERVICE,
+                    context.getPackageName(), libraryService, id, mSessionCompat.getSessionToken());
+        } else if (sessionService != null) {
+            mSessionToken = new SessionToken2(Process.myUid(), TYPE_SESSION_SERVICE,
+                    context.getPackageName(), sessionService, id, mSessionCompat.getSessionToken());
+        } else {
+            mSessionToken = new SessionToken2(Process.myUid(), TYPE_SESSION,
+                    context.getPackageName(), null, id, mSessionCompat.getSessionToken());
+        }
+        updatePlayer(player, playlistAgent, volumeProvider);
     }
 
     /**
@@ -1495,5 +1517,30 @@ public class MediaSession2 implements AutoCloseable {
      */
     public void setShuffleMode(@ShuffleMode int shuffleMode) {
         //mProvider.setShuffleMode_impl(shuffleMode);
+    }
+
+    private static String getServiceName(Context context, String serviceAction, String id) {
+        PackageManager manager = context.getPackageManager();
+        Intent serviceIntent = new Intent(serviceAction);
+        serviceIntent.setPackage(context.getPackageName());
+        List<ResolveInfo> services = manager.queryIntentServices(serviceIntent,
+                PackageManager.GET_META_DATA);
+        String serviceName = null;
+        if (services != null) {
+            for (int i = 0; i < services.size(); i++) {
+                String serviceId = SessionToken2.getSessionId(services.get(i));
+                if (serviceId != null && TextUtils.equals(id, serviceId)) {
+                    if (services.get(i).serviceInfo == null) {
+                        continue;
+                    }
+                    if (serviceName != null) {
+                        throw new IllegalArgumentException("Ambiguous session type. Multiple"
+                                + " session services define the same id=" + id);
+                    }
+                    serviceName = services.get(i).serviceInfo.name;
+                }
+            }
+        }
+        return serviceName;
     }
 }
