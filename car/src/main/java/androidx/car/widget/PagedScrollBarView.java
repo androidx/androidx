@@ -20,9 +20,6 @@ import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import androidx.annotation.ColorRes;
-import androidx.annotation.VisibleForTesting;
-import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,12 +28,15 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.VisibleForTesting;
 import androidx.car.R;
+import androidx.core.content.ContextCompat;
 
 /** A custom view to provide list scroll behaviour -- up/down buttons and scroll indicator. */
-public class PagedScrollBarView extends FrameLayout
-        implements View.OnClickListener, View.OnLongClickListener {
+public class PagedScrollBarView extends FrameLayout {
     private static final float BUTTON_DISABLED_ALPHA = 0.2f;
 
     @DayNightStyle private int mDayNightStyle;
@@ -48,10 +48,21 @@ public class PagedScrollBarView extends FrameLayout
 
         /** Called when the linked view should be paged in the given direction */
         void onPaginate(int direction);
+
+        /**
+         * Called when the 'alpha jump' button is clicked and the linked view should switch into
+         * alpha jump mode, where we display a list of buttons to allow the user to quickly scroll
+         * to a certain point in the list, bypassing a lot of manual scrolling.
+         */
+        void onAlphaJump();
     }
 
     private final ImageView mUpButton;
+    private final PaginateButtonClickListener mUpButtonClickListener;
     private final ImageView mDownButton;
+    private final PaginateButtonClickListener mDownButtonClickListener;
+    private final TextView mAlphaJumpButton;
+    private final AlphaJumpButtonClickListener mAlphaJumpButtonClickListener;
     private final View mScrollThumb;
     /** The "filler" view between the up and down buttons */
     private final View mFiller;
@@ -78,26 +89,19 @@ public class PagedScrollBarView extends FrameLayout
         inflater.inflate(R.layout.car_paged_scrollbar_buttons, this /* root */,
                 true /* attachToRoot */);
 
-        mUpButton = (ImageView) findViewById(R.id.page_up);
-        mUpButton.setOnClickListener(this);
-        mUpButton.setOnLongClickListener(this);
-        mDownButton = (ImageView) findViewById(R.id.page_down);
-        mDownButton.setOnClickListener(this);
-        mDownButton.setOnLongClickListener(this);
+        mUpButtonClickListener = new PaginateButtonClickListener(PaginationListener.PAGE_UP);
+        mDownButtonClickListener = new PaginateButtonClickListener(PaginationListener.PAGE_DOWN);
+        mAlphaJumpButtonClickListener = new AlphaJumpButtonClickListener();
+
+        mUpButton = findViewById(R.id.page_up);
+        mUpButton.setOnClickListener(mUpButtonClickListener);
+        mDownButton = findViewById(R.id.page_down);
+        mDownButton.setOnClickListener(mDownButtonClickListener);
+        mAlphaJumpButton = findViewById(R.id.alpha_jump);
+        mAlphaJumpButton.setOnClickListener(mAlphaJumpButtonClickListener);
 
         mScrollThumb = findViewById(R.id.scrollbar_thumb);
         mFiller = findViewById(R.id.filler);
-    }
-
-    @Override
-    public void onClick(View v) {
-        dispatchPageClick(v);
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        dispatchPageClick(v);
-        return true;
     }
 
     /** Sets the icon to be used for the up button. */
@@ -116,7 +120,9 @@ public class PagedScrollBarView extends FrameLayout
      * @param listener The listener to set.
      */
     public void setPaginationListener(PaginationListener listener) {
-        mPaginationListener = listener;
+        mUpButtonClickListener.setPaginationListener(listener);
+        mDownButtonClickListener.setPaginationListener(listener);
+        mAlphaJumpButtonClickListener.setPaginationListener(listener);
     }
 
     /** Returns {@code true} if the "up" button is pressed */
@@ -127,6 +133,10 @@ public class PagedScrollBarView extends FrameLayout
     /** Returns {@code true} if the "down" button is pressed */
     public boolean isDownPressed() {
         return mDownButton.isPressed();
+    }
+
+    void setShowAlphaJump(boolean show) {
+        mAlphaJumpButton.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -261,7 +271,7 @@ public class PagedScrollBarView extends FrameLayout
                 upDownBackgroundResId = R.drawable.car_button_ripple_background_night;
                 break;
             case DayNightStyle.FORCE_DAY:
-                tintResId =  R.color.car_tint_dark;
+                tintResId = R.color.car_tint_dark;
                 thumbColorResId = R.color.car_scrollbar_thumb_dark;
                 upDownBackgroundResId = R.drawable.car_button_ripple_background_day;
                 break;
@@ -281,6 +291,8 @@ public class PagedScrollBarView extends FrameLayout
 
         mDownButton.setColorFilter(tint, PorterDuff.Mode.SRC_IN);
         mDownButton.setBackgroundResource(upDownBackgroundResId);
+
+        mAlphaJumpButton.setBackgroundResource(upDownBackgroundResId);
     }
 
     private void setScrollbarThumbColor(@ColorRes int color) {
@@ -293,18 +305,6 @@ public class PagedScrollBarView extends FrameLayout
         return ((GradientDrawable) mScrollThumb.getBackground()).getColor().getDefaultColor();
     }
 
-    private void dispatchPageClick(View v) {
-        final PaginationListener listener = mPaginationListener;
-        if (listener == null) {
-            return;
-        }
-
-        int direction = v.getId() == R.id.page_up
-                ? PaginationListener.PAGE_UP
-                : PaginationListener.PAGE_DOWN;
-        listener.onPaginate(direction);
-    }
-
     /** Moves the given view to the specified 'y' position. */
     private void moveY(final View view, float newPosition, boolean animate) {
         final int duration = animate ? 200 : 0;
@@ -313,5 +313,41 @@ public class PagedScrollBarView extends FrameLayout
                 .setDuration(duration)
                 .setInterpolator(mPaginationInterpolator)
                 .start();
+    }
+
+    private static class PaginateButtonClickListener implements View.OnClickListener {
+        private final int mPaginateDirection;
+        private PaginationListener mPaginationListener;
+
+        PaginateButtonClickListener(int paginateDirection) {
+            mPaginateDirection = paginateDirection;
+        }
+
+        public void setPaginationListener(PaginationListener listener) {
+            mPaginationListener = listener;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mPaginationListener != null) {
+                mPaginationListener.onPaginate(mPaginateDirection);
+            }
+        }
+    }
+
+    private static class AlphaJumpButtonClickListener implements View.OnClickListener {
+        private PaginationListener mPaginationListener;
+
+        public void setPaginationListener(PaginationListener listener) {
+            mPaginationListener = listener;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mPaginationListener != null) {
+                mPaginationListener.onAlphaJump();
+            }
+        }
+
     }
 }
