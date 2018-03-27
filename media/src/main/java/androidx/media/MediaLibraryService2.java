@@ -19,7 +19,9 @@ package androidx.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -66,8 +68,6 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
      * {@link Builder} and return in {@link #onCreateSession(String)}.
      */
     public static final class MediaLibrarySession extends MediaSession2 {
-        //private final MediaLibrarySessionProvider mProvider;
-
         /**
          * Callback for the {@link MediaLibrarySession}.
          */
@@ -197,64 +197,65 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          */
         // Override all methods just to show them with the type instead of generics in Javadoc.
         // This workarounds javadoc issue described in the MediaSession2.BuilderBase.
-        public static final class Builder extends BuilderBase<MediaLibrarySession, Builder,
-                MediaLibrarySessionCallback> {
+        public static final class Builder extends MediaSession2.BuilderBase<MediaLibrarySession,
+                Builder, MediaLibrarySessionCallback> {
             // Builder requires MediaLibraryService2 instead of Context just to ensure that the
             // builder can be only instantiated within the MediaLibraryService2.
             // Ideally it's better to make it inner class of service to enforce, it violates API
             // guideline that Builders should be the inner class of the building target.
             public Builder(@NonNull MediaLibraryService2 service,
-                    @NonNull /*@CallbackExecutor*/ Executor callbackExecutor,
+                    @NonNull Executor callbackExecutor,
                     @NonNull MediaLibrarySessionCallback callback) {
-//                super((instance) -> ApiLoader.getProvider().createMediaLibraryService2Builder(
-//                        service, (Builder) instance, callbackExecutor, callback));
-                super(new Object());
+                super(service);
+                setSessionCallback(callbackExecutor, callback);
             }
 
             @Override
-            public Builder setPlayer(@NonNull MediaPlayerBase player) {
+            public @NonNull Builder setPlayer(@NonNull MediaPlayerBase player) {
                 return super.setPlayer(player);
             }
 
             @Override
-            public Builder setPlaylistAgent(@NonNull MediaPlaylistAgent playlistAgent) {
+            public @NonNull Builder setPlaylistAgent(@NonNull MediaPlaylistAgent playlistAgent) {
                 return super.setPlaylistAgent(playlistAgent);
             }
 
             @Override
-            public Builder setVolumeProvider(@Nullable VolumeProvider2 volumeProvider) {
+            public @NonNull Builder setVolumeProvider(@Nullable VolumeProvider2 volumeProvider) {
                 return super.setVolumeProvider(volumeProvider);
             }
 
             @Override
-            public Builder setSessionActivity(@Nullable PendingIntent pi) {
+            public @NonNull Builder setSessionActivity(@Nullable PendingIntent pi) {
                 return super.setSessionActivity(pi);
             }
 
             @Override
-            public Builder setId(@NonNull String id) {
+            public @NonNull Builder setId(@NonNull String id) {
                 return super.setId(id);
             }
 
             @Override
-            public Builder setSessionCallback(@NonNull /*@CallbackExecutor*/ Executor executor,
+            public @NonNull Builder setSessionCallback(@NonNull Executor executor,
                     @NonNull MediaLibrarySessionCallback callback) {
                 return super.setSessionCallback(executor, callback);
             }
 
             @Override
-            public MediaLibrarySession build() {
-                return super.build();
+            public @NonNull MediaLibrarySession build() {
+                return new MediaLibrarySession(mContext, new MediaSessionCompat(mContext, mId),
+                        mId, mPlayer, mPlaylistAgent, mVolumeProvider, mSessionActivity,
+                        mCallbackExecutor, mCallback);
             }
         }
 
-//        /**
-//         * @hide
-//         */
-//        public MediaLibrarySession(MediaLibrarySessionProvider provider) {
-//            super(provider);
-//            mProvider = provider;
-//        }
+        MediaLibrarySession(Context context, MediaSessionCompat sessionCompat, String id,
+                MediaPlayerBase player, MediaPlaylistAgent playlistAgent,
+                VolumeProvider2 volumeProvider, PendingIntent sessionActivity,
+                Executor callbackExecutor, MediaLibrarySessionCallback callback) {
+            super(context, sessionCompat, id, player, playlistAgent, volumeProvider,
+                    sessionActivity, callbackExecutor, callback);
+        }
 
         /**
          * Notify the controller of the change in a parent's children.
