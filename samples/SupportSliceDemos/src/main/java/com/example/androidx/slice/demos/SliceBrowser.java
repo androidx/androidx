@@ -35,10 +35,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -291,6 +293,13 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             mSliceLiveData.removeObservers(this);
         }
         v.setScrollable(SCROLLING_ENABLED);
+        v.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(getApplicationContext(), "LONGPRESS !!", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
         return v;
     }
 }

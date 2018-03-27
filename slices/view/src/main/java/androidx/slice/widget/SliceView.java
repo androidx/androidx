@@ -23,9 +23,13 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
 import androidx.annotation.IntDef;
@@ -134,6 +138,13 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     private int mThemeTintColor = -1;
 
     private OnSliceActionListener mSliceObserver;
+    private int mTouchSlopSquared;
+    private View.OnLongClickListener mLongClickListener;
+    private int mDownX;
+    private int mDownY;
+    private boolean mPressing;
+    private boolean mInLongpress;
+    private Handler mHandler;
 
     public SliceView(Context context) {
         this(context, null);
@@ -170,6 +181,65 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         mMaxLargeHeight = getResources().getDimensionPixelSize(R.dimen.abc_slice_max_large_height);
         mActionRowHeight = getResources().getDimensionPixelSize(
                 R.dimen.abc_slice_action_row_height);
+
+        final int slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+        mTouchSlopSquared = slop * slop;
+        mHandler = new Handler();
+    }
+
+    @Override
+    public void setOnLongClickListener(View.OnLongClickListener listener) {
+        mLongClickListener = listener;
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        boolean ret = super.onInterceptTouchEvent(ev);
+        if (mLongClickListener != null) {
+            return handleTouchForLongpress(ev);
+        }
+        return ret;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        boolean ret = super.onTouchEvent(ev);
+        if (mLongClickListener != null) {
+            return handleTouchForLongpress(ev);
+        }
+        return ret;
+    }
+
+    private boolean handleTouchForLongpress(MotionEvent ev) {
+        int action = ev.getActionMasked();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mHandler.removeCallbacks(mLongpressCheck);
+                mDownX = (int) ev.getRawX();
+                mDownY = (int) ev.getRawY();
+                mPressing = true;
+                mInLongpress = false;
+                mHandler.postDelayed(mLongpressCheck, ViewConfiguration.getLongPressTimeout());
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                final int deltaX = (int) ev.getRawX() - mDownX;
+                final int deltaY = (int) ev.getRawY() - mDownY;
+                int distance = (deltaX * deltaX) + (deltaY * deltaY);
+                if (distance > mTouchSlopSquared) {
+                    mPressing = false;
+                    mHandler.removeCallbacks(mLongpressCheck);
+                }
+                break;
+
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                mPressing = false;
+                mInLongpress = false;
+                mHandler.removeCallbacks(mLongpressCheck);
+                break;
+        }
+        return mInLongpress;
     }
 
     private int getHeightForMode() {
@@ -524,4 +594,15 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
                 return "unknown mode: " + mode;
         }
     }
+
+    Runnable mLongpressCheck = new Runnable() {
+        @Override
+        public void run() {
+            if (mPressing && mLongClickListener != null) {
+                mInLongpress = true;
+                mLongClickListener.onLongClick(SliceView.this);
+                performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            }
+        }
+    };
 }
