@@ -17,7 +17,6 @@
 package androidx.slice.compat;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
@@ -26,10 +25,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.RestrictTo;
 import android.util.Log;
 import android.widget.TextView;
 
+import androidx.annotation.RestrictTo;
+import androidx.appcompat.app.AlertDialog;
 import androidx.slice.core.R;
 
 /**

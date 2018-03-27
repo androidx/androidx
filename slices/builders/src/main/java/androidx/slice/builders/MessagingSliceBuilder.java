@@ -22,20 +22,17 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.Consumer;
 import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.MessagingBasicImpl;
 import androidx.slice.builders.impl.MessagingBuilder;
 import androidx.slice.builders.impl.MessagingListV1Impl;
 import androidx.slice.builders.impl.MessagingV1Impl;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
-
-import java.util.function.Consumer;
 
 /**
  * Builder to construct slice content in a messaging format.
@@ -70,7 +67,6 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
     /**
      * Add a subslice to this builder.
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public MessagingSliceBuilder add(Consumer<MessageBuilder> c) {
         MessageBuilder b = new MessageBuilder(this);
         c.accept(b);

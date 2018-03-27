@@ -23,15 +23,14 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import android.os.Build;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.Consumer;
 import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.ListBuilderBasicImpl;
 import androidx.slice.builders.impl.ListBuilderV1Impl;
@@ -39,7 +38,6 @@ import androidx.slice.builders.impl.TemplateBuilderImpl;
 import androidx.slice.core.SliceHints;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 
 /**
@@ -193,7 +191,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     /**
      * Add a row to the list builder.
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     public ListBuilder addRow(@NonNull Consumer<RowBuilder> c) {
         RowBuilder b = new RowBuilder(this);
@@ -218,7 +215,6 @@ public class ListBuilder extends TemplateSliceBuilder {
      *
      * @deprecated TO BE REMOVED; use {@link #addGridRow(GridRowBuilder)} instead
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     @Deprecated
     public ListBuilder addGrid(@NonNull Consumer<GridBuilder> c) {
@@ -239,7 +235,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     /**
      * Add a grid row to the list builder.
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     public ListBuilder addGridRow(@NonNull Consumer<GridRowBuilder> c) {
         GridRowBuilder b = new GridRowBuilder(this);
@@ -285,7 +280,6 @@ public class ListBuilder extends TemplateSliceBuilder {
      *
      * @see HeaderBuilder#setSummary(CharSequence)
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     public ListBuilder setHeader(@NonNull Consumer<HeaderBuilder> c) {
         HeaderBuilder b = new HeaderBuilder(this);
@@ -384,7 +378,6 @@ public class ListBuilder extends TemplateSliceBuilder {
      * a row or action has been previously added.
      * </p>
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     public ListBuilder setSeeMoreRow(@NonNull Consumer<RowBuilder> c) {
         RowBuilder b = new RowBuilder(this);
@@ -458,7 +451,6 @@ public class ListBuilder extends TemplateSliceBuilder {
      * @deprecated TO BE REMOVED
      */
     @Deprecated
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     public ListBuilder addSeeMoreRow(@NonNull Consumer<RowBuilder> c) {
         RowBuilder b = new RowBuilder(this);
@@ -523,7 +515,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     /**
      * Add an input range row to the list builder.
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     public ListBuilder addInputRange(@NonNull Consumer<InputRangeBuilder> c) {
         InputRangeBuilder inputRangeBuilder = new InputRangeBuilder(this);
@@ -543,7 +534,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     /**
      * Add a range row to the list builder.
      */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     public ListBuilder addRange(@NonNull Consumer<RangeBuilder> c) {
         RangeBuilder rangeBuilder = new RangeBuilder(this);

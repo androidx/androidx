@@ -29,6 +29,8 @@ import android.app.slice.Slice;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.Build;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewParent;
@@ -39,6 +41,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.widget.ImageViewCompat;
@@ -55,6 +58,8 @@ import java.util.List;
 public class ActionRow extends FrameLayout {
 
     private static final int MAX_ACTIONS = 5;
+    private static final String TAG = "ActionRow";
+
     private final int mSize;
     private final int mIconPadding;
     private final LinearLayout mActionsGroup;
@@ -118,18 +123,12 @@ public class ActionRow extends FrameLayout {
             }
             final SliceItem input = SliceQuery.find(action, FORMAT_REMOTE_INPUT);
             final SliceItem image = SliceQuery.find(action, FORMAT_IMAGE);
-            if (input != null && image != null
-                    && input.getRemoteInput().getAllowFreeFormInput()) {
-                boolean tint = !image.hasHint(HINT_NO_TINT);
-                addAction(image.getIcon(), tint).setOnClickListener(
-                        new OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                handleRemoteInputClick(v, action.getAction(),
-                                        input.getRemoteInput());
-                            }
-                        });
-                createRemoteInputView(mColor, getContext());
+            if (input != null && image != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    handleSetRemoteInputActions(input, image, action);
+                } else {
+                    Log.w(TAG, "Received RemoteInput on API <20 " + input);
+                }
             } else if (action.hasHint(Slice.HINT_SHORTCUT)) {
                 final SliceActionImpl ac = new SliceActionImpl(action);
                 IconCompat iconItem = ac.getIcon();
@@ -157,6 +156,24 @@ public class ActionRow extends FrameLayout {
         mActionsGroup.addView(child, new LinearLayout.LayoutParams(mSize, mSize, 1));
     }
 
+    @RequiresApi(21)
+    private void handleSetRemoteInputActions(final SliceItem input, SliceItem image,
+            final SliceItem action) {
+        if (input.getRemoteInput().getAllowFreeFormInput()) {
+            boolean tint = !image.hasHint(HINT_NO_TINT);
+            addAction(image.getIcon(), tint).setOnClickListener(
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            handleRemoteInputClick(v, action.getAction(),
+                                    input.getRemoteInput());
+                        }
+                    });
+            createRemoteInputView(mColor, getContext());
+        }
+    }
+
+    @RequiresApi(21)
     private void createRemoteInputView(int color, Context context) {
         View riv = RemoteInputView.inflate(context, this);
         riv.setVisibility(View.INVISIBLE);
@@ -164,6 +181,7 @@ public class ActionRow extends FrameLayout {
         riv.setBackgroundColor(color);
     }
 
+    @RequiresApi(21)
     private boolean handleRemoteInputClick(View view, PendingIntent pendingIntent,
             RemoteInput input) {
         if (input == null) {
@@ -213,6 +231,7 @@ public class ActionRow extends FrameLayout {
         return true;
     }
 
+    @RequiresApi(21)
     private RemoteInputView findRemoteInputView(View v) {
         if (v == null) {
             return null;
