@@ -25,6 +25,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
 
@@ -92,6 +93,7 @@ public class AccessibilityDelegateCompat {
         }
 
         @Override
+        @RequiresApi(16)
         public AccessibilityNodeProvider getAccessibilityNodeProvider(View host) {
             AccessibilityNodeProviderCompat provider =
                     mCompat.getAccessibilityNodeProvider(host);

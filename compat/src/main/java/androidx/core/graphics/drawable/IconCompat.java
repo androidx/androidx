@@ -111,7 +111,7 @@ public class IconCompat {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @IntDef({TYPE_BITMAP, TYPE_RESOURCE, TYPE_DATA, TYPE_URI, TYPE_ADAPTIVE_BITMAP})
+    @IntDef({TYPE_UNKOWN, TYPE_BITMAP, TYPE_RESOURCE, TYPE_DATA, TYPE_URI, TYPE_ADAPTIVE_BITMAP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface IconType {
     }
