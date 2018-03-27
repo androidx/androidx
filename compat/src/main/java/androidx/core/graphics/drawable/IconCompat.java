@@ -16,6 +16,12 @@
 
 package androidx.core.graphics.drawable;
 
+import static android.graphics.drawable.Icon.TYPE_ADAPTIVE_BITMAP;
+import static android.graphics.drawable.Icon.TYPE_BITMAP;
+import static android.graphics.drawable.Icon.TYPE_DATA;
+import static android.graphics.drawable.Icon.TYPE_RESOURCE;
+import static android.graphics.drawable.Icon.TYPE_URI;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
@@ -57,6 +63,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.os.BuildCompat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -78,34 +85,6 @@ public class IconCompat {
      * @see #getType(Icon)
      */
     public static final int TYPE_UNKOWN = -1;
-
-    // TODO: Switch these to the public constants in the beta branch.
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int TYPE_BITMAP = 1;
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int TYPE_RESOURCE = 2;
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int TYPE_DATA = 3;
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int TYPE_URI = 4;
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public static final int TYPE_ADAPTIVE_BITMAP = 5;
-
 
     /**
      * @hide
@@ -645,8 +624,10 @@ public class IconCompat {
      */
     @IconType
     @RequiresApi(23)
-    public static int getType(Icon icon) {
-        // TODO: Switch to public APIs on P+ in beta branch.
+    public static int getType(@NonNull Icon icon) {
+        if (BuildCompat.isAtLeastP()) {
+            return icon.getType();
+        }
         try {
             return (int) icon.getClass().getMethod("getType").invoke(icon);
         } catch (IllegalAccessException e) {
@@ -671,8 +652,10 @@ public class IconCompat {
      */
     @Nullable
     @RequiresApi(23)
-    public static String getResPackage(Icon icon) {
-        // TODO: Switch to public APIs on P+ in beta branch.
+    public static String getResPackage(@NonNull Icon icon) {
+        if (BuildCompat.isAtLeastP()) {
+            return icon.getResPackage();
+        }
         try {
             return (String) icon.getClass().getMethod("getResPackage").invoke(icon);
         } catch (IllegalAccessException e) {
@@ -697,8 +680,10 @@ public class IconCompat {
      */
     @IdRes
     @RequiresApi(23)
-    public static int getResId(Icon icon) {
-        // TODO: Switch to public APIs on P+ in beta branch.
+    public static int getResId(@NonNull Icon icon) {
+        if (BuildCompat.isAtLeastP()) {
+            return icon.getResId();
+        }
         try {
             return (int) icon.getClass().getMethod("getResId").invoke(icon);
         } catch (IllegalAccessException e) {
@@ -723,8 +708,10 @@ public class IconCompat {
      */
     @Nullable
     @RequiresApi(23)
-    public Uri getUri(Icon icon) {
-        // TODO: Switch to public APIs on P+ in beta branch.
+    public Uri getUri(@NonNull Icon icon) {
+        if (BuildCompat.isAtLeastP()) {
+            return icon.getUri();
+        }
         try {
             return (Uri) icon.getClass().getMethod("getUri").invoke(icon);
         } catch (IllegalAccessException e) {
