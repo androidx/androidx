@@ -248,7 +248,10 @@ public final class PrintHelper {
      */
     public void printBitmap(@NonNull final String jobName, @NonNull final Bitmap bitmap,
             @Nullable final OnPrintFinishCallback callback) {
-        if (Build.VERSION.SDK_INT < 19 || bitmap == null) {
+        if (Build.VERSION.SDK_INT < 19) {
+            return;
+        }
+        if (bitmap == null) {
             return;
         }
 
