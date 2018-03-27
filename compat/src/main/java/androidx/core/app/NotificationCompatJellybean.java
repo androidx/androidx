@@ -338,4 +338,7 @@ class NotificationCompatJellybean {
         bundle.putParcelableArray(key, typedArray);
         return typedArray;
     }
+
+    private NotificationCompatJellybean() {
+    }
 }

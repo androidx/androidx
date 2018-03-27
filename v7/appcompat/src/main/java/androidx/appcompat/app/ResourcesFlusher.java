@@ -205,4 +205,7 @@ class ResourcesFlusher {
         }
         return false;
     }
+
+    private ResourcesFlusher() {
+    }
 }

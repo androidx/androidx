@@ -139,4 +139,7 @@ public class EventBridge {
             mAdapter.notifyItemChanged(position, SelectionTracker.SELECTION_CHANGED_MARKER);
         }
     }
+
+    private EventBridge() {
+    }
 }

@@ -209,4 +209,7 @@ class DocumentsContractApi19 {
             }
         }
     }
+
+    private DocumentsContractApi19() {
+    }
 }

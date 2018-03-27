@@ -105,4 +105,6 @@ class ImageViewUtils {
         }
     }
 
+    private ImageViewUtils() {
+    }
 }

@@ -24,5 +24,11 @@ final class MediaRouterApi24 {
         public static int getDeviceType(Object routeObj) {
             return ((android.media.MediaRouter.RouteInfo)routeObj).getDeviceType();
         }
+
+        private RouteInfo() {
+        }
+    }
+
+    private MediaRouterApi24() {
     }
 }

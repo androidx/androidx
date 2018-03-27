@@ -79,4 +79,7 @@ class ContainerHelpers {
         }
         return ~lo;  // value not present
     }
+
+    private ContainerHelpers() {
+    }
 }

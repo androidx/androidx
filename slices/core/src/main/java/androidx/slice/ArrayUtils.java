@@ -72,4 +72,7 @@ class ArrayUtils {
         }
         return array;
     }
+
+    private ArrayUtils() {
+    }
 }

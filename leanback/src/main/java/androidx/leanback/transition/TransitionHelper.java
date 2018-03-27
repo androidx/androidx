@@ -464,4 +464,7 @@ public final class TransitionHelper {
             }
         }
     }
+
+    private TransitionHelper() {
+    }
 }

@@ -268,4 +268,7 @@ public class SliceQuery {
         };
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
     }
+
+    private SliceQuery() {
+    }
 }

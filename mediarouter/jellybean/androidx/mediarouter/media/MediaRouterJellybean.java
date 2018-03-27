@@ -197,6 +197,9 @@ final class MediaRouterJellybean {
         public static boolean isGroup(Object routeObj) {
             return routeObj instanceof android.media.MediaRouter.RouteGroup;
         }
+
+        private RouteInfo() {
+        }
     }
 
     public static final class RouteGroup {
@@ -210,6 +213,9 @@ final class MediaRouterJellybean {
                 out.add(group.getRouteAt(i));
             }
             return out;
+        }
+
+        private RouteGroup() {
         }
     }
 
@@ -255,6 +261,9 @@ final class MediaRouterJellybean {
             ((android.media.MediaRouter.UserRouteInfo)routeObj).setRemoteControlClient(
                     (android.media.RemoteControlClient)rccObj);
         }
+
+        private UserRouteInfo() {
+        }
     }
 
     public static final class RouteCategory {
@@ -275,6 +284,9 @@ final class MediaRouterJellybean {
 
         public static boolean isGroupable(Object categoryObj) {
             return ((android.media.MediaRouter.RouteCategory)categoryObj).isGroupable();
+        }
+
+        private RouteCategory() {
         }
     }
 
@@ -460,5 +472,8 @@ final class MediaRouterJellybean {
                 int direction) {
             mCallback.onVolumeUpdateRequest(route, direction);
         }
+    }
+
+    private MediaRouterJellybean() {
     }
 }

@@ -100,5 +100,11 @@ class PlaybackStateCompatApi21 {
             customActionObj.setExtras(extras);
             return customActionObj.build();
         }
+
+        private CustomAction() {
+        }
+    }
+
+    private PlaybackStateCompatApi21() {
     }
 }

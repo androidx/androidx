@@ -45,4 +45,7 @@ class PlaybackStateCompatApi22 {
         stateObj.setExtras(extras);
         return stateObj.build();
     }
+
+    private PlaybackStateCompatApi22() {
+    }
 }

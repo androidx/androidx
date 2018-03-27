@@ -242,4 +242,7 @@ class SliceXml {
     private static String hintStr(List<String> hints) {
         return TextUtils.join(",", hints);
     }
+
+    private SliceXml() {
+    }
 }

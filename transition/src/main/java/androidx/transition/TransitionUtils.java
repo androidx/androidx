@@ -130,4 +130,6 @@ class TransitionUtils {
 
     }
 
+    private TransitionUtils() {
+    }
 }

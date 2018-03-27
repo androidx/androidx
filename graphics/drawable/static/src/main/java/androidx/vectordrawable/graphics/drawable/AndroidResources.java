@@ -146,4 +146,7 @@ class AndroidResources {
     public static final int FAST_OUT_LINEAR_IN = 0x010c000f;
     public static final int FAST_OUT_SLOW_IN = 0x010c000d;
     public static final int LINEAR_OUT_SLOW_IN = 0x010c000e;
+
+    private AndroidResources() {
+    }
 }

@@ -331,6 +331,9 @@ public class PreviewChannel {
         public static final int COL_INTERNAL_PROVIDER_FLAG2 = 9;
         public static final int COL_INTERNAL_PROVIDER_FLAG3 = 10;
         public static final int COL_INTERNAL_PROVIDER_FLAG4 = 11;
+
+        private Columns() {
+        }
     }
 
     /**

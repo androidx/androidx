@@ -917,5 +917,8 @@ public class AnimatorInflaterCompat {
         return (type >= TypedValue.TYPE_FIRST_COLOR_INT) && (type
                 <= TypedValue.TYPE_LAST_COLOR_INT);
     }
+
+    private AnimatorInflaterCompat() {
+    }
 }
 

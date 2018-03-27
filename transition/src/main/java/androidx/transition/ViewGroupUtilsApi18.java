@@ -59,4 +59,6 @@ class ViewGroupUtilsApi18 {
         }
     }
 
+    private ViewGroupUtilsApi18() {
+    }
 }

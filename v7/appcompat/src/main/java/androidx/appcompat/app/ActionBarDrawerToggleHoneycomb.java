@@ -136,4 +136,7 @@ class ActionBarDrawerToggleHoneycomb {
             }
         }
     }
+
+    private ActionBarDrawerToggleHoneycomb() {
+    }
 }

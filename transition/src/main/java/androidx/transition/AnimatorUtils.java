@@ -77,4 +77,7 @@ class AnimatorUtils {
         void onAnimationResume(Animator animation);
 
     }
+
+    private AnimatorUtils() {
+    }
 }

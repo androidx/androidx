@@ -351,5 +351,6 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         }
     }
 
-
+    private ViewOverlayApi14() {
+    }
 }
