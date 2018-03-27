@@ -1293,6 +1293,10 @@ package androidx.core.util {
     method public java.io.FileOutputStream startWrite() throws java.io.IOException;
   }
 
+  public abstract interface Consumer<T> {
+    method public abstract void accept(T);
+  }
+
   public class ObjectsCompat {
     method public static boolean equals(java.lang.Object, java.lang.Object);
     method public static int hash(java.lang.Object...);
