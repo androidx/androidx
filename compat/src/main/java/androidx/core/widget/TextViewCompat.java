@@ -18,6 +18,7 @@ package androidx.core.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -489,138 +490,149 @@ public final class TextViewCompat {
         // intent after selection to not be displayed in the menu, although they should be.
         // Here we fix this, by removing the menu items created by the framework code, and
         // adding them (and the missing ones) back correctly.
-        textView.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
-            // This constant should be correlated with its definition in the
-            // android.widget.Editor class.
-            private static final int MENU_ITEM_ORDER_PROCESS_TEXT_INTENT_ACTIONS_START = 100;
+        textView.setCustomSelectionActionModeCallback(new OreoCallback(callback, textView));
+    }
 
-            // References to the MenuBuilder class and its removeItemAt(int) method.
-            // Since in most cases the menu instance processed by this callback is going
-            // to be a MenuBuilder, we keep these references to avoid querying for them
-            // frequently by reflection in recomputeProcessTextMenuItems.
-            private Class mMenuBuilderClass;
-            private Method mMenuBuilderRemoveItemAtMethod;
-            private boolean mCanUseMenuBuilderReferences;
-            private boolean mInitializedMenuBuilderReferences = false;
+    @TargetApi(26) // TODO was anonymous but https://issuetracker.google.com/issues/76458979
+    private static class OreoCallback implements ActionMode.Callback {
+        // This constant should be correlated with its definition in the
+        // android.widget.Editor class.
+        private static final int MENU_ITEM_ORDER_PROCESS_TEXT_INTENT_ACTIONS_START = 100;
+        private final ActionMode.Callback mCallback;
+        private final TextView mTextView;
 
-            @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                return callback.onCreateActionMode(mode, menu);
-            }
+        // References to the MenuBuilder class and its removeItemAt(int) method.
+        // Since in most cases the menu instance processed by this callback is going
+        // to be a MenuBuilder, we keep these references to avoid querying for them
+        // frequently by reflection in recomputeProcessTextMenuItems.
+        private Class mMenuBuilderClass;
+        private Method mMenuBuilderRemoveItemAtMethod;
+        private boolean mCanUseMenuBuilderReferences;
+        private boolean mInitializedMenuBuilderReferences;
 
-            @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                recomputeProcessTextMenuItems(menu);
-                return callback.onPrepareActionMode(mode, menu);
-            }
+        OreoCallback(ActionMode.Callback callback, TextView textView) {
+            mCallback = callback;
+            mTextView = textView;
+            mInitializedMenuBuilderReferences = false;
+        }
 
-            @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                return callback.onActionItemClicked(mode, item);
-            }
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            return mCallback.onCreateActionMode(mode, menu);
+        }
 
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
-                callback.onDestroyActionMode(mode);
-            }
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            recomputeProcessTextMenuItems(menu);
+            return mCallback.onPrepareActionMode(mode, menu);
+        }
 
-            private void recomputeProcessTextMenuItems(final Menu menu) {
-                final Context context = textView.getContext();
-                final PackageManager packageManager = context.getPackageManager();
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            return mCallback.onActionItemClicked(mode, item);
+        }
 
-                if (!mInitializedMenuBuilderReferences) {
-                    mInitializedMenuBuilderReferences = true;
-                    try {
-                        mMenuBuilderClass =
-                                Class.forName("com.android.internal.view.menu.MenuBuilder");
-                        mMenuBuilderRemoveItemAtMethod = mMenuBuilderClass
-                                .getDeclaredMethod("removeItemAt", Integer.TYPE);
-                        mCanUseMenuBuilderReferences = true;
-                    } catch (ClassNotFoundException | NoSuchMethodException e) {
-                        mMenuBuilderClass = null;
-                        mMenuBuilderRemoveItemAtMethod = null;
-                        mCanUseMenuBuilderReferences = false;
-                    }
-                }
-                // Remove the menu items created for ACTION_PROCESS_TEXT handlers.
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mCallback.onDestroyActionMode(mode);
+        }
+
+        private void recomputeProcessTextMenuItems(final Menu menu) {
+            final Context context = mTextView.getContext();
+            final PackageManager packageManager = context.getPackageManager();
+
+            if (!mInitializedMenuBuilderReferences) {
+                mInitializedMenuBuilderReferences = true;
                 try {
-                    final Method removeItemAtMethod =
-                            (mCanUseMenuBuilderReferences && mMenuBuilderClass.isInstance(menu))
-                                    ? mMenuBuilderRemoveItemAtMethod
-                                    : menu.getClass()
-                                            .getDeclaredMethod("removeItemAt", Integer.TYPE);
-                    for (int i = menu.size() - 1; i >= 0; --i) {
-                        final MenuItem item = menu.getItem(i);
-                        if (item.getIntent() != null && Intent.ACTION_PROCESS_TEXT
-                                .equals(item.getIntent().getAction())) {
-                            removeItemAtMethod.invoke(menu, i);
-                        }
-                    }
-                } catch (NoSuchMethodException | IllegalAccessException
-                        | InvocationTargetException e) {
-                    // There is a menu custom implementation used which is not providing
-                    // a removeItemAt(int) menu. There is nothing we can do in this case.
-                    return;
-                }
-
-                // Populate the menu again with the ACTION_PROCESS_TEXT handlers.
-                final List<ResolveInfo> supportedActivities =
-                        getSupportedActivities(context, packageManager);
-                for (int i = 0; i < supportedActivities.size(); ++i) {
-                    final ResolveInfo info = supportedActivities.get(i);
-                    menu.add(Menu.NONE, Menu.NONE,
-                            MENU_ITEM_ORDER_PROCESS_TEXT_INTENT_ACTIONS_START + i,
-                            info.loadLabel(packageManager))
-                            .setIntent(createProcessTextIntentForResolveInfo(info, textView))
-                            .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                    mMenuBuilderClass =
+                            Class.forName("com.android.internal.view.menu.MenuBuilder");
+                    mMenuBuilderRemoveItemAtMethod = mMenuBuilderClass
+                            .getDeclaredMethod("removeItemAt", Integer.TYPE);
+                    mCanUseMenuBuilderReferences = true;
+                } catch (ClassNotFoundException | NoSuchMethodException e) {
+                    mMenuBuilderClass = null;
+                    mMenuBuilderRemoveItemAtMethod = null;
+                    mCanUseMenuBuilderReferences = false;
                 }
             }
-
-            private List<ResolveInfo> getSupportedActivities(final Context context,
-                    final PackageManager packageManager) {
-                final List<ResolveInfo> supportedActivities = new ArrayList<>();
-                boolean canStartActivityForResult = context instanceof Activity;
-                if (!canStartActivityForResult) {
-                    return supportedActivities;
-                }
-                final List<ResolveInfo> unfiltered =
-                        packageManager.queryIntentActivities(createProcessTextIntent(), 0);
-                for (ResolveInfo info : unfiltered) {
-                    if (isSupportedActivity(info, context)) {
-                        supportedActivities.add(info);
+            // Remove the menu items created for ACTION_PROCESS_TEXT handlers.
+            try {
+                final Method removeItemAtMethod =
+                        (mCanUseMenuBuilderReferences && mMenuBuilderClass.isInstance(menu))
+                                ? mMenuBuilderRemoveItemAtMethod
+                                : menu.getClass()
+                                        .getDeclaredMethod("removeItemAt", Integer.TYPE);
+                for (int i = menu.size() - 1; i >= 0; --i) {
+                    final MenuItem item = menu.getItem(i);
+                    if (item.getIntent() != null && Intent.ACTION_PROCESS_TEXT
+                            .equals(item.getIntent().getAction())) {
+                        removeItemAtMethod.invoke(menu, i);
                     }
                 }
+            } catch (NoSuchMethodException | IllegalAccessException
+                    | InvocationTargetException e) {
+                // There is a menu custom implementation used which is not providing
+                // a removeItemAt(int) menu. There is nothing we can do in this case.
+                return;
+            }
+
+            // Populate the menu again with the ACTION_PROCESS_TEXT handlers.
+            final List<ResolveInfo> supportedActivities =
+                    getSupportedActivities(context, packageManager);
+            for (int i = 0; i < supportedActivities.size(); ++i) {
+                final ResolveInfo info = supportedActivities.get(i);
+                menu.add(Menu.NONE, Menu.NONE,
+                        MENU_ITEM_ORDER_PROCESS_TEXT_INTENT_ACTIONS_START + i,
+                        info.loadLabel(packageManager))
+                        .setIntent(createProcessTextIntentForResolveInfo(info, mTextView))
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            }
+        }
+
+        private List<ResolveInfo> getSupportedActivities(final Context context,
+                final PackageManager packageManager) {
+            final List<ResolveInfo> supportedActivities = new ArrayList<>();
+            boolean canStartActivityForResult = context instanceof Activity;
+            if (!canStartActivityForResult) {
                 return supportedActivities;
             }
-
-            private boolean isSupportedActivity(final ResolveInfo info, final Context context) {
-                if (context.getPackageName().equals(info.activityInfo.packageName)) {
-                    return true;
+            final List<ResolveInfo> unfiltered =
+                    packageManager.queryIntentActivities(createProcessTextIntent(), 0);
+            for (ResolveInfo info : unfiltered) {
+                if (isSupportedActivity(info, context)) {
+                    supportedActivities.add(info);
                 }
-                if (!info.activityInfo.exported) {
-                    return false;
-                }
-                return info.activityInfo.permission == null
-                        || context.checkSelfPermission(info.activityInfo.permission)
-                            == PackageManager.PERMISSION_GRANTED;
             }
+            return supportedActivities;
+        }
 
-            private Intent createProcessTextIntentForResolveInfo(final ResolveInfo info,
-                    final TextView textView11) {
-                return createProcessTextIntent()
-                        .putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, !isEditable(textView11))
-                        .setClassName(info.activityInfo.packageName, info.activityInfo.name);
+        private boolean isSupportedActivity(final ResolveInfo info, final Context context) {
+            if (context.getPackageName().equals(info.activityInfo.packageName)) {
+                return true;
             }
+            if (!info.activityInfo.exported) {
+                return false;
+            }
+            return info.activityInfo.permission == null
+                    || context.checkSelfPermission(info.activityInfo.permission)
+                        == PackageManager.PERMISSION_GRANTED;
+        }
 
-            private boolean isEditable(final TextView textView11) {
-                return textView11 instanceof Editable
-                        && textView11.onCheckIsTextEditor()
-                        && textView11.isEnabled();
-            }
+        private Intent createProcessTextIntentForResolveInfo(final ResolveInfo info,
+                final TextView textView11) {
+            return createProcessTextIntent()
+                    .putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, !isEditable(textView11))
+                    .setClassName(info.activityInfo.packageName, info.activityInfo.name);
+        }
 
-            private Intent createProcessTextIntent() {
-                return new Intent().setAction(Intent.ACTION_PROCESS_TEXT).setType("text/plain");
-            }
-        });
+        private boolean isEditable(final TextView textView11) {
+            return textView11 instanceof Editable
+                    && textView11.onCheckIsTextEditor()
+                    && textView11.isEnabled();
+        }
+
+        private Intent createProcessTextIntent() {
+            return new Intent().setAction(Intent.ACTION_PROCESS_TEXT).setType("text/plain");
+        }
     }
 }
