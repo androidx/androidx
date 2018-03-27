@@ -97,7 +97,7 @@ public class DrawerLayoutDoubleTest {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    @SmallTest
+    @LargeTest
     public void testCloseNonExistentDrawer() {
         // Note that we're expecting the closeDrawer action to result in an exception being
         // thrown since mContentView is not a drawer.
