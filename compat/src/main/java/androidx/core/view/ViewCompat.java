@@ -51,6 +51,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
@@ -2195,6 +2196,7 @@ public class ViewCompat {
 
             v.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                 @Override
+                @RequiresApi(21) // TODO remove https://issuetracker.google.com/issues/76458979
                 public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
                     WindowInsetsCompat compatInsets = WindowInsetsCompat.wrap(insets);
                     compatInsets = listener.onApplyWindowInsets(view, compatInsets);
