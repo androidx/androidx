@@ -231,12 +231,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 : mRowContent.getSubtitleItem();
         addSubtitle(subtitleItem);
 
-        final SliceItem range = mRowContent.getRange();
-        if (range != null) {
-            addRange(range);
-            return;
-        }
-
         SliceItem primaryAction = mRowContent.getPrimaryAction();
         if (primaryAction != null) {
             mRowAction = new SliceActionImpl(primaryAction);
@@ -246,6 +240,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 setViewClickable(this, true);
                 return;
             }
+        }
+
+        final SliceItem range = mRowContent.getRange();
+        if (range != null) {
+            if (mRowAction != null) {
+                setViewClickable(mContent, true);
+            }
+            addRange(range);
+            return;
         }
 
         // If we're here we can can show end items; check for top level actions first
@@ -358,10 +361,16 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             progressBar.setProgress(progress.getInt());
         }
         progressBar.setVisibility(View.VISIBLE);
+        if (mTintColor != -1) {
+            progressBar.getProgressDrawable().setTint(mTintColor);
+        }
         if (isSeekBar) {
             SliceItem thumb = SliceQuery.find(range, FORMAT_IMAGE);
             if (thumb != null) {
                 mSeekBar.setThumb(thumb.getIcon().loadDrawable(getContext()));
+            }
+            if (mTintColor != -1) {
+                mSeekBar.getThumb().setTint(mTintColor);
             }
             mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override

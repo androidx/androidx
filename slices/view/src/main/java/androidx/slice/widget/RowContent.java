@@ -75,11 +75,14 @@ public class RowContent {
     private int mLineCount = 0;
     private int mMaxHeight;
     private int mMinHeight;
+    private int mMaxRangeHeight;
 
     public RowContent(Context context, SliceItem rowSlice, boolean isHeader) {
         populate(rowSlice, isHeader);
         mMaxHeight = context.getResources().getDimensionPixelSize(R.dimen.abc_slice_row_max_height);
         mMinHeight = context.getResources().getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
+        mMaxRangeHeight = context.getResources().getDimensionPixelSize(
+                R.dimen.abc_slice_row_range_max_height);
     }
 
     /**
@@ -280,16 +283,22 @@ public class RowContent {
      * @return the height to display a row at when it is used as a small template.
      */
     public int getSmallHeight() {
-        return mMaxHeight;
+        return (getRange() != null && mLineCount > 1)
+                ? mMaxRangeHeight
+                : mMaxHeight;
     }
 
     /**
      * @return the height the content in this template requires to be displayed.
      */
     public int getActualHeight() {
-        return isValid()
-                ? (getLineCount() > 1 || mIsHeader) ? mMaxHeight : mMinHeight
-                : 0;
+        if (!isValid()) {
+            return 0;
+        }
+        if (getRange() != null && mLineCount > 1) {
+            return mMaxRangeHeight;
+        }
+        return (getLineCount() > 1 || mIsHeader) ? mMaxHeight : mMinHeight;
     }
 
     private static boolean hasText(SliceItem textSlice) {
