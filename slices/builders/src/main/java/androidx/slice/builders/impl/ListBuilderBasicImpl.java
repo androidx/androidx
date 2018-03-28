@@ -85,13 +85,13 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     /**
      */
     @Override
-    public void addSeeMoreRow(TemplateBuilderImpl builder) {
+    public void setSeeMoreRow(TemplateBuilderImpl builder) {
     }
 
     /**
      */
     @Override
-    public void addSeeMoreAction(PendingIntent intent) {
+    public void setSeeMoreAction(PendingIntent intent) {
     }
 
     /**
