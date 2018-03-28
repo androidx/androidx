@@ -91,6 +91,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @see LibraryRoot#EXTRA_RECENT
              * @see LibraryRoot#EXTRA_OFFLINE
              * @see LibraryRoot#EXTRA_SUGGESTED
+             * @see SessionCommand2#COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT
              */
             public @Nullable LibraryRoot onGetLibraryRoot(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controllerInfo, @Nullable Bundle rootHints) {
@@ -105,6 +106,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param session the session for this event
              * @param mediaId item id to get media item.
              * @return a media item. {@code null} for no result or error.
+             * @see SessionCommand2#COMMAND_CODE_LIBRARY_GET_ITEM
              */
             public @Nullable MediaItem2 onGetItem(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controllerInfo, @NonNull String mediaId) {
@@ -122,6 +124,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param pageSize size of the page
              * @param extras extra bundle
              * @return list of children. Can be {@code null}.
+             * @see SessionCommand2#COMMAND_CODE_LIBRARY_GET_CHILDREN
              */
             public @Nullable List<MediaItem2> onGetChildren(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String parentId, int page,
@@ -140,6 +143,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param controller controller
              * @param parentId parent id
              * @param extras extra bundle
+             * @see SessionCommand2#COMMAND_CODE_LIBRARY_SUBSCRIBE
              */
             public void onSubscribe(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String parentId,
@@ -152,6 +156,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param session the session for this event
              * @param controller controller
              * @param parentId parent id
+             * @see SessionCommand2#COMMAND_CODE_LIBRARY_UNSUBSCRIBE
              */
             public void onUnsubscribe(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String parentId) {
@@ -164,6 +169,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param query The search query sent from the media browser. It contains keywords
              *              separated by space.
              * @param extras The bundle of service-specific arguments sent from the media browser.
+             * @see SessionCommand2#COMMAND_CODE_LIBRARY_SEARCH
              */
             public void onSearch(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controllerInfo, @NonNull String query,
@@ -184,6 +190,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param pageSize page size. Should be greater or equal to {@code 1}.
              * @param extras The bundle of service-specific arguments sent from the media browser.
              * @return search result. {@code null} for error.
+             * @see SessionCommand2#COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT
              */
             public @Nullable List<MediaItem2> onGetSearchResult(
                     @NonNull MediaLibrarySession session, @NonNull ControllerInfo controllerInfo,

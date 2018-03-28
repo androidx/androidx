@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -263,99 +264,154 @@ public final class SessionCommand2 {
      */
     public static final int COMMAND_CODE_SESSION_SET_RATING = 28;
 
-    // TODO(jaewan): Add javadoc
+    /**
+     * Command code for {@link MediaBrowser2#getChildren(String, int, int, Bundle)}.
+     */
     public static final int COMMAND_CODE_LIBRARY_GET_CHILDREN = 29;
-    public static final int COMMAND_CODE_LIBRARY_GET_ITEM = 30;
-    public static final int COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT = 31;
-    public static final int COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT = 32;
-    public static final int COMMAND_CODE_LIBRARY_SEARCH = 33;
-    public static final int COMMAND_CODE_LIBRARY_SUBSCRIBE = 34;
-    public static final int COMMAND_CODE_LIBRARY_UNSUBSCRIBE = 35;
-
-    //private final CommandProvider mProvider;
 
     /**
-     * TODO: javadoc
+     * Command code for {@link MediaBrowser2#getItem(String)}.
+     */
+    public static final int COMMAND_CODE_LIBRARY_GET_ITEM = 30;
+
+    /**
+     * Command code for {@link MediaBrowser2#getLibraryRoot(Bundle)}.
+     */
+    public static final int COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT = 31;
+
+    /**
+     * Command code for {@link MediaBrowser2#getSearchResult(String, int, int, Bundle)}.
+     */
+    public static final int COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT = 32;
+
+    /**
+     * Command code for {@link MediaBrowser2#search(String, Bundle)}.
+     */
+    public static final int COMMAND_CODE_LIBRARY_SEARCH = 33;
+
+    /**
+     * Command code for {@link MediaBrowser2#subscribe(String, Bundle)}.
+     */
+    public static final int COMMAND_CODE_LIBRARY_SUBSCRIBE = 34;
+
+    /**
+     * Command code for {@link MediaBrowser2#unsubscribe(String)}.
+     */
+    public static final int COMMAND_CODE_LIBRARY_UNSUBSCRIBE = 35;
+
+    private static final String KEY_COMMAND_CODE =
+            "android.media.media_session2.command.command_code";
+    private static final String KEY_COMMAND_CUSTOM_COMMAND =
+            "android.media.media_session2.command.custom_command";
+    private static final String KEY_COMMAND_EXTRAS =
+            "android.media.media_session2.command.extras";
+
+    private final int mCommandCode;
+    // Nonnull if it's custom command
+    private final String mCustomCommand;
+    private final Bundle mExtras;
+
+    /**
+     * Constructor for creating a predefined command.
+     *
+     * @param commandCode A command code for predefined command.
      */
     public SessionCommand2(int commandCode) {
-//            mProvider = ApiLoader.getProvider().createMediaSession2Command(
-//                    this, commandCode, null, null);
+        if (commandCode == COMMAND_CODE_CUSTOM) {
+            throw new IllegalArgumentException("commandCode shouldn't be COMMAND_CODE_CUSTOM");
+        }
+        mCommandCode = commandCode;
+        mCustomCommand = null;
+        mExtras = null;
     }
 
     /**
-     * TODO: javadoc
+     * Constructor for creating a custom command.
+     *
+     * @param action The action of this custom command.
+     * @param extras An extra bundle for this custom command.
      */
     public SessionCommand2(@NonNull String action, @Nullable Bundle extras) {
         if (action == null) {
             throw new IllegalArgumentException("action shouldn't be null");
         }
-//            mProvider = ApiLoader.getProvider().createMediaSession2Command(
-//                    this, COMMAND_CODE_CUSTOM, action, extras);
+        mCommandCode = COMMAND_CODE_CUSTOM;
+        mCustomCommand = action;
+        mExtras = extras;
     }
 
-//        /**
-//         * @hide
-//         */
-//        public CommandProvider getProvider() {
-//            return mProvider;
-//        }
-
     /**
-     * TODO: javadoc
+     * Gets the command code of a predefined command.
+     * This will return {@link #COMMAND_CODE_CUSTOM} for a custom command.
      */
     public int getCommandCode() {
-        //return mProvider.getCommandCode_impl();
-        return 0;
+        return mCommandCode;
     }
 
     /**
-     * TODO: javadoc
+     * Gets the action of a custom command.
+     * This will return {@code null} for a predefined command.
      */
     public @Nullable String getCustomCommand() {
-        //return mProvider.getCustomCommand_impl();
-        return null;
+        return mCustomCommand;
     }
 
     /**
-     * TODO: javadoc
+     * Gets the extra bundle of a custom command.
+     * This will return {@code null} for a predefined command.
      */
     public @Nullable Bundle getExtras() {
-        //return mProvider.getExtras_impl();
-        return null;
+        return mExtras;
     }
 
     /**
-     * @return a new Bundle instance from the Command
+     * @return a new {@link Bundle} instance from the command
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public Bundle toBundle() {
-        //return mProvider.toBundle_impl();
-        return null;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-//            if (!(obj instanceof Command)) {
-//                return false;
-//            }
-//            return mProvider.equals_impl(((Command) obj).mProvider);
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        //return mProvider.hashCode_impl();
-        return 0;
+        Bundle bundle = new Bundle();
+        bundle.putInt(KEY_COMMAND_CODE, mCommandCode);
+        bundle.putString(KEY_COMMAND_CUSTOM_COMMAND, mCustomCommand);
+        bundle.putBundle(KEY_COMMAND_EXTRAS, mExtras);
+        return bundle;
     }
 
     /**
-     * @return a new Command instance from the Bundle
+     * @return a new {@link SessionCommand2} instance from the Bundle
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public static SessionCommand2 fromBundle(@NonNull Bundle command) {
-        //return ApiLoader.getProvider().fromBundle_MediaSession2Command(context, command);
-        return null;
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
+        int code = command.getInt(KEY_COMMAND_CODE);
+        if (code != COMMAND_CODE_CUSTOM) {
+            return new SessionCommand2(code);
+        } else {
+            String customCommand = command.getString(KEY_COMMAND_CUSTOM_COMMAND);
+            if (customCommand == null) {
+                return null;
+            }
+            return new SessionCommand2(customCommand, command.getBundle(KEY_COMMAND_EXTRAS));
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof SessionCommand2)) {
+            return false;
+        }
+        SessionCommand2 other = (SessionCommand2) obj;
+        // TODO(jaewan): Compare Commands with the generated UUID, as we're doing for the MI2.
+        return mCommandCode == other.mCommandCode
+                && TextUtils.equals(mCustomCommand, other.mCustomCommand);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        return ((mCustomCommand != null) ? mCustomCommand.hashCode() : 0) * prime + mCommandCode;
     }
 }

@@ -241,13 +241,17 @@ public class MediaSession2 implements AutoCloseable {
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_NEXT_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_PREV_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PREPARE
-         * @see SessionCommand2#COMMAND_CODE_SESSION_FAST_FORWARD
-         * @see SessionCommand2#COMMAND_CODE_SESSION_REWIND
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_SEEK_TO
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM
+         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE
+         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_ADD_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_REMOVE_ITEM
+         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_REPLACE_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST
+         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SET_LIST
+         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST_METADATA
+         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SET_LIST_METADATA
          * @see SessionCommand2#COMMAND_CODE_SET_VOLUME
          */
         public boolean onCommandRequest(@NonNull MediaSession2 session,
@@ -268,6 +272,7 @@ public class MediaSession2 implements AutoCloseable {
          * @param controller controller information
          * @param mediaId media id from the controller
          * @param rating new rating from the controller
+         * @see SessionCommand2#COMMAND_CODE_SESSION_SET_RATING
          */
         public void onSetRating(@NonNull MediaSession2 session, @NonNull ControllerInfo controller,
                 @NonNull String mediaId, @NonNull Rating2 rating) { }
@@ -281,6 +286,7 @@ public class MediaSession2 implements AutoCloseable {
          * @param customCommand custom command.
          * @param args optional arguments
          * @param cb optional result receiver
+         * @see SessionCommand2#COMMAND_CODE_CUSTOM
          */
         public void onCustomCommand(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull SessionCommand2 customCommand,
@@ -397,7 +403,7 @@ public class MediaSession2 implements AutoCloseable {
          * @param controller controller information
          * @param uri uri
          * @param extras optional extra bundle
-         * @see SessionCommand2#COMMAND_CODE_PREPARE_FROM_URI
+         * @see SessionCommand2#COMMAND_CODE_SESSION_PREPARE_FROM_URI
          */
         public void onPrepareFromUri(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull Uri uri, @Nullable Bundle extras) { }
@@ -406,6 +412,7 @@ public class MediaSession2 implements AutoCloseable {
          * Called when a controller called {@link MediaController2#fastForward()}
          *
          * @param session the session for this event
+         * @see SessionCommand2#COMMAND_CODE_SESSION_FAST_FORWARD
          */
         public void onFastForward(@NonNull MediaSession2 session) { }
 
@@ -413,6 +420,7 @@ public class MediaSession2 implements AutoCloseable {
          * Called when a controller called {@link MediaController2#rewind()}
          *
          * @param session the session for this event
+         * @see SessionCommand2#COMMAND_CODE_SESSION_REWIND
          */
         public void onRewind(@NonNull MediaSession2 session) { }
 
