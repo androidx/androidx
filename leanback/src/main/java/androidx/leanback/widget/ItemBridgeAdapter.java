@@ -417,6 +417,12 @@ public class ItemBridgeAdapter extends RecyclerView.Adapter implements FacetProv
     }
 
     @Override
+    public final boolean onFailedToRecycleView(RecyclerView.ViewHolder holder) {
+        onViewRecycled(holder);
+        return false;
+    }
+
+    @Override
     public final void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
         ViewHolder viewHolder = (ViewHolder) holder;
         onAttachedToWindow(viewHolder);
