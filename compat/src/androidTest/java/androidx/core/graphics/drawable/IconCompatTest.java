@@ -32,6 +32,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -258,7 +259,7 @@ public class IconCompatTest {
     public void testBitmapIconCompat_getType() {
         IconCompat icon = IconCompat.createWithBitmap(Bitmap.createBitmap(16, 16,
                 Bitmap.Config.ARGB_8888));
-        assertEquals(IconCompat.TYPE_BITMAP, icon.getType());
+        assertEquals(Icon.TYPE_BITMAP, icon.getType());
     }
 
     @Test
@@ -266,7 +267,7 @@ public class IconCompatTest {
         byte[] data = new byte[4];
         data[0] = data[1] = data[2] = data[3] = (byte) 255;
         IconCompat icon = IconCompat.createWithData(data, 0, 4);
-        assertEquals(IconCompat.TYPE_DATA, icon.getType());
+        assertEquals(Icon.TYPE_DATA, icon.getType());
     }
 
     @Test
@@ -278,11 +279,11 @@ public class IconCompatTest {
             String filePath = file.toURI().getPath();
 
             IconCompat icon = IconCompat.createWithContentUri(Uri.fromFile(file));
-            assertEquals(IconCompat.TYPE_URI, icon.getType());
+            assertEquals(Icon.TYPE_URI, icon.getType());
             assertEquals(filePath, icon.getUri().getPath());
 
             icon = IconCompat.createWithContentUri(file.toURI().toString());
-            assertEquals(IconCompat.TYPE_URI, icon.getType());
+            assertEquals(Icon.TYPE_URI, icon.getType());
             assertEquals(filePath, icon.getUri().getPath());
         } finally {
             file.delete();
@@ -292,7 +293,7 @@ public class IconCompatTest {
     @Test
     public void testResourceIconCompat_getType() {
         IconCompat icon = IconCompat.createWithResource(mContext, R.drawable.bmp_test);
-        assertEquals(IconCompat.TYPE_RESOURCE, icon.getType());
+        assertEquals(Icon.TYPE_RESOURCE, icon.getType());
         assertEquals("androidx.core.test", icon.getResPackage());
         assertEquals(R.drawable.bmp_test, icon.getResId());
     }
