@@ -103,7 +103,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
     /**
      */
     @Override
-    public void addSeeMoreCell(@NonNull TemplateBuilderImpl builder) {
+    public void setSeeMoreCell(@NonNull TemplateBuilderImpl builder) {
         builder.getBuilder().addHints(HINT_SEE_MORE);
         getBuilder().addSubSlice(builder.build());
     }
@@ -111,7 +111,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
     /**
      */
     @Override
-    public void addSeeMoreAction(PendingIntent intent) {
+    public void setSeeMoreAction(PendingIntent intent) {
         getBuilder().addSubSlice(
                 new Slice.Builder(getBuilder())
                         .addHints(HINT_SEE_MORE)

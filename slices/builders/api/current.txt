@@ -37,11 +37,14 @@ package androidx.slice.builders {
     ctor public GridRowBuilder(androidx.slice.builders.ListBuilder);
     method public androidx.slice.builders.GridRowBuilder addCell(androidx.slice.builders.GridRowBuilder.CellBuilder);
     method public androidx.slice.builders.GridRowBuilder addCell(java.util.function.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
-    method public androidx.slice.builders.GridRowBuilder addSeeMoreAction(android.app.PendingIntent);
-    method public androidx.slice.builders.GridRowBuilder addSeeMoreCell(androidx.slice.builders.GridRowBuilder.CellBuilder);
-    method public androidx.slice.builders.GridRowBuilder addSeeMoreCell(java.util.function.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
+    method public deprecated androidx.slice.builders.GridRowBuilder addSeeMoreAction(android.app.PendingIntent);
+    method public deprecated androidx.slice.builders.GridRowBuilder addSeeMoreCell(androidx.slice.builders.GridRowBuilder.CellBuilder);
+    method public deprecated androidx.slice.builders.GridRowBuilder addSeeMoreCell(java.util.function.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
     method public androidx.slice.builders.GridRowBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.GridRowBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
+    method public androidx.slice.builders.GridRowBuilder setSeeMoreAction(android.app.PendingIntent);
+    method public androidx.slice.builders.GridRowBuilder setSeeMoreCell(androidx.slice.builders.GridRowBuilder.CellBuilder);
+    method public androidx.slice.builders.GridRowBuilder setSeeMoreCell(java.util.function.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
   }
 
   public static final class GridRowBuilder.CellBuilder extends androidx.slice.builders.TemplateSliceBuilder {
@@ -71,13 +74,16 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder addRange(java.util.function.Consumer<androidx.slice.builders.ListBuilder.RangeBuilder>);
     method public androidx.slice.builders.ListBuilder addRow(androidx.slice.builders.ListBuilder.RowBuilder);
     method public androidx.slice.builders.ListBuilder addRow(java.util.function.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
-    method public androidx.slice.builders.ListBuilder addSeeMoreAction(android.app.PendingIntent);
-    method public androidx.slice.builders.ListBuilder addSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder);
-    method public androidx.slice.builders.ListBuilder addSeeMoreRow(java.util.function.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
+    method public deprecated androidx.slice.builders.ListBuilder addSeeMoreAction(android.app.PendingIntent);
+    method public deprecated androidx.slice.builders.ListBuilder addSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder);
+    method public deprecated androidx.slice.builders.ListBuilder addSeeMoreRow(java.util.function.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
     method public androidx.slice.builders.ListBuilder setColor(int);
     method public androidx.slice.builders.ListBuilder setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
     method public androidx.slice.builders.ListBuilder setHeader(java.util.function.Consumer<androidx.slice.builders.ListBuilder.HeaderBuilder>);
     method public androidx.slice.builders.ListBuilder setKeywords(java.util.List<java.lang.String>);
+    method public androidx.slice.builders.ListBuilder setSeeMoreAction(android.app.PendingIntent);
+    method public androidx.slice.builders.ListBuilder setSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder);
+    method public androidx.slice.builders.ListBuilder setSeeMoreRow(java.util.function.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
     field public static final int ICON_IMAGE = 0; // 0x0
     field public static final long INFINITY = -1L; // 0xffffffffffffffffL
     field public static final int LARGE_IMAGE = 2; // 0x2
