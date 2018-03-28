@@ -19,21 +19,47 @@ package androidx.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.media.MediaMetadata;
 import android.media.session.MediaController;
+import android.media.session.PlaybackState;
+import android.os.Bundle;
 import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
+//import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+//import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.SessionToken2;
+// import androidx.mediarouter.app.MediaRouteButton;
+// import androidx.mediarouter.media.MediaRouter;
+// import androidx.mediarouter.media.MediaRouteSelector;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+//import java.util.Arrays;
+import java.util.Formatter;
+import java.util.List;
+//import java.util.Locale;
 
-// TODO: Use link annotation to refer VideoView2 once VideoView2 became unhidden.
 /**
  * @hide
  * A View that contains the controls for MediaPlayer2.
@@ -64,7 +90,7 @@ import java.lang.annotation.RetentionPolicy;
  * See VideoView2#setCustomActions for more details on how to add.
  */
 @RestrictTo(LIBRARY_GROUP)
-public class MediaControlView2 extends ViewGroup {
+public class MediaControlView2 extends BaseLayout {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @IntDef({
@@ -150,6 +176,157 @@ public class MediaControlView2 extends ViewGroup {
     @RestrictTo(LIBRARY_GROUP)
     public static final int BUTTON_SETTINGS = 11;
 
+    private static final String TAG = "MediaControlView2";
+
+    static final String ARGUMENT_KEY_FULLSCREEN = "fullScreen";
+
+    // TODO: Make these constants public api to support custom video view.
+    // TODO: Combine these constants into one regarding TrackInfo.
+    static final String KEY_VIDEO_TRACK_COUNT = "VideoTrackCount";
+    static final String KEY_AUDIO_TRACK_COUNT = "AudioTrackCount";
+    static final String KEY_SUBTITLE_TRACK_COUNT = "SubtitleTrackCount";
+    static final String KEY_PLAYBACK_SPEED = "PlaybackSpeed";
+    static final String KEY_SELECTED_AUDIO_INDEX = "SelectedAudioIndex";
+    static final String KEY_SELECTED_SUBTITLE_INDEX = "SelectedSubtitleIndex";
+    static final String EVENT_UPDATE_TRACK_STATUS = "UpdateTrackStatus";
+
+    // TODO: Remove this once integrating with MediaSession2 & MediaMetadata2
+    static final String KEY_STATE_IS_ADVERTISEMENT = "MediaTypeAdvertisement";
+    static final String EVENT_UPDATE_MEDIA_TYPE_STATUS = "UpdateMediaTypeStatus";
+
+    // String for sending command to show subtitle to MediaSession.
+    static final String COMMAND_SHOW_SUBTITLE = "showSubtitle";
+    // String for sending command to hide subtitle to MediaSession.
+    static final String COMMAND_HIDE_SUBTITLE = "hideSubtitle";
+    // TODO: remove once the implementation is revised
+    public static final String COMMAND_SET_FULLSCREEN = "setFullscreen";
+    // String for sending command to select audio track to MediaSession.
+    static final String COMMAND_SELECT_AUDIO_TRACK = "SelectTrack";
+    // String for sending command to set playback speed to MediaSession.
+    static final String COMMAND_SET_PLAYBACK_SPEED = "SetPlaybackSpeed";
+    // String for sending command to mute audio to MediaSession.
+    static final String COMMAND_MUTE = "Mute";
+    // String for sending command to unmute audio to MediaSession.
+    static final String COMMAND_UNMUTE = "Unmute";
+
+    private static final int SETTINGS_MODE_AUDIO_TRACK = 0;
+    private static final int SETTINGS_MODE_PLAYBACK_SPEED = 1;
+    private static final int SETTINGS_MODE_HELP = 2;
+    private static final int SETTINGS_MODE_SUBTITLE_TRACK = 3;
+    private static final int SETTINGS_MODE_VIDEO_QUALITY = 4;
+    private static final int SETTINGS_MODE_MAIN = 5;
+    private static final int PLAYBACK_SPEED_1x_INDEX = 3;
+
+    private static final int SIZE_TYPE_EMBEDDED = 0;
+    private static final int SIZE_TYPE_FULL = 1;
+    // TODO: add support for Minimal size type.
+    private static final int SIZE_TYPE_MINIMAL = 2;
+
+    private static final int MAX_PROGRESS = 1000;
+    private static final int DEFAULT_PROGRESS_UPDATE_TIME_MS = 1000;
+    private static final int REWIND_TIME_MS = 10000;
+    private static final int FORWARD_TIME_MS = 30000;
+    private static final int AD_SKIP_WAIT_TIME_MS = 5000;
+    private static final int RESOURCE_NON_EXISTENT = -1;
+    private static final String RESOURCE_EMPTY = "";
+
+    private Resources mResources;
+    private MediaController mController;
+    private MediaController.TransportControls mControls;
+    private PlaybackState mPlaybackState;
+    private MediaMetadata mMetadata;
+    private int mDuration;
+    private int mPrevState;
+    private int mPrevWidth;
+    private int mOriginalLeftBarWidth;
+    private int mVideoTrackCount;
+    private int mAudioTrackCount;
+    private int mSubtitleTrackCount;
+    private int mSettingsMode;
+    private int mSelectedSubtitleTrackIndex;
+    private int mSelectedAudioTrackIndex;
+    private int mSelectedVideoQualityIndex;
+    private int mSelectedSpeedIndex;
+    private int mEmbeddedSettingsItemWidth;
+    private int mFullSettingsItemWidth;
+    private int mEmbeddedSettingsItemHeight;
+    private int mFullSettingsItemHeight;
+    private int mSettingsWindowMargin;
+    private int mSizeType;
+    private int mOrientation;
+    private long mPlaybackActions;
+    private boolean mDragging;
+    private boolean mIsFullScreen;
+    private boolean mOverflowExpanded;
+    private boolean mIsStopped;
+    private boolean mSubtitleIsEnabled;
+    private boolean mSeekAvailable;
+    private boolean mIsAdvertisement;
+    private boolean mIsMute;
+
+    // Relating to Title Bar View
+    private View mRoot;
+    private View mTitleBar;
+    private TextView mTitleView;
+    private View mAdExternalLink;
+    private ImageButton mBackButton;
+    // TODO (b/77158231) revive
+    // private MediaRouteButton mRouteButton;
+    // private MediaRouteSelector mRouteSelector;
+
+    // Relating to Center View
+    private ViewGroup mCenterView;
+    private View mTransportControls;
+    private ImageButton mPlayPauseButton;
+    private ImageButton mFfwdButton;
+    private ImageButton mRewButton;
+    private ImageButton mNextButton;
+    private ImageButton mPrevButton;
+
+    // Relating to Progress Bar View
+    private ProgressBar mProgress;
+
+    // Relating to Bottom Bar Left View
+    private ViewGroup mBottomBarLeftView;
+    private ViewGroup mTimeView;
+    private TextView mEndTime;
+    private TextView mCurrentTime;
+    private TextView mAdSkipView;
+    private StringBuilder mFormatBuilder;
+    private Formatter mFormatter;
+
+    // Relating to Bottom Bar Right View
+    private ViewGroup mBottomBarRightView;
+    private ViewGroup mBasicControls;
+    private ViewGroup mExtraControls;
+    private ViewGroup mCustomButtons;
+    private ImageButton mSubtitleButton;
+    private ImageButton mFullScreenButton;
+    private ImageButton mOverflowButtonRight;
+    private ImageButton mOverflowButtonLeft;
+    private ImageButton mMuteButton;
+    private ImageButton mVideoQualityButton;
+    private ImageButton mSettingsButton;
+    private TextView mAdRemainingView;
+
+    // Relating to Settings List View
+    private ListView mSettingsListView;
+    private PopupWindow mSettingsWindow;
+    private SettingsAdapter mSettingsAdapter;
+    private SubSettingsAdapter mSubSettingsAdapter;
+    private List<String> mSettingsMainTextsList;
+    private List<String> mSettingsSubTextsList;
+    private List<Integer> mSettingsIconIdsList;
+    private List<String> mSubtitleDescriptionsList;
+    private List<String> mAudioTrackList;
+    private List<String> mVideoQualityList;
+    private List<String> mPlaybackSpeedTextList;
+    private List<Float> mPlaybackSpeedList;
+
+    private CharSequence mPlayDescription;
+    private CharSequence mPauseDescription;
+    private CharSequence mReplayDescription;
+
     public MediaControlView2(@NonNull Context context) {
         this(context, null);
     }
@@ -172,6 +349,11 @@ public class MediaControlView2 extends ViewGroup {
 //                context, attrs, defStyleAttr, defStyleRes);
 //        mProvider.initialize(attrs, defStyleAttr, defStyleRes);
         super(context, attrs, defStyleAttr, defStyleRes);
+
+        mResources = getContext().getResources();
+        // Inflate MediaControlView2 from XML
+        mRoot = makeControllerView();
+        addView(mRoot);
     }
 
     /**
@@ -194,7 +376,18 @@ public class MediaControlView2 extends ViewGroup {
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setController(MediaController controller) {
-        //mProvider.setController_impl(controller);
+        mController = controller;
+        if (controller != null) {
+            mControls = controller.getTransportControls();
+            // Set mMetadata and mPlaybackState to existing MediaSession variables since they may
+            // be called before the callback is called
+            mPlaybackState = mController.getPlaybackState();
+            mMetadata = mController.getMetadata();
+            updateDuration();
+            updateTitle();
+
+            mController.registerCallback(new MediaControllerCallback());
+        }
     }
 
     /**
@@ -219,19 +412,71 @@ public class MediaControlView2 extends ViewGroup {
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setButtonVisibility(@Button int button, /*@Visibility*/ int visibility) {
-        //mProvider.setButtonVisibility_impl(button, visibility);
+        // TODO: add member variables for Fast-Forward/Prvious/Rewind buttons to save visibility in
+        // order to prevent being overriden inside updateLayout().
+        switch (button) {
+            case MediaControlView2.BUTTON_PLAY_PAUSE:
+                if (mPlayPauseButton != null && canPause()) {
+                    mPlayPauseButton.setVisibility(visibility);
+                }
+                break;
+            case MediaControlView2.BUTTON_FFWD:
+                if (mFfwdButton != null && canSeekForward()) {
+                    mFfwdButton.setVisibility(visibility);
+                }
+                break;
+            case MediaControlView2.BUTTON_REW:
+                if (mRewButton != null && canSeekBackward()) {
+                    mRewButton.setVisibility(visibility);
+                }
+                break;
+            case MediaControlView2.BUTTON_NEXT:
+                if (mNextButton != null) {
+                    mNextButton.setVisibility(visibility);
+                }
+                break;
+            case MediaControlView2.BUTTON_PREV:
+                if (mPrevButton != null) {
+                    mPrevButton.setVisibility(visibility);
+                }
+                break;
+            case MediaControlView2.BUTTON_SUBTITLE:
+                if (mSubtitleButton != null && mSubtitleTrackCount > 0) {
+                    mSubtitleButton.setVisibility(visibility);
+                }
+                break;
+            case MediaControlView2.BUTTON_FULL_SCREEN:
+                if (mFullScreenButton != null) {
+                    mFullScreenButton.setVisibility(visibility);
+                }
+                break;
+            case MediaControlView2.BUTTON_OVERFLOW:
+                if (mOverflowButtonRight != null) {
+                    mOverflowButtonRight.setVisibility(visibility);
+                }
+                break;
+            case MediaControlView2.BUTTON_MUTE:
+                if (mMuteButton != null) {
+                    mMuteButton.setVisibility(visibility);
+                }
+                break;
+            case MediaControlView2.BUTTON_SETTINGS:
+                if (mSettingsButton != null) {
+                    mSettingsButton.setVisibility(visibility);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     /**
      *  Requests focus for the play/pause button.
      */
     public void requestPlayButtonFocus() {
-        //mProvider.requestPlayButtonFocus_impl();
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        //mProvider.onLayout_impl(changed, l, t, r, b);
+        if (mPlayPauseButton != null) {
+            mPlayPauseButton.requestFocus();
+        }
     }
 
     /**
@@ -243,5 +488,1249 @@ public class MediaControlView2 extends ViewGroup {
          * Called to indicate a fullscreen mode change.
          */
         void onFullScreen(View view, boolean fullScreen);
+    }
+
+    @Override
+    public CharSequence getAccessibilityClassName() {
+        return MediaControlView2.class.getName();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        return false;
+    }
+
+    // TODO: Should this function be removed?
+    @Override
+    public boolean onTrackballEvent(MotionEvent ev) {
+        return false;
+    }
+
+    @Override
+    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        /*
+
+        if (mPrevWidth != getMeasuredWidth()) {
+            int currWidth = getMeasuredWidth();
+
+            int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_full_icon_size);
+            int marginSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_margin);
+            int bottomBarRightWidthMax = iconSize * 4 + marginSize * 8;
+
+            int fullWidth = mTransportControls.getWidth() + mTimeView.getWidth()
+                    + bottomBarRightWidthMax;
+            // These views may not have been initialized yet.
+            if (mTransportControls.getWidth() == 0 || mTimeView.getWidth() == 0) {
+                return;
+            }
+            if (mSizeType == SIZE_TYPE_EMBEDDED && fullWidth <= currWidth) {
+                updateLayoutForSizeChange(SIZE_TYPE_FULL);
+            } else if (mSizeType == SIZE_TYPE_FULL && fullWidth > currWidth) {
+                updateLayoutForSizeChange(SIZE_TYPE_EMBEDDED);
+            }
+            // Dismiss SettingsWindow if it is showing.
+            mSettingsWindow.dismiss();
+            mPrevWidth = currWidth;
+        }
+        updateTitleBarLayout();
+        */
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+
+        // TODO: Merge the below code with disableUnsupportedButtons().
+        if (mPlayPauseButton != null) {
+            mPlayPauseButton.setEnabled(enabled);
+        }
+        if (mFfwdButton != null) {
+            mFfwdButton.setEnabled(enabled);
+        }
+        if (mRewButton != null) {
+            mRewButton.setEnabled(enabled);
+        }
+        if (mNextButton != null) {
+            mNextButton.setEnabled(enabled);
+        }
+        if (mPrevButton != null) {
+            mPrevButton.setEnabled(enabled);
+        }
+        if (mProgress != null) {
+            mProgress.setEnabled(enabled);
+        }
+        disableUnsupportedButtons();
+    }
+
+    @Override
+    public void onVisibilityAggregated(boolean isVisible) {
+        super.onVisibilityAggregated(isVisible);
+
+        if (isVisible) {
+            disableUnsupportedButtons();
+            removeCallbacks(mUpdateProgress);
+            post(mUpdateProgress);
+        } else {
+            removeCallbacks(mUpdateProgress);
+        }
+    }
+
+    // TODO (b/77158231) revive once androidx.mediarouter.* packagaes are available.
+    /*
+    void setRouteSelector(MediaRouteSelector selector) {
+        mRouteSelector = selector;
+        if (mRouteSelector != null && !mRouteSelector.isEmpty()) {
+            mRouteButton.setRouteSelector(selector, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+            mRouteButton.setVisibility(View.VISIBLE);
+        } else {
+            mRouteButton.setRouteSelector(MediaRouteSelector.EMPTY);
+            mRouteButton.setVisibility(View.GONE);
+        }
+    }
+    */
+
+    ///////////////////////////////////////////////////
+    // Protected or private methods
+    ///////////////////////////////////////////////////
+
+    private boolean isPlaying() {
+        if (mPlaybackState != null) {
+            return mPlaybackState.getState() == PlaybackState.STATE_PLAYING;
+        }
+        return false;
+    }
+
+    private int getCurrentPosition() {
+        mPlaybackState = mController.getPlaybackState();
+        if (mPlaybackState != null) {
+            return (int) mPlaybackState.getPosition();
+        }
+        return 0;
+    }
+
+    private int getBufferPercentage() {
+        if (mDuration == 0) {
+            return 0;
+        }
+        mPlaybackState = mController.getPlaybackState();
+        if (mPlaybackState != null) {
+            long bufferedPos = mPlaybackState.getBufferedPosition();
+            return (bufferedPos == -1) ? -1 : (int) (bufferedPos * 100 / mDuration);
+        }
+        return 0;
+    }
+
+    private boolean canPause() {
+        if (mPlaybackState != null) {
+            return (mPlaybackState.getActions() & PlaybackState.ACTION_PAUSE) != 0;
+        }
+        return true;
+    }
+
+    private boolean canSeekBackward() {
+        if (mPlaybackState != null) {
+            return (mPlaybackState.getActions() & PlaybackState.ACTION_REWIND) != 0;
+        }
+        return true;
+    }
+
+    private boolean canSeekForward() {
+        if (mPlaybackState != null) {
+            return (mPlaybackState.getActions() & PlaybackState.ACTION_FAST_FORWARD) != 0;
+        }
+        return true;
+    }
+
+    /**
+     * Create the view that holds the widgets that control playback.
+     * Derived classes can override this to create their own.
+     *
+     * @return The controller view.
+     */
+    // TODO: This was "protected". Determine if it should be protected in MCV2.
+    private View makeControllerView() {
+        // TODO (b/77158892) Uncomment after adding resources.
+        /*
+        View root = inflateLayout(getContext(), R.layout.media_controller);
+
+        initControllerView(root);
+        return root;
+        */
+        return null;
+    }
+
+    // TODO(b/76444971) make sure this is compatible with ApiHelper's one in updatable.
+    private View inflateLayout(Context context, int resId) {
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        return inflater.inflate(resId, null);
+    }
+
+    private void initControllerView(View v) {
+        // TODO (b/77158892) Uncomment after adding resources.
+        /*
+        mPlayDescription = mResources.getText(R.string.lockscreen_play_button_content_description);
+        mPauseDescription =
+                mResources.getText(R.string.lockscreen_pause_button_content_description);
+        mReplayDescription =
+                mResources.getText(R.string.lockscreen_replay_button_content_description);
+
+        // Relating to Title Bar View
+        mTitleBar = v.findViewById(R.id.title_bar);
+        mTitleView = v.findViewById(R.id.title_text);
+        mAdExternalLink = v.findViewById(R.id.ad_external_link);
+        mBackButton = v.findViewById(R.id.back);
+        if (mBackButton != null) {
+            mBackButton.setOnClickListener(mBackListener);
+        }
+        mRouteButton = v.findViewById(R.id.cast);
+
+        // Relating to Center View
+        mCenterView = v.findViewById(R.id.center_view);
+        mTransportControls = inflateTransportControls(R.layout.embedded_transport_controls);
+        mCenterView.addView(mTransportControls);
+
+        // Relating to Progress Bar View
+        mProgress = v.findViewById(R.id.mediacontroller_progress);
+        if (mProgress != null) {
+            if (mProgress instanceof SeekBar) {
+                SeekBar seeker = (SeekBar) mProgress;
+                seeker.setOnSeekBarChangeListener(mSeekListener);
+                seeker.setProgressDrawable(mResources.getDrawable(R.drawable.custom_progress));
+                seeker.setThumb(mResources.getDrawable(R.drawable.custom_progress_thumb));
+            }
+            mProgress.setMax(MAX_PROGRESS);
+        }
+
+        // Relating to Bottom Bar Left View
+        mBottomBarLeftView = v.findViewById(R.id.bottom_bar_left);
+        mTimeView = v.findViewById(R.id.time);
+        mEndTime = v.findViewById(R.id.time_end);
+        mCurrentTime = v.findViewById(R.id.time_current);
+        mAdSkipView = v.findViewById(R.id.ad_skip_time);
+        mFormatBuilder = new StringBuilder();
+        mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
+
+        // Relating to Bottom Bar Right View
+        mBottomBarRightView = v.findViewById(R.id.bottom_bar_right);
+        mBasicControls = v.findViewById(R.id.basic_controls);
+        mExtraControls = v.findViewById(R.id.extra_controls);
+        mCustomButtons = v.findViewById(R.id.custom_buttons);
+        mSubtitleButton = v.findViewById(R.id.subtitle);
+        if (mSubtitleButton != null) {
+            mSubtitleButton.setOnClickListener(mSubtitleListener);
+        }
+        mFullScreenButton = v.findViewById(R.id.fullscreen);
+        if (mFullScreenButton != null) {
+            mFullScreenButton.setOnClickListener(mFullScreenListener);
+            // TODO: Show Fullscreen button when only it is possible.
+        }
+        mOverflowButtonRight = v.findViewById(R.id.overflow_right);
+        if (mOverflowButtonRight != null) {
+            mOverflowButtonRight.setOnClickListener(mOverflowRightListener);
+        }
+        mOverflowButtonLeft = v.findViewById(R.id.overflow_left);
+        if (mOverflowButtonLeft != null) {
+            mOverflowButtonLeft.setOnClickListener(mOverflowLeftListener);
+        }
+        mMuteButton = v.findViewById(R.id.mute);
+        if (mMuteButton != null) {
+            mMuteButton.setOnClickListener(mMuteButtonListener);
+        }
+        mSettingsButton = v.findViewById(R.id.settings);
+        if (mSettingsButton != null) {
+            mSettingsButton.setOnClickListener(mSettingsButtonListener);
+        }
+        mVideoQualityButton = v.findViewById(R.id.video_quality);
+        if (mVideoQualityButton != null) {
+            mVideoQualityButton.setOnClickListener(mVideoQualityListener);
+        }
+        mAdRemainingView = v.findViewById(R.id.ad_remaining);
+
+        // Relating to Settings List View
+        initializeSettingsLists();
+        mSettingsListView = (ListView) inflateLayout(getContext(), R.layout.settings_list);
+        mSettingsAdapter = new SettingsAdapter(mSettingsMainTextsList, mSettingsSubTextsList,
+                mSettingsIconIdsList);
+        mSubSettingsAdapter = new SubSettingsAdapter(null, 0);
+        mSettingsListView.setAdapter(mSettingsAdapter);
+        mSettingsListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        mSettingsListView.setOnItemClickListener(mSettingsItemClickListener);
+
+        mEmbeddedSettingsItemWidth = mResources.getDimensionPixelSize(
+                R.dimen.mcv2_embedded_settings_width);
+        mFullSettingsItemWidth = mResources.getDimensionPixelSize(R.dimen.mcv2_full_settings_width);
+        mEmbeddedSettingsItemHeight = mResources.getDimensionPixelSize(
+                R.dimen.mcv2_embedded_settings_height);
+        mFullSettingsItemHeight = mResources.getDimensionPixelSize(
+                R.dimen.mcv2_full_settings_height);
+        mSettingsWindowMargin = (-1) * mResources.getDimensionPixelSize(
+                R.dimen.mcv2_settings_offset);
+        mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        */
+    }
+
+    /**
+     * Disable pause or seek buttons if the stream cannot be paused or seeked.
+     * This requires the control interface to be a MediaPlayerControlExt
+     */
+    private void disableUnsupportedButtons() {
+        try {
+            if (mPlayPauseButton != null && !canPause()) {
+                mPlayPauseButton.setEnabled(false);
+            }
+            if (mRewButton != null && !canSeekBackward()) {
+                mRewButton.setEnabled(false);
+            }
+            if (mFfwdButton != null && !canSeekForward()) {
+                mFfwdButton.setEnabled(false);
+            }
+            // TODO What we really should do is add a canSeek to the MediaPlayerControl interface;
+            // this scheme can break the case when applications want to allow seek through the
+            // progress bar but disable forward/backward buttons.
+            //
+            // However, currently the flags SEEK_BACKWARD_AVAILABLE, SEEK_FORWARD_AVAILABLE,
+            // and SEEK_AVAILABLE are all (un)set together; as such the aforementioned issue
+            // shouldn't arise in existing applications.
+            if (mProgress != null && !canSeekBackward() && !canSeekForward()) {
+                mProgress.setEnabled(false);
+            }
+        } catch (IncompatibleClassChangeError ex) {
+            // We were given an old version of the interface, that doesn't have
+            // the canPause/canSeekXYZ methods. This is OK, it just means we
+            // assume the media can be paused and seeked, and so we don't disable
+            // the buttons.
+        }
+    }
+
+    private final Runnable mUpdateProgress = new Runnable() {
+        @Override
+        public void run() {
+            int pos = setProgress();
+            boolean isShowing = getVisibility() == View.VISIBLE;
+            if (!mDragging && isShowing && isPlaying()) {
+                postDelayed(mUpdateProgress,
+                        DEFAULT_PROGRESS_UPDATE_TIME_MS - (pos % DEFAULT_PROGRESS_UPDATE_TIME_MS));
+            }
+        }
+    };
+
+    private String stringForTime(int timeMs) {
+        int totalSeconds = timeMs / 1000;
+
+        int seconds = totalSeconds % 60;
+        int minutes = (totalSeconds / 60) % 60;
+        int hours = totalSeconds / 3600;
+
+        mFormatBuilder.setLength(0);
+        if (hours > 0) {
+            return mFormatter.format("%d:%02d:%02d", hours, minutes, seconds).toString();
+        } else {
+            return mFormatter.format("%02d:%02d", minutes, seconds).toString();
+        }
+    }
+
+    private int setProgress() {
+        if (mController == null || mDragging) {
+            return 0;
+        }
+        int positionOnProgressBar = 0;
+        int currentPosition = getCurrentPosition();
+        if (mDuration > 0) {
+            positionOnProgressBar = (int) (MAX_PROGRESS * (long) currentPosition / mDuration);
+        }
+        if (mProgress != null && currentPosition != mDuration) {
+            mProgress.setProgress(positionOnProgressBar);
+            // If the media is a local file, there is no need to set a buffer, so set secondary
+            // progress to maximum.
+            if (getBufferPercentage() < 0) {
+                mProgress.setSecondaryProgress(MAX_PROGRESS);
+            } else {
+                mProgress.setSecondaryProgress(getBufferPercentage() * 10);
+            }
+        }
+
+        if (mEndTime != null) {
+            mEndTime.setText(stringForTime(mDuration));
+
+        }
+        if (mCurrentTime != null) {
+            mCurrentTime.setText(stringForTime(currentPosition));
+        }
+
+        // TODO (b/77158892) Uncomment after adding resources.
+        /*
+        if (mIsAdvertisement) {
+            // Update the remaining number of seconds until the first 5 seconds of the
+            // advertisement.
+            if (mAdSkipView != null) {
+                if (currentPosition <= AD_SKIP_WAIT_TIME_MS) {
+                    if (mAdSkipView.getVisibility() == View.GONE) {
+                        mAdSkipView.setVisibility(View.VISIBLE);
+                    }
+                    String skipTimeText = mResources.getString(
+                            R.string.MediaControlView2_ad_skip_wait_time,
+                            ((AD_SKIP_WAIT_TIME_MS - currentPosition) / 1000 + 1));
+                    mAdSkipView.setText(skipTimeText);
+                } else {
+                    if (mAdSkipView.getVisibility() == View.VISIBLE) {
+                        mAdSkipView.setVisibility(View.GONE);
+                        mNextButton.setEnabled(true);
+                        mNextButton.clearColorFilter();
+                    }
+                }
+            }
+            // Update the remaining number of seconds of the advertisement.
+            if (mAdRemainingView != null) {
+                int remainingTime =
+                        (mDuration - currentPosition < 0) ? 0 : (mDuration - currentPosition);
+                String remainingTimeText = mResources.getString(
+                        R.string.MediaControlView2_ad_remaining_time,
+                        stringForTime(remainingTime));
+                mAdRemainingView.setText(remainingTimeText);
+            }
+        }
+        */
+        return currentPosition;
+    }
+
+    private void togglePausePlayState() {
+        // TODO (b/77158892) Uncomment after adding resources.
+        /*
+        if (isPlaying()) {
+            mControls.pause();
+            mPlayPauseButton.setImageDrawable(
+                    mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
+            mPlayPauseButton.setContentDescription(mPlayDescription);
+        } else {
+            mControls.play();
+            mPlayPauseButton.setImageDrawable(
+                    mResources.getDrawable(R.drawable.ic_pause_circle_filled, null));
+            mPlayPauseButton.setContentDescription(mPauseDescription);
+        }
+        */
+    }
+
+    // There are two scenarios that can trigger the seekbar listener to trigger:
+    //
+    // The first is the user using the touchpad to adjust the posititon of the
+    // seekbar's thumb. In this case onStartTrackingTouch is called followed by
+    // a number of onProgressChanged notifications, concluded by onStopTrackingTouch.
+    // We're setting the field "mDragging" to true for the duration of the dragging
+    // session to avoid jumps in the position in case of ongoing playback.
+    //
+    // The second scenario involves the user operating the scroll ball, in this
+    // case there WON'T BE onStartTrackingTouch/onStopTrackingTouch notifications,
+    // we will simply apply the updated position without suspending regular updates.
+    private final OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
+        @Override
+        public void onStartTrackingTouch(SeekBar bar) {
+            if (!mSeekAvailable) {
+                return;
+            }
+
+            mDragging = true;
+
+            // By removing these pending progress messages we make sure
+            // that a) we won't update the progress while the user adjusts
+            // the seekbar and b) once the user is done dragging the thumb
+            // we will post one of these messages to the queue again and
+            // this ensures that there will be exactly one message queued up.
+            removeCallbacks(mUpdateProgress);
+
+            // Check if playback is currently stopped. In this case, update the pause button to
+            // show the play image instead of the replay image.
+            if (mIsStopped) {
+                // TODO (b/77158892) Uncomment after adding resources.
+                /*
+                mPlayPauseButton.setImageDrawable(
+                        mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
+                mPlayPauseButton.setContentDescription(mPlayDescription);
+                mIsStopped = false;
+                */
+            }
+        }
+
+        @Override
+        public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
+            if (!mSeekAvailable) {
+                return;
+            }
+            if (!fromUser) {
+                // We're not interested in programmatically generated changes to
+                // the progress bar's position.
+                return;
+            }
+            if (mDuration > 0) {
+                int newPosition = (int) (((long) mDuration * progress) / MAX_PROGRESS);
+                mControls.seekTo(newPosition);
+
+                if (mCurrentTime != null) {
+                    mCurrentTime.setText(stringForTime(newPosition));
+                }
+            }
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar bar) {
+            if (!mSeekAvailable) {
+                return;
+            }
+            mDragging = false;
+
+            setProgress();
+
+            // Ensure that progress is properly updated in the future,
+            // the call to show() does not guarantee this because it is a
+            // no-op if we are already showing.
+            post(mUpdateProgress);
+        }
+    };
+
+    private final View.OnClickListener mPlayPauseListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            togglePausePlayState();
+        }
+    };
+
+    private final View.OnClickListener mRewListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int pos = getCurrentPosition() - REWIND_TIME_MS;
+            mControls.seekTo(pos);
+            setProgress();
+        }
+    };
+
+    private final View.OnClickListener mFfwdListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int pos = getCurrentPosition() + FORWARD_TIME_MS;
+            mControls.seekTo(pos);
+            setProgress();
+        }
+    };
+
+    private final View.OnClickListener mNextListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mControls.skipToNext();
+        }
+    };
+
+    private final View.OnClickListener mPrevListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mControls.skipToPrevious();
+        }
+    };
+
+    private final View.OnClickListener mBackListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // TODO: implement
+        }
+    };
+
+    private final View.OnClickListener mSubtitleListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mSettingsMode = SETTINGS_MODE_SUBTITLE_TRACK;
+            mSubSettingsAdapter.setTexts(mSubtitleDescriptionsList);
+            mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex);
+            displaySettingsWindow(mSubSettingsAdapter);
+        }
+    };
+
+    private final View.OnClickListener mVideoQualityListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mSettingsMode = SETTINGS_MODE_VIDEO_QUALITY;
+            mSubSettingsAdapter.setTexts(mVideoQualityList);
+            mSubSettingsAdapter.setCheckPosition(mSelectedVideoQualityIndex);
+            displaySettingsWindow(mSubSettingsAdapter);
+        }
+    };
+
+    private final View.OnClickListener mFullScreenListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // TODO (b/77158892) Uncomment after adding resources.
+            /*
+            final boolean isEnteringFullScreen = !mIsFullScreen;
+            // TODO: Re-arrange the button layouts according to the UX.
+            if (isEnteringFullScreen) {
+                mFullScreenButton.setImageDrawable(
+                        mResources.getDrawable(R.drawable.ic_fullscreen_exit, null));
+            } else {
+                mFullScreenButton.setImageDrawable(
+                        mResources.getDrawable(R.drawable.ic_fullscreen, null));
+            }
+            Bundle args = new Bundle();
+            args.putBoolean(ARGUMENT_KEY_FULLSCREEN, isEnteringFullScreen);
+            mController.sendCommand(COMMAND_SET_FULLSCREEN, args, null);
+
+            mIsFullScreen = isEnteringFullScreen;
+            */
+        }
+    };
+
+    private final View.OnClickListener mOverflowRightListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mBasicControls.setVisibility(View.GONE);
+            mExtraControls.setVisibility(View.VISIBLE);
+        }
+    };
+
+    private final View.OnClickListener mOverflowLeftListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mBasicControls.setVisibility(View.VISIBLE);
+            mExtraControls.setVisibility(View.GONE);
+        }
+    };
+
+    private final View.OnClickListener mMuteButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // TODO (b/77158892) Uncomment after adding resources.
+            /*
+            if (!mIsMute) {
+                mMuteButton.setImageDrawable(
+                        mResources.getDrawable(R.drawable.ic_mute, null));
+                mIsMute = true;
+                mController.sendCommand(COMMAND_MUTE, null, null);
+            } else {
+                mMuteButton.setImageDrawable(
+                        mResources.getDrawable(R.drawable.ic_unmute, null));
+                mIsMute = false;
+                mController.sendCommand(COMMAND_UNMUTE, null, null);
+            }
+            */
+        }
+    };
+
+    private final View.OnClickListener mSettingsButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mSettingsMode = SETTINGS_MODE_MAIN;
+            mSettingsAdapter.setSubTexts(mSettingsSubTextsList);
+            displaySettingsWindow(mSettingsAdapter);
+        }
+    };
+
+    private final AdapterView.OnItemClickListener mSettingsItemClickListener =
+            new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            switch (mSettingsMode) {
+                case SETTINGS_MODE_MAIN:
+                    if (position == SETTINGS_MODE_AUDIO_TRACK) {
+                        mSubSettingsAdapter.setTexts(mAudioTrackList);
+                        mSubSettingsAdapter.setCheckPosition(mSelectedAudioTrackIndex);
+                        mSettingsMode = SETTINGS_MODE_AUDIO_TRACK;
+                    } else if (position == SETTINGS_MODE_PLAYBACK_SPEED) {
+                        mSubSettingsAdapter.setTexts(mPlaybackSpeedTextList);
+                        mSubSettingsAdapter.setCheckPosition(mSelectedSpeedIndex);
+                        mSettingsMode = SETTINGS_MODE_PLAYBACK_SPEED;
+                    } else if (position == SETTINGS_MODE_HELP) {
+                        // TODO: implement this.
+                        mSettingsWindow.dismiss();
+                        return;
+                    }
+                    displaySettingsWindow(mSubSettingsAdapter);
+                    break;
+                case SETTINGS_MODE_AUDIO_TRACK:
+                    if (position != mSelectedAudioTrackIndex) {
+                        mSelectedAudioTrackIndex = position;
+                        if (mAudioTrackCount > 0) {
+                            Bundle extra = new Bundle();
+                            extra.putInt(KEY_SELECTED_AUDIO_INDEX, position);
+                            mController.sendCommand(COMMAND_SELECT_AUDIO_TRACK, extra, null);
+                        }
+                        mSettingsSubTextsList.set(SETTINGS_MODE_AUDIO_TRACK,
+                                mSubSettingsAdapter.getMainText(position));
+                    }
+                    mSettingsWindow.dismiss();
+                    break;
+                case SETTINGS_MODE_PLAYBACK_SPEED:
+                    if (position != mSelectedSpeedIndex) {
+                        mSelectedSpeedIndex = position;
+                        Bundle extra = new Bundle();
+                        extra.putFloat(KEY_PLAYBACK_SPEED, mPlaybackSpeedList.get(position));
+                        mController.sendCommand(COMMAND_SET_PLAYBACK_SPEED, extra, null);
+                        mSettingsSubTextsList.set(SETTINGS_MODE_PLAYBACK_SPEED,
+                                mSubSettingsAdapter.getMainText(position));
+                    }
+                    mSettingsWindow.dismiss();
+                    break;
+                case SETTINGS_MODE_HELP:
+                    // TODO: implement this.
+                    break;
+                case SETTINGS_MODE_SUBTITLE_TRACK:
+                    // TODO (b/77158892) Uncomment after adding resources.
+                    /*
+                    if (position != mSelectedSubtitleTrackIndex) {
+                        mSelectedSubtitleTrackIndex = position;
+                        if (position > 0) {
+                            Bundle extra = new Bundle();
+                            extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, position - 1);
+                            mController.sendCommand(COMMAND_SHOW_SUBTITLE, extra, null);
+                            mSubtitleButton.setImageDrawable(
+                                    mResources.getDrawable(R.drawable.ic_subtitle_on, null));
+                            mSubtitleIsEnabled = true;
+                        } else {
+                            mController.sendCommand(COMMAND_HIDE_SUBTITLE, null, null);
+                            mSubtitleButton.setImageDrawable(
+                                    mResources.getDrawable(R.drawable.ic_subtitle_off, null));
+
+                            mSubtitleIsEnabled = false;
+                        }
+                    }
+                    */
+                    mSettingsWindow.dismiss();
+                    break;
+                case SETTINGS_MODE_VIDEO_QUALITY:
+                    // TODO: add support for video quality
+                    mSelectedVideoQualityIndex = position;
+                    mSettingsWindow.dismiss();
+                    break;
+            }
+        }
+    };
+
+    private void updateDuration() {
+        if (mMetadata != null) {
+            if (mMetadata.containsKey(MediaMetadata.METADATA_KEY_DURATION)) {
+                mDuration = (int) mMetadata.getLong(MediaMetadata.METADATA_KEY_DURATION);
+                // update progress bar
+                setProgress();
+            }
+        }
+    }
+
+    private void updateTitle() {
+        if (mMetadata != null) {
+            if (mMetadata.containsKey(MediaMetadata.METADATA_KEY_TITLE)) {
+                mTitleView.setText(mMetadata.getString(MediaMetadata.METADATA_KEY_TITLE));
+            }
+        }
+    }
+
+    // The title bar is made up of two separate LinearLayouts. If the sum of the two bars are
+    // greater than the length of the title bar, reduce the size of the left bar (which makes the
+    // TextView that contains the title of the media file shrink).
+    private void updateTitleBarLayout() {
+        // TODO (b/77158892) Uncomment after adding resources.
+        /*
+        if (mTitleBar != null) {
+            int titleBarWidth = mTitleBar.getWidth();
+
+            View leftBar = mTitleBar.findViewById(R.id.title_bar_left);
+            View rightBar = mTitleBar.findViewById(R.id.title_bar_right);
+            int leftBarWidth = leftBar.getWidth();
+            int rightBarWidth = rightBar.getWidth();
+
+            RelativeLayout.LayoutParams params =
+                    (RelativeLayout.LayoutParams) leftBar.getLayoutParams();
+            if (leftBarWidth + rightBarWidth > titleBarWidth) {
+                params.width = titleBarWidth - rightBarWidth;
+                mOriginalLeftBarWidth = leftBarWidth;
+            } else if (leftBarWidth + rightBarWidth < titleBarWidth && mOriginalLeftBarWidth != 0) {
+                params.width = mOriginalLeftBarWidth;
+                mOriginalLeftBarWidth = 0;
+            }
+            leftBar.setLayoutParams(params);
+        }
+        */
+    }
+
+    private void updateLayout() {
+        // TODO (b/77158892) Uncomment after adding resources.
+        /*
+        if (mIsAdvertisement) {
+            mRewButton.setVisibility(View.GONE);
+            mFfwdButton.setVisibility(View.GONE);
+            mPrevButton.setVisibility(View.GONE);
+            mTimeView.setVisibility(View.GONE);
+
+            mAdSkipView.setVisibility(View.VISIBLE);
+            mAdRemainingView.setVisibility(View.VISIBLE);
+            mAdExternalLink.setVisibility(View.VISIBLE);
+
+            mProgress.setEnabled(false);
+            mNextButton.setEnabled(false);
+            mNextButton.setColorFilter(R.color.gray);
+        } else {
+            mRewButton.setVisibility(View.VISIBLE);
+            mFfwdButton.setVisibility(View.VISIBLE);
+            mPrevButton.setVisibility(View.VISIBLE);
+            mTimeView.setVisibility(View.VISIBLE);
+
+            mAdSkipView.setVisibility(View.GONE);
+            mAdRemainingView.setVisibility(View.GONE);
+            mAdExternalLink.setVisibility(View.GONE);
+
+            mProgress.setEnabled(true);
+            mNextButton.setEnabled(true);
+            mNextButton.clearColorFilter();
+            disableUnsupportedButtons();
+        }
+        */
+    }
+
+    private void updateLayoutForSizeChange(int sizeType) {
+        // TODO (b/77158892) Uncomment after adding resources.
+        /*
+        mSizeType = sizeType;
+        RelativeLayout.LayoutParams params =
+                (RelativeLayout.LayoutParams) mTimeView.getLayoutParams();
+        switch (mSizeType) {
+            case SIZE_TYPE_EMBEDDED:
+                mBottomBarLeftView.removeView(mTransportControls);
+                mBottomBarLeftView.setVisibility(View.GONE);
+                mTransportControls = inflateTransportControls(R.layout.embedded_transport_controls);
+                mCenterView.addView(mTransportControls, 0);
+
+                if (params.getRule(RelativeLayout.LEFT_OF) != 0) {
+                    params.removeRule(RelativeLayout.LEFT_OF);
+                    params.addRule(RelativeLayout.RIGHT_OF, R.id.bottom_bar_left);
+                }
+                break;
+            case SIZE_TYPE_FULL:
+                mCenterView.removeView(mTransportControls);
+                mTransportControls = inflateTransportControls(R.layout.full_transport_controls);
+                mBottomBarLeftView.addView(mTransportControls, 0);
+                mBottomBarLeftView.setVisibility(View.VISIBLE);
+
+                if (params.getRule(RelativeLayout.RIGHT_OF) != 0) {
+                    params.removeRule(RelativeLayout.RIGHT_OF);
+                    params.addRule(RelativeLayout.LEFT_OF, R.id.bottom_bar_right);
+                }
+                break;
+            case SIZE_TYPE_MINIMAL:
+                // TODO: implement
+                break;
+        }
+        mTimeView.setLayoutParams(params);
+
+        if (isPlaying()) {
+            mPlayPauseButton.setImageDrawable(
+                    mResources.getDrawable(R.drawable.ic_pause_circle_filled, null));
+            mPlayPauseButton.setContentDescription(mPauseDescription);
+        } else {
+            mPlayPauseButton.setImageDrawable(
+                    mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
+            mPlayPauseButton.setContentDescription(mPlayDescription);
+        }
+        */
+    }
+
+    private View inflateTransportControls(int layoutId) {
+        View v = inflateLayout(getContext(), layoutId);
+        // TODO (b/77158892) Uncomment after adding resources.
+        /*
+        mPlayPauseButton = v.findViewById(R.id.pause);
+        if (mPlayPauseButton != null) {
+            mPlayPauseButton.requestFocus();
+            mPlayPauseButton.setOnClickListener(mPlayPauseListener);
+        }
+        mFfwdButton = v.findViewById(R.id.ffwd);
+        if (mFfwdButton != null) {
+            mFfwdButton.setOnClickListener(mFfwdListener);
+        }
+        mRewButton = v.findViewById(R.id.rew);
+        if (mRewButton != null) {
+            mRewButton.setOnClickListener(mRewListener);
+        }
+        // TODO: Add support for Next and Previous buttons
+        mNextButton = v.findViewById(R.id.next);
+        if (mNextButton != null) {
+            mNextButton.setOnClickListener(mNextListener);
+            mNextButton.setVisibility(View.GONE);
+        }
+        mPrevButton = v.findViewById(R.id.prev);
+        if (mPrevButton != null) {
+            mPrevButton.setOnClickListener(mPrevListener);
+            mPrevButton.setVisibility(View.GONE);
+        }
+        */
+        return v;
+    }
+
+    private void initializeSettingsLists() {
+        // TODO (b/77158892) Uncomment after adding resources.
+        /*
+        mSettingsMainTextsList = new ArrayList<String>();
+        mSettingsMainTextsList.add(
+                mResources.getString(R.string.MediaControlView2_audio_track_text));
+        mSettingsMainTextsList.add(
+                mResources.getString(R.string.MediaControlView2_playback_speed_text));
+        mSettingsMainTextsList.add(
+                mResources.getString(R.string.MediaControlView2_help_text));
+
+        mSettingsSubTextsList = new ArrayList<String>();
+        mSettingsSubTextsList.add(
+                mResources.getString(R.string.MediaControlView2_audio_track_none_text));
+        mSettingsSubTextsList.add(
+                mResources.getStringArray(
+                        R.array.MediaControlView2_playback_speeds)[PLAYBACK_SPEED_1x_INDEX]);
+        mSettingsSubTextsList.add(RESOURCE_EMPTY);
+
+        mSettingsIconIdsList = new ArrayList<Integer>();
+        mSettingsIconIdsList.add(R.drawable.ic_audiotrack);
+        mSettingsIconIdsList.add(R.drawable.ic_play_circle_filled);
+        mSettingsIconIdsList.add(R.drawable.ic_help);
+
+        mAudioTrackList = new ArrayList<String>();
+        mAudioTrackList.add(
+                mResources.getString(R.string.MediaControlView2_audio_track_none_text));
+
+        mVideoQualityList = new ArrayList<String>();
+        mVideoQualityList.add(
+                mResources.getString(R.string.MediaControlView2_video_quality_auto_text));
+
+        mPlaybackSpeedTextList = new ArrayList<String>(Arrays.asList(
+                mResources.getStringArray(R.array.MediaControlView2_playback_speeds)));
+        // Select the "1x" speed as the default value.
+        mSelectedSpeedIndex = PLAYBACK_SPEED_1x_INDEX;
+
+        mPlaybackSpeedList = new ArrayList<Float>();
+        int[] speeds = mResources.getIntArray(R.array.speed_multiplied_by_100);
+        for (int i = 0; i < speeds.length; i++) {
+            float speed = (float) speeds[i] / 100.0f;
+            mPlaybackSpeedList.add(speed);
+        }
+        */
+    }
+
+    private void displaySettingsWindow(BaseAdapter adapter) {
+        // Set Adapter
+        mSettingsListView.setAdapter(adapter);
+
+        // Set width of window
+        int itemWidth = (mSizeType == SIZE_TYPE_EMBEDDED)
+                ? mEmbeddedSettingsItemWidth : mFullSettingsItemWidth;
+        mSettingsWindow.setWidth(itemWidth);
+
+        // Calculate height of window and show
+        int itemHeight = (mSizeType == SIZE_TYPE_EMBEDDED)
+                ? mEmbeddedSettingsItemHeight : mFullSettingsItemHeight;
+        int totalHeight = adapter.getCount() * itemHeight;
+        mSettingsWindow.dismiss();
+        mSettingsWindow.showAsDropDown(this, mSettingsWindowMargin,
+                mSettingsWindowMargin - totalHeight, Gravity.BOTTOM | Gravity.RIGHT);
+    }
+
+    private class MediaControllerCallback extends MediaController.Callback {
+        @Override
+        public void onPlaybackStateChanged(PlaybackState state) {
+            mPlaybackState = state;
+
+            // Update pause button depending on playback state for the following two reasons:
+            //   1) Need to handle case where app customizes playback state behavior when app
+            //      activity is resumed.
+            //   2) Need to handle case where the media file reaches end of duration.
+            if (mPlaybackState.getState() != mPrevState) {
+                // TODO (b/77158892) Uncomment after adding resources.
+                /*
+                switch (mPlaybackState.getState()) {
+                    case PlaybackState.STATE_PLAYING:
+                        mPlayPauseButton.setImageDrawable(
+                                mResources.getDrawable(R.drawable.ic_pause_circle_filled, null));
+                        mPlayPauseButton.setContentDescription(mPauseDescription);
+                        removeCallbacks(mUpdateProgress);
+                        post(mUpdateProgress);
+                        break;
+                    case PlaybackState.STATE_PAUSED:
+                        mPlayPauseButton.setImageDrawable(
+                                mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
+                        mPlayPauseButton.setContentDescription(mPlayDescription);
+                        break;
+                    case PlaybackState.STATE_STOPPED:
+                        mPlayPauseButton.setImageDrawable(
+                                mResources.getDrawable(R.drawable.ic_replay_circle_filled, null));
+                        mPlayPauseButton.setContentDescription(mReplayDescription);
+                        mIsStopped = true;
+                        break;
+                    default:
+                        break;
+                }
+                */
+                mPrevState = mPlaybackState.getState();
+            }
+
+            if (mPlaybackActions != mPlaybackState.getActions()) {
+                long newActions = mPlaybackState.getActions();
+                if ((newActions & PlaybackState.ACTION_PAUSE) != 0) {
+                    mPlayPauseButton.setVisibility(View.VISIBLE);
+                }
+                if ((newActions & PlaybackState.ACTION_REWIND) != 0) {
+                    mRewButton.setVisibility(View.VISIBLE);
+                }
+                if ((newActions & PlaybackState.ACTION_FAST_FORWARD) != 0) {
+                    mFfwdButton.setVisibility(View.VISIBLE);
+                }
+                if ((newActions & PlaybackState.ACTION_SEEK_TO) != 0) {
+                    mSeekAvailable = true;
+                } else {
+                    mSeekAvailable = false;
+                }
+                mPlaybackActions = newActions;
+            }
+
+            // Add buttons if custom actions are present.
+            List<PlaybackState.CustomAction> customActions = mPlaybackState.getCustomActions();
+            mCustomButtons.removeAllViews();
+            if (customActions.size() > 0) {
+                for (final PlaybackState.CustomAction action : customActions) {
+                    ImageButton button = new ImageButton(getContext(),
+                            null /* AttributeSet */, 0 /* Style */);
+                    // TODO: Apply R.style.BottomBarButton to this button using library context.
+                    // Refer Constructor with argument (int defStyleRes) of View.java
+                    button.setImageResource(action.getIcon());
+                    button.setTooltipText(action.getName());
+                    final String actionString = action.getAction().toString();
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // TODO: Currently, we are just sending extras that came from session.
+                            // Is it the right behavior?
+                            mControls.sendCustomAction(actionString, action.getExtras());
+                            setVisibility(View.VISIBLE);
+                        }
+                    });
+                    mCustomButtons.addView(button);
+                }
+            }
+        }
+
+        @Override
+        public void onMetadataChanged(MediaMetadata metadata) {
+            mMetadata = metadata;
+            updateDuration();
+            updateTitle();
+        }
+
+        @Override
+        public void onSessionEvent(String event, Bundle extras) {
+            switch (event) {
+                case EVENT_UPDATE_TRACK_STATUS:
+                    mVideoTrackCount = extras.getInt(KEY_VIDEO_TRACK_COUNT);
+                    // If there is one or more audio tracks, and this information has not been
+                    // reflected into the Settings window yet, automatically check the first track.
+                    // Otherwise, the Audio Track selection will be defaulted to "None".
+                    mAudioTrackCount = extras.getInt(KEY_AUDIO_TRACK_COUNT);
+                    mAudioTrackList = new ArrayList<String>();
+                    // TODO (b/77158892) Uncomment after adding resources.
+                    /*
+                    if (mAudioTrackCount > 0) {
+                        // TODO: add more text about track info.
+                        for (int i = 0; i < mAudioTrackCount; i++) {
+                            String track = mResources.getString(
+                                    R.string.MediaControlView2_audio_track_number_text, i + 1);
+                            mAudioTrackList.add(track);
+                        }
+                        // Change sub text inside the Settings window.
+                        mSettingsSubTextsList.set(SETTINGS_MODE_AUDIO_TRACK,
+                                mAudioTrackList.get(0));
+                    } else {
+                        mAudioTrackList.add(mResources.getString(
+                                R.string.MediaControlView2_audio_track_none_text));
+                    }
+
+                    mSubtitleTrackCount = extras.getInt(KEY_SUBTITLE_TRACK_COUNT);
+                    mSubtitleDescriptionsList = new ArrayList<String>();
+                    if (mSubtitleTrackCount > 0) {
+                        mSubtitleButton.setVisibility(View.VISIBLE);
+                        mSubtitleButton.setEnabled(true);
+                        mSubtitleDescriptionsList.add(mResources.getString(
+                                R.string.MediaControlView2_subtitle_off_text));
+                        for (int i = 0; i < mSubtitleTrackCount; i++) {
+                            String track = mResources.getString(
+                                    R.string.MediaControlView2_subtitle_track_number_text, i + 1);
+                            mSubtitleDescriptionsList.add(track);
+                        }
+                    } else {
+                        mSubtitleButton.setVisibility(View.GONE);
+                        mSubtitleButton.setEnabled(false);
+                    }
+                    */
+                    break;
+                case EVENT_UPDATE_MEDIA_TYPE_STATUS:
+                    boolean newStatus = extras.getBoolean(KEY_STATE_IS_ADVERTISEMENT);
+                    if (newStatus != mIsAdvertisement) {
+                        mIsAdvertisement = newStatus;
+                        updateLayout();
+                    }
+                    break;
+            }
+        }
+    }
+
+    // TODO: It was originally non static. Changed it to static temporarily for intial build.
+    private static class SettingsAdapter extends BaseAdapter {
+        private List<Integer> mIconIds;
+        private List<String> mMainTexts;
+        private List<String> mSubTexts;
+
+        SettingsAdapter(List<String> mainTexts, @Nullable List<String> subTexts,
+                @Nullable List<Integer> iconIds) {
+            mMainTexts = mainTexts;
+            mSubTexts = subTexts;
+            mIconIds = iconIds;
+        }
+
+        public void updateSubTexts(List<String> subTexts) {
+            mSubTexts = subTexts;
+            notifyDataSetChanged();
+        }
+
+        public String getMainText(int position) {
+            if (mMainTexts != null) {
+                if (position < mMainTexts.size()) {
+                    return mMainTexts.get(position);
+                }
+            }
+            return RESOURCE_EMPTY;
+        }
+
+        @Override
+        public int getCount() {
+            return (mMainTexts == null) ? 0 : mMainTexts.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            // Auto-generated method stub--does not have any purpose here
+            // TODO: implement this.
+            return 0;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            // Auto-generated method stub--does not have any purpose here
+            // TODO: implement this.
+            return null;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup container) {
+            // TODO (b/77158892) Uncomment after adding resources.
+            /*
+            View row;
+            if (mSizeType == SIZE_TYPE_FULL) {
+                // TODO(b/76444971) replace ApiHelper usage with proper ones.
+                // row = inflateLayout(getContext(), R.layout.full_settings_list_item);
+            } else {
+                // TODO(b/76444971) replace ApiHelper usage with proper ones.
+                // row = inflateLayout(getContext(), R.layout.embedded_settings_list_item);
+            }
+            TextView mainTextView = (TextView) row.findViewById(R.id.main_text);
+            TextView subTextView = (TextView) row.findViewById(R.id.sub_text);
+            ImageView iconView = (ImageView) row.findViewById(R.id.icon);
+
+            // Set main text
+            mainTextView.setText(mMainTexts.get(position));
+
+            // Remove sub text and center the main text if sub texts do not exist at all or the sub
+            // text at this particular position is empty.
+            if (mSubTexts == null || mSubTexts.get(position) == RESOURCE_EMPTY) {
+                subTextView.setVisibility(View.GONE);
+            } else {
+                // Otherwise, set sub text.
+                subTextView.setText(mSubTexts.get(position));
+            }
+
+            // Remove main icon and set visibility to gone if icons are set to null or the icon at
+            // this particular position is set to RESOURCE_NON_EXISTENT.
+            if (mIconIds == null || mIconIds.get(position) == RESOURCE_NON_EXISTENT) {
+                iconView.setVisibility(View.GONE);
+            } else {
+                // Otherwise, set main icon.
+                iconView.setImageDrawable(mResources.getDrawable(mIconIds.get(position), null));
+            }
+            return row;
+            */
+            return null;
+        }
+
+        public void setSubTexts(List<String> subTexts) {
+            mSubTexts = subTexts;
+        }
+    }
+
+    // TODO: It was originally non static. Changed it to static temporarily for intial build.
+    // TODO: extend this class from SettingsAdapter
+    private static class SubSettingsAdapter extends BaseAdapter {
+        private List<String> mTexts;
+        private int mCheckPosition;
+
+        SubSettingsAdapter(List<String> texts, int checkPosition) {
+            mTexts = texts;
+            mCheckPosition = checkPosition;
+        }
+
+        public String getMainText(int position) {
+            if (mTexts != null) {
+                if (position < mTexts.size()) {
+                    return mTexts.get(position);
+                }
+            }
+            return RESOURCE_EMPTY;
+        }
+
+        @Override
+        public int getCount() {
+            return (mTexts == null) ? 0 : mTexts.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            // Auto-generated method stub--does not have any purpose here
+            // TODO: implement this.
+            return 0;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            // Auto-generated method stub--does not have any purpose here
+            // TODO: implement this.
+            return null;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup container) {
+            // TODO (b/77158892) Uncomment after adding resources.
+            /*
+            View row;
+            if (mSizeType == SIZE_TYPE_FULL) {
+                row = inflateLayout(getContext(), R.layout.full_sub_settings_list_item);
+            } else {
+                row = inflateLayout(getContext(), R.layout.embedded_sub_settings_list_item);
+            }
+            TextView textView = (TextView) row.findViewById(R.id.text);
+            ImageView checkView = (ImageView) row.findViewById(R.id.check);
+
+            textView.setText(mTexts.get(position));
+            if (position != mCheckPosition) {
+                checkView.setVisibility(View.INVISIBLE);
+            }
+            return row;
+            */
+            return null;
+        }
+
+        public void setTexts(List<String> texts) {
+            mTexts = texts;
+        }
+
+        public void setCheckPosition(int checkPosition) {
+            mCheckPosition = checkPosition;
+        }
     }
 }
