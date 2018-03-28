@@ -161,7 +161,9 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         private int mMax = 100;
         private int mValue = 0;
         private CharSequence mTitle;
+        private CharSequence mSubtitle;
         private CharSequence mContentDescr;
+        private SliceAction mPrimaryAction;
 
         public RangeBuilderImpl(Slice.Builder sb) {
             super(sb, null);
@@ -183,6 +185,16 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         }
 
         @Override
+        public void setSubtitle(@NonNull CharSequence title) {
+            mSubtitle = title;
+        }
+
+        @Override
+        public void setPrimaryAction(@NonNull SliceAction action) {
+            mPrimaryAction = action;
+        }
+
+        @Override
         public void setContentDescription(@NonNull CharSequence description) {
             mContentDescr = description;
         }
@@ -192,8 +204,16 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             if (mTitle != null) {
                 builder.addText(mTitle, null, HINT_TITLE);
             }
+            if (mSubtitle != null) {
+                builder.addText(mSubtitle, null);
+            }
             if (mContentDescr != null) {
                 builder.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
+            }
+            if (mPrimaryAction != null) {
+                Slice.Builder sb = new Slice.Builder(
+                        getBuilder()).addHints(HINT_TITLE, HINT_SHORTCUT);
+                builder.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
             }
             builder.addHints(HINT_LIST_ITEM)
                     .addInt(mMax, SUBTYPE_MAX)
@@ -214,7 +234,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         }
 
         @Override
-        public void setAction(@NonNull PendingIntent action) {
+        public void setInputAction(@NonNull PendingIntent action) {
             mAction = action;
         }
 
