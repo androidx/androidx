@@ -156,7 +156,7 @@ public class SliceCreator {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb = new GridRowBuilder(b);
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "see more of your gallery");
-        gb.addSeeMoreAction(pi);
+        gb.setSeeMoreAction(pi);
         gb.addCell(new GridRowBuilder.CellBuilder(gb)
                 .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_1),
                         LARGE_IMAGE))
@@ -191,9 +191,9 @@ public class SliceCreator {
                     ICON_IMAGE);
             cb.setContentIntent(pi);
             cb.addText("All cats");
-            gb.addSeeMoreCell(cb);
+            gb.setSeeMoreCell(cb);
         } else {
-            gb.addSeeMoreAction(pi);
+            gb.setSeeMoreAction(pi);
         }
         gb.addCell(new GridRowBuilder.CellBuilder(gb)
                 .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_1),
@@ -417,7 +417,8 @@ public class SliceCreator {
                     .setTitle("Network" + networkName);
             boolean locked = i % 3 == 0;
             if (locked) {
-                rb.addEndItem(IconCompat.createWithResource(getContext(), R.drawable.ic_lock));
+                rb.addEndItem(IconCompat.createWithResource(getContext(), R.drawable.ic_lock),
+                        ICON_IMAGE);
             }
             String message = locked ? "Open wifi password dialog" : "Connect to " + networkName;
             rb.setPrimaryAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, message), icon,
@@ -425,13 +426,14 @@ public class SliceCreator {
             lb.addRow(rb);
         }
         if (customSeeMore) {
-            lb.addSeeMoreRow(new ListBuilder.RowBuilder(lb)
+            lb.setSeeMoreRow(new ListBuilder.RowBuilder(lb)
                     .setTitle("See all available networks")
                     .addEndItem(
-                            IconCompat.createWithResource(getContext(), R.drawable.ic_right_caret))
+                            IconCompat.createWithResource(getContext(), R.drawable.ic_right_caret),
+                            ICON_IMAGE)
                     .setPrimaryAction(primaryAction));
         } else {
-            lb.addSeeMoreAction(primaryAction.getAction());
+            lb.setSeeMoreAction(primaryAction.getAction());
         }
         return lb.build();
     }

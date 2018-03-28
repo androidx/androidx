@@ -123,7 +123,7 @@ public class GridBuilder extends TemplateSliceBuilder {
             throw new IllegalStateException("Trying to add see more cell when one has "
                     + "already been added");
         }
-        mImpl.addSeeMoreCell((TemplateBuilderImpl) builder.mImpl);
+        mImpl.setSeeMoreCell((TemplateBuilderImpl) builder.mImpl);
         mHasSeeMore = true;
         return this;
     }
@@ -166,7 +166,7 @@ public class GridBuilder extends TemplateSliceBuilder {
             throw new IllegalStateException("Trying to add see more action when one has "
                     + "already been added");
         }
-        mImpl.addSeeMoreAction(intent);
+        mImpl.setSeeMoreAction(intent);
         mHasSeeMore = true;
         return this;
     }
