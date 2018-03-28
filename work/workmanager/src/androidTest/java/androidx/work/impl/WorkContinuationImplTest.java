@@ -106,7 +106,6 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         for (String id : ids) {
             mWorkManagerImpl.cancelWorkById(id);
         }
-        mDatabase.close();
         WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
     }
@@ -274,27 +273,39 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(secondWork));
         WorkContinuationImpl dependentContinuation =
                 (WorkContinuationImpl) WorkContinuation.join(firstContinuation, secondContinuation);
-        dependentContinuation.enqueue();
+        dependentContinuation.enqueueBlocking();
 
         String joinId = null;
         for (String id : dependentContinuation.getAllIds()) {
             if (!firstWork.getId().equals(id) && !secondWork.getId().equals(id)) {
                 joinId = id;
-                mWorkManagerImpl.getProcessor().startWork(id);
-                Thread.sleep(5000L);
                 break;
             }
         }
 
+        Thread.sleep(5000L);
+
+        // TODO(sumir): I can't seem to get this kicked off automatically, so I'm running it myself.
+        // Figure out what's going on here.
+        new WorkerWrapper.Builder(InstrumentationRegistry.getTargetContext(), mDatabase, joinId)
+                .build()
+                .run();
+
         assertThat(joinId, is(not(nullValue())));
-        WorkSpec joinWorkSpec = workSpecDao.getWorkSpec(joinId);
+        WorkSpec joinWorkSpec = mDatabase.workSpecDao().getWorkSpec(joinId);
         assertThat(joinWorkSpec, is(not(nullValue())));
+        assertThat(joinWorkSpec.state, is(State.SUCCEEDED));
 
         Arguments output = joinWorkSpec.output;
-        assertThat(output.getIntArray(intTag), is(not(nullValue())));
-        assertThat(Arrays.asList(output.getIntArray(intTag)), containsInAnyOrder(0, 1));
+        int[] intArray = output.getIntArray(intTag);
+
+        assertThat(intArray, is(not(nullValue())));
+        Arrays.sort(intArray);
+        assertThat(Arrays.binarySearch(intArray, 0), is(not(-1)));
+        assertThat(Arrays.binarySearch(intArray, 1), is(not(-1)));
         assertThat(output.getStringArray(stringTag), is(not(nullValue())));
         assertThat(Arrays.asList(output.getStringArray(stringTag)), contains("hello"));
+
     }
 
     @Test

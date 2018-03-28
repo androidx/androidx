@@ -57,14 +57,35 @@ public final class Arguments {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    public Boolean getBoolean(String key, Boolean defaultValue) {
+    public boolean getBoolean(String key, boolean defaultValue) {
         Object value = mValues.get(key);
         if (value instanceof Boolean) {
-            return (Boolean) value;
+            return (boolean) value;
         } else {
             return defaultValue;
         }
     }
+
+    /**
+     * Get the boolean array value for the given key.
+     *
+     * @param key The key for the argument
+     * @return The value specified by the key if it exists; {@code null} otherwise
+     */
+    public boolean[] getBooleanArray(String key) {
+        Object value = mValues.get(key);
+        if (value instanceof Boolean[]) {
+            Boolean[] array = (Boolean[]) value;
+            boolean[] returnArray = new boolean[array.length];
+            for (int i = 0; i < array.length; ++i) {
+                returnArray[i] = array[i];
+            }
+            return returnArray;
+        } else {
+            return null;
+        }
+    }
+
 
     /**
      * Get the integer value for the given key.
@@ -73,10 +94,10 @@ public final class Arguments {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    public Integer getInt(String key, Integer defaultValue) {
+    public int getInt(String key, int defaultValue) {
         Object value = mValues.get(key);
         if (value instanceof Integer) {
-            return (Integer) value;
+            return (int) value;
         } else {
             return defaultValue;
         }
@@ -88,10 +109,15 @@ public final class Arguments {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
      */
-    public Integer[] getIntArray(String key) {
+    public int[] getIntArray(String key) {
         Object value = mValues.get(key);
         if (value instanceof Integer[]) {
-            return (Integer[]) value;
+            Integer[] array = (Integer[]) value;
+            int[] returnArray = new int[array.length];
+            for (int i = 0; i < array.length; ++i) {
+                returnArray[i] = array[i];
+            }
+            return returnArray;
         } else {
             return null;
         }
@@ -104,10 +130,10 @@ public final class Arguments {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    public Long getLong(String key, Long defaultValue) {
+    public long getLong(String key, long defaultValue) {
         Object value = mValues.get(key);
         if (value instanceof Long) {
-            return (Long) value;
+            return (long) value;
         } else {
             return defaultValue;
         }
@@ -119,10 +145,51 @@ public final class Arguments {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
      */
-    public Long[] getLongArray(String key) {
+    public long[] getLongArray(String key) {
         Object value = mValues.get(key);
         if (value instanceof Long[]) {
-            return (Long[]) value;
+            Long[] array = (Long[]) value;
+            long[] returnArray = new long[array.length];
+            for (int i = 0; i < array.length; ++i) {
+                returnArray[i] = array[i];
+            }
+            return returnArray;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the float value for the given key.
+     *
+     * @param key The key for the argument
+     * @param defaultValue The default value to return if the key is not found
+     * @return The value specified by the key if it exists; the default value otherwise
+     */
+    public float getFloat(String key, float defaultValue) {
+        Object value = mValues.get(key);
+        if (value instanceof Float) {
+            return (float) value;
+        } else {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Get the float array value for the given key.
+     *
+     * @param key The key for the argument
+     * @return The value specified by the key if it exists; {@code null} otherwise
+     */
+    public float[] getFloatArray(String key) {
+        Object value = mValues.get(key);
+        if (value instanceof Float[]) {
+            Float[] array = (Float[]) value;
+            float[] returnArray = new float[array.length];
+            for (int i = 0; i < array.length; ++i) {
+                returnArray[i] = array[i];
+            }
+            return returnArray;
         } else {
             return null;
         }
@@ -135,10 +202,10 @@ public final class Arguments {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    public Double getDouble(String key, Double defaultValue) {
+    public double getDouble(String key, double defaultValue) {
         Object value = mValues.get(key);
         if (value instanceof Double) {
-            return (Double) value;
+            return (double) value;
         } else {
             return defaultValue;
         }
@@ -150,10 +217,15 @@ public final class Arguments {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
      */
-    public Double[] getDoubleArray(String key) {
+    public double[] getDoubleArray(String key) {
         Object value = mValues.get(key);
         if (value instanceof Double[]) {
-            return (Double[]) value;
+            Double[] array = (Double[]) value;
+            double[] returnArray = new double[array.length];
+            for (int i = 0; i < array.length; ++i) {
+                returnArray[i] = array[i];
+            }
+            return returnArray;
         } else {
             return null;
         }
@@ -296,6 +368,46 @@ public final class Arguments {
         return 31 * mValues.hashCode();
     }
 
+    private static Boolean[] convertPrimitiveBooleanArray(boolean[] value) {
+        Boolean[] returnValue = new Boolean[value.length];
+        for (int i = 0; i < value.length; ++i) {
+            returnValue[i] = value[i];
+        }
+        return returnValue;
+    }
+
+    private static Integer[] convertPrimitiveIntArray(int[] value) {
+        Integer[] returnValue = new Integer[value.length];
+        for (int i = 0; i < value.length; ++i) {
+            returnValue[i] = value[i];
+        }
+        return returnValue;
+    }
+
+    private static Long[] convertPrimitiveLongArray(long[] value) {
+        Long[] returnValue = new Long[value.length];
+        for (int i = 0; i < value.length; ++i) {
+            returnValue[i] = value[i];
+        }
+        return returnValue;
+    }
+
+    private static Float[] convertPrimitiveFloatArray(float[] value) {
+        Float[] returnValue = new Float[value.length];
+        for (int i = 0; i < value.length; ++i) {
+            returnValue[i] = value[i];
+        }
+        return returnValue;
+    }
+
+    private static Double[] convertPrimitiveDoubleArray(double[] value) {
+        Double[] returnValue = new Double[value.length];
+        for (int i = 0; i < value.length; ++i) {
+            returnValue[i] = value[i];
+        }
+        return returnValue;
+    }
+
     /**
      * A builder for {@link Arguments}.
      */
@@ -310,8 +422,20 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putBoolean(String key, Boolean value) {
+        public Builder putBoolean(String key, boolean value) {
             mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Puts a boolean array into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putBooleanArray(String key, boolean[] value) {
+            mValues.put(key, convertPrimitiveBooleanArray(value));
             return this;
         }
 
@@ -322,11 +446,10 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putInt(String key, Integer value) {
+        public Builder putInt(String key, int value) {
             mValues.put(key, value);
             return this;
         }
-
 
         /**
          * Puts an integer array into the arguments.
@@ -335,11 +458,10 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putIntArray(String key, Integer[] value) {
-            mValues.put(key, value);
+        public Builder putIntArray(String key, int[] value) {
+            mValues.put(key, convertPrimitiveIntArray(value));
             return this;
         }
-
 
         /**
          * Puts a long into the arguments.
@@ -348,7 +470,7 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putLong(String key, Long value) {
+        public Builder putLong(String key, long value) {
             mValues.put(key, value);
             return this;
         }
@@ -360,8 +482,32 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putLongArray(String key, Long[] value) {
+        public Builder putLongArray(String key, long[] value) {
+            mValues.put(key, convertPrimitiveLongArray(value));
+            return this;
+        }
+
+        /**
+         * Puts a float into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putFloat(String key, float value) {
             mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Puts a float array into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public Builder putFloatArray(String key, float[] value) {
+            mValues.put(key, convertPrimitiveFloatArray(value));
             return this;
         }
 
@@ -372,7 +518,7 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putDouble(String key, Double value) {
+        public Builder putDouble(String key, double value) {
             mValues.put(key, value);
             return this;
         }
@@ -384,8 +530,8 @@ public final class Arguments {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public Builder putDoubleArray(String key, Double[] value) {
-            mValues.put(key, value);
+        public Builder putDoubleArray(String key, double[] value) {
+            mValues.put(key, convertPrimitiveDoubleArray(value));
             return this;
         }
 
@@ -451,9 +597,20 @@ public final class Arguments {
                         || valueType == Boolean[].class
                         || valueType == Integer[].class
                         || valueType == Long[].class
+                        || valueType == Float[].class
                         || valueType == Double[].class
                         || valueType == String[].class) {
                     mValues.put(key, value);
+                } else if (valueType == boolean[].class) {
+                    mValues.put(key, convertPrimitiveBooleanArray((boolean[]) value));
+                } else if (valueType == int[].class) {
+                    mValues.put(key, convertPrimitiveIntArray((int[]) value));
+                } else if (valueType == long[].class) {
+                    mValues.put(key, convertPrimitiveLongArray((long[]) value));
+                } else if (valueType == float[].class) {
+                    mValues.put(key, convertPrimitiveFloatArray((float[]) value));
+                } else if (valueType == double[].class) {
+                    mValues.put(key, convertPrimitiveDoubleArray((double[]) value));
                 } else {
                     Logger.warn(TAG, "Ignoring key %s because of invalid type %s", key, valueType);
                 }

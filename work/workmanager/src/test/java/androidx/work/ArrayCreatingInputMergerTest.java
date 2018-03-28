@@ -32,8 +32,8 @@ public class ArrayCreatingInputMergerTest {
 
     private static final String KEY = "key";
 
-    private static final Integer[] VALUE_INT_ARRAY = { 0, 1, 2 };
-    private static final Integer VALUE_INT = 3;
+    private static final int[] VALUE_INT_ARRAY = { 0, 1, 2 };
+    private static final int VALUE_INT = 3;
     private static final Long VALUE_LONG = Long.MAX_VALUE;
 
     ArrayCreatingInputMerger mArrayCreatingInputMerger;
@@ -53,7 +53,7 @@ public class ArrayCreatingInputMergerTest {
     public void testMerge_singleArgument() {
         Arguments output = getOutputFor(mArgumentsWithInt);
         assertThat(output.size(), is(1));
-        Integer[] outputArray = output.getIntArray(KEY);
+        int[] outputArray = output.getIntArray(KEY);
         assertThat(outputArray.length, is(1));
         assertThat(outputArray[0], is(VALUE_INT));
     }
@@ -62,7 +62,7 @@ public class ArrayCreatingInputMergerTest {
     public void testMerge_concatenatesNonArrays() {
         Arguments output = getOutputFor(mArgumentsWithInt, mArgumentsWithInt);
         assertThat(output.size(), is(1));
-        Integer[] outputArray = output.getIntArray(KEY);
+        int[] outputArray = output.getIntArray(KEY);
         assertThat(outputArray.length, is(2));
         assertThat(outputArray[0], is(VALUE_INT));
         assertThat(outputArray[1], is(VALUE_INT));
@@ -72,7 +72,7 @@ public class ArrayCreatingInputMergerTest {
     public void testMerge_concatenatesArrays() {
         Arguments output = getOutputFor(mArgumentsWithIntArray, mArgumentsWithIntArray);
         assertThat(output.size(), is(1));
-        Integer[] outputArray = output.getIntArray(KEY);
+        int[] outputArray = output.getIntArray(KEY);
         assertThat(outputArray.length, is(VALUE_INT_ARRAY.length * 2));
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j < VALUE_INT_ARRAY.length; ++j) {
@@ -85,7 +85,7 @@ public class ArrayCreatingInputMergerTest {
     public void testMerge_concatenatesArrayAndPrimitive() {
         Arguments output = getOutputFor(mArgumentsWithIntArray, mArgumentsWithInt);
         assertThat(output.size(), is(1));
-        Integer[] outputArray = output.getIntArray(KEY);
+        int[] outputArray = output.getIntArray(KEY);
         assertThat(outputArray.length, is(VALUE_INT_ARRAY.length + 1));
         for (int i = 0; i < VALUE_INT_ARRAY.length; ++i) {
             assertThat(outputArray[i], is(VALUE_INT_ARRAY[i]));
