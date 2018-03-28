@@ -20,6 +20,7 @@ import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.pom.PomDependency
 import android.support.tools.jetifier.core.pom.PomRewriteRule
 import android.support.tools.jetifier.core.proguard.ProGuardTypesMap
+import android.support.tools.jetifier.core.rule.RewriteRulesMap
 import android.support.tools.jetifier.core.type.TypesMap
 import android.support.tools.jetifier.processor.FileMapping
 import android.support.tools.jetifier.processor.Processor
@@ -36,9 +37,9 @@ class PomRewriteInZipTest {
 
     companion object {
         private val TEST_CONFIG = Config(
-            restrictToPackagePrefixes = listOf("com/sample"),
-            rewriteRules = listOf(),
-            slRules = listOf(),
+            restrictToPackagePrefixes = setOf("com/sample"),
+            rulesMap = RewriteRulesMap.EMPTY,
+            slRules = setOf(),
             pomRewriteRules = setOf(
                 PomRewriteRule(
                     from = PomDependency(

@@ -55,7 +55,7 @@ class MapGeneratorRemapper(private val config: Config) : CoreRemapper {
 
         // Try to find a rule
         val typeToMap = type.getRootType()
-        for (rule in config.rewriteRules) {
+        for (rule in config.rulesMap.rewriteRules) {
             val typeRewriteResult = rule.apply(typeToMap)
             if (typeRewriteResult.isIgnored) {
                 Log.i(TAG, "Ignoring: " + typeToMap)
