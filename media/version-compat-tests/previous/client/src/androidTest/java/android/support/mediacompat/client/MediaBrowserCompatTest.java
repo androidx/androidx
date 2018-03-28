@@ -64,6 +64,7 @@ import android.content.ComponentName;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.mediacompat.testlib.util.PollingCheck;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -489,6 +490,7 @@ public class MediaBrowserCompatTest {
 
     @Test
     @MediumTest
+    @FlakyTest(bugId = 74093976)
     public void testUnsubscribeWithSubscriptionCallbackForMultipleSubscriptions() throws Exception {
         connectMediaBrowserService();
         final List<StubSubscriptionCallback> subscriptionCallbacks = new ArrayList<>();
