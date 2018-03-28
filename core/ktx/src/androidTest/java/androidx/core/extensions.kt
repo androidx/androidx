@@ -14,30 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.testutils
+package androidx.core
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.annotation.LayoutRes
 import android.util.AttributeSet
 import android.util.Xml
-import com.google.common.truth.ThrowableSubject
-import com.google.common.truth.Truth.assertThat
+import androidx.annotation.LayoutRes
 import org.xmlpull.v1.XmlPullParser
-
-inline fun <reified T : Throwable> assertThrows(body: () -> Unit): ThrowableSubject {
-    try {
-        body()
-    } catch (e: Throwable) {
-        if (e is T) {
-            return assertThat(e)
-        }
-        throw e
-    }
-    throw AssertionError("Body completed successfully. Expected ${T::class.java.simpleName}.")
-}
-
-fun fail(message: String? = null): Nothing = throw AssertionError(message)
 
 @SuppressLint("ResourceType")
 fun Context.getAttributeSet(@LayoutRes layoutId: Int): AttributeSet {
