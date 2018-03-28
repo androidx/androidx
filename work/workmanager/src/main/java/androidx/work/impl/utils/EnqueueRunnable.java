@@ -51,7 +51,6 @@ import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -73,6 +72,10 @@ public class EnqueueRunnable implements Runnable {
 
     @Override
     public void run() {
+        if (mWorkContinuation.hasCycles()) {
+            throw new IllegalStateException(
+                    String.format("WorkContinuation has cycles (%s)", mWorkContinuation));
+        }
         boolean needsScheduling = addToDatabase();
         if (needsScheduling) {
             scheduleWorkInBackground();
@@ -124,13 +127,7 @@ public class EnqueueRunnable implements Runnable {
     }
 
     private static boolean enqueueContinuation(@NonNull WorkContinuationImpl workContinuation) {
-        List<WorkContinuationImpl> parents = workContinuation.getParents();
-        Set<String> prerequisiteIds = new HashSet<>();
-        if (parents != null) {
-            for (WorkContinuationImpl parent : parents) {
-                prerequisiteIds.addAll(parent.getIds());
-            }
-        }
+        Set<String> prerequisiteIds = WorkContinuationImpl.prerequisitesFor(workContinuation);
 
         boolean needsScheduling = enqueueWorkWithPrerequisites(
                 workContinuation.getWorkManagerImpl(),

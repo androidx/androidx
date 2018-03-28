@@ -37,7 +37,9 @@ import androidx.work.impl.workers.JoinWorker;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A concrete implementation of {@link WorkContinuation}.
@@ -215,5 +217,75 @@ public class WorkContinuationImpl extends WorkContinuation
                 ExistingWorkPolicy.KEEP,
                 Collections.singletonList(work),
                 parents);
+    }
+
+    /**
+     * @return {@code true} If there are cycles in the {@link WorkContinuationImpl}.
+
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean hasCycles() {
+        return hasCycles(this, new HashSet<String>());
+    }
+
+    /**
+     * @param continuation The {@link WorkContinuationImpl} instance.
+     * @param visited      The {@link Set} of {@link androidx.work.impl.model.WorkSpec} ids
+     *                     marked as visited.
+     * @return {@code true} if the {@link WorkContinuationImpl} has a cycle.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    private static boolean hasCycles(
+            @NonNull WorkContinuationImpl continuation,
+            @NonNull Set<String> visited) {
+
+        // mark the ids of this workContinuation as visited
+        // before we check if the parents have cycles.
+        visited.addAll(continuation.getIds());
+
+        Set<String> prerequisiteIds = prerequisitesFor(continuation);
+        for (String id : visited) {
+            if (prerequisiteIds.contains(id)) {
+                // This prerequisite has already been visited before.
+                // There is a cycle.
+                return true;
+            }
+        }
+
+        List<WorkContinuationImpl> parents = continuation.getParents();
+        if (parents != null && !parents.isEmpty()) {
+            for (WorkContinuationImpl parent : parents) {
+                // if any of the parent has a cycle, then bail out
+                if (hasCycles(parent, visited)) {
+                    return true;
+                }
+            }
+        }
+
+        // Un-mark the ids of the workContinuation as visited for the next parent.
+        // This is because we don't want to change the state of visited ids for subsequent parents
+        // This is being done to avoid allocations. Ideally we would check for a
+        // hasCycles(parent, new HashSet<>(visited)) instead.
+        visited.removeAll(continuation.getIds());
+        return false;
+    }
+
+    /**
+     * @return the {@link Set} of pre-requisites for a given {@link WorkContinuationImpl}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static Set<String> prerequisitesFor(WorkContinuationImpl continuation) {
+        Set<String> preRequisites = new HashSet<>();
+        List<WorkContinuationImpl> parents = continuation.getParents();
+        if (parents != null && !parents.isEmpty()) {
+            for (WorkContinuationImpl parent : parents) {
+                preRequisites.addAll(parent.getIds());
+            }
+        }
+        return preRequisites;
     }
 }

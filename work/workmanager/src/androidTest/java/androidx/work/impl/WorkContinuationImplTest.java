@@ -297,6 +297,157 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         assertThat(Arrays.asList(output.getStringArray(stringTag)), contains("hello"));
     }
 
+    @Test
+    @SmallTest
+    public void testContinuation_hasCycles() throws InterruptedException {
+        Work aWork = createTestWorker(); // A
+        Work bWork = createTestWorker(); // B
+        Work cWork = createTestWorker(); // C
+
+        WorkContinuation continuationA = new WorkContinuationImpl(
+                mWorkManagerImpl, Collections.singletonList(aWork));
+
+        WorkContinuation continuationB = new WorkContinuationImpl(
+                mWorkManagerImpl, Collections.singletonList(bWork));
+
+        // B -> C
+        WorkContinuation continuationBC = continuationB.then(cWork);
+
+        // join -> A, C
+        WorkContinuation join = WorkContinuation.join(continuationA, continuationBC);
+
+        // withCycles -> B
+        WorkContinuationImpl withCycles = (WorkContinuationImpl) join.then(bWork);
+        assertThat(withCycles.hasCycles(), is(true));
+    }
+
+    @Test
+    @SmallTest
+    public void testContinuation_hasCycles2() throws InterruptedException {
+        Work aWork = createTestWorker(); // A
+        WorkContinuation continuationA = new WorkContinuationImpl(
+                mWorkManagerImpl, Collections.singletonList(aWork));
+
+        // A -> A
+        WorkContinuationImpl withCycles = (WorkContinuationImpl) continuationA.then(aWork);
+        assertThat(withCycles.hasCycles(), is(true));
+    }
+
+    @Test
+    @SmallTest
+    public void testContinuation_hasCycles3() throws InterruptedException {
+        Work aWork = createTestWorker(); // A
+        WorkContinuation continuationA = new WorkContinuationImpl(
+                mWorkManagerImpl, Collections.singletonList(aWork));
+
+        // A -> A
+        WorkContinuation first = continuationA.then(aWork);
+        // A -> A
+        WorkContinuation second = continuationA.then(aWork);
+        //   A
+        //  A A
+        //   A
+        WorkContinuationImpl joined = (WorkContinuationImpl) WorkContinuation.join(first, second);
+        assertThat(joined.hasCycles(), is(true));
+    }
+
+    @Test
+    @SmallTest
+    public void testContinuation_hasCycles4() throws InterruptedException {
+        Work aWork = createTestWorker(); // A
+        Work cWork = createTestWorker(); // C
+
+        WorkContinuation continuationA = new WorkContinuationImpl(
+                mWorkManagerImpl, Collections.singletonList(aWork));
+
+        // A   A
+        //   B
+        WorkContinuation continuationB = WorkContinuation.join(continuationA, continuationA);
+        // A   A
+        //   B
+        //   C
+        WorkContinuation continuationC = continuationB.then(cWork);
+        // A   A
+        //   B
+        //   C
+        //   A
+        WorkContinuationImpl withCycles = (WorkContinuationImpl) continuationC.then(aWork);
+        assertThat(withCycles.hasCycles(), is(true));
+    }
+
+    @Test
+    @SmallTest
+    public void testContinuation_hasNoCycles() throws InterruptedException {
+        Work aWork = createTestWorker(); // A
+        Work bWork = createTestWorker(); // B
+        Work cWork = createTestWorker(); // C
+
+        WorkContinuation continuationAB = new WorkContinuationImpl(
+                mWorkManagerImpl, Arrays.asList(aWork, bWork));
+
+        WorkContinuation continuationBC = new WorkContinuationImpl(
+                mWorkManagerImpl, Arrays.asList(bWork, cWork));
+
+        WorkContinuationImpl joined =
+                (WorkContinuationImpl) WorkContinuation.join(continuationAB, continuationBC);
+
+        assertThat(joined.hasCycles(), is(false));
+    }
+
+    @Test
+    @SmallTest
+    public void testContinuation_hasNoCycles2() throws InterruptedException {
+        Work aWork = createTestWorker(); // A
+        Work bWork = createTestWorker(); // B
+        Work cWork = createTestWorker(); // C
+
+        WorkContinuation continuationA = new WorkContinuationImpl(
+                mWorkManagerImpl, Collections.singletonList(aWork));
+
+        // A -> B
+        WorkContinuation continuationB = continuationA.then(bWork);
+        // A -> C
+        WorkContinuation continuationC = continuationA.then(cWork);
+
+        WorkContinuation continuationA2 = new WorkContinuationImpl(
+                mWorkManagerImpl, Collections.singletonList(aWork));
+        // A -> B
+        WorkContinuation continuationB2 = continuationA2.then(bWork);
+        // A -> C
+        WorkContinuation continuationC2 = continuationA2.then(cWork);
+
+        //    A      A
+        //  B   C  B   C
+        //       D
+        WorkContinuationImpl joined = (WorkContinuationImpl)
+                WorkContinuation.join(continuationB, continuationC, continuationB2, continuationC2);
+
+        assertThat(joined.hasCycles(), is(false));
+    }
+
+    @Test
+    @SmallTest
+    public void testContinuation_hasNoCycles3() throws InterruptedException {
+        Work aWork = createTestWorker(); // A
+        Work bWork = createTestWorker(); // B
+        Work cWork = createTestWorker(); // C
+
+        WorkContinuation continuationA = new WorkContinuationImpl(
+                mWorkManagerImpl, Collections.singletonList(aWork));
+
+        WorkContinuation continuationB = new WorkContinuationImpl(
+                mWorkManagerImpl, Collections.singletonList(bWork));
+
+        WorkContinuation continuationC = new WorkContinuationImpl(
+                mWorkManagerImpl, Collections.singletonList(cWork));
+
+        WorkContinuation first = WorkContinuation.join(continuationA, continuationB);
+        WorkContinuation second = WorkContinuation.join(continuationA, continuationC);
+
+        WorkContinuationImpl joined = (WorkContinuationImpl) WorkContinuation.join(first, second);
+        assertThat(joined.hasCycles(), is(false));
+    }
+
     private void verifyEnqueued(WorkContinuationImpl continuation) {
         assertThat(continuation.isEnqueued(), is(true));
         List<WorkContinuationImpl> parents = continuation.getParents();
