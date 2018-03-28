@@ -16,8 +16,8 @@
 
 package android.support.tools.jetifier.processor.transform
 
+import android.support.tools.jetifier.core.rule.RewriteRule
 import android.support.tools.jetifier.core.type.JavaType
-import android.support.tools.jetifier.core.RewriteRule
 import com.google.common.truth.Truth
 import org.junit.Test
 

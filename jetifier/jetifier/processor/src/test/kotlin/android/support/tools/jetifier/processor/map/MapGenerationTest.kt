@@ -16,9 +16,10 @@
 
 package android.support.tools.jetifier.processor.map
 
-import android.support.tools.jetifier.core.RewriteRule
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.proguard.ProGuardTypesMap
+import android.support.tools.jetifier.core.rule.RewriteRule
+import android.support.tools.jetifier.core.rule.RewriteRulesMap
 import android.support.tools.jetifier.core.type.JavaType
 import android.support.tools.jetifier.core.type.TypesMap
 import android.support.tools.jetifier.processor.type.MapGeneratorRemapper
@@ -138,13 +139,13 @@ class MapGenerationTest {
 
     object ScanTester {
 
-        fun testThatRules(vararg rules: RewriteRule) = Step1(rules.toList())
+        fun testThatRules(vararg rules: RewriteRule) = Step1(rules.toSet())
 
-        class Step1(private val rules: List<RewriteRule>) {
+        class Step1(private val rules: Set<RewriteRule>) {
 
-            fun withAllowedPrefixes(vararg prefixes: String) = Step2(rules, prefixes.toList())
+            fun withAllowedPrefixes(vararg prefixes: String) = Step2(rules, prefixes.toSet())
 
-            class Step2(private val rules: List<RewriteRule>, private val prefixes: List<String>) {
+            class Step2(private val rules: Set<RewriteRule>, private val prefixes: Set<String>) {
 
                 private val allTypes: MutableList<JavaType> = mutableListOf()
                 private var wasMapIncomplete = false
@@ -157,8 +158,8 @@ class MapGenerationTest {
                 fun mapInto(types: Map<String, String>): Step2 {
                     val config = Config(
                         restrictToPackagePrefixes = prefixes,
-                        rewriteRules = rules,
-                        slRules = emptyList(),
+                        rulesMap = RewriteRulesMap(rules),
+                        slRules = emptySet(),
                         pomRewriteRules = emptySet(),
                         typesMap = TypesMap.EMPTY,
                         proGuardMap = ProGuardTypesMap.EMPTY)
