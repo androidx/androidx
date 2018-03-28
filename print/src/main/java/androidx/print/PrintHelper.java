@@ -248,14 +248,10 @@ public final class PrintHelper {
      */
     public void printBitmap(@NonNull final String jobName, @NonNull final Bitmap bitmap,
             @Nullable final OnPrintFinishCallback callback) {
-        if (Build.VERSION.SDK_INT < 19) {
-            return;
-        }
-        if (bitmap == null) {
+        if (Build.VERSION.SDK_INT < 19 || bitmap == null) {
             return;
         }
 
-        final int fittingMode = mScaleMode; // grab the fitting mode at time of call
         PrintManager printManager =
                 (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
         PrintAttributes.MediaSize mediaSize;
@@ -270,42 +266,57 @@ public final class PrintHelper {
                 .build();
 
         printManager.print(jobName,
-                new PrintDocumentAdapter() {
-                    private PrintAttributes mAttributes;
+                new PrintBitmapAdapter(jobName, mScaleMode, bitmap, callback), attr);
+    }
 
-                    @Override
-                    public void onLayout(PrintAttributes oldPrintAttributes,
-                            PrintAttributes newPrintAttributes,
-                            CancellationSignal cancellationSignal,
-                            LayoutResultCallback layoutResultCallback,
-                            Bundle bundle) {
+    @RequiresApi(19)
+    private class PrintBitmapAdapter extends PrintDocumentAdapter {
+        private final String mJobName;
+        private final int mFittingMode;
+        private final Bitmap mBitmap;
+        private final OnPrintFinishCallback mCallback;
+        private PrintAttributes mAttributes;
 
-                        mAttributes = newPrintAttributes;
+        PrintBitmapAdapter(String jobName, int fittingMode, Bitmap bitmap,
+                OnPrintFinishCallback callback) {
+            mJobName = jobName;
+            mFittingMode = fittingMode;
+            mBitmap = bitmap;
+            mCallback = callback;
+        }
 
-                        PrintDocumentInfo info = new PrintDocumentInfo.Builder(jobName)
-                                .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)
-                                .setPageCount(1)
-                                .build();
-                        boolean changed = !newPrintAttributes.equals(oldPrintAttributes);
-                        layoutResultCallback.onLayoutFinished(info, changed);
-                    }
+        @Override
+        public void onLayout(PrintAttributes oldPrintAttributes,
+                PrintAttributes newPrintAttributes,
+                CancellationSignal cancellationSignal,
+                LayoutResultCallback layoutResultCallback,
+                Bundle bundle) {
 
-                    @Override
-                    public void onWrite(PageRange[] pageRanges,
-                            ParcelFileDescriptor fileDescriptor,
-                            CancellationSignal cancellationSignal,
-                            WriteResultCallback writeResultCallback) {
-                        writeBitmap(mAttributes, fittingMode, bitmap, fileDescriptor,
-                                cancellationSignal, writeResultCallback);
-                    }
+            mAttributes = newPrintAttributes;
 
-                    @Override
-                    public void onFinish() {
-                        if (callback != null) {
-                            callback.onFinish();
-                        }
-                    }
-                }, attr);
+            PrintDocumentInfo info = new PrintDocumentInfo.Builder(mJobName)
+                    .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)
+                    .setPageCount(1)
+                    .build();
+            boolean changed = !newPrintAttributes.equals(oldPrintAttributes);
+            layoutResultCallback.onLayoutFinished(info, changed);
+        }
+
+        @Override
+        public void onWrite(PageRange[] pageRanges,
+                ParcelFileDescriptor fileDescriptor,
+                CancellationSignal cancellationSignal,
+                WriteResultCallback writeResultCallback) {
+            writeBitmap(mAttributes, mFittingMode, mBitmap, fileDescriptor,
+                    cancellationSignal, writeResultCallback);
+        }
+
+        @Override
+        public void onFinish() {
+            if (mCallback != null) {
+                mCallback.onFinish();
+            }
+        }
     }
 
     /**
@@ -339,148 +350,8 @@ public final class PrintHelper {
             return;
         }
 
-        final int fittingMode = mScaleMode;
-
-        PrintDocumentAdapter printDocumentAdapter = new PrintDocumentAdapter() {
-            private PrintAttributes mAttributes;
-            AsyncTask<Uri, Boolean, Bitmap> mLoadBitmap;
-            Bitmap mBitmap = null;
-
-            @Override
-            public void onLayout(final PrintAttributes oldPrintAttributes,
-                    final PrintAttributes newPrintAttributes,
-                    final CancellationSignal cancellationSignal,
-                    final LayoutResultCallback layoutResultCallback,
-                    Bundle bundle) {
-
-                synchronized (this) {
-                    mAttributes = newPrintAttributes;
-                }
-
-                if (cancellationSignal.isCanceled()) {
-                    layoutResultCallback.onLayoutCancelled();
-                    return;
-                }
-                // we finished the load
-                if (mBitmap != null) {
-                    PrintDocumentInfo info = new PrintDocumentInfo.Builder(jobName)
-                            .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)
-                            .setPageCount(1)
-                            .build();
-                    boolean changed = !newPrintAttributes.equals(oldPrintAttributes);
-                    layoutResultCallback.onLayoutFinished(info, changed);
-                    return;
-                }
-
-                mLoadBitmap = new AsyncTask<Uri, Boolean, Bitmap>() {
-                    @Override
-                    protected void onPreExecute() {
-                        // First register for cancellation requests.
-                        cancellationSignal.setOnCancelListener(
-                                new CancellationSignal.OnCancelListener() {
-                                    @Override
-                                    public void onCancel() { // on different thread
-                                        cancelLoad();
-                                        cancel(false);
-                                    }
-                                });
-                    }
-
-                    @Override
-                    protected Bitmap doInBackground(Uri... uris) {
-                        try {
-                            return loadConstrainedBitmap(imageFile);
-                        } catch (FileNotFoundException e) {
-                          /* ignore */
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    protected void onPostExecute(Bitmap bitmap) {
-                        super.onPostExecute(bitmap);
-
-                        // If orientation was not set by the caller, try to fit the bitmap on
-                        // the current paper by potentially rotating the bitmap by 90 degrees.
-                        if (bitmap != null
-                                && (!PRINT_ACTIVITY_RESPECTS_ORIENTATION || mOrientation == 0)) {
-                            PrintAttributes.MediaSize mediaSize;
-
-                            synchronized (this) {
-                                mediaSize = mAttributes.getMediaSize();
-                            }
-
-                            if (mediaSize != null) {
-                                if (mediaSize.isPortrait() != isPortrait(bitmap)) {
-                                    Matrix rotation = new Matrix();
-
-                                    rotation.postRotate(90);
-                                    bitmap = Bitmap.createBitmap(bitmap, 0, 0,
-                                            bitmap.getWidth(), bitmap.getHeight(), rotation,
-                                            true);
-                                }
-                            }
-                        }
-
-                        mBitmap = bitmap;
-                        if (bitmap != null) {
-                            PrintDocumentInfo info = new PrintDocumentInfo.Builder(jobName)
-                                    .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)
-                                    .setPageCount(1)
-                                    .build();
-
-                            boolean changed = !newPrintAttributes.equals(oldPrintAttributes);
-
-                            layoutResultCallback.onLayoutFinished(info, changed);
-
-                        } else {
-                            layoutResultCallback.onLayoutFailed(null);
-                        }
-                        mLoadBitmap = null;
-                    }
-
-                    @Override
-                    protected void onCancelled(Bitmap result) {
-                        // Task was cancelled, report that.
-                        layoutResultCallback.onLayoutCancelled();
-                        mLoadBitmap = null;
-                    }
-                }.execute();
-            }
-
-            private void cancelLoad() {
-                synchronized (mLock) { // prevent race with set null below
-                    if (mDecodeOptions != null) {
-                        mDecodeOptions.requestCancelDecode();
-                        mDecodeOptions = null;
-                    }
-                }
-            }
-
-            @Override
-            public void onFinish() {
-                super.onFinish();
-                cancelLoad();
-                if (mLoadBitmap != null) {
-                    mLoadBitmap.cancel(true);
-                }
-                if (callback != null) {
-                    callback.onFinish();
-                }
-                if (mBitmap != null) {
-                    mBitmap.recycle();
-                    mBitmap = null;
-                }
-            }
-
-            @Override
-            public void onWrite(PageRange[] pageRanges, ParcelFileDescriptor fileDescriptor,
-                    CancellationSignal cancellationSignal,
-                    WriteResultCallback writeResultCallback) {
-                writeBitmap(mAttributes, fittingMode, mBitmap, fileDescriptor,
-                        cancellationSignal, writeResultCallback);
-            }
-        };
+        PrintDocumentAdapter printDocumentAdapter = new PrintUriAdapter(jobName, imageFile,
+                callback, mScaleMode);
 
         PrintManager printManager =
                 (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
@@ -495,6 +366,161 @@ public final class PrintHelper {
         PrintAttributes attr = builder.build();
 
         printManager.print(jobName, printDocumentAdapter, attr);
+    }
+
+    @RequiresApi(19)
+    private class PrintUriAdapter extends PrintDocumentAdapter {
+        private final String mJobName;
+        private final Uri mImageFile;
+        private final OnPrintFinishCallback mCallback;
+        private final int mFittingMode;
+        private PrintAttributes mAttributes;
+        AsyncTask<Uri, Boolean, Bitmap> mLoadBitmap;
+        Bitmap mBitmap;
+
+        PrintUriAdapter(String jobName, Uri imageFile, OnPrintFinishCallback callback,
+                int fittingMode) {
+            mJobName = jobName;
+            mImageFile = imageFile;
+            mCallback = callback;
+            mFittingMode = fittingMode;
+            mBitmap = null;
+        }
+
+        @Override
+        public void onLayout(final PrintAttributes oldPrintAttributes,
+                final PrintAttributes newPrintAttributes,
+                final CancellationSignal cancellationSignal,
+                final LayoutResultCallback layoutResultCallback,
+                Bundle bundle) {
+
+            synchronized (this) {
+                mAttributes = newPrintAttributes;
+            }
+
+            if (cancellationSignal.isCanceled()) {
+                layoutResultCallback.onLayoutCancelled();
+                return;
+            }
+            // we finished the load
+            if (mBitmap != null) {
+                PrintDocumentInfo info = new PrintDocumentInfo.Builder(mJobName)
+                        .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)
+                        .setPageCount(1)
+                        .build();
+                boolean changed = !newPrintAttributes.equals(oldPrintAttributes);
+                layoutResultCallback.onLayoutFinished(info, changed);
+                return;
+            }
+
+            mLoadBitmap = new AsyncTask<Uri, Boolean, Bitmap>() {
+                @Override
+                protected void onPreExecute() {
+                    // First register for cancellation requests.
+                    cancellationSignal.setOnCancelListener(
+                            new CancellationSignal.OnCancelListener() {
+                                @Override
+                                public void onCancel() { // on different thread
+                                    cancelLoad();
+                                    cancel(false);
+                                }
+                            });
+                }
+
+                @Override
+                protected Bitmap doInBackground(Uri... uris) {
+                    try {
+                        return loadConstrainedBitmap(mImageFile);
+                    } catch (FileNotFoundException e) {
+                        /* ignore */
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Bitmap bitmap) {
+                    super.onPostExecute(bitmap);
+
+                    // If orientation was not set by the caller, try to fit the bitmap on
+                    // the current paper by potentially rotating the bitmap by 90 degrees.
+                    if (bitmap != null
+                            && (!PRINT_ACTIVITY_RESPECTS_ORIENTATION || mOrientation == 0)) {
+                        PrintAttributes.MediaSize mediaSize;
+
+                        synchronized (this) {
+                            mediaSize = mAttributes.getMediaSize();
+                        }
+
+                        if (mediaSize != null) {
+                            if (mediaSize.isPortrait() != isPortrait(bitmap)) {
+                                Matrix rotation = new Matrix();
+
+                                rotation.postRotate(90);
+                                bitmap = Bitmap.createBitmap(bitmap, 0, 0,
+                                        bitmap.getWidth(), bitmap.getHeight(), rotation,
+                                        true);
+                            }
+                        }
+                    }
+
+                    mBitmap = bitmap;
+                    if (bitmap != null) {
+                        PrintDocumentInfo info = new PrintDocumentInfo.Builder(mJobName)
+                                .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)
+                                .setPageCount(1)
+                                .build();
+
+                        boolean changed = !newPrintAttributes.equals(oldPrintAttributes);
+
+                        layoutResultCallback.onLayoutFinished(info, changed);
+
+                    } else {
+                        layoutResultCallback.onLayoutFailed(null);
+                    }
+                    mLoadBitmap = null;
+                }
+
+                @Override
+                protected void onCancelled(Bitmap result) {
+                    // Task was cancelled, report that.
+                    layoutResultCallback.onLayoutCancelled();
+                    mLoadBitmap = null;
+                }
+            }.execute();
+        }
+
+        private void cancelLoad() {
+            synchronized (mLock) { // prevent race with set null below
+                if (mDecodeOptions != null) {
+                    mDecodeOptions.requestCancelDecode();
+                    mDecodeOptions = null;
+                }
+            }
+        }
+
+        @Override
+        public void onFinish() {
+            super.onFinish();
+            cancelLoad();
+            if (mLoadBitmap != null) {
+                mLoadBitmap.cancel(true);
+            }
+            if (mCallback != null) {
+                mCallback.onFinish();
+            }
+            if (mBitmap != null) {
+                mBitmap.recycle();
+                mBitmap = null;
+            }
+        }
+
+        @Override
+        public void onWrite(PageRange[] pageRanges, ParcelFileDescriptor fileDescriptor,
+                CancellationSignal cancellationSignal,
+                WriteResultCallback writeResultCallback) {
+            writeBitmap(mAttributes, mFittingMode, mBitmap, fileDescriptor,
+                    cancellationSignal, writeResultCallback);
+        }
     }
 
     /**
