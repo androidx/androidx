@@ -85,8 +85,6 @@ class SliceManagerWrapper extends SliceManagerBase {
     @Nullable
     @Override
     public Uri mapIntentToUri(@NonNull Intent intent) {
-        // TODO: Switch over to mapIntentToUri once it lands in prebuilt.
-        Slice slice = bindSlice(intent);
-        return slice != null ? slice.getUri() : null;
+        return mManager.mapIntentToUri(intent);
     }
 }
