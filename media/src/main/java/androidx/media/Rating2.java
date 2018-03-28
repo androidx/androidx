@@ -19,10 +19,12 @@ package androidx.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.ObjectsCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -95,49 +97,51 @@ public final class Rating2 {
      */
     public static final int RATING_PERCENTAGE = 6;
 
-    //private final Rating2Provider mProvider;
+    private static final String TAG = "Rating2";
 
-//    /**
-//     * @hide
-//     */
-//    public Rating2(@NonNull Rating2Provider provider) {
-//        mProvider = provider;
-//    }
+    private static final float RATING_NOT_RATED = -1.0f;
+    private static final String KEY_STYLE = "android.media.rating2.style";
+    private static final String KEY_VALUE = "android.media.rating2.value";
+
+    private final int mRatingStyle;
+    private final float mRatingValue;
+
+    private Rating2(@Style int ratingStyle, float rating) {
+        mRatingStyle = ratingStyle;
+        mRatingValue = rating;
+    }
 
     @Override
     public String toString() {
-        //return mProvider.toString_impl();
-        return null;
+        return "Rating2:style=" + mRatingStyle + " rating="
+                + (mRatingValue < 0.0f ? "unrated" : String.valueOf(mRatingValue));
     }
-
-//    /**
-//     * @hide
-//     */
-//    public Rating2Provider getProvider() {
-//        return mProvider;
-//    }
 
     @Override
     public boolean equals(Object obj) {
-        //return mProvider.equals_impl(obj);
-        return false;
+        if (!(obj instanceof Rating2)) {
+            return false;
+        }
+        Rating2 other = (Rating2) obj;
+        return mRatingStyle == other.mRatingStyle && mRatingValue == other.mRatingValue;
     }
 
     @Override
     public int hashCode() {
-        //return mProvider.hashCode_impl();
-        return 0;
+        return ObjectsCompat.hash(mRatingStyle, mRatingValue);
     }
 
     /**
-     * Create an instance from bundle object, previoulsy created by {@link #toBundle()}
+     * Create an instance from bundle object, previously created by {@link #toBundle()}
      *
      * @param bundle bundle
      * @return new Rating2 instance or {@code null} for error
      */
     public static Rating2 fromBundle(@Nullable Bundle bundle) {
-        //return ApiLoader.getProvider().fromBundle_Rating2(context, bundle);
-        return null;
+        if (bundle == null) {
+            return null;
+        }
+        return new Rating2(bundle.getInt(KEY_STYLE), bundle.getFloat(KEY_VALUE));
     }
 
     /**
@@ -145,8 +149,10 @@ public final class Rating2 {
      * @return bundle of this object
      */
     public Bundle toBundle() {
-        //return mProvider.toBundle_impl();
-        return null;
+        Bundle bundle = new Bundle();
+        bundle.putInt(KEY_STYLE, mRatingStyle);
+        bundle.putFloat(KEY_VALUE, mRatingValue);
+        return bundle;
     }
 
     /**
@@ -160,8 +166,17 @@ public final class Rating2 {
      * @return null if an invalid rating style is passed, a new Rating2 instance otherwise.
      */
     public static @Nullable Rating2 newUnratedRating(@Style int ratingStyle) {
-        //return ApiLoader.getProvider().newUnratedRating_Rating2(context, ratingStyle);
-        return null;
+        switch(ratingStyle) {
+            case RATING_HEART:
+            case RATING_THUMB_UP_DOWN:
+            case RATING_3_STARS:
+            case RATING_4_STARS:
+            case RATING_5_STARS:
+            case RATING_PERCENTAGE:
+                return new Rating2(ratingStyle, RATING_NOT_RATED);
+            default:
+                return null;
+        }
     }
 
     /**
@@ -173,8 +188,7 @@ public final class Rating2 {
      * @return a new Rating2 instance.
      */
     public static @Nullable Rating2 newHeartRating(boolean hasHeart) {
-        //return ApiLoader.getProvider().newHeartRating_Rating2(context, hasHeart);
-        return null;
+        return new Rating2(RATING_HEART, hasHeart ? 1.0f : 0.0f);
     }
 
     /**
@@ -186,8 +200,7 @@ public final class Rating2 {
      * @return a new Rating2 instance.
      */
     public static @Nullable Rating2 newThumbRating(boolean thumbIsUp) {
-        //return ApiLoader.getProvider().newThumbRating_Rating2(context, thumbIsUp);
-        return null;
+        return new Rating2(RATING_THUMB_UP_DOWN, thumbIsUp ? 1.0f : 0.0f);
     }
 
     /**
@@ -205,9 +218,26 @@ public final class Rating2 {
      */
     public static @Nullable Rating2 newStarRating(@StarStyle int starRatingStyle,
             float starRating) {
-//        return ApiLoader.getProvider().newStarRating_Rating2(
-//                context, starRatingStyle, starRating);
-        return null;
+        float maxRating;
+        switch(starRatingStyle) {
+            case RATING_3_STARS:
+                maxRating = 3.0f;
+                break;
+            case RATING_4_STARS:
+                maxRating = 4.0f;
+                break;
+            case RATING_5_STARS:
+                maxRating = 5.0f;
+                break;
+            default:
+                Log.e(TAG, "Invalid rating style (" + starRatingStyle + ") for a star rating");
+                return null;
+        }
+        if ((starRating < 0.0f) || (starRating > maxRating)) {
+            Log.e(TAG, "Trying to set out of range star-based rating");
+            return null;
+        }
+        return new Rating2(starRatingStyle, starRating);
     }
 
     /**
@@ -219,8 +249,12 @@ public final class Rating2 {
      * @return null if the rating is out of range, a new Rating2 instance otherwise.
      */
     public static @Nullable Rating2 newPercentageRating(float percent) {
-        //return ApiLoader.getProvider().newPercentageRating_Rating2(context, percent);
-        return null;
+        if ((percent < 0.0f) || (percent > 100.0f)) {
+            Log.e(TAG, "Invalid percentage-based rating value");
+            return null;
+        } else {
+            return new Rating2(RATING_PERCENTAGE, percent);
+        }
     }
 
     /**
@@ -228,8 +262,7 @@ public final class Rating2 {
      * @return true if the instance was not created with {@link #newUnratedRating(int)}.
      */
     public boolean isRated() {
-        //return mProvider.isRated_impl();
-        return false;
+        return mRatingValue >= 0.0f;
     }
 
     /**
@@ -239,8 +272,7 @@ public final class Rating2 {
      *    or {@link #RATING_PERCENTAGE}.
      */
     public @Style int getRatingStyle() {
-        //return mProvider.getRatingStyle_impl();
-        return 0;
+        return mRatingStyle;
     }
 
     /**
@@ -249,8 +281,7 @@ public final class Rating2 {
      *    if the rating style is not {@link #RATING_HEART} or if it is unrated.
      */
     public boolean hasHeart() {
-        //return mProvider.hasHeart_impl();
-        return false;
+        return mRatingStyle == RATING_HEART && mRatingValue == 1.0f;
     }
 
     /**
@@ -259,8 +290,7 @@ public final class Rating2 {
      *    if the rating style is not {@link #RATING_THUMB_UP_DOWN} or if it is unrated.
      */
     public boolean isThumbUp() {
-        //return mProvider.isThumbUp_impl();
-        return false;
+        return mRatingStyle == RATING_THUMB_UP_DOWN && mRatingValue == 1.0f;
     }
 
     /**
@@ -269,8 +299,17 @@ public final class Rating2 {
      *    not star-based, or if it is unrated.
      */
     public float getStarRating() {
-        //return mProvider.getStarRating_impl();
-        return 0f;
+        switch (mRatingStyle) {
+            case RATING_3_STARS:
+            case RATING_4_STARS:
+            case RATING_5_STARS:
+                if (isRated()) {
+                    return mRatingValue;
+                }
+            // Fall through
+            default:
+                return -1.0f;
+        }
     }
 
     /**
@@ -279,7 +318,10 @@ public final class Rating2 {
      *    not percentage-based, or if it is unrated.
      */
     public float getPercentRating() {
-        //return mProvider.getPercentRating_impl();
-        return 0f;
+        if ((mRatingStyle != RATING_PERCENTAGE) || !isRated()) {
+            return -1.0f;
+        } else {
+            return mRatingValue;
+        }
     }
 }
