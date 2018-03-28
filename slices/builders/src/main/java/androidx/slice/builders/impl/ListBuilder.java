@@ -156,6 +156,16 @@ public interface ListBuilder {
         void setTitle(@NonNull CharSequence title);
 
         /**
+         * Set the subtitle.
+         */
+        void setSubtitle(@NonNull CharSequence title);
+
+        /**
+         * Set the primary action.
+         */
+        void setPrimaryAction(@NonNull SliceAction action);
+
+        /**
          * Sets the content description.
          */
         void setContentDescription(CharSequence description);
@@ -168,7 +178,7 @@ public interface ListBuilder {
         /**
          * Set the {@link PendingIntent} to send when the value changes.
          */
-        void setAction(@NonNull PendingIntent action);
+        void setInputAction(@NonNull PendingIntent action);
 
         /**
          * Set the {@link IconCompat} to be displayed as the thumb on the input range.
