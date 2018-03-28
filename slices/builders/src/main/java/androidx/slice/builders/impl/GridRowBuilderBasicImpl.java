@@ -65,13 +65,13 @@ public class GridRowBuilderBasicImpl extends TemplateBuilderImpl implements Grid
     /**
      */
     @Override
-    public void addSeeMoreCell(TemplateBuilderImpl impl) {
+    public void setSeeMoreCell(TemplateBuilderImpl impl) {
     }
 
     /**
      */
     @Override
-    public void addSeeMoreAction(PendingIntent intent) {
+    public void setSeeMoreAction(PendingIntent intent) {
     }
 
     /**

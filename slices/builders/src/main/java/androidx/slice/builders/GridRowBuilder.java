@@ -93,12 +93,12 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      * </p>
      */
     @NonNull
-    public GridRowBuilder addSeeMoreCell(@NonNull CellBuilder builder) {
+    public GridRowBuilder setSeeMoreCell(@NonNull CellBuilder builder) {
         if (mHasSeeMore) {
             throw new IllegalStateException("Trying to add see more cell when one has "
                     + "already been added");
         }
-        mImpl.addSeeMoreCell((TemplateBuilderImpl) builder.mImpl);
+        mImpl.setSeeMoreCell((TemplateBuilderImpl) builder.mImpl);
         mHasSeeMore = true;
         return this;
     }
@@ -120,6 +120,81 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      */
     @RequiresApi(Build.VERSION_CODES.N)
     @NonNull
+    public GridRowBuilder setSeeMoreCell(@NonNull Consumer<CellBuilder> c) {
+        CellBuilder b = new CellBuilder(this);
+        c.accept(b);
+        return setSeeMoreCell(b);
+    }
+
+    /**
+     * If all content in a slice cannot be shown, a "see more" affordance may be displayed where
+     * the content is cut off. The action added here should take the user to an activity to see
+     * all of the content, and will be invoked when the "see more" affordance is tapped.
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    @NonNull
+    public GridRowBuilder setSeeMoreAction(@NonNull PendingIntent intent) {
+        if (mHasSeeMore) {
+            throw new IllegalStateException("Trying to add see more action when one has "
+                    + "already been added");
+        }
+        mImpl.setSeeMoreAction(intent);
+        mHasSeeMore = true;
+        return this;
+    }
+
+    /**
+     * If all content in a slice cannot be shown, the cell added here may be displayed where the
+     * content is cut off.
+     * <p>
+     * This method should only be used if you want to display a custom cell to indicate more
+     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
+     * choose to specify a custom cell, the cell should have
+     * {@link CellBuilder#setContentIntent(PendingIntent)} specified to take the user to an
+     * activity to see all of the content.
+     * </p>
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     *
+     * @deprecated TO BE REMOVED
+     */
+    @NonNull
+    @Deprecated
+    public GridRowBuilder addSeeMoreCell(@NonNull CellBuilder builder) {
+        if (mHasSeeMore) {
+            throw new IllegalStateException("Trying to add see more cell when one has "
+                    + "already been added");
+        }
+        mImpl.setSeeMoreCell((TemplateBuilderImpl) builder.mImpl);
+        mHasSeeMore = true;
+        return this;
+    }
+
+    /**
+     * If all content in a slice cannot be shown, the cell added here may be displayed where the
+     * content is cut off.
+     * <p>
+     * This method should only be used if you want to display a custom cell to indicate more
+     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
+     * choose to specify a custom cell, the cell should have
+     * {@link CellBuilder#setContentIntent(PendingIntent)} specified to take the user to an
+     * activity to see all of the content.
+     * </p>
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     *
+     * @deprecated TO BE REMOVED
+     */
+    @RequiresApi(Build.VERSION_CODES.N)
+    @NonNull
+    @Deprecated
     public GridRowBuilder addSeeMoreCell(@NonNull Consumer<CellBuilder> c) {
         CellBuilder b = new CellBuilder(this);
         c.accept(b);
@@ -134,14 +209,16 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      * Only one see more affordance can be added, this throws {@link IllegalStateException} if
      * a row or action has been previously added.
      * </p>
+     * @deprecated TO BE REMOVED
      */
+    @Deprecated
     @NonNull
     public GridRowBuilder addSeeMoreAction(@NonNull PendingIntent intent) {
         if (mHasSeeMore) {
             throw new IllegalStateException("Trying to add see more action when one has "
                     + "already been added");
         }
-        mImpl.addSeeMoreAction(intent);
+        mImpl.setSeeMoreAction(intent);
         mHasSeeMore = true;
         return this;
     }

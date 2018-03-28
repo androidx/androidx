@@ -56,7 +56,7 @@ public interface GridRowBuilder {
      * a row or action has been previously added.
      * </p>
      */
-    void addSeeMoreCell(TemplateBuilderImpl impl);
+    void setSeeMoreCell(TemplateBuilderImpl impl);
 
     /**
      * If all content in a slice cannot be shown, a "see more" affordance will be displayed where
@@ -67,7 +67,7 @@ public interface GridRowBuilder {
      * a row or action has been previously added.
      * </p>
      */
-    void addSeeMoreAction(PendingIntent intent);
+    void setSeeMoreAction(PendingIntent intent);
 
     /**
      * Sets the action to be invoked if the user taps on the main content of the template.

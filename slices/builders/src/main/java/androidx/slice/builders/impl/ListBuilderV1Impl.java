@@ -136,7 +136,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     /**
      */
     @Override
-    public void addSeeMoreRow(TemplateBuilderImpl builder) {
+    public void setSeeMoreRow(TemplateBuilderImpl builder) {
         builder.getBuilder().addHints(HINT_SEE_MORE);
         getBuilder().addSubSlice(builder.build());
     }
@@ -144,7 +144,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     /**
      */
     @Override
-    public void addSeeMoreAction(PendingIntent intent) {
+    public void setSeeMoreAction(PendingIntent intent) {
         getBuilder().addSubSlice(
                 new Slice.Builder(getBuilder())
                         .addHints(HINT_SEE_MORE)
