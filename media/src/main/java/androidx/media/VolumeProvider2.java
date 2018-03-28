@@ -67,7 +67,10 @@ public abstract class VolumeProvider2 {
      */
     public static final int VOLUME_CONTROL_ABSOLUTE = 2;
 
-    //private final VolumeProvider2Provider mProvider;
+    private final int mControlType;
+    private final int mMaxVolume;
+    private int mCurrentVolume;
+    private Callback mCallback;
 
     /**
      * Create a new volume provider for handling volume events. You must specify
@@ -78,18 +81,23 @@ public abstract class VolumeProvider2 {
      * @param maxVolume The maximum allowed volume.
      * @param currentVolume The current volume on the output.
      */
-    public VolumeProvider2(@ControlType int controlType,
-            int maxVolume, int currentVolume) {
-//        mProvider = ApiLoader.getProvider().createVolumeProvider2(
-//                context, this, controlType, maxVolume, currentVolume);
+    public VolumeProvider2(@ControlType int controlType, int maxVolume, int currentVolume) {
+        if (controlType != VOLUME_CONTROL_FIXED && controlType != VOLUME_CONTROL_RELATIVE
+                && controlType != VOLUME_CONTROL_ABSOLUTE) {
+            throw new IllegalArgumentException("wrong controlType " + controlType);
+        }
+        if (maxVolume < 0 || currentVolume < 0) {
+            throw new IllegalArgumentException("volume shouldn't be negative"
+                    + ", maxVolume=" + maxVolume + ", currentVolume=" + currentVolume);
+        }
+        if (currentVolume > maxVolume) {
+            throw new IllegalArgumentException("currentVolume shouldn't be greater than maxVolume"
+                    + ", maxVolume=" + maxVolume + ", currentVolume=" + currentVolume);
+        }
+        mControlType = controlType;
+        mMaxVolume = maxVolume;
+        mCurrentVolume = currentVolume;
     }
-
-//    /**
-//     * @hide
-//     */
-//    public VolumeProvider2Provider getProvider() {
-//        return mProvider;
-//    }
 
     /**
      * Get the volume control type that this volume provider uses.
@@ -98,8 +106,7 @@ public abstract class VolumeProvider2 {
      */
     @ControlType
     public final int getControlType() {
-        //return mProvider.getControlType_impl();
-        return VOLUME_CONTROL_FIXED;
+        return mControlType;
     }
 
     /**
@@ -108,8 +115,7 @@ public abstract class VolumeProvider2 {
      * @return The max allowed volume.
      */
     public final int getMaxVolume() {
-        //return mProvider.getMaxVolume_impl();
-        return 0;
+        return mMaxVolume;
     }
 
     /**
@@ -119,8 +125,7 @@ public abstract class VolumeProvider2 {
      * @return The current volume.
      */
     public final int getCurrentVolume() {
-        //return mProvider.getCurrentVolume_impl();
-        return 0;
+        return mCurrentVolume;
     }
 
     /**
@@ -130,7 +135,14 @@ public abstract class VolumeProvider2 {
      * @param currentVolume The current volume on the output.
      */
     public final void setCurrentVolume(int currentVolume) {
-        //mProvider.setCurrentVolume_impl(currentVolume);
+        if (currentVolume < 0) {
+            throw new IllegalArgumentException("currentVolume shouldn't be negative"
+                    + ", currentVolume=" + currentVolume);
+        }
+        mCurrentVolume = currentVolume;
+        if (mCallback != null) {
+            mCallback.onVolumeChanged(this);
+        }
     }
 
     /**
@@ -152,4 +164,25 @@ public abstract class VolumeProvider2 {
      * @param direction The direction to change the volume in.
      */
     public void onAdjustVolume(int direction) { }
+
+    /**
+     * Sets a callback to receive volume changes.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setCallback(Callback callback) {
+        mCallback = callback;
+    }
+
+    /**
+     * Listens for changes to the volume.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract static class Callback {
+        /**
+         * Called when {@link #setCurrentVolume(int)} is called.
+         */
+        public abstract void onVolumeChanged(VolumeProvider2 volumeProvider);
+    }
 }
