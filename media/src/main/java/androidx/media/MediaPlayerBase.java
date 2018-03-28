@@ -113,7 +113,7 @@ public abstract class MediaPlayerBase implements AutoCloseable {
 
     /**
      * Prepares the player for playback.
-     * See {@link PlayerEventCallback#onMediaPrepared(MediaPlayerBase, Object)} for being
+     * See {@link PlayerEventCallback#onMediaPrepared(MediaPlayerBase, DataSourceDesc)} for being
      * notified when the preparation phase completed. During this time, the player may allocate
      * resources required to play, such as audio and video decoders.
      */
@@ -139,35 +139,6 @@ public abstract class MediaPlayerBase implements AutoCloseable {
      * @param pos the new playback position expressed in ms.
      */
     public abstract void seekTo(long pos);
-
-    /**
-     * Fast forwards playback. If playback is already fast forwarding this may increase the rate.
-     * <p>
-     * Default implementation sets the playback speed to the 2.0f
-     * @see #setPlaybackSpeed(float)
-     * @hide
-     */
-    // TODO(jaewan): Unhide (b/74724709)
-    @RestrictTo(LIBRARY_GROUP)
-    public void fastForward() {
-        setPlaybackSpeed(2.0f);
-    }
-
-    /**
-     * Rewinds playback. If playback is already rewinding this may increase the rate.
-     * <p>
-     * Default implementation sets the playback speed to the -1.0f if
-     * {@link #isReversePlaybackSupported()} returns {@code true}.
-     * @see #setPlaybackSpeed(float)
-     * @hide
-     */
-    // TODO(jaewan): Unhide (b/74724709)
-    @RestrictTo(LIBRARY_GROUP)
-    public void rewind() {
-        if (isReversePlaybackSupported()) {
-            setPlaybackSpeed(-1.0f);
-        }
-    }
 
     public static final long UNKNOWN_TIME = -1;
 
@@ -227,26 +198,26 @@ public abstract class MediaPlayerBase implements AutoCloseable {
      * Sets the data source to be played.
      * @param dsd
      */
-    public abstract void setDataSource(@NonNull Object /*DataSourceDesc*/ dsd);
+    public abstract void setDataSource(@NonNull DataSourceDesc dsd);
 
     /**
      * Sets the data source that will be played immediately after the current one is done playing.
      * @param dsd
      */
-    public abstract void setNextDataSource(@NonNull Object /*DataSourceDesc*/ dsd);
+    public abstract void setNextDataSource(@NonNull DataSourceDesc dsd);
 
     /**
      * Sets the list of data sources that will be sequentially played after the current one. Each
      * data source is played immediately after the previous one is done playing.
      * @param dsds
      */
-    public abstract void setNextDataSources(@NonNull List<Object /*DataSourceDesc*/> dsds);
+    public abstract void setNextDataSources(@NonNull List<DataSourceDesc> dsds);
 
     /**
      * Returns the current data source.
      * @return the current data source, or null if none is set, or none available to play.
      */
-    public abstract @Nullable Object /*DataSourceDesc*/ getCurrentDataSource();
+    public abstract @Nullable DataSourceDesc getCurrentDataSource();
 
     /**
      * Configures the player to loop on the current data source.
@@ -336,7 +307,7 @@ public abstract class MediaPlayerBase implements AutoCloseable {
          * @param dsd the new current data source. null, if no more data sources available.
          */
         public void onCurrentDataSourceChanged(@NonNull MediaPlayerBase mpb,
-                @Nullable Object /*DataSourceDesc*/ dsd) { }
+                @Nullable DataSourceDesc dsd) { }
 
         /**
          * Called when the player is <i>prepared</i>, i.e. it is ready to play the content
@@ -345,7 +316,7 @@ public abstract class MediaPlayerBase implements AutoCloseable {
          * @param dsd the data source that the player is prepared to play.
          */
         public void onMediaPrepared(@NonNull MediaPlayerBase mpb,
-                @NonNull Object /*DataSourceDesc*/ dsd) { }
+                @NonNull DataSourceDesc dsd) { }
 
         /**
          * Called to indicate that the state of the player has changed.
@@ -362,6 +333,22 @@ public abstract class MediaPlayerBase implements AutoCloseable {
          * @param state the new buffering state.
          */
         public void onBufferingStateChanged(@NonNull MediaPlayerBase mpb,
-                @NonNull Object /*DataSourceDesc*/ dsd, @BuffState int state) { }
+                @NonNull DataSourceDesc dsd, @BuffState int state) { }
+
+        /**
+         * Called to indicate that the playback speed has changed.
+         * @param mpb the player that has changed the playback speed.
+         * @param speed the new playback speed.
+         */
+        public void onPlaybackSpeedChanged(@NonNull MediaPlayerBase mpb, float speed) { }
+
+        /**
+         * Called to indicate that {@link #seekTo(long)} is completed.
+         *
+         * @param mpb the player that has completed seeking.
+         * @param position the previous seeking request.
+         * @see #seekTo(long)
+         */
+        public void onSeekCompleted(@NonNull MediaPlayerBase mpb, long position) { }
     }
 }
