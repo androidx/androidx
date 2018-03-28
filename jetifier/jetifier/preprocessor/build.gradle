@@ -19,7 +19,7 @@ plugins {
     id("application")
 }
 
-mainClassName = "android.support.tools.jetifier.preprocessor.MainKt"
+mainClassName = "com.android.tools.build.jetifier.preprocessor.MainKt"
 
 dependencies {
     compile project(':jetifier-processor')
