@@ -34,7 +34,6 @@ import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
 import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
-import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
@@ -255,15 +254,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
         // If we're here we can can show end items; check for top level actions first
         List<SliceItem> endItems = mRowContent.getEndItems();
-        String desiredFormat = FORMAT_ACTION;
         if (mIsHeader && mHeaderActions != null && mHeaderActions.size() > 0) {
             // Use these if we have them instead
             endItems = mHeaderActions;
-        } else if (!endItems.isEmpty()) {
-            // Prefer to show actions as end items if possible; fall back to the first format type.
-            SliceItem firstEndItem = endItems.get(0);
-            desiredFormat = mRowContent.endItemsContainAction()
-                    ? FORMAT_ACTION : firstEndItem.getSlice().getItems().get(0).getFormat();
         }
         boolean hasRowAction = mRowAction != null;
         if (endItems.isEmpty()) {
@@ -274,21 +267,19 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         // If we're here we might be able to show end items
         int itemCount = 0;
         boolean firstItemIsADefaultToggle = false;
+        boolean hasEndItemAction = false;
         for (int i = 0; i < endItems.size(); i++) {
             final SliceItem endItem = endItems.get(i);
-            final String endFormat = endItem.hasHint(HINT_SHORTCUT)
-                    ? FORMAT_ACTION
-                    : endItem.getSlice().getItems().get(0).getFormat();
-            // Only show one type of format at the end of the slice, use whatever is first
-            if (itemCount < MAX_END_ITEMS
-                    && (desiredFormat.equals(endFormat)
-                    || FORMAT_TIMESTAMP.equals(endFormat))) {
+            if (itemCount < MAX_END_ITEMS) {
                 final EventInfo info = new EventInfo(getMode(),
                         EventInfo.ACTION_TYPE_BUTTON,
                         EventInfo.ROW_TYPE_LIST, mRowIndex);
                 info.setPosition(EventInfo.POSITION_END, i,
                         Math.min(endItems.size(), MAX_END_ITEMS));
                 if (addItem(endItem, mTintColor, false /* isStart */, mPadding, info)) {
+                    if (FORMAT_ACTION.equals(endItem.getFormat())) {
+                        hasEndItemAction = true;
+                    }
                     itemCount++;
                     if (itemCount == 1) {
                         firstItemIsADefaultToggle = !mToggles.isEmpty()
@@ -298,7 +289,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             }
         }
 
-        boolean hasEndItemAction = FORMAT_ACTION.contentEquals(desiredFormat);
         // If there is a row action and the first end item is a default toggle, show the divider.
         mDivider.setVisibility(hasRowAction && firstItemIsADefaultToggle
                 ? View.VISIBLE : View.GONE);
@@ -382,10 +372,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     try {
-                        PendingIntent pi = range.getAction();
-                        Intent i = new Intent().putExtra(EXTRA_RANGE_VALUE, progress);
                         // TODO: sending this PendingIntent should be rate limited.
-                        pi.send(getContext(), 0, i, null, null);
+                        range.fireAction(getContext(),
+                                new Intent().putExtra(EXTRA_RANGE_VALUE, progress));
                     } catch (CanceledException e) { }
                 }
 
@@ -432,9 +421,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 try {
-                    PendingIntent pi = actionContent.getAction();
                     Intent i = new Intent().putExtra(EXTRA_TOGGLE_STATE, isChecked);
-                    pi.send(getContext(), 0, i, null, null);
+                    actionContent.getActionItem().fireAction(getContext(), i);
                     if (mObserver != null) {
                         final EventInfo info = new EventInfo(getMode(),
                                 EventInfo.ACTION_TYPE_TOGGLE,
@@ -519,7 +507,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 @Override
                 public void onClick(View v) {
                     try {
-                        finalAction.getAction().send();
+                        finalAction.getActionItem().fireAction(null, null);
                         if (mObserver != null) {
                             mObserver.onSliceAction(info, finalAction.getSliceItem());
                         }
@@ -546,7 +534,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                                 EventInfo.ROW_TYPE_LIST, mRowIndex);
                         mObserver.onSliceAction(info, mRowContent.getSlice());
                     }
-                    mRowContent.getSlice().getAction().send();
+                    mRowContent.getSlice().fireAction(null, null);
                 } catch (CanceledException e) {
                     Log.w(TAG, "PendingIntent for slice cannot be sent", e);
                 }
@@ -561,10 +549,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (mRowAction != null && mRowAction.getAction() != null && !mRowAction.isToggle()) {
+        if (mRowAction != null && mRowAction.getActionItem() != null && !mRowAction.isToggle()) {
             // Check for a row action
             try {
-                mRowAction.getAction().send();
+                mRowAction.getActionItem().fireAction(null, null);
                 if (mObserver != null) {
                     EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
                             EventInfo.ROW_TYPE_LIST, mRowIndex);
