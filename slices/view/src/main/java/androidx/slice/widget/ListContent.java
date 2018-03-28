@@ -27,7 +27,7 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
 
@@ -83,7 +83,7 @@ public class ListContent {
         for (int i = 0; i < children.size(); i++) {
             final SliceItem child = children.get(i);
             final String format = child.getFormat();
-            boolean isNonRowContent = child.hasAnyHints(HINT_ACTIONS, HINT_SEE_MORE, HINT_KEY_WORDS,
+            boolean isNonRowContent = child.hasAnyHints(HINT_ACTIONS, HINT_SEE_MORE, HINT_KEYWORDS,
                     HINT_TTL, HINT_LAST_UPDATED);
             if (!isNonRowContent && (FORMAT_ACTION.equals(format) || FORMAT_SLICE.equals(format))) {
                 if (mHeaderItem == null && !child.hasHint(HINT_LIST_ITEM)) {
@@ -261,7 +261,7 @@ public class ListContent {
     private static SliceItem findHeaderItem(@NonNull Slice slice) {
         // See if header is specified
         String[] nonHints = new String[] {HINT_LIST_ITEM, HINT_SHORTCUT, HINT_ACTIONS,
-                HINT_KEY_WORDS, HINT_TTL, HINT_LAST_UPDATED};
+                HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED};
         SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, nonHints);
         if (header != null && isValidHeader(header)) {
             return header;
@@ -286,7 +286,7 @@ public class ListContent {
 
     private static boolean isValidHeader(SliceItem sliceItem) {
         if (FORMAT_SLICE.equals(sliceItem.getFormat()) && !sliceItem.hasAnyHints(HINT_LIST_ITEM,
-                HINT_ACTIONS, HINT_KEY_WORDS)) {
+                HINT_ACTIONS, HINT_KEYWORDS)) {
              // Minimum valid header is a slice with text
             SliceItem item = SliceQuery.find(sliceItem, FORMAT_TEXT, (String) null, null);
             return item != null;
