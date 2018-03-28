@@ -97,8 +97,10 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setSubtitle(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setSubtitle(java.lang.CharSequence, boolean);
-    method public androidx.slice.builders.ListBuilder.HeaderBuilder setSummarySubtitle(java.lang.CharSequence);
-    method public androidx.slice.builders.ListBuilder.HeaderBuilder setSummarySubtitle(java.lang.CharSequence, boolean);
+    method public androidx.slice.builders.ListBuilder.HeaderBuilder setSummary(java.lang.CharSequence);
+    method public androidx.slice.builders.ListBuilder.HeaderBuilder setSummary(java.lang.CharSequence, boolean);
+    method public deprecated androidx.slice.builders.ListBuilder.HeaderBuilder setSummarySubtitle(java.lang.CharSequence);
+    method public deprecated androidx.slice.builders.ListBuilder.HeaderBuilder setSummarySubtitle(java.lang.CharSequence, boolean);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setTitle(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.HeaderBuilder setTitle(java.lang.CharSequence, boolean);
   }
