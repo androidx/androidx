@@ -137,7 +137,6 @@ public class WorkManagerImplTest {
         for (String id : ids) {
             mWorkManagerImpl.cancelWorkById(id);
         }
-        mDatabase.close();
         WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
     }

@@ -71,8 +71,8 @@ public class ArgumentsTest {
 
     @Test
     public void testSerializeIntArray() throws IOException, ClassNotFoundException {
-        Integer[] expectedValue1 = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        Integer[] expectedValue2 = new Integer[]{10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+        int[] expectedValue1 = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        int[] expectedValue2 = new int[]{10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
         Arguments args = new Arguments.Builder()
                 .putIntArray(KEY1, expectedValue1)
                 .putIntArray(KEY2, expectedValue2)
