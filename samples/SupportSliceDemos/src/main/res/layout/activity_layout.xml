@@ -42,7 +42,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:contentInsetStart="0dp"
                 android:contentInsetStartWithNavigation="0dp"
-                android:theme="?android:attr/actionBarTheme">
+                android:theme="?attr/actionBarTheme">
                 <SearchView
                     android:id="@+id/search_view"
                     android:layout_width="match_parent"
