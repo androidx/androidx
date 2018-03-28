@@ -146,7 +146,7 @@ public class SampleSliceProvider extends SliceProvider {
                 IconCompat.createWithResource(getContext(), R.drawable.weather_1),
                 "Weather is happening!");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
-                .addGrid(gb -> gb
+                .addGridRow(gb -> gb
                         .setPrimaryAction(primaryAction)
                         .addCell(cb -> cb
                                 .addImage(IconCompat.createWithResource(getContext(),
@@ -319,7 +319,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .setColor(0xff3949ab)
                 .setHeader(b -> b
                         .setTitle("Mady Pitza")
-                        .setSummarySubtitle("Called " + lastCalledString)
+                        .setSummary("Called " + lastCalledString)
                         .setPrimaryAction(primaryAction))
                 .addRow(b -> b
                         .setTitleItem(
@@ -398,13 +398,13 @@ public class SampleSliceProvider extends SliceProvider {
                 .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "contact host"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_text),
                         "Contact host"))
-                .addGrid(b -> b
+                .addGridRow(b -> b
                         .addCell(cb -> cb
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.reservation),
                                         LARGE_IMAGE)
                                 .setContentDescription("Image of your reservation in Seattle")))
-                .addGrid(b -> b
+                .addGridRow(b -> b
                         .addCell(cb -> cb
                                 .addTitleText("Check In")
                                 .addText("12:00 PM, Feb 1"))
@@ -430,7 +430,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .setHeader(b -> b
                         .setTitle("Get ride")
                         .setSubtitle(headerSubtitle)
-                        .setSummarySubtitle("Ride to work in 12 min | Ride home in 1 hour 45 min")
+                        .setSummary("Ride to work in 12 min | Ride home in 1 hour 45 min")
                         .setPrimaryAction(primaryAction))
                 .addRow(b -> b
                         .setTitle("Work")
@@ -667,7 +667,7 @@ public class SampleSliceProvider extends SliceProvider {
                                 updating || TextUtils.isEmpty(title))
                         .setSubtitle(subtitle,
                                 updating || TextUtils.isEmpty(subtitle)))
-                .addGrid(gb -> gb
+                .addGridRow(gb -> gb
                         .addCell(cb -> cb
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.ic_home),
