@@ -33,7 +33,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
-import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
@@ -253,7 +253,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         for (int i = 0; i < keywords.size(); i++) {
             sb.addText(keywords.get(i), null);
         }
-        getBuilder().addSubSlice(sb.addHints(HINT_KEY_WORDS).build());
+        getBuilder().addSubSlice(sb.addHints(HINT_KEYWORDS).build());
     }
 
     /**

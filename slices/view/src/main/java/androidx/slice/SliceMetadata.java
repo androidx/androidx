@@ -25,7 +25,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
-import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
@@ -219,7 +219,7 @@ public class SliceMetadata {
      */
     @Nullable
     public List<String> getSliceKeywords() {
-        SliceItem keywordGroup = SliceQuery.find(mSlice, FORMAT_SLICE, HINT_KEY_WORDS, null);
+        SliceItem keywordGroup = SliceQuery.find(mSlice, FORMAT_SLICE, HINT_KEYWORDS, null);
         if (keywordGroup != null) {
             List<SliceItem> itemList = SliceQuery.findAll(keywordGroup, FORMAT_TEXT);
             if (itemList != null) {
