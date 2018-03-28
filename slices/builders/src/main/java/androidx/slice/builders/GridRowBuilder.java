@@ -20,16 +20,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
 import android.net.Uri;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.Consumer;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
-
-import java.util.function.Consumer;
 
 
 /**
@@ -99,7 +96,6 @@ public class GridRowBuilder extends TemplateSliceBuilder {
     /**
      * Add a cell to the grid builder.
      */
-    @RequiresApi(Build.VERSION_CODES.N)
     @NonNull
     public GridRowBuilder addCell(@NonNull Consumer<CellBuilder> c) {
         CellBuilder b = new CellBuilder(this);
@@ -148,7 +144,6 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      * a row or action has been previously added.
      * </p>
      */
-    @RequiresApi(Build.VERSION_CODES.N)
     @NonNull
     public GridRowBuilder setSeeMoreCell(@NonNull Consumer<CellBuilder> c) {
         CellBuilder b = new CellBuilder(this);
@@ -222,7 +217,6 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      *
      * @deprecated TO BE REMOVED
      */
-    @RequiresApi(Build.VERSION_CODES.N)
     @NonNull
     @Deprecated
     public GridRowBuilder addSeeMoreCell(@NonNull Consumer<CellBuilder> c) {

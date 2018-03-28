@@ -29,7 +29,6 @@ import android.app.RemoteInput;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -37,6 +36,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.Pair;
 
 import java.util.Arrays;
 import java.util.List;
