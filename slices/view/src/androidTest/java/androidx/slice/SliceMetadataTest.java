@@ -23,7 +23,7 @@ import static androidx.slice.SliceMetadata.LOADED_ALL;
 import static androidx.slice.SliceMetadata.LOADED_NONE;
 import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
-import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -484,7 +484,7 @@ public class SliceMetadataTest {
     public void testKeywords() {
         Uri uri = Uri.parse("content://pkg/slice");
         Slice keywordSlice = new Slice.Builder(uri)
-                .addHints(HINT_KEY_WORDS)
+                .addHints(HINT_KEYWORDS)
                 .addText("keyword1", null)
                 .addText("keyword2", null)
                 .addText("keyword3", null).build();
@@ -509,7 +509,7 @@ public class SliceMetadataTest {
         assertNull(slice2Keywords);
 
         // Make sure empty list if specified to have no keywords
-        Slice noKeywordSlice = new Slice.Builder(uri).addHints(HINT_KEY_WORDS).build();
+        Slice noKeywordSlice = new Slice.Builder(uri).addHints(HINT_KEYWORDS).build();
         Slice slice3 = new Slice.Builder(uri)
                 .addText("Some text", null, HINT_TITLE)
                 .addSubSlice(noKeywordSlice)

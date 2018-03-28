@@ -30,7 +30,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
-import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
@@ -198,7 +198,7 @@ public class GridContent {
         for (int i = 0; i < items.size(); i++) {
             SliceItem item = items.get(i);
             boolean isNonCellContent = item.hasAnyHints(HINT_SHORTCUT, HINT_SEE_MORE,
-                    HINT_KEY_WORDS, HINT_TTL, HINT_LAST_UPDATED);
+                    HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED);
             if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
                 mContentDescr = item;
             } else if (item.hasHint(HINT_LIST_ITEM) && !isNonCellContent) {
@@ -337,7 +337,7 @@ public class GridContent {
         private boolean isValidCellContent(SliceItem cellItem) {
             final String format = cellItem.getFormat();
             boolean isNonCellContent = SUBTYPE_CONTENT_DESCRIPTION.equals(cellItem.getSubType())
-                    || cellItem.hasAnyHints(HINT_KEY_WORDS, HINT_TTL, HINT_LAST_UPDATED);
+                    || cellItem.hasAnyHints(HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED);
             return !isNonCellContent
                     && (FORMAT_TEXT.equals(format)
                     || FORMAT_TIMESTAMP.equals(format)
