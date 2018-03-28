@@ -77,7 +77,7 @@ public interface ListBuilder {
      * a row or action has been previously added.
      * </p>
      */
-    void addSeeMoreRow(TemplateBuilderImpl builder);
+    void setSeeMoreRow(TemplateBuilderImpl builder);
     /**
      * If all content in a slice cannot be shown, a "see more" affordance will be displayed where
      * the content is cut off. The action added here should take the user to an activity to see
@@ -87,7 +87,7 @@ public interface ListBuilder {
      * a row or action has been previously added.
      * </p>
      */
-    void addSeeMoreAction(PendingIntent intent);
+    void setSeeMoreAction(PendingIntent intent);
 
     /**
      * Sets the color to tint items displayed by this template (e.g. icons).

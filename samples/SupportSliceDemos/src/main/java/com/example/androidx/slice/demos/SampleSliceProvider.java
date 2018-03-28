@@ -195,7 +195,7 @@ public class SampleSliceProvider extends SliceProvider {
                         getBroadcastIntent(ACTION_TOAST, "share photo album"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_share),
                         "Share photo album"))
-                .addGrid(b -> b
+                .addGridRow(b -> b
                         .addCell(cb -> cb
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.slices_1),
@@ -224,7 +224,7 @@ public class SampleSliceProvider extends SliceProvider {
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.slices_4),
                                         LARGE_IMAGE))
-                        .addSeeMoreAction(getBroadcastIntent(ACTION_TOAST, "see your gallery"))
+                        .setSeeMoreAction(getBroadcastIntent(ACTION_TOAST, "see your gallery"))
                         .setContentDescription("Images from your trip to Hawaii"))
                 .build();
     }
@@ -239,9 +239,9 @@ public class SampleSliceProvider extends SliceProvider {
                     ICON_IMAGE);
             cb.setContentIntent(pi);
             cb.addTitleText("All cats");
-            gb.addSeeMoreCell(cb);
+            gb.setSeeMoreCell(cb);
         } else {
-            gb.addSeeMoreAction(pi);
+            gb.setSeeMoreAction(pi);
         }
         gb.addCell(new GridRowBuilder.CellBuilder(gb)
                 .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_1),
@@ -545,14 +545,14 @@ public class SampleSliceProvider extends SliceProvider {
 
         // Add see more intent
         if (TEST_CUSTOM_SEE_MORE) {
-            lb.addSeeMoreRow(rb -> rb
+            lb.setSeeMoreRow(rb -> rb
                     .setTitle("See all available networks")
                     .addEndItem(
                             IconCompat.createWithResource(getContext(), R.drawable.ic_right_caret),
                             SMALL_IMAGE)
                     .setPrimaryAction(primaryAction));
         } else {
-            lb.addSeeMoreAction(primaryAction.getAction());
+            lb.setSeeMoreAction(primaryAction.getAction());
         }
         return lb.build();
     }
