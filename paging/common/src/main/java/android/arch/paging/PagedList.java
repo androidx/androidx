@@ -138,7 +138,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
 
     private final AtomicBoolean mDetached = new AtomicBoolean(false);
 
-    protected final ArrayList<WeakReference<Callback>> mCallbacks = new ArrayList<>();
+    private final ArrayList<WeakReference<Callback>> mCallbacks = new ArrayList<>();
 
     PagedList(@NonNull PagedStorage<T> storage,
             @NonNull Executor mainThreadExecutor,
