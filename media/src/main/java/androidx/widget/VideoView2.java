@@ -44,6 +44,7 @@ import android.widget.VideoView;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.media.DataSourceDesc;
@@ -119,6 +120,7 @@ import java.util.concurrent.Executor;
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
  */
+@RequiresApi(26) // TODO correct minSdk API use incompatibilities and remove before release.
 @RestrictTo(LIBRARY_GROUP)
 public class VideoView2 extends BaseLayout implements VideoViewInterface.SurfaceListener {
     /** @hide */

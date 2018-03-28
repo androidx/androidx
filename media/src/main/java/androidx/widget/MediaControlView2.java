@@ -46,6 +46,7 @@ import android.widget.TextView;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.media.SessionToken2;
 // import androidx.mediarouter.app.MediaRouteButton;
@@ -89,6 +90,7 @@ import java.util.List;
  * Those buttons will be shown when the overflow button is clicked.
  * See VideoView2#setCustomActions for more details on how to add.
  */
+@RequiresApi(26) // TODO correct minSdk API use incompatibilities and remove before release.
 @RestrictTo(LIBRARY_GROUP)
 public class MediaControlView2 extends BaseLayout {
     /** @hide */
@@ -1426,6 +1428,7 @@ public class MediaControlView2 extends BaseLayout {
                 mSettingsWindowMargin - totalHeight, Gravity.BOTTOM | Gravity.RIGHT);
     }
 
+    @RequiresApi(26) // TODO correct minSdk API use incompatibilities and remove before release.
     private class MediaControllerCallback extends MediaController.Callback {
         @Override
         public void onPlaybackStateChanged(PlaybackState state) {

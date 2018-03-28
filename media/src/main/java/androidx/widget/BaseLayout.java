@@ -18,6 +18,7 @@ package androidx.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ import android.view.ViewGroup.MarginLayoutParams;
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StyleRes;
 
 import java.util.ArrayList;
@@ -44,9 +46,10 @@ class BaseLayout extends ViewGroup {
 
     BaseLayout(@NonNull Context context, @Nullable AttributeSet attrs,
             @AttrRes int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
+        super(context, attrs, defStyleAttr);
     }
 
+    @RequiresApi(21)
     BaseLayout(@NonNull Context context, @Nullable AttributeSet attrs,
             @AttrRes int defStyleAttr, @StyleRes int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -116,11 +119,13 @@ class BaseLayout extends ViewGroup {
         maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
         maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 
-        // Check against our foreground's minimum height and width
-        final Drawable drawable = getForeground();
-        if (drawable != null) {
-            maxHeight = Math.max(maxHeight, drawable.getMinimumHeight());
-            maxWidth = Math.max(maxWidth, drawable.getMinimumWidth());
+        if (Build.VERSION.SDK_INT >= 23) {
+            // Check against our foreground's minimum height and width
+            final Drawable drawable = getForeground();
+            if (drawable != null) {
+                maxHeight = Math.max(maxHeight, drawable.getMinimumHeight());
+                maxWidth = Math.max(maxWidth, drawable.getMinimumWidth());
+            }
         }
 
         setMeasuredDimension(
