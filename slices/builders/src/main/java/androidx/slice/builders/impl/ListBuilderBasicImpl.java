@@ -17,7 +17,7 @@
 package androidx.slice.builders.impl;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 
 import android.app.PendingIntent;
 import android.net.Uri;
@@ -108,7 +108,7 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         for (int i = 0; i < keywords.size(); i++) {
             sb.addText(keywords.get(i), null);
         }
-        getBuilder().addSubSlice(sb.addHints(HINT_KEY_WORDS).build());
+        getBuilder().addSubSlice(sb.addHints(HINT_KEYWORDS).build());
     }
 
     /**
