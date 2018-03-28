@@ -198,6 +198,13 @@ public final class SessionToken2 {
     }
 
     /**
+     * @return service name
+     */
+    public String getServiceName() {
+        return mServiceName;
+    }
+
+    /**
      * @return id
      */
     public String getId() {
@@ -281,6 +288,10 @@ public final class SessionToken2 {
             return resolveInfo.serviceInfo.metaData.getString(
                     MediaSessionService2.SERVICE_META_DATA, "");
         }
+    }
+
+    MediaSessionCompat.Token getSessionCompatToken() {
+        return mSessionCompatToken;
     }
 
     private static String getSessionIdFromService(PackageManager manager, String serviceInterface,
