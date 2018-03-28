@@ -153,7 +153,7 @@ public final class SessionToken2 {
      */
     public @TokenType int getType() {
         //return mProvider.getType_impl();
-        return 0;
+        return TYPE_SESSION;
     }
 
     /**

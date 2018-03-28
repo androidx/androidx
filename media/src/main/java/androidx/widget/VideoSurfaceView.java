@@ -18,6 +18,7 @@ package androidx.widget;
 
 import static androidx.widget.VideoView2.VIEW_TYPE_SURFACEVIEW;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
@@ -28,6 +29,7 @@ import android.view.SurfaceView;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 class VideoSurfaceView extends SurfaceView implements VideoViewInterface, SurfaceHolder.Callback {
     private static final String TAG = "VideoSurfaceView";
@@ -49,9 +51,11 @@ class VideoSurfaceView extends SurfaceView implements VideoViewInterface, Surfac
     }
 
     VideoSurfaceView(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
+        super(context, attrs, defStyleAttr);
+        getHolder().addCallback(this);
     }
 
+    @RequiresApi(21)
     VideoSurfaceView(Context context, AttributeSet attrs, int defStyleAttr,
                             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -77,6 +81,7 @@ class VideoSurfaceView extends SurfaceView implements VideoViewInterface, Surfac
         mSurfaceListener = l;
     }
 
+    @SuppressLint("NewApi") // TODO correct minSdk API use incompatibilities and remove before release.
     @Override
     public int getViewType() {
         return VIEW_TYPE_SURFACEVIEW;
