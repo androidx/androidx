@@ -60,7 +60,7 @@ public class SliceHints {
      * A hint to indicate that the contents of this subslice represent a list of keywords
      * related to the parent slice.
      */
-    public static final String HINT_KEY_WORDS = "key_words";
+    public static final String HINT_KEYWORDS = "keywords";
 
     /**
      * Hint indicating an item representing a time-to-live for the content.

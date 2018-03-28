@@ -37,7 +37,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.SliceConvert.unwrap;
-import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
 
@@ -86,7 +86,7 @@ public final class Slice {
     @RestrictTo(Scope.LIBRARY)
     @StringDef({HINT_TITLE, HINT_LIST, HINT_LIST_ITEM, HINT_LARGE, HINT_ACTIONS, HINT_SELECTED,
             HINT_HORIZONTAL, HINT_NO_TINT, HINT_PARTIAL, HINT_SUMMARY, HINT_SEE_MORE,
-            HINT_SHORTCUT, HINT_KEY_WORDS, HINT_TTL, HINT_LAST_UPDATED})
+            HINT_SHORTCUT, HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED})
     public @interface SliceHint{ }
 
     private final SliceItem[] mItems;

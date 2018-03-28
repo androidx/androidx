@@ -31,7 +31,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
-import static androidx.slice.core.SliceHints.HINT_KEY_WORDS;
+import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.core.SliceHints.SUBTYPE_RANGE;
@@ -98,7 +98,7 @@ public class RowContent {
         // Find primary action first (otherwise filtered out of valid row items)
         String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
         mPrimaryAction = SliceQuery.find(rowSlice, FORMAT_SLICE, hints,
-                new String[] { HINT_ACTIONS, HINT_KEY_WORDS } /* nonHints */);
+                new String[] { HINT_ACTIONS, HINT_KEYWORDS} /* nonHints */);
 
         if (mPrimaryAction == null && FORMAT_ACTION.equals(rowSlice.getFormat())
                 && rowSlice.getSlice().getItems().size() == 1) {
@@ -370,7 +370,7 @@ public class RowContent {
      * @return whether this item is valid content to display in a row.
      */
     private static boolean isValidRowContent(SliceItem slice, SliceItem item) {
-        if (item.hasAnyHints(HINT_KEY_WORDS, HINT_TTL, HINT_LAST_UPDATED)) {
+        if (item.hasAnyHints(HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED)) {
             return false;
         }
         if (FORMAT_SLICE.equals(item.getFormat()) && !item.hasHint(HINT_SHORTCUT)) {
