@@ -95,7 +95,7 @@ class LivePagedListBuilderTest {
         // specify a background executor via builder, and verify it gets used for all loads,
         // overriding default arch IO executor
         val livePagedList = LivePagedListBuilder(MockDataSource.Factory(), 2)
-                .setBackgroundThreadExecutor(backgroundExecutor)
+                .setFetchExecutor(backgroundExecutor)
                 .build()
 
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
