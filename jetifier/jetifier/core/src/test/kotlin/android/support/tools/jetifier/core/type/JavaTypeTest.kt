@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package android.support.tools.jetifier.core.rules
+package android.support.tools.jetifier.core.type
 
-import android.support.tools.jetifier.core.type.JavaType
 import com.google.common.truth.Truth
 import org.junit.Test
 

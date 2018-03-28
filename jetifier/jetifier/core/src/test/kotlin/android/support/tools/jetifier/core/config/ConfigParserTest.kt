@@ -55,8 +55,8 @@ class ConfigParserTest {
         val config = ConfigParser.parseFromString(confStr)
 
         Truth.assertThat(config).isNotNull()
-        Truth.assertThat(config!!.restrictToPackagePrefixes[0]).isEqualTo("android/support/")
-        Truth.assertThat(config.rewriteRules.size).isEqualTo(2)
+        Truth.assertThat(config!!.restrictToPackagePrefixes.first()).isEqualTo("android/support/")
+        Truth.assertThat(config.rulesMap.rewriteRules.size).isEqualTo(2)
         Truth.assertThat(config.proGuardMap.rules.size).isEqualTo(1)
     }
 

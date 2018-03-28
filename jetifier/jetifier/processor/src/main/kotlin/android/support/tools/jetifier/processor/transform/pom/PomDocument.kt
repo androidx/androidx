@@ -158,7 +158,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
         }
 
         if (matchesPrefix) {
-            if (context.useIdentityIfTypeIsMissing) {
+            if (context.useFallbackIfTypeIsMissing) {
                 Log.i(TAG, "No mapping found for '%s' - using identity",
                         dependency.toStringNotation())
             } else {

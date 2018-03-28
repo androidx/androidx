@@ -21,6 +21,7 @@ import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.pom.PomDependency
 import android.support.tools.jetifier.core.pom.PomRewriteRule
 import android.support.tools.jetifier.core.proguard.ProGuardTypesMap
+import android.support.tools.jetifier.core.rule.RewriteRulesMap
 import android.support.tools.jetifier.core.type.TypesMap
 import android.support.tools.jetifier.processor.Processor
 import com.google.common.truth.Truth
@@ -85,9 +86,9 @@ class DependencyMappingTest {
 
         fun testRewrite(from: String, to: Set<String>?, rules: Set<PomRewriteRule>) {
             val config = Config(
-                restrictToPackagePrefixes = emptyList(),
-                rewriteRules = emptyList(),
-                slRules = emptyList(),
+                restrictToPackagePrefixes = emptySet(),
+                rulesMap = RewriteRulesMap.EMPTY,
+                slRules = emptySet(),
                 pomRewriteRules = rules,
                 typesMap = TypesMap.EMPTY,
                 proGuardMap = ProGuardTypesMap.EMPTY,

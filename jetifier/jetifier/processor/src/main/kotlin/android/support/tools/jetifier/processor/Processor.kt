@@ -49,7 +49,7 @@ class Processor private constructor(
         /**
          * Value of "restrictToPackagePrefixes" config for reversed jetification.
          */
-        private val REVERSE_RESTRICT_TO_PACKAGE = listOf(
+        private val REVERSE_RESTRICT_TO_PACKAGE = setOf(
             "androidx/",
             "com/google/android/material/"
         )
@@ -93,7 +93,7 @@ class Processor private constructor(
             if (reversedMode) {
                 newConfig = Config(
                     restrictToPackagePrefixes = REVERSE_RESTRICT_TO_PACKAGE,
-                    rewriteRules = config.rewriteRules,
+                    rulesMap = config.rulesMap.reverse().appendRules(config.slRules),
                     slRules = config.slRules,
                     pomRewriteRules = config.pomRewriteRules.map { it.getReversed() }.toSet(),
                     typesMap = config.typesMap.reverseMapOrDie(),
@@ -106,7 +106,7 @@ class Processor private constructor(
                 config = newConfig,
                 rewritingSupportLib = rewritingSupportLib,
                 isInReversedMode = reversedMode,
-                useIdentityIfTypeIsMissing = useIdentityIfTypeIsMissing)
+                useFallbackIfTypeIsMissing = useIdentityIfTypeIsMissing)
             val transformers = if (rewritingSupportLib) {
                 createSLTransformers(context)
             } else {

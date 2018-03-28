@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.tools.jetifier.core
+package android.support.tools.jetifier.core.rule
 
 import android.support.tools.jetifier.core.proguard.ProGuardType
 import android.support.tools.jetifier.core.type.JavaType
@@ -83,6 +83,12 @@ class RewriteRule(private val from: String, private val to: String) {
         }
 
         return TypeRewriteResult(JavaType(result))
+    }
+
+    fun reverse(): RewriteRule {
+        val newFrom = to.replace("{0}", "(.*)")
+        val newTo = from.replace("(.*)", "{0}")
+        return RewriteRule(newFrom, newTo)
     }
 
     /*

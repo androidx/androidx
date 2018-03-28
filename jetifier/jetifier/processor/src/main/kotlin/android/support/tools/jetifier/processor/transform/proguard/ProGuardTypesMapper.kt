@@ -43,20 +43,9 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
 
         val javaType = type.toJavaType()
         if (javaType != null) {
-            // We are dealing with an explicit type definition
-            if (!context.isEligibleForRewrite(javaType)) {
-                return typeToReplace
-            }
-
-            val result = config.typesMap.mapType(javaType)
+            val result = context.typeRewriter.rewriteType(javaType)
             if (result != null) {
-                Log.i(TAG, "  map: %s -> %s", type, result)
                 return result.toDotNotation()
-            }
-
-            if (context.useIdentityIfTypeIsMissing) {
-                Log.i(TAG, "No mapping for: %s - using identity")
-                return typeToReplace
             }
 
             context.reportNoProGuardMappingFoundFailure()
@@ -72,7 +61,7 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
         }
 
         // Report error only when we are sure
-        if (context.isEligibleForRewrite(type)) {
+        if (context.typeRewriter.isEligibleForRewrite(type)) {
             context.reportNoProGuardMappingFoundFailure()
             Log.e(TAG, "No mapping for: " + type)
         }

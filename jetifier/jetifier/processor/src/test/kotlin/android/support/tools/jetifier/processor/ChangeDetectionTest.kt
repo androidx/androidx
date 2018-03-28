@@ -17,15 +17,16 @@
 package android.support.tools.jetifier.processor
 
 import android.support.tools.jetifier.core.PackageMap
-import android.support.tools.jetifier.core.RewriteRule
-import android.support.tools.jetifier.processor.archive.Archive
-import android.support.tools.jetifier.processor.archive.ArchiveFile
 import android.support.tools.jetifier.core.config.Config
-import android.support.tools.jetifier.core.type.TypesMap
-import android.support.tools.jetifier.core.type.JavaType
 import android.support.tools.jetifier.core.pom.PomDependency
 import android.support.tools.jetifier.core.pom.PomRewriteRule
 import android.support.tools.jetifier.core.proguard.ProGuardTypesMap
+import android.support.tools.jetifier.core.rule.RewriteRule
+import android.support.tools.jetifier.core.rule.RewriteRulesMap
+import android.support.tools.jetifier.core.type.JavaType
+import android.support.tools.jetifier.core.type.TypesMap
+import android.support.tools.jetifier.processor.archive.Archive
+import android.support.tools.jetifier.processor.archive.ArchiveFile
 import com.google.common.truth.Truth
 import org.junit.Test
 import java.io.File
@@ -37,24 +38,15 @@ import java.nio.file.Paths
  * was something to rewrite or not.
  */
 class ChangeDetectionTest {
-    private val emptyConfig = Config(
-        restrictToPackagePrefixes = emptyList(),
-        rewriteRules = emptyList(),
-        slRules = emptyList(),
-        pomRewriteRules = emptySet(),
-        typesMap = TypesMap.EMPTY,
-        proGuardMap = ProGuardTypesMap.EMPTY,
-        packageMap = PackageMap.EMPTY
-    )
 
     private val prefRewriteConfig = Config(
-        restrictToPackagePrefixes = listOf("android/support/v7/preference"),
-        rewriteRules =
-        listOf(
-            RewriteRule(from = "android/support/v7/preference/Preference(.+)", to = "ignore"),
-            RewriteRule(from = "(.*)/R(.*)", to = "ignore")
-        ),
-        slRules = emptyList(),
+        restrictToPackagePrefixes = setOf("android/support/v7/preference"),
+        rulesMap =
+            RewriteRulesMap(
+                RewriteRule(from = "android/support/v7/preference/Preference(.+)", to = "ignore"),
+                RewriteRule(from = "(.*)/R(.*)", to = "ignore")
+            ),
+        slRules = setOf(),
         pomRewriteRules = setOf(
             PomRewriteRule(
                 PomDependency(
@@ -64,10 +56,10 @@ class ChangeDetectionTest {
                         groupId = "testGroup", artifactId = "testArtifact", version = "1.0")
                 )
         )),
-        typesMap = TypesMap(mapOf(
+        typesMap = TypesMap(
             JavaType("android/support/v7/preference/Preference")
                 to JavaType("android/test/pref/Preference")
-        )),
+        ),
         proGuardMap = ProGuardTypesMap.EMPTY,
         packageMap = PackageMap.EMPTY
     )
@@ -87,7 +79,7 @@ class ChangeDetectionTest {
     @Test
     fun xmlRewrite_archiveNotChanged() {
         testChange(
-            config = emptyConfig,
+            config = Config.EMPTY,
             fileContent =
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<android.support.v7.preference.Preference/>",
@@ -112,7 +104,7 @@ class ChangeDetectionTest {
     @Test
     fun proGuard_archiveNotChanged() {
         testChange(
-            config = emptyConfig,
+            config = Config.EMPTY,
             fileContent =
                 "-keep public class * extends android.support.v7.preference.Preference { \n" +
                 "  <fields>; \n" +
@@ -148,7 +140,7 @@ class ChangeDetectionTest {
     @Test
     fun pom_archiveNotChanged() {
         testChange(
-            config = emptyConfig,
+            config = Config.EMPTY,
             fileContent =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
@@ -186,7 +178,7 @@ class ChangeDetectionTest {
         val inputFile = File(javaClass.getResource(inputClassPath).file)
 
         testChange(
-            config = emptyConfig,
+            config = Config.EMPTY,
             file = ArchiveFile(Paths.get("/", "preference.class"), inputFile.readBytes()),
             areChangesExpected = false
         )
