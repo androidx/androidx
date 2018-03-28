@@ -285,8 +285,13 @@ public class WebViewCompat {
                 webviewPackageName = (String) webviewUpdateServiceClass.getMethod(
                         "getCurrentWebViewPackageName").invoke(null);
             }
-        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException
-                | NoSuchMethodException  e) {
+        } catch (ClassNotFoundException e) {
+            return null;
+        } catch (IllegalAccessException e) {
+            return null;
+        } catch (InvocationTargetException e) {
+            return null;
+        } catch (NoSuchMethodException e) {
             return null;
         }
         if (webviewPackageName == null) return null;
