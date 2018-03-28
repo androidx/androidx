@@ -23,18 +23,23 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioFocusRequest;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IInterface;
 import android.os.ResultReceiver;
+import android.support.v4.media.session.MediaSessionCompat;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.MediaPlayerBase.BuffState;
+import androidx.media.MediaPlayerBase.PlayerEventCallback;
 import androidx.media.MediaPlayerBase.PlayerState;
+import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
 import androidx.media.MediaPlaylistAgent.RepeatMode;
 import androidx.media.MediaPlaylistAgent.ShuffleMode;
 
@@ -79,8 +84,6 @@ import java.util.concurrent.Executor;
 @TargetApi(Build.VERSION_CODES.KITKAT)
 @RestrictTo(LIBRARY_GROUP)
 public class MediaSession2 implements AutoCloseable {
-    //private final MediaSession2Provider mProvider;
-
     /**
      * Command code for the custom command which can be defined by string action in the
      * {@link Command}.
@@ -882,7 +885,7 @@ public class MediaSession2 implements AutoCloseable {
          * Called when a playlist is changed from the {@link MediaPlaylistAgent}.
          * <p>
          * This is called when the underlying agent has called
-         * {@link MediaPlaylistAgent.PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent,
+         * {@link PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent,
          * List, MediaMetadata2)}.
          *
          * @param session the session for this event
@@ -954,11 +957,22 @@ public class MediaSession2 implements AutoCloseable {
     @RestrictTo(LIBRARY_GROUP)
     abstract static class BuilderBase
             <T extends MediaSession2, U extends BuilderBase<T, U, C>, C extends SessionCallback> {
-        //private final BuilderBaseProvider<T, C> mProvider;
+        final Context mContext;
+        MediaPlayerBase mPlayer;
+        String mId;
+        Executor mCallbackExecutor;
+        C mCallback;
+        MediaPlaylistAgent mPlaylistAgent;
+        VolumeProvider2 mVolumeProvider;
+        PendingIntent mSessionActivity;
 
-        BuilderBase(Object
-                /*ProviderCreator<BuilderBase<T, U, C>, BuilderBaseProvider<T, C>>*/ creator) {
-            //mProvider = creator.createProvider(this);
+        BuilderBase(Context context) {
+            if (context == null) {
+                throw new IllegalArgumentException("context shouldn't be null");
+            }
+            mContext = context;
+            // Ensure non-null
+            mId = "";
         }
 
         /**
@@ -968,7 +982,10 @@ public class MediaSession2 implements AutoCloseable {
          * @param player a {@link MediaPlayerBase} that handles actual media playback in your app.
          */
         @NonNull U setPlayer(@NonNull MediaPlayerBase player) {
-            //mProvider.setPlayer_impl(player);
+            if (player == null) {
+                throw new IllegalArgumentException("player shouldn't be null");
+            }
+            mPlayer = player;
             return (U) this;
         }
 
@@ -984,7 +1001,10 @@ public class MediaSession2 implements AutoCloseable {
          *                      {@code player}
          */
         U setPlaylistAgent(@NonNull MediaPlaylistAgent playlistAgent) {
-            //mProvider.setPlaylistAgent_impl(playlistAgent);
+            if (playlistAgent == null) {
+                throw new IllegalArgumentException("playlistAgent shouldn't be null");
+            }
+            mPlaylistAgent = playlistAgent;
             return (U) this;
         }
 
@@ -995,7 +1015,7 @@ public class MediaSession2 implements AutoCloseable {
          * @param volumeProvider The provider that will receive volume button events.
          */
         @NonNull U setVolumeProvider(@Nullable VolumeProvider2 volumeProvider) {
-            //mProvider.setVolumeProvider_impl(volumeProvider);
+            mVolumeProvider = volumeProvider;
             return (U) this;
         }
 
@@ -1007,7 +1027,7 @@ public class MediaSession2 implements AutoCloseable {
          * @param pi The intent to launch to show UI for this session.
          */
         @NonNull U setSessionActivity(@Nullable PendingIntent pi) {
-            //mProvider.setSessionActivity_impl(pi);
+            mSessionActivity = pi;
             return (U) this;
         }
 
@@ -1022,7 +1042,10 @@ public class MediaSession2 implements AutoCloseable {
          * @return
          */
         @NonNull U setId(@NonNull String id) {
-            //mProvider.setId_impl(id);
+            if (id == null) {
+                throw new IllegalArgumentException("id shouldn't be null");
+            }
+            mId = id;
             return (U) this;
         }
 
@@ -1033,9 +1056,15 @@ public class MediaSession2 implements AutoCloseable {
          * @param callback session callback.
          * @return
          */
-        @NonNull U setSessionCallback(@NonNull /*@CallbackExecutor*/ Executor executor,
-                @NonNull C callback) {
-            //mProvider.setSessionCallback_impl(executor, callback);
+        @NonNull U setSessionCallback(@NonNull Executor executor, @NonNull C callback) {
+            if (executor == null) {
+                throw new IllegalArgumentException("executor shouldn't be null");
+            }
+            if (callback == null) {
+                throw new IllegalArgumentException("callback shouldn't be null");
+            }
+            mCallbackExecutor = executor;
+            mCallback = callback;
             return (U) this;
         }
 
@@ -1046,10 +1075,7 @@ public class MediaSession2 implements AutoCloseable {
          * @throws IllegalStateException if the session with the same id is already exists for the
          *      package.
          */
-        @NonNull T build() {
-            //return mProvider.build_impl();
-            return null;
-        }
+        abstract @NonNull T build();
     }
 
     /**
@@ -1058,14 +1084,11 @@ public class MediaSession2 implements AutoCloseable {
      * Any incoming event from the {@link MediaController2} will be handled on the thread
      * that created session with the {@link Builder#build()}.
      */
-    // Override all methods just to show them with the type instead of generics in Javadoc.
-    // This workarounds javadoc issue described in the MediaSession2.BuilderBase.
     public static final class Builder extends BuilderBase<MediaSession2, Builder, SessionCallback> {
         public Builder(Context context) {
-//            super((instance) -> ApiLoader.getProvider().createMediaSession2Builder(
-//                    context, (Builder) instance));
-            super(new Object());
+            super(context);
         }
+
 
         @Override
         public @NonNull Builder setPlayer(@NonNull MediaPlayerBase player) {
@@ -1073,7 +1096,7 @@ public class MediaSession2 implements AutoCloseable {
         }
 
         @Override
-        public Builder setPlaylistAgent(@NonNull MediaPlaylistAgent playlistAgent) {
+        public @NonNull Builder setPlaylistAgent(@NonNull MediaPlaylistAgent playlistAgent) {
             return super.setPlaylistAgent(playlistAgent);
         }
 
@@ -1094,13 +1117,15 @@ public class MediaSession2 implements AutoCloseable {
 
         @Override
         public @NonNull Builder setSessionCallback(@NonNull Executor executor,
-                @Nullable SessionCallback callback) {
+                @NonNull SessionCallback callback) {
             return super.setSessionCallback(executor, callback);
         }
 
         @Override
         public @NonNull MediaSession2 build() {
-            return super.build();
+            return new MediaSession2(mContext,
+                    new MediaSessionCompat(mContext, mId), mId, mPlayer, mPlaylistAgent,
+                    mVolumeProvider, mSessionActivity, mCallbackExecutor, mCallback);
         }
     }
 
@@ -1313,34 +1338,48 @@ public class MediaSession2 implements AutoCloseable {
         }
     }
 
-//    /**
-//     * Constructor is hidden and apps can only instantiate indirectly through {@link Builder}.
-//     * <p>
-//     * This intended behavior and here's the reasons.
-//     *    1. Prevent multiple sessions with the same tag in a media app.
-//     *       Whenever it happens only one session was properly setup and others were all dummies.
-//     *       Android framework couldn't find the right session to dispatch media key event.
-//     *    2. Simplify session's lifecycle.
-//     *       {@link android.media.session.MediaSession} is available after all of
-//     *       {@link android.media.session.MediaSession#setFlags(int)},
-//     *       {@link android.media.session.MediaSession#setCallback(
-//     *              android.media.session.MediaSession.Callback)},
-//     *       and {@link android.media.session.MediaSession#setActive(boolean)}.
-//     *       It was common for an app to omit one, so framework had to add heuristics to figure
-//     *       out which should be the highest priority for handling media key event.
-//     * @hide
-//     */
-//    public MediaSession2(MediaSession2Provider provider) {
-//        super();
-//        mProvider = provider;
-//    }
+    private final MediaSessionCompat mSessionCompat;
+    private final String mId;
+    private final Executor mCallbackExecutor;
+    private final SessionCallback mCallback;
+    private final SessionToken2 mSessionToken;
+    private final AudioManager mAudioManager;
+    private final PendingIntent mSessionActivity;
+    private final PlayerEventCallback mPlayerEventCallback;
+    private final PlaylistEventCallback mPlaylistEventCallback;
 
-//    /**
-//     * @hide
-//     */
-//    public @NonNull MediaSession2Provider getProvider() {
-//        return mProvider;
-//    }
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    private MediaPlayerBase mPlayer;
+    @GuardedBy("mLock")
+    private MediaPlaylistAgent mPlaylistAgent;
+    //@GuardedBy("mLock")
+    //private SessionPlaylistAgent mSessionPlaylistAgent;
+    @GuardedBy("mLock")
+    private VolumeProvider2 mVolumeProvider;
+    //@GuardedBy("mLock")
+    //private PlaybackInfo mPlaybackInfo;
+    @GuardedBy("mLock")
+    private OnDataSourceMissingHelper mDsmHelper;
+
+    MediaSession2(Context context, MediaSessionCompat sessionCompat, String id,
+            MediaPlayerBase player, MediaPlaylistAgent playlistAgent,
+            VolumeProvider2 volumeProvider, PendingIntent sessionActivity,
+            Executor callbackExecutor, SessionCallback callback) {
+        mSessionCompat = sessionCompat;
+        mId = id;
+        mCallback = callback;
+        mCallbackExecutor = callbackExecutor;
+        mSessionActivity = sessionActivity;
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+        // TODO: Set values properly
+        mSessionToken = null;
+        updatePlayer(player, playlistAgent, volumeProvider);
+        mPlayerEventCallback = null;
+        mPlaylistEventCallback = null;
+    }
 
     /**
      * Sets the underlying {@link MediaPlayerBase} and {@link MediaPlaylistAgent} for this session
