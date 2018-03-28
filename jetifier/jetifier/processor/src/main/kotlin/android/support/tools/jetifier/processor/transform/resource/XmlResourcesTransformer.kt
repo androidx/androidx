@@ -72,8 +72,6 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         Pattern.compile("<manifest[^>]*package=\"([a-zA-Z0-9._]+)\"[^>]*>")
     )
 
-    private val typesMap = context.config.typesMap
-
     override fun canTransform(file: ArchiveFile) = file.isXmlFile() && !file.isPomFile()
 
     override fun runTransform(file: ArchiveFile) {
@@ -157,23 +155,15 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
 
     private fun rewriteType(typeName: String): String {
         val type = JavaType.fromDotVersion(typeName)
-        if (!context.isEligibleForRewrite(type)) {
-            return typeName
-        }
-
-        val result = typesMap.mapType(type)
+        val result = context.typeRewriter.rewriteType(type)
         if (result != null) {
-            Log.i(TAG, "  map: %s -> %s", type, result)
             return result.toDotNotation()
         }
 
-        if (context.useIdentityIfTypeIsMissing) {
-            Log.i(TAG, "No mapping for: %s - using identity", type)
-            return typeName
+        if (!context.useFallbackIfTypeIsMissing) {
+            context.reportNoMappingFoundFailure()
         }
 
-        context.reportNoMappingFoundFailure()
-        Log.e(TAG, "No mapping for: %s", type)
         return typeName
     }
 
@@ -183,7 +173,7 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         if (result != null) {
             return result.toDotNotation()
         }
-        if (context.useIdentityIfTypeIsMissing) {
+        if (context.useFallbackIfTypeIsMissing) {
             Log.i(TAG, "No mapping for package: '%s' in artifact: '%s' - using identity",
                     pckg, archiveName)
             return packageName

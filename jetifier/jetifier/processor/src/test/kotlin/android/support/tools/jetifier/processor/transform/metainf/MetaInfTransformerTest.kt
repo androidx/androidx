@@ -16,10 +16,7 @@
 
 package android.support.tools.jetifier.processor.transform.metainf
 
-import android.support.tools.jetifier.core.PackageMap
 import android.support.tools.jetifier.core.config.Config
-import android.support.tools.jetifier.core.proguard.ProGuardTypesMap
-import android.support.tools.jetifier.core.type.TypesMap
 import android.support.tools.jetifier.processor.archive.ArchiveFile
 import android.support.tools.jetifier.processor.transform.TransformationContext
 import com.google.common.truth.Truth
@@ -99,16 +96,7 @@ class MetaInfTransformerTest {
         expectedCanTransform: Boolean = true,
         rewritingSupportLib: Boolean = true
     ) {
-        val config = Config(
-            restrictToPackagePrefixes = emptyList(),
-            rewriteRules = emptyList(),
-            slRules = emptyList(),
-            pomRewriteRules = emptySet(),
-            packageMap = PackageMap.EMPTY,
-            typesMap = TypesMap.EMPTY,
-            proGuardMap = ProGuardTypesMap.EMPTY
-        )
-        val context = TransformationContext(config,
+        val context = TransformationContext(Config.EMPTY,
             rewritingSupportLib = rewritingSupportLib,
             isInReversedMode = reverseMode)
         val transformer = MetaInfTransformer(context)

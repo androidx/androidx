@@ -16,9 +16,10 @@
 
 package android.support.tools.jetifier.processor.transform.bytecode
 
-import android.support.tools.jetifier.core.RewriteRule
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.proguard.ProGuardTypesMap
+import android.support.tools.jetifier.core.rule.RewriteRule
+import android.support.tools.jetifier.core.rule.RewriteRulesMap
 import android.support.tools.jetifier.core.type.JavaType
 import android.support.tools.jetifier.core.type.TypesMap
 import android.support.tools.jetifier.processor.FileMapping
@@ -37,13 +38,13 @@ class ClassFilesMoveTest {
 
     companion object {
         private val TEST_CONFIG = Config(
-            restrictToPackagePrefixes = listOf("android/support"),
-            rewriteRules = listOf(
+            restrictToPackagePrefixes = setOf("android/support"),
+            rulesMap = RewriteRulesMap(
                 RewriteRule("android/support/annotation/(.*)", "ignore"),
                 RewriteRule("android/support/v7/preference/R(.*)", "ignore"),
                 RewriteRule("android/support/v4/(.*)", "ignore")
             ),
-            slRules = listOf(
+            slRules = setOf(
                 RewriteRule("android/support/annotation/(.*)", "ignore"),
                 RewriteRule("android/support/v7/preference/R(.*)", "ignore"),
                 RewriteRule("android/support/v4/(.*)", "ignore")

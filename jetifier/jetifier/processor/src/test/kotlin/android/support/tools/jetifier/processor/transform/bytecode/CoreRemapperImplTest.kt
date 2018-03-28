@@ -19,6 +19,7 @@ package android.support.tools.jetifier.processor.transform.bytecode
 import android.support.tools.jetifier.core.PackageMap
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.proguard.ProGuardTypesMap
+import android.support.tools.jetifier.core.rule.RewriteRulesMap
 import android.support.tools.jetifier.core.type.JavaType
 import android.support.tools.jetifier.core.type.TypesMap
 import android.support.tools.jetifier.processor.transform.TransformationContext
@@ -48,19 +49,19 @@ class CoreRemapperImplTest {
             restrictToPackagePrefix: String? = null
     ): CoreRemapperImpl {
         val prefixes = if (restrictToPackagePrefix == null) {
-            emptyList()
+            emptySet()
         } else {
-            listOf(restrictToPackagePrefix)
+            setOf(restrictToPackagePrefix)
         }
 
         val config = Config(
-                restrictToPackagePrefixes = prefixes,
-                rewriteRules = emptyList(),
-                typesMap = typesMap,
-                slRules = emptyList(),
-                pomRewriteRules = emptySet(),
-                proGuardMap = ProGuardTypesMap.EMPTY,
-                packageMap = PackageMap.EMPTY)
+            restrictToPackagePrefixes = prefixes,
+            rulesMap = RewriteRulesMap.EMPTY,
+            typesMap = typesMap,
+            slRules = emptySet(),
+            pomRewriteRules = emptySet(),
+            proGuardMap = ProGuardTypesMap.EMPTY,
+            packageMap = PackageMap.EMPTY)
 
         val context = TransformationContext(config, isInReversedMode = true)
 
