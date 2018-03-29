@@ -22,6 +22,7 @@ import static androidx.slice.builders.ListBuilder.SMALL_IMAGE;
 
 import android.graphics.drawable.Icon;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
@@ -85,6 +86,7 @@ public class MessagingListV1Impl extends TemplateBuilderImpl implements Messagin
         /**
          */
         @Override
+        @RequiresApi(23)
         public void addSource(Icon source) {
             mListBuilder.setTitleItem(IconCompat.createFromIcon(source), SMALL_IMAGE);
         }

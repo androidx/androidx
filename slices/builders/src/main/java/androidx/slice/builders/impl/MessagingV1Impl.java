@@ -20,6 +20,7 @@ import static android.app.slice.Slice.SUBTYPE_MESSAGE;
 
 import android.graphics.drawable.Icon;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
@@ -71,6 +72,7 @@ public class MessagingV1Impl extends TemplateBuilderImpl implements MessagingBui
         /**
          */
         @Override
+        @RequiresApi(23)
         public void addSource(Icon source) {
             getBuilder().addIcon(IconCompat.createFromIcon(source),
                     android.app.slice.Slice.SUBTYPE_SOURCE);
