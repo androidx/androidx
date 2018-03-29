@@ -16,12 +16,15 @@
 
 package androidx.sqlite.db;
 
+import androidx.annotation.Nullable;
+
 /**
  * A basic implementation of {@link SupportSQLiteQuery} which receives a query and its args and
  * binds args based on the passed in Object type.
  */
 public final class SimpleSQLiteQuery implements SupportSQLiteQuery {
     private final String mQuery;
+    @Nullable
     private final Object[] mBindArgs;
 
     /**
@@ -30,7 +33,7 @@ public final class SimpleSQLiteQuery implements SupportSQLiteQuery {
      * @param query    The query string, can include bind arguments (.e.g ?).
      * @param bindArgs The bind argument value that will replace the placeholders in the query.
      */
-    public SimpleSQLiteQuery(String query, Object[] bindArgs) {
+    public SimpleSQLiteQuery(String query, @Nullable Object[] bindArgs) {
         mQuery = query;
         mBindArgs = bindArgs;
     }
@@ -56,7 +59,7 @@ public final class SimpleSQLiteQuery implements SupportSQLiteQuery {
 
     @Override
     public int getArgCount() {
-        return mBindArgs.length;
+        return mBindArgs == null ? 0 : mBindArgs.length;
     }
 
     /**
