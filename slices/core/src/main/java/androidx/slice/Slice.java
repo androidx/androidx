@@ -396,35 +396,28 @@ public final class Slice {
     }
 
     /**
-     * @hide
      * @return A string representation of this slice.
      */
-    @RestrictTo(Scope.LIBRARY)
     @Override
     public String toString() {
         return toString("");
     }
 
     /**
+     * @return A string representation of this slice.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
+        sb.append(indent);
+        sb.append("slice: ");
+        sb.append("\n");
+        indent += "   ";
         for (int i = 0; i < mItems.length; i++) {
-            sb.append(indent);
-            if (FORMAT_SLICE.equals(mItems[i].getFormat())) {
-                sb.append("slice:\n");
-                sb.append(mItems[i].getSlice().toString(indent + "   "));
-            } else if (FORMAT_ACTION.equals(mItems[i].getFormat())) {
-                sb.append("action:\n");
-                sb.append(mItems[i].getSlice().toString(indent + "   "));
-            } else if (FORMAT_TEXT.equals(mItems[i].getFormat())) {
-                sb.append("text: ");
-                sb.append(mItems[i].getText());
-                sb.append("\n");
-            } else {
-                sb.append(SliceItem.typeToString(mItems[i].getFormat()));
+            SliceItem item = mItems[i];
+            sb.append(item.toString(indent));
+            if (!FORMAT_SLICE.equals(item.getFormat())) {
                 sb.append("\n");
             }
         }
