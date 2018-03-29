@@ -2313,6 +2313,12 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP)
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
+            // This is called because we need to apply legacy logic before writing MessagingInfo
+            // data into the bundle. This does nothing in >= P, but in < P this will apply the
+            // correct group conversation status to new fields which will then be decoded properly
+            // by #extractMessagingStyleFromNotification.
+            setGroupConversation(isGroupConversation());
+
             if (Build.VERSION.SDK_INT >= 24) {
                 Notification.MessagingStyle style =
                         new Notification.MessagingStyle(mUserDisplayName)
