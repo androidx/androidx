@@ -213,6 +213,11 @@ public class MediaItem2 {
     }
 
     @Override
+    public int hashCode() {
+        return mUUID.hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof MediaItem2)) {
             return false;

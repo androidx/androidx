@@ -16,18 +16,34 @@
 
 package androidx.media;
 
+import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
+import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Process;
+import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -37,6 +53,7 @@ import androidx.media.MediaSession2.CommandButton;
 import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.MediaSession2.ErrorCode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -253,6 +270,23 @@ public class MediaController2 implements AutoCloseable {
      */
     // The same as MediaController.PlaybackInfo
     public static final class PlaybackInfo {
+        private static final String KEY_PLAYBACK_TYPE =
+                "android.media.playbackinfo_impl.playback_type";
+        private static final String KEY_CONTROL_TYPE =
+                "android.media.playbackinfo_impl.control_type";
+        private static final String KEY_MAX_VOLUME =
+                "android.media.playbackinfo_impl.max_volume";
+        private static final String KEY_CURRENT_VOLUME =
+                "android.media.playbackinfo_impl.current_volume";
+//        private static final String KEY_AUDIO_ATTRIBUTES =
+//                "android.media.playbackinfo_impl.audio_attrs";
+
+        private final int mPlaybackType;
+        private final int mControlType;
+        private final int mMaxVolume;
+        private final int mCurrentVolume;
+        private final AudioAttributesCompat mAudioAttrsCompat;
+
         /**
          * The session uses remote playback.
          */
@@ -262,21 +296,15 @@ public class MediaController2 implements AutoCloseable {
          */
         public static final int PLAYBACK_TYPE_LOCAL = 1;
 
-        //private final PlaybackInfoProvider mProvider;
-
-//        /**
-//         * @hide
-//         */
-//        public PlaybackInfo(PlaybackInfoProvider provider) {
-//            mProvider = provider;
-//        }
-
-//        /**
-//         * @hide
-//         */
-//        public PlaybackInfoProvider getProvider() {
-//            return mProvider;
-//        }
+        private PlaybackInfo(int playbackType, AudioAttributes attrs, int controlType, int max,
+                int current) {
+            mPlaybackType = playbackType;
+            // TODO: Use AudioAttributesCompat instead of AudioAttributes, and set the value
+            mAudioAttrsCompat = null;
+            mControlType = controlType;
+            mMaxVolume = max;
+            mCurrentVolume = current;
+        }
 
         /**
          * Get the type of playback which affects volume handling. One of:
@@ -288,8 +316,7 @@ public class MediaController2 implements AutoCloseable {
          * @return The type of playback this session is using.
          */
         public int getPlaybackType() {
-            //return mProvider.getPlaybackType_impl();
-            return PLAYBACK_TYPE_LOCAL;
+            return mPlaybackType;
         }
 
         /**
@@ -301,8 +328,7 @@ public class MediaController2 implements AutoCloseable {
          * @return The attributes for this session.
          */
         public AudioAttributesCompat getAudioAttributes() {
-            //return mProvider.getAudioAttributes_impl();
-            return null;
+            return mAudioAttrsCompat;
         }
 
         /**
@@ -316,8 +342,7 @@ public class MediaController2 implements AutoCloseable {
          * @return The type of volume control that may be used with this session.
          */
         public int getControlType() {
-            //return mProvider.getControlType_impl();
-            return 0;
+            return mControlType;
         }
 
         /**
@@ -326,8 +351,7 @@ public class MediaController2 implements AutoCloseable {
          * @return The maximum allowed volume where this session is playing.
          */
         public int getMaxVolume() {
-            //return mProvider.getMaxVolume_impl();
-            return 0;
+            return mMaxVolume;
         }
 
         /**
@@ -336,12 +360,122 @@ public class MediaController2 implements AutoCloseable {
          * @return The current volume where this session is playing.
          */
         public int getCurrentVolume() {
-            //return mProvider.getCurrentVolume_impl();
-            return 0;
+            return mCurrentVolume;
+        }
+
+        Bundle toBundle() {
+            Bundle bundle = new Bundle();
+            bundle.putInt(KEY_PLAYBACK_TYPE, mPlaybackType);
+            bundle.putInt(KEY_CONTROL_TYPE, mControlType);
+            bundle.putInt(KEY_MAX_VOLUME, mMaxVolume);
+            bundle.putInt(KEY_CURRENT_VOLUME, mCurrentVolume);
+            //bundle.putParcelable(KEY_AUDIO_ATTRIBUTES, mAudioAttrs);
+            return bundle;
+        }
+
+        static PlaybackInfo createPlaybackInfo(int playbackType, AudioAttributes attrs,
+                int controlType, int max, int current) {
+            return new PlaybackInfo(playbackType, attrs, controlType, max, current);
+        }
+
+        static PlaybackInfo fromBundle(Bundle bundle) {
+            if (bundle == null) {
+                return null;
+            }
+            final int volumeType = bundle.getInt(KEY_PLAYBACK_TYPE);
+            final int volumeControl = bundle.getInt(KEY_CONTROL_TYPE);
+            final int maxVolume = bundle.getInt(KEY_MAX_VOLUME);
+            final int currentVolume = bundle.getInt(KEY_CURRENT_VOLUME);
+            //final AudioAttributes attrs = bundle.getParcelable(KEY_AUDIO_ATTRIBUTES);
+
+            return createPlaybackInfo(volumeType, null /*attrs*/, volumeControl, maxVolume,
+                    currentVolume);
         }
     }
 
-    //private final MediaController2Provider mProvider;
+    private final class ControllerCompatCallback extends MediaControllerCompat.Callback {
+        @Override
+        public void onSessionReady() {
+            sendCustomCommand(COMMAND_CONNECT);
+        }
+
+        @Override
+        public void onSessionDestroyed() {
+            close();
+        }
+
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            synchronized (mLock) {
+                mPlaybackStateCompat = state;
+            }
+        }
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            synchronized (mLock) {
+                mMediaMetadataCompat = metadata;
+            }
+        }
+    }
+
+    private static final String TAG = "MediaController2";
+    private static final boolean DEBUG = true; // TODO(jaewan): Change
+
+    static final String COMMAND_CONNECT =
+            "androidx.media.MediaController2.command.CONNECT";
+
+    static final String ARGUMENT_ICONTROLLER_CALLBACK =
+            "androidx.media.MediaController2.argument.ICONTROLLER_CALLBACK";
+    static final String ARGUMENT_UID = "androidx.media.MediaController2.argument.UID";
+    static final String ARGUMENT_PID = "androidx.media.MediaController2.argument.PID";
+    static final String ARGUMENT_PACKAGE_NAME =
+            "androidx.media.MediaController2.argument.PACKAGE_NAME";
+
+    private final Context mContext;
+    private final Object mLock = new Object();
+
+    private final SessionToken2 mToken;
+    private final ControllerCallback mCallback;
+    private final Executor mCallbackExecutor;
+    private final IBinder.DeathRecipient mDeathRecipient;
+
+    private final HandlerThread mHandlerThread;
+    private final Handler mHandler;
+
+    //@GuardedBy("mLock")
+    //private SessionServiceConnection mServiceConnection;
+    @GuardedBy("mLock")
+    private boolean mIsReleased;
+    @GuardedBy("mLock")
+    private List<MediaItem2> mPlaylist;
+    @GuardedBy("mLock")
+    private MediaMetadata2 mPlaylistMetadata;
+    @GuardedBy("mLock")
+    private @RepeatMode int mRepeatMode;
+    @GuardedBy("mLock")
+    private @ShuffleMode int mShuffleMode;
+    @GuardedBy("mLock")
+    private int mPlayerState;
+    @GuardedBy("mLock")
+    private PlaybackInfo mPlaybackInfo;
+    @GuardedBy("mLock")
+    private SessionCommandGroup2 mAllowedCommands;
+
+    // Media 1.0 variables
+    @GuardedBy("mLock")
+    private MediaControllerCompat mControllerCompat;
+    @GuardedBy("mLock")
+    private ControllerCompatCallback mControllerCompatCallback;
+    @GuardedBy("mLock")
+    private PlaybackStateCompat mPlaybackStateCompat;
+    @GuardedBy("mLock")
+    private MediaMetadataCompat mMediaMetadataCompat;
+
+    // Assignment should be used with the lock hold, but should be used without a lock to prevent
+    // potential deadlock.
+    @GuardedBy("mLock")
+    private volatile boolean mConnected;
 
     /**
      * Create a {@link MediaController2} from the {@link SessionToken2}.
@@ -353,27 +487,36 @@ public class MediaController2 implements AutoCloseable {
      * @param callback controller callback to receive changes in
      */
     public MediaController2(@NonNull Context context, @NonNull SessionToken2 token,
-            @NonNull /*@CallbackExecutor*/ Executor executor,
-            @NonNull ControllerCallback callback) {
+            @NonNull Executor executor, @NonNull ControllerCallback callback) {
         super();
+        if (context == null) {
+            throw new IllegalArgumentException("context shouldn't be null");
+        }
+        if (token == null) {
+            throw new IllegalArgumentException("token shouldn't be null");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("callback shouldn't be null");
+        }
+        if (executor == null) {
+            throw new IllegalArgumentException("executor shouldn't be null");
+        }
+        mContext = context;
+        mHandlerThread = new HandlerThread("MediaController2_Thread");
+        mHandlerThread.run();
+        mHandler = new Handler(mHandlerThread.getLooper());
+        mToken = token;
+        mCallback = callback;
+        mCallbackExecutor = executor;
+        mDeathRecipient = new IBinder.DeathRecipient() {
+            @Override
+            public void binderDied() {
+                MediaController2.this.close();
+            }
+        };
 
-        //mProvider = createProvider(context, token, executor, callback);
-
-        // This also connects to the token.
-        // Explicit connect() isn't added on purpose because retrying connect() is impossible with
-        // session whose session binder is only valid while it's active.
-        // prevent a controller from reusable after the
-        // session is released and recreated.
-
-        //mProvider.initialize();
+        initialize();
     }
-
-//    MediaController2Provider createProvider(@NonNull Context context,
-//            @NonNull SessionToken2 token, @NonNull Executor executor,
-//            @NonNull ControllerCallback callback) {
-//        return ApiLoader.getProvider().createMediaController2(
-//                context, this, token, executor, callback);
-//    }
 
     /**
      * Release this object, and disconnect from the session. After this, callbacks wouldn't be
@@ -381,51 +524,96 @@ public class MediaController2 implements AutoCloseable {
      */
     @Override
     public void close() {
-        //mProvider.close_impl();
+        if (DEBUG) {
+            Log.d(TAG, "release from " + mToken);
+        }
+        mHandlerThread.quitSafely();
+        synchronized (mLock) {
+            if (mIsReleased) {
+                // Prevent re-enterance from the ControllerCallback.onDisconnected()
+                return;
+            }
+            mIsReleased = true;
+//            if (mServiceConnection != null) {
+//                mContext.unbindService(mServiceConnection);
+//                mServiceConnection = null;
+//            }
+            mControllerCompat.unregisterCallback(mControllerCompatCallback);
+            mConnected = false;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mCallback.onDisconnected(MediaController2.this);
+            }
+        });
     }
-
-//    /**
-//     * @hide
-//     */
-//    public MediaController2Provider getProvider() {
-//        return mProvider;
-//    }
 
     /**
      * @return token
      */
-    public /*@NonNull*/ SessionToken2 getSessionToken() {
-        //return mProvider.getSessionToken_impl();
-        return null;
+    public @NonNull SessionToken2 getSessionToken() {
+        return mToken;
     }
 
     /**
      * Returns whether this class is connected to active {@link MediaSession2} or not.
      */
     public boolean isConnected() {
-        //return mProvider.isConnected_impl();
-        return false;
+        synchronized (mLock) {
+            return mConnected;
+        }
     }
 
     /**
-     * TODO: javadoc
+     * Requests that the player starts or resumes playback.
      */
     public void play() {
-        //mProvider.play_impl();
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.play();
+            }
+        }
     }
 
     /**
-     * TODO: javadoc
+     * Requests that the player pauses playback.
      */
     public void pause() {
-        //mProvider.pause_impl();
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.pause();
+            }
+        }
     }
 
     /**
-     * TODO: javadoc
+     * Requests that the player be reset to its uninitialized state.
      */
-    public void stop() {
-        //mProvider.stop_impl();
+    public void reset() {
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.stop();
+            }
+        }
     }
 
     /**
@@ -436,7 +624,17 @@ public class MediaController2 implements AutoCloseable {
      * to start playback.
      */
     public void prepare() {
-        //mProvider.prepare_impl();
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.prepare();
+            }
+        }
     }
 
     /**
@@ -444,7 +642,17 @@ public class MediaController2 implements AutoCloseable {
      * may increase the rate.
      */
     public void fastForward() {
-        //mProvider.fastForward_impl();
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.fastForward();
+            }
+        }
     }
 
     /**
@@ -452,7 +660,17 @@ public class MediaController2 implements AutoCloseable {
      * the rate.
      */
     public void rewind() {
-        //mProvider.rewind_impl();
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.rewind();
+            }
+        }
     }
 
     /**
@@ -461,7 +679,17 @@ public class MediaController2 implements AutoCloseable {
      * @param pos Position to move to, in milliseconds.
      */
     public void seekTo(long pos) {
-        //mProvider.seekTo_impl(pos);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.seekTo(pos);
+            }
+        }
     }
 
     /**
@@ -488,7 +716,17 @@ public class MediaController2 implements AutoCloseable {
      *               to be played.
      */
     public void playFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
-        //mProvider.playFromMediaId_impl(mediaId, extras);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.playFromMediaId(mediaId, extras);
+            }
+        }
     }
 
     /**
@@ -498,7 +736,17 @@ public class MediaController2 implements AutoCloseable {
      * @param extras Optional extras that can include extra information about the query.
      */
     public void playFromSearch(@NonNull String query, @Nullable Bundle extras) {
-        //mProvider.playFromSearch_impl(query, extras);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.playFromSearch(query, extras);
+            }
+        }
     }
 
     /**
@@ -509,7 +757,17 @@ public class MediaController2 implements AutoCloseable {
      *               to be played.
      */
     public void playFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
-        //mProvider.playFromUri_impl(uri, extras);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.playFromUri(uri, extras);
+            }
+        }
     }
 
     /**
@@ -525,7 +783,17 @@ public class MediaController2 implements AutoCloseable {
      *               to be prepared.
      */
     public void prepareFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
-        //mProvider.prepareFromMediaId_impl(mediaId, extras);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.prepareFromMediaId(mediaId, extras);
+            }
+        }
     }
 
     /**
@@ -541,7 +809,17 @@ public class MediaController2 implements AutoCloseable {
      * @param extras Optional extras that can include extra information about the query.
      */
     public void prepareFromSearch(@NonNull String query, @Nullable Bundle extras) {
-        //mProvider.prepareFromSearch_impl(query, extras);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.prepareFromSearch(query, extras);
+            }
+        }
     }
 
     /**
@@ -557,7 +835,17 @@ public class MediaController2 implements AutoCloseable {
      *               to be prepared.
      */
     public void prepareFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
-        //mProvider.prepareFromUri_impl(uri, extras);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            MediaControllerCompat.TransportControls control =
+                    mControllerCompat.getTransportControls();
+            if (control != null) {
+                control.prepareFromUri(uri, extras);
+            }
+        }
     }
 
     /**
@@ -576,7 +864,13 @@ public class MediaController2 implements AutoCloseable {
      *              playback
      */
     public void setVolumeTo(int value, int flags) {
-        //mProvider.setVolumeTo_impl(value, flags);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            mControllerCompat.setVolumeTo(value, flags);
+        }
     }
 
     /**
@@ -599,7 +893,13 @@ public class MediaController2 implements AutoCloseable {
      *              playback
      */
     public void adjustVolume(int direction, int flags) {
-        //mProvider.adjustVolume_impl(direction, flags);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            mControllerCompat.adjustVolume(direction, flags);
+        }
     }
 
     /**
@@ -608,8 +908,13 @@ public class MediaController2 implements AutoCloseable {
      * @return A {@link PendingIntent} to launch UI or null.
      */
     public @Nullable PendingIntent getSessionActivity() {
-        //return mProvider.getSessionActivity_impl();
-        return null;
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return null;
+            }
+            return mControllerCompat.getSessionActivity();
+        }
     }
 
     /**
@@ -619,8 +924,24 @@ public class MediaController2 implements AutoCloseable {
      * @return player state
      */
     public int getPlayerState() {
-        //return mProvider.getPlayerState_impl();
-        return 0;
+        synchronized (mLock) {
+            return mPlayerState;
+        }
+    }
+
+    /**
+     * Gets the duration of the current media item, or {@link MediaPlayerBase#UNKNOWN_TIME} if
+     * unknown.
+     * @return the duration in ms, or {@link MediaPlayerBase#UNKNOWN_TIME}.
+     */
+    public long getDuration() {
+        synchronized (mLock) {
+            if (mMediaMetadataCompat != null
+                    && mMediaMetadataCompat.containsKey(METADATA_KEY_DURATION)) {
+                return mMediaMetadataCompat.getLong(METADATA_KEY_DURATION);
+            }
+        }
+        return MediaPlayerBase.UNKNOWN_TIME;
     }
 
     /**
@@ -630,22 +951,40 @@ public class MediaController2 implements AutoCloseable {
      * This returns the calculated value of the position, based on the difference between the
      * update time and current time.
      *
-     * @return position
+     * @return the calculated value of the current playback position, or
+     *         {@link MediaPlayerBase#UNKNOWN_TIME} if unknown.
      */
-    public long getPosition() {
-        //return mProvider.getPosition_impl();
-        return 0L;
+    public long getCurrentPosition() {
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return UNKNOWN_TIME;
+            }
+            if (mPlaybackStateCompat != null) {
+                long timeDiff = System.currentTimeMillis()
+                        - mPlaybackStateCompat.getLastPositionUpdateTime();
+                long expectedPosition = mPlaybackStateCompat.getPosition()
+                        + (long) (mPlaybackStateCompat.getPlaybackSpeed() * timeDiff);
+                return Math.max(0, expectedPosition);
+            }
+            return UNKNOWN_TIME;
+        }
     }
 
     /**
      * Get the lastly cached playback speed from
      * {@link ControllerCallback#onPlaybackSpeedChanged(MediaController2, float)}.
      *
-     * @return speed
+     * @return speed the lastly cached playback speed, or 0.0f if unknown.
      */
     public float getPlaybackSpeed() {
-        //return mProvider.getPlaybackSpeed_impl();
-        return 0f;
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return 0f;
+            }
+            return (mPlaybackStateCompat == null) ? 0f : mPlaybackStateCompat.getPlaybackSpeed();
+        }
     }
 
     /**
@@ -656,14 +995,31 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
+     * Gets the current buffering state of the player.
+     * During buffering, see {@link #getBufferedPosition()} for the quantifying the amount already
+     * buffered.
+     * @return the buffering state.
+     */
+    public @MediaPlayerBase.BuffState int getBufferingState() {
+        // TODO(jaewan): Implement.
+        return BUFFERING_STATE_UNKNOWN;
+    }
+
+    /**
      * Get the lastly cached buffered position from
      * {@link ControllerCallback#onBufferedPositionChanged(MediaController2, long)}.
      *
-     * @return buffering position in millis
+     * @return buffering position in millis, or {@link MediaPlayerBase#UNKNOWN_TIME} if unknown.
      */
     public long getBufferedPosition() {
-        //return mProvider.getBufferedPosition_impl();
-        return 0L;
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return UNKNOWN_TIME;
+            }
+            return (mPlaybackStateCompat == null) ? UNKNOWN_TIME
+                    : mPlaybackStateCompat.getBufferedPosition();
+        }
     }
 
     /**
@@ -672,8 +1028,9 @@ public class MediaController2 implements AutoCloseable {
      * @return The current playback info or null.
      */
     public @Nullable PlaybackInfo getPlaybackInfo() {
-        //return mProvider.getPlaybackInfo_impl();
-        return null;
+        synchronized (mLock) {
+            return mPlaybackInfo;
+        }
     }
 
     /**
@@ -705,9 +1062,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Returns the cached playlist from
-     * {@link ControllerCallback#onPlaylistChanged(MediaController2, MediaPlaylistAgent, List,
-     * MediaMetadata2)}.
+     * Returns the cached playlist from {@link ControllerCallback#onPlaylistChanged}.
      * <p>
      * This list may differ with the list that was specified with
      * {@link #setPlaylist(List, MediaMetadata2)} depending on the {@link MediaPlaylistAgent}
@@ -731,8 +1086,7 @@ public class MediaController2 implements AutoCloseable {
      * @param list playlist
      * @param metadata metadata of the playlist
      * @see #getPlaylist()
-     * @see ControllerCallback#onPlaylistChanged(
-     *      MediaController2, MediaPlaylistAgent, List, MediaMetadata2)
+     * @see ControllerCallback#onPlaylistChanged
      */
     public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
         //mProvider.setPlaylist_impl(list, metadata);
@@ -749,10 +1103,8 @@ public class MediaController2 implements AutoCloseable {
 
     /**
      * Gets the lastly cached playlist playlist metadata either from
-     * {@link ControllerCallback#onPlaylistMetadataChanged(
-     * MediaController2, MediaPlaylistAgent, MediaMetadata2)} or
-     * {@link ControllerCallback#onPlaylistChanged(
-     * MediaController2, MediaPlaylistAgent, List, MediaMetadata2)}.
+     * {@link ControllerCallback#onPlaylistMetadataChanged or
+     * {@link ControllerCallback#onPlaylistChanged}.
      *
      * @return metadata metadata of the playlist, or null if none is set
      */
@@ -840,8 +1192,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Gets the cached repeat mode from the {@link ControllerCallback#onRepeatModeChanged(
-     * MediaController2, MediaPlaylistAgent, int)}.
+     * Gets the cached repeat mode from the {@link ControllerCallback#onRepeatModeChanged}.
      *
      * @return repeat mode
      * @see MediaPlaylistAgent#REPEAT_MODE_NONE
@@ -868,8 +1219,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Gets the cached shuffle mode from the {@link ControllerCallback#onShuffleModeChanged(
-     * MediaController2, MediaPlaylistAgent, int)}.
+     * Gets the cached shuffle mode from the {@link ControllerCallback#onShuffleModeChanged}.
      *
      * @return The shuffle mode
      * @see MediaPlaylistAgent#SHUFFLE_MODE_NONE
@@ -891,5 +1241,136 @@ public class MediaController2 implements AutoCloseable {
      */
     public void setShuffleMode(@ShuffleMode int shuffleMode) {
         //mProvider.setShuffleMode_impl(shuffleMode);
+    }
+
+    // Should be used without a lock to prevent potential deadlock.
+    void onConnectedNotLocked(Bundle data) {
+        final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
+                data.getBundle(MediaSession2.ARGUMENT_ALLOWED_COMMANDS));
+        final int playerState = data.getInt(MediaSession2.ARGUMENT_PLAYER_STATE);
+        final PlaybackInfo info = PlaybackInfo.fromBundle(
+                data.getBundle(MediaSession2.ARGUMENT_PLAYBACK_INFO));
+        final PlaybackStateCompat playbackStateCompat = data.getParcelable(
+                MediaSession2.ARGUMENT_PLAYBACK_STATE_COMPAT);
+        final int repeatMode = data.getInt(MediaSession2.ARGUMENT_REPEAT_MODE);
+        final int shuffleMode = data.getInt(MediaSession2.ARGUMENT_SHUFFLE_MODE);
+        // TODO: Set mMediaMetadataCompat from the data.
+        final List<MediaItem2> playlist = new ArrayList<>();
+        Bundle[] itemBundleList = (Bundle[]) data.getParcelableArray(
+                MediaSession2.ARGUMENT_PLAYLIST);
+        if (itemBundleList != null) {
+            for (int i = 0; i < itemBundleList.length; i++) {
+                MediaItem2 item = MediaItem2.fromBundle(itemBundleList[i]);
+                if (item != null) {
+                    playlist.add(item);
+                }
+            }
+        }
+        if (DEBUG) {
+            Log.d(TAG, "onConnectedNotLocked sessionCompatToken=" + mToken.getSessionCompatToken()
+                    + ", allowedCommands=" + allowedCommands);
+        }
+        boolean close = false;
+        try {
+            synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
+                if (mConnected) {
+                    Log.e(TAG, "Cannot be notified about the connection result many times."
+                            + " Probably a bug or malicious app.");
+                    close = true;
+                    return;
+                }
+                mAllowedCommands = allowedCommands;
+                mPlayerState = playerState;
+                mPlaybackInfo = info;
+                mPlaybackStateCompat = playbackStateCompat;
+                mRepeatMode = repeatMode;
+                mShuffleMode = shuffleMode;
+                mPlaylist = playlist;
+                mConnected = true;
+            }
+            // TODO(jaewan): Keep commands to prevents illegal API calls.
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // Note: We may trigger ControllerCallbacks with the initial values
+                    // But it's hard to define the order of the controller callbacks
+                    // Only notify about the
+                    mCallback.onConnected(MediaController2.this, allowedCommands);
+                }
+            });
+        } finally {
+            if (close) {
+                // Trick to call release() without holding the lock, to prevent potential deadlock
+                // with the developer's custom lock within the ControllerCallback.onDisconnected().
+                close();
+            }
+        }
+    }
+
+    private void initialize() {
+        // TODO(jaewan): More sanity checks.
+        // TODO: Check the connection between 1.0 and 2.0 APIs
+        if (mToken.getType() == SessionToken2.TYPE_SESSION) {
+            // Session
+            //mServiceConnection = null;
+            connectToSession(mToken.getSessionCompatToken());
+        } else {
+            // TODO: implement connect to services.
+            // Session service
+            //mServiceConnection = new SessionServiceConnection();
+            //connectToService();
+        }
+    }
+
+    private void connectToSession(MediaSessionCompat.Token sessionCompatToken) {
+        synchronized (mLock) {
+            try {
+                mControllerCompat = new MediaControllerCompat(mContext, sessionCompatToken);
+                mControllerCompatCallback = new ControllerCompatCallback();
+                mControllerCompat.registerCallback(mControllerCompatCallback, mHandler);
+            } catch (RemoteException e) {
+            }
+
+            if (mControllerCompat.isSessionReady()) {
+                sendCustomCommand(COMMAND_CONNECT);
+            }
+        }
+    }
+
+    private void sendCustomCommand(String command) {
+        if (COMMAND_CONNECT.equals(command)) {
+            MediaControllerCompat controller;
+            ControllerCompatCallback callback;
+            synchronized (mLock) {
+                controller = mControllerCompat;
+                callback = mControllerCompatCallback;
+            }
+            Bundle args = new Bundle();
+            args.putBinder(ARGUMENT_ICONTROLLER_CALLBACK,
+                    callback.getIControllerCallback().asBinder());
+            args.putString(ARGUMENT_PACKAGE_NAME, mContext.getPackageName());
+            args.putInt(ARGUMENT_UID, Process.myUid());
+            args.putInt(ARGUMENT_PID, Process.myPid());
+            controller.sendCommand(COMMAND_CONNECT, args, new ResultReceiver(mHandler) {
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    if (!mHandlerThread.isAlive()) {
+                        return;
+                    }
+                    switch (resultCode) {
+                        case MediaSession2.CONNECT_RESULT_CONNECTED:
+                            onConnectedNotLocked(resultData);
+                            break;
+                        case MediaSession2.CONNECT_RESULT_DISCONNECTED:
+                            mCallback.onDisconnected(MediaController2.this);
+                            close();
+                            break;
+                    }
+                }
+            });
+        }
     }
 }
