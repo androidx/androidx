@@ -95,4 +95,7 @@ class ScrollbarHelper {
         // estimate a size for full list.
         return (int) ((float) laidOutArea / laidOutRange * state.getItemCount());
     }
+
+    private ScrollbarHelper() {
+    }
 }

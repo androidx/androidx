@@ -758,4 +758,7 @@ public class PathParser {
             }
         }
     }
+
+    private PathParser() {
+    }
 }

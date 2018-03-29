@@ -308,4 +308,7 @@ public class FontResourcesParserCompat {
             }
         }
     }
+
+    private FontResourcesParserCompat() {
+    }
 }

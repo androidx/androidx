@@ -149,4 +149,7 @@ final class MediaRouteDialogHelper {
         view.draw(canvas);
         return new BitmapDrawable(context.getResources(), bitmap);
     }
+
+    private MediaRouteDialogHelper() {
+    }
 }

@@ -100,4 +100,7 @@ public class WebViewGlueCommunicator {
             throw new RuntimeException(e);
         }
     }
+
+    private WebViewGlueCommunicator() {
+    }
 }

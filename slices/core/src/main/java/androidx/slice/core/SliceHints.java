@@ -106,4 +106,7 @@ public class SliceHints {
      * Constant representing infinity.
      */
     public static final long INFINITY = -1;
+
+    private SliceHints() {
+    }
 }

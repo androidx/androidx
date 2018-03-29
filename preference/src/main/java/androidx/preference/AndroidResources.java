@@ -34,4 +34,6 @@ public class AndroidResources {
     public static final int ANDROID_R_EDITTEXT_PREFERENCE_STYLE
             = android.R.attr.editTextPreferenceStyle;
 
+    private AndroidResources() {
+    }
 }

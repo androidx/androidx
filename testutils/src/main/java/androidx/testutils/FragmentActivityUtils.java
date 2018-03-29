@@ -89,4 +89,7 @@ public class FragmentActivityUtils {
         RecreatedActivity.clearState();
         return newActivity;
     }
+
+    private FragmentActivityUtils() {
+    }
 }

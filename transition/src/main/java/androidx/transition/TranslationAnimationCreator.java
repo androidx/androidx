@@ -133,4 +133,6 @@ class TranslationAnimationCreator {
         }
     }
 
+    private TranslationAnimationCreator() {
+    }
 }

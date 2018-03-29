@@ -40,4 +40,6 @@ class AppCompatHintHelper {
         return ic;
     }
 
+    private AppCompatHintHelper() {
+    }
 }

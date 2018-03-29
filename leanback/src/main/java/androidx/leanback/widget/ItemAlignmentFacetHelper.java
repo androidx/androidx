@@ -105,4 +105,6 @@ class ItemAlignmentFacetHelper {
         return alignPos;
     }
 
+    private ItemAlignmentFacetHelper() {
+    }
 }

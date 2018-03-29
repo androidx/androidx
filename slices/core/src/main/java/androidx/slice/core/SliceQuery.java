@@ -307,4 +307,7 @@ public class SliceQuery {
     private interface Filter<T> {
         boolean filter(T input);
     }
+
+    private SliceQuery() {
+    }
 }

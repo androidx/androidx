@@ -148,5 +148,11 @@ class MediaBrowserCompatApi21 {
         public static Object getDescription(Object itemObj) {
             return ((MediaBrowser.MediaItem) itemObj).getDescription();
         }
+
+        private MediaItem() {
+        }
+    }
+
+    private MediaBrowserCompatApi21() {
     }
 }

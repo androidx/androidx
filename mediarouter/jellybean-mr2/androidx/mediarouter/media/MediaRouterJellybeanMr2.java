@@ -37,11 +37,20 @@ final class MediaRouterJellybeanMr2 {
         public static boolean isConnecting(Object routeObj) {
             return ((android.media.MediaRouter.RouteInfo)routeObj).isConnecting();
         }
+
+        private RouteInfo() {
+        }
     }
 
     public static final class UserRouteInfo {
         public static void setDescription(Object routeObj, CharSequence description) {
             ((android.media.MediaRouter.UserRouteInfo)routeObj).setDescription(description);
         }
+
+        private UserRouteInfo() {
+        }
+    }
+
+    private MediaRouterJellybeanMr2() {
     }
 }

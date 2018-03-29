@@ -25,7 +25,7 @@ import androidx.annotation.RequiresApi;
 @RequiresApi(24)
 class MediaControllerCompatApi24 {
 
-    public static class TransportControls extends MediaControllerCompatApi23.TransportControls {
+    public static class TransportControls {
         public static void prepare(Object controlsObj) {
             ((MediaController.TransportControls) controlsObj).prepare();
         }
@@ -41,5 +41,11 @@ class MediaControllerCompatApi24 {
         public static void prepareFromUri(Object controlsObj, Uri uri, Bundle extras) {
             ((MediaController.TransportControls) controlsObj).prepareFromUri(uri, extras);
         }
+
+        private TransportControls() {
+        }
+    }
+
+    private MediaControllerCompatApi24() {
     }
 }

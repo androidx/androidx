@@ -52,6 +52,9 @@ final class MediaRouterJellybeanMr1 {
             }
             return null;
         }
+
+        private RouteInfo() {
+        }
     }
 
     public static interface Callback extends MediaRouterJellybean.Callback {
@@ -182,5 +185,8 @@ final class MediaRouterJellybeanMr1 {
                 android.media.MediaRouter.RouteInfo route) {
             mCallback.onRoutePresentationDisplayChanged(route);
         }
+    }
+
+    private MediaRouterJellybeanMr1() {
     }
 }

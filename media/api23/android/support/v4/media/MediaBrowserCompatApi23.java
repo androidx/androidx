@@ -61,4 +61,7 @@ class MediaBrowserCompatApi23 {
             mItemCallback.onError(itemId);
         }
     }
+
+    private MediaBrowserCompatApi23() {
+    }
 }

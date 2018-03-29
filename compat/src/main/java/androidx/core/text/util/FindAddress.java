@@ -513,4 +513,7 @@ class FindAddress {
         }
         return null;
     }
+
+    private FindAddress() {
+    }
 }

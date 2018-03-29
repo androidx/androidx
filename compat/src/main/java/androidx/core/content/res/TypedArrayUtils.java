@@ -294,4 +294,7 @@ public class TypedArrayUtils {
         }
         return fallbackAttr;
     }
+
+    private TypedArrayUtils() {
+    }
 }

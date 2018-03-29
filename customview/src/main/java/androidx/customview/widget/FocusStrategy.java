@@ -450,4 +450,7 @@ class FocusStrategy {
         V get(T collection, int index);
         int size(T collection);
     }
+
+    private FocusStrategy() {
+    }
 }

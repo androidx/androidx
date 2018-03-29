@@ -48,4 +48,7 @@ class ParceledListSliceAdapterApi21 {
         }
         return result;
     }
+
+    private ParceledListSliceAdapterApi21() {
+    }
 }

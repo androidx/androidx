@@ -25,9 +25,15 @@ import androidx.annotation.RequiresApi;
 @RequiresApi(23)
 class MediaControllerCompatApi23 {
 
-    public static class TransportControls extends MediaControllerCompatApi21.TransportControls {
+    public static class TransportControls {
         public static void playFromUri(Object controlsObj, Uri uri, Bundle extras) {
             ((MediaController.TransportControls) controlsObj).playFromUri(uri, extras);
         }
+
+        private TransportControls() {
+        }
+    }
+
+    private MediaControllerCompatApi23() {
     }
 }

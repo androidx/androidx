@@ -57,4 +57,7 @@ public class MediaSessionConstants {
 
     public static final int TEST_ERROR_CODE = 0x3;
     public static final String TEST_ERROR_MSG = "test-error-msg";
+
+    private MediaSessionConstants() {
+    }
 }
