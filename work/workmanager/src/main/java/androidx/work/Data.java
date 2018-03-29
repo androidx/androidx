@@ -35,18 +35,18 @@ import java.util.Map;
  * Persistable set of key/value pairs which are passed to {@link Worker}s.
  */
 
-public final class Arguments {
+public final class Data {
 
-    private static final String TAG = "Arguments";
+    private static final String TAG = "Data";
 
     private Map<String, Object> mValues;
 
-    public static final Arguments EMPTY = new Arguments.Builder().build();
+    public static final Data EMPTY = new Data.Builder().build();
 
-    Arguments() {    // stub required for room
+    Data() {    // stub required for room
     }
 
-    Arguments(Map<String, ?> values) {
+    Data(Map<String, ?> values) {
         mValues = new HashMap<>(values);
     }
 
@@ -263,7 +263,7 @@ public final class Arguments {
     }
 
     /**
-     * Gets all the values in this Arguments object.
+     * Gets all the values in this Data object.
      *
      * @return A {@link Map} of key-value pairs for this object; this Map is unmodifiable and should
      * be used for reads only.
@@ -281,19 +281,19 @@ public final class Arguments {
     }
 
     /**
-     * Converts {@link Arguments} to a byte array for persistent storage.
+     * Converts {@link Data} to a byte array for persistent storage.
      *
-     * @param arguments The {@link Arguments} object to convert
+     * @param data The {@link Data} object to convert
      * @return The byte array representation of the input
      */
     @TypeConverter
-    public static byte[] toByteArray(Arguments arguments) {
+    public static byte[] toByteArray(Data data) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = null;
         try {
             objectOutputStream = new ObjectOutputStream(outputStream);
-            objectOutputStream.writeInt(arguments.size());
-            for (Map.Entry<String, Object> entry : arguments.mValues.entrySet()) {
+            objectOutputStream.writeInt(data.size());
+            for (Map.Entry<String, Object> entry : data.mValues.entrySet()) {
                 objectOutputStream.writeUTF(entry.getKey());
                 objectOutputStream.writeObject(entry.getValue());
             }
@@ -317,13 +317,13 @@ public final class Arguments {
     }
 
     /**
-     * Converts a byte array to {@link Arguments}.
+     * Converts a byte array to {@link Data}.
      *
      * @param bytes The byte array representation to convert
-     * @return An {@link Arguments} object built from the input
+     * @return An {@link Data} object built from the input
      */
     @TypeConverter
-    public static Arguments fromByteArray(byte[] bytes) {
+    public static Data fromByteArray(byte[] bytes) {
         Map<String, Object> map = new HashMap<>();
         ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
         ObjectInputStream objectInputStream = null;
@@ -348,7 +348,7 @@ public final class Arguments {
                 e.printStackTrace();
             }
         }
-        return new Arguments(map);
+        return new Data(map);
     }
 
     @Override
@@ -359,7 +359,7 @@ public final class Arguments {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Arguments other = (Arguments) o;
+        Data other = (Data) o;
         return mValues.equals(other.mValues);
     }
 
@@ -409,7 +409,7 @@ public final class Arguments {
     }
 
     /**
-     * A builder for {@link Arguments}.
+     * A builder for {@link Data}.
      */
     public static class Builder {
 
@@ -560,16 +560,16 @@ public final class Arguments {
         }
 
         /**
-         * Puts all input key-value pairs from the {@link Arguments} into the Builder.
+         * Puts all input key-value pairs from the {@link Data} into the Builder.
          * Any non-valid types will be logged and ignored.  Valid types are: Boolean, Integer,
          * Long, Double, String, and array versions of each of those types.
          * Any {@code null} values will also be ignored.
          *
-         * @param values {@link Arguments} containing key-value pairs to add
+         * @param data {@link Data} containing key-value pairs to add
          * @return The {@link Builder}
          */
-        public Builder putAll(@NonNull Arguments values) {
-            putAll(values.mValues);
+        public Builder putAll(@NonNull Data data) {
+            putAll(data.mValues);
             return this;
         }
 
@@ -618,13 +618,13 @@ public final class Arguments {
         }
 
         /**
-         * Builds an {@link Arguments} object.
+         * Builds an {@link Data} object.
          *
-         * @return The {@link Arguments} object containing all key-value pairs specified by this
+         * @return The {@link Data} object containing all key-value pairs specified by this
          *         {@link Builder}.
          */
-        public Arguments build() {
-            return new Arguments(mValues);
+        public Data build() {
+            return new Data(mValues);
         }
     }
 }

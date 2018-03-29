@@ -59,11 +59,11 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.work.Arguments;
 import androidx.work.BackoffPolicy;
 import androidx.work.BaseWork;
 import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
+import androidx.work.Data;
 import androidx.work.PeriodicWork;
 import androidx.work.TestLifecycleOwner;
 import androidx.work.Work;
@@ -652,12 +652,12 @@ public class WorkManagerImplTest {
         WorkStatus workStatus0 = new WorkStatus(
                 work0.getId(),
                 ENQUEUED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
         WorkStatus workStatus1 = new WorkStatus(
                 work1.getId(),
                 ENQUEUED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
@@ -671,7 +671,7 @@ public class WorkManagerImplTest {
         workStatus0 = new WorkStatus(
                 work0.getId(),
                 RUNNING,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
@@ -685,7 +685,7 @@ public class WorkManagerImplTest {
         workStatus1 = new WorkStatus(
                 work1.getId(),
                 RUNNING,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
@@ -718,17 +718,17 @@ public class WorkManagerImplTest {
         WorkStatus workStatus0 = new WorkStatus(
                 work0.getId(),
                 RUNNING,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Arrays.asList(firstTag, secondTag));
         WorkStatus workStatus1 = new WorkStatus(
                 work1.getId(),
                 BLOCKED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.singletonList(firstTag));
         WorkStatus workStatus2 = new WorkStatus(
                 work2.getId(),
                 SUCCEEDED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.singletonList(secondTag));
 
         List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesByTagBlocking(firstTag);
@@ -780,12 +780,12 @@ public class WorkManagerImplTest {
         WorkStatus workStatus0 = new WorkStatus(
                 work0.getId(),
                 RUNNING,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Arrays.asList(firstTag, secondTag));
         WorkStatus workStatus1 = new WorkStatus(
                 work1.getId(),
                 BLOCKED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.singletonList(firstTag));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
@@ -798,7 +798,7 @@ public class WorkManagerImplTest {
         workStatus0 = new WorkStatus(
                 work0.getId(),
                 ENQUEUED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Arrays.asList(firstTag, secondTag));
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1));
 
@@ -820,17 +820,17 @@ public class WorkManagerImplTest {
         WorkStatus workStatus0 = new WorkStatus(
                 work0.getId(),
                 RUNNING,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
         WorkStatus workStatus1 = new WorkStatus(
                 work1.getId(),
                 BLOCKED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
         WorkStatus workStatus2 = new WorkStatus(
                 work2.getId(),
                 BLOCKED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
 
         List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesByNameBlocking(testName);
@@ -868,17 +868,17 @@ public class WorkManagerImplTest {
         WorkStatus workStatus0 = new WorkStatus(
                 work0.getId(),
                 RUNNING,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
         WorkStatus workStatus1 = new WorkStatus(
                 work1.getId(),
                 BLOCKED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
         WorkStatus workStatus2 = new WorkStatus(
                 work2.getId(),
                 BLOCKED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1, workStatus2));
 
@@ -891,7 +891,7 @@ public class WorkManagerImplTest {
         workStatus0 = new WorkStatus(
                 work0.getId(),
                 ENQUEUED,
-                Arguments.EMPTY,
+                Data.EMPTY,
                 Collections.<String>emptyList());
         assertThat(captor.getValue(), containsInAnyOrder(workStatus0, workStatus1, workStatus2));
 
@@ -1177,7 +1177,7 @@ public class WorkManagerImplTest {
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
         assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
-        assertThat(workSpec.arguments.getString(
+        assertThat(workSpec.input.getString(
                 ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null),
                 is(TestWorker.class.getName()));
     }
@@ -1195,7 +1195,7 @@ public class WorkManagerImplTest {
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
         assertThat(workSpec.workerClassName, is(ConstraintTrackingWorker.class.getName()));
-        assertThat(workSpec.arguments.getString(
+        assertThat(workSpec.input.getString(
                 ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, null),
                 is(TestWorker.class.getName()));
     }

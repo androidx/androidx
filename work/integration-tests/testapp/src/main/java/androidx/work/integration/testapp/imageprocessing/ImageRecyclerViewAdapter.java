@@ -29,11 +29,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.work.integration.testapp.R;
 import androidx.work.integration.testapp.db.Image;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Manages a gallery of {@link Image} entities

@@ -19,7 +19,7 @@ package androidx.work.integration.testapp.imageprocessing;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.work.Arguments;
+import androidx.work.Data;
 import androidx.work.Work;
 import androidx.work.Worker;
 import androidx.work.integration.testapp.db.Image;
@@ -36,7 +36,7 @@ public class ImageSetupWorker extends Worker {
     public WorkerResult doWork() {
         Log.d(TAG, "Started");
 
-        String uriString = getArguments().getString(URI_KEY, null);
+        String uriString = getInputData().getString(URI_KEY, null);
         if (TextUtils.isEmpty(uriString)) {
             Log.e(TAG, "Invalid URI!");
             return WorkerResult.FAILURE;
@@ -50,7 +50,7 @@ public class ImageSetupWorker extends Worker {
     }
 
     static Work createWork(String uriString) {
-        Arguments arguments = new Arguments.Builder().putString(URI_KEY, uriString).build();
-        return new Work.Builder(ImageSetupWorker.class).withArguments(arguments).build();
+        Data input = new Data.Builder().putString(URI_KEY, uriString).build();
+        return new Work.Builder(ImageSetupWorker.class).withInputData(input).build();
     }
 }

@@ -35,7 +35,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.work.Arguments;
+import androidx.work.Data;
 import androidx.work.State;
 import androidx.work.TestLifecycleOwner;
 import androidx.work.Work;
@@ -262,10 +262,10 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
         workSpecDao.setOutput(
                 firstWork.getId(),
-                new Arguments.Builder().putInt(intTag, 0).build());
+                new Data.Builder().putInt(intTag, 0).build());
         workSpecDao.setOutput(
                 secondWork.getId(),
-                new Arguments.Builder().putInt(intTag, 1).putString(stringTag, "hello").build());
+                new Data.Builder().putInt(intTag, 1).putString(stringTag, "hello").build());
 
         WorkContinuationImpl firstContinuation =
                 new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(firstWork));
@@ -296,7 +296,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         assertThat(joinWorkSpec, is(not(nullValue())));
         assertThat(joinWorkSpec.state, is(State.SUCCEEDED));
 
-        Arguments output = joinWorkSpec.output;
+        Data output = joinWorkSpec.output;
         int[] intArray = output.getIntArray(intTag);
 
         assertThat(intArray, is(not(nullValue())));

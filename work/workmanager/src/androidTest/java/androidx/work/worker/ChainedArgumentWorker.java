@@ -16,7 +16,7 @@
 
 package androidx.work.worker;
 
-import androidx.work.Arguments;
+import androidx.work.Data;
 import androidx.work.Worker;
 
 /**
@@ -30,11 +30,11 @@ public class ChainedArgumentWorker extends Worker {
 
     @Override
     public WorkerResult doWork() {
-        setOutput(getChainedArguments());
+        setOutputData(getChainedArguments());
         return WorkerResult.SUCCESS;
     }
 
-    public static Arguments getChainedArguments() {
-        return new Arguments.Builder().putString(ARGUMENT_KEY, ARGUMENT_VALUE).build();
+    public static Data getChainedArguments() {
+        return new Data.Builder().putString(ARGUMENT_KEY, ARGUMENT_VALUE).build();
     }
 }

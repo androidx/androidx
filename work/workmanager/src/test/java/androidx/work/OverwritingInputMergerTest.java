@@ -41,8 +41,8 @@ public class OverwritingInputMergerTest {
         String key = "key";
         String value = "value";
 
-        Arguments arguments = new Arguments.Builder().putString(key, value).build();
-        Arguments output = getOutputFor(arguments);
+        Data input = new Data.Builder().putString(key, value).build();
+        Data output = getOutputFor(input);
 
         assertThat(output.size(), is(1));
         assertThat(output.getString(key, null), is(value));
@@ -58,16 +58,16 @@ public class OverwritingInputMergerTest {
         String key3 = "key3";
         String value3 = "value3";
 
-        Arguments arguments1 = new Arguments.Builder()
+        Data input1 = new Data.Builder()
                 .putString(key1, value1)
                 .putString(key2, value2)
                 .build();
-        Arguments arguments2 = new Arguments.Builder()
+        Data input2 = new Data.Builder()
                 .putString(key1, value1a)
                 .putString(key3, value3)
                 .build();
 
-        Arguments output = getOutputFor(arguments1, arguments2);
+        Data output = getOutputFor(input1, input2);
 
         assertThat(output.size(), is(3));
         assertThat(output.getString(key1, null), is(value1a));
@@ -75,7 +75,7 @@ public class OverwritingInputMergerTest {
         assertThat(output.getString(key3, null), is(value3));
     }
 
-    private Arguments getOutputFor(Arguments... arguments) {
-        return mOverwritingInputMerger.merge(Arrays.asList(arguments));
+    private Data getOutputFor(Data... inputs) {
+        return mOverwritingInputMerger.merge(Arrays.asList(inputs));
     }
 }

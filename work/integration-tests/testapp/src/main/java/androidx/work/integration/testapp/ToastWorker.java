@@ -20,7 +20,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.work.Arguments;
+import androidx.work.Data;
 import androidx.work.Work;
 import androidx.work.Worker;
 
@@ -37,14 +37,14 @@ public class ToastWorker extends Worker {
      * @return A {@link Work.Builder}
      */
     public static Work.Builder create(String message) {
-        Arguments args = new Arguments.Builder().putString(ARG_MESSAGE, message).build();
-        return new Work.Builder(ToastWorker.class).withArguments(args);
+        Data input = new Data.Builder().putString(ARG_MESSAGE, message).build();
+        return new Work.Builder(ToastWorker.class).withInputData(input);
     }
 
     @Override
     public WorkerResult doWork() {
-        Arguments args = getArguments();
-        final String message = args.getString(ARG_MESSAGE, "completed!");
+        Data input = getInputData();
+        final String message = input.getString(ARG_MESSAGE, "completed!");
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {

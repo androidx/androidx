@@ -37,21 +37,21 @@ public class ArrayCreatingInputMergerTest {
     private static final Long VALUE_LONG = Long.MAX_VALUE;
 
     ArrayCreatingInputMerger mArrayCreatingInputMerger;
-    Arguments mArgumentsWithIntArray;
-    Arguments mArgumentsWithInt;
-    Arguments mArgumentsWithLong;
+    Data mDataWithIntArray;
+    Data mDataWithInt;
+    Data mDataWithLong;
 
     @Before
     public void setUp() {
         mArrayCreatingInputMerger = new ArrayCreatingInputMerger();
-        mArgumentsWithIntArray = new Arguments.Builder().putIntArray(KEY, VALUE_INT_ARRAY).build();
-        mArgumentsWithInt = new Arguments.Builder().putInt(KEY, VALUE_INT).build();
-        mArgumentsWithLong = new Arguments.Builder().putLong(KEY, VALUE_LONG).build();
+        mDataWithIntArray = new Data.Builder().putIntArray(KEY, VALUE_INT_ARRAY).build();
+        mDataWithInt = new Data.Builder().putInt(KEY, VALUE_INT).build();
+        mDataWithLong = new Data.Builder().putLong(KEY, VALUE_LONG).build();
     }
 
     @Test
     public void testMerge_singleArgument() {
-        Arguments output = getOutputFor(mArgumentsWithInt);
+        Data output = getOutputFor(mDataWithInt);
         assertThat(output.size(), is(1));
         int[] outputArray = output.getIntArray(KEY);
         assertThat(outputArray.length, is(1));
@@ -60,7 +60,7 @@ public class ArrayCreatingInputMergerTest {
 
     @Test
     public void testMerge_concatenatesNonArrays() {
-        Arguments output = getOutputFor(mArgumentsWithInt, mArgumentsWithInt);
+        Data output = getOutputFor(mDataWithInt, mDataWithInt);
         assertThat(output.size(), is(1));
         int[] outputArray = output.getIntArray(KEY);
         assertThat(outputArray.length, is(2));
@@ -70,7 +70,7 @@ public class ArrayCreatingInputMergerTest {
 
     @Test
     public void testMerge_concatenatesArrays() {
-        Arguments output = getOutputFor(mArgumentsWithIntArray, mArgumentsWithIntArray);
+        Data output = getOutputFor(mDataWithIntArray, mDataWithIntArray);
         assertThat(output.size(), is(1));
         int[] outputArray = output.getIntArray(KEY);
         assertThat(outputArray.length, is(VALUE_INT_ARRAY.length * 2));
@@ -83,7 +83,7 @@ public class ArrayCreatingInputMergerTest {
 
     @Test
     public void testMerge_concatenatesArrayAndPrimitive() {
-        Arguments output = getOutputFor(mArgumentsWithIntArray, mArgumentsWithInt);
+        Data output = getOutputFor(mDataWithIntArray, mDataWithInt);
         assertThat(output.size(), is(1));
         int[] outputArray = output.getIntArray(KEY);
         assertThat(outputArray.length, is(VALUE_INT_ARRAY.length + 1));
@@ -97,14 +97,14 @@ public class ArrayCreatingInputMergerTest {
     public void testMerge_throwsIllegalStateExceptionOnDifferentTypes() {
         Throwable throwable = null;
         try {
-            Arguments output = getOutputFor(mArgumentsWithInt, mArgumentsWithLong);
+            Data output = getOutputFor(mDataWithInt, mDataWithLong);
         } catch (Throwable t) {
             throwable = t;
         }
         assertThat(throwable, instanceOf(IllegalStateException.class));
     }
 
-    private Arguments getOutputFor(Arguments... arguments) {
-        return mArrayCreatingInputMerger.merge(Arrays.asList(arguments));
+    private Data getOutputFor(Data... inputs) {
+        return mArrayCreatingInputMerger.merge(Arrays.asList(inputs));
     }
 }

@@ -26,14 +26,14 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.List;
-
 import androidx.work.ArrayCreatingInputMerger;
 import androidx.work.Work;
 import androidx.work.WorkManager;
 import androidx.work.integration.testapp.R;
 import androidx.work.integration.testapp.db.TestDatabase;
 import androidx.work.integration.testapp.db.WordCount;
+
+import java.util.List;
 
 /**
  * Analyze Sherlock Holmes activity.

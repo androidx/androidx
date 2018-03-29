@@ -41,8 +41,8 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.work.Arguments;
 import androidx.work.ArrayCreatingInputMerger;
+import androidx.work.Data;
 import androidx.work.DatabaseTest;
 import androidx.work.PeriodicWork;
 import androidx.work.Work;
@@ -283,7 +283,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withSchedulers(Collections.singletonList(mMockScheduler))
                 .build().run();
 
-        List<Arguments> arguments = mWorkSpecDao.getInputsFromPrerequisites(work.getId());
+        List<Data> arguments = mWorkSpecDao.getInputsFromPrerequisites(work.getId());
         assertThat(arguments.size(), is(1));
         assertThat(arguments, contains(ChainedArgumentWorker.getChainedArguments()));
     }
@@ -296,10 +296,10 @@ public class WorkerWrapperTest extends DatabaseTest {
         String value2 = "value2";
 
         Work prerequisiteWork1 = new Work.Builder(EchoingWorker.class)
-                .withArguments(new Arguments.Builder().putString(key, value1).build())
+                .withInputData(new Data.Builder().putString(key, value1).build())
                 .build();
         Work prerequisiteWork2 = new Work.Builder(EchoingWorker.class)
-                .withArguments(new Arguments.Builder().putString(key, value2).build())
+                .withInputData(new Data.Builder().putString(key, value2).build())
                 .build();
         Work work = new Work.Builder(TestWorker.class)
                 .withInputMerger(ArrayCreatingInputMerger.class)
@@ -334,9 +334,9 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build();
         workerWrapper.run();
 
-        Arguments arguments = workerWrapper.mWorker.getArguments();
-        assertThat(arguments.size(), is(1));
-        assertThat(Arrays.asList(arguments.getStringArray(key)),
+        Data input = workerWrapper.mWorker.getInputData();
+        assertThat(input.size(), is(1));
+        assertThat(Arrays.asList(input.getStringArray(key)),
                 containsInAnyOrder(value1, value2));
     }
 
@@ -531,7 +531,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                Arguments.EMPTY,
+                Data.EMPTY,
                 null);
 
         assertThat(worker, is(notNullValue()));
@@ -543,27 +543,27 @@ public class WorkerWrapperTest extends DatabaseTest {
     public void testFromWorkSpec_hasCorrectArguments() throws InterruptedException {
         String key = "KEY";
         String expectedValue = "VALUE";
-        Arguments arguments = new Arguments.Builder().putString(key, expectedValue).build();
+        Data input = new Data.Builder().putString(key, expectedValue).build();
 
-        Work work = new Work.Builder(TestWorker.class).withArguments(arguments).build();
+        Work work = new Work.Builder(TestWorker.class).withInputData(input).build();
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                arguments,
+                input,
                 null);
 
         assertThat(worker, is(notNullValue()));
-        assertThat(worker.getArguments().getString(key, null), is(expectedValue));
+        assertThat(worker.getInputData().getString(key, null), is(expectedValue));
 
         work = new Work.Builder(TestWorker.class).build();
         worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                Arguments.EMPTY,
+                Data.EMPTY,
                 null);
 
         assertThat(worker, is(notNullValue()));
-        assertThat(worker.getArguments().size(), is(0));
+        assertThat(worker.getInputData().size(), is(0));
     }
 
     @Test

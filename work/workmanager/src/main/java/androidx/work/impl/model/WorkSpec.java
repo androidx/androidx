@@ -32,10 +32,10 @@ import android.arch.persistence.room.Relation;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
-import androidx.work.Arguments;
 import androidx.work.BackoffPolicy;
 import androidx.work.BaseWork;
 import androidx.work.Constraints;
+import androidx.work.Data;
 import androidx.work.State;
 import androidx.work.WorkStatus;
 import androidx.work.impl.logger.Logger;
@@ -72,13 +72,13 @@ public class WorkSpec {
     @ColumnInfo(name = "input_merger_class_name")
     public String inputMergerClassName;
 
-    @ColumnInfo(name = "arguments")
+    @ColumnInfo(name = "input")
     @NonNull
-    public Arguments arguments = Arguments.EMPTY;
+    public Data input = Data.EMPTY;
 
     @ColumnInfo(name = "output")
     @NonNull
-    public Arguments output = Arguments.EMPTY;
+    public Data output = Data.EMPTY;
 
     @ColumnInfo(name = "initial_delay")
     public long initialDelay;
@@ -253,7 +253,7 @@ public class WorkSpec {
                 : workSpec.inputMergerClassName != null) {
             return false;
         }
-        if (!arguments.equals(workSpec.arguments)) return false;
+        if (!input.equals(workSpec.input)) return false;
         if (!output.equals(workSpec.output)) return false;
         if (!constraints.equals(workSpec.constraints)) return false;
         return backoffPolicy == workSpec.backoffPolicy;
@@ -265,7 +265,7 @@ public class WorkSpec {
         result = 31 * result + state.hashCode();
         result = 31 * result + workerClassName.hashCode();
         result = 31 * result + (inputMergerClassName != null ? inputMergerClassName.hashCode() : 0);
-        result = 31 * result + arguments.hashCode();
+        result = 31 * result + input.hashCode();
         result = 31 * result + output.hashCode();
         result = 31 * result + (int) (initialDelay ^ (initialDelay >>> 32));
         result = 31 * result + (int) (intervalDuration ^ (intervalDuration >>> 32));
@@ -327,7 +327,7 @@ public class WorkSpec {
         public State state;
 
         @ColumnInfo(name = "output")
-        public Arguments output;
+        public Data output;
 
         @Relation(
                 parentColumn = "id",

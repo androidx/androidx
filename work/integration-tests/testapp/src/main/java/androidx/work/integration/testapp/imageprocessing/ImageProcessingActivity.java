@@ -27,13 +27,13 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-import java.util.List;
-
 import androidx.work.Work;
 import androidx.work.WorkManager;
 import androidx.work.integration.testapp.R;
 import androidx.work.integration.testapp.db.Image;
 import androidx.work.integration.testapp.db.TestDatabase;
+
+import java.util.List;
 
 /**
  * Image Processing Activity

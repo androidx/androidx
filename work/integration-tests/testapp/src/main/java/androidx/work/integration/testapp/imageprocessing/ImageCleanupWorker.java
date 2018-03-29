@@ -19,12 +19,12 @@ package androidx.work.integration.testapp.imageprocessing;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.File;
-import java.util.List;
-
 import androidx.work.Worker;
 import androidx.work.integration.testapp.db.Image;
 import androidx.work.integration.testapp.db.TestDatabase;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * Removes all existing {@link Image} entities and deletes associated compressed files

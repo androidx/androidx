@@ -137,13 +137,13 @@ public abstract class BaseWork {
         }
 
         /**
-         * Add arguments to the work.
+         * Add input {@link Data} to the work.
          *
-         * @param arguments key/value pairs that will be provided to the {@link Worker} class
+         * @param inputData key/value pairs that will be provided to the {@link Worker} class
          * @return The current {@link Builder}
          */
-        public B withArguments(@NonNull Arguments arguments) {
-            mWorkSpec.arguments = arguments;
+        public B withInputData(@NonNull Data inputData) {
+            mWorkSpec.input = inputData;
             return getThis();
         }
 

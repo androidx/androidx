@@ -17,6 +17,11 @@ package androidx.work.integration.testapp.sherlockholmes;
 
 import android.util.Log;
 
+import androidx.work.Data;
+import androidx.work.Worker;
+import androidx.work.integration.testapp.db.TestDatabase;
+import androidx.work.integration.testapp.db.WordCount;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,11 +30,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.work.Arguments;
-import androidx.work.Worker;
-import androidx.work.integration.testapp.db.TestDatabase;
-import androidx.work.integration.testapp.db.WordCount;
 
 /**
  * A Worker that combines the word counts of various works and outputs them.
@@ -42,8 +42,8 @@ public class TextReducingWorker extends Worker {
 
     @Override
     public WorkerResult doWork() {
-        Arguments args = getArguments();
-        String[] inputFiles = args.getStringArray(INPUT_FILE);
+        Data input = getInputData();
+        String[] inputFiles = input.getStringArray(INPUT_FILE);
         if (inputFiles == null) {
             throw new IllegalArgumentException();
         }

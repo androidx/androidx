@@ -28,62 +28,62 @@ import org.junit.Test;
 import java.io.IOException;
 
 @SmallTest
-public class ArgumentsTest {
+public class DataTest {
     private static final String KEY1 = "key1";
     private static final String KEY2 = "key2";
 
     @Test
     public void testSize_noArguments() {
-        Arguments args = new Arguments.Builder().build();
-        assertThat(args.size(), is(0));
+        Data data = new Data.Builder().build();
+        assertThat(data.size(), is(0));
     }
 
     @Test
     public void testSize_hasArguments() {
-        Arguments args = new Arguments.Builder().putBoolean(KEY1, true).build();
-        assertThat(args.size(), is(1));
+        Data data = new Data.Builder().putBoolean(KEY1, true).build();
+        assertThat(data.size(), is(1));
     }
 
     @Test
     public void testSerializeEmpty() throws IOException, ClassNotFoundException {
-        Arguments args = Arguments.EMPTY;
+        Data data = Data.EMPTY;
 
-        byte[] byteArray = Arguments.toByteArray(args);
-        Arguments restoredArgs = Arguments.fromByteArray(byteArray);
+        byte[] byteArray = Data.toByteArray(data);
+        Data restoredData = Data.fromByteArray(byteArray);
 
-        assertThat(restoredArgs, is(args));
+        assertThat(restoredData, is(data));
     }
 
     @Test
     public void testSerializeString() throws IOException, ClassNotFoundException {
         String expectedValue1 = "value1";
         String expectedValue2 = "value2";
-        Arguments args = new Arguments.Builder()
+        Data data = new Data.Builder()
                 .putString(KEY1, expectedValue1)
                 .putString(KEY2, expectedValue2)
                 .build();
 
-        byte[] byteArray = Arguments.toByteArray(args);
-        Arguments restoredArgs = Arguments.fromByteArray(byteArray);
+        byte[] byteArray = Data.toByteArray(data);
+        Data restoredData = Data.fromByteArray(byteArray);
 
-        assertThat(restoredArgs, is(args));
+        assertThat(restoredData, is(data));
     }
 
     @Test
     public void testSerializeIntArray() throws IOException, ClassNotFoundException {
         int[] expectedValue1 = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         int[] expectedValue2 = new int[]{10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-        Arguments args = new Arguments.Builder()
+        Data data = new Data.Builder()
                 .putIntArray(KEY1, expectedValue1)
                 .putIntArray(KEY2, expectedValue2)
                 .build();
 
-        byte[] byteArray = Arguments.toByteArray(args);
-        Arguments restoredArgs = Arguments.fromByteArray(byteArray);
+        byte[] byteArray = Data.toByteArray(data);
+        Data restoredData = Data.fromByteArray(byteArray);
 
-        assertThat(restoredArgs, is(notNullValue()));
-        assertThat(restoredArgs.size(), is(2));
-        assertThat(restoredArgs.getIntArray(KEY1), is(equalTo(expectedValue1)));
-        assertThat(restoredArgs.getIntArray(KEY2), is(equalTo(expectedValue2)));
+        assertThat(restoredData, is(notNullValue()));
+        assertThat(restoredData.size(), is(2));
+        assertThat(restoredData.getIntArray(KEY1), is(equalTo(expectedValue1)));
+        assertThat(restoredData.getIntArray(KEY2), is(equalTo(expectedValue2)));
     }
 }

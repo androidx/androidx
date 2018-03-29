@@ -25,8 +25,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
-import java.util.concurrent.TimeUnit;
-
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.Work;
@@ -34,6 +32,8 @@ import androidx.work.WorkManager;
 import androidx.work.impl.logger.Logger;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Main Activity

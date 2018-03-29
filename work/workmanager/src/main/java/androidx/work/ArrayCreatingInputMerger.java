@@ -40,11 +40,11 @@ import java.util.Map;
 public class ArrayCreatingInputMerger extends InputMerger {
 
     @Override
-    public Arguments merge(List<Arguments> inputs) {
-        Arguments.Builder output = new Arguments.Builder();
+    public Data merge(List<Data> inputs) {
+        Data.Builder output = new Data.Builder();
         Map<String, Object> mergedValues = new HashMap<>();
 
-        for (Arguments input : inputs) {
+        for (Data input : inputs) {
             for (Map.Entry<String, Object> entry : input.getKeyValueMap().entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();

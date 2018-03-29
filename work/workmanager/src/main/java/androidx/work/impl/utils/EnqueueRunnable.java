@@ -32,9 +32,9 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
-import androidx.work.Arguments;
 import androidx.work.BaseWork;
 import androidx.work.Constraints;
+import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.State;
 import androidx.work.impl.Schedulers;
@@ -284,12 +284,12 @@ public class EnqueueRunnable implements Runnable {
         Constraints constraints = workSpec.constraints;
         if (constraints.requiresBatteryNotLow() || constraints.requiresStorageNotLow()) {
             String workerClassName = workSpec.workerClassName;
-            Arguments.Builder builder = new Arguments.Builder();
+            Data.Builder builder = new Data.Builder();
             // Copy all arguments
-            builder.putAll(workSpec.arguments)
+            builder.putAll(workSpec.input)
                     .putString(ARGUMENT_CLASS_NAME, workerClassName);
             workSpec.workerClassName = ConstraintTrackingWorker.class.getName();
-            workSpec.arguments = builder.build();
+            workSpec.input = builder.build();
         }
     }
 }

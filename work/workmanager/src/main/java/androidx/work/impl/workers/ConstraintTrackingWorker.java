@@ -64,18 +64,18 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
 
     @Override
     public WorkerResult doWork() {
-        String className = getArguments().getString(ARGUMENT_CLASS_NAME, null);
+        String className = getInputData().getString(ARGUMENT_CLASS_NAME, null);
         if (TextUtils.isEmpty(className)) {
             Logger.debug(TAG, "No worker to delegate to.");
             return WorkerResult.FAILURE;
         }
-        // Instantiate the delegated worker. Use the same workSpecId, and the same Arguments
-        // as this Worker's Arguments are a superset of the delegate's Worker's Arguments.
+        // Instantiate the delegated worker. Use the same workSpecId, and the same Data
+        // as this Worker's Data are a superset of the delegate's Worker's Data.
         mDelegate = WorkerWrapper.workerFromClassName(
                 getAppContext(),
                 className,
                 getId(),
-                getArguments(),
+                getInputData(),
                 getRuntimeExtras());
 
         if (mDelegate == null) {
@@ -105,7 +105,7 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
                     if (mAreConstraintsUnmet) {
                         return WorkerResult.RETRY;
                     } else {
-                        setOutput(mDelegate.getOutput());
+                        setOutputData(mDelegate.getOutputData());
                         return result;
                     }
                 }

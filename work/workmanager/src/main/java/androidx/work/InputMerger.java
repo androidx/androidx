@@ -30,12 +30,12 @@ public abstract class InputMerger {
     private static final String TAG = "InputMerger";
 
     /**
-     * Merges a list of {@link Arguments} and outputs a single Arguments object.
+     * Merges a list of {@link Data} and outputs a single Data object.
      *
-     * @param inputs A list of {@link Arguments} from previous Workers or the Work.Builder
+     * @param inputs A list of {@link Data} from previous Workers or the Work.Builder
      * @return The merged output
      */
-    public abstract Arguments merge(List<Arguments> inputs);
+    public abstract Data merge(List<Data> inputs);
 
     /**
      * Instantiates an {@link InputMerger} from its class name.

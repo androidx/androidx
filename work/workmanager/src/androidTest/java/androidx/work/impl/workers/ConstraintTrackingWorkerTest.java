@@ -31,8 +31,8 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.work.Arguments;
 import androidx.work.Constraints;
+import androidx.work.Data;
 import androidx.work.DatabaseTest;
 import androidx.work.State;
 import androidx.work.Work;
@@ -124,13 +124,13 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
 
         String delegateName = EchoingWorker.class.getName();
 
-        Arguments arguments = new Arguments.Builder()
+        Data input = new Data.Builder()
                 .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
                 .putBoolean(TEST_ARGUMENT_NAME, true)
                 .build();
 
         final Work work = new Work.Builder(ConstraintTrackingWorker.class)
-                .withArguments(arguments)
+                .withInputData(input)
                 .withConstraints(constraints)
                 .build();
 
@@ -142,7 +142,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        arguments,
+                        input,
                         null);
 
         ConstraintTrackingWorker spyWorker = spy(worker);
@@ -158,7 +158,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(workSpecId);
         assertThat(mLatch.getCount(), is(0L));
         assertThat(workSpec.state, is(State.SUCCEEDED));
-        Arguments output = workSpec.output;
+        Data output = workSpec.output;
         assertThat(output.getBoolean(TEST_ARGUMENT_NAME, false), is(true));
     }
 
@@ -171,7 +171,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 .build();
 
         String delegateName = TestWorker.class.getName();
-        Arguments arguments = new Arguments.Builder()
+        Data input = new Data.Builder()
                 .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
                 .build();
 
@@ -187,7 +187,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        arguments,
+                        input,
                         null);
 
         ConstraintTrackingWorker spyWorker = spy(worker);
@@ -214,7 +214,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 .build();
 
         String delegateName = SleepTestWorker.class.getName();
-        Arguments arguments = new Arguments.Builder()
+        Data input = new Data.Builder()
                 .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
                 .build();
 
@@ -231,7 +231,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        arguments,
+                        input,
                         null);
 
         ConstraintTrackingWorker spyWorker = spy(worker);
@@ -266,7 +266,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 .build();
 
         String delegateName = SleepTestWorker.class.getName();
-        Arguments arguments = new Arguments.Builder()
+        Data input = new Data.Builder()
                 .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
                 .build();
 
@@ -283,7 +283,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        arguments,
+                        input,
                         null);
 
         ConstraintTrackingWorker spyWorker = spy(worker);

@@ -27,7 +27,7 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Transaction;
 import android.support.annotation.NonNull;
 
-import androidx.work.Arguments;
+import androidx.work.Data;
 import androidx.work.State;
 import androidx.work.impl.Scheduler;
 
@@ -101,10 +101,10 @@ public interface WorkSpecDao {
      * Updates the output of a {@link WorkSpec}.
      *
      * @param id The {@link WorkSpec} identifier to update
-     * @param output The {@link Arguments} to set as the output
+     * @param output The {@link Data} to set as the output
      */
     @Query("UPDATE workspec SET output=:output WHERE id=:id")
-    void setOutput(String id, Arguments output);
+    void setOutput(String id, Data output);
 
     /**
      * Updates the period start time of a {@link WorkSpec}.
@@ -211,14 +211,14 @@ public interface WorkSpecDao {
 
     /**
      * Gets all inputs coming from prerequisites for a particular {@link WorkSpec}.  These are
-     * {@link Arguments} set via {@code Worker#setOutput()}.
+     * {@link Data} set via {@code Worker#setOutputData()}.
      *
      * @param id The {@link WorkSpec} identifier
      * @return A list of all inputs coming from prerequisites for {@code id}
      */
     @Query("SELECT output FROM workspec WHERE id IN "
             + "(SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)")
-    List<Arguments> getInputsFromPrerequisites(String id);
+    List<Data> getInputsFromPrerequisites(String id);
 
     /**
      * Retrieves work ids for unfinished work with a given tag.

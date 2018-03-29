@@ -30,7 +30,7 @@ import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
-import androidx.work.Arguments;
+import androidx.work.Data;
 import androidx.work.InputMerger;
 import androidx.work.State;
 import androidx.work.Worker;
@@ -94,9 +94,9 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
-        Arguments arguments;
+        Data input;
         if (mWorkSpec.isPeriodic()) {
-            arguments = mWorkSpec.arguments;
+            input = mWorkSpec.input;
         } else {
             InputMerger inputMerger = InputMerger.fromClassName(mWorkSpec.inputMergerClassName);
             if (inputMerger == null) {
@@ -105,16 +105,16 @@ public class WorkerWrapper implements Runnable {
                 setFailedAndNotify();
                 return;
             }
-            List<Arguments> inputs = new ArrayList<>();
-            inputs.add(mWorkSpec.arguments);
+            List<Data> inputs = new ArrayList<>();
+            inputs.add(mWorkSpec.input);
             inputs.addAll(mWorkSpecDao.getInputsFromPrerequisites(mWorkSpecId));
-            arguments = inputMerger.merge(inputs);
+            input = inputMerger.merge(inputs);
         }
 
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.
         if (mWorker == null) {
-            mWorker = workerFromWorkSpec(mAppContext, mWorkSpec, arguments, mRuntimeExtras);
+            mWorker = workerFromWorkSpec(mAppContext, mWorkSpec, input, mRuntimeExtras);
         }
 
         if (mWorker == null) {
@@ -218,10 +218,10 @@ public class WorkerWrapper implements Runnable {
             // Try to set the output for the failed work but check if the worker exists; this could
             // be a permanent error where we couldn't find or create the worker class.
             if (mWorker != null) {
-                // Update Arguments as necessary.
-                Arguments outputArgs = mWorker.getOutput();
-                if (outputArgs != null) {
-                    mWorkSpecDao.setOutput(mWorkSpecId, outputArgs);
+                // Update Data as necessary.
+                Data output = mWorker.getOutputData();
+                if (output != null) {
+                    mWorkSpecDao.setOutput(mWorkSpecId, output);
                 }
             }
 
@@ -279,10 +279,10 @@ public class WorkerWrapper implements Runnable {
         try {
             mWorkSpecDao.setState(SUCCEEDED, mWorkSpecId);
 
-            // Update Arguments as necessary.
-            Arguments outputArgs = mWorker.getOutput();
-            if (outputArgs != null) {
-                mWorkSpecDao.setOutput(mWorkSpecId, outputArgs);
+            // Update Data as necessary.
+            Data output = mWorker.getOutputData();
+            if (output != null) {
+                mWorkSpecDao.setOutput(mWorkSpecId, output);
             }
 
             // Unblock Dependencies and set Period Start Time
@@ -308,7 +308,7 @@ public class WorkerWrapper implements Runnable {
 
     static Worker workerFromWorkSpec(@NonNull Context context,
             @NonNull WorkSpec workSpec,
-            @NonNull Arguments arguments,
+            @NonNull Data inputData,
             @Nullable RuntimeExtras runtimeExtras) {
         String workerClassName = workSpec.workerClassName;
         String workSpecId = workSpec.id;
@@ -316,7 +316,7 @@ public class WorkerWrapper implements Runnable {
                 context,
                 workerClassName,
                 workSpecId,
-                arguments,
+                inputData,
                 runtimeExtras);
     }
 
@@ -326,7 +326,7 @@ public class WorkerWrapper implements Runnable {
      * @param context         The application {@link Context}
      * @param workerClassName The fully qualified class name for the {@link Worker}
      * @param workSpecId      The {@link WorkSpec} identifier
-     * @param arguments       The {@link Arguments} for the worker
+     * @param inputData       The {@link Data} for the worker
      * @return The instance of {@link Worker}
      *
      * @hide
@@ -337,7 +337,7 @@ public class WorkerWrapper implements Runnable {
             @NonNull Context context,
             @NonNull String workerClassName,
             @NonNull String workSpecId,
-            @NonNull Arguments arguments,
+            @NonNull Data inputData,
             @Nullable RuntimeExtras runtimeExtras) {
         Context appContext = context.getApplicationContext();
         try {
@@ -347,14 +347,14 @@ public class WorkerWrapper implements Runnable {
                     "internalInit",
                     Context.class,
                     String.class,
-                    Arguments.class,
+                    Data.class,
                     RuntimeExtras.class);
             internalInitMethod.setAccessible(true);
             internalInitMethod.invoke(
                     worker,
                     appContext,
                     workSpecId,
-                    arguments,
+                    inputData,
                     runtimeExtras);
             return worker;
         } catch (Exception e) {

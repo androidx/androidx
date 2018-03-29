@@ -32,17 +32,17 @@ public class WorkStatus {
 
     private String mId;
     private State mState;
-    private Arguments mOutput;
+    private Data mOutputData;
     private Set<String> mTags;
 
     public WorkStatus(
             @NonNull String id,
             @NonNull State state,
-            @NonNull Arguments output,
+            @NonNull Data outputData,
             @NonNull List<String> tags) {
         mId = id;
         mState = state;
-        mOutput = output;
+        mOutputData = outputData;
         mTags = new HashSet<>(tags);
     }
 
@@ -54,8 +54,8 @@ public class WorkStatus {
         return mState;
     }
 
-    public @NonNull Arguments getOutputArguments() {
-        return mOutput;
+    public @NonNull Data getOutputData() {
+        return mOutputData;
     }
 
     public @NonNull Set<String> getTags() {
@@ -71,7 +71,10 @@ public class WorkStatus {
 
         if (mId != null ? !mId.equals(that.mId) : that.mId != null) return false;
         if (mState != that.mState) return false;
-        if (mOutput != null ? !mOutput.equals(that.mOutput) : that.mOutput != null) return false;
+        if (mOutputData != null ? !mOutputData.equals(that.mOutputData)
+                : that.mOutputData != null) {
+            return false;
+        }
         return mTags != null ? mTags.equals(that.mTags) : that.mTags == null;
     }
 
@@ -79,7 +82,7 @@ public class WorkStatus {
     public int hashCode() {
         int result = mId != null ? mId.hashCode() : 0;
         result = 31 * result + (mState != null ? mState.hashCode() : 0);
-        result = 31 * result + (mOutput != null ? mOutput.hashCode() : 0);
+        result = 31 * result + (mOutputData != null ? mOutputData.hashCode() : 0);
         result = 31 * result + (mTags != null ? mTags.hashCode() : 0);
         return result;
     }

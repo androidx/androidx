@@ -40,8 +40,8 @@ public abstract class Worker {
 
     private Context mAppContext;
     private @NonNull String mId;
-    private @NonNull Arguments mArguments;
-    private Arguments mOutput;
+    private @NonNull Data mInputData;
+    private Data mOutputData;
     private RuntimeExtras mRuntimeExtras;
 
     public final Context getAppContext() {
@@ -52,8 +52,8 @@ public abstract class Worker {
         return mId;
     }
 
-    public final @NonNull Arguments getArguments() {
-        return mArguments;
+    public final @NonNull Data getInputData() {
+        return mInputData;
     }
 
     @RequiresApi(24)
@@ -79,9 +79,9 @@ public abstract class Worker {
     public abstract WorkerResult doWork();
 
     /**
-     * Call this method to pass an {@link Arguments} object to {@link Work} that is dependent on
+     * Call this method to pass an {@link Data} object to {@link Work} that is dependent on
      * this one.  Note that if there are multiple {@link Worker}s that contribute to the target, the
-     * Arguments will be merged together, so it is up to the developer to make sure that keys are
+     * Data will be merged together, so it is up to the developer to make sure that keys are
      * unique.  New values and types will clobber old values and types, and if there are multiple
      * parent Workers of a child Worker, the order of clobbering may not be deterministic.
      *
@@ -96,29 +96,29 @@ public abstract class Worker {
      *            .enqueue()}
      *
      * This method would be called for both WorkerA and WorkerB after their successful completion,
-     * modifying the input Arguments for WorkerC.
+     * modifying the input Data for WorkerC.
      *
-     * @param output An {@link Arguments} object that will be merged into the input Arguments of any
+     * @param outputData An {@link Data} object that will be merged into the input Data of any
      *               Work that is dependent on this one, or {@code null} if there is nothing to
      *               contribute
      */
-    public final void setOutput(Arguments output) {
-        mOutput = output;
+    public final void setOutputData(Data outputData) {
+        mOutputData = outputData;
     }
 
-    public final Arguments getOutput() {
-        return mOutput;
+    public final Data getOutputData() {
+        return mOutputData;
     }
 
     @Keep
     private void internalInit(
             Context appContext,
             @NonNull String id,
-            @NonNull Arguments arguments,
+            @NonNull Data inputData,
             @Nullable RuntimeExtras runtimeExtras) {
         mAppContext = appContext;
         mId = id;
-        mArguments = arguments;
+        mInputData = inputData;
         mRuntimeExtras = runtimeExtras;
     }
 

@@ -22,7 +22,7 @@ public class EchoingWorker extends Worker {
 
     @Override
     public WorkerResult doWork() {
-        setOutput(getArguments());
+        setOutputData(getInputData());
         return WorkerResult.SUCCESS;
     }
 }

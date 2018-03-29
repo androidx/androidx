@@ -30,11 +30,11 @@ import java.util.Map;
 public class OverwritingInputMerger extends InputMerger {
 
     @Override
-    public Arguments merge(List<Arguments> inputs) {
-        Arguments.Builder output = new Arguments.Builder();
+    public Data merge(List<Data> inputs) {
+        Data.Builder output = new Data.Builder();
         Map<String, Object> mergedValues = new HashMap<>();
 
-        for (Arguments input : inputs) {
+        for (Data input : inputs) {
             mergedValues.putAll(input.getKeyValueMap());
         }
 

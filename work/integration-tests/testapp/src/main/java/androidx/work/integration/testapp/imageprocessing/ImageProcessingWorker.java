@@ -22,17 +22,17 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.work.Data;
+import androidx.work.Work;
+import androidx.work.Worker;
+import androidx.work.integration.testapp.db.Image;
+import androidx.work.integration.testapp.db.TestDatabase;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import androidx.work.Arguments;
-import androidx.work.Work;
-import androidx.work.Worker;
-import androidx.work.integration.testapp.db.Image;
-import androidx.work.integration.testapp.db.TestDatabase;
 
 /**
  * Creates a compressed transformed image from a given {@link Uri} and writes
@@ -46,7 +46,7 @@ public class ImageProcessingWorker extends Worker {
     public WorkerResult doWork() {
         Log.d(TAG, "Started");
 
-        String uriString = getArguments().getString(URI_KEY, null);
+        String uriString = getInputData().getString(URI_KEY, null);
         if (TextUtils.isEmpty(uriString)) {
             Log.e(TAG, "Invalid URI!");
             return WorkerResult.FAILURE;
@@ -142,7 +142,7 @@ public class ImageProcessingWorker extends Worker {
     }
 
     static Work createWork(String uriString) {
-        Arguments arguments = new Arguments.Builder().putString(URI_KEY, uriString).build();
-        return new Work.Builder(ImageProcessingWorker.class).withArguments(arguments).build();
+        Data input = new Data.Builder().putString(URI_KEY, uriString).build();
+        return new Work.Builder(ImageProcessingWorker.class).withInputData(input).build();
     }
 }

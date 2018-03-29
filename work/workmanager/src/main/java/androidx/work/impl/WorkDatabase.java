@@ -29,8 +29,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
-import androidx.work.Arguments;
 import androidx.work.ContentUriTriggers;
+import androidx.work.Data;
 import androidx.work.impl.model.AlarmInfo;
 import androidx.work.impl.model.AlarmInfoDao;
 import androidx.work.impl.model.Dependency;
@@ -61,7 +61,7 @@ import java.util.concurrent.TimeUnit;
         WorkName.class},
         version = 1,
         exportSchema = false)
-@TypeConverters(value = {Arguments.class, ContentUriTriggers.class, EnumTypeConverters.class})
+@TypeConverters(value = {Data.class, ContentUriTriggers.class, EnumTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "androidx.work.workdb";
