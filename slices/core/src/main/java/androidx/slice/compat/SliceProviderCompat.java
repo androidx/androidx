@@ -178,7 +178,7 @@ public class SliceProviderCompat extends ContentProvider {
                 b.putParcelable(EXTRA_SLICE, null);
             }
             return b;
-        } else if (method.equals(METHOD_MAP_INTENT)) {
+        } else if (method.equals(METHOD_MAP_ONLY_INTENT)) {
             Intent intent = extras.getParcelable(EXTRA_INTENT);
             Uri uri = mSliceProvider.onMapIntentToUri(intent);
             Bundle b = new Bundle();

@@ -24,7 +24,11 @@
         android:label="Slice Render Test">
         <provider android:name="androidx.slice.SliceManagerTest$TestSliceProvider"
                   android:authorities="androidx.slice.view.test"
-                  android:exported="true"/>
+                  android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.slice.action.TEST" />
+            </intent-filter>
+        </provider>
 
         <activity android:name="androidx.slice.render.SliceRenderActivity"
             android:theme="@style/AppTheme.NoActionBar">
