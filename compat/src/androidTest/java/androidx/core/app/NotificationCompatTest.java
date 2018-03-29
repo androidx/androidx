@@ -526,71 +526,87 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @Test
-    public void messagingStyle_isGroupConversation() {
+    public void testMessagingStyle_isGroupConversation() {
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.P;
         NotificationCompat.MessagingStyle messagingStyle =
                 new NotificationCompat.MessagingStyle("self name")
                         .setGroupConversation(true)
                         .setConversationTitle("test conversation title");
-        new NotificationCompat.Builder(mContext, "test id")
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
                 .setSmallIcon(1)
                 .setContentTitle("test title")
                 .setStyle(messagingStyle)
                 .build();
 
-        assertTrue(messagingStyle.isGroupConversation());
+        NotificationCompat.MessagingStyle result =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(notification);
+
+        assertTrue(result.isGroupConversation());
     }
 
     @Test
-    public void messagingStyle_isGroupConversation_noConversationTitle() {
+    public void testMessagingStyle_isGroupConversation_noConversationTitle() {
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.P;
         NotificationCompat.MessagingStyle messagingStyle =
                 new NotificationCompat.MessagingStyle("self name")
                         .setGroupConversation(true)
                         .setConversationTitle(null);
-        new NotificationCompat.Builder(mContext, "test id")
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
                 .setSmallIcon(1)
                 .setContentTitle("test title")
                 .setStyle(messagingStyle)
                 .build();
 
-        assertTrue(messagingStyle.isGroupConversation());
+        NotificationCompat.MessagingStyle result =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(notification);
+
+        assertTrue(result.isGroupConversation());
     }
 
     @Test
-    public void messagingStyle_isGroupConversation_withConversationTitle_legacy() {
+    public void testMessagingStyle_isGroupConversation_withConversationTitle_legacy() {
         // In legacy (version < P), isGroupConversation is controlled by conversationTitle.
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.O;
         NotificationCompat.MessagingStyle messagingStyle =
                 new NotificationCompat.MessagingStyle("self name")
                         .setConversationTitle("test conversation title");
-        new NotificationCompat.Builder(mContext, "test id")
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
                 .setSmallIcon(1)
                 .setContentTitle("test title")
                 .setStyle(messagingStyle)
                 .build();
 
-        assertTrue(messagingStyle.isGroupConversation());
+        NotificationCompat.MessagingStyle result =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(notification);
+
+        assertTrue(result.isGroupConversation());
     }
 
     @Test
-    public void messagingStyle_isGroupConversation_withoutConversationTitle_legacy() {
+    public void testMessagingStyle_isGroupConversation_withoutConversationTitle_legacy() {
         // In legacy (version < P), isGroupConversation is controlled by conversationTitle.
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.O;
         NotificationCompat.MessagingStyle messagingStyle =
                 new NotificationCompat.MessagingStyle("self name")
                         .setConversationTitle(null);
-        new NotificationCompat.Builder(mContext, "test id")
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
                 .setSmallIcon(1)
                 .setContentTitle("test title")
                 .setStyle(messagingStyle)
                 .build();
 
-        assertFalse(messagingStyle.isGroupConversation());
+        NotificationCompat.MessagingStyle result =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(notification);
+
+        assertFalse(result.isGroupConversation());
     }
 
     @Test
-    public void messagingStyle_isGroupConversation_withConversationTitle_legacyWithOverride() {
+    public void testMessagingStyle_isGroupConversation_withConversationTitle_legacyWithOverride() {
         // #setGroupConversation should always take precedence over legacy behavior, so a non-null
         // title shouldn't affect #isGroupConversation.
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.O;
@@ -598,17 +614,21 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 new NotificationCompat.MessagingStyle("self name")
                         .setGroupConversation(false)
                         .setConversationTitle("test conversation title");
-        new NotificationCompat.Builder(mContext, "test id")
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
                 .setSmallIcon(1)
                 .setContentTitle("test title")
                 .setStyle(messagingStyle)
                 .build();
 
-        assertFalse(messagingStyle.isGroupConversation());
+        NotificationCompat.MessagingStyle result =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(notification);
+
+        assertFalse(result.isGroupConversation());
     }
 
     @Test
-    public void messagingStyle_isGroupConversation_withoutConversationTitle_legacyWithOverride() {
+    public void testMessagingStyle_isGroupConversation_withoutTitle_legacyWithOverride() {
         // #setGroupConversation should always take precedence over legacy behavior, so a null
         // title shouldn't affect #isGroupConversation.
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.O;
@@ -616,13 +636,17 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 new NotificationCompat.MessagingStyle("self name")
                         .setGroupConversation(true)
                         .setConversationTitle(null);
-        new NotificationCompat.Builder(mContext, "test id")
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
                 .setSmallIcon(1)
                 .setContentTitle("test title")
                 .setStyle(messagingStyle)
                 .build();
 
-        assertTrue(messagingStyle.isGroupConversation());
+        NotificationCompat.MessagingStyle result =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(notification);
+
+        assertTrue(result.isGroupConversation());
     }
 
     @Test
