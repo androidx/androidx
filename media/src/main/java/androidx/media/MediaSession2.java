@@ -40,6 +40,7 @@ import android.os.Process;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.IMediaControllerCallback;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -1026,20 +1027,17 @@ public class MediaSession2 implements AutoCloseable {
                                     allowedCommands.toBundle());
                             resultData.putInt(ARGUMENT_PLAYER_STATE,
                                     MediaSession2.this.getPlayerState());
-                            resultData.putLong(ARGUMENT_POSITION_EVENT_TIME_MS,
-                                    System.currentTimeMillis());
-                            resultData.putLong(ARGUMENT_POSITION_MS,
-                                    MediaSession2.this.getCurrentPosition());
-                            resultData.putFloat(ARGUMENT_PLAYBACK_SPEED,
-                                    MediaSession2.this.getPlaybackSpeed());
-                            resultData.putLong(ARGUMENT_BUFFERED_POSITION_MS,
-                                    MediaSession2.this.getBufferedPosition());
-                            resultData.putBundle(ARGUMENT_PLAYBACK_INFO, mPlaybackInfo.toBundle());
+                            synchronized (mLock) {
+                                resultData.putBundle(ARGUMENT_PLAYBACK_INFO,
+                                        mPlaybackInfo.toBundle());
+                                resultData.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
+                                        mPlaybackStateCompat);
+                                // TODO: Insert MediaMetadataCompat
+                            }
                             resultData.putInt(ARGUMENT_REPEAT_MODE,
                                     MediaSession2.this.getRepeatMode());
                             resultData.putInt(ARGUMENT_SHUFFLE_MODE,
                                     MediaSession2.this.getShuffleMode());
-                            resultData.putParcelable(ARGUMENT_SESSION_ACTIVITY, mSessionActivity);
                             final List<MediaItem2> playlist = allowedCommands.hasCommand(
                                     SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
                                     ? MediaSession2.this.getPlaylist() : null;
@@ -1092,14 +1090,6 @@ public class MediaSession2 implements AutoCloseable {
             "androidx.media.MediaController2.argument.ALLOWED_COMMANDS";
     static final String ARGUMENT_PLAYER_STATE =
             "androidx.media.MediaController2.argument.PLAYER_STATE";
-    static final String ARGUMENT_POSITION_EVENT_TIME_MS =
-            "androidx.media.MediaController2.argument.POSITION_EVENT_TIME_MS";
-    static final String ARGUMENT_POSITION_MS =
-            "androidx.media.MediaController2.argument.POSITION_MS";
-    static final String ARGUMENT_PLAYBACK_SPEED =
-            "androidx.media.MediaController2.argument.PLAYBACK_SPEED";
-    static final String ARGUMENT_BUFFERED_POSITION_MS =
-            "androidx.media.MediaController2.argument.BUFFERED_POSITION_MS";
     static final String ARGUMENT_PLAYBACK_INFO =
             "androidx.media.MediaController2.argument.PLAYBACK_INFO";
     static final String ARGUMENT_REPEAT_MODE =
@@ -1107,8 +1097,12 @@ public class MediaSession2 implements AutoCloseable {
     static final String ARGUMENT_SHUFFLE_MODE =
             "androidx.media.MediaController2.argument.SHUFFLE_MODE";
     static final String ARGUMENT_PLAYLIST = "androidx.media.MediaController2.argument.PLAYLIST";
-    static final String ARGUMENT_SESSION_ACTIVITY =
-            "androidx.media.MediaController2.argument.SESSION_ACTIVITY";
+
+    // Media 1.0 Constants
+    static final String ARGUMENT_PLAYBACK_STATE_COMPAT =
+            "androidx.media.MediaController2.argument.PLAYBACK_STATE_COMPAT";
+    static final String ARGUMENT_MEDIA_METADATA_COMPAT =
+            "androidx.media.MediaController2.argument.MEDIA_METADATA_COMPAT";
 
     private final Context mContext;
     private final HandlerThread mHandlerThread;
@@ -1120,7 +1114,6 @@ public class MediaSession2 implements AutoCloseable {
     private final SessionCallback mCallback;
     private final SessionToken2 mSessionToken;
     private final AudioManager mAudioManager;
-    private final PendingIntent mSessionActivity;
     private final PlayerEventCallback mPlayerEventCallback;
     private final PlaylistEventCallback mPlaylistEventCallback;
 
@@ -1138,6 +1131,9 @@ public class MediaSession2 implements AutoCloseable {
     private MediaController2.PlaybackInfo mPlaybackInfo;
     @GuardedBy("mLock")
     private OnDataSourceMissingHelper mDsmHelper;
+
+    @GuardedBy("mLock")
+    private PlaybackStateCompat mPlaybackStateCompat;
 
     @GuardedBy("mLock")
     private final ArrayMap<IBinder, ControllerInfo> mControllers = new ArrayMap<>();
@@ -1159,11 +1155,11 @@ public class MediaSession2 implements AutoCloseable {
         mSessionCompat = sessionCompat;
         mSessionCompatCallback = new SessionCompatCallback();
         mSessionCompat.setCallback(mSessionCompatCallback, mHandler);
+        mSessionCompat.setSessionActivity(sessionActivity);
 
         mId = id;
         mCallback = callback;
         mCallbackExecutor = callbackExecutor;
-        mSessionActivity = sessionActivity;
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         // TODO: Set callback values properly
@@ -1406,7 +1402,10 @@ public class MediaSession2 implements AutoCloseable {
      * @return the current player state
      */
     public @PlayerState int getPlayerState() {
-        final MediaPlayerBase player = mPlayer;
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
         if (player != null) {
             return player.getPlayerState();
         } else if (DEBUG) {
