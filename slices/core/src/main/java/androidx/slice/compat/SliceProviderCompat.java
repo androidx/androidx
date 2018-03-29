@@ -41,11 +41,11 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
-import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;

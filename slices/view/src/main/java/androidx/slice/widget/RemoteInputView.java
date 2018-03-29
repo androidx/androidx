@@ -23,9 +23,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.RestrictTo;
-import androidx.core.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -48,6 +47,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.content.ContextCompat;
 import androidx.slice.view.R;
 
 /**
@@ -57,6 +59,7 @@ import androidx.slice.view.R;
  */
 // TODO this should be unified with SystemUI RemoteInputView (b/67527720)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(21)
 public class RemoteInputView extends LinearLayout implements View.OnClickListener, TextWatcher {
 
     private static final String TAG = "RemoteInput";
@@ -302,8 +305,8 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
         }
 
         private void defocusIfNeeded(boolean animate) {
-            if (mRemoteInputView != null || isTemporarilyDetached()) {
-                if (isTemporarilyDetached()) {
+            if (mRemoteInputView != null || isTemporarilyDetachedCompat()) {
+                if (isTemporarilyDetachedCompat()) {
                     // We might get reattached but then the other one of HUN / expanded might steal
                     // our focus, so we'll need to save our text here.
                 }
@@ -316,6 +319,13 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
                 }
                 mShowImeOnInputConnection = false;
             }
+        }
+
+        private boolean isTemporarilyDetachedCompat() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                return isTemporarilyDetached();
+            }
+            return false;
         }
 
         @Override

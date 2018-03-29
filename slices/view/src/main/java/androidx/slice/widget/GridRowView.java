@@ -349,7 +349,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
 
     private void makeClickable(View layout) {
         layout.setOnClickListener(this);
-        layout.setForeground(SliceViewUtil.getDrawable(getContext(),
+        layout.setBackground(SliceViewUtil.getDrawable(getContext(),
                 android.R.attr.selectableItemBackground));
     }
 
