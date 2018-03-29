@@ -16,8 +16,6 @@
 
 package androidx.lifecycle;
 
-import static androidx.lifecycle.HolderFragment.holderFragmentFor;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -25,8 +23,13 @@ import androidx.fragment.app.FragmentActivity;
 
 /**
  * Factory methods for {@link ViewModelStore} class.
+ *
+ * @deprecated Use {@link FragmentActivity#getViewModelStore()} or
+ * {@link Fragment#getViewModelStore()} to retrieve a {@code ViewModelStore} directly from
+ * activities and fragments.
  */
 @SuppressWarnings("WeakerAccess")
+@Deprecated
 public class ViewModelStores {
 
     private ViewModelStores() {
@@ -37,14 +40,13 @@ public class ViewModelStores {
      *
      * @param activity an activity whose {@code ViewModelStore} is requested
      * @return a {@code ViewModelStore}
+     * @deprecated Use {@link FragmentActivity#getViewModelStore()}
      */
+    @Deprecated
     @NonNull
     @MainThread
     public static ViewModelStore of(@NonNull FragmentActivity activity) {
-        if (activity instanceof ViewModelStoreOwner) {
-            return ((ViewModelStoreOwner) activity).getViewModelStore();
-        }
-        return holderFragmentFor(activity).getViewModelStore();
+        return activity.getViewModelStore();
     }
 
     /**
@@ -52,13 +54,12 @@ public class ViewModelStores {
      *
      * @param fragment a fragment whose {@code ViewModelStore} is requested
      * @return a {@code ViewModelStore}
+     * @deprecated Use {@link Fragment#getViewModelStore()}
      */
+    @Deprecated
     @NonNull
     @MainThread
     public static ViewModelStore of(@NonNull Fragment fragment) {
-        if (fragment instanceof ViewModelStoreOwner) {
-            return ((ViewModelStoreOwner) fragment).getViewModelStore();
-        }
-        return holderFragmentFor(fragment).getViewModelStore();
+        return fragment.getViewModelStore();
     }
 }

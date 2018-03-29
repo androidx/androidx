@@ -33,9 +33,9 @@ package androidx.lifecycle {
     ctor public deprecated ViewModelProviders.DefaultFactory(android.app.Application);
   }
 
-  public class ViewModelStores {
-    method public static androidx.lifecycle.ViewModelStore of(androidx.fragment.app.FragmentActivity);
-    method public static androidx.lifecycle.ViewModelStore of(androidx.fragment.app.Fragment);
+  public deprecated class ViewModelStores {
+    method public static deprecated androidx.lifecycle.ViewModelStore of(androidx.fragment.app.FragmentActivity);
+    method public static deprecated androidx.lifecycle.ViewModelStore of(androidx.fragment.app.Fragment);
   }
 
 }
