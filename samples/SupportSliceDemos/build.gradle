@@ -43,5 +43,5 @@ android {
 }
 
 supportTestApp {
-    minSdkVersion = 26
+    minSdkVersion = 19
 }
