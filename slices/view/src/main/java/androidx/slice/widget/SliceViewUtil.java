@@ -38,7 +38,6 @@ import android.widget.ImageView;
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -139,7 +138,6 @@ public class SliceViewUtil {
 
     /**
      */
-    @RequiresApi(23)
     public static IconCompat createIconFromDrawable(Drawable d) {
         if (d instanceof BitmapDrawable) {
             return IconCompat.createWithBitmap(((BitmapDrawable) d).getBitmap());

@@ -27,7 +27,6 @@ import static androidx.slice.widget.SliceView.MODE_LARGE;
 
 import android.app.slice.Slice;
 import android.content.Context;
-import android.util.ArrayMap;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,14 +34,15 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * @hide
@@ -249,25 +249,24 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
 
         private String genString(SliceItem item) {
             final StringBuilder builder = new StringBuilder();
-            SliceQuery.stream(item).forEach(new Consumer<SliceItem>() {
-                @Override
-                public void accept(SliceItem i) {
-                    builder.append(i.getFormat());
-                    //i.removeHint(Slice.HINT_SELECTED);
-                    builder.append(i.getHints());
-                    switch (i.getFormat()) {
-                        case FORMAT_IMAGE:
-                            builder.append(i.getIcon());
-                            break;
-                        case FORMAT_TEXT:
-                            builder.append(i.getText());
-                            break;
-                        case FORMAT_INT:
-                            builder.append(i.getInt());
-                            break;
-                    }
+            Iterator<SliceItem> items = SliceQuery.stream(item);
+            while (items.hasNext()) {
+                SliceItem i = items.next();
+                builder.append(i.getFormat());
+                //i.removeHint(Slice.HINT_SELECTED);
+                builder.append(i.getHints());
+                switch (i.getFormat()) {
+                    case FORMAT_IMAGE:
+                        builder.append(i.getIcon());
+                        break;
+                    case FORMAT_TEXT:
+                        builder.append(i.getText());
+                        break;
+                    case FORMAT_INT:
+                        builder.append(i.getInt());
+                        break;
                 }
-            });
+            }
             return builder.toString();
         }
 

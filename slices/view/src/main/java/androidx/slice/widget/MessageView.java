@@ -24,17 +24,17 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.RestrictTo;
 import android.text.SpannableStringBuilder;
 import android.util.TypedValue;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.function.Consumer;
-
+import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
+
+import java.util.List;
 
 /**
  * @hide
@@ -91,15 +91,13 @@ public class MessageView extends SliceChildView {
             mIcon.setImageBitmap(SliceViewUtil.getCircularBitmap(iconBm));
         }
         final SpannableStringBuilder builder = new SpannableStringBuilder();
-        SliceQuery.findAll(slice, FORMAT_TEXT).forEach(new Consumer<SliceItem>() {
-            @Override
-            public void accept(SliceItem text) {
-                if (builder.length() != 0) {
-                    builder.append('\n');
-                }
-                builder.append(text.getText());
+        List<SliceItem> items = SliceQuery.findAll(slice, FORMAT_TEXT);
+        for (SliceItem text : items) {
+            if (builder.length() != 0) {
+                builder.append('\n');
             }
-        });
+            builder.append(text.getText());
+        }
         mDetails.setText(builder.toString());
     }
 }

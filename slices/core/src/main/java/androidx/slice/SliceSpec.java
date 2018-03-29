@@ -88,7 +88,7 @@ public class SliceSpec {
 
     @Override
     public int hashCode() {
-        return mType.hashCode() + Integer.hashCode(mRevision);
+        return mType.hashCode() + mRevision;
     }
 
     @Override
