@@ -20,7 +20,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <application>
+    <application
+        android:label="Slice Render Test">
         <provider android:name="androidx.slice.SliceManagerTest$TestSliceProvider"
                   android:authorities="androidx.slice.view.test"
                   android:exported="true"/>
