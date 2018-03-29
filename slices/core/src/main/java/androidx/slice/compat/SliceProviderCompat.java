@@ -15,8 +15,11 @@
  */
 package androidx.slice.compat;
 
-import static android.app.slice.Slice.HINT_LIST_ITEM;
+import static android.app.slice.Slice.HINT_SHORTCUT;
+import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceProvider.SLICE_TYPE;
+
+import static androidx.slice.core.SliceHints.HINT_PERMISSION_REQUEST;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -249,13 +252,19 @@ public class SliceProviderCompat extends ContentProvider {
      */
     public static Slice createPermissionSlice(Context context, Uri sliceUri,
             String callingPackage) {
-        return new Slice.Builder(sliceUri)
+        Slice.Builder parent = new Slice.Builder(sliceUri);
+
+        Slice.Builder action = new Slice.Builder(parent)
+                .addHints(HINT_TITLE, HINT_SHORTCUT)
                 .addAction(createPermissionIntent(context, sliceUri, callingPackage),
-                        new Slice.Builder(sliceUri.buildUpon().appendPath("permission").build())
-                                .addText(getPermissionString(context, callingPackage), null)
-                                .build(), null)
-                .addHints(HINT_LIST_ITEM)
-                .build();
+                        new Slice.Builder(parent).build(), null);
+
+        parent.addSubSlice(new Slice.Builder(sliceUri.buildUpon().appendPath("permission").build())
+                .addText(getPermissionString(context, callingPackage), null)
+                .addSubSlice(action.build())
+                .build());
+
+        return parent.addHints(HINT_PERMISSION_REQUEST).build();
     }
 
     /**

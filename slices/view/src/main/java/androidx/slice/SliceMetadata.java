@@ -27,6 +27,7 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
+import static androidx.slice.core.SliceHints.HINT_PERMISSION_REQUEST;
 import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
 import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
@@ -276,6 +277,18 @@ public class SliceMetadata {
      */
     public long getLastUpdatedTime() {
         return mLastUpdated;
+    }
+
+    /**
+     * To present a slice from another app, the app must grant uri permissions for the slice. If
+     * these permissions have not been granted and the app slice is requested then
+     * a permission request slice will be returned instead, allowing the user to grant permission.
+     * This method can be used to identify if a slice is a permission request.
+     *
+     * @return whether this slice represents a permission request.
+     */
+    public boolean isPermissionSlice() {
+        return mSlice.hasHint(HINT_PERMISSION_REQUEST);
     }
 
     /**
