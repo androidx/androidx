@@ -78,6 +78,8 @@ public class SliceHints {
      */
     public static final String SUBTYPE_MILLIS = "millis";
 
+    public static final String HINT_PERMISSION_REQUEST = "permission_request";
+
     @IntDef({
             LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
     })
