@@ -1,5 +1,8 @@
 # Adding the Support Library Build Within Another Build
 
+Sorry, this doesn't seem to be working at the moment.
+For now, run `./gradlew createArchive` and copy the output to where your project can use it, as described fuller in go/support-dev
+
 Would you like to make a change in Support Library and have it be propagated to
 your downstream Gradle build (generally an app) without having to separately
 build Support Library and then build your application?
