@@ -30,7 +30,7 @@ import java.util.HashMap;
  * then it should call {@link #clear()} on this {@code ViewModelStore}, so {@code ViewModels} would
  * be notified that they are no longer used.
  * <p>
- * {@link androidx.lifecycle.ViewModelStores} provides a {@code ViewModelStore} for
+ * Use {@link ViewModelStoreOwner#getViewModelStore()} to retrieve a {@code ViewModelStore} for
  * activities and fragments.
  */
 public class ViewModelStore {

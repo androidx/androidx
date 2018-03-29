@@ -102,7 +102,7 @@ public class ViewModelProviders {
         if (factory == null) {
             factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application);
         }
-        return new ViewModelProvider(ViewModelStores.of(fragment), factory);
+        return new ViewModelProvider(fragment.getViewModelStore(), factory);
     }
 
     /**
@@ -123,7 +123,7 @@ public class ViewModelProviders {
         if (factory == null) {
             factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application);
         }
-        return new ViewModelProvider(ViewModelStores.of(activity), factory);
+        return new ViewModelProvider(activity.getViewModelStore(), factory);
     }
 
     /**
