@@ -43,7 +43,6 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
@@ -54,14 +53,13 @@ import androidx.slice.widget.SliceLiveData;
 import androidx.slice.widget.SliceView;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Example use of SliceView. Uses a search bar to select/auto-complete a slice uri which is
  * then displayed in the selected mode with SliceView.
  */
-@RequiresApi(api = 28)
 public class SliceBrowser extends AppCompatActivity implements SliceView.OnSliceActionListener {
 
     private static final String TAG = "SlicePresenter";
@@ -187,9 +185,9 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
 
     private void authAllSlices() {
         List<ApplicationInfo> packages = getPackageManager().getInstalledApplications(0);
-        packages.forEach(info -> {
+        for (ApplicationInfo info : packages) {
             grantPackage(info.packageName);
-        });
+        }
     }
 
     private void grantPackage(String packageName) {
@@ -258,19 +256,16 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         final MatrixCursor c = new MatrixCursor(new String[]{BaseColumns._ID, "uri"});
         ArrayMap<String, Integer> ranking = new ArrayMap<>();
         ArrayList<String> suggestions = new ArrayList();
-        mSliceUris.forEach(uri -> {
+        for (Uri uri : mSliceUris) {
+
             String uriString = uri.toString();
             if (uriString.contains(query)) {
                 ranking.put(uriString, uriString.indexOf(query));
                 suggestions.add(uriString);
             }
-        });
-        suggestions.sort(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return Integer.compare(ranking.get(o1), ranking.get(o2));
-            }
-        });
+        }
+        Collections.sort(suggestions, (o1, o2) ->
+                Integer.compare(ranking.get(o1), ranking.get(o2)));
         for (int i = 0; i < suggestions.size(); i++) {
             c.addRow(new Object[]{i, suggestions.get(i)});
         }
