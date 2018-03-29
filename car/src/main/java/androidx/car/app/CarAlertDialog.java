@@ -21,8 +21,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -33,6 +31,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.car.R;
 
 /**
@@ -338,7 +338,7 @@ public class CarAlertDialog extends Dialog {
      * Builder class that can be used to create a {@link CarAlertDialog} by configuring the options
      * for what shows up in the resulting dialog.
      */
-    public static class Builder {
+    public static final class Builder {
         private final Context mContext;
         private final DialogData mDialogData;
 
@@ -409,8 +409,8 @@ public class CarAlertDialog extends Dialog {
          * an "OK" action).
          *
          * @param textId The resource id of the string to be used for the positive button text.
-         * @param listener A {@link OnClickListener} to be invoked when the button is clicked. Can
-         *                 be {@code null} to represent no listener.
+         * @param listener A {@link android.content.DialogInterface.OnClickListener} to be invoked
+         *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         public Builder setPositiveButton(@StringRes int textId,
@@ -429,8 +429,8 @@ public class CarAlertDialog extends Dialog {
          * an "OK" action).
          *
          * @param text The string to be used for the positive button text.
-         * @param listener A {@link OnClickListener} to be invoked when the button is clicked. Can
-         *                 be {@code null} to represent no listener.
+         * @param listener A {@link android.content.DialogInterface.OnClickListener} to be invoked
+         *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         public Builder setPositiveButton(CharSequence text, @Nullable OnClickListener listener) {
@@ -447,8 +447,8 @@ public class CarAlertDialog extends Dialog {
          * <p>The negative button should be used to cancel any actions the dialog represents.
          *
          * @param textId The resource id of the string to be used for the negative button text.
-         * @param listener A {@link OnClickListener} to be invoked when the button is clicked. Can
-         *                 be {@code null} to represent no listener.
+         * @param listener A {@link android.content.DialogInterface.OnClickListener} to be invoked
+         *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         public Builder setNegativeButton(@StringRes int textId,
@@ -466,8 +466,8 @@ public class CarAlertDialog extends Dialog {
          * <p>The negative button should be used to cancel any actions the dialog represents.
          *
          * @param text The string to be used for the negative button text.
-         * @param listener A {@link OnClickListener} to be invoked when the button is clicked. Can
-         *                 be {@code null} to represent no listener.
+         * @param listener A {@link android.content.DialogInterface.OnClickListener} to be invoked
+         *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         public Builder setNegativeButton(CharSequence text, @Nullable OnClickListener listener) {
@@ -518,8 +518,8 @@ public class CarAlertDialog extends Dialog {
         /**
          * Creates an {@link CarAlertDialog} with the arguments supplied to this {@code Builder}.
          *
-         * <p>Calling this method does not display the dialog. If no additional processing is
-         * needed, {@link #show()} may be called instead to both create and display the dialog.
+         * <p>Calling this method does not display the dialog. Utilize this dialog within a
+         * {@link androidx.fragment.app.DialogFragment} to show the dialog.
          */
         public CarAlertDialog create() {
             CarAlertDialog dialog = new CarAlertDialog(mContext, mDialogData);
@@ -529,22 +529,6 @@ public class CarAlertDialog extends Dialog {
             dialog.setOnCancelListener(mOnCancelListener);
             dialog.setOnDismissListener(mOnDismissListener);
 
-            return dialog;
-        }
-
-        /**
-         * Creates an {@link CarAlertDialog} with the arguments supplied to this {@code Builder}
-         * and immediately displays the dialog.
-         *
-         * <p>Calling this method is functionally identical to:
-         * <pre>
-         *     CarAlertDialog dialog = new CarAlertDialog.Builder().create();
-         *     dialog.show();
-         * </pre>
-         */
-        public CarAlertDialog show() {
-            CarAlertDialog dialog = create();
-            dialog.show();
             return dialog;
         }
     }

@@ -28,9 +28,6 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.R;
@@ -42,6 +39,9 @@ import androidx.car.widget.PagedListView;
 import androidx.car.widget.PagedScrollBarView;
 import androidx.car.widget.TextListItem;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A subclass of {@link Dialog} that is tailored for the car environment. This dialog can display a
@@ -283,7 +283,7 @@ public class CarListDialog extends Dialog {
      * Builder class that can be used to create a {@link CarListDialog} by configuring the
      * options for the list and behavior of the dialog.
      */
-    public static class Builder {
+    public static final class Builder {
         private final Context mContext;
         private int mInitialPosition;
         private String[] mItems;
@@ -390,8 +390,8 @@ public class CarListDialog extends Dialog {
          * <p>If {@link #setItems(String[],DialogInterface.OnClickListener)} is never called, then
          * calling this method will throw an exception.
          *
-         * <p>Calling this method does not display the dialog. If no additional processing is
-         * needed, {@link #show()} may be called instead to both create and display the dialog.
+         * <p>Calling this method does not display the dialog. Utilize this dialog within a
+         * {@link androidx.fragment.app.DialogFragment} to show the dialog.
          */
         public CarListDialog create() {
             if (mItems == null || mItems.length == 0) {
@@ -415,22 +415,6 @@ public class CarListDialog extends Dialog {
             dialog.setOnCancelListener(mOnCancelListener);
             dialog.setOnDismissListener(mOnDismissListener);
 
-            return dialog;
-        }
-
-        /**
-         * Creates an {@link CarAlertDialog} with the arguments supplied to this {@code Builder}
-         * and immediately displays the dialog.
-         *
-         * <p>Calling this method is functionally identical to:
-         * <pre>{@code
-         * CarAlertDialog dialog = new CarAlertDialog.Builder().create();
-         * dialog.show();
-         * }</pre>
-         */
-        public CarListDialog show() {
-            CarListDialog dialog = create();
-            dialog.show();
             return dialog;
         }
     }
