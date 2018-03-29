@@ -17,131 +17,214 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media.SessionCommand2.COMMAND_CODE_CUSTOM;
 
-import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * @hide
- * Represent set of {@link SessionCommand2}.
+ * A set of {@link SessionCommand2} which represents a command group.
  */
 @RestrictTo(LIBRARY_GROUP)
 public final class SessionCommandGroup2 {
-    //private final CommandGroupProvider mProvider;
+
+    private static final String TAG = "SessionCommandGroup2";
+    private static final String KEY_COMMANDS = "android.media.mediasession2.commandgroup.commands";
+    // Prefix for all command codes
+    private static final String PREFIX_COMMAND_CODE = "COMMAND_CODE_";
+    // Prefix for command codes that will be sent directly to the MediaPlayerBase
+    private static final String PREFIX_COMMAND_CODE_PLAYBACK = "COMMAND_CODE_PLAYBACK_";
+    // Prefix for command codes that will be sent directly to the MediaPlaylistAgent
+    private static final String PREFIX_COMMAND_CODE_PLAYLIST = "COMMAND_CODE_PLAYLIST_";
+
+    private Set<SessionCommand2> mCommands = new HashSet<>();
 
     /**
-     * TODO: javadoc
+     * Default Constructor.
      */
-    public SessionCommandGroup2() {
-//            mProvider = ApiLoader.getProvider().createMediaSession2CommandGroup(
-//                    context, this, null);
+    public SessionCommandGroup2() { }
+
+    /**
+     * Creates a new SessionCommandGroup2 with commands copied from another object.
+     *
+     * @param other The SessionCommandGroup2 instance to copy.
+     */
+    public SessionCommandGroup2(@Nullable SessionCommandGroup2 other) {
+        if (other != null) {
+            mCommands.addAll(other.mCommands);
+        }
     }
 
     /**
-     * TODO: javadoc
-     */
-    public SessionCommandGroup2(@Nullable SessionCommandGroup2 others) {
-//            mProvider = ApiLoader.getProvider().createMediaSession2CommandGroup(
-//                    context, this, others);
-    }
-
-//        /**
-//         * @hide
-//         */
-//        public CommandGroup(@NonNull CommandGroupProvider provider) {
-//            mProvider = provider;
-//        }
-
-    /**
-     * TODO: javadoc
+     * Adds a command to this command group.
+     *
+     * @param command A command to add. Shouldn't be {@code null}.
      */
     public void addCommand(@NonNull SessionCommand2 command) {
-        //mProvider.addCommand_impl(command);
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
+        mCommands.add(command);
     }
 
     /**
-     * TODO: javadoc
+     * Adds a predefined command with given {@code commandCode} to this command group.
+     *
+     * @param commandCode A command code to add.
+     *                    Shouldn't be {@link SessionCommand2#COMMAND_CODE_CUSTOM}.
      */
     public void addCommand(int commandCode) {
-        // TODO: Implement
+        if (commandCode == COMMAND_CODE_CUSTOM) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
+        mCommands.add(new SessionCommand2(commandCode));
     }
 
     /**
-     * TODO: javadoc
+     * Adds all predefined commands to this command group.
      */
     public void addAllPredefinedCommands() {
-        //mProvider.addAllPredefinedCommands_impl();
+        addCommandsWithPrefix(PREFIX_COMMAND_CODE);
+    }
+
+    void addAllPlaybackCommands() {
+        addCommandsWithPrefix(PREFIX_COMMAND_CODE_PLAYBACK);
+    }
+
+    void addAllPlaylistCommands() {
+        addCommandsWithPrefix(PREFIX_COMMAND_CODE_PLAYLIST);
+    }
+
+    private void addCommandsWithPrefix(String prefix) {
+        // TODO(jaewan): (Can be post-P): Don't use reflection for this purpose.
+        final Field[] fields = MediaSession2.class.getFields();
+        if (fields != null) {
+            for (int i = 0; i < fields.length; i++) {
+                if (fields[i].getName().startsWith(prefix)) {
+                    try {
+                        mCommands.add(new SessionCommand2(fields[i].getInt(null)));
+                    } catch (IllegalAccessException e) {
+                        Log.w(TAG, "Unexpected " + fields[i] + " in MediaSession2");
+                    }
+                }
+            }
+        }
     }
 
     /**
-     * TODO: javadoc
+     * Removes a command from this group which matches given {@code command}.
+     *
+     * @param command A command to find. Shouldn't be {@code null}.
      */
     public void removeCommand(@NonNull SessionCommand2 command) {
-        //mProvider.removeCommand_impl(command);
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
+        mCommands.remove(command);
     }
 
     /**
-     * TODO: javadoc
+     * Removes a command from this group which matches given {@code commandCode}.
+     *
+     * @param commandCode A command code to find.
+     *                    Shouldn't be {@link SessionCommand2#COMMAND_CODE_CUSTOM}.
      */
     public void removeCommand(int commandCode) {
-        // TODO(jaewan): Implement.
+        if (commandCode == COMMAND_CODE_CUSTOM) {
+            throw new IllegalArgumentException("commandCode shouldn't be COMMAND_CODE_CUSTOM");
+        }
+        mCommands.remove(new SessionCommand2(commandCode));
     }
 
     /**
-     * TODO: javadoc
+     * Checks whether this command group has a command that matches given {@code command}.
+     *
+     * @param command A command to find. Shouldn't be {@code null}.
      */
     public boolean hasCommand(@NonNull SessionCommand2 command) {
-        //return mProvider.hasCommand_impl(command);
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
+        return mCommands.contains(command);
+    }
+
+    /**
+     * Checks whether this command group has a command that matches given {@code commandCode}.
+     *
+     * @param commandCode A command code to find.
+     *                    Shouldn't be {@link SessionCommand2#COMMAND_CODE_CUSTOM}.
+     */
+    public boolean hasCommand(int commandCode) {
+        if (commandCode == COMMAND_CODE_CUSTOM) {
+            throw new IllegalArgumentException("Use hasCommand(Command) for custom command");
+        }
+        for (SessionCommand2 command : mCommands) {
+            if (command.getCommandCode() == commandCode) {
+                return true;
+            }
+        }
         return false;
     }
 
     /**
-     * TODO: javadoc
+     * Gets all commands of this command group.
      */
-    public boolean hasCommand(int code) {
-        //return mProvider.hasCommand_impl(code);
-        return false;
+    public @NonNull Set<SessionCommand2> getCommands() {
+        return new HashSet<>(mCommands);
     }
 
     /**
-     * TODO: javadoc
-     */
-    public /*@NonNull*/ Set<SessionCommand2> getCommands() {
-        //return mProvider.getCommands_impl();
-        return null;
-    }
-
-//        /**
-//         * @hide
-//         */
-//        public @NonNull CommandGroupProvider getProvider() {
-//            return mProvider;
-//        }
-
-    /**
-     * @return new bundle from the CommandGroup
+     * @return A new {@link Bundle} instance from the SessionCommandGroup2.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public /*@NonNull*/ Bundle toBundle() {
-        //return mProvider.toBundle_impl();
-        return null;
+    public @NonNull Bundle toBundle() {
+        ArrayList<Bundle> list = new ArrayList<>();
+        for (SessionCommand2 command : mCommands) {
+            list.add(command.toBundle());
+        }
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList(KEY_COMMANDS, list);
+        return bundle;
     }
 
     /**
-     * @return new instance of CommandGroup from the bundle
+     * @return A new {@link SessionCommandGroup2} instance from the bundle.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static @Nullable SessionCommandGroup2 fromBundle(Context context, Bundle commands) {
-        //return ApiLoader.getProvider()
-        //        .fromBundle_MediaSession2CommandGroup(context, commands);
-        return null;
+    public static @Nullable SessionCommandGroup2 fromBundle(Bundle commands) {
+        if (commands == null) {
+            return null;
+        }
+        List<Parcelable> list = commands.getParcelableArrayList(KEY_COMMANDS);
+        if (list == null) {
+            return null;
+        }
+        SessionCommandGroup2 commandGroup = new SessionCommandGroup2();
+        for (int i = 0; i < list.size(); i++) {
+            Parcelable parcelable = list.get(i);
+            if (!(parcelable instanceof Bundle)) {
+                continue;
+            }
+            Bundle commandBundle = (Bundle) parcelable;
+            SessionCommand2 command = SessionCommand2.fromBundle(commandBundle);
+            if (command != null) {
+                commandGroup.addCommand(command);
+            }
+        }
+        return commandGroup;
     }
 }
