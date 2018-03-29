@@ -425,18 +425,6 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     }
 
     /**
-     * Sets whether this view should display when the slice was last updated.
-     *
-     * @param showLastUpdated whether the view should display when the slice was last updated.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setShowLastUpdated(boolean showLastUpdated) {
-        mShowLastUpdated = showLastUpdated;
-        mCurrentView.setShowLastUpdated(showLastUpdated);
-    }
-
-    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)

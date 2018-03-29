@@ -363,31 +363,49 @@ public class SliceItem {
     }
 
     /**
-     * @hide
      * @return A string representation of this slice item.
      */
-    @RestrictTo(Scope.LIBRARY)
     @Override
     public String toString() {
         return toString("");
     }
 
-    private String toString(String indent) {
+    /**
+     * @return A string representation of this slice item.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
-        sb.append(indent);
-        if (FORMAT_SLICE.equals(mFormat)) {
-            sb.append("slice:\n");
-            sb.append(getSlice().toString(indent + "   "));
-        } else if (FORMAT_ACTION.equals(mFormat)) {
-            sb.append("action:\n");
-            sb.append(getSlice().toString(indent + "   "));
-        } else if (FORMAT_TEXT.equals(mFormat)) {
-            sb.append("text: ");
-            sb.append(getText());
-            sb.append("\n");
-        } else {
-            sb.append(SliceItem.typeToString(getFormat()));
-            sb.append("\n");
+        if (!FORMAT_SLICE.equals(getFormat())) {
+            sb.append(indent);
+            sb.append(getFormat());
+            sb.append(": ");
+        }
+        switch (getFormat()) {
+            case FORMAT_SLICE:
+                sb.append(getSlice().toString(indent));
+                break;
+            case FORMAT_ACTION:
+                sb.append(getAction());
+                sb.append("\n");
+                sb.append(getSlice().toString(indent));
+                break;
+            case FORMAT_TEXT:
+                sb.append(getText());
+                break;
+            case FORMAT_IMAGE:
+                sb.append(getIcon());
+                break;
+            case FORMAT_INT:
+                sb.append(getInt());
+                break;
+            case FORMAT_TIMESTAMP:
+                sb.append(getTimestamp());
+                break;
+            default:
+                sb.append(SliceItem.typeToString(getFormat()));
+                break;
         }
         return sb.toString();
     }
