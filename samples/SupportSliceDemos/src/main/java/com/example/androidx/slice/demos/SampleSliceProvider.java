@@ -479,7 +479,8 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createWifiSlice(Uri sliceUri) {
         // Get wifi state
-        WifiManager wifiManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) getContext()
+                .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         int wifiState = wifiManager.getWifiState();
         boolean wifiEnabled = false;
         String state;
