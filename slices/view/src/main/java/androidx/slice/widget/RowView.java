@@ -39,6 +39,7 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
@@ -59,6 +60,7 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
@@ -362,7 +364,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
         progressBar.setVisibility(View.VISIBLE);
         if (mTintColor != -1) {
-            progressBar.getProgressDrawable().setTint(mTintColor);
+            Drawable drawable = DrawableCompat.wrap(progressBar.getProgressDrawable());
+            DrawableCompat.setTint(drawable, mTintColor);
+            mProgressBar.setProgressDrawable(drawable);
         }
         if (isSeekBar) {
             SliceItem thumb = SliceQuery.find(range, FORMAT_IMAGE);
@@ -370,7 +374,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 mSeekBar.setThumb(thumb.getIcon().loadDrawable(getContext()));
             }
             if (mTintColor != -1) {
-                mSeekBar.getThumb().setTint(mTintColor);
+                Drawable drawable = DrawableCompat.wrap(mSeekBar.getThumb());
+                DrawableCompat.setTint(drawable, mTintColor);
+                mSeekBar.setThumb(drawable);
             }
             mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
