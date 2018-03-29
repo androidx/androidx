@@ -71,7 +71,7 @@ package androidx.tvprovider.media.tv {
   }
 
   public class ChannelLogoUtils {
-    ctor public ChannelLogoUtils();
+    ctor public deprecated ChannelLogoUtils();
     method public static android.graphics.Bitmap loadChannelLogo(android.content.Context, long);
     method public static boolean storeChannelLogo(android.content.Context, long, android.net.Uri);
     method public static boolean storeChannelLogo(android.content.Context, long, android.graphics.Bitmap);
