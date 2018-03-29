@@ -32,13 +32,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
-//import android.widget.ImageView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
-//import android.widget.RelativeLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -48,6 +47,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.media.R;
 import androidx.media.SessionToken2;
 // import androidx.mediarouter.app.MediaRouteButton;
 // import androidx.mediarouter.media.MediaRouter;
@@ -56,10 +56,10 @@ import androidx.media.SessionToken2;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-//import java.util.Arrays;
+import java.util.Arrays;
 import java.util.Formatter;
 import java.util.List;
-//import java.util.Locale;
+import java.util.Locale;
 
 /**
  * @hide
@@ -511,8 +511,6 @@ public class MediaControlView2 extends BaseLayout {
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        /*
-
         if (mPrevWidth != getMeasuredWidth()) {
             int currWidth = getMeasuredWidth();
 
@@ -536,7 +534,6 @@ public class MediaControlView2 extends BaseLayout {
             mPrevWidth = currWidth;
         }
         updateTitleBarLayout();
-        */
     }
 
     @Override
@@ -652,14 +649,9 @@ public class MediaControlView2 extends BaseLayout {
      */
     // TODO: This was "protected". Determine if it should be protected in MCV2.
     private View makeControllerView() {
-        // TODO (b/77158892) Uncomment after adding resources.
-        /*
         View root = inflateLayout(getContext(), R.layout.media_controller);
-
         initControllerView(root);
         return root;
-        */
-        return null;
     }
 
     // TODO(b/76444971) make sure this is compatible with ApiHelper's one in updatable.
@@ -670,13 +662,14 @@ public class MediaControlView2 extends BaseLayout {
     }
 
     private void initControllerView(View v) {
-        // TODO (b/77158892) Uncomment after adding resources.
-        /*
+        // TODO (b/77176218) Make current file ToT.
+        /**
         mPlayDescription = mResources.getText(R.string.lockscreen_play_button_content_description);
         mPauseDescription =
                 mResources.getText(R.string.lockscreen_pause_button_content_description);
         mReplayDescription =
                 mResources.getText(R.string.lockscreen_replay_button_content_description);
+        */
 
         // Relating to Title Bar View
         mTitleBar = v.findViewById(R.id.title_bar);
@@ -686,7 +679,8 @@ public class MediaControlView2 extends BaseLayout {
         if (mBackButton != null) {
             mBackButton.setOnClickListener(mBackListener);
         }
-        mRouteButton = v.findViewById(R.id.cast);
+        // TODO (b/77158231) revive
+        // mRouteButton = v.findViewById(R.id.cast);
 
         // Relating to Center View
         mCenterView = v.findViewById(R.id.center_view);
@@ -694,7 +688,7 @@ public class MediaControlView2 extends BaseLayout {
         mCenterView.addView(mTransportControls);
 
         // Relating to Progress Bar View
-        mProgress = v.findViewById(R.id.mediacontroller_progress);
+        mProgress = v.findViewById(R.id.progress);
         if (mProgress != null) {
             if (mProgress instanceof SeekBar) {
                 SeekBar seeker = (SeekBar) mProgress;
@@ -771,7 +765,6 @@ public class MediaControlView2 extends BaseLayout {
                 R.dimen.mcv2_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
                 ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        */
     }
 
     /**
@@ -862,8 +855,6 @@ public class MediaControlView2 extends BaseLayout {
             mCurrentTime.setText(stringForTime(currentPosition));
         }
 
-        // TODO (b/77158892) Uncomment after adding resources.
-        /*
         if (mIsAdvertisement) {
             // Update the remaining number of seconds until the first 5 seconds of the
             // advertisement.
@@ -894,13 +885,10 @@ public class MediaControlView2 extends BaseLayout {
                 mAdRemainingView.setText(remainingTimeText);
             }
         }
-        */
         return currentPosition;
     }
 
     private void togglePausePlayState() {
-        // TODO (b/77158892) Uncomment after adding resources.
-        /*
         if (isPlaying()) {
             mControls.pause();
             mPlayPauseButton.setImageDrawable(
@@ -912,7 +900,6 @@ public class MediaControlView2 extends BaseLayout {
                     mResources.getDrawable(R.drawable.ic_pause_circle_filled, null));
             mPlayPauseButton.setContentDescription(mPauseDescription);
         }
-        */
     }
 
     // There are two scenarios that can trigger the seekbar listener to trigger:
@@ -945,13 +932,10 @@ public class MediaControlView2 extends BaseLayout {
             // Check if playback is currently stopped. In this case, update the pause button to
             // show the play image instead of the replay image.
             if (mIsStopped) {
-                // TODO (b/77158892) Uncomment after adding resources.
-                /*
                 mPlayPauseButton.setImageDrawable(
                         mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
                 mPlayPauseButton.setContentDescription(mPlayDescription);
                 mIsStopped = false;
-                */
             }
         }
 
@@ -1060,8 +1044,6 @@ public class MediaControlView2 extends BaseLayout {
     private final View.OnClickListener mFullScreenListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO (b/77158892) Uncomment after adding resources.
-            /*
             final boolean isEnteringFullScreen = !mIsFullScreen;
             // TODO: Re-arrange the button layouts according to the UX.
             if (isEnteringFullScreen) {
@@ -1076,7 +1058,6 @@ public class MediaControlView2 extends BaseLayout {
             mController.sendCommand(COMMAND_SET_FULLSCREEN, args, null);
 
             mIsFullScreen = isEnteringFullScreen;
-            */
         }
     };
 
@@ -1099,8 +1080,6 @@ public class MediaControlView2 extends BaseLayout {
     private final View.OnClickListener mMuteButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO (b/77158892) Uncomment after adding resources.
-            /*
             if (!mIsMute) {
                 mMuteButton.setImageDrawable(
                         mResources.getDrawable(R.drawable.ic_mute, null));
@@ -1112,7 +1091,6 @@ public class MediaControlView2 extends BaseLayout {
                 mIsMute = false;
                 mController.sendCommand(COMMAND_UNMUTE, null, null);
             }
-            */
         }
     };
 
@@ -1174,8 +1152,6 @@ public class MediaControlView2 extends BaseLayout {
                     // TODO: implement this.
                     break;
                 case SETTINGS_MODE_SUBTITLE_TRACK:
-                    // TODO (b/77158892) Uncomment after adding resources.
-                    /*
                     if (position != mSelectedSubtitleTrackIndex) {
                         mSelectedSubtitleTrackIndex = position;
                         if (position > 0) {
@@ -1193,7 +1169,6 @@ public class MediaControlView2 extends BaseLayout {
                             mSubtitleIsEnabled = false;
                         }
                     }
-                    */
                     mSettingsWindow.dismiss();
                     break;
                 case SETTINGS_MODE_VIDEO_QUALITY:
@@ -1227,8 +1202,6 @@ public class MediaControlView2 extends BaseLayout {
     // greater than the length of the title bar, reduce the size of the left bar (which makes the
     // TextView that contains the title of the media file shrink).
     private void updateTitleBarLayout() {
-        // TODO (b/77158892) Uncomment after adding resources.
-        /*
         if (mTitleBar != null) {
             int titleBarWidth = mTitleBar.getWidth();
 
@@ -1248,12 +1221,9 @@ public class MediaControlView2 extends BaseLayout {
             }
             leftBar.setLayoutParams(params);
         }
-        */
     }
 
     private void updateLayout() {
-        // TODO (b/77158892) Uncomment after adding resources.
-        /*
         if (mIsAdvertisement) {
             mRewButton.setVisibility(View.GONE);
             mFfwdButton.setVisibility(View.GONE);
@@ -1282,12 +1252,9 @@ public class MediaControlView2 extends BaseLayout {
             mNextButton.clearColorFilter();
             disableUnsupportedButtons();
         }
-        */
     }
 
     private void updateLayoutForSizeChange(int sizeType) {
-        // TODO (b/77158892) Uncomment after adding resources.
-        /*
         mSizeType = sizeType;
         RelativeLayout.LayoutParams params =
                 (RelativeLayout.LayoutParams) mTimeView.getLayoutParams();
@@ -1329,13 +1296,10 @@ public class MediaControlView2 extends BaseLayout {
                     mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
             mPlayPauseButton.setContentDescription(mPlayDescription);
         }
-        */
     }
 
     private View inflateTransportControls(int layoutId) {
         View v = inflateLayout(getContext(), layoutId);
-        // TODO (b/77158892) Uncomment after adding resources.
-        /*
         mPlayPauseButton = v.findViewById(R.id.pause);
         if (mPlayPauseButton != null) {
             mPlayPauseButton.requestFocus();
@@ -1360,13 +1324,10 @@ public class MediaControlView2 extends BaseLayout {
             mPrevButton.setOnClickListener(mPrevListener);
             mPrevButton.setVisibility(View.GONE);
         }
-        */
         return v;
     }
 
     private void initializeSettingsLists() {
-        // TODO (b/77158892) Uncomment after adding resources.
-        /*
         mSettingsMainTextsList = new ArrayList<String>();
         mSettingsMainTextsList.add(
                 mResources.getString(R.string.MediaControlView2_audio_track_text));
@@ -1407,7 +1368,6 @@ public class MediaControlView2 extends BaseLayout {
             float speed = (float) speeds[i] / 100.0f;
             mPlaybackSpeedList.add(speed);
         }
-        */
     }
 
     private void displaySettingsWindow(BaseAdapter adapter) {
@@ -1439,8 +1399,6 @@ public class MediaControlView2 extends BaseLayout {
             //      activity is resumed.
             //   2) Need to handle case where the media file reaches end of duration.
             if (mPlaybackState.getState() != mPrevState) {
-                // TODO (b/77158892) Uncomment after adding resources.
-                /*
                 switch (mPlaybackState.getState()) {
                     case PlaybackState.STATE_PLAYING:
                         mPlayPauseButton.setImageDrawable(
@@ -1463,7 +1421,6 @@ public class MediaControlView2 extends BaseLayout {
                     default:
                         break;
                 }
-                */
                 mPrevState = mPlaybackState.getState();
             }
 
@@ -1529,8 +1486,6 @@ public class MediaControlView2 extends BaseLayout {
                     // Otherwise, the Audio Track selection will be defaulted to "None".
                     mAudioTrackCount = extras.getInt(KEY_AUDIO_TRACK_COUNT);
                     mAudioTrackList = new ArrayList<String>();
-                    // TODO (b/77158892) Uncomment after adding resources.
-                    /*
                     if (mAudioTrackCount > 0) {
                         // TODO: add more text about track info.
                         for (int i = 0; i < mAudioTrackCount; i++) {
@@ -1562,7 +1517,6 @@ public class MediaControlView2 extends BaseLayout {
                         mSubtitleButton.setVisibility(View.GONE);
                         mSubtitleButton.setEnabled(false);
                     }
-                    */
                     break;
                 case EVENT_UPDATE_MEDIA_TYPE_STATUS:
                     boolean newStatus = extras.getBoolean(KEY_STATE_IS_ADVERTISEMENT);
@@ -1575,8 +1529,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    // TODO: It was originally non static. Changed it to static temporarily for intial build.
-    private static class SettingsAdapter extends BaseAdapter {
+    private class SettingsAdapter extends BaseAdapter {
         private List<Integer> mIconIds;
         private List<String> mMainTexts;
         private List<String> mSubTexts;
@@ -1623,15 +1576,13 @@ public class MediaControlView2 extends BaseLayout {
 
         @Override
         public View getView(int position, View convertView, ViewGroup container) {
-            // TODO (b/77158892) Uncomment after adding resources.
-            /*
             View row;
             if (mSizeType == SIZE_TYPE_FULL) {
                 // TODO(b/76444971) replace ApiHelper usage with proper ones.
-                // row = inflateLayout(getContext(), R.layout.full_settings_list_item);
+                row = inflateLayout(getContext(), R.layout.full_settings_list_item);
             } else {
                 // TODO(b/76444971) replace ApiHelper usage with proper ones.
-                // row = inflateLayout(getContext(), R.layout.embedded_settings_list_item);
+                row = inflateLayout(getContext(), R.layout.embedded_settings_list_item);
             }
             TextView mainTextView = (TextView) row.findViewById(R.id.main_text);
             TextView subTextView = (TextView) row.findViewById(R.id.sub_text);
@@ -1658,8 +1609,6 @@ public class MediaControlView2 extends BaseLayout {
                 iconView.setImageDrawable(mResources.getDrawable(mIconIds.get(position), null));
             }
             return row;
-            */
-            return null;
         }
 
         public void setSubTexts(List<String> subTexts) {
@@ -1667,9 +1616,8 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    // TODO: It was originally non static. Changed it to static temporarily for intial build.
     // TODO: extend this class from SettingsAdapter
-    private static class SubSettingsAdapter extends BaseAdapter {
+    private class SubSettingsAdapter extends BaseAdapter {
         private List<String> mTexts;
         private int mCheckPosition;
 
@@ -1708,8 +1656,6 @@ public class MediaControlView2 extends BaseLayout {
 
         @Override
         public View getView(int position, View convertView, ViewGroup container) {
-            // TODO (b/77158892) Uncomment after adding resources.
-            /*
             View row;
             if (mSizeType == SIZE_TYPE_FULL) {
                 row = inflateLayout(getContext(), R.layout.full_sub_settings_list_item);
@@ -1724,8 +1670,6 @@ public class MediaControlView2 extends BaseLayout {
                 checkView.setVisibility(View.INVISIBLE);
             }
             return row;
-            */
-            return null;
         }
 
         public void setTexts(List<String> texts) {
