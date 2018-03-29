@@ -16,8 +16,8 @@
 
 package androidx.core.util
 
-import android.support.annotation.RequiresApi
 import android.text.TextUtils
+import androidx.annotation.RequiresApi
 import java.util.Locale
 
 /**
