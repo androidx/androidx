@@ -54,10 +54,15 @@ class TopOfTreeBuilder {
         val newFiles = mutableSetOf<ArchiveFile>()
         pomFiles.forEach {
             pomFile -> run {
-            val name = pomFile.relativePath.toFile().nameWithoutExtension
-            val artifactFile = libFiles.first { it.relativePath.toString().contains(name) }
-            process(pomFile, artifactFile, newFiles)
-        }
+                val name = pomFile.relativePath.toFile().nameWithoutExtension
+                val nameAar = name + ".aar"
+                val nameJar = name + ".jar"
+                val artifactFile = libFiles.first {
+                    it.fileName == nameAar || it.fileName == nameJar
+                }
+
+                process(pomFile, artifactFile, newFiles)
+            }
         }
 
         // Write the result
