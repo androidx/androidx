@@ -21,13 +21,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.test.suitebuilder.annotation.SmallTest;
-
 import org.junit.Test;
 
 import java.io.IOException;
 
-@SmallTest
 public class DataTest {
     private static final String KEY1 = "key1";
     private static final String KEY2 = "key2";
