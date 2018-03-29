@@ -65,4 +65,7 @@ class AudioAttributesCompatApi21 {
             return mWrapped;
         }
     }
+
+    private AudioAttributesCompatApi21() {
+    }
 }

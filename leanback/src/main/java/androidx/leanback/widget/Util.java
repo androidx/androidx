@@ -43,4 +43,7 @@ public class Util {
         }
         return false;
     }
+
+    private Util() {
+    }
 }

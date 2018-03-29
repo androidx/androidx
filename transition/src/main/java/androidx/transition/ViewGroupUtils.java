@@ -47,4 +47,6 @@ class ViewGroupUtils {
         }
     }
 
+    private ViewGroupUtils() {
+    }
 }

@@ -95,4 +95,7 @@ class PickerUtility {
             return newCalendar;
         }
     }
+
+    private PickerUtility() {
+    }
 }

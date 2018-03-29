@@ -99,5 +99,11 @@ class MediaDescriptionCompatApi21 {
         public static Object build(Object builderObj) {
             return ((MediaDescription.Builder) builderObj).build();
         }
+
+        private Builder() {
+        }
+    }
+
+    private MediaDescriptionCompatApi21() {
     }
 }

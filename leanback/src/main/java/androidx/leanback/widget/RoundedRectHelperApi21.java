@@ -59,4 +59,7 @@ class RoundedRectHelperApi21 {
         }
         view.setClipToOutline(clip);
     }
+
+    private RoundedRectHelperApi21() {
+    }
 }

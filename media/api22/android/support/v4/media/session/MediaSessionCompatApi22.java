@@ -25,4 +25,7 @@ class MediaSessionCompatApi22 {
     public static void setRatingType(Object sessionObj, int type) {
         ((MediaSession) sessionObj).setRatingType(type);
     }
+
+    private MediaSessionCompatApi22() {
+    }
 }

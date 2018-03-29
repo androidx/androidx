@@ -186,6 +186,9 @@ class MediaControllerCompatApi21 {
         public static void sendCustomAction(Object controlsObj, String action, Bundle args) {
             ((MediaController.TransportControls) controlsObj).sendCustomAction(action, args);
         }
+
+        private TransportControls() {
+        }
     }
 
     public static class PlaybackInfo {
@@ -258,6 +261,9 @@ class MediaControllerCompatApi21 {
                     return AudioManager.STREAM_MUSIC;
             }
         }
+
+        private PlaybackInfo() {
+        }
     }
 
     public static interface Callback {
@@ -319,5 +325,8 @@ class MediaControllerCompatApi21 {
                     PlaybackInfo.getLegacyAudioStream(info), info.getVolumeControl(),
                     info.getMaxVolume(), info.getCurrentVolume());
         }
+    }
+
+    private MediaControllerCompatApi21() {
     }
 }

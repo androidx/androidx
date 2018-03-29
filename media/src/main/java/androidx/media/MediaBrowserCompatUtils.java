@@ -77,4 +77,7 @@ public class MediaBrowserCompatUtils {
         }
         return false;
     }
+
+    private MediaBrowserCompatUtils() {
+    }
 }

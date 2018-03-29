@@ -73,6 +73,9 @@ final class SharedLibraryVersion {
             }
             return WearableSharedLib.version();
         }
+
+        private VersionHolder() {
+        }
     }
 
     // Lazy initialization holder class (see Effective Java item 71)
@@ -89,6 +92,9 @@ final class SharedLibraryVersion {
                 return false;
             }
             return true;
+        }
+
+        private PresenceHolder() {
         }
     }
 }

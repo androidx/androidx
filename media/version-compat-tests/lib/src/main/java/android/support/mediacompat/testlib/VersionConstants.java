@@ -25,4 +25,7 @@ public class VersionConstants {
 
     public static final String VERSION_TOT = "tot";
     public static final String VERSION_PREVIOUS = "previous";
+
+    private VersionConstants() {
+    }
 }

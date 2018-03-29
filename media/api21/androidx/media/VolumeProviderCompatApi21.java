@@ -45,4 +45,7 @@ class VolumeProviderCompatApi21 {
         void onSetVolumeTo(int volume);
         void onAdjustVolume(int delta);
     }
+
+    private VolumeProviderCompatApi21() {
+    }
 }

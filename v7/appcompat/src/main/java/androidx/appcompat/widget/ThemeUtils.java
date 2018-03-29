@@ -111,4 +111,6 @@ class ThemeUtils {
         return ColorUtils.setAlphaComponent(color, Math.round(originalAlpha * alpha));
     }
 
+    private ThemeUtils() {
+    }
 }

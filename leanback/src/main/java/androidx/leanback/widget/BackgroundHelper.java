@@ -40,4 +40,7 @@ public final class BackgroundHelper {
             view.setBackground(drawable);
         }
     }
+
+    private BackgroundHelper() {
+    }
 }

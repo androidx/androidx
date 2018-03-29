@@ -82,4 +82,7 @@ public class SliceProviderWrapperContainer {
             return mSliceProvider.onMapIntentToUri(intent);
         }
     }
+
+    private SliceProviderWrapperContainer() {
+    }
 }

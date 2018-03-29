@@ -44,4 +44,6 @@ public class LeanbackPreferenceFragmentTransitionHelperApi21 {
     }
 
 
+    private LeanbackPreferenceFragmentTransitionHelperApi21() {
+    }
 }
