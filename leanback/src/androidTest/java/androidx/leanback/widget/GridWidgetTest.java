@@ -71,6 +71,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -4648,6 +4649,58 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testAccessibilityBug77292190() throws Throwable {
+        Intent intent = new Intent();
+        final int numItems = 1000;
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.item_full_width);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS,  1000);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        setSelectedPosition(0);
+
+        final RecyclerViewAccessibilityDelegate delegateCompat = mGridView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(mGridView, info);
+            }
+        });
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertFalse(hasAction(info,
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_UP));
+            assertTrue(hasAction(info,
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_DOWN));
+        } else {
+            assertFalse(hasAction(info, AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD));
+            assertTrue(hasAction(info, AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD));
+        }
+
+        setSelectedPosition(numItems - 1);
+        final AccessibilityNodeInfoCompat info2 = AccessibilityNodeInfoCompat.obtain();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(mGridView, info2);
+            }
+        });
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertTrue(hasAction(info2,
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_UP));
+            assertFalse(hasAction(info2,
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_DOWN));
+        } else {
+            assertTrue(hasAction(info2, AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD));
+            assertFalse(hasAction(info2, AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD));
+        }
+    }
+
+    @Test
     public void testAccessibilityWhenScrollDisabled() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
@@ -4681,12 +4734,18 @@ public class GridWidgetTest {
         });
         assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
     }
-
     private boolean hasAction(AccessibilityNodeInfoCompat info, Object action) {
         if (Build.VERSION.SDK_INT >= 21) {
             AccessibilityNodeInfoCompat.AccessibilityActionCompat convertedAction =
                     (AccessibilityNodeInfoCompat.AccessibilityActionCompat) action;
-            return ((info.getActions() & convertedAction.getId()) != 0);
+            List<AccessibilityNodeInfoCompat.AccessibilityActionCompat> actions =
+                    info.getActionList();
+            for (int i = 0; i < actions.size(); i++) {
+                if (actions.get(i).getId() == convertedAction.getId()) {
+                    return true;
+                }
+            }
+            return false;
         } else {
             int convertedAction = (int) action;
             return ((info.getActions() & convertedAction) != 0);
