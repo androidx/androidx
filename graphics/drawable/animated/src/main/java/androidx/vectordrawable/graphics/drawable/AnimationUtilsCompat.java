@@ -145,4 +145,7 @@ public class AnimationUtilsCompat {
         }
         return interpolator;
     }
+
+    private AnimationUtilsCompat() {
+    }
 }

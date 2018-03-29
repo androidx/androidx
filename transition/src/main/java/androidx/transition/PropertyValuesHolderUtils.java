@@ -41,4 +41,6 @@ class PropertyValuesHolderUtils {
         return PropertyValuesHolder.ofFloat(new PathProperty<>(property, path), 0f, 1f);
     }
 
+    private PropertyValuesHolderUtils() {
+    }
 }

@@ -204,4 +204,6 @@ class MatrixUtils {
 
     };
 
+    private MatrixUtils() {
+    }
 }

@@ -3812,6 +3812,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         public static final int Fragment_id = 1;
         public static final int Fragment_name = 0;
         public static final int Fragment_tag = 2;
+
+        private FragmentTag() {
+        }
     }
 
     /**

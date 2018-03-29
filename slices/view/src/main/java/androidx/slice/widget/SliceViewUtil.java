@@ -198,4 +198,7 @@ public class SliceViewUtil {
         return DateUtils.getRelativeTimeSpanString(time, Calendar.getInstance().getTimeInMillis(),
                 DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
     }
+
+    private SliceViewUtil() {
+    }
 }

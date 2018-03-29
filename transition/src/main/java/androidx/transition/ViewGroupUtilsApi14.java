@@ -126,4 +126,6 @@ class ViewGroupUtilsApi14 {
         }
     }
 
+    private ViewGroupUtilsApi14() {
+    }
 }

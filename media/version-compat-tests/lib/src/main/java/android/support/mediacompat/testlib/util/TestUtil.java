@@ -38,4 +38,7 @@ public final class TestUtil {
             assertEquals(expected.get(key), observed.get(key));
         }
     }
+
+    private TestUtil() {
+    }
 }

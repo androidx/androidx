@@ -92,4 +92,7 @@ public class AppCompatActivityUtils {
         RecreatedAppCompatActivity.clearState();
         return newActivity;
     }
+
+    private AppCompatActivityUtils() {
+    }
 }

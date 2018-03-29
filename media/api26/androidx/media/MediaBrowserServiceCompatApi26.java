@@ -106,4 +106,7 @@ class MediaBrowserServiceCompatApi26 {
                     parentId, new ResultWrapper(result), options);
         }
     }
+
+    private MediaBrowserServiceCompatApi26() {
+    }
 }

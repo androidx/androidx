@@ -222,4 +222,6 @@ class ViewUtils {
         }
     }
 
+    private ViewUtils() {
+    }
 }

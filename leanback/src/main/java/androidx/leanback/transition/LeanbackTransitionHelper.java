@@ -55,4 +55,7 @@ public class LeanbackTransitionHelper {
         slide.addTarget(R.id.browse_title_group);
         return slide;
     }
+
+    private LeanbackTransitionHelper() {
+    }
 }

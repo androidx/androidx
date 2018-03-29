@@ -227,4 +227,7 @@ abstract class MediaRouteProviderProtocol {
             return false;
         }
     }
+
+    private MediaRouteProviderProtocol() {
+    }
 }

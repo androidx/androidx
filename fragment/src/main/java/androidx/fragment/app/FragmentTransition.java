@@ -1254,4 +1254,7 @@ class FragmentTransition {
          */
         public BackStackRecord firstOutTransaction;
     }
+
+    private FragmentTransition() {
+    }
 }

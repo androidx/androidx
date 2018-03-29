@@ -462,4 +462,7 @@ public class Preconditions {
 
         return value;
     }
+
+    private Preconditions() {
+    }
 }

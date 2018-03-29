@@ -46,4 +46,7 @@ public class CollectionUtils {
         }
         return result;
     }
+
+    private CollectionUtils() {
+    }
 }

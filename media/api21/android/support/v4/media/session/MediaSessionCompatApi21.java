@@ -269,5 +269,11 @@ class MediaSessionCompatApi21 {
         public static long getQueueId(Object queueItem) {
             return ((MediaSession.QueueItem) queueItem).getQueueId();
         }
+
+        private QueueItem() {
+        }
+    }
+
+    private MediaSessionCompatApi21() {
     }
 }

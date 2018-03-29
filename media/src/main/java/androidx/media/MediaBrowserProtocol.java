@@ -200,4 +200,7 @@ public class MediaBrowserProtocol {
      * - replyTo : Callback messenger
      */
     public static final int CLIENT_MSG_SEND_CUSTOM_ACTION = 9;
+
+    private MediaBrowserProtocol() {
+    }
 }
