@@ -82,7 +82,7 @@ package androidx.core.app {
   }
 
   public class AppLaunchChecker {
-    ctor public AppLaunchChecker();
+    ctor public deprecated AppLaunchChecker();
     method public static boolean hasStartedFromLauncher(android.content.Context);
     method public static void onActivityCreate(android.app.Activity);
   }
@@ -157,7 +157,7 @@ package androidx.core.app {
   }
 
   public class NotificationCompat {
-    ctor public NotificationCompat();
+    ctor public deprecated NotificationCompat();
     method public static androidx.core.app.NotificationCompat.Action getAction(android.app.Notification, int);
     method public static int getActionCount(android.app.Notification);
     method public static int getBadgeIconType(android.app.Notification);
@@ -2414,7 +2414,7 @@ package androidx.core.view.animation {
 package androidx.core.view.inputmethod {
 
   public final class EditorInfoCompat {
-    ctor public EditorInfoCompat();
+    ctor public deprecated EditorInfoCompat();
     method public static java.lang.String[] getContentMimeTypes(android.view.inputmethod.EditorInfo);
     method public static void setContentMimeTypes(android.view.inputmethod.EditorInfo, java.lang.String[]);
     field public static final int IME_FLAG_FORCE_ASCII = -2147483648; // 0x80000000
@@ -2422,7 +2422,7 @@ package androidx.core.view.inputmethod {
   }
 
   public final class InputConnectionCompat {
-    ctor public InputConnectionCompat();
+    ctor public deprecated InputConnectionCompat();
     method public static boolean commitContent(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle);
     method public static android.view.inputmethod.InputConnection createWrapper(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener);
     field public static final int INPUT_CONTENT_GRANT_READ_URI_PERMISSION = 1; // 0x1
