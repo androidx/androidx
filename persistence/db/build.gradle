@@ -25,6 +25,8 @@ plugins {
 
 dependencies {
     api(SUPPORT_ANNOTATIONS)
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
 }
 
 // Used by testCompile in room-compiler
