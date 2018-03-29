@@ -24,6 +24,7 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Consumer;
@@ -296,6 +297,7 @@ public class GridBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         @Deprecated
+        @RequiresApi(23)
         public CellBuilder addLargeImage(@NonNull Icon image) {
             return addImage(image, ListBuilder.LARGE_IMAGE, false /* isLoading */);
         }
@@ -312,6 +314,7 @@ public class GridBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         @Deprecated
+        @RequiresApi(23)
         public CellBuilder addLargeImage(@Nullable Icon image, boolean isLoading) {
             return addImage(image, ListBuilder.LARGE_IMAGE, isLoading);
         }
@@ -324,6 +327,7 @@ public class GridBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         @Deprecated
+        @RequiresApi(23)
         public CellBuilder addImage(@NonNull Icon image) {
             return addImage(image, ListBuilder.SMALL_IMAGE, false /* isLoading */);
         }
@@ -333,6 +337,7 @@ public class GridBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         @Deprecated
+        @RequiresApi(23)
         public CellBuilder addImage(@Nullable Icon image, boolean isLoading) {
             return addImage(image, ListBuilder.SMALL_IMAGE, isLoading);
         }
@@ -342,6 +347,7 @@ public class GridBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         @Deprecated
+        @RequiresApi(23)
         public CellBuilder addImage(@NonNull Icon image, @ListBuilder.ImageMode int imageMode) {
             return addImage(image, imageMode, false /* isLoading */);
         }
@@ -351,6 +357,7 @@ public class GridBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         @Deprecated
+        @RequiresApi(23)
         public CellBuilder addImage(@Nullable Icon image, @ListBuilder.ImageMode int imageMode,
                 boolean isLoading) {
             mImpl.addImage(IconCompat.createFromIcon(image), imageMode, isLoading);

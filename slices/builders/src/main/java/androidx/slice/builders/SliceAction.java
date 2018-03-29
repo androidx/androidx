@@ -25,6 +25,7 @@ import android.graphics.drawable.Icon;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
@@ -41,6 +42,7 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @deprecated TO BE REMOVED
      */
     @Deprecated
+    @RequiresApi(23)
     public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
             @NonNull CharSequence actionTitle) {
         this(action, actionIcon, ICON_IMAGE, actionTitle);
@@ -50,6 +52,7 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @deprecated TO BE REMOVED
      */
     @Deprecated
+    @RequiresApi(23)
     public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
             @ListBuilder.ImageMode int imageMode, @NonNull CharSequence actionTitle) {
         this(action, IconCompat.createFromIcon(actionIcon), imageMode, actionTitle);
@@ -59,6 +62,7 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @deprecated TO BE REMOVED
      */
     @Deprecated
+    @RequiresApi(23)
     public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
             @NonNull CharSequence actionTitle, boolean isChecked) {
         this(action, IconCompat.createFromIcon(actionIcon), actionTitle, isChecked);
