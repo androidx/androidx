@@ -549,7 +549,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         long expiry = sliceMetadata.getExpiry();
         long now = System.currentTimeMillis();
         mCurrentView.setLastUpdated(lastUpdated);
-        boolean expired = expiry != SliceHints.INFINITY && now > expiry;
+        boolean expired = expiry != 0 && expiry != SliceHints.INFINITY && now > expiry;
         mCurrentView.setShowLastUpdated(mShowLastUpdated && expired);
 
         // Set the slice
