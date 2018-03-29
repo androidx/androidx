@@ -124,16 +124,16 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     private Slice mCurrentSlice;
     private SliceChildView mCurrentView;
     private List<SliceItem> mActions;
-    private final ActionRow mActionRow;
+    private ActionRow mActionRow;
 
     private boolean mShowActions = false;
     private boolean mIsScrollable = true;
     private boolean mShowLastUpdated = true;
 
-    private final int mShortcutSize;
-    private final int mMinLargeHeight;
-    private final int mMaxLargeHeight;
-    private final int mActionRowHeight;
+    private int mShortcutSize;
+    private int mMinLargeHeight;
+    private int mMaxLargeHeight;
+    private int mActionRowHeight;
 
     private AttributeSet mAttrs;
     private int mThemeTintColor = -1;
@@ -157,33 +157,16 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
 
     public SliceView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        int defStyleRes = R.style.Widget_SliceView;
-        mAttrs = attrs;
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
-                defStyleAttr, defStyleRes);
-        try {
-            mThemeTintColor = a.getColor(R.styleable.SliceView_tintColor, -1);
-        } finally {
-            a.recycle();
-        }
-        // TODO: action row background should support light / dark / maybe presenter customization
-        mActionRow = new ActionRow(getContext(), true);
-        mActionRow.setBackground(new ColorDrawable(0xffeeeeee));
-        mCurrentView = new LargeTemplateView(getContext());
-        mCurrentView.setMode(getMode());
-        addView(mCurrentView.getView(), getChildLp(mCurrentView.getView()));
-        addView(mActionRow, getChildLp(mActionRow));
-        mShortcutSize = getContext().getResources()
-                .getDimensionPixelSize(R.dimen.abc_slice_shortcut_size);
-        mMinLargeHeight = getResources().getDimensionPixelSize(R.dimen.abc_slice_large_height);
-        mMaxLargeHeight = getResources().getDimensionPixelSize(R.dimen.abc_slice_max_large_height);
-        mActionRowHeight = getResources().getDimensionPixelSize(
-                R.dimen.abc_slice_action_row_height);
+        init(context, attrs, defStyleAttr, R.style.Widget_SliceView);
     }
 
     @RequiresApi(21)
     public SliceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    private void init(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         mAttrs = attrs;
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
                 defStyleAttr, defStyleRes);
