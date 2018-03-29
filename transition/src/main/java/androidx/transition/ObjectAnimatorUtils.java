@@ -31,4 +31,6 @@ class ObjectAnimatorUtils {
         return ObjectAnimator.ofFloat(target, new PathProperty<>(property, path), 0f, 1f);
     }
 
+    private ObjectAnimatorUtils() {
+    }
 }

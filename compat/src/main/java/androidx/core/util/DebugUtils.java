@@ -45,4 +45,7 @@ public class DebugUtils {
             out.append(Integer.toHexString(System.identityHashCode(cls)));
         }
     }
+
+    private DebugUtils() {
+    }
 }

@@ -129,4 +129,7 @@ public class IntentUtil {
         }
         return intent;
     }
+
+    private IntentUtil() {
+    }
 }

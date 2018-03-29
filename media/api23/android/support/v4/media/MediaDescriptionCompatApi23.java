@@ -21,14 +21,20 @@ import android.net.Uri;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(23)
-class MediaDescriptionCompatApi23 extends MediaDescriptionCompatApi21 {
+class MediaDescriptionCompatApi23 {
     public static Uri getMediaUri(Object descriptionObj) {
         return ((MediaDescription) descriptionObj).getMediaUri();
     }
 
-    static class Builder extends MediaDescriptionCompatApi21.Builder {
+    static class Builder {
         public static void setMediaUri(Object builderObj, Uri mediaUri) {
             ((MediaDescription.Builder)builderObj).setMediaUri(mediaUri);
         }
+
+        private Builder() {
+        }
+    }
+
+    private MediaDescriptionCompatApi23() {
     }
 }

@@ -63,4 +63,7 @@ public class MediaBrowserConstants {
             "test_media_id_children_2", "test_media_id_children_3",
             MEDIA_ID_CHILDREN_DELAYED
     };
+
+    private MediaBrowserConstants() {
+    }
 }

@@ -32,4 +32,6 @@ public class PermissionHelper {
         }
     }
 
+    private PermissionHelper() {
+    }
 }

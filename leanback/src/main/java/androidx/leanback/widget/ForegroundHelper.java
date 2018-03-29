@@ -25,4 +25,7 @@ final class ForegroundHelper {
             view.setForeground(drawable);
         }
     }
+
+    private ForegroundHelper() {
+    }
 }

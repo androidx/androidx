@@ -42,4 +42,7 @@ class MediaSessionCompatApi23 {
             mCallback.onPlayFromUri(uri, extras);
         }
     }
+
+    private MediaSessionCompatApi23() {
+    }
 }

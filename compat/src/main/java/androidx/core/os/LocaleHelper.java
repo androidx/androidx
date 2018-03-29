@@ -69,4 +69,7 @@ final class LocaleHelper {
 
         return buf.toString();
     }
+
+    private LocaleHelper() {
+    }
 }

@@ -38,4 +38,6 @@ class GhostViewUtils {
         }
     }
 
+    private GhostViewUtils() {
+    }
 }

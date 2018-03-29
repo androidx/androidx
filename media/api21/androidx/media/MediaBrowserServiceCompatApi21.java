@@ -129,4 +129,7 @@ class MediaBrowserServiceCompatApi21 {
             mServiceProxy.onLoadChildren(parentId, new ResultWrapper<List<Parcel>>(result));
         }
     }
+
+    private MediaBrowserServiceCompatApi21() {
+    }
 }

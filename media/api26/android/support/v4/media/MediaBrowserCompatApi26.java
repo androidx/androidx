@@ -64,4 +64,7 @@ class MediaBrowserCompatApi26 {
             mSubscriptionCallback.onError(parentId, options);
         }
     }
+
+    private MediaBrowserCompatApi26() {
+    }
 }

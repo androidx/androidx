@@ -175,4 +175,6 @@ class Styleable {
         int PATTERN_PATH_DATA = 0;
     }
 
+    private Styleable() {
+    }
 }

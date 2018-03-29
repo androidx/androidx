@@ -341,4 +341,7 @@ class MetadataListReader {
             return mByteBuffer.position();
         }
     }
+
+    private MetadataListReader() {
+    }
 }

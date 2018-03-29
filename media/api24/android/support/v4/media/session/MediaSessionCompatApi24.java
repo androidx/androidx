@@ -78,4 +78,7 @@ class MediaSessionCompatApi24 {
             mCallback.onPrepareFromUri(uri, extras);
         }
     }
+
+    private MediaSessionCompatApi24() {
+    }
 }

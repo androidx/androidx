@@ -174,4 +174,6 @@ class TransitionUtils {
 
     }
 
+    private TransitionUtils() {
+    }
 }

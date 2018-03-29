@@ -41,4 +41,7 @@ public class SliceSpecs {
      * a source of where the message came from.
      */
     public static final SliceSpec MESSAGING = new SliceSpec("androidx.slice.MESSAGING", 1);
+
+    private SliceSpecs() {
+    }
 }

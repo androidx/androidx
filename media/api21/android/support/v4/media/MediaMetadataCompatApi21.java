@@ -83,5 +83,11 @@ class MediaMetadataCompatApi21 {
         public static Object build(Object builderObj) {
             return ((MediaMetadata.Builder)builderObj).build();
         }
+
+        private Builder() {
+        }
+    }
+
+    private MediaMetadataCompatApi21() {
     }
 }

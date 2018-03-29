@@ -45,4 +45,7 @@ class MediaBrowserServiceCompatApi23 {
                     new MediaBrowserServiceCompatApi21.ResultWrapper<Parcel>(result));
         }
     }
+
+    private MediaBrowserServiceCompatApi23() {
+    }
 }

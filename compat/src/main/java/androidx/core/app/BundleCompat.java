@@ -41,6 +41,9 @@ public final class BundleCompat {
         private static Method sPutIBinderMethod;
         private static boolean sPutIBinderMethodFetched;
 
+        private BundleCompatBaseImpl() {
+        }
+
         public static IBinder getBinder(Bundle bundle, String key) {
             if (!sGetIBinderMethodFetched) {
                 try {

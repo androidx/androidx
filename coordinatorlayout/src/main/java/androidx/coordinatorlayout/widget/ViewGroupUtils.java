@@ -92,4 +92,7 @@ public class ViewGroupUtils {
             m.preConcat(view.getMatrix());
         }
     }
+
+    private ViewGroupUtils() {
+    }
 }
