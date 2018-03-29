@@ -19,7 +19,9 @@ package androidx.slice.builders.impl;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.drawable.Icon;
+import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
@@ -44,8 +46,10 @@ public class MessagingBasicImpl extends TemplateBuilderImpl implements
     @Override
     public void apply(Slice.Builder builder) {
         if (mLastMessage != null) {
-            if (mLastMessage.mIcon != null) {
-                builder.addIcon(IconCompat.createFromIcon(mLastMessage.mIcon), null);
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (mLastMessage.mIcon != null) {
+                    builder.addIcon(IconCompat.createFromIcon(mLastMessage.mIcon), null);
+                }
             }
             if (mLastMessage.mText != null) {
                 builder.addText(mLastMessage.mText, null);
@@ -75,6 +79,7 @@ public class MessagingBasicImpl extends TemplateBuilderImpl implements
     public static final class MessageBuilder extends TemplateBuilderImpl
             implements MessagingBuilder.MessageBuilder {
 
+        @RequiresApi(23)
         private Icon mIcon;
         private CharSequence mText;
         private long mTimestamp;
@@ -94,6 +99,7 @@ public class MessagingBasicImpl extends TemplateBuilderImpl implements
         /**
          */
         @Override
+        @RequiresApi(23)
         public void addSource(Icon source) {
             mIcon = source;
         }

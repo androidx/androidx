@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.drawable.Icon;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -44,6 +45,7 @@ public interface MessagingBuilder {
         /**
          * Add the icon used to display contact in the messaging experience
          */
+        @RequiresApi(23)
         void addSource(Icon source);
 
         /**
