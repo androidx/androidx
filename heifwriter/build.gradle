@@ -6,12 +6,6 @@ plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
-android {
-    defaultConfig {
-        targetSdkVersion 'P'
-    }
-}
-
 dependencies {
     api(project(":annotation"))
 
