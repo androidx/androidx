@@ -205,6 +205,16 @@ public final class SessionToken2 {
     }
 
     /**
+     * @hide
+     * @return component name of this session token. Can be null for TYPE_SESSION.
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public ComponentName getComponentName() {
+        // TODO: Cache the component name?
+        return mType != TYPE_SESSION ? null : new ComponentName(mPackageName, mServiceName);
+    }
+
+    /**
      * @return id
      */
     public String getId() {

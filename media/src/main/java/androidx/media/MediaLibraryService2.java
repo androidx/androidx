@@ -16,19 +16,28 @@
 
 package androidx.media;
 
+import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE;
+import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE_SIZE;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.Builder;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media.MediaSession2.ControllerInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @hide
@@ -81,7 +90,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param session the session for this event
              * @param controllerInfo information of the controller requesting access to browse
              *                       media.
-             * @param rootHints An optional bundle of service-specific arguments to send
+             * @param extras An optional bundle of service-specific arguments to send
              * to the media library service when connecting and retrieving the
              * root id for browsing, or null if none. The contents of this
              * bundle may affect the information returned when browsing.
@@ -92,7 +101,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @see SessionCommand2#COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT
              */
             public @Nullable LibraryRoot onGetLibraryRoot(@NonNull MediaLibrarySession session,
-                    @NonNull ControllerInfo controllerInfo, @Nullable Bundle rootHints) {
+                    @NonNull ControllerInfo controllerInfo, @Nullable Bundle extras) {
                 return null;
             }
 
@@ -156,6 +165,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param parentId parent id
              * @see SessionCommand2#COMMAND_CODE_LIBRARY_UNSUBSCRIBE
              */
+            // TODO: Make this to be called.
             public void onUnsubscribe(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String parentId) {
             }
@@ -277,7 +287,9 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          */
         public void notifyChildrenChanged(@NonNull ControllerInfo controller,
                 @NonNull String parentId, int itemCount, @Nullable Bundle extras) {
-            //mProvider.notifyChildrenChanged_impl(controller, parentId, itemCount, extras);
+            Bundle options = new Bundle(extras);
+            options.putInt(MediaBrowser2.EXTRA_ITEM_COUNT, itemCount);
+            options.putBundle(MediaBrowser2.EXTRA_TARGET, controller.toBundle());
         }
 
         /**
@@ -292,7 +304,9 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         // This is for the backward compatibility.
         public void notifyChildrenChanged(@NonNull String parentId, int itemCount,
                 @Nullable Bundle extras) {
-            //mProvider.notifyChildrenChanged_impl(parentId, itemCount, extras);
+            Bundle options = new Bundle(extras);
+            options.putInt(MediaBrowser2.EXTRA_ITEM_COUNT, itemCount);
+            getServiceCompat().notifyChildrenChanged(parentId, options);
         }
 
         /**
@@ -305,14 +319,46 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          */
         public void notifySearchResultChanged(@NonNull ControllerInfo controller,
                 @NonNull String query, int itemCount, @NonNull Bundle extras) {
-            //mProvider.notifySearchResultChanged_impl(controller, query, itemCount, extras);
+            // TODO: Implement
+        }
+
+        private MediaLibraryService2 getService() {
+            return (MediaLibraryService2) getContext();
+        }
+
+        private MediaBrowserServiceCompat getServiceCompat() {
+            return getService().getServiceCompat();
+        }
+
+        @Override
+        MediaLibrarySessionCallback getCallback() {
+            return (MediaLibrarySessionCallback) super.getCallback();
         }
     }
 
-//    @Override
-//    MediaSessionService2Provider createProvider() {
-//        return ApiLoader.getProvider().createMediaLibraryService2(this);
-//    }
+    @Override
+    MediaBrowserServiceCompat createBrowserServiceCompat() {
+        return new MyBrowserService();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        MediaSession2 session = getSession();
+        if (!(session instanceof MediaLibrarySession)) {
+            throw new RuntimeException("Expected MediaLibrarySession, but returned MediaSession2");
+        }
+    }
+
+    private MediaLibrarySession getLibrarySession() {
+        return (MediaLibrarySession) getSession();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return super.onBind(intent);
+    }
 
     /**
      * Called when another app requested to start this service.
@@ -332,7 +378,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
      * @throws RuntimeException if returned session is invalid
      */
     @Override
-    public /*@NonNull*/ abstract MediaLibrarySession onCreateSession(String sessionId);
+    public @NonNull abstract MediaLibrarySession onCreateSession(String sessionId);
 
     /**
      * Contains information that the library service needs to send to the client when
@@ -396,6 +442,9 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          */
         public static final String EXTRA_SUGGESTED = "android.media.extra.SUGGESTED";
 
+        private final String mRootId;
+        private final Bundle mExtras;
+
         //private final LibraryRootProvider mProvider;
 
         /**
@@ -404,23 +453,131 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          * @param extras Any extras about the library service.
          */
         public LibraryRoot(@NonNull String rootId, @Nullable Bundle extras) {
-//            mProvider = ApiLoader.getProvider().createMediaLibraryService2LibraryRoot(
-//                    context, this, rootId, extras);
+            if (rootId == null) {
+                throw new IllegalArgumentException("rootId shouldn't be null");
+            }
+            mRootId = rootId;
+            mExtras = extras;
         }
 
         /**
          * Gets the root id for browsing.
          */
         public String getRootId() {
-            //return mProvider.getRootId_impl();
-            return null;
+            return mRootId;
         }
 
         /**
          * Gets any extras about the library service.
          */
         public Bundle getExtras() {
-            //return mProvider.getExtras_impl();
+            return mExtras;
+        }
+    }
+
+    private class MyBrowserService extends MediaBrowserServiceCompat {
+        private final Object mWaitLock = new Object();
+
+        @Override
+        public BrowserRoot onGetRoot(String clientPackageName, int clientUid,
+                final Bundle extras) {
+            final ControllerInfo info = new ControllerInfo(MediaLibraryService2.this, clientUid, -1,
+                    clientPackageName, null);
+            final AtomicReference<LibraryRoot> root = new AtomicReference<>();
+            synchronized (mWaitLock) {
+                // TODO: (Post-P) Fix waiting on the main thread.
+                getLibrarySession().getCallbackExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        MediaLibrarySession session = getLibrarySession();
+                        LibraryRoot libraryRoot = session.getCallback().onGetLibraryRoot(
+                                session, info, extras);
+                        root.set(libraryRoot);
+                        mWaitLock.notify();
+                    }
+                });
+                while (true) {
+                    if (root.get() != null) {
+                        break;
+                    }
+                    try {
+                        mWaitLock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            if (root.get() == null) {
+                return null;
+            }
+            return new BrowserRoot(root.get().getRootId(), root.get().getExtras());
+        }
+
+        @Override
+        public void onLoadChildren(String parentId, Result<List<MediaItem>> result) {
+            onLoadChildren(parentId, result, null);
+        }
+
+        @Override
+        public void onLoadChildren(final String parentId, final Result<List<MediaItem>> result,
+                final Bundle options) {
+            final ControllerInfo controller = getController();
+            getLibrarySession().getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    int page = options.getInt(EXTRA_PAGE, -1);
+                    int pageSize = options.getInt(EXTRA_PAGE_SIZE, -1);
+                    if (page >= 0 && pageSize >= 0) {
+                        // Requesting the list of children through the pagenation.
+                        List<MediaItem2> children = getLibrarySession().getCallback().onGetChildren(
+                                getLibrarySession(), controller, parentId, page, pageSize, options);
+                        if (children == null) {
+                            result.sendError(null);
+                        } else {
+                            List<MediaItem> list = new ArrayList<>();
+                            for (int i = 0; i < children.size(); i++) {
+                                list.add(MediaUtils2.createMediaItem(children.get(i)));
+                            }
+                            result.sendResult(list);
+                        }
+                    } else {
+                        // Only wants to register callbacks
+                        getLibrarySession().getCallback().onSubscribe(getLibrarySession(),
+                                controller, parentId, options);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onLoadItem(final String itemId, final Result<MediaItem> result) {
+            final ControllerInfo controller = getController();
+            getLibrarySession().getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    MediaItem2 item = getLibrarySession().getCallback().onGetItem(
+                            getLibrarySession(), controller, itemId);
+                    if (item == null) {
+                        result.sendError(null);
+                    } else {
+                        result.sendResult(MediaUtils2.createMediaItem(item));
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onSearch(String query, Bundle extras, Result<List<MediaItem>> result) {
+            // TODO: Implement
+        }
+
+        @Override
+        public void onCustomAction(String action, Bundle extras, Result<Bundle> result) {
+            // TODO: Implement
+        }
+
+        private ControllerInfo getController() {
+            // TODO: Implement, by using getBrowserRootHints() / getCurrentBrowserInfo() / ...
             return null;
         }
     }
