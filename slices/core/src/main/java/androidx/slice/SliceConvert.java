@@ -144,4 +144,7 @@ public class SliceConvert {
         }
         return ret;
     }
+
+    private SliceConvert() {
+    }
 }

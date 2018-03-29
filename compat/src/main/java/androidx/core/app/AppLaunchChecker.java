@@ -80,4 +80,10 @@ public class AppLaunchChecker {
             sp.edit().putBoolean(KEY_STARTED_FROM_LAUNCHER, true).apply();
         }
     }
+
+    /** @deprecated This type should not be instantiated as it contains only static methods. */
+    @Deprecated
+    @SuppressWarnings("PrivateConstructorForUtilityClass")
+    public AppLaunchChecker() {
+    }
 }
