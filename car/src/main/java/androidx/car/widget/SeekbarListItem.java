@@ -142,7 +142,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
      * Used by {@link ListItemAdapter} to choose layout to inflate for view holder.
      */
     @Override
-    int getViewType() {
+    public int getViewType() {
         return ListItemAdapter.LIST_ITEM_TYPE_SEEKBAR;
     }
 
