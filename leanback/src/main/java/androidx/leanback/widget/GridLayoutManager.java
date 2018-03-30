@@ -3427,8 +3427,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (vh == null) {
             return false;
         }
-        return vh.itemView.getLeft() >= 0 && vh.itemView.getRight() < mBaseGridView.getWidth()
-                && vh.itemView.getTop() >= 0 && vh.itemView.getBottom() < mBaseGridView.getHeight();
+        return vh.itemView.getLeft() >= 0 && vh.itemView.getRight() <= mBaseGridView.getWidth()
+                && vh.itemView.getTop() >= 0 && vh.itemView.getBottom()
+                <= mBaseGridView.getHeight();
     }
 
     boolean canScrollTo(View view) {
