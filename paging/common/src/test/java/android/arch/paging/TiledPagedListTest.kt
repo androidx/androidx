@@ -303,8 +303,8 @@ class TiledPagedListTest {
                 .setEnablePlaceholders(false)
                 .build()
         val pagedList = PagedList.Builder<Int, Item>(ListDataSource(ITEMS), config)
-                .setMainThreadExecutor(mMainThread)
-                .setBackgroundThreadExecutor(mBackgroundThread)
+                .setNotifyExecutor(mMainThread)
+                .setFetchExecutor(mBackgroundThread)
                 .setInitialKey(20)
                 .build()
 
