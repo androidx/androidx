@@ -133,4 +133,10 @@ public class RoomWarnings {
      */
     public static final String RELATION_QUERY_WITHOUT_TRANSACTION =
             "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";
+
+    /** @deprecated This type should not be instantiated as it contains only static methods. */
+    @Deprecated
+    @SuppressWarnings("PrivateConstructorForUtilityClass")
+    public RoomWarnings() {
+    }
 }

@@ -87,4 +87,7 @@ class SchemaEqualityUtil {
         }
         return item1.isSchemaEqual(item2);
     }
+
+    private SchemaEqualityUtil() {
+    }
 }

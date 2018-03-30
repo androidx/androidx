@@ -33,4 +33,7 @@ public class BundleUtil {
     static String replaceTableName(String contents, String tableName) {
         return contents.replace(TABLE_NAME_PLACEHOLDER, tableName);
     }
+
+    private BundleUtil() {
+    }
 }
