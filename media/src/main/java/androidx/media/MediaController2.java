@@ -19,6 +19,19 @@ package androidx.media;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
+import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
+import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
+import static androidx.media.MediaConstants2.ARGUMENT_PID;
+import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
+import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
+import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
+import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
+import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
+import static androidx.media.MediaConstants2.ARGUMENT_UID;
+import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
+import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
+import static androidx.media.MediaConstants2.CUSTOM_COMMAND_CONNECT;
 import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
 
@@ -396,7 +409,7 @@ public class MediaController2 implements AutoCloseable {
     private final class ControllerCompatCallback extends MediaControllerCompat.Callback {
         @Override
         public void onSessionReady() {
-            sendCustomCommand(COMMAND_CONNECT);
+            sendCustomCommand(CUSTOM_COMMAND_CONNECT);
         }
 
         @Override
@@ -421,16 +434,6 @@ public class MediaController2 implements AutoCloseable {
 
     private static final String TAG = "MediaController2";
     private static final boolean DEBUG = true; // TODO(jaewan): Change
-
-    static final String COMMAND_CONNECT =
-            "androidx.media.MediaController2.command.CONNECT";
-
-    static final String ARGUMENT_ICONTROLLER_CALLBACK =
-            "androidx.media.MediaController2.argument.ICONTROLLER_CALLBACK";
-    static final String ARGUMENT_UID = "androidx.media.MediaController2.argument.UID";
-    static final String ARGUMENT_PID = "androidx.media.MediaController2.argument.PID";
-    static final String ARGUMENT_PACKAGE_NAME =
-            "androidx.media.MediaController2.argument.PACKAGE_NAME";
 
     private final Context mContext;
     private final Object mLock = new Object();
@@ -1250,16 +1253,15 @@ public class MediaController2 implements AutoCloseable {
         // TODO: Getting mPlaybackInfo via MediaControllerCompat.Callback.onAudioInfoChanged()
         // is enough or should we pass it while connecting?
         final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
-                data.getBundle(MediaSession2.ARGUMENT_ALLOWED_COMMANDS));
-        final int playerState = data.getInt(MediaSession2.ARGUMENT_PLAYER_STATE);
+                data.getBundle(ARGUMENT_ALLOWED_COMMANDS));
+        final int playerState = data.getInt(ARGUMENT_PLAYER_STATE);
         final PlaybackStateCompat playbackStateCompat = data.getParcelable(
-                MediaSession2.ARGUMENT_PLAYBACK_STATE_COMPAT);
-        final int repeatMode = data.getInt(MediaSession2.ARGUMENT_REPEAT_MODE);
-        final int shuffleMode = data.getInt(MediaSession2.ARGUMENT_SHUFFLE_MODE);
+                ARGUMENT_PLAYBACK_STATE_COMPAT);
+        final int repeatMode = data.getInt(ARGUMENT_REPEAT_MODE);
+        final int shuffleMode = data.getInt(ARGUMENT_SHUFFLE_MODE);
         // TODO: Set mMediaMetadataCompat from the data.
         final List<MediaItem2> playlist = new ArrayList<>();
-        Bundle[] itemBundleList = (Bundle[]) data.getParcelableArray(
-                MediaSession2.ARGUMENT_PLAYLIST);
+        Bundle[] itemBundleList = (Bundle[]) data.getParcelableArray(ARGUMENT_PLAYLIST);
         if (itemBundleList != null) {
             for (int i = 0; i < itemBundleList.length; i++) {
                 MediaItem2 item = MediaItem2.fromBundle(itemBundleList[i]);
@@ -1336,13 +1338,13 @@ public class MediaController2 implements AutoCloseable {
             }
 
             if (mControllerCompat.isSessionReady()) {
-                sendCustomCommand(COMMAND_CONNECT);
+                sendCustomCommand(CUSTOM_COMMAND_CONNECT);
             }
         }
     }
 
     private void sendCustomCommand(String command) {
-        if (COMMAND_CONNECT.equals(command)) {
+        if (CUSTOM_COMMAND_CONNECT.equals(command)) {
             MediaControllerCompat controller;
             ControllerCompatCallback callback;
             synchronized (mLock) {
@@ -1355,17 +1357,17 @@ public class MediaController2 implements AutoCloseable {
             args.putString(ARGUMENT_PACKAGE_NAME, mContext.getPackageName());
             args.putInt(ARGUMENT_UID, Process.myUid());
             args.putInt(ARGUMENT_PID, Process.myPid());
-            controller.sendCommand(COMMAND_CONNECT, args, new ResultReceiver(mHandler) {
+            controller.sendCommand(CUSTOM_COMMAND_CONNECT, args, new ResultReceiver(mHandler) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
                     if (!mHandlerThread.isAlive()) {
                         return;
                     }
                     switch (resultCode) {
-                        case MediaSession2.CONNECT_RESULT_CONNECTED:
+                        case CONNECT_RESULT_CONNECTED:
                             onConnectedNotLocked(resultData);
                             break;
-                        case MediaSession2.CONNECT_RESULT_DISCONNECTED:
+                        case CONNECT_RESULT_DISCONNECTED:
                             mCallback.onDisconnected(MediaController2.this);
                             close();
                             break;

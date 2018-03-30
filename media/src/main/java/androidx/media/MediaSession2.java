@@ -963,143 +963,14 @@ public class MediaSession2 implements AutoCloseable {
         }
     }
 
-    private class SessionCompatCallback extends MediaSessionCompat.Callback {
-        @Override
-        public void onCommand(String command, Bundle extras, final ResultReceiver cb) {
-            if (MediaController2.COMMAND_CONNECT.equals(command)) {
-                IMediaControllerCallback callback = IMediaControllerCallback.Stub.asInterface(
-                        extras.getBinder(MediaController2.ARGUMENT_ICONTROLLER_CALLBACK));
-                String packageName = extras.getString(MediaController2.ARGUMENT_PACKAGE_NAME);
-                int uid = extras.getInt(MediaController2.ARGUMENT_UID);
-                int pid = extras.getInt(MediaController2.ARGUMENT_PID);
-                // TODO: sanity check for packageName, uid, and pid.
-
-                final ControllerInfo controllerInfo =
-                        new ControllerInfo(mContext, uid, pid, packageName, callback);
-                mCallbackExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!mHandlerThread.isAlive()) {
-                            // Session was closed.
-                            return;
-                        }
-                        synchronized (mLock) {
-                            // Keep connecting controllers.
-                            // This helps sessions to call APIs in the onConnect()
-                            // (e.g. setCustomLayout()) instead of pending them.
-                            mConnectingControllers.add(controllerInfo.getId());
-                        }
-                        SessionCommandGroup2 allowedCommands = mCallback.onConnect(
-                                MediaSession2.this, controllerInfo);
-                        // Don't reject connection for the request from trusted app.
-                        // Otherwise server will fail to retrieve session's information to dispatch
-                        // media keys to.
-                        boolean accept = allowedCommands != null || controllerInfo.isTrusted();
-                        if (accept) {
-                            if (DEBUG) {
-                                Log.d(TAG, "Accepting connection, controllerInfo=" + controllerInfo
-                                        + " allowedCommands=" + allowedCommands);
-                            }
-                            if (allowedCommands == null) {
-                                // For trusted apps, send non-null allowed commands to keep
-                                // connection.
-                                allowedCommands = new SessionCommandGroup2();
-                            }
-                            synchronized (mLock) {
-                                mConnectingControllers.remove(controllerInfo.getId());
-                                mControllers.put(controllerInfo.getId(),  controllerInfo);
-                                mAllowedCommandGroupMap.put(controllerInfo, allowedCommands);
-                            }
-                            // If connection is accepted, notify the current state to the
-                            // controller. It's needed because we cannot call synchronous calls
-                            // between session/controller.
-                            // Note: We're doing this after the onConnectionChanged(), but there's
-                            //       no guarantee that events here are notified after the
-                            //       onConnected() because IMediaController2 is oneway (i.e. async
-                            //       call) and Stub will use thread poll for incoming calls.
-                            final Bundle resultData = new Bundle();
-                            resultData.putBundle(ARGUMENT_ALLOWED_COMMANDS,
-                                    allowedCommands.toBundle());
-                            resultData.putInt(ARGUMENT_PLAYER_STATE,
-                                    MediaSession2.this.getPlayerState());
-                            synchronized (mLock) {
-                                resultData.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
-                                        mPlaybackStateCompat);
-                                // TODO: Insert MediaMetadataCompat
-                            }
-                            resultData.putInt(ARGUMENT_REPEAT_MODE,
-                                    MediaSession2.this.getRepeatMode());
-                            resultData.putInt(ARGUMENT_SHUFFLE_MODE,
-                                    MediaSession2.this.getShuffleMode());
-                            final List<MediaItem2> playlist = allowedCommands.hasCommand(
-                                    SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
-                                    ? MediaSession2.this.getPlaylist() : null;
-                            if (playlist != null) {
-                                List<Bundle> playlistBundle = new ArrayList<>();
-                                // TODO(jaewan): Find a way to avoid concurrent modification
-                                // exception.
-                                for (int i = 0; i < playlist.size(); i++) {
-                                    final MediaItem2 item = playlist.get(i);
-                                    if (item != null) {
-                                        final Bundle itemBundle = item.toBundle();
-                                        if (itemBundle != null) {
-                                            playlistBundle.add(itemBundle);
-                                        }
-                                    }
-                                }
-                                resultData.putParcelableArray(ARGUMENT_PLAYLIST,
-                                        (Bundle[]) playlistBundle.toArray());
-                            }
-
-                            // Double check if session is still there, because close() can be
-                            // called in another thread.
-                            if (!mHandlerThread.isAlive()) {
-                                return;
-                            }
-                            cb.send(CONNECT_RESULT_CONNECTED, resultData);
-                        } else {
-                            synchronized (mLock) {
-                                mConnectingControllers.remove(controllerInfo.getId());
-                            }
-                            if (DEBUG) {
-                                Log.d(TAG,
-                                        "Rejecting connection, controllerInfo=" + controllerInfo);
-                            }
-                            cb.send(CONNECT_RESULT_DISCONNECTED, null);
-                        }
-                    }
-                });
-            }
-        }
-    }
-
     private static final String TAG = "MediaSession2";
     private static final boolean DEBUG = true; // TODO: Log.isLoggable(TAG, Log.DEBUG);
-
-    static final int CONNECT_RESULT_CONNECTED = 0;
-    static final int CONNECT_RESULT_DISCONNECTED = -1;
-
-    static final String ARGUMENT_ALLOWED_COMMANDS =
-            "androidx.media.MediaController2.argument.ALLOWED_COMMANDS";
-    static final String ARGUMENT_PLAYER_STATE =
-            "androidx.media.MediaController2.argument.PLAYER_STATE";
-    static final String ARGUMENT_REPEAT_MODE =
-            "androidx.media.MediaController2.argument.REPEAT_MODE";
-    static final String ARGUMENT_SHUFFLE_MODE =
-            "androidx.media.MediaController2.argument.SHUFFLE_MODE";
-    static final String ARGUMENT_PLAYLIST = "androidx.media.MediaController2.argument.PLAYLIST";
-
-    // Media 1.0 Constants
-    static final String ARGUMENT_PLAYBACK_STATE_COMPAT =
-            "androidx.media.MediaController2.argument.PLAYBACK_STATE_COMPAT";
-    static final String ARGUMENT_MEDIA_METADATA_COMPAT =
-            "androidx.media.MediaController2.argument.MEDIA_METADATA_COMPAT";
 
     private final Context mContext;
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
     private final MediaSessionCompat mSessionCompat;
-    private final MediaSessionCompat.Callback mSessionCompatCallback;
+    private final MediaSession2StubImplBase mSession2Stub;
     private final String mId;
     private final Executor mCallbackExecutor;
     private final SessionCallback mCallback;
@@ -1142,8 +1013,8 @@ public class MediaSession2 implements AutoCloseable {
         mHandler = new Handler(mHandlerThread.getLooper());
 
         mSessionCompat = sessionCompat;
-        mSessionCompatCallback = new SessionCompatCallback();
-        mSessionCompat.setCallback(mSessionCompatCallback, mHandler);
+        mSession2Stub = new MediaSession2StubImplBase(this);
+        mSessionCompat.setCallback(mSession2Stub, mHandler);
         mSessionCompat.setSessionActivity(sessionActivity);
 
         mId = id;
@@ -1262,8 +1133,9 @@ public class MediaSession2 implements AutoCloseable {
      * @return volume provider
      */
     public @Nullable VolumeProviderCompat getVolumeProvider() {
-        //return mProvider.getVolumeProvider_impl();
-        return null;
+        synchronized (mLock) {
+            return mVolumeProvider;
+        }
     }
 
     /**
@@ -1276,9 +1148,14 @@ public class MediaSession2 implements AutoCloseable {
     /**
      * TODO: add javadoc
      */
-    public /*@NonNull*/ List<ControllerInfo> getConnectedControllers() {
-        //return mProvider.getConnectedControllers_impl();
-        return null;
+    public @NonNull List<ControllerInfo> getConnectedControllers() {
+        ArrayList<ControllerInfo> controllers = new ArrayList<>();
+        synchronized (mLock) {
+            for (int i = 0; i < mControllers.size(); i++) {
+                controllers.add(mControllers.valueAt(i));
+            }
+        }
+        return controllers;
     }
 
     /**
@@ -1755,8 +1632,26 @@ public class MediaSession2 implements AutoCloseable {
         //mProvider.setShuffleMode_impl(shuffleMode);
     }
 
+    Context getContext() {
+        return mContext;
+    }
+
     Executor getCallbackExecutor() {
         return mCallbackExecutor;
+    }
+
+    SessionCallback getCallback() {
+        return mCallback;
+    }
+
+    PlaybackStateCompat getPlaybackStateCompat() {
+        synchronized (mLock) {
+            return mPlaybackStateCompat;
+        }
+    }
+
+    boolean isClosed() {
+        return !mHandlerThread.isAlive();
     }
 
     ///////////////////////////////////////////////////
