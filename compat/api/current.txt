@@ -1283,6 +1283,14 @@ package androidx.core.provider {
 
 }
 
+package androidx.core.telephony.mbms {
+
+  public final class MbmsHelper {
+    method public static java.lang.CharSequence getBestNameForService(android.content.Context, android.telephony.mbms.ServiceInfo);
+  }
+
+}
+
 package androidx.core.text {
 
   public final class BidiFormatter {
