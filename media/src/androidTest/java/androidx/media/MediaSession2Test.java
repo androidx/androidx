@@ -300,9 +300,9 @@ public class MediaSession2Test extends MediaSession2TestBase {
 
         final int maxVolume = 100;
         final int currentVolume = 23;
-        final int volumeControlType = VolumeProvider2.VOLUME_CONTROL_ABSOLUTE;
-        VolumeProvider2 volumeProvider =
-                new VolumeProvider2(volumeControlType, maxVolume, currentVolume) {
+        final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+        VolumeProviderCompat volumeProvider =
+                new VolumeProviderCompat(volumeControlType, maxVolume, currentVolume) {
                 };
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -328,7 +328,8 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(attrs, info.getAudioAttributes());
         AudioManager manager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         int localVolumeControlType = manager.isVolumeFixed()
-                ? VolumeProvider2.VOLUME_CONTROL_FIXED : VolumeProvider2.VOLUME_CONTROL_ABSOLUTE;
+                ? VolumeProviderCompat.VOLUME_CONTROL_FIXED
+                : VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
         assertEquals(localVolumeControlType, info.getControlType());
         assertEquals(manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), info.getMaxVolume());
         assertEquals(manager.getStreamVolume(AudioManager.STREAM_MUSIC), info.getCurrentVolume());
@@ -690,7 +691,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testSetCustomLayout() throws InterruptedException {
         final List<CommandButton> buttons = new ArrayList<>();
-        buttons.add(new CommandButton.Builder(mContext)
+        buttons.add(new CommandButton.Builder()
                 .setCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY))
                 .setDisplayName("button").build());
         final CountDownLatch latch = new CountDownLatch(1);

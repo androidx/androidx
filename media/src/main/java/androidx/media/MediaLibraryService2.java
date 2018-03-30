@@ -228,7 +228,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             }
 
             @Override
-            public @NonNull Builder setVolumeProvider(@Nullable VolumeProvider2 volumeProvider) {
+            public @NonNull Builder setVolumeProvider(
+                    @Nullable VolumeProviderCompat volumeProvider) {
                 return super.setVolumeProvider(volumeProvider);
             }
 
@@ -258,7 +259,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
 
         MediaLibrarySession(Context context, MediaSessionCompat sessionCompat, String id,
                 MediaPlayerBase player, MediaPlaylistAgent playlistAgent,
-                VolumeProvider2 volumeProvider, PendingIntent sessionActivity,
+                VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
                 Executor callbackExecutor, MediaLibrarySessionCallback callback) {
             super(context, sessionCompat, id, player, playlistAgent, volumeProvider,
                     sessionActivity, callbackExecutor, callback);

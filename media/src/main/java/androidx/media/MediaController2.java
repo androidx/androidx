@@ -296,7 +296,7 @@ public class MediaController2 implements AutoCloseable {
          */
         public static final int PLAYBACK_TYPE_LOCAL = 1;
 
-        private PlaybackInfo(int playbackType, AudioAttributes attrs, int controlType, int max,
+        PlaybackInfo(int playbackType, AudioAttributes attrs, int controlType, int max,
                 int current) {
             mPlaybackType = playbackType;
             // TODO: Use AudioAttributesCompat instead of AudioAttributes, and set the value
@@ -334,9 +334,9 @@ public class MediaController2 implements AutoCloseable {
         /**
          * Get the type of volume control that can be used. One of:
          * <ul>
-         * <li>{@link VolumeProvider2#VOLUME_CONTROL_ABSOLUTE}</li>
-         * <li>{@link VolumeProvider2#VOLUME_CONTROL_RELATIVE}</li>
-         * <li>{@link VolumeProvider2#VOLUME_CONTROL_FIXED}</li>
+         * <li>{@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}</li>
+         * <li>{@link VolumeProviderCompat#VOLUME_CONTROL_RELATIVE}</li>
+         * <li>{@link VolumeProviderCompat#VOLUME_CONTROL_FIXED}</li>
          * </ul>
          *
          * @return The type of volume control that may be used with this session.
@@ -850,7 +850,7 @@ public class MediaController2 implements AutoCloseable {
 
     /**
      * Set the volume of the output this session is playing on. The command will be ignored if it
-     * does not support {@link VolumeProvider2#VOLUME_CONTROL_ABSOLUTE}.
+     * does not support {@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}.
      * <p>
      * If the session is local playback, this changes the device's volume with the stream that
      * session's player is using. Flags will be specified for the {@link AudioManager}.
@@ -878,8 +878,8 @@ public class MediaController2 implements AutoCloseable {
      * must be one of {@link AudioManager#ADJUST_LOWER},
      * {@link AudioManager#ADJUST_RAISE}, or {@link AudioManager#ADJUST_SAME}.
      * The command will be ignored if the session does not support
-     * {@link VolumeProvider2#VOLUME_CONTROL_RELATIVE} or
-     * {@link VolumeProvider2#VOLUME_CONTROL_ABSOLUTE}.
+     * {@link VolumeProviderCompat#VOLUME_CONTROL_RELATIVE} or
+     * {@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}.
      * <p>
      * If the session is local playback, this changes the device's volume with the stream that
      * session's player is using. Flags will be specified for the {@link AudioManager}.
@@ -1030,6 +1030,7 @@ public class MediaController2 implements AutoCloseable {
      */
     public @Nullable PlaybackInfo getPlaybackInfo() {
         synchronized (mLock) {
+            // TODO: update mPlaybackInfo via MediaControllerCompat.Callback.onAudioInfoChanged().
             return mPlaybackInfo;
         }
     }
@@ -1246,11 +1247,11 @@ public class MediaController2 implements AutoCloseable {
 
     // Should be used without a lock to prevent potential deadlock.
     void onConnectedNotLocked(Bundle data) {
+        // TODO: Getting mPlaybackInfo via MediaControllerCompat.Callback.onAudioInfoChanged()
+        // is enough or should we pass it while connecting?
         final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
                 data.getBundle(MediaSession2.ARGUMENT_ALLOWED_COMMANDS));
         final int playerState = data.getInt(MediaSession2.ARGUMENT_PLAYER_STATE);
-        final PlaybackInfo info = PlaybackInfo.fromBundle(
-                data.getBundle(MediaSession2.ARGUMENT_PLAYBACK_INFO));
         final PlaybackStateCompat playbackStateCompat = data.getParcelable(
                 MediaSession2.ARGUMENT_PLAYBACK_STATE_COMPAT);
         final int repeatMode = data.getInt(MediaSession2.ARGUMENT_REPEAT_MODE);
@@ -1285,7 +1286,6 @@ public class MediaController2 implements AutoCloseable {
                 }
                 mAllowedCommands = allowedCommands;
                 mPlayerState = playerState;
-                mPlaybackInfo = info;
                 mPlaybackStateCompat = playbackStateCompat;
                 mRepeatMode = repeatMode;
                 mShuffleMode = shuffleMode;

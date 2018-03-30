@@ -541,7 +541,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testSetVolumeTo() throws Exception {
         final int maxVolume = 100;
         final int currentVolume = 23;
-        final int volumeControlType = VolumeProvider2.VOLUME_CONTROL_ABSOLUTE;
+        final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
         TestVolumeProvider volumeProvider =
                 new TestVolumeProvider(volumeControlType, maxVolume, currentVolume);
 
@@ -559,7 +559,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testAdjustVolume() throws Exception {
         final int maxVolume = 100;
         final int currentVolume = 23;
-        final int volumeControlType = VolumeProvider2.VOLUME_CONTROL_ABSOLUTE;
+        final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
         TestVolumeProvider volumeProvider =
                 new TestVolumeProvider(volumeControlType, maxVolume, currentVolume);
 
@@ -1129,7 +1129,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     // TODO(jaewan): Add  test for service connect rejection, when we differentiate session
     //               active/inactive and connection accept/refuse
 
-    class TestVolumeProvider extends VolumeProvider2 {
+    class TestVolumeProvider extends VolumeProviderCompat {
         final CountDownLatch mLatch = new CountDownLatch(1);
         boolean mSetVolumeToCalled;
         boolean mAdjustVolumeCalled;

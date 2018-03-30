@@ -203,7 +203,7 @@ public class MediaSession2 implements AutoCloseable {
          * @return a data source descriptor if the media item. Can be {@code null} if the content
          *        isn't available.
          */
-        @Nullable Object /*DataSourceDesc*/ onDataSourceMissing(@NonNull MediaSession2 session,
+        @Nullable DataSourceDesc onDataSourceMissing(@NonNull MediaSession2 session,
                 @NonNull MediaItem2 item);
     }
 
@@ -587,7 +587,7 @@ public class MediaSession2 implements AutoCloseable {
         Executor mCallbackExecutor;
         C mCallback;
         MediaPlaylistAgent mPlaylistAgent;
-        VolumeProvider2 mVolumeProvider;
+        VolumeProviderCompat mVolumeProvider;
         PendingIntent mSessionActivity;
 
         BuilderBase(Context context) {
@@ -633,12 +633,12 @@ public class MediaSession2 implements AutoCloseable {
         }
 
         /**
-         * Sets the {@link VolumeProvider2} for this session to handle volume events. If not set,
-         * system will adjust the appropriate stream volume for this session's player.
+         * Sets the {@link VolumeProviderCompat} for this session to handle volume events. If not
+         * set, system will adjust the appropriate stream volume for this session's player.
          *
          * @param volumeProvider The provider that will receive volume button events.
          */
-        @NonNull U setVolumeProvider(@Nullable VolumeProvider2 volumeProvider) {
+        @NonNull U setVolumeProvider(@Nullable VolumeProviderCompat volumeProvider) {
             mVolumeProvider = volumeProvider;
             return (U) this;
         }
@@ -724,7 +724,7 @@ public class MediaSession2 implements AutoCloseable {
         }
 
         @Override
-        public @NonNull Builder setVolumeProvider(@Nullable VolumeProvider2 volumeProvider) {
+        public @NonNull Builder setVolumeProvider(@Nullable VolumeProviderCompat volumeProvider) {
             return super.setVolumeProvider(volumeProvider);
         }
 
@@ -759,6 +759,7 @@ public class MediaSession2 implements AutoCloseable {
         private final int mUid;
         private final String mPackageName;
         private final IMediaControllerCallback mIControllerCallback;
+        private final boolean mIsTrusted;
 
         /**
          * @hide
@@ -769,22 +770,21 @@ public class MediaSession2 implements AutoCloseable {
             mUid = uid;
             mPackageName = packageName;
             mIControllerCallback = callback;
+            mIsTrusted = isTrusted();
         }
 
         /**
          * @return package name of the controller
          */
-        public /*@NonNull*/ String getPackageName() {
-            //return mProvider.getPackageName_impl();
-            return null;
+        public @NonNull String getPackageName() {
+            return mPackageName;
         }
 
         /**
          * @return uid of the controller
          */
         public int getUid() {
-            //return mProvider.getUid_impl();
-            return 0;
+            return mUid;
         }
 
         /**
@@ -803,29 +803,24 @@ public class MediaSession2 implements AutoCloseable {
             return mIControllerCallback.asBinder();
         }
 
-//        /**
-//         * @hide
-//         */
-//        public @NonNull ControllerInfoProvider getProvider() {
-//            return mProvider;
-//        }
-
         @Override
         public int hashCode() {
-            //return mProvider.hashCode_impl();
-            return 0;
+            return mIControllerCallback.hashCode();
         }
 
         @Override
         public boolean equals(Object obj) {
-            //return mProvider.equals_impl(obj);
-            return false;
+            if (!(obj instanceof ControllerInfo)) {
+                return false;
+            }
+            ControllerInfo other = (ControllerInfo) obj;
+            return mIControllerCallback.asBinder().equals(other.mIControllerCallback.asBinder());
         }
 
         @Override
         public String toString() {
-            //return mProvider.toString_impl();
-            return null;
+            return "ControllerInfo {pkg=" + mPackageName + ", uid=" + mUid + ", trusted="
+                    + mIsTrusted + "}";
         }
     }
 
@@ -835,14 +830,31 @@ public class MediaSession2 implements AutoCloseable {
      * It's up to the controller's decision to respect or ignore this customization request.
      */
     public static final class CommandButton {
-        //private final CommandButtonProvider mProvider;
+        private static final String KEY_COMMAND =
+                "android.media.media_session2.command_button.command";
+        private static final String KEY_ICON_RES_ID =
+                "android.media.media_session2.command_button.icon_res_id";
+        private static final String KEY_DISPLAY_NAME =
+                "android.media.media_session2.command_button.display_name";
+        private static final String KEY_EXTRAS =
+                "android.media.media_session2.command_button.extras";
+        private static final String KEY_ENABLED =
+                "android.media.media_session2.command_button.enabled";
 
-//        /**
-//         * @hide
-//         */
-//        public CommandButton(CommandButtonProvider provider) {
-//            mProvider = provider;
-//        }
+        private SessionCommand2 mCommand;
+        private int mIconResId;
+        private String mDisplayName;
+        private Bundle mExtras;
+        private boolean mEnabled;
+
+        private CommandButton(@Nullable SessionCommand2 command, int iconResId,
+                @Nullable String displayName, Bundle extras, boolean enabled) {
+            mCommand = command;
+            mIconResId = iconResId;
+            mDisplayName = displayName;
+            mExtras = extras;
+            mEnabled = enabled;
+        }
 
         /**
          * Get command associated with this button. Can be {@code null} if the button isn't enabled
@@ -851,8 +863,7 @@ public class MediaSession2 implements AutoCloseable {
          * @return command or {@code null}
          */
         public @Nullable SessionCommand2 getCommand() {
-            //return mProvider.getCommand_impl();
-            return null;
+            return mCommand;
         }
 
         /**
@@ -862,8 +873,7 @@ public class MediaSession2 implements AutoCloseable {
          * @return resource id of the icon. Can be {@code 0}.
          */
         public int getIconResId() {
-            //return mProvider.getIconResId_impl();
-            return 0;
+            return mIconResId;
         }
 
         /**
@@ -873,8 +883,7 @@ public class MediaSession2 implements AutoCloseable {
          * @return custom display name. Can be {@code null} or empty.
          */
         public @Nullable String getDisplayName() {
-            //return mProvider.getDisplayName_impl();
-            return null;
+            return mDisplayName;
         }
 
         /**
@@ -883,8 +892,7 @@ public class MediaSession2 implements AutoCloseable {
          * @return
          */
         public @Nullable Bundle getExtras() {
-            //return mProvider.getExtras_impl();
-            return null;
+            return mExtras;
         }
 
         /**
@@ -893,36 +901,24 @@ public class MediaSession2 implements AutoCloseable {
          * @return {@code true} if enabled. {@code false} otherwise.
          */
         public boolean isEnabled() {
-            //return mProvider.isEnabled_impl();
-            return false;
+            return mEnabled;
         }
-
-//        /**
-//         * @hide
-//         */
-//        public @NonNull CommandButtonProvider getProvider() {
-//            return mProvider;
-//        }
 
         /**
          * Builder for {@link CommandButton}.
          */
         public static final class Builder {
-            //private final CommandButtonProvider.BuilderProvider mProvider;
-
-            /**
-             * TODO: javadoc
-             */
-            public Builder(@NonNull Context context) {
-//                mProvider = ApiLoader.getProvider().createMediaSession2CommandButtonBuilder(
-//                        context, this);
-            }
+            private SessionCommand2 mCommand;
+            private int mIconResId;
+            private String mDisplayName;
+            private Bundle mExtras;
+            private boolean mEnabled;
 
             /**
              * TODO: javadoc
              */
             public @NonNull Builder setCommand(@Nullable SessionCommand2 command) {
-                //return mProvider.setCommand_impl(command);
+                mCommand = command;
                 return this;
             }
 
@@ -930,7 +926,7 @@ public class MediaSession2 implements AutoCloseable {
              * TODO: javadoc
              */
             public @NonNull Builder setIconResId(int resId) {
-                //return mProvider.setIconResId_impl(resId);
+                mIconResId = resId;
                 return this;
             }
 
@@ -938,7 +934,7 @@ public class MediaSession2 implements AutoCloseable {
              * TODO: javadoc
              */
             public @NonNull Builder setDisplayName(@Nullable String displayName) {
-                //return mProvider.setDisplayName_impl(displayName);
+                mDisplayName = displayName;
                 return this;
             }
 
@@ -946,7 +942,7 @@ public class MediaSession2 implements AutoCloseable {
              * TODO: javadoc
              */
             public @NonNull Builder setEnabled(boolean enabled) {
-                //return mProvider.setEnabled_impl(enabled);
+                mEnabled = enabled;
                 return this;
             }
 
@@ -954,16 +950,15 @@ public class MediaSession2 implements AutoCloseable {
              * TODO: javadoc
              */
             public @NonNull Builder setExtras(@Nullable Bundle extras) {
-                //return mProvider.setExtras_impl(extras);
+                mExtras = extras;
                 return this;
             }
 
             /**
              * TODO: javadoc
              */
-            public /*@NonNull*/ CommandButton build() {
-                //return mProvider.build_impl();
-                return null;
+            public @NonNull CommandButton build() {
+                return new CommandButton(mCommand, mIconResId, mDisplayName, mExtras, mEnabled);
             }
         }
     }
@@ -1028,8 +1023,6 @@ public class MediaSession2 implements AutoCloseable {
                             resultData.putInt(ARGUMENT_PLAYER_STATE,
                                     MediaSession2.this.getPlayerState());
                             synchronized (mLock) {
-                                resultData.putBundle(ARGUMENT_PLAYBACK_INFO,
-                                        mPlaybackInfo.toBundle());
                                 resultData.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
                                         mPlaybackStateCompat);
                                 // TODO: Insert MediaMetadataCompat
@@ -1090,8 +1083,6 @@ public class MediaSession2 implements AutoCloseable {
             "androidx.media.MediaController2.argument.ALLOWED_COMMANDS";
     static final String ARGUMENT_PLAYER_STATE =
             "androidx.media.MediaController2.argument.PLAYER_STATE";
-    static final String ARGUMENT_PLAYBACK_INFO =
-            "androidx.media.MediaController2.argument.PLAYBACK_INFO";
     static final String ARGUMENT_REPEAT_MODE =
             "androidx.media.MediaController2.argument.REPEAT_MODE";
     static final String ARGUMENT_SHUFFLE_MODE =
@@ -1123,12 +1114,10 @@ public class MediaSession2 implements AutoCloseable {
     private MediaPlayerBase mPlayer;
     @GuardedBy("mLock")
     private MediaPlaylistAgent mPlaylistAgent;
-    //@GuardedBy("mLock")
-    //private SessionPlaylistAgent mSessionPlaylistAgent;
     @GuardedBy("mLock")
-    private VolumeProvider2 mVolumeProvider;
+    private SessionPlaylistAgent mSessionPlaylistAgent;
     @GuardedBy("mLock")
-    private MediaController2.PlaybackInfo mPlaybackInfo;
+    private VolumeProviderCompat mVolumeProvider;
     @GuardedBy("mLock")
     private OnDataSourceMissingHelper mDsmHelper;
 
@@ -1145,7 +1134,7 @@ public class MediaSession2 implements AutoCloseable {
 
     MediaSession2(Context context, MediaSessionCompat sessionCompat, String id,
             MediaPlayerBase player, MediaPlaylistAgent playlistAgent,
-            VolumeProvider2 volumeProvider, PendingIntent sessionActivity,
+            VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
             Executor callbackExecutor, SessionCallback callback) {
         mContext = context;
         mHandlerThread = new HandlerThread("MediaController2_Thread");
@@ -1197,12 +1186,52 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @param player a {@link MediaPlayerBase} that handles actual media playback in your app
      * @param playlistAgent a {@link MediaPlaylistAgent} that manages playlist of the {@code player}
-     * @param volumeProvider a {@link VolumeProvider2}. If {@code null}, system will adjust the
+     * @param volumeProvider a {@link VolumeProviderCompat}. If {@code null}, system will adjust the
      *                       appropriate stream volume for this session's player.
      */
     public void updatePlayer(@NonNull MediaPlayerBase player,
-            @Nullable MediaPlaylistAgent playlistAgent, @Nullable VolumeProvider2 volumeProvider) {
-        //mProvider.updatePlayer_impl(player, playlistAgent, volumeProvider);
+            @Nullable MediaPlaylistAgent playlistAgent,
+            @Nullable VolumeProviderCompat volumeProvider) {
+        if (player == null) {
+            throw new IllegalArgumentException("player shouldn't be null");
+        }
+        final MediaPlayerBase oldPlayer;
+        final MediaPlaylistAgent oldAgent;
+        synchronized (mLock) {
+            oldPlayer = mPlayer;
+            oldAgent = mPlaylistAgent;
+            mPlayer = player;
+            if (playlistAgent == null) {
+                mSessionPlaylistAgent = new SessionPlaylistAgent(this, mPlayer);
+                if (mDsmHelper != null) {
+                    mSessionPlaylistAgent.setOnDataSourceMissingHelper(mDsmHelper);
+                }
+                playlistAgent = mSessionPlaylistAgent;
+            }
+            mPlaylistAgent = playlistAgent;
+            mVolumeProvider = volumeProvider;
+        }
+        if (player != oldPlayer) {
+            player.registerPlayerEventCallback(mCallbackExecutor, mPlayerEventCallback);
+            if (oldPlayer != null) {
+                // Warning: Poorly implement player may ignore this
+                oldPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
+            }
+        }
+        if (playlistAgent != oldAgent) {
+            playlistAgent.registerPlaylistEventCallback(mCallbackExecutor, mPlaylistEventCallback);
+            if (oldAgent != null) {
+                // Warning: Poorly implement player may ignore this
+                oldAgent.unregisterPlaylistEventCallback(mPlaylistEventCallback);
+            }
+        }
+
+        if (oldPlayer != null) {
+            // TODO: implement
+            //mSessionStub.notifyPlaybackInfoChanged(info);
+            //notifyPlayerUpdatedNotLocked(oldPlayer);
+        }
+        // TODO(jaewan): Repeat the same thing for the playlist agent.
     }
 
     @Override
@@ -1214,23 +1243,25 @@ public class MediaSession2 implements AutoCloseable {
     /**
      * @return player
      */
-    public /*@NonNull*/ MediaPlayerBase getPlayer() {
-        //return mProvider.getPlayer_impl();
-        return null;
+    public @NonNull MediaPlayerBase getPlayer() {
+        synchronized (mLock) {
+            return mPlayer;
+        }
     }
 
     /**
      * @return playlist agent
      */
-    public /*@NonNull*/ MediaPlaylistAgent getPlaylistAgent() {
-        //return mProvider.getPlaylistAgent_impl();
-        return null;
+    public @NonNull MediaPlaylistAgent getPlaylistAgent() {
+        synchronized (mLock) {
+            return mPlaylistAgent;
+        }
     }
 
     /**
      * @return volume provider
      */
-    public @Nullable VolumeProvider2 getVolumeProvider() {
+    public @Nullable VolumeProviderCompat getVolumeProvider() {
         //return mProvider.getVolumeProvider_impl();
         return null;
     }
@@ -1238,9 +1269,8 @@ public class MediaSession2 implements AutoCloseable {
     /**
      * Returns the {@link SessionToken2} for creating {@link MediaController2}.
      */
-    public /*@NonNull*/ SessionToken2 getToken() {
-        //return mProvider.getToken_impl();
-        return null;
+    public @NonNull SessionToken2 getToken() {
+        return mSessionToken;
     }
 
     /**
@@ -1495,7 +1525,15 @@ public class MediaSession2 implements AutoCloseable {
      * @see SessionCommand2#COMMAND_CODE_PLAYLIST_REPLACE_ITEM
      */
     public void setOnDataSourceMissingHelper(@NonNull OnDataSourceMissingHelper helper) {
-        //mProvider.setOnDataSourceMissingHelper_impl(helper);
+        if (helper == null) {
+            throw new IllegalArgumentException("helper shouldn't be null");
+        }
+        synchronized (mLock) {
+            mDsmHelper = helper;
+            if (mSessionPlaylistAgent != null) {
+                mSessionPlaylistAgent.setOnDataSourceMissingHelper(helper);
+            }
+        }
     }
 
     /**
@@ -1504,7 +1542,12 @@ public class MediaSession2 implements AutoCloseable {
      * @see #setOnDataSourceMissingHelper(OnDataSourceMissingHelper)
      */
     public void clearOnDataSourceMissingHelper() {
-        //mProvider.clearOnDataSourceMissingHelper_impl();
+        synchronized (mLock) {
+            mDsmHelper = null;
+            if (mSessionPlaylistAgent != null) {
+                mSessionPlaylistAgent.clearOnDataSourceMissingHelper();
+            }
+        }
     }
 
     /**
@@ -1711,6 +1754,14 @@ public class MediaSession2 implements AutoCloseable {
     public void setShuffleMode(@ShuffleMode int shuffleMode) {
         //mProvider.setShuffleMode_impl(shuffleMode);
     }
+
+    Executor getCallbackExecutor() {
+        return mCallbackExecutor;
+    }
+
+    ///////////////////////////////////////////////////
+    // Protected or private methods
+    ///////////////////////////////////////////////////
 
     private static String getServiceName(Context context, String serviceAction, String id) {
         PackageManager manager = context.getPackageManager();
