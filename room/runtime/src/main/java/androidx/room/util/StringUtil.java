@@ -112,4 +112,7 @@ public class StringUtil {
         }
         return sb.toString();
     }
+
+    private StringUtil() {
+    }
 }

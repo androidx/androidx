@@ -166,4 +166,10 @@ public class RxRoom {
             }
         }
     }
+
+    /** @deprecated This type should not be instantiated as it contains only static methods. */
+    @Deprecated
+    @SuppressWarnings("PrivateConstructorForUtilityClass")
+    public RxRoom() {
+    }
 }
