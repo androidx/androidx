@@ -180,4 +180,7 @@ class LifecycleDispatcher {
             dispatchIfLifecycleOwner(f, ON_RESUME);
         }
     }
+
+    private LifecycleDispatcher() {
+    }
 }
