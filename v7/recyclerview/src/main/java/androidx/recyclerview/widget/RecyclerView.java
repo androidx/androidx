@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.core.view.ViewCompat.TYPE_NON_TOUCH;
 import static androidx.core.view.ViewCompat.TYPE_TOUCH;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -625,6 +626,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         mItemAnimator.setListener(mItemAnimatorListener);
         initAdapterManager();
         initChildrenHelper();
+        initAutofill();
         // If not explicitly specified this view is important for accessibility.
         if (ViewCompat.getImportantForAccessibility(this)
                 == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
@@ -687,6 +689,20 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 + ", adapter:" + mAdapter
                 + ", layout:" + mLayout
                 + ", context:" + getContext();
+    }
+
+    /**
+     * If not explicitly specified, this view and its children don't support autofill.
+     * <p>
+     * This is done because autofill's means of uniquely identifying views doesn't work out of the
+     * box with View recycling.
+     */
+    @SuppressLint("InlinedApi")
+    private void initAutofill() {
+        if (ViewCompat.getImportantForAutofill(this) == View.IMPORTANT_FOR_AUTOFILL_AUTO) {
+            ViewCompat.setImportantForAutofill(this,
+                    View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
+        }
     }
 
     /**
