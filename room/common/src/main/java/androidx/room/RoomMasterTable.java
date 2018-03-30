@@ -52,4 +52,7 @@ public class RoomMasterTable {
                 + COLUMN_ID + "," + COLUMN_IDENTITY_HASH + ")"
                 + " VALUES(" + DEFAULT_ID + ", \"" + hash + "\")";
     }
+
+    private RoomMasterTable() {
+    }
 }

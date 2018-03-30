@@ -25,7 +25,7 @@ package androidx.room {
   }
 
   public class Room {
-    ctor public Room();
+    ctor public deprecated Room();
     method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context, java.lang.Class<T>, java.lang.String);
     method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context, java.lang.Class<T>);
     field public static final java.lang.String MASTER_TABLE_NAME = "room_master_table";
