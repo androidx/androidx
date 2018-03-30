@@ -22,7 +22,6 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
 
-import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.app.RemoteInput;
 import android.app.slice.Slice;
@@ -132,7 +131,7 @@ public class ActionRow extends FrameLayout {
             } else if (action.hasHint(Slice.HINT_SHORTCUT)) {
                 final SliceActionImpl ac = new SliceActionImpl(action);
                 IconCompat iconItem = ac.getIcon();
-                if (iconItem != null && ac.getAction() != null) {
+                if (iconItem != null && ac.getActionItem() != null) {
                     boolean tint = ac.getImageMode() == ICON_IMAGE;
                     addAction(iconItem, tint).setOnClickListener(
                             new OnClickListener() {
@@ -140,7 +139,7 @@ public class ActionRow extends FrameLayout {
                                 public void onClick(View v) {
                                     try {
                                         // TODO - should log events here
-                                        ac.getAction().send();
+                                        ac.getActionItem().fireAction(null, null);
                                     } catch (CanceledException e) {
                                         e.printStackTrace();
                                     }
@@ -165,7 +164,7 @@ public class ActionRow extends FrameLayout {
                     new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            handleRemoteInputClick(v, action.getAction(),
+                            handleRemoteInputClick(v, action,
                                     input.getRemoteInput());
                         }
                     });
@@ -182,7 +181,7 @@ public class ActionRow extends FrameLayout {
     }
 
     @RequiresApi(21)
-    private boolean handleRemoteInputClick(View view, PendingIntent pendingIntent,
+    private boolean handleRemoteInputClick(View view, SliceItem action,
             RemoteInput input) {
         if (input == null) {
             return false;
@@ -223,7 +222,7 @@ public class ActionRow extends FrameLayout {
                 Math.max((w - cx) + cy, (w - cx) + (h - cy)));
 
         riv.setRevealParameters(cx, cy, r);
-        riv.setPendingIntent(pendingIntent);
+        riv.setAction(action);
         riv.setRemoteInput(new RemoteInput[] {
                 input
         }, input);

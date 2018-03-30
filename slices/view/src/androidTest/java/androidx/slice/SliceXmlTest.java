@@ -24,6 +24,11 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -33,6 +38,8 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.slice.core.SliceQuery;
+import androidx.slice.view.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +58,7 @@ public class SliceXmlTest {
     public void testThrowForAction() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
-                .addAction(null, null, null)
+                .addAction((PendingIntent) null, null, null)
                 .build();
         SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
                 .SerializeOptions());
@@ -81,7 +88,7 @@ public class SliceXmlTest {
     public void testNoThrowForAction() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
-                .addAction(null, null, null)
+                .addAction((PendingIntent) null, null, null)
                 .build();
         SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
                 .SerializeOptions().setActionMode(SliceUtils.SerializeOptions.MODE_REMOVE));
@@ -108,7 +115,7 @@ public class SliceXmlTest {
     }
 
     @Test
-    public void testSerialization() throws IOException {
+    public void testSerialization() throws Exception {
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
         // Create a slice containing all the types in a hierarchy.
@@ -118,24 +125,32 @@ public class SliceXmlTest {
                         .build())
                 .addIcon(IconCompat.createWithBitmap(b), null)
                 .addText("Some text", null)
-                .addAction(null, new Slice.Builder(Uri.parse("content://pkg/slice/sub"))
+                .addAction((PendingIntent) null,
+                        new Slice.Builder(Uri.parse("content://pkg/slice/action"))
                         .addText("Action text", null)
                         .build(), null)
                 .addInt(0xff00ff00, "subtype")
+                .addIcon(IconCompat.createWithResource(mContext, R.drawable.abc_slice_see_more_bg),
+                        null)
                 .addHints("Hint 1", "Hint 2")
                 .build();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         SliceUtils.serializeSlice(before, mContext, outputStream, "UTF-8",
                 new SliceUtils.SerializeOptions()
-                        .setImageMode(SliceUtils.SerializeOptions.MODE_DISABLE)
-                        .setActionMode(SliceUtils.SerializeOptions.MODE_DISABLE));
+                        .setImageMode(SliceUtils.SerializeOptions.MODE_CONVERT)
+                        .setActionMode(SliceUtils.SerializeOptions.MODE_CONVERT));
 
         byte[] bytes = outputStream.toByteArray();
         ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-        Slice after = SliceUtils.parseSlice(inputStream, "UTF-8");
+        SliceUtils.SliceActionListener listener = mock(SliceUtils.SliceActionListener.class);
+        Slice after = SliceUtils.parseSlice(mContext, inputStream, "UTF-8", listener);
 
         assertEquivalent(before, after);
+
+        SliceItem action = SliceQuery.find(after, FORMAT_ACTION);
+        action.fireAction(null, null);
+        verify(listener).onSliceAction(eq(Uri.parse("content://pkg/slice/action")));
     }
 
     private void assertEquivalent(Slice desired, Slice actual) {
