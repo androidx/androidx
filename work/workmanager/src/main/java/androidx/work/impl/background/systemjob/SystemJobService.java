@@ -48,7 +48,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        mWorkManagerImpl = WorkManagerImpl.getInstance(this);
+        mWorkManagerImpl = WorkManagerImpl.getInstance();
         mWorkManagerImpl.getProcessor().addExecutionListener(this);
     }
 

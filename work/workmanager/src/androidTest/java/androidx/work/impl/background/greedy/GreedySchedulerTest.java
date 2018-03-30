@@ -18,16 +18,16 @@ package androidx.work.impl.background.greedy;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.PeriodicWork;
 import androidx.work.Work;
 import androidx.work.WorkManagerTest;
+import androidx.work.impl.Processor;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
@@ -41,21 +41,23 @@ import org.mockito.ArgumentMatchers;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+
 @RunWith(AndroidJUnit4.class)
 public class GreedySchedulerTest extends WorkManagerTest {
 
     private static final String TEST_ID = "test";
 
-    private WorkManagerImpl mSpyWorkManagerImpl;
+    private WorkManagerImpl mWorkManagerImpl;
     private WorkConstraintsTracker mMockWorkConstraintsTracker;
     private GreedyScheduler mGreedyScheduler;
 
     @Before
     public void setUp() {
-        mSpyWorkManagerImpl =
-                spy(WorkManagerImpl.getInstance(InstrumentationRegistry.getTargetContext()));
+        mWorkManagerImpl = mock(WorkManagerImpl.class);
+        Processor processor = mock(Processor.class);
         mMockWorkConstraintsTracker = mock(WorkConstraintsTracker.class);
-        mGreedyScheduler = new GreedyScheduler(mSpyWorkManagerImpl, mMockWorkConstraintsTracker);
+        when(mWorkManagerImpl.getProcessor()).thenReturn(processor);
+        mGreedyScheduler = new GreedyScheduler(mWorkManagerImpl, mMockWorkConstraintsTracker);
     }
 
     @Test
@@ -64,7 +66,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         Work work = new Work.Builder(TestWorker.class).build();
         WorkSpec workSpec = getWorkSpec(work);
         mGreedyScheduler.schedule(workSpec);
-        verify(mSpyWorkManagerImpl).startWork(workSpec.id);
+        verify(mWorkManagerImpl).startWork(workSpec.id);
     }
 
     @Test
@@ -90,13 +92,13 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @SmallTest
     public void testGreedyScheduler_startsWorkWhenConstraintsMet() {
         mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(TEST_ID));
-        verify(mSpyWorkManagerImpl).startWork(TEST_ID);
+        verify(mWorkManagerImpl).startWork(TEST_ID);
     }
 
     @Test
     @SmallTest
     public void testGreedyScheduler_stopsWorkWhenConstraintsNotMet() {
         mGreedyScheduler.onAllConstraintsNotMet(Collections.singletonList(TEST_ID));
-        verify(mSpyWorkManagerImpl).stopWork(TEST_ID);
+        verify(mWorkManagerImpl).stopWork(TEST_ID);
     }
 }

@@ -23,6 +23,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 
 import androidx.work.BaseWork;
@@ -52,7 +53,6 @@ import java.util.List;
  *
  * @hide
  */
-
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerImpl extends WorkManager implements BlockingWorkManager {
 
@@ -64,38 +64,66 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     private List<Scheduler> mSchedulers;
     private Processor mProcessor;
 
-    private static WorkManagerImpl sInstance = null;
+    private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
 
     /**
      * Retrieves the singleton instance of {@link WorkManagerImpl}.
      *
-     * @param context A {@link Context} object for configuration purposes.  Internally, this class
-     *                will call {@link Context#getApplicationContext()}, so you may safely pass in
-     *                any Context without risking a memory leak.
      * @return The singleton instance of {@link WorkManagerImpl}
      */
-    public static synchronized WorkManagerImpl getInstance(Context context) {
-        if (sInstance == null) {
-            context = context.getApplicationContext();
-            if (sDefaultInstance == null) {
-                sDefaultInstance =
-                        new WorkManagerImpl(context, new WorkManagerConfiguration(context));
-            }
-            sInstance = sDefaultInstance;
+    public static synchronized WorkManagerImpl getInstance() {
+        if (sDelegatedInstance != null) {
+            return sDelegatedInstance;
         }
-        return sInstance;
+
+        return sDefaultInstance;
     }
 
     /**
      * @param delegate The delegate for {@link WorkManagerImpl} for testing; {@code null} to use the
      *                 default instance
+     * @hide
      */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static synchronized void setDelegate(WorkManagerImpl delegate) {
-        sInstance = delegate;
+        sDelegatedInstance = delegate;
     }
 
-    WorkManagerImpl(Context context, WorkManagerConfiguration configuration) {
+    /**
+     * Initializes the singleton instance of {@link WorkManagerImpl}.
+     *
+     * @param context A {@link Context} object for configuration purposes.  Internally, this class
+     *                will call {@link Context#getApplicationContext()}, so you may safely pass in
+     *                any Context without risking a memory leak.
+     * @return The singleton instance of {@link WorkManagerImpl}
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static synchronized WorkManagerImpl initialize(Context context) {
+        if (sDelegatedInstance == null) {
+            context = context.getApplicationContext();
+            if (sDefaultInstance == null) {
+                sDefaultInstance =
+                        new WorkManagerImpl(context, new WorkManagerConfiguration(context));
+            }
+            sDelegatedInstance = sDefaultInstance;
+        }
+        return sDelegatedInstance;
+    }
+
+    /**
+     * Create an instance of {@link WorkManagerImpl}.
+     * @param context The application {@link Context}
+     * @param configuration The {@link WorkManagerConfiguration} configuration.
+     *
+     * @hide
+     */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WorkManagerImpl(Context context, WorkManagerConfiguration configuration) {
         mWorkDatabase = configuration.getWorkDatabase();
 
         mSchedulers = new ArrayList<>();

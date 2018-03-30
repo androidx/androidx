@@ -132,7 +132,7 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
      */
     @VisibleForTesting
     public WorkDatabase getWorkDatabase() {
-        return WorkManagerImpl.getInstance(getAppContext()).getWorkDatabase();
+        return WorkManagerImpl.getInstance().getWorkDatabase();
     }
 
     @Override

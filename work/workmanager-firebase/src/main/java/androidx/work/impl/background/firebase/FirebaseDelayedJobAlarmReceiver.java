@@ -40,7 +40,7 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, Intent intent) {
         final PendingResult pendingResult = goAsync();
         final String workSpecId = intent.getStringExtra(WORKSPEC_ID_KEY);
-        final WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance(context);
+        final WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
         final WorkDatabase database = workManagerImpl.getWorkDatabase();
         // TODO (rahulrav@) Use WorkManager's task executor here instead.
         new Thread(new Runnable() {

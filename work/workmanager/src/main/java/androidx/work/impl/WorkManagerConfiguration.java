@@ -42,7 +42,7 @@ import java.util.concurrent.Executors;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class WorkManagerConfiguration {
+public class WorkManagerConfiguration {
     private static final String TAG = "WorkManagerConfig";
     private static final String FIREBASE_JOB_SCHEDULER_CLASSNAME =
             "androidx.work.impl.background.firebase.FirebaseJobScheduler";
@@ -55,14 +55,30 @@ class WorkManagerConfiguration {
     private final Scheduler mBackgroundScheduler;
     private final ExecutorService mExecutorService;
 
-    WorkManagerConfiguration(@NonNull Context context) {
+    /**
+     * Creates an instance of {@link WorkManagerConfiguration}.
+     *
+     * @param context The application {@link Context}
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WorkManagerConfiguration(@NonNull Context context) {
         this(context,
                 context.getResources().getBoolean(R.bool.workmanager_test_configuration),
                 createExecutorService());
     }
 
+    /**
+     * Creates an instance of {@link WorkManagerConfiguration}.
+     *
+     * @param context         The application {@link Context}
+     * @param useTestDatabase {@code true} If you want to use a test database.
+     * @param executorService The {@link ExecutorService} used by the {@link Processor}.
+     * @hide
+     */
     @VisibleForTesting
-    WorkManagerConfiguration(@NonNull Context context,
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WorkManagerConfiguration(@NonNull Context context,
             boolean useTestDatabase,
             @NonNull ExecutorService executorService) {
         mWorkDatabase = WorkDatabase.create(context, useTestDatabase);

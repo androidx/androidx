@@ -58,6 +58,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.BaseWork;
@@ -69,6 +70,7 @@ import androidx.work.TestLifecycleOwner;
 import androidx.work.Work;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkStatus;
+import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkName;
@@ -96,6 +98,11 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest {
+
+    static {
+        Logger.LOG_LEVEL = Log.DEBUG;
+    }
+
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
 
@@ -135,7 +142,7 @@ public class WorkManagerImplTest {
     public void tearDown() {
         List<String> ids = mDatabase.workSpecDao().getAllWorkSpecIds();
         for (String id : ids) {
-            mWorkManagerImpl.cancelWorkById(id);
+            mWorkManagerImpl.blocking().cancelWorkByIdBlocking(id);
         }
         WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
@@ -149,7 +156,8 @@ public class WorkManagerImplTest {
         for (int i = 0; i < workCount; ++i) {
             workArray[i] = new Work.Builder(TestWorker.class).build();
         }
-        mWorkManagerImpl.beginWith(workArray[0]).then(workArray[1]).then(workArray[2]).enqueue();
+        mWorkManagerImpl.beginWith(workArray[0]).then(workArray[1]).then(workArray[2])
+                .blocking().enqueueBlocking();
 
         for (int i = 0; i < workCount; ++i) {
             String id = workArray[i].getId();
@@ -168,7 +176,9 @@ public class WorkManagerImplTest {
         Work work2 = new Work.Builder(TestWorker.class).build();
         Work work3 = new Work.Builder(TestWorker.class).build();
 
-        mWorkManagerImpl.enqueue(work1, work2, work3);
+        mWorkManagerImpl.beginWith(work1, work2, work3)
+                .blocking()
+                .enqueueBlocking();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1.getId()), is(notNullValue()));
@@ -185,7 +195,10 @@ public class WorkManagerImplTest {
         Work work3a = new Work.Builder(TestWorker.class).build();
         Work work3b = new Work.Builder(TestWorker.class).build();
 
-        mWorkManagerImpl.beginWith(work1a, work1b).then(work2).then(work3a, work3b).enqueue();
+        mWorkManagerImpl.beginWith(work1a, work1b).then(work2)
+                .then(work3a, work3b)
+                .blocking()
+                .enqueueBlocking();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1a.getId()), is(notNullValue()));
@@ -216,12 +229,12 @@ public class WorkManagerImplTest {
         Work work1 = new Work.Builder(TestWorker.class).withInitialState(SUCCEEDED).build();
 
         WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
-        workContinuation.enqueue();
+        workContinuation.blocking().enqueueBlocking();
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work1.getId()), is(SUCCEEDED));
 
         Work work2 = new Work.Builder(InfiniteTestWorker.class).build();
-        workContinuation.then(work2).enqueue();
+        workContinuation.then(work2).blocking().enqueueBlocking();
         assertThat(workSpecDao.getState(work2.getId()), isOneOf(ENQUEUED, RUNNING));
     }
 
@@ -231,12 +244,12 @@ public class WorkManagerImplTest {
         Work work1 = new Work.Builder(TestWorker.class).withInitialState(FAILED).build();
 
         WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
-        workContinuation.enqueue();
+        workContinuation.blocking().enqueueBlocking();
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work1.getId()), is(FAILED));
 
         Work work2 = new Work.Builder(TestWorker.class).build();
-        workContinuation.then(work2).enqueue();
+        workContinuation.then(work2).blocking().enqueueBlocking();
         assertThat(workSpecDao.getState(work2.getId()), is(FAILED));
     }
 
@@ -246,12 +259,12 @@ public class WorkManagerImplTest {
         Work work1 = new Work.Builder(TestWorker.class).withInitialState(CANCELLED).build();
 
         WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
-        workContinuation.enqueue();
+        workContinuation.blocking().enqueueBlocking();
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
 
         Work work2 = new Work.Builder(TestWorker.class).build();
-        workContinuation.then(work2).enqueue();
+        workContinuation.then(work2).blocking().enqueueBlocking();
         assertThat(workSpecDao.getState(work2.getId()), is(CANCELLED));
     }
 
@@ -275,7 +288,7 @@ public class WorkManagerImplTest {
                                 .build())
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.beginWith(work0).then(work1).enqueue();
+        mWorkManagerImpl.beginWith(work0).then(work1).blocking().enqueueBlocking();
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -315,7 +328,7 @@ public class WorkManagerImplTest {
                 .withInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.beginWith(work0).then(work1).enqueue();
+        mWorkManagerImpl.beginWith(work0).then(work1).blocking().enqueueBlocking();
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -331,7 +344,7 @@ public class WorkManagerImplTest {
                 .withBackoffCriteria(BackoffPolicy.LINEAR, 50000, TimeUnit.MILLISECONDS)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.beginWith(work0).then(work1).enqueue();
+        mWorkManagerImpl.beginWith(work0).then(work1).blocking().enqueueBlocking();
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -353,7 +366,7 @@ public class WorkManagerImplTest {
         Work work0 = new Work.Builder(TestWorker.class).addTag(firstTag).addTag(secondTag).build();
         Work work1 = new Work.Builder(TestWorker.class).addTag(firstTag).build();
         Work work2 = new Work.Builder(TestWorker.class).build();
-        mWorkManagerImpl.beginWith(work0).then(work1).then(work2).enqueue();
+        mWorkManagerImpl.beginWith(work0).then(work1).then(work2).blocking().enqueueBlocking();
 
         WorkTagDao workTagDao = mDatabase.workTagDao();
         assertThat(workTagDao.getWorkSpecIdsWithTag(firstTag),
@@ -370,6 +383,7 @@ public class WorkManagerImplTest {
                 PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
                 TimeUnit.MILLISECONDS)
                 .build();
+        // TODO(rahulrav@) We need a way to blocking enqueue periodic work.
         mWorkManagerImpl.enqueue(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
@@ -386,8 +400,7 @@ public class WorkManagerImplTest {
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
-        mWorkManagerImpl.enqueue(work);
-
+        mWorkManagerImpl.beginWith(work).blocking().enqueueBlocking();
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getId());
         assertThat(workSpec.periodStartTime, is(greaterThanOrEqualTo(beforeEnqueueTime)));
     }
@@ -418,7 +431,8 @@ public class WorkManagerImplTest {
         Work work = new Work.Builder(TestWorker.class).build();
         mWorkManagerImpl.beginWithName(testName, REPLACE)
                 .then(work)
-                .enqueue();
+                .blocking()
+                .enqueueBlocking();
 
         List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(work.getId(), isIn(workSpecIds));
@@ -440,7 +454,8 @@ public class WorkManagerImplTest {
         mWorkManagerImpl
                 .beginWithName(testName, REPLACE, replacementWork1)
                 .then(replacementWork2)
-                .enqueue();
+                .blocking()
+                .enqueueBlocking();
 
         workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(
@@ -469,7 +484,8 @@ public class WorkManagerImplTest {
         mWorkManagerImpl
                 .beginWithName(testName, KEEP, replacementWork1)
                 .then(replacementWork2)
-                .enqueue();
+                .blocking()
+                .enqueueBlocking();
 
         workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds, containsInAnyOrder(originalWork.getId()));
@@ -496,7 +512,8 @@ public class WorkManagerImplTest {
         mWorkManagerImpl
                 .beginWithName(testName, KEEP, replacementWork1)
                 .then(replacementWork2)
-                .enqueue();
+                .blocking()
+                .enqueueBlocking();
 
         workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds,
@@ -524,7 +541,8 @@ public class WorkManagerImplTest {
         mWorkManagerImpl
                 .beginWithName(testName, APPEND, appendWork1)
                 .then(appendWork2)
-                .enqueue();
+                .blocking()
+                .enqueueBlocking();
 
         workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds,
@@ -566,7 +584,8 @@ public class WorkManagerImplTest {
         mWorkManagerImpl
                 .beginWithName(testName, APPEND, appendWork1)
                 .then(appendWork2)
-                .enqueue();
+                .blocking()
+                .enqueueBlocking();
 
         workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds,
@@ -603,7 +622,8 @@ public class WorkManagerImplTest {
         mWorkManagerImpl
                 .beginWithName(testName, APPEND, appendWork1)
                 .then(appendWork2)
-                .enqueue();
+                .blocking()
+                .enqueueBlocking();
 
         List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(testName);
         assertThat(workSpecIds,
@@ -908,8 +928,7 @@ public class WorkManagerImplTest {
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
 
-        mWorkManagerImpl.cancelWorkById(work0.getId());
-
+        mWorkManagerImpl.blocking().cancelWorkByIdBlocking(work0.getId());
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work1.getId()), is(not(CANCELLED)));
     }
@@ -925,7 +944,7 @@ public class WorkManagerImplTest {
         insertWorkSpecAndTags(work1);
         insertDependency(work1, work0);
 
-        mWorkManagerImpl.cancelWorkById(work0.getId());
+        mWorkManagerImpl.blocking().cancelWorkByIdBlocking(work0.getId());
 
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
@@ -942,7 +961,7 @@ public class WorkManagerImplTest {
         insertWorkSpecAndTags(work1);
         insertDependency(work1, work0);
 
-        mWorkManagerImpl.cancelWorkById(work0.getId());
+        mWorkManagerImpl.blocking().cancelWorkByIdBlocking(work0.getId());
 
         assertThat(workSpecDao.getState(work0.getId()), is(SUCCEEDED));
         assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
@@ -965,7 +984,7 @@ public class WorkManagerImplTest {
         insertWorkSpecAndTags(work2);
         insertWorkSpecAndTags(work3);
 
-        mWorkManagerImpl.cancelAllWorkByTag(tagToClear);
+        mWorkManagerImpl.blocking().cancelAllWorkByTagBlocking(tagToClear);
 
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
         assertThat(workSpecDao.getState(work1.getId()), is(CANCELLED));
@@ -1005,7 +1024,7 @@ public class WorkManagerImplTest {
         insertDependency(work1, work0);
         insertDependency(work4, work0);
 
-        mWorkManagerImpl.cancelAllWorkByTag(tag);
+        mWorkManagerImpl.blocking().cancelAllWorkByTagBlocking(tag);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
@@ -1024,7 +1043,7 @@ public class WorkManagerImplTest {
         Work work1 = new Work.Builder(InfiniteTestWorker.class).build();
         insertNamedWorks(testName, work0, work1);
 
-        mWorkManagerImpl.cancelAllWorkByName(testName);
+        mWorkManagerImpl.blocking().cancelAllWorkByNameBlocking(testName);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
@@ -1040,7 +1059,7 @@ public class WorkManagerImplTest {
         Work work1 = new Work.Builder(InfiniteTestWorker.class).build();
         insertNamedWorks(testName, work0, work1);
 
-        mWorkManagerImpl.cancelAllWorkByName(testName);
+        mWorkManagerImpl.blocking().cancelAllWorkByNameBlocking(testName);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getId()), is(SUCCEEDED));
@@ -1056,7 +1075,7 @@ public class WorkManagerImplTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work.getId()), is(ENQUEUED));
 
-        mWorkManagerImpl.cancelWorkByIdBlocking(work.getId());
+        mWorkManagerImpl.blocking().cancelWorkByIdBlocking(work.getId());
         assertThat(mWorkManagerImpl.getStatusByIdBlocking(work.getId()).getState(), is(CANCELLED));
     }
 

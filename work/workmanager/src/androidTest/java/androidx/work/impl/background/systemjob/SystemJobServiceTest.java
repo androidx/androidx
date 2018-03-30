@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import android.app.job.JobParameters;
 import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
+import android.content.Context;
 import android.net.Uri;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
@@ -39,6 +40,7 @@ import androidx.work.Work;
 import androidx.work.WorkManagerTest;
 import androidx.work.Worker;
 import androidx.work.impl.WorkDatabase;
+import androidx.work.impl.WorkManagerConfiguration;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
@@ -50,6 +52,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.Executors;
+
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
 public class SystemJobServiceTest extends WorkManagerTest {
@@ -57,6 +61,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     @Rule
     public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
 
+    private WorkManagerImpl mWorkManagerImpl;
     private WorkDatabase mDatabase;
     private SystemJobService mSystemJobService;
 
@@ -79,15 +84,22 @@ public class SystemJobServiceTest extends WorkManagerTest {
             }
         });
 
-        mDatabase = WorkManagerImpl.getInstance(InstrumentationRegistry.getTargetContext())
-                .getWorkDatabase();
-        mSystemJobService = new SystemJobService(); // Bleh.
+        Context context = InstrumentationRegistry.getTargetContext();
+        WorkManagerConfiguration configuration = new WorkManagerConfiguration(
+                context,
+                true,
+                Executors.newSingleThreadExecutor());
+        mWorkManagerImpl = new WorkManagerImpl(context, configuration);
+        WorkManagerImpl.setDelegate(mWorkManagerImpl);
+        mDatabase = mWorkManagerImpl.getWorkDatabase();
+        mSystemJobService = new SystemJobService();
         mSystemJobService.onCreate();
     }
 
     @After
     public void tearDown() {
         mSystemJobService.onDestroy();
+        WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
@@ -101,14 +113,14 @@ public class SystemJobServiceTest extends WorkManagerTest {
         mSystemJobService.onStartJob(mockParams);
 
         // TODO(sumir): Remove later.  Put here because WorkerWrapper sets state to RUNNING.
-        Thread.sleep(1000L);
+        Thread.sleep(5000L);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work.getId()), is(State.RUNNING));
 
         mSystemJobService.onStopJob(mockParams);
         // TODO(rahulrav): Figure out why this test is flaky.
-        Thread.sleep(1000L);
+        Thread.sleep(5000L);
         assertThat(workSpecDao.getState(work.getId()), is(State.ENQUEUED));
     }
 
@@ -131,7 +143,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
 
         JobParameters mockParams = createMockJobParameters(work.getId());
         assertThat(mSystemJobService.onStartJob(mockParams), is(true));
-        WorkManagerImpl.getInstance(InstrumentationRegistry.getTargetContext())
+        WorkManagerImpl.getInstance()
                 .cancelWorkById(work.getId());
         assertThat(mSystemJobService.onStopJob(mockParams), is(false));
     }

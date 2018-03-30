@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        WorkManager.getInstance(MainActivity.this).enqueue(
+                        WorkManager.getInstance().enqueue(
                                 new Work.Builder(InfiniteWorker.class)
                                         .withConstraints(new Constraints.Builder()
                                                 .setRequiresCharging(true)
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        WorkManager.getInstance(MainActivity.this).enqueue(
+                        WorkManager.getInstance().enqueue(
                                 new Work.Builder(InfiniteWorker.class)
                                         .withConstraints(new Constraints.Builder()
                                                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                WorkManager.getInstance(MainActivity.this).enqueue(ToastWorker
+                WorkManager.getInstance().enqueue(ToastWorker
                         .create("Image URI Updated!")
                         .withConstraints(new Constraints.Builder()
                                 .addContentUriTrigger(
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                 String delayString = delayInMs.getText().toString();
                 long delay = Long.parseLong(delayString);
                 Log.d(TAG, "Enqueuing job with delay of " + delay + " ms");
-                WorkManager.getInstance(MainActivity.this).enqueue(ToastWorker
+                WorkManager.getInstance().enqueue(ToastWorker
                         .create("Delayed Job Ran!")
                         .withInitialDelay(delay, TimeUnit.MILLISECONDS)
                         .build());
