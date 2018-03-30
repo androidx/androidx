@@ -1180,7 +1180,16 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             adapter.addAndNotify(5 + (i % 3) * 3, 1);
             Thread.sleep(25);
         }
-        smoothScrollToPosition(mLayoutManager.findLastVisibleItemPosition() + 20);
+
+        final AtomicInteger lastVisiblePosition = new AtomicInteger();
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                lastVisiblePosition.set(mLayoutManager.findLastVisibleItemPosition());
+            }
+        });
+
+        smoothScrollToPosition(lastVisiblePosition.get() + 20);
         waitForAnimations(2);
         getInstrumentation().waitForIdleSync();
         assertEquals("Children count should add up", childCount.get(),
