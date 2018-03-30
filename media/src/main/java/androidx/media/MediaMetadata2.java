@@ -547,7 +547,7 @@ public final class MediaMetadata2 {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @StringDef({})
+    @StringDef({METADATA_KEY_RADIO_FREQUENCY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FloatKey {}
 
@@ -587,8 +587,10 @@ public final class MediaMetadata2 {
         METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_ICON, METADATA_TYPE_BITMAP);
         METADATA_KEYS_TYPE.put(METADATA_KEY_DISPLAY_ICON_URI, METADATA_TYPE_TEXT);
         METADATA_KEYS_TYPE.put(METADATA_KEY_MEDIA_ID, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_BT_FOLDER_TYPE, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_MEDIA_URI, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_RADIO_FREQUENCY, METADATA_TYPE_FLOAT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_RADIO_PROGRAM_NAME, METADATA_TYPE_TEXT);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_BT_FOLDER_TYPE, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_ADVERTISEMENT, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_DOWNLOAD_STATUS, METADATA_TYPE_LONG);
     }
@@ -873,6 +875,7 @@ public final class MediaMetadata2 {
          * <li>{@link #METADATA_KEY_AUTHOR}</li>
          * <li>{@link #METADATA_KEY_WRITER}</li>
          * <li>{@link #METADATA_KEY_COMPOSER}</li>
+         * <li>{@link #METADATA_KEY_COMPILATION}</li>
          * <li>{@link #METADATA_KEY_DATE}</li>
          * <li>{@link #METADATA_KEY_GENRE}</li>
          * <li>{@link #METADATA_KEY_ALBUM_ARTIST}</li>
@@ -882,6 +885,9 @@ public final class MediaMetadata2 {
          * <li>{@link #METADATA_KEY_DISPLAY_SUBTITLE}</li>
          * <li>{@link #METADATA_KEY_DISPLAY_DESCRIPTION}</li>
          * <li>{@link #METADATA_KEY_DISPLAY_ICON_URI}</li>
+         * <li>{@link #METADATA_KEY_MEDIA_ID}</li>
+         * <li>{@link #METADATA_KEY_MEDIA_URI}</li>
+         * <li>{@link #METADATA_KEY_RADIO_PROGRAM_NAME}</li>
          * </ul>
          *
          * @param key The key for referencing this value
@@ -914,6 +920,7 @@ public final class MediaMetadata2 {
          * <li>{@link #METADATA_KEY_AUTHOR}</li>
          * <li>{@link #METADATA_KEY_WRITER}</li>
          * <li>{@link #METADATA_KEY_COMPOSER}</li>
+         * <li>{@link #METADATA_KEY_COMPILATION}</li>
          * <li>{@link #METADATA_KEY_DATE}</li>
          * <li>{@link #METADATA_KEY_GENRE}</li>
          * <li>{@link #METADATA_KEY_ALBUM_ARTIST}</li>
@@ -923,6 +930,9 @@ public final class MediaMetadata2 {
          * <li>{@link #METADATA_KEY_DISPLAY_SUBTITLE}</li>
          * <li>{@link #METADATA_KEY_DISPLAY_DESCRIPTION}</li>
          * <li>{@link #METADATA_KEY_DISPLAY_ICON_URI}</li>
+         * <li>{@link #METADATA_KEY_MEDIA_ID}</li>
+         * <li>{@link #METADATA_KEY_MEDIA_URI}</li>
+         * <li>{@link #METADATA_KEY_RADIO_PROGRAM_NAME}</li>
          * </ul>
          *
          * @param key The key for referencing this value
