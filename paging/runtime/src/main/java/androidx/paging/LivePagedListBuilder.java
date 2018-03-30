@@ -41,7 +41,7 @@ public final class LivePagedListBuilder<Key, Value> {
     private PagedList.Config mConfig;
     private DataSource.Factory<Key, Value> mDataSourceFactory;
     private PagedList.BoundaryCallback mBoundaryCallback;
-    private Executor mBackgroundThreadExecutor;
+    private Executor mFetchExecutor = ArchTaskExecutor.getIOThreadExecutor();
 
     /**
      * Creates a LivePagedListBuilder with required parameters.
@@ -51,6 +51,15 @@ public final class LivePagedListBuilder<Key, Value> {
      */
     public LivePagedListBuilder(@NonNull DataSource.Factory<Key, Value> dataSourceFactory,
             @NonNull PagedList.Config config) {
+        //noinspection ConstantConditions
+        if (config == null) {
+            throw new IllegalArgumentException("PagedList.Config must be provided");
+        }
+        //noinspection ConstantConditions
+        if (dataSourceFactory == null) {
+            throw new IllegalArgumentException("DataSource.Factory must be provided");
+        }
+
         mDataSourceFactory = dataSourceFactory;
         mConfig = config;
     }
@@ -116,18 +125,18 @@ public final class LivePagedListBuilder<Key, Value> {
     }
 
     /**
-     * Sets executor used for background loading of PagedLists, and the pages within.
+     * Sets executor used for background fetching of PagedLists, and the pages within.
      * <p>
      * If not set, defaults to the Arch components I/O thread.
      *
-     * @param backgroundThreadExecutor Executor for background DataSource loading.
+     * @param fetchExecutor Executor for fetching data from DataSources.
      * @return this
      */
     @SuppressWarnings("unused")
     @NonNull
-    public LivePagedListBuilder<Key, Value> setBackgroundThreadExecutor(
-            @NonNull Executor backgroundThreadExecutor) {
-        mBackgroundThreadExecutor = backgroundThreadExecutor;
+    public LivePagedListBuilder<Key, Value> setFetchExecutor(
+            @NonNull Executor fetchExecutor) {
+        mFetchExecutor = fetchExecutor;
         return this;
     }
 
@@ -141,18 +150,8 @@ public final class LivePagedListBuilder<Key, Value> {
      */
     @NonNull
     public LiveData<PagedList<Value>> build() {
-        if (mConfig == null) {
-            throw new IllegalArgumentException("PagedList.Config must be provided");
-        }
-        if (mDataSourceFactory == null) {
-            throw new IllegalArgumentException("DataSource.Factory must be provided");
-        }
-        if (mBackgroundThreadExecutor == null) {
-            mBackgroundThreadExecutor = ArchTaskExecutor.getIOThreadExecutor();
-        }
-
         return create(mInitialLoadKey, mConfig, mBoundaryCallback, mDataSourceFactory,
-                ArchTaskExecutor.getMainThreadExecutor(), mBackgroundThreadExecutor);
+                ArchTaskExecutor.getMainThreadExecutor(), mFetchExecutor);
     }
 
     @AnyThread
@@ -162,9 +161,9 @@ public final class LivePagedListBuilder<Key, Value> {
             @NonNull final PagedList.Config config,
             @Nullable final PagedList.BoundaryCallback boundaryCallback,
             @NonNull final DataSource.Factory<Key, Value> dataSourceFactory,
-            @NonNull final Executor mainThreadExecutor,
-            @NonNull final Executor backgroundThreadExecutor) {
-        return new ComputableLiveData<PagedList<Value>>(backgroundThreadExecutor) {
+            @NonNull final Executor notifyExecutor,
+            @NonNull final Executor fetchExecutor) {
+        return new ComputableLiveData<PagedList<Value>>(fetchExecutor) {
             @Nullable
             private PagedList<Value> mList;
             @Nullable
@@ -195,8 +194,8 @@ public final class LivePagedListBuilder<Key, Value> {
                     mDataSource.addInvalidatedCallback(mCallback);
 
                     mList = new PagedList.Builder<>(mDataSource, config)
-                            .setMainThreadExecutor(mainThreadExecutor)
-                            .setBackgroundThreadExecutor(backgroundThreadExecutor)
+                            .setNotifyExecutor(notifyExecutor)
+                            .setFetchExecutor(fetchExecutor)
                             .setBoundaryCallback(boundaryCallback)
                             .setInitialKey(initializeKey)
                             .build();
