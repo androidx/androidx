@@ -67,25 +67,32 @@ public class ListItemAdapter extends
 
         /**
          * Sets the background color of each item.
+         * Background can be configured by {@link R.styleable#ListItem_listItemBackgroundColor}.
          */
-        public static final int NONE = 0;
+        public static final int SOLID = 0;
+        /**
+         * Sets the background color of each item to none (transparent).
+         */
+        public static final int NONE = 1;
         /**
          * Sets each item in {@link CardView} with a rounded corner background and shadow.
          */
-        public static final int CARD = 1;
+        public static final int CARD = 2;
         /**
          * Sets background of each item so the combined list looks like one elongated card, namely
          * top and bottom item will have rounded corner at only top/bottom side respectively. If
          * only one item exists, it will have both top and bottom rounded corner.
          */
-        public static final int PANEL = 2;
+        public static final int PANEL = 3;
     }
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
+        BackgroundStyle.SOLID,
         BackgroundStyle.NONE,
         BackgroundStyle.CARD,
-        BackgroundStyle.PANEL })
+        BackgroundStyle.PANEL
+    })
     private @interface ListBackgroundStyle {}
 
     static final int LIST_ITEM_TYPE_TEXT = 1;
@@ -109,8 +116,11 @@ public class ListItemAdapter extends
 
     private int mMaxItems = PagedListView.ItemCap.UNLIMITED;
 
+    /**
+     * Defaults {@link BackgroundStyle} to {@link BackgroundStyle#SOLID}.
+     */
     public ListItemAdapter(Context context, ListItemProvider itemProvider) {
-        this(context, itemProvider, BackgroundStyle.NONE);
+        this(context, itemProvider, BackgroundStyle.SOLID);
     }
 
     public ListItemAdapter(Context context, ListItemProvider itemProvider,
@@ -215,31 +225,27 @@ public class ListItemAdapter extends
      */
     private ViewGroup createListItemContainer() {
         ViewGroup container;
-        switch (mBackgroundStyle) {
-            case BackgroundStyle.NONE:
-            case BackgroundStyle.PANEL:
-                FrameLayout frameLayout = new FrameLayout(mContext);
-                frameLayout.setLayoutParams(new RecyclerView.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        if (mBackgroundStyle == BackgroundStyle.CARD) {
+            CardView card = new CardView(mContext);
+            RecyclerView.LayoutParams cardLayoutParams = new RecyclerView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            cardLayoutParams.bottomMargin = mContext.getResources().getDimensionPixelSize(
+                    R.dimen.car_padding_3);
+            card.setLayoutParams(cardLayoutParams);
+            card.setRadius(mContext.getResources().getDimensionPixelSize(R.dimen.car_radius_1));
+            card.setCardBackgroundColor(mListItemBackgroundColor);
+
+            container = card;
+        } else {
+            FrameLayout frameLayout = new FrameLayout(mContext);
+            frameLayout.setLayoutParams(new RecyclerView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            // Skip setting background color for NONE.
+            if (mBackgroundStyle != BackgroundStyle.NONE) {
                 frameLayout.setBackgroundColor(mListItemBackgroundColor);
+            }
 
-                container = frameLayout;
-                break;
-            case BackgroundStyle.CARD:
-                CardView card = new CardView(mContext);
-                RecyclerView.LayoutParams cardLayoutParams = new RecyclerView.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                cardLayoutParams.bottomMargin = mContext.getResources().getDimensionPixelSize(
-                        R.dimen.car_padding_3);
-                card.setLayoutParams(cardLayoutParams);
-                card.setRadius(mContext.getResources().getDimensionPixelSize(R.dimen.car_radius_1));
-                card.setCardBackgroundColor(mListItemBackgroundColor);
-
-                container = card;
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown background style. "
-                    + "Expected constants in class ListItemAdapter.BackgroundStyle.");
+            container = frameLayout;
         }
         return container;
     }
