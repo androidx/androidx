@@ -18,11 +18,13 @@ package androidx.slice;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.content.PermissionChecker;
 import androidx.core.os.BuildCompat;
 
 import java.util.Set;
@@ -162,6 +164,50 @@ public abstract class SliceManager {
      * @see Intent
      */
     public abstract @Nullable Uri mapIntentToUri(@NonNull Intent intent);
+
+    /**
+     * Determine whether a particular process and user ID has been granted
+     * permission to access a specific slice URI.
+     *
+     * @param uri The uri that is being checked.
+     * @param pid The process ID being checked against.  Must be &gt; 0.
+     * @param uid The user ID being checked against.  A uid of 0 is the root
+     * user, which will pass every permission check.
+     *
+     * @return {@link PackageManager#PERMISSION_GRANTED} if the given
+     * pid/uid is allowed to access that uri, or
+     * {@link PackageManager#PERMISSION_DENIED} if it is not.
+     *
+     * @see #grantSlicePermission(String, Uri)
+     */
+    @PermissionChecker.PermissionResult
+    public abstract int checkSlicePermission(@NonNull Uri uri, int pid, int uid);
+
+    /**
+     * Grant permission to access a specific slice Uri to another package.
+     *
+     * @param toPackage The package you would like to allow to access the Uri.
+     * @param uri The Uri you would like to grant access to.
+     *
+     * @see #revokeSlicePermission
+     */
+    public abstract void grantSlicePermission(@NonNull String toPackage, @NonNull Uri uri);
+
+    /**
+     * Remove permissions to access a particular content provider Uri
+     * that were previously added with {@link #grantSlicePermission} for a specific target
+     * package.  The given Uri will match all previously granted Uris that are the same or a
+     * sub-path of the given Uri.  That is, revoking "content://foo/target" will
+     * revoke both "content://foo/target" and "content://foo/target/sub", but not
+     * "content://foo".  It will not remove any prefix grants that exist at a
+     * higher level.
+     *
+     * @param toPackage The package you would like to allow to access the Uri.
+     * @param uri The Uri you would like to revoke access to.
+     *
+     * @see #grantSlicePermission
+     */
+    public abstract void revokeSlicePermission(@NonNull String toPackage, @NonNull Uri uri);
 
     /**
      * Class that listens to changes in {@link Slice}s.
