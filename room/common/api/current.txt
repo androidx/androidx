@@ -77,7 +77,7 @@ package androidx.room {
   }
 
   public class RoomWarnings {
-    ctor public RoomWarnings();
+    ctor public deprecated RoomWarnings();
     field public static final java.lang.String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
     field public static final java.lang.String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
     field public static final java.lang.String DEFAULT_CONSTRUCTOR = "ROOM_DEFAULT_CONSTRUCTOR";

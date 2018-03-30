@@ -178,4 +178,7 @@ public class Lifecycling {
     public static String getAdapterName(String className) {
         return className.replace(".", "_") + "_LifecycleAdapter";
     }
+
+    private Lifecycling() {
+    }
 }
