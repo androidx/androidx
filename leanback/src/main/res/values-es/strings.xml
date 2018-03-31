@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"Inhabilitar alta calidad"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"Habilitar subtítulos"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"Inhabilitar subtítulos"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"Activar modo pantalla en pantalla"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"Activar modo imagen en imagen"</string>
     <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
     <string name="lb_playback_controls_shown" msgid="7794717158616536936">"Controles multimedia mostrados"</string>
     <string name="lb_playback_controls_hidden" msgid="619396299825306757">"Controles multimedia ocultos (pulsa la cruceta para mostrarlos)"</string>
