@@ -17,10 +17,11 @@ package androidx.slice {
     method public java.util.List<java.lang.String> getHints();
     method public androidx.core.graphics.drawable.IconCompat getIcon();
     method public int getInt();
+    method public long getLong();
     method public androidx.slice.Slice getSlice();
     method public java.lang.String getSubType();
     method public java.lang.CharSequence getText();
-    method public long getTimestamp();
+    method public deprecated long getTimestamp();
     method public boolean hasHint(java.lang.String);
   }
 

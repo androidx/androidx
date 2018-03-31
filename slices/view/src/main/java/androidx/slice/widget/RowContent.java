@@ -155,23 +155,18 @@ public class RowContent {
             if (hasText(mSubtitleItem)) {
                 mLineCount++;
             }
-            // Special rules for end items: only one timestamp, can't be mixture of icons / actions
+            // Special rules for end items: only one timestamp
             boolean hasTimestamp = mStartItem != null
                     && FORMAT_TIMESTAMP.equals(mStartItem.getFormat());
-            String desiredFormat = null;
             for (int i = 0; i < endItems.size(); i++) {
                 final SliceItem item = endItems.get(i);
-                boolean isAction = FORMAT_SLICE.equals(item.getFormat())
-                        && item.hasHint(HINT_SHORTCUT);
+                boolean isAction = SliceQuery.find(item, FORMAT_ACTION) != null;
                 if (FORMAT_TIMESTAMP.equals(item.getFormat())) {
                     if (!hasTimestamp) {
                         hasTimestamp = true;
                         mEndItems.add(item);
                     }
-                } else if (desiredFormat == null) {
-                    desiredFormat = item.getFormat();
-                    processContent(item, isAction);
-                } else if (desiredFormat.equals(item.getFormat())) {
+                } else {
                     processContent(item, isAction);
                 }
             }

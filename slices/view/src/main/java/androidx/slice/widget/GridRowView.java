@@ -360,7 +360,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         final EventInfo info = tagItem.second;
         if (actionItem != null && FORMAT_ACTION.equals(actionItem.getFormat())) {
             try {
-                actionItem.getAction().send();
+                actionItem.fireAction(null, null);
                 if (mObserver != null) {
                     mObserver.onSliceAction(info, actionItem);
                 }

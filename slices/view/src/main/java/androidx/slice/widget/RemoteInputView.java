@@ -50,6 +50,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
+import androidx.slice.SliceItem;
 import androidx.slice.view.R;
 
 /**
@@ -72,7 +73,7 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
     private RemoteEditText mEditText;
     private ImageButton mSendButton;
     private ProgressBar mProgressBar;
-    private PendingIntent mPendingIntent;
+    private SliceItem mAction;
     private RemoteInput[] mRemoteInputs;
     private RemoteInput mRemoteInput;
 
@@ -139,11 +140,11 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
         // but that's an edge case, and also because we can't always know which package will receive
         // an intent, so we just reset for the creator.
         //getContext().getSystemService(ShortcutManager.class).onApplicationActive(
-        //        mPendingIntent.getCreatorPackage(),
+        //        mAction.getCreatorPackage(),
         //        getContext().getUserId());
 
         try {
-            mPendingIntent.send(getContext(), 0, fillInIntent);
+            mAction.fireAction(getContext(), fillInIntent);
             reset();
         } catch (PendingIntent.CanceledException e) {
             Log.i(TAG, "Unable to send remote input result", e);
@@ -185,8 +186,8 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
     /**
      * Set the pending intent for remote input.
      */
-    public void setPendingIntent(PendingIntent pendingIntent) {
-        mPendingIntent = pendingIntent;
+    public void setAction(SliceItem action) {
+        mAction = action;
     }
 
     /**
