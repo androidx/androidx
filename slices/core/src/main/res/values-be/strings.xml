@@ -17,11 +17,11 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_slices_permission_request" msgid="3604847235923472451">"Праграма <xliff:g id="APP_0">%1$s</xliff:g> запытвае дазвол на паказ зрэзаў праграмы <xliff:g id="APP_2">%2$s</xliff:g>"</string>
-    <string name="abc_slice_permission_title" msgid="4175332421259324948">"Дазволіць праграме <xliff:g id="APP_0">%1$s</xliff:g> паказваць зрэзы праграмы <xliff:g id="APP_2">%2$s</xliff:g>?"</string>
+    <string name="abc_slices_permission_request" msgid="3604847235923472451">"Праграма <xliff:g id="APP_0">%1$s</xliff:g> запытвае дазвол на паказ фрагментаў праграмы <xliff:g id="APP_2">%2$s</xliff:g>"</string>
+    <string name="abc_slice_permission_title" msgid="4175332421259324948">"Дазволіць праграме <xliff:g id="APP_0">%1$s</xliff:g> паказваць фрагменты праграмы <xliff:g id="APP_2">%2$s</xliff:g>?"</string>
     <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- Можа счытваць інфармацыю з праграмы <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- Можа выконваць дзеянні ў праграме <xliff:g id="APP">%1$s</xliff:g>"</string>
-    <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"Дазволіць праграме <xliff:g id="APP">%1$s</xliff:g> паказваць зрэзы іншых праграм"</string>
+    <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"Дазволіць праграме <xliff:g id="APP">%1$s</xliff:g> паказваць фрагменты іншых праграм"</string>
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"Дазволіць"</string>
     <string name="abc_slice_permission_deny" msgid="3819478292430407705">"Адмовіць"</string>
 </resources>
