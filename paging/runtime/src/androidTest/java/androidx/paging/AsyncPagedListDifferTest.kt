@@ -58,8 +58,8 @@ class AsyncPagedListDifferTest {
             config: PagedList.Config, data: List<V>, initialKey: Int): PagedList<V> {
         return PagedList.Builder<Int, V>(ListDataSource(data), config)
                 .setInitialKey(initialKey)
-                .setMainThreadExecutor(mMainThread)
-                .setBackgroundThreadExecutor(mPageLoadingThread)
+                .setNotifyExecutor(mMainThread)
+                .setFetchExecutor(mPageLoadingThread)
                 .build()
     }
 

@@ -158,10 +158,10 @@ public abstract class PagedList<T> extends AbstractList<T> {
      *
      *
      * @param dataSource DataSource providing data to the PagedList
-     * @param mainThreadExecutor Thread that will use and consume data from the PagedList.
-     *                           Generally, this is the UI/main thread.
-     * @param backgroundThreadExecutor Data loading will be done via this executor - should be a
-     *                                 background thread.
+     * @param notifyExecutor Thread that will use and consume data from the PagedList.
+     *                       Generally, this is the UI/main thread.
+     * @param fetchExecutor Data loading will be done via this executor -
+     *                      should be a background thread.
      * @param boundaryCallback Optional boundary callback to attach to the list.
      * @param config PagedList Config, which defines how the PagedList will load data.
      * @param <K> Key type that indicates to the DataSource what data to load.
@@ -171,8 +171,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
      */
     @NonNull
     private static <K, T> PagedList<T> create(@NonNull DataSource<K, T> dataSource,
-            @NonNull Executor mainThreadExecutor,
-            @NonNull Executor backgroundThreadExecutor,
+            @NonNull Executor notifyExecutor,
+            @NonNull Executor fetchExecutor,
             @Nullable BoundaryCallback<T> boundaryCallback,
             @NonNull Config config,
             @Nullable K key) {
@@ -188,16 +188,16 @@ public abstract class PagedList<T> extends AbstractList<T> {
             }
             ContiguousDataSource<K, T> contigDataSource = (ContiguousDataSource<K, T>) dataSource;
             return new ContiguousPagedList<>(contigDataSource,
-                    mainThreadExecutor,
-                    backgroundThreadExecutor,
+                    notifyExecutor,
+                    fetchExecutor,
                     boundaryCallback,
                     config,
                     key,
                     lastLoad);
         } else {
             return new TiledPagedList<>((PositionalDataSource<T>) dataSource,
-                    mainThreadExecutor,
-                    backgroundThreadExecutor,
+                    notifyExecutor,
+                    fetchExecutor,
                     boundaryCallback,
                     config,
                     (key != null) ? (Integer) key : 0);
@@ -224,8 +224,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
     public static final class Builder<Key, Value> {
         private final DataSource<Key, Value> mDataSource;
         private final Config mConfig;
-        private Executor mMainThreadExecutor;
-        private Executor mBackgroundThreadExecutor;
+        private Executor mNotifyExecutor;
+        private Executor mFetchExecutor;
         private BoundaryCallback mBoundaryCallback;
         private Key mInitialKey;
 
@@ -264,30 +264,31 @@ public abstract class PagedList<T> extends AbstractList<T> {
             this(dataSource, new PagedList.Config.Builder().setPageSize(pageSize).build());
         }
         /**
-         * The executor defining where main/UI thread for page loading updates.
+         * The executor defining where page loading updates are dispatched.
          *
-         * @param mainThreadExecutor Executor for main/UI thread to receive {@link Callback} calls.
+         * @param notifyExecutor Executor that receives PagedList updates, and where
+         * {@link Callback} calls are dispatched. Generally, this is the ui/main thread.
          * @return this
          */
         @NonNull
-        public Builder<Key, Value> setMainThreadExecutor(@NonNull Executor mainThreadExecutor) {
-            mMainThreadExecutor = mainThreadExecutor;
+        public Builder<Key, Value> setNotifyExecutor(@NonNull Executor notifyExecutor) {
+            mNotifyExecutor = notifyExecutor;
             return this;
         }
 
         /**
-         * The executor on which background loading will be run.
-         * <p>
-         * Does not affect initial load, which will be done on whichever thread the PagedList is
-         * created on.
+         * The executor used to fetch additional pages from the DataSource.
          *
-         * @param backgroundThreadExecutor Executor for background DataSource loading.
+         * Does not affect initial load, which will be done immediately on whichever thread the
+         * PagedList is created on.
+         *
+         * @param fetchExecutor Executor used to fetch from DataSources, generally a background
+         *                      thread pool for e.g. I/O or network loading.
          * @return this
          */
         @NonNull
-        public Builder<Key, Value> setBackgroundThreadExecutor(
-                @NonNull Executor backgroundThreadExecutor) {
-            mBackgroundThreadExecutor = backgroundThreadExecutor;
+        public Builder<Key, Value> setFetchExecutor(@NonNull Executor fetchExecutor) {
+            mFetchExecutor = fetchExecutor;
             return this;
         }
 
@@ -350,18 +351,18 @@ public abstract class PagedList<T> extends AbstractList<T> {
         @NonNull
         public PagedList<Value> build() {
             // TODO: define defaults, once they can be used in module without android dependency
-            if (mMainThreadExecutor == null) {
+            if (mNotifyExecutor == null) {
                 throw new IllegalArgumentException("MainThreadExecutor required");
             }
-            if (mBackgroundThreadExecutor == null) {
+            if (mFetchExecutor == null) {
                 throw new IllegalArgumentException("BackgroundThreadExecutor required");
             }
 
             //noinspection unchecked
             return PagedList.create(
                     mDataSource,
-                    mMainThreadExecutor,
-                    mBackgroundThreadExecutor,
+                    mNotifyExecutor,
+                    mFetchExecutor,
                     mBoundaryCallback,
                     mConfig,
                     mInitialKey);
@@ -731,7 +732,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * Callback signaling when content is loaded into the list.
      * <p>
      * Can be used to listen to items being paged in and out. These calls will be dispatched on
-     * the executor defined by {@link Builder#setMainThreadExecutor(Executor)}, which defaults to
+     * the executor defined by {@link Builder#setNotifyExecutor(Executor)}, which is generally
      * the main/UI thread.
      */
     public abstract static class Callback {
