@@ -114,7 +114,7 @@ public class ShortcutView extends SliceChildView {
         if (!callOnClick()) {
             try {
                 if (mActionItem != null) {
-                    mActionItem.getAction().send();
+                    mActionItem.fireAction(null, null);
                 } else {
                     Intent intent = new Intent(Intent.ACTION_VIEW).setData(mUri);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

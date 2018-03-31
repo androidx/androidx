@@ -19,6 +19,7 @@ package androidx.slice;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
@@ -26,6 +27,9 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import android.app.PendingIntent;
 import android.app.RemoteInput;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -36,6 +40,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 
 import java.util.Arrays;
@@ -71,7 +76,7 @@ public class SliceItem {
      */
     @RestrictTo(Scope.LIBRARY)
     @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,
-            FORMAT_TIMESTAMP, FORMAT_REMOTE_INPUT})
+            FORMAT_TIMESTAMP, FORMAT_REMOTE_INPUT, FORMAT_LONG})
     public @interface SliceType {
     }
 
@@ -111,7 +116,16 @@ public class SliceItem {
     @RestrictTo(Scope.LIBRARY)
     public SliceItem(PendingIntent intent, Slice slice, String format, String subType,
             @Slice.SliceHint String[] hints) {
-        this(new Pair<>(intent, slice), format, subType, hints);
+        this(new Pair<Object, Slice>(intent, slice), format, subType, hints);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public SliceItem(Consumer<Uri> action, Slice slice, String format, String subType,
+            @Slice.SliceHint String[] hints) {
+        this(new Pair<Object, Slice>(action, slice), format, subType, hints);
     }
 
     /**
@@ -188,7 +202,20 @@ public class SliceItem {
      * SliceItem
      */
     public PendingIntent getAction() {
-        return ((Pair<PendingIntent, Slice>) mObj).first;
+        return (PendingIntent) ((Pair<Object, Slice>) mObj).first;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void fireAction(Context context, Intent i) throws PendingIntent.CanceledException {
+        Object action = ((Pair<Object, Slice>) mObj).first;
+        if (action instanceof PendingIntent) {
+            ((PendingIntent) action).send(context, 0, i, null, null);
+        } else {
+            ((Consumer<Uri>) action).accept(getSlice().getUri());
+        }
     }
 
     /**
@@ -215,15 +242,23 @@ public class SliceItem {
      */
     public Slice getSlice() {
         if (FORMAT_ACTION.equals(getFormat())) {
-            return ((Pair<PendingIntent, Slice>) mObj).second;
+            return ((Pair<Object, Slice>) mObj).second;
         }
         return (Slice) mObj;
     }
 
     /**
-     * @return The timestamp held by this {@link android.app.slice.SliceItem#FORMAT_TIMESTAMP}
+     * @return The long held by this {@link android.app.slice.SliceItem#FORMAT_LONG}
      * SliceItem
      */
+    public long getLong() {
+        return (Long) mObj;
+    }
+
+    /**
+     * @deprecated TO BE REMOVED
+     */
+    @Deprecated
     public long getTimestamp() {
         return (Long) mObj;
     }
@@ -301,8 +336,8 @@ public class SliceItem {
                 dest.putParcelable(OBJ, ((Slice) obj).toBundle());
                 break;
             case FORMAT_ACTION:
-                dest.putParcelable(OBJ, ((Pair<PendingIntent, Slice>) obj).first);
-                dest.putBundle(OBJ_2, ((Pair<PendingIntent, Slice>) obj).second.toBundle());
+                dest.putParcelable(OBJ, (PendingIntent) ((Pair<Object, Slice>) obj).first);
+                dest.putBundle(OBJ_2, ((Pair<Object, Slice>) obj).second.toBundle());
                 break;
             case FORMAT_TEXT:
                 dest.putCharSequence(OBJ, (CharSequence) obj);
@@ -328,7 +363,7 @@ public class SliceItem {
                 return in.getCharSequence(OBJ);
             case FORMAT_ACTION:
                 return new Pair<>(
-                        (PendingIntent) in.getParcelable(OBJ),
+                        in.getParcelable(OBJ),
                         new Slice(in.getBundle(OBJ_2)));
             case FORMAT_INT:
                 return in.getInt(OBJ);
