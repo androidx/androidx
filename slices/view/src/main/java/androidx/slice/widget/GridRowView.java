@@ -17,7 +17,6 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.HINT_LARGE;
-import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
@@ -133,16 +132,9 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         }
     }
 
-    /**
-     * This is called when GridView is presented in small format.
-     */
     @Override
     public void setSlice(Slice slice) {
-        resetView();
-        mRowIndex = 0;
-        SliceItem item = SliceQuery.find(slice, FORMAT_SLICE, HINT_LIST_ITEM, null);
-        mGridContent = new GridContent(getContext(), item);
-        populateViews(mGridContent);
+        // Nothing to do
     }
 
     /**
@@ -164,7 +156,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
                     EventInfo.ROW_TYPE_GRID, mRowIndex);
             Pair<SliceItem, EventInfo> tagItem = new Pair<>(gc.getContentIntent(), info);
             mViewContainer.setTag(tagItem);
-            makeClickable(mViewContainer);
+            makeClickable(mViewContainer, true);
         }
         CharSequence contentDescr = gc.getContentDescription();
         if (contentDescr != null) {
@@ -222,7 +214,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         info.setPosition(EventInfo.POSITION_CELL, index, total);
         Pair<SliceItem, EventInfo> tagItem = new Pair<>(seeMoreItem, info);
         seeMoreView.setTag(tagItem);
-        makeClickable(seeMoreView);
+        makeClickable(seeMoreView, true);
     }
 
     /**
@@ -301,7 +293,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
                 info.setPosition(EventInfo.POSITION_CELL, index, total);
                 Pair<SliceItem, EventInfo> tagItem = new Pair<>(contentIntentItem, info);
                 cellContainer.setTag(tagItem);
-                makeClickable(cellContainer);
+                makeClickable(cellContainer, true);
             }
         }
     }
@@ -347,10 +339,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         return addedView != null;
     }
 
-    private void makeClickable(View layout) {
-        layout.setOnClickListener(this);
-        layout.setBackground(SliceViewUtil.getDrawable(getContext(),
-                android.R.attr.selectableItemBackground));
+    private void makeClickable(View layout, boolean isClickable) {
+        layout.setOnClickListener(isClickable ? this : null);
+        layout.setBackground(isClickable
+                ? SliceViewUtil.getDrawable(getContext(), android.R.attr.selectableItemBackground)
+                : null);
+        layout.setClickable(isClickable);
     }
 
     @Override
@@ -373,5 +367,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     @Override
     public void resetView() {
         mViewContainer.removeAllViews();
+        makeClickable(mViewContainer, false);
     }
 }

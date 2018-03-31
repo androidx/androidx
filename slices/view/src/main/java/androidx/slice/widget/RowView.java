@@ -86,6 +86,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     // The number of items that fit on the right hand side of a small slice
     private static final int MAX_END_ITEMS = 3;
 
+    private LinearLayout mRootView;
     private LinearLayout mStartContainer;
     private LinearLayout mContent;
     private TextView mPrimaryText;
@@ -115,6 +116,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 R.dimen.abc_slice_small_image_size);
         mPadding = getContext().getResources().getDimensionPixelSize(R.dimen.abc_slice_padding);
         inflate(context, R.layout.abc_slice_small_template, this);
+        mRootView = findViewById(R.id.row_view);
 
         mStartContainer = (LinearLayout) findViewById(R.id.icon_frame);
         mContent = (LinearLayout) findViewById(android.R.id.content);
@@ -171,6 +173,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    @Override
+    public void setSlice(Slice slice) {
+        // Nothing to do
+    }
+
     /**
      * This is called when RowView is being used as a component in a large template.
      */
@@ -182,19 +189,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mIsHeader = !slice.hasHint(HINT_LIST_ITEM);
         mHeaderActions = null;
         mRowContent = new RowContent(getContext(), slice, mIsHeader);
-        populateViews();
-    }
-
-    /**
-     * This is called when RowView is being used as a small template.
-     */
-    @Override
-    public void setSlice(Slice slice) {
-        mRowIndex = 0;
-        mHeaderActions = null;
-        ListContent lc = new ListContent(getContext(), slice);
-        mIsHeader = lc.hasHeader();
-        mRowContent = new RowContent(getContext(), lc.getHeaderItem(), mIsHeader /* isHeader */);
         populateViews();
     }
 
@@ -240,7 +234,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             if (mRowAction.isToggle()) {
                 // If primary action is a toggle, add it and we're done
                 addToggle(mRowAction, mTintColor, mEndContainer);
-                setViewClickable(this, true);
+                setViewClickable(mRootView, true);
                 return;
             }
         }
@@ -248,7 +242,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         final SliceItem range = mRowContent.getRange();
         if (range != null) {
             if (mRowAction != null) {
-                setViewClickable(mContent, true);
+                setViewClickable(mRootView, true);
             }
             addRange(range);
             return;
@@ -268,7 +262,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
         boolean hasRowAction = mRowAction != null;
         if (endItems.isEmpty()) {
-            if (hasRowAction) setViewClickable(this, true);
+            if (hasRowAction) setViewClickable(mRootView, true);
             return;
         }
 
@@ -307,17 +301,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             if (itemCount > 0 && hasEndItemAction) {
                 setViewClickable(mContent, true);
             } else {
-                setViewClickable(this, true);
+                setViewClickable(mRootView, true);
             }
-        } else {
+        } else if (mRowContent.endItemsContainAction() && itemCount == 1) {
             // If the only end item is an action, make the whole row clickable.
-            if (mRowContent.endItemsContainAction() && itemCount == 1) {
-                SliceItem unwrappedActionItem = endItems.get(0).getSlice().getItems().get(0);
-                if (!SUBTYPE_TOGGLE.equals(unwrappedActionItem.getSubType())) {
-                    mRowAction = new SliceActionImpl(endItems.get(0));
-                }
-                setViewClickable(this, true);
+            SliceItem unwrappedActionItem = endItems.get(0).getSlice().getItems().get(0);
+            if (!SUBTYPE_TOGGLE.equals(unwrappedActionItem.getSubType())) {
+                mRowAction = new SliceActionImpl(endItems.get(0));
             }
+            setViewClickable(mRootView, true);
         }
     }
 
@@ -582,14 +574,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     private void setViewClickable(View layout, boolean isClickable) {
         layout.setOnClickListener(isClickable ? this : null);
-        layout.setBackground(isClickable ? SliceViewUtil.getDrawable(getContext(),
-                android.R.attr.selectableItemBackground) : null);
+        layout.setBackground(isClickable
+                ? SliceViewUtil.getDrawable(getContext(), android.R.attr.selectableItemBackground)
+                : null);
         layout.setClickable(isClickable);
     }
 
     @Override
     public void resetView() {
-        setViewClickable(this, false);
+        setViewClickable(mRootView, false);
         setViewClickable(mContent, false);
         mStartContainer.removeAllViews();
         mEndContainer.removeAllViews();
