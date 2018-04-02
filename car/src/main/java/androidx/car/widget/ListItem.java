@@ -1,17 +1,17 @@
 package androidx.car.widget;
 
 import android.car.drivingstate.CarUxRestrictions;
-import androidx.annotation.CallSuper;
-import androidx.annotation.Nullable;
-import androidx.annotation.StyleRes;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
 import androidx.car.R;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Definition of items that can be inserted into {@link ListItemAdapter}.
@@ -133,7 +133,6 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
     public boolean shouldHideDivider() {
         return mHideDivider;
     };
-
 
     /**
      * Does the work that moves the ListItem from dirty state to clean state, i.e. the work required
