@@ -106,4 +106,7 @@ public class TestUtil {
         coordinates.lng = Math.random();
         return coordinates;
     }
+
+    private TestUtil() {
+    }
 }
