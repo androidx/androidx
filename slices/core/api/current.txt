@@ -24,13 +24,24 @@ package androidx.slice {
     method public boolean hasHint(java.lang.String);
   }
 
-  public abstract class SliceProvider extends android.content.ContentProvider {
+  public abstract class SliceProvider extends android.content.ContentProvider implements androidx.core.app.CoreComponentFactory.CompatWrapped {
     ctor public SliceProvider();
+    method public final int bulkInsert(android.net.Uri, android.content.ContentValues[]);
+    method public final android.net.Uri canonicalize(android.net.Uri);
+    method public final int delete(android.net.Uri, java.lang.String, java.lang.String[]);
+    method public final java.lang.String getType(android.net.Uri);
+    method public java.lang.Object getWrapper();
+    method public final android.net.Uri insert(android.net.Uri, android.content.ContentValues);
     method public abstract androidx.slice.Slice onBindSlice(android.net.Uri);
+    method public final boolean onCreate();
     method public abstract boolean onCreateSliceProvider();
     method public android.net.Uri onMapIntentToUri(android.content.Intent);
     method public void onSlicePinned(android.net.Uri);
     method public void onSliceUnpinned(android.net.Uri);
+    method public final android.database.Cursor query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String);
+    method public final android.database.Cursor query(android.net.Uri, java.lang.String[], android.os.Bundle, android.os.CancellationSignal);
+    method public final android.database.Cursor query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String, android.os.CancellationSignal);
+    method public final int update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[]);
   }
 
 }
