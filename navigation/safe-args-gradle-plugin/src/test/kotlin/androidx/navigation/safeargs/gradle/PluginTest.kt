@@ -16,9 +16,11 @@
 
 package androidx.navigation.safeargs.gradle
 
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -29,8 +31,16 @@ import org.junit.runners.JUnit4
 import java.io.File
 import java.util.Properties
 
-private const val NEXT_DIRECTIONS = "androidx/navigation/testapp/NextFragmentDirections.java"
+private const val MAIN_DIR = "androidx/navigation/testapp"
+
+private const val NEXT_DIRECTIONS = "$MAIN_DIR/NextFragmentDirections.java"
+private const val MAIN_DIRECTIONS = "$MAIN_DIR/MainFragmentDirections.java"
+private const val MODIFIED_NEXT_DIRECTIONS = "$MAIN_DIR/ModifiedNextFragmentDirections.java"
+private const val ADDITIONAL_DIRECTIONS = "$MAIN_DIR/AdditionalFragmentDirections.java"
 private const val FOO_DIRECTIONS = "safe/gradle/test/app/foo/FooFragmentDirections.java"
+
+private const val NAV_RESOURCES = "src/main/res/navigation"
+private const val SEC = 1000L
 
 // Does not work in the Android Studio
 @RunWith(JUnit4::class)
@@ -46,6 +56,21 @@ class PluginTest {
 
     private fun projectRoot(): File = testProjectDir.root
 
+    private fun assertGenerated(name: String) = assertExists(name, true)
+
+    private fun assertNotGenerated(name: String) = assertExists(name, false)
+
+    private fun assertExists(name: String, ex: Boolean): File {
+        val generatedFile = File(projectRoot(), "build/$GENERATED_PATH/$name")
+        assertThat(generatedFile.exists(), `is`(ex))
+        return generatedFile
+    }
+
+    private fun navResource(name: String) = File(projectRoot(), "$NAV_RESOURCES/$name")
+
+    private fun runGradle(vararg args: String) = GradleRunner.create()
+            .withProjectDir(projectRoot()).withPluginClasspath().withArguments(*args).build()
+
     @Before
     fun setup() {
         projectRoot().mkdirs()
@@ -59,11 +84,25 @@ class PluginTest {
         properties.load(stream)
         compileSdkVersion = properties.getProperty("compileSdkVersion")
         buildToolsVersion = properties.getProperty("buildToolsVersion")
+        testData("app-project").copyRecursively(projectRoot())
+    }
+
+    private fun setupSimpleBuildGradle() {
+        buildFile.writeText("""
+            plugins {
+                id('com.android.application')
+                id('androidx.navigation.safeargs')
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+            }
+        """.trimIndent())
     }
 
     @Test
     fun runGenerateTask() {
-        File("src/test/test-data/app-project/").copyRecursively(projectRoot())
         buildFile.writeText("""
             plugins {
                 id('com.android.application')
@@ -87,17 +126,88 @@ class PluginTest {
             }
         """.trimIndent())
 
-        val result = GradleRunner.create().withProjectDir(projectRoot())
-                .withPluginClasspath()
-                .withArguments("generateSafeArgsNotfooDebug", "generateSafeArgsFooDebug").build()
-        assertThat(result.task(":generateSafeArgsNotfooDebug")!!.outcome, `is`(TaskOutcome.SUCCESS))
-        assertThat(result.task(":generateSafeArgsFooDebug")!!.outcome, `is`(TaskOutcome.SUCCESS))
-        val buildDir = File(projectRoot(), "build")
-        assertThat(File(buildDir, "$GENERATED_PATH/notfoo/debug/$NEXT_DIRECTIONS").exists(),
-                `is`(true))
-        assertThat(File(buildDir, "$GENERATED_PATH/foo/debug/$NEXT_DIRECTIONS").exists(),
-                `is`(false))
-        assertThat(File(buildDir, "$GENERATED_PATH/foo/debug/$FOO_DIRECTIONS").exists(),
-                `is`(true))
+        runGradle("generateSafeArgsNotfooDebug", "generateSafeArgsFooDebug")
+                .assertSuccessfulTask("generateSafeArgsNotfooDebug")
+                .assertSuccessfulTask("generateSafeArgsFooDebug")
+
+        assertGenerated("notfoo/debug/$NEXT_DIRECTIONS")
+        assertNotGenerated("foo/debug/$NEXT_DIRECTIONS")
+        assertGenerated("foo/debug/$FOO_DIRECTIONS")
     }
+
+    @Test
+    fun incrementalAdd() {
+        setupSimpleBuildGradle()
+        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        val nextLastMod = assertGenerated("debug/$NEXT_DIRECTIONS").lastModified()
+
+        testData("incremental-test-data/add_nav.xml").copyTo(navResource("add_nav.xml"))
+
+        // lastModified has one second precision on certain platforms and jdk versions
+        // so sleep for a second
+        Thread.sleep(SEC)
+        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        assertGenerated("debug/$ADDITIONAL_DIRECTIONS")
+        val newNextLastMod = assertGenerated("debug/$NEXT_DIRECTIONS").lastModified()
+        assertThat(newNextLastMod, `is`(nextLastMod))
+    }
+
+    @Test
+    fun incrementalModify() {
+        setupSimpleBuildGradle()
+        testData("incremental-test-data/add_nav.xml").copyTo(navResource("add_nav.xml"))
+
+        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        val mainLastMod = assertGenerated("debug/$MAIN_DIRECTIONS").lastModified()
+        val additionalLastMod = assertGenerated("debug/$ADDITIONAL_DIRECTIONS").lastModified()
+        assertGenerated("debug/$NEXT_DIRECTIONS")
+
+        testData("incremental-test-data/modified_nav.xml").copyTo(navResource("nav_test.xml"), true)
+
+        // lastModified has one second precision on certain platforms and jdk versions
+        // so sleep for a second
+        Thread.sleep(SEC)
+        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        val newMainLastMod = assertGenerated("debug/$MAIN_DIRECTIONS").lastModified()
+        // main directions were regenerated
+        assertThat(newMainLastMod, not(mainLastMod))
+
+        // but additional directions weren't touched
+        val newAdditionalLastMod = assertGenerated("debug/$ADDITIONAL_DIRECTIONS").lastModified()
+        assertThat(newAdditionalLastMod, `is`(additionalLastMod))
+
+        assertGenerated("debug/$MODIFIED_NEXT_DIRECTIONS")
+        assertNotGenerated("debug/$NEXT_DIRECTIONS")
+    }
+
+    @Test
+    fun incrementalRemove() {
+        setupSimpleBuildGradle()
+        testData("incremental-test-data/add_nav.xml").copyTo(navResource("add_nav.xml"))
+
+        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        val mainLastMod = assertGenerated("debug/$MAIN_DIRECTIONS").lastModified()
+        assertGenerated("debug/$ADDITIONAL_DIRECTIONS")
+
+        val wasRemoved = navResource("add_nav.xml").delete()
+        assertThat(wasRemoved, `is`(true))
+
+        // lastModified has one second precision on certain platforms and jdk versions
+        // so sleep for a second
+        Thread.sleep(SEC)
+        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        val newMainLastMod = assertGenerated("debug/$MAIN_DIRECTIONS").lastModified()
+        // main directions weren't touched
+        assertThat(newMainLastMod, `is`(mainLastMod))
+
+        // but additional directions are removed
+        assertNotGenerated("debug/$ADDITIONAL_DIRECTIONS")
+    }
+}
+
+private fun testData(name: String) = File("src/test/test-data", name)
+
+private fun BuildResult.assertSuccessfulTask(name: String): BuildResult {
+    assertThat(task(":$name")!!.outcome, `is`(TaskOutcome.SUCCESS))
+    return this
 }

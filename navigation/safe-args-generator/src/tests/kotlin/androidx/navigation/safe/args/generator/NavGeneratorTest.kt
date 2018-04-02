@@ -31,17 +31,22 @@ class NavGeneratorTest {
     @Suppress("MemberVisibilityCanPrivate")
     @get:Rule
     val workingDir = TemporaryFolder()
+
     @Test
     fun test() {
-        generateSafeArgs("foo", "foo.flavor", File("src/tests/test-data/naive_test.xml"),
-                workingDir.root)
-        assertThat(File(workingDir.root,
-                "androidx/navigation/testapp/MainFragmentDirections.java").exists(), `is`(true))
-        assertThat(File(workingDir.root, "foo/flavor/NextFragmentDirections.java").exists(),
-                `is`(true))
-        assertThat(File(workingDir.root,
-                "androidx/navigation/testapp/MainFragmentArgs.java").exists(), `is`(true))
-        assertThat(File(workingDir.root, "foo/flavor/NextFragmentArgs.java").exists(),
-                `is`(true))
+        val javaNames = generateSafeArgs("foo", "foo.flavor",
+                File("src/tests/test-data/naive_test.xml"), workingDir.root)
+
+        val expectedSet = setOf(
+                "androidx.navigation.testapp.MainFragmentDirections",
+                "foo.flavor.NextFragmentDirections",
+                "androidx.navigation.testapp.MainFragmentArgs",
+                "foo.flavor.NextFragmentArgs"
+                )
+        assertThat(javaNames.toSet(), `is`(expectedSet))
+        javaNames.forEach { name ->
+            val file = File(workingDir.root, "${name.replace('.', File.separatorChar)}.java")
+            assertThat(file.exists(), `is`(true))
+        }
     }
 }
