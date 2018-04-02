@@ -47,7 +47,6 @@ import androidx.core.util.Pair;
 import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.SliceAction;
-import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceHints;
 import androidx.slice.render.SliceRenderActivity;
@@ -593,7 +592,7 @@ public class SliceMetadataTest {
     public void testIsPermissionSlice() {
         Uri uri = Uri.parse("content://pkg/slice");
         Slice permissionSlice =
-                SliceProviderCompat.createPermissionSlice(mContext, uri, mContext.getPackageName());
+                SliceProvider.createPermissionSlice(mContext, uri, mContext.getPackageName());
 
         SliceMetadata metadata = SliceMetadata.from(mContext, permissionSlice);
         assertEquals(true, metadata.isPermissionSlice());
