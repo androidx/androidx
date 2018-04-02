@@ -23,4 +23,7 @@ public class InvalidationTrackerTrojan {
     public static int countObservers(InvalidationTracker tracker) {
         return tracker.mObserverMap.size();
     }
+
+    private InvalidationTrackerTrojan() {
+    }
 }
