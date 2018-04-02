@@ -33,6 +33,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavHelper;
 
 /**
  * A simple activity demonstrating use of a NavHostFragment with a navigation drawer.
@@ -56,9 +57,13 @@ public class NavigationActivity extends AppCompatActivity {
             mDrawerLayout = findViewById(R.id.drawer_layout);
             NavHelper.setupActionBar(navController, this, mDrawerLayout);
             NavigationView navigationView = findViewById(R.id.nav_view);
-            NavHelper.setupNavigationView(navController, navigationView);
+            if (navigationView != null) {
+                NavHelper.setupNavigationView(navController, navigationView);
+            }
             BottomNavigationView bottomNavView = findViewById(R.id.bottom_nav_view);
-            NavHelper.setupBottomNavigationView(navController, bottomNavView);
+            if (bottomNavView != null) {
+                NavHelper.setupBottomNavigationView(navController, bottomNavView);
+            }
             navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
                 @Override
                 public void onNavigated(NavController controller, NavDestination destination) {

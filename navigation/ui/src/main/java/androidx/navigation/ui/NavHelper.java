@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.navigation.testapp;
+package androidx.navigation.ui;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -59,17 +60,17 @@ public class NavHelper {
      * @return True if the {@link NavController} was able to navigate to the destination
      * associated with the given MenuItem.
      */
-    public static boolean handleMenuItemSelected(NavController navController,
+    public static boolean handleMenuItemSelected(@NonNull NavController navController,
             @NonNull MenuItem item) {
         try {
             navController.navigate(item.getItemId(), null,
                     new NavOptions.Builder()
                             .setPopUpTo(navController.getGraph().getStartDestination(), false)
                             .setLaunchSingleTop(true)
-                            .setEnterAnim(R.anim.fade_in)
-                            .setExitAnim(R.anim.fade_out)
-                            .setPopEnterAnim(R.anim.fade_in)
-                            .setPopExitAnim(R.anim.fade_out)
+                            .setEnterAnim(R.anim.nav_default_enter_anim)
+                            .setExitAnim(R.anim.nav_default_exit_anim)
+                            .setPopEnterAnim(R.anim.nav_default_pop_enter_anim)
+                            .setPopExitAnim(R.anim.nav_default_pop_exit_anim)
                             .build());
             return true;
         } catch (IllegalArgumentException e) {
@@ -84,7 +85,7 @@ public class NavHelper {
      * @param navController The NavController that hosts your content.
      * @return True if the {@link NavController} was able to navigate up.
      */
-    public static boolean handleNavigateUp(NavController navController) {
+    public static boolean handleNavigateUp(@NonNull NavController navController) {
         return handleNavigateUp(navController, null);
     }
 
@@ -97,7 +98,8 @@ public class NavHelper {
      *                     of the app.
      * @return True if the {@link NavController} was able to navigate up.
      */
-    public static boolean handleNavigateUp(NavController navController, DrawerLayout drawerLayout) {
+    public static boolean handleNavigateUp(@NonNull NavController navController,
+            @Nullable DrawerLayout drawerLayout) {
         if (drawerLayout != null && navController.getCurrentDestination().getId()
                 == navController.getGraph().getStartDestination()) {
             drawerLayout.openDrawer(GravityCompat.START);
@@ -122,8 +124,8 @@ public class NavHelper {
      * @param activity The activity hosting the action bar that should be kept in sync with changes
      *                 to the NavController.
      */
-    public static void setupActionBar(final NavController navController,
-            final AppCompatActivity activity) {
+    public static void setupActionBar(@NonNull NavController navController,
+            @NonNull AppCompatActivity activity) {
         setupActionBar(navController, activity, null);
     }
 
@@ -145,8 +147,8 @@ public class NavHelper {
      * @param drawerLayout The DrawerLayout that should be toggled from the home button
      *                     when on the root destination
      */
-    public static void setupActionBar(final NavController navController,
-            final AppCompatActivity activity, final DrawerLayout drawerLayout) {
+    public static void setupActionBar(@NonNull NavController navController,
+            @NonNull AppCompatActivity activity, @Nullable DrawerLayout drawerLayout) {
         navController.addOnNavigatedListener(
                 new ActionBarOnNavigatedListener(activity, drawerLayout));
     }
@@ -163,11 +165,8 @@ public class NavHelper {
      * @param navigationView The NavigationView that should be kept in sync with changes to the
      *                       NavController.
      */
-    public static void setupNavigationView(final NavController navController,
-            final NavigationView navigationView) {
-        if (navigationView == null) {
-            return;
-        }
+    public static void setupNavigationView(@NonNull final NavController navController,
+            @NonNull final NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -184,7 +183,8 @@ public class NavHelper {
                 });
         navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
             @Override
-            public void onNavigated(NavController controller, NavDestination destination) {
+            public void onNavigated(@NonNull NavController controller,
+                    @NonNull NavDestination destination) {
                 int destinationId = destination.getId();
                 Menu menu = navigationView.getMenu();
                 for (int h = 0, size = menu.size(); h < size; h++) {
@@ -207,11 +207,8 @@ public class NavHelper {
      * @param bottomNavigationView The BottomNavigationView that should be kept in sync with
      *                             changes to the NavController.
      */
-    public static void setupBottomNavigationView(final NavController navController,
-            final BottomNavigationView bottomNavigationView) {
-        if (bottomNavigationView == null) {
-            return;
-        }
+    public static void setupBottomNavigationView(@NonNull final NavController navController,
+            @NonNull final BottomNavigationView bottomNavigationView) {
         bottomNavigationView.setOnNavigationItemSelectedListener(
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -221,7 +218,8 @@ public class NavHelper {
                 });
         navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
             @Override
-            public void onNavigated(NavController controller, NavDestination destination) {
+            public void onNavigated(@NonNull NavController controller,
+                    @NonNull NavDestination destination) {
                 int destinationId = destination.getId();
                 Menu menu = bottomNavigationView.getMenu();
                 for (int h = 0, size = menu.size(); h < size; h++) {
@@ -240,18 +238,20 @@ public class NavHelper {
      */
     private static class ActionBarOnNavigatedListener implements NavController.OnNavigatedListener {
         private final AppCompatActivity mActivity;
+        @Nullable
         private final DrawerLayout mDrawerLayout;
         private DrawerArrowDrawable mArrowDrawable;
         private ValueAnimator mAnimator;
 
         ActionBarOnNavigatedListener(
-                AppCompatActivity activity, DrawerLayout drawerLayout) {
+                @NonNull AppCompatActivity activity, @Nullable DrawerLayout drawerLayout) {
             mActivity = activity;
             mDrawerLayout = drawerLayout;
         }
 
         @Override
-        public void onNavigated(NavController controller, NavDestination destination) {
+        public void onNavigated(@NonNull NavController controller,
+                @NonNull NavDestination destination) {
             ActionBar actionBar = mActivity.getSupportActionBar();
             CharSequence title = destination.getLabel();
             if (!TextUtils.isEmpty(title)) {

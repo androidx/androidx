@@ -124,6 +124,9 @@ project(':navigation:testing').projectDir = new File(supportRoot, "navigation/te
 include ':navigation:fragment'
 project(':navigation:fragment').projectDir = new File(supportRoot, "navigation/fragment")
 
+include ':navigation:ui'
+project(':navigation:ui').projectDir = new File(supportRoot, "navigation/ui")
+
 include ':navigation:integration-tests:testapp'
 project(':navigation:integration-tests:testapp').projectDir = new File(supportRoot, "navigation/integration-tests/testapp")
 

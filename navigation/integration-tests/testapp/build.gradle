@@ -22,7 +22,7 @@ plugins {
 
 dependencies {
     implementation(project(":navigation:fragment"))
-    implementation(SUPPORT_DESIGN)
+    implementation(project(":navigation:ui"))
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])
