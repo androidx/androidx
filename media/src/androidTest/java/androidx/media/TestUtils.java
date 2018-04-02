@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -100,11 +101,9 @@ public final class TestUtils {
             list.add(new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
                     .setMediaId(caller + "_item_" + (size + 1))
                     .setDataSourceDesc(
-                            // TODO(jaewan): Uncomment here after DataSourceDesc.builder is ready.
-                            new DataSourceDesc())
-//                            new DataSourceDesc.Builder()
-//                                    .setDataSource(new FileDescriptor())
-//                                    .build())
+                            new DataSourceDesc.Builder()
+                                    .setDataSource(new FileDescriptor())
+                                    .build())
                     .build());
         }
         return list;
