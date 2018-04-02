@@ -111,6 +111,8 @@ limitations under the License.
         <attr name="listItemTitleTextAppearance" format="reference"/>
         <!-- The TextAppearance of the body text in the ListItem. -->
         <attr name="listItemBodyTextAppearance" format="reference"/>
+        <!-- The TextAppearance of the text in the Subheader ListItem. -->
+        <attr name="listItemSubheaderTextAppearance" format="reference"/>
     </declare-styleable>
 
     <!-- The attributes for customizing the appearance of the hamburger and back arrow in the

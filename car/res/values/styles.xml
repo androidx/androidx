@@ -58,6 +58,21 @@ limitations under the License.
         <item name="android:textColor">@color/car_title2_light</item>
     </style>
 
+    <!-- The styling for subheader text. This text uses color accent. -->
+    <style name="TextAppearance.Car.Subheader" parent="TextAppearance.Car.Title2" >
+        <item name="android:textColor">@color/car_accent</item>
+    </style>
+
+    <!-- Subheader text that is permanently a dark color. -->
+    <style name="TextAppearance.Car.Subheader.Dark" parent="TextAppearance.Car.Subheader" >
+        <item name="android:textColor">@color/car_accent_dark</item>
+    </style>
+
+    <!-- Subheader text that is permanently a light color. -->
+    <style name="TextAppearance.Car.Subheader.Light" parent="TextAppearance.Car.Subheader" >
+        <item name="android:textColor">@color/car_accent_light</item>
+    </style>
+
     <!-- The styling for the main headline text. The color of this text changes based on the
          day/night mode. -->
     <style name="TextAppearance.Car.Headline1">
@@ -205,6 +220,7 @@ limitations under the License.
         <item name="android:paddingEnd">@dimen/car_borderless_button_horizontal_padding</item>
         <item name="android:textSize">@dimen/car_action1_size</item>
         <item name="android:textColor">@drawable/car_borderless_button_text_color</item>
+        <item name="android:background">@drawable/car_borderless_button_background</item>
     </style>
 
     <style name="Widget.Car.Button.Borderless.Colored.Light">
