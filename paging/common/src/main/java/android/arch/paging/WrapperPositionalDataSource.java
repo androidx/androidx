@@ -25,23 +25,30 @@ class WrapperPositionalDataSource<A, B> extends PositionalDataSource<B> {
     private final PositionalDataSource<A> mSource;
     private final Function<List<A>, List<B>> mListFunction;
 
-    private final InvalidatedCallback mInvalidatedCallback = new DataSource.InvalidatedCallback() {
-        @Override
-        public void onInvalidated() {
-            invalidate();
-            removeCallback();
-        }
-    };
-
     WrapperPositionalDataSource(PositionalDataSource<A> source,
             Function<List<A>, List<B>> listFunction) {
         mSource = source;
         mListFunction = listFunction;
-        mSource.addInvalidatedCallback(mInvalidatedCallback);
     }
 
-    private void removeCallback() {
-        mSource.removeInvalidatedCallback(mInvalidatedCallback);
+    @Override
+    public void addInvalidatedCallback(@NonNull InvalidatedCallback onInvalidatedCallback) {
+        mSource.addInvalidatedCallback(onInvalidatedCallback);
+    }
+
+    @Override
+    public void removeInvalidatedCallback(@NonNull InvalidatedCallback onInvalidatedCallback) {
+        mSource.removeInvalidatedCallback(onInvalidatedCallback);
+    }
+
+    @Override
+    public void invalidate() {
+        mSource.invalidate();
+    }
+
+    @Override
+    public boolean isInvalid() {
+        return mSource.isInvalid();
     }
 
     @Override
