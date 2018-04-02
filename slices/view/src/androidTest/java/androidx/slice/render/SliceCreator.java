@@ -36,11 +36,11 @@ import android.text.style.ForegroundColorSpan;
 
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
+import androidx.slice.SliceProvider;
 import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.MessagingSliceBuilder;
 import androidx.slice.builders.SliceAction;
-import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.view.test.R;
 
 import java.util.Arrays;
@@ -512,7 +512,7 @@ public class SliceCreator {
     }
 
     private Slice createPermissionSlice(Uri uri) {
-        return SliceProviderCompat.createPermissionSlice(getContext(), uri,
+        return SliceProvider.createPermissionSlice(getContext(), uri,
                 getContext().getPackageName());
     }
 
