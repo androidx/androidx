@@ -20,14 +20,10 @@ package androidx.navigation;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 
 /**
  * An interface that describes a navigation operation: action's id and arguments
- *
- * @hide Not ready for public
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface NavDirections {
 
     /**
