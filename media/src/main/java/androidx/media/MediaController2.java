@@ -506,7 +506,7 @@ public class MediaController2 implements AutoCloseable {
         }
         mContext = context;
         mHandlerThread = new HandlerThread("MediaController2_Thread");
-        mHandlerThread.run();
+        mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
         mToken = token;
         mCallback = callback;

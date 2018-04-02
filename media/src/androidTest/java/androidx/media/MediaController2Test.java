@@ -29,12 +29,14 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.os.ResultReceiver;
 import android.support.test.filters.FlakyTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -63,10 +65,10 @@ import java.util.concurrent.atomic.AtomicReference;
 // TODO(jaewan): Implement host-side test so controller and session can run in different processes.
 // TODO(jaewan): Fix flaky failure -- see MediaController2Impl.getController()
 // TODO(jaeawn): Revisit create/close session in the sHandler. It's no longer necessary.
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @FlakyTest
-@Ignore
 public class MediaController2Test extends MediaSession2TestBase {
     private static final String TAG = "MediaController2Test";
 
@@ -126,6 +128,7 @@ public class MediaController2Test extends MediaSession2TestBase {
      * Test if the {@link MediaSession2TestBase.TestControllerCallback} wraps the callback proxy
      * without missing any method.
      */
+    @Ignore
     @Test
     public void testTestControllerCallback() {
         Method[] methods = TestControllerCallback.class.getMethods();
@@ -139,6 +142,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testPlay() {
         mController.play();
@@ -150,6 +154,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mPlayer.mPlayCalled);
     }
 
+    @Ignore
     @Test
     public void testPause() {
         mController.pause();
@@ -173,6 +178,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mPlayer.mStopCalled);
     }
 
+    @Ignore
     @Test
     public void testPrepare() {
         mController.prepare();
@@ -184,16 +190,19 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mPlayer.mPrepareCalled);
     }
 
+    @Ignore
     @Test
     public void testFastForward() {
         // TODO(jaewan): Implement
     }
 
+    @Ignore
     @Test
     public void testRewind() {
         // TODO(jaewan): Implement
     }
 
+    @Ignore
     @Test
     public void testSeekTo() {
         final long seekPosition = 12125L;
@@ -207,6 +216,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(seekPosition, mPlayer.mSeekPosition);
     }
 
+    @Ignore
     @Test
     public void testGettersAfterConnected() throws InterruptedException {
         final int state = MediaPlayerBase.PLAYER_STATE_PLAYING;
@@ -226,6 +236,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         //assertEquals(position + speed * elapsedTime, controller.getPosition(), delta);
     }
 
+    @Ignore
     @Test
     public void testGetSessionActivity() {
         PendingIntent sessionActivity = mController.getSessionActivity();
@@ -233,6 +244,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(Process.myUid(), sessionActivity.getCreatorUid());
     }
 
+    @Ignore
     @Test
     public void testSetPlaylist() throws InterruptedException {
         final List<MediaItem2> list = TestUtils.createPlaylist(2);
@@ -254,6 +266,7 @@ public class MediaController2Test extends MediaSession2TestBase {
      * This also tests {@link ControllerCallback#onPlaylistChanged(
      * MediaController2, List, MediaMetadata2)}.
      */
+    @Ignore
     @Test
     public void testGetPlaylist() throws InterruptedException {
         final List<MediaItem2> testList = TestUtils.createPlaylist(2);
@@ -292,6 +305,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testUpdatePlaylistMetadata() throws InterruptedException {
         final MediaMetadata2 testMetadata = TestUtils.createMetadata();
@@ -303,6 +317,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testMetadata.getMediaId(), mMockAgent.mMetadata.getMediaId());
     }
 
+    @Ignore
     @Test
     public void testGetPlaylistMetadata() throws InterruptedException {
         final MediaMetadata2 testMetadata = TestUtils.createMetadata();
@@ -345,6 +360,7 @@ public class MediaController2Test extends MediaSession2TestBase {
      * if the controller doesn't have {@link SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST} but
      * {@link SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST_METADATA}.
      */
+    @Ignore
     @Test
     public void testControllerCallback_onPlaylistMetadataChanged() throws InterruptedException {
         final MediaItem2 item = TestUtils.createMediaItemWithMetadata();
@@ -397,6 +413,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testAddPlaylistItem() throws InterruptedException {
         final int testIndex = 12;
@@ -410,6 +427,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testMediaItem.getMediaId(), mMockAgent.mItem.getMediaId());
     }
 
+    @Ignore
     @Test
     public void testRemovePlaylistItem() throws InterruptedException {
         mMockAgent.mPlaylist = TestUtils.createPlaylist(2);
@@ -426,6 +444,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(targetItem, mMockAgent.mItem);
     }
 
+    @Ignore
     @Test
     public void testReplacePlaylistItem() throws InterruptedException {
         final int testIndex = 12;
@@ -438,6 +457,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testMediaItem.getMediaId(), mMockAgent.mItem.getMediaId());
     }
 
+    @Ignore
     @Test
     public void testSkipToPreviousItem() throws InterruptedException {
         mController.skipToPreviousItem();
@@ -445,6 +465,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mMockAgent.mSkipToPreviousItemCalled);
     }
 
+    @Ignore
     @Test
     public void testSkipToNextItem() throws InterruptedException {
         mController.skipToNextItem();
@@ -452,6 +473,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mMockAgent.mSkipToNextItemCalled);
     }
 
+    @Ignore
     @Test
     public void testSkipToPlaylistItem() throws InterruptedException {
         MediaController2 controller = createController(mSession.getToken());
@@ -466,6 +488,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link ControllerCallback#onShuffleModeChanged(MediaController2, int)}.
      */
+    @Ignore
     @Test
     public void testGetShuffleMode() throws InterruptedException {
         final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
@@ -490,6 +513,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testShuffleMode, controller.getShuffleMode());
     }
 
+    @Ignore
     @Test
     public void testSetShuffleMode() throws InterruptedException {
         final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
@@ -503,6 +527,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link ControllerCallback#onRepeatModeChanged(MediaController2, int)}.
      */
+    @Ignore
     @Test
     public void testGetRepeatMode() throws InterruptedException {
         final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
@@ -527,6 +552,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testRepeatMode, controller.getRepeatMode());
     }
 
+    @Ignore
     @Test
     public void testSetRepeatMode() throws InterruptedException {
         final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
@@ -537,6 +563,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testRepeatMode, mMockAgent.mRepeatMode);
     }
 
+    @Ignore
     @Test
     public void testSetVolumeTo() throws Exception {
         final int maxVolume = 100;
@@ -555,6 +582,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(targetVolume, volumeProvider.mVolume);
     }
 
+    @Ignore
     @Test
     public void testAdjustVolume() throws Exception {
         final int maxVolume = 100;
@@ -573,11 +601,13 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(direction, volumeProvider.mDirection);
     }
 
+    @Ignore
     @Test
     public void testGetPackageName() {
         assertEquals(mContext.getPackageName(), mController.getSessionToken().getPackageName());
     }
 
+    @Ignore
     @Test
     public void testSendCustomCommand() throws InterruptedException {
         // TODO(jaewan): Need to revisit with the permission.
@@ -639,6 +669,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         waitForDisconnect(controller, true);
     }
 
+    @Ignore
     @Test
     public void testControllerCallback_releaseSession() throws InterruptedException {
         sHandler.postAndSync(new Runnable() {
@@ -656,6 +687,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         waitForDisconnect(mController, true);
     }
 
+    @Ignore
     @Test
     public void testPlayFromSearch() throws InterruptedException {
         final String request = "random query";
@@ -683,6 +715,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testPlayFromUri() throws InterruptedException {
         final Uri request = Uri.parse("foo://boo");
@@ -709,6 +742,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testPlayFromMediaId() throws InterruptedException {
         final String request = "media_id";
@@ -735,6 +769,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testPrepareFromSearch() throws InterruptedException {
         final String request = "random query";
@@ -761,6 +796,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testPrepareFromUri() throws InterruptedException {
         final Uri request = Uri.parse("foo://boo");
@@ -787,6 +823,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testPrepareFromMediaId() throws InterruptedException {
         final String request = "media_id";
@@ -813,6 +850,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testSetRating() throws InterruptedException {
         final int ratingType = Rating2.RATING_5_STARS;
@@ -842,6 +880,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testIsConnected() throws InterruptedException {
         assertTrue(mController.isConnected());
@@ -863,6 +902,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     /**
      * Test potential deadlock for calls between controller and session.
      */
+    @Ignore
     @Test
     public void testDeadlock() throws InterruptedException {
         sHandler.postAndSync(new Runnable() {
@@ -938,6 +978,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore
     @Test
     public void testGetServiceToken() {
         SessionToken2 token = TestUtils.getServiceToken(mContext, MockMediaSessionService2.ID);
@@ -947,6 +988,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(SessionToken2.TYPE_SESSION_SERVICE, token.getType());
     }
 
+    @Ignore
     @Test
     public void testConnectToService_sessionService() throws InterruptedException {
         testConnectToService(MockMediaSessionService2.ID);
@@ -1002,6 +1044,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         */
     }
 
+    @Ignore
     @Test
     public void testControllerAfterSessionIsGone_session() throws InterruptedException {
         testControllerAfterSessionIsGone(mSession.getToken().getId());
@@ -1017,6 +1060,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         */
     }
 
+    @Ignore
     @Test
     public void testClose_beforeConnected() throws InterruptedException {
         MediaController2 controller =
@@ -1024,12 +1068,14 @@ public class MediaController2Test extends MediaSession2TestBase {
         controller.close();
     }
 
+    @Ignore
     @Test
     public void testClose_twice() {
         mController.close();
         mController.close();
     }
 
+    @Ignore
     @Test
     public void testClose_session() throws InterruptedException {
         final String id = mSession.getToken().getId();
@@ -1042,11 +1088,13 @@ public class MediaController2Test extends MediaSession2TestBase {
         testControllerAfterSessionIsGone(id);
     }
 
+    @Ignore
     @Test
     public void testClose_sessionService() throws InterruptedException {
         testCloseFromService(MockMediaSessionService2.ID);
     }
 
+    @Ignore
     @Test
     public void testClose_libraryService() throws InterruptedException {
         testCloseFromService(MockMediaLibraryService2.ID);

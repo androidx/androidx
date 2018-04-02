@@ -22,6 +22,7 @@ import static junit.framework.Assert.assertTrue;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.ResultReceiver;
 import android.support.test.InstrumentationRegistry;
 
@@ -68,6 +69,9 @@ abstract class MediaSession2TestBase {
     @BeforeClass
     public static void setUpThread() {
         if (sHandler == null) {
+            if (Looper.myLooper() == null) {
+                Looper.prepare();
+            }
             HandlerThread handlerThread = new HandlerThread("MediaSession2TestBase");
             handlerThread.start();
             sHandler = new TestUtils.SyncHandler(handlerThread.getLooper());
