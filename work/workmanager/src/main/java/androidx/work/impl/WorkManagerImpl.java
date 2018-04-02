@@ -45,6 +45,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -181,6 +182,17 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     @Override
     public void enqueue(@NonNull List<? extends BaseWork> baseWork) {
         new WorkContinuationImpl(this, baseWork).enqueue();
+    }
+
+    @Override
+    public void enqueueBlocking(@NonNull BaseWork... baseWork) {
+        enqueueBlocking(Arrays.asList(baseWork));
+    }
+
+    @Override
+    public void enqueueBlocking(@NonNull List<? extends BaseWork> baseWork) {
+        assertBackgroundThread("Cannot enqueueBlocking on main thread!");
+        new WorkContinuationImpl(this, baseWork).enqueueBlocking();
     }
 
     @Override

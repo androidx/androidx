@@ -156,7 +156,9 @@ public class WorkManagerImplTest {
         for (int i = 0; i < workCount; ++i) {
             workArray[i] = new Work.Builder(TestWorker.class).build();
         }
-        mWorkManagerImpl.beginWith(workArray[0]).then(workArray[1]).then(workArray[2])
+
+        mWorkManagerImpl.beginWith(workArray[0]).then(workArray[1])
+                .then(workArray[2])
                 .blocking().enqueueBlocking();
 
         for (int i = 0; i < workCount; ++i) {
@@ -172,6 +174,21 @@ public class WorkManagerImplTest {
     @Test
     @SmallTest
     public void testEnqueue_insertMultipleWork() {
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        Work work3 = new Work.Builder(TestWorker.class).build();
+
+        mWorkManagerImpl.blocking().enqueueBlocking(work1, work2, work3);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(work1.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work3.getId()), is(notNullValue()));
+    }
+
+    @Test
+    @SmallTest
+    public void testEnqueue_insertMultipleWork_continuationBlocking() {
         Work work1 = new Work.Builder(TestWorker.class).build();
         Work work2 = new Work.Builder(TestWorker.class).build();
         Work work3 = new Work.Builder(TestWorker.class).build();
@@ -383,8 +400,8 @@ public class WorkManagerImplTest {
                 PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
                 TimeUnit.MILLISECONDS)
                 .build();
-        // TODO(rahulrav@) We need a way to blocking enqueue periodic work.
-        mWorkManagerImpl.enqueue(periodicWork);
+
+        mWorkManagerImpl.blocking().enqueueBlocking(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.isPeriodic(), is(true));
@@ -417,7 +434,7 @@ public class WorkManagerImplTest {
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
-        mWorkManagerImpl.enqueue(periodicWork);
+        mWorkManagerImpl.blocking().enqueueBlocking(periodicWork);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
         assertThat(workSpec.periodStartTime, is(greaterThanOrEqualTo(beforeEnqueueTime)));
