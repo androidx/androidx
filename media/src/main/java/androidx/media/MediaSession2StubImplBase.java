@@ -56,7 +56,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
 
     private final Object mLock = new Object();
 
-    final MediaSession2 mSession;
+    final MediaSession2.SupportLibraryImpl mSession;
     final Context mContext;
 
     @GuardedBy("mLock")
@@ -67,7 +67,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
     private final ArrayMap<ControllerInfo, SessionCommandGroup2> mAllowedCommandGroupMap =
             new ArrayMap<>();
 
-    MediaSession2StubImplBase(MediaSession2 session) {
+    MediaSession2StubImplBase(MediaSession2.SupportLibraryImpl session) {
         mSession = session;
         mContext = mSession.getContext();
     }
@@ -97,7 +97,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                         mConnectingControllers.add(controllerInfo.getId());
                     }
                     SessionCommandGroup2 allowedCommands = mSession.getCallback().onConnect(
-                            mSession, controllerInfo);
+                            mSession.getInstance(), controllerInfo);
                     // Don't reject connection for the request from trusted app.
                     // Otherwise server will fail to retrieve session's information to dispatch
                     // media keys to.

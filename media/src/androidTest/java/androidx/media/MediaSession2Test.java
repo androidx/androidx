@@ -370,11 +370,11 @@ public class MediaSession2Test extends MediaSession2TestBase {
 
     @Ignore
     @Test
-    public void testStop() throws Exception {
+    public void testReset() throws Exception {
         sHandler.postAndSync(new Runnable() {
             @Override
             public void run() {
-                mSession.stop();
+                mSession.reset();
                 assertTrue(mPlayer.mStopCalled);
             }
         });

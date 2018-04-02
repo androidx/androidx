@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
-class SessionPlaylistAgent extends MediaPlaylistAgent {
+class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     @VisibleForTesting
     static final int END_OF_PLAYLIST = -1;
     @VisibleForTesting
@@ -42,7 +42,7 @@ class SessionPlaylistAgent extends MediaPlaylistAgent {
     private final PlayItem mEopPlayItem = new PlayItem(END_OF_PLAYLIST, null);
 
     private final Object mLock = new Object();
-    private final MediaSession2 mSession;
+    private final MediaSession2ImplBase mSession;
     private final MyPlayerEventCallback mPlayerCallback;
 
     @GuardedBy("mLock")
@@ -132,7 +132,8 @@ class SessionPlaylistAgent extends MediaPlaylistAgent {
         }
     }
 
-    SessionPlaylistAgent(@NonNull MediaSession2 session, @NonNull MediaPlayerBase player) {
+    SessionPlaylistAgentImplBase(@NonNull MediaSession2ImplBase session,
+            @NonNull MediaPlayerBase player) {
         super();
         if (session == null) {
             throw new IllegalArgumentException("sessionImpl shouldn't be null");
@@ -421,7 +422,7 @@ class SessionPlaylistAgent extends MediaPlaylistAgent {
         OnDataSourceMissingHelper helper = mDsmHelper;
         if (helper != null) {
             // TODO: Do not call onDataSourceMissing with the lock (b/74090741).
-            dsd = helper.onDataSourceMissing(mSession, item);
+            dsd = helper.onDataSourceMissing(mSession.getInstance(), item);
             if (dsd != null) {
                 mItemDsdMap.put(item, dsd);
             }

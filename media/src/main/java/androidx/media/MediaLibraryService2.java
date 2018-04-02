@@ -19,9 +19,7 @@ package androidx.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -206,6 +204,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         // This workarounds javadoc issue described in the MediaSession2.BuilderBase.
         public static final class Builder extends MediaSession2.BuilderBase<MediaLibrarySession,
                 Builder, MediaLibrarySessionCallback> {
+            private MediaLibrarySessionImplBase.Builder mImpl;
+
             // Builder requires MediaLibraryService2 instead of Context just to ensure that the
             // builder can be only instantiated within the MediaLibraryService2.
             // Ideally it's better to make it inner class of service to enforce, it violates API
@@ -214,6 +214,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                     @NonNull Executor callbackExecutor,
                     @NonNull MediaLibrarySessionCallback callback) {
                 super(service);
+                mImpl = new MediaLibrarySessionImplBase.Builder(service);
+                setImpl(mImpl);
                 setSessionCallback(callbackExecutor, callback);
             }
 
@@ -251,18 +253,13 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
 
             @Override
             public @NonNull MediaLibrarySession build() {
-                return new MediaLibrarySession(mContext, new MediaSessionCompat(mContext, mId),
-                        mId, mPlayer, mPlaylistAgent, mVolumeProvider, mSessionActivity,
-                        mCallbackExecutor, mCallback);
+                return super.build();
             }
         }
 
-        MediaLibrarySession(Context context, MediaSessionCompat sessionCompat, String id,
-                MediaPlayerBase player, MediaPlaylistAgent playlistAgent,
-                VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
-                Executor callbackExecutor, MediaLibrarySessionCallback callback) {
-            super(context, sessionCompat, id, player, playlistAgent, volumeProvider,
-                    sessionActivity, callbackExecutor, callback);
+        MediaLibrarySession(SupportLibraryImpl impl) {
+            super(impl);
+
         }
 
         /**

@@ -17,41 +17,25 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
-import static androidx.media.SessionToken2.TYPE_LIBRARY_SERVICE;
-import static androidx.media.SessionToken2.TYPE_SESSION;
-import static androidx.media.SessionToken2.TYPE_SESSION_SERVICE;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.media.AudioFocusRequest;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Process;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.IMediaControllerCallback;
-import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.text.TextUtils;
-import android.util.ArrayMap;
-import android.util.Log;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.MediaPlayerBase.BuffState;
-import androidx.media.MediaPlayerBase.PlayerEventCallback;
 import androidx.media.MediaPlayerBase.PlayerState;
 import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
 import androidx.media.MediaPlaylistAgent.RepeatMode;
@@ -59,10 +43,7 @@ import androidx.media.MediaPlaylistAgent.ShuffleMode;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -100,7 +81,7 @@ import java.util.concurrent.Executor;
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
 @RestrictTo(LIBRARY_GROUP)
-public class MediaSession2 implements AutoCloseable {
+public class MediaSession2 extends MediaInterface2.SessionPlayer implements AutoCloseable {
     /**
      * @hide
      */
@@ -582,6 +563,7 @@ public class MediaSession2 implements AutoCloseable {
     abstract static class BuilderBase
             <T extends MediaSession2, U extends BuilderBase<T, U, C>, C extends SessionCallback> {
         final Context mContext;
+        MediaSession2ImplBase.BuilderBase<T, C> mBaseImpl;
         MediaPlayerBase mPlayer;
         String mId;
         Executor mCallbackExecutor;
@@ -609,7 +591,7 @@ public class MediaSession2 implements AutoCloseable {
             if (player == null) {
                 throw new IllegalArgumentException("player shouldn't be null");
             }
-            mPlayer = player;
+            mBaseImpl.setPlayer(player);
             return (U) this;
         }
 
@@ -628,7 +610,7 @@ public class MediaSession2 implements AutoCloseable {
             if (playlistAgent == null) {
                 throw new IllegalArgumentException("playlistAgent shouldn't be null");
             }
-            mPlaylistAgent = playlistAgent;
+            mBaseImpl.setPlaylistAgent(playlistAgent);
             return (U) this;
         }
 
@@ -639,7 +621,7 @@ public class MediaSession2 implements AutoCloseable {
          * @param volumeProvider The provider that will receive volume button events.
          */
         @NonNull U setVolumeProvider(@Nullable VolumeProviderCompat volumeProvider) {
-            mVolumeProvider = volumeProvider;
+            mBaseImpl.setVolumeProvider(volumeProvider);
             return (U) this;
         }
 
@@ -651,7 +633,7 @@ public class MediaSession2 implements AutoCloseable {
          * @param pi The intent to launch to show UI for this session.
          */
         @NonNull U setSessionActivity(@Nullable PendingIntent pi) {
-            mSessionActivity = pi;
+            mBaseImpl.setSessionActivity(pi);
             return (U) this;
         }
 
@@ -669,7 +651,7 @@ public class MediaSession2 implements AutoCloseable {
             if (id == null) {
                 throw new IllegalArgumentException("id shouldn't be null");
             }
-            mId = id;
+            mBaseImpl.setId(id);
             return (U) this;
         }
 
@@ -687,8 +669,7 @@ public class MediaSession2 implements AutoCloseable {
             if (callback == null) {
                 throw new IllegalArgumentException("callback shouldn't be null");
             }
-            mCallbackExecutor = executor;
-            mCallback = callback;
+            mBaseImpl.setSessionCallback(executor, callback);
             return (U) this;
         }
 
@@ -699,7 +680,13 @@ public class MediaSession2 implements AutoCloseable {
          * @throws IllegalStateException if the session with the same id is already exists for the
          *      package.
          */
-        abstract @NonNull T build();
+        @NonNull T build() {
+            return mBaseImpl.build();
+        }
+
+        void setImpl(MediaSession2ImplBase.BuilderBase<T, C> impl) {
+            mBaseImpl = impl;
+        }
     }
 
     /**
@@ -709,8 +696,12 @@ public class MediaSession2 implements AutoCloseable {
      * that created session with the {@link Builder#build()}.
      */
     public static final class Builder extends BuilderBase<MediaSession2, Builder, SessionCallback> {
+        private MediaSession2ImplBase.Builder mImpl;
+
         public Builder(Context context) {
             super(context);
+            mImpl = new MediaSession2ImplBase.Builder(context);
+            setImpl(mImpl);
         }
 
         @Override
@@ -746,9 +737,7 @@ public class MediaSession2 implements AutoCloseable {
 
         @Override
         public @NonNull MediaSession2 build() {
-            return new MediaSession2(mContext,
-                    new MediaSessionCompat(mContext, mId), mId, mPlayer, mPlaylistAgent,
-                    mVolumeProvider, mSessionActivity, mCallbackExecutor, mCallback);
+            return super.build();
         }
     }
 
@@ -963,86 +952,45 @@ public class MediaSession2 implements AutoCloseable {
         }
     }
 
-    private static final String TAG = "MediaSession2";
-    private static final boolean DEBUG = true; // TODO: Log.isLoggable(TAG, Log.DEBUG);
+    abstract static class SupportLibraryImpl extends MediaInterface2.SessionPlayer
+            implements AutoCloseable {
+        abstract void updatePlayer(@NonNull MediaPlayerBase player,
+                @Nullable MediaPlaylistAgent playlistAgent,
+                @Nullable VolumeProviderCompat volumeProvider);
+        abstract @NonNull MediaPlayerBase getPlayer();
+        abstract @NonNull MediaPlaylistAgent getPlaylistAgent();
+        abstract @Nullable VolumeProviderCompat getVolumeProvider();
+        abstract @NonNull SessionToken2 getToken();
+        abstract @NonNull List<ControllerInfo> getConnectedControllers();
 
-    private final Context mContext;
-    private final HandlerThread mHandlerThread;
-    private final Handler mHandler;
-    private final MediaSessionCompat mSessionCompat;
-    private final MediaSession2StubImplBase mSession2Stub;
-    private final String mId;
-    private final Executor mCallbackExecutor;
-    private final SessionCallback mCallback;
-    private final SessionToken2 mSessionToken;
-    private final AudioManager mAudioManager;
-    private final PlayerEventCallback mPlayerEventCallback;
-    private final PlaylistEventCallback mPlaylistEventCallback;
+        abstract void setAudioFocusRequest(@Nullable AudioFocusRequest afr);
+        abstract void setCustomLayout(@NonNull ControllerInfo controller,
+                @NonNull List<CommandButton> layout);
+        abstract void setAllowedCommands(@NonNull ControllerInfo controller,
+                @NonNull SessionCommandGroup2 commands);
+        abstract void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args);
+        abstract void sendCustomCommand(@NonNull ControllerInfo controller,
+                @NonNull SessionCommand2 command, @Nullable Bundle args,
+                @Nullable ResultReceiver receiver);
 
-    private final Object mLock = new Object();
+        // Internally used methods
+        abstract void setInstance(MediaSession2 session);
+        abstract MediaSession2 getInstance();
+        abstract Context getContext();
+        abstract Executor getCallbackExecutor();
+        abstract SessionCallback getCallback();
+        abstract boolean isClosed();
+        abstract PlaybackStateCompat getPlaybackStateCompat();
+    }
 
-    @GuardedBy("mLock")
-    private MediaPlayerBase mPlayer;
-    @GuardedBy("mLock")
-    private MediaPlaylistAgent mPlaylistAgent;
-    @GuardedBy("mLock")
-    private SessionPlaylistAgent mSessionPlaylistAgent;
-    @GuardedBy("mLock")
-    private VolumeProviderCompat mVolumeProvider;
-    @GuardedBy("mLock")
-    private OnDataSourceMissingHelper mDsmHelper;
+    static final String TAG = "MediaSession2";
 
-    @GuardedBy("mLock")
-    private PlaybackStateCompat mPlaybackStateCompat;
+    private final SupportLibraryImpl mImpl;
 
-    @GuardedBy("mLock")
-    private final ArrayMap<IBinder, ControllerInfo> mControllers = new ArrayMap<>();
-    @GuardedBy("mLock")
-    private final Set<IBinder> mConnectingControllers = new HashSet<>();
-    @GuardedBy("mLock")
-    private final ArrayMap<ControllerInfo, SessionCommandGroup2> mAllowedCommandGroupMap =
-            new ArrayMap<>();
 
-    MediaSession2(Context context, MediaSessionCompat sessionCompat, String id,
-            MediaPlayerBase player, MediaPlaylistAgent playlistAgent,
-            VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
-            Executor callbackExecutor, SessionCallback callback) {
-        mContext = context;
-        mHandlerThread = new HandlerThread("MediaController2_Thread");
-        mHandlerThread.run();
-        mHandler = new Handler(mHandlerThread.getLooper());
-
-        mSessionCompat = sessionCompat;
-        mSession2Stub = new MediaSession2StubImplBase(this);
-        mSessionCompat.setCallback(mSession2Stub, mHandler);
-        mSessionCompat.setSessionActivity(sessionActivity);
-
-        mId = id;
-        mCallback = callback;
-        mCallbackExecutor = callbackExecutor;
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-
-        // TODO: Set callback values properly
-        mPlayerEventCallback = null;
-        mPlaylistEventCallback = null;
-
-        // Infer type from the id and package name.
-        String libraryService = getServiceName(context, MediaLibraryService2.SERVICE_INTERFACE, id);
-        String sessionService = getServiceName(context, MediaSessionService2.SERVICE_INTERFACE, id);
-        if (sessionService != null && libraryService != null) {
-            throw new IllegalArgumentException("Ambiguous session type. Multiple"
-                    + " session services define the same id=" + id);
-        } else if (libraryService != null) {
-            mSessionToken = new SessionToken2(Process.myUid(), TYPE_LIBRARY_SERVICE,
-                    context.getPackageName(), libraryService, id, mSessionCompat.getSessionToken());
-        } else if (sessionService != null) {
-            mSessionToken = new SessionToken2(Process.myUid(), TYPE_SESSION_SERVICE,
-                    context.getPackageName(), sessionService, id, mSessionCompat.getSessionToken());
-        } else {
-            mSessionToken = new SessionToken2(Process.myUid(), TYPE_SESSION,
-                    context.getPackageName(), null, id, mSessionCompat.getSessionToken());
-        }
-        updatePlayer(player, playlistAgent, volumeProvider);
+    MediaSession2(SupportLibraryImpl impl) {
+        mImpl = impl;
+        mImpl.setInstance(this);
     }
 
     /**
@@ -1063,99 +1011,51 @@ public class MediaSession2 implements AutoCloseable {
     public void updatePlayer(@NonNull MediaPlayerBase player,
             @Nullable MediaPlaylistAgent playlistAgent,
             @Nullable VolumeProviderCompat volumeProvider) {
-        if (player == null) {
-            throw new IllegalArgumentException("player shouldn't be null");
-        }
-        final MediaPlayerBase oldPlayer;
-        final MediaPlaylistAgent oldAgent;
-        synchronized (mLock) {
-            oldPlayer = mPlayer;
-            oldAgent = mPlaylistAgent;
-            mPlayer = player;
-            if (playlistAgent == null) {
-                mSessionPlaylistAgent = new SessionPlaylistAgent(this, mPlayer);
-                if (mDsmHelper != null) {
-                    mSessionPlaylistAgent.setOnDataSourceMissingHelper(mDsmHelper);
-                }
-                playlistAgent = mSessionPlaylistAgent;
-            }
-            mPlaylistAgent = playlistAgent;
-            mVolumeProvider = volumeProvider;
-        }
-        if (player != oldPlayer) {
-            player.registerPlayerEventCallback(mCallbackExecutor, mPlayerEventCallback);
-            if (oldPlayer != null) {
-                // Warning: Poorly implement player may ignore this
-                oldPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
-            }
-        }
-        if (playlistAgent != oldAgent) {
-            playlistAgent.registerPlaylistEventCallback(mCallbackExecutor, mPlaylistEventCallback);
-            if (oldAgent != null) {
-                // Warning: Poorly implement player may ignore this
-                oldAgent.unregisterPlaylistEventCallback(mPlaylistEventCallback);
-            }
-        }
-
-        if (oldPlayer != null) {
-            // TODO: implement
-            //mSessionStub.notifyPlaybackInfoChanged(info);
-            //notifyPlayerUpdatedNotLocked(oldPlayer);
-        }
-        // TODO(jaewan): Repeat the same thing for the playlist agent.
+        mImpl.updatePlayer(player, playlistAgent, volumeProvider);
     }
 
     @Override
     public void close() {
-        mHandlerThread.quitSafely();
-        //mProvider.close_impl();
+        try {
+            mImpl.close();
+        } catch (Exception e) {
+            // Should not be here.
+        }
     }
 
     /**
      * @return player
      */
     public @NonNull MediaPlayerBase getPlayer() {
-        synchronized (mLock) {
-            return mPlayer;
-        }
+        return mImpl.getPlayer();
     }
 
     /**
      * @return playlist agent
      */
     public @NonNull MediaPlaylistAgent getPlaylistAgent() {
-        synchronized (mLock) {
-            return mPlaylistAgent;
-        }
+        return mImpl.getPlaylistAgent();
     }
 
     /**
      * @return volume provider
      */
     public @Nullable VolumeProviderCompat getVolumeProvider() {
-        synchronized (mLock) {
-            return mVolumeProvider;
-        }
+        return mImpl.getVolumeProvider();
     }
 
     /**
      * Returns the {@link SessionToken2} for creating {@link MediaController2}.
      */
     public @NonNull SessionToken2 getToken() {
-        return mSessionToken;
+        return mImpl.getToken();
     }
 
     /**
      * TODO: add javadoc
      */
     public @NonNull List<ControllerInfo> getConnectedControllers() {
-        ArrayList<ControllerInfo> controllers = new ArrayList<>();
-        synchronized (mLock) {
-            for (int i = 0; i < mControllers.size(); i++) {
-                controllers.add(mControllers.valueAt(i));
-            }
-        }
-        return controllers;
+        return mImpl.getConnectedControllers();
     }
 
     /**
@@ -1164,8 +1064,7 @@ public class MediaSession2 implements AutoCloseable {
      * @param afr the full request parameters
      */
     public void setAudioFocusRequest(@Nullable AudioFocusRequest afr) {
-        // TODO(jaewan): implement this (b/72529899)
-        // mProvider.setAudioFocusRequest_impl(focusGain);
+        mImpl.setAudioFocusRequest(afr);
     }
 
     /**
@@ -1190,7 +1089,7 @@ public class MediaSession2 implements AutoCloseable {
      */
     public void setCustomLayout(@NonNull ControllerInfo controller,
             @NonNull List<CommandButton> layout) {
-        //mProvider.setCustomLayout_impl(controller, layout);
+        mImpl.setCustomLayout(controller, layout);
     }
 
     /**
@@ -1201,7 +1100,7 @@ public class MediaSession2 implements AutoCloseable {
      */
     public void setAllowedCommands(@NonNull ControllerInfo controller,
             @NonNull SessionCommandGroup2 commands) {
-        //mProvider.setAllowedCommands_impl(controller, commands);
+        mImpl.setAllowedCommands(controller, commands);
     }
 
     /**
@@ -1211,7 +1110,7 @@ public class MediaSession2 implements AutoCloseable {
      * @param args optional argument
      */
     public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
-        //mProvider.sendCustomCommand_impl(command, args);
+        mImpl.sendCustomCommand(command, args);
     }
 
     /**
@@ -1224,8 +1123,7 @@ public class MediaSession2 implements AutoCloseable {
     public void sendCustomCommand(@NonNull ControllerInfo controller,
             @NonNull SessionCommand2 command, @Nullable Bundle args,
             @Nullable ResultReceiver receiver) {
-        // Equivalent to the MediaController.sendCustomCommand(Action action, ResultReceiver r);
-        //mProvider.sendCustomCommand_impl(controller, command, args, receiver);
+        mImpl.sendCustomCommand(controller, command, args, receiver);
     }
 
     /**
@@ -1233,8 +1131,9 @@ public class MediaSession2 implements AutoCloseable {
      * <p>
      * This calls {@link MediaPlayerBase#play()}.
      */
+    @Override
     public void play() {
-        //mProvider.play_impl();
+        mImpl.play();
     }
 
     /**
@@ -1242,8 +1141,9 @@ public class MediaSession2 implements AutoCloseable {
      * <p>
      * This calls {@link MediaPlayerBase#pause()}.
      */
+    @Override
     public void pause() {
-        //mProvider.pause_impl();
+        mImpl.pause();
     }
 
     /**
@@ -1251,8 +1151,9 @@ public class MediaSession2 implements AutoCloseable {
      * <p>
      * This calls {@link MediaPlayerBase#reset()}.
      */
-    public void stop() {
-        //mProvider.stop_impl();
+    @Override
+    public void reset() {
+        mImpl.reset();
     }
 
     /**
@@ -1264,8 +1165,9 @@ public class MediaSession2 implements AutoCloseable {
      * <p>
      * This calls {@link MediaPlayerBase#reset()}.
      */
+    @Override
     public void prepare() {
-        //mProvider.prepare_impl();
+        mImpl.prepare();
     }
 
     /**
@@ -1273,24 +1175,27 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @param pos Position to move to, in milliseconds.
      */
+    @Override
     public void seekTo(long pos) {
-        //mProvider.seekTo_impl(pos);
+        mImpl.seekTo(pos);
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @Override
     public void skipForward() {
-        // To match with KEYCODE_MEDIA_SKIP_FORWARD
+        mImpl.skipForward();
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @Override
     public void skipBackward() {
-        // To match with KEYCODE_MEDIA_SKIP_BACKWARD
+        mImpl.skipBackward();
     }
 
     /**
@@ -1299,8 +1204,9 @@ public class MediaSession2 implements AutoCloseable {
      * @param errorCode error code
      * @param extras extras
      */
+    @Override
     public void notifyError(@ErrorCode int errorCode, @Nullable Bundle extras) {
-        //mProvider.notifyError_impl(errorCode, extras);
+        mImpl.notifyError(errorCode, extras);
     }
 
     /**
@@ -1308,17 +1214,9 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @return the current player state
      */
+    @Override
     public @PlayerState int getPlayerState() {
-        MediaPlayerBase player;
-        synchronized (mLock) {
-            player = mPlayer;
-        }
-        if (player != null) {
-            return player.getPlayerState();
-        } else if (DEBUG) {
-            Log.d(TAG, "API calls after the close()", new IllegalStateException());
-        }
-        return MediaPlayerBase.PLAYER_STATE_ERROR;
+        return mImpl.getPlayerState();
     }
 
     /**
@@ -1327,9 +1225,14 @@ public class MediaSession2 implements AutoCloseable {
      * @return the current playback position in ms, or {@link MediaPlayerBase#UNKNOWN_TIME} if
      *         unknown.
      */
+    @Override
     public long getCurrentPosition() {
-        //return mProvider.getPosition_impl();
-        return 0L;
+        return mImpl.getCurrentPosition();
+    }
+
+    @Override
+    public long getDuration() {
+        return mImpl.getDuration();
     }
 
     /**
@@ -1337,9 +1240,9 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @return the buffered position in ms, or {@link MediaPlayerBase#UNKNOWN_TIME}.
      */
+    @Override
     public long getBufferedPosition() {
-        //return mProvider.getBufferedPosition_impl();
-        return 0L;
+        return mImpl.getBufferedPosition();
     }
 
     /**
@@ -1349,9 +1252,9 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @return the buffering state.
      */
+    @Override
     public @BuffState int getBufferingState() {
-        // TODO(jaewan): Implement this
-        return BUFFERING_STATE_UNKNOWN;
+        return mImpl.getBufferingState();
     }
 
     /**
@@ -1359,16 +1262,17 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @return speed
      */
+    @Override
     public float getPlaybackSpeed() {
-        // TODO(jaewan): implement this (b/74093080)
-        return -1;
+        return mImpl.getPlaybackSpeed();
     }
 
     /**
      * Set the playback speed.
      */
+    @Override
     public void setPlaybackSpeed(float speed) {
-        // TODO(jaewan): implement this (b/74093080)
+        mImpl.setPlaybackSpeed(speed);
     }
 
     /**
@@ -1401,16 +1305,9 @@ public class MediaSession2 implements AutoCloseable {
      * @see SessionCommand2#COMMAND_CODE_PLAYLIST_ADD_ITEM
      * @see SessionCommand2#COMMAND_CODE_PLAYLIST_REPLACE_ITEM
      */
+    @Override
     public void setOnDataSourceMissingHelper(@NonNull OnDataSourceMissingHelper helper) {
-        if (helper == null) {
-            throw new IllegalArgumentException("helper shouldn't be null");
-        }
-        synchronized (mLock) {
-            mDsmHelper = helper;
-            if (mSessionPlaylistAgent != null) {
-                mSessionPlaylistAgent.setOnDataSourceMissingHelper(helper);
-            }
-        }
+        mImpl.setOnDataSourceMissingHelper(helper);
     }
 
     /**
@@ -1418,13 +1315,9 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @see #setOnDataSourceMissingHelper(OnDataSourceMissingHelper)
      */
+    @Override
     public void clearOnDataSourceMissingHelper() {
-        synchronized (mLock) {
-            mDsmHelper = null;
-            if (mSessionPlaylistAgent != null) {
-                mSessionPlaylistAgent.clearOnDataSourceMissingHelper();
-            }
-        }
+        mImpl.clearOnDataSourceMissingHelper();
     }
 
     /**
@@ -1440,9 +1333,9 @@ public class MediaSession2 implements AutoCloseable {
      * @see SessionCallback#onPlaylistChanged(
      *          MediaSession2, MediaPlaylistAgent, List, MediaMetadata2)
      */
+    @Override
     public List<MediaItem2> getPlaylist() {
-        //return mProvider.getPlaylist_impl();
-        return null;
+        return mImpl.getPlaylist();
     }
 
     /**
@@ -1468,6 +1361,7 @@ public class MediaSession2 implements AutoCloseable {
      *          MediaSession2, MediaPlaylistAgent, List, MediaMetadata2)
      * @see #setOnDataSourceMissingHelper
      */
+    @Override
     public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
         //mProvider.setPlaylist_impl(list, metadata);
     }
@@ -1482,8 +1376,9 @@ public class MediaSession2 implements AutoCloseable {
      * @see #getShuffleMode()
      * @see #getRepeatMode()
      */
+    @Override
     public void skipToPlaylistItem(@NonNull MediaItem2 item) {
-        //mProvider.skipToPlaylistItem_impl(item);
+        mImpl.skipToPlaylistItem(item);
     }
 
     /**
@@ -1495,8 +1390,9 @@ public class MediaSession2 implements AutoCloseable {
      * @see #getShuffleMode()
      * @see #getRepeatMode()
      **/
+    @Override
     public void skipToPreviousItem() {
-        //mProvider.skipToPreviousItem_impl();
+        mImpl.skipToPreviousItem();
     }
 
     /**
@@ -1508,8 +1404,9 @@ public class MediaSession2 implements AutoCloseable {
      * @see #getShuffleMode()
      * @see #getRepeatMode()
      */
+    @Override
     public void skipToNextItem() {
-        //mProvider.skipToNextItem_impl();
+        mImpl.skipToNextItem();
     }
 
     /**
@@ -1517,9 +1414,9 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @return the playlist metadata
      */
+    @Override
     public MediaMetadata2 getPlaylistMetadata() {
-        //return mProvider.getPlaylistMetadata_impl();
-        return null;
+        return mImpl.getPlaylistMetadata();
     }
 
     /**
@@ -1533,8 +1430,9 @@ public class MediaSession2 implements AutoCloseable {
      * @param index the index you want to add
      * @param item the media item you want to add
      */
+    @Override
     public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
-        //mProvider.addPlaylistItem_impl(index, item);
+        mImpl.addPlaylistItem(index, item);
     }
 
     /**
@@ -1545,8 +1443,9 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @param item the media item you want to add
      */
+    @Override
     public void removePlaylistItem(@NonNull MediaItem2 item) {
-        //mProvider.removePlaylistItem_impl(item);
+        mImpl.removePlaylistItem(item);
     }
 
     /**
@@ -1556,8 +1455,9 @@ public class MediaSession2 implements AutoCloseable {
      * @param index the index of the item to replace
      * @param item the new item
      */
+    @Override
     public void replacePlaylistItem(int index, @NonNull MediaItem2 item) {
-        //mProvider.replacePlaylistItem_impl(index, item);
+        mImpl.replacePlaylistItem(index, item);
     }
 
     /**
@@ -1565,10 +1465,9 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @return currently playing media item
      */
+    @Override
     public MediaItem2 getCurrentMediaItem() {
-        // TODO(jaewan): Rename provider, and implement (b/74316764)
-        //return mProvider.getCurrentPlaylistItem_impl();
-        return null;
+        return mImpl.getCurrentMediaItem();
     }
 
     /**
@@ -1576,8 +1475,9 @@ public class MediaSession2 implements AutoCloseable {
      *
      * @param metadata metadata of the playlist
      */
+    @Override
     public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
-        //mProvider.updatePlaylistMetadata_impl(metadata);
+        mImpl.updatePlaylistMetadata(metadata);
     }
 
     /**
@@ -1589,9 +1489,9 @@ public class MediaSession2 implements AutoCloseable {
      * @see MediaPlaylistAgent#REPEAT_MODE_ALL
      * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
      */
+    @Override
     public @RepeatMode int getRepeatMode() {
-        //return mProvider.getRepeatMode_impl();
-        return MediaPlaylistAgent.REPEAT_MODE_NONE;
+        return mImpl.getRepeatMode();
     }
 
     /**
@@ -1603,8 +1503,9 @@ public class MediaSession2 implements AutoCloseable {
      * @see MediaPlaylistAgent#REPEAT_MODE_ALL
      * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
      */
+    @Override
     public void setRepeatMode(@RepeatMode int repeatMode) {
-        //mProvider.setRepeatMode_impl(repeatMode);
+        mImpl.setRepeatMode(repeatMode);
     }
 
     /**
@@ -1615,9 +1516,9 @@ public class MediaSession2 implements AutoCloseable {
      * @see MediaPlaylistAgent#SHUFFLE_MODE_ALL
      * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
      */
+    @Override
     public @ShuffleMode int getShuffleMode() {
-        //return mProvider.getShuffleMode_impl();
-        return MediaPlaylistAgent.SHUFFLE_MODE_NONE;
+        return mImpl.getShuffleMode();
     }
 
     /**
@@ -1628,58 +1529,8 @@ public class MediaSession2 implements AutoCloseable {
      * @see MediaPlaylistAgent#SHUFFLE_MODE_ALL
      * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
      */
+    @Override
     public void setShuffleMode(@ShuffleMode int shuffleMode) {
-        //mProvider.setShuffleMode_impl(shuffleMode);
-    }
-
-    Context getContext() {
-        return mContext;
-    }
-
-    Executor getCallbackExecutor() {
-        return mCallbackExecutor;
-    }
-
-    SessionCallback getCallback() {
-        return mCallback;
-    }
-
-    PlaybackStateCompat getPlaybackStateCompat() {
-        synchronized (mLock) {
-            return mPlaybackStateCompat;
-        }
-    }
-
-    boolean isClosed() {
-        return !mHandlerThread.isAlive();
-    }
-
-    ///////////////////////////////////////////////////
-    // Protected or private methods
-    ///////////////////////////////////////////////////
-
-    private static String getServiceName(Context context, String serviceAction, String id) {
-        PackageManager manager = context.getPackageManager();
-        Intent serviceIntent = new Intent(serviceAction);
-        serviceIntent.setPackage(context.getPackageName());
-        List<ResolveInfo> services = manager.queryIntentServices(serviceIntent,
-                PackageManager.GET_META_DATA);
-        String serviceName = null;
-        if (services != null) {
-            for (int i = 0; i < services.size(); i++) {
-                String serviceId = SessionToken2.getSessionId(services.get(i));
-                if (serviceId != null && TextUtils.equals(id, serviceId)) {
-                    if (services.get(i).serviceInfo == null) {
-                        continue;
-                    }
-                    if (serviceName != null) {
-                        throw new IllegalArgumentException("Ambiguous session type. Multiple"
-                                + " session services define the same id=" + id);
-                    }
-                    serviceName = services.get(i).serviceInfo.name;
-                }
-            }
-        }
-        return serviceName;
+        mImpl.setShuffleMode(shuffleMode);
     }
 }
