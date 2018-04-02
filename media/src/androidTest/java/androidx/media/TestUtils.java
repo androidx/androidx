@@ -19,8 +19,8 @@ package androidx.media;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.content.ComponentName;
 import android.content.Context;
-import android.media.session.MediaSessionManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -46,20 +46,15 @@ public final class TestUtils {
      * @return
      */
     public static SessionToken2 getServiceToken(Context context, String id) {
-        MediaSessionManager manager =
-                (MediaSessionManager) context.getSystemService(Context.MEDIA_SESSION_SERVICE);
-        // TODO(jaewan): Enable this when prebuilt SDK gets updated.
-        // Currently, the prebuilt SDK doesn't have MediaSessionManager.getSessionServiceTokens().
-//        List<SessionToken2> tokens = manager.getSessionServiceTokens();
-        List<SessionToken2> tokens = null;
-        for (int i = 0; i < tokens.size(); i++) {
-            SessionToken2 token = tokens.get(i);
-            if (context.getPackageName().equals(token.getPackageName())
-                    && id.equals(token.getId())) {
-                return token;
-            }
+        switch (id) {
+            case MockMediaSessionService2.ID:
+                return new SessionToken2(context, new ComponentName(
+                        context.getPackageName(), MockMediaSessionService2.class.getName()));
+            case MockMediaLibraryService2.ID:
+                return new SessionToken2(context, new ComponentName(
+                        context.getPackageName(), MockMediaLibraryService2.class.getName()));
         }
-        fail("Failed to find service");
+        fail("Unknown id=" + id);
         return null;
     }
 

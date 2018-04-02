@@ -783,6 +783,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          *
          * @return {@code true} if the controller is trusted.
          */
+        // TODO: Remove this API
         public boolean isTrusted() {
             //return mProvider.isTrusted_impl();
             return false;
@@ -808,8 +809,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
 
         @Override
         public String toString() {
-            return "ControllerInfo {pkg=" + mPackageName + ", uid=" + mUid + ", trusted="
-                    + mIsTrusted + "}";
+            return "ControllerInfo {pkg=" + mPackageName + ", uid=" + mUid + "})";
         }
 
         /**
@@ -1157,7 +1157,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     }
 
     /**
-     * Play playback
+     * Play playback.
      * <p>
      * This calls {@link MediaPlayerBase#play()}.
      */

@@ -141,6 +141,7 @@ public abstract class MediaSessionService2 extends Service {
     private MediaSession2 mSession;
 
     public MediaSessionService2() {
+        super();
         mBrowserServiceCompat = createBrowserServiceCompat();
     }
 
@@ -158,6 +159,8 @@ public abstract class MediaSessionService2 extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        mBrowserServiceCompat.attachBaseContext(this);
+        mBrowserServiceCompat.onCreate();
         SessionToken2 token = new SessionToken2(this,
                 new ComponentName(getPackageName(), getClass().getName()));
         if (token.getType() != getSessionType()) {
@@ -172,8 +175,7 @@ public abstract class MediaSessionService2 extends Service {
                 throw new RuntimeException("Expected session with id " + token.getId()
                         + ", but got " + mSession);
             }
-            // TODO: Obtain old token from the mSession.
-            // mBrowserServiceCompat.setSessionToken( /* What to do? */ );
+            mBrowserServiceCompat.setSessionToken(mSession.getToken().getSessionCompatToken());
         }
     }
 

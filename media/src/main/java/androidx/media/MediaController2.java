@@ -532,7 +532,7 @@ public class MediaController2 implements AutoCloseable {
     @Override
     public void close() {
         if (DEBUG) {
-            Log.d(TAG, "release from " + mToken);
+            Log.d(TAG, "release from " + mToken, new IllegalStateException());
         }
         synchronized (mLock) {
             if (mIsReleased) {
@@ -543,7 +543,9 @@ public class MediaController2 implements AutoCloseable {
             mHandlerThread.quitSafely();
 
             mIsReleased = true;
-            mControllerCompat.unregisterCallback(mControllerCompatCallback);
+            if (mControllerCompat != null) {
+                mControllerCompat.unregisterCallback(mControllerCompatCallback);
+            }
             if (mBrowserCompat != null) {
                 mBrowserCompat.disconnect();
                 mBrowserCompat = null;
@@ -1412,7 +1414,7 @@ public class MediaController2 implements AutoCloseable {
         public void onConnected() {
             MediaBrowserCompat browser = getBrowserCompat();
             if (browser != null) {
-                connectToSession(mToken.getSessionCompatToken());
+                connectToSession(browser.getSessionToken());
             } else if (DEBUG) {
                 Log.d(TAG, "Controller is closed prematually", new IllegalStateException());
             }

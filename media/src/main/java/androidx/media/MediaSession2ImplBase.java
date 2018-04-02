@@ -190,8 +190,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void close() {
-        mHandlerThread.quitSafely();
-        //mProvider.close_impl();
+        synchronized (mLock) {
+            mHandler.removeCallbacksAndMessages(null);
+            if (mHandlerThread.isAlive()) {
+                mHandlerThread.quitSafely();
+            }
+        }
     }
 
     @Override
@@ -264,7 +268,13 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void play() {
-        //mProvider.play_impl();
+        final MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            player.play();
+        }
     }
 
     @Override

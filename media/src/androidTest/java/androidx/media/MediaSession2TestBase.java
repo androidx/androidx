@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base class for session test.
@@ -149,12 +150,22 @@ abstract class MediaSession2TestBase {
         getWaitForConnectionInterface(controller).waitForDisconnect(expected);
     }
 
-    TestControllerInterface onCreateController(@NonNull SessionToken2 token,
-            @Nullable ControllerCallback callback) {
-        if (callback == null) {
-            callback = new ControllerCallback() {};
-        }
-        return new TestMediaController(mContext, token, new TestControllerCallback(callback));
+    TestControllerInterface onCreateController(final @NonNull SessionToken2 token,
+            @Nullable ControllerCallback callback) throws InterruptedException {
+        final ControllerCallback controllerCallback =
+                callback != null ? callback : new ControllerCallback() {};
+        final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
+        sHandler.postAndSync(new Runnable() {
+            @Override
+            public void run() {
+                // Create controller on the test handler, for changing MediaBrowserCompat's Handler
+                // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
+                // and commands wouldn't be run if tests codes waits on the test handler.
+                controller.set(new TestMediaController(
+                        mContext, token, new TestControllerCallback(controllerCallback)));
+            }
+        });
+        return controller.get();
     }
 
     // TODO(jaewan): (Can be Post-P): Deprecate this
