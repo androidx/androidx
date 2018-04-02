@@ -315,10 +315,10 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         // TODO: add attributes to get this value.
         mShowControllerIntervalMs = DEFAULT_SHOW_CONTROLLER_INTERVAL_MS;
 
-        // TODO: use AccessibilityManager
-        // mAccessibilityManager = AccessibilityManager.getInstance(getContext());
+        mAccessibilityManager = (AccessibilityManager) context.getSystemService(
+                Context.ACCESSIBILITY_SERVICE);
 
-        mAudioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mAudioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
                 .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE).build();
         setFocusable(true);
@@ -1065,13 +1065,10 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         }
         mMediaControlView.removeCallbacks(mFadeOut);
         mMediaControlView.setVisibility(View.VISIBLE);
-        // TODO: Use AccessibilityManager.
-        /*
         if (mShowControllerIntervalMs != 0
                 && !mAccessibilityManager.isTouchExplorationEnabled()) {
             mMediaControlView.postDelayed(mFadeOut, mShowControllerIntervalMs);
         }
-        */
     }
 
     private void toggleMediaControlViewVisibility() {

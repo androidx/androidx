@@ -1578,10 +1578,8 @@ public class MediaControlView2 extends BaseLayout {
         public View getView(int position, View convertView, ViewGroup container) {
             View row;
             if (mSizeType == SIZE_TYPE_FULL) {
-                // TODO(b/76444971) replace ApiHelper usage with proper ones.
                 row = inflateLayout(getContext(), R.layout.full_settings_list_item);
             } else {
-                // TODO(b/76444971) replace ApiHelper usage with proper ones.
                 row = inflateLayout(getContext(), R.layout.embedded_settings_list_item);
             }
             TextView mainTextView = (TextView) row.findViewById(R.id.main_text);
