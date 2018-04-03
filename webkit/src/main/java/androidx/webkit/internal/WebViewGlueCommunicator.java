@@ -59,13 +59,11 @@ public class WebViewGlueCommunicator {
 
     private static InvocationHandler fetchGlueProviderFactoryImpl() throws IllegalAccessException,
             InvocationTargetException, ClassNotFoundException, NoSuchMethodException {
-            Class<?> glueFactoryProviderFetcherClass = Class.forName(
-                    GLUE_FACTORY_PROVIDER_FETCHER_CLASS, false, getWebViewClassLoader());
-            Method createProviderFactoryMethod = glueFactoryProviderFetcherClass.getDeclaredMethod(
-                    GLUE_FACTORY_PROVIDER_FETCHER_METHOD, InvocationHandler.class);
-            return (InvocationHandler) createProviderFactoryMethod.invoke(null,
-                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                            new SupportLibraryInfo()));
+        Class<?> glueFactoryProviderFetcherClass = Class.forName(
+                GLUE_FACTORY_PROVIDER_FETCHER_CLASS, false, getWebViewClassLoader());
+        Method createProviderFactoryMethod = glueFactoryProviderFetcherClass.getDeclaredMethod(
+                GLUE_FACTORY_PROVIDER_FETCHER_METHOD);
+        return (InvocationHandler) createProviderFactoryMethod.invoke(null);
     }
 
     private static WebViewProviderFactory createGlueProviderFactory() {
