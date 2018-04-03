@@ -38,6 +38,8 @@ import androidx.slice.builders.impl.ListBuilderV1Impl;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
 import androidx.slice.core.SliceHints;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 
@@ -124,6 +126,7 @@ public class ListBuilder extends TemplateSliceBuilder {
     @IntDef({
             LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface ImageMode{}
 
     /**
