@@ -2214,9 +2214,14 @@ public class NotificationCompat {
          * @see Message#Message(CharSequence, long, CharSequence)
          *
          * @return this object for method chaining
+         *
+         * @deprecated Use {@link #addMessage(CharSequence, long, Person)} or
+         * {@link #addMessage(Message)}
          */
+        @Deprecated
         public MessagingStyle addMessage(CharSequence text, long timestamp, CharSequence sender) {
-            mMessages.add(new Message(text, timestamp, sender));
+            mMessages.add(
+                    new Message(text, timestamp, new Person.Builder().setName(sender).build()));
             if (mMessages.size() > MAXIMUM_RETAINED_MESSAGES) {
                 mMessages.remove(0);
             }
@@ -2224,8 +2229,23 @@ public class NotificationCompat {
         }
 
         /**
+         * Adds a message for display by this notification. Convenience call for
+         * {@link #addMessage(Message)}.
+         *
+         * @see Message#Message(CharSequence, long, Person)
+         *
+         * @return this for method chaining
+         */
+        public MessagingStyle addMessage(CharSequence text, long timestamp, Person person) {
+            addMessage(new Message(text, timestamp, person));
+            return this;
+        }
+
+        /**
          * Adds a {@link Message} for display in this notification.
+         *
          * @param message The {@link Message} to be displayed
+         *
          * @return this object for method chaining
          */
         public MessagingStyle addMessage(Message message) {
@@ -2462,24 +2482,42 @@ public class NotificationCompat {
         }
 
         public static final class Message {
-
             static final String KEY_TEXT = "text";
             static final String KEY_TIMESTAMP = "time";
             static final String KEY_SENDER = "sender";
             static final String KEY_DATA_MIME_TYPE = "type";
             static final String KEY_DATA_URI= "uri";
             static final String KEY_EXTRAS_BUNDLE = "extras";
+            static final String KEY_PERSON = "person";
 
             private final CharSequence mText;
             private final long mTimestamp;
-            private final CharSequence mSender;
+            @Nullable private final Person mPerson;
 
             private Bundle mExtras = new Bundle();
-            private String mDataMimeType;
-            private Uri mDataUri;
+            @Nullable private String mDataMimeType;
+            @Nullable private Uri mDataUri;
+
+            /**
+             * Creates a new {@link Message} with the given text, timestamp, and sender.
+             *
+             * @param text A {@link CharSequence} to be displayed as the message content
+             * @param timestamp Time at which the message arrived in ms since Unix epoch
+             * @param person A {@link Person} whose {@link Person#getName()} value is used as the
+             * display name for the sender. This should be {@code null} for messages by the current
+             * user, in which case, the platform will insert
+             * {@link MessagingStyle#getUserDisplayName()}. A {@link Person}'s key should be
+             * consistent during re-posts of the notification.
+             */
+            public Message(CharSequence text, long timestamp, @Nullable Person person) {
+                mText = text;
+                mTimestamp = timestamp;
+                mPerson = person;
+            }
 
             /**
              * Constructor
+             *
              * @param text A {@link CharSequence} to be displayed as the message content
              * @param timestamp Time at which the message arrived in ms since Unix epoch
              * @param sender A {@link CharSequence} to be used for displaying the name of the
@@ -2487,17 +2525,19 @@ public class NotificationCompat {
              * the platform will insert {@link MessagingStyle#getUserDisplayName()}.
              * Should be unique amongst all individuals in the conversation, and should be
              * consistent during re-posts of the notification.
+             *
+             * @deprecated Use the alternative constructor instead.
              */
+            @Deprecated
             public Message(CharSequence text, long timestamp, CharSequence sender){
-                mText = text;
-                mTimestamp = timestamp;
-                mSender = sender;
+                this(text, timestamp, new Person.Builder().setName(sender).build());
             }
 
             /**
              * Sets a binary blob of data and an associated MIME type for a message. In the case
              * where the platform doesn't support the MIME type, the original text provided in the
              * constructor will be used.
+             *
              * @param dataMimeType The MIME type of the content. See
              * <a href="{@docRoot}notifications/messaging.html"> for the list of supported MIME
              * types on Android and Android Wear.
@@ -2519,6 +2559,7 @@ public class NotificationCompat {
              *       Note that once added to the system MediaStore the content is accessible to any
              *       app on the device.</li>
              * </ol>
+             *
              * @return this object for method chaining
              */
             public Message setData(String dataMimeType, Uri dataUri) {
@@ -2531,34 +2572,41 @@ public class NotificationCompat {
              * Get the text to be used for this message, or the fallback text if a type and content
              * Uri have been set
              */
+            @NonNull
             public CharSequence getText() {
                 return mText;
             }
 
-            /**
-             * Get the time at which this message arrived in ms since Unix epoch
-             */
+            /** Get the time at which this message arrived in ms since Unix epoch. */
             public long getTimestamp() {
                 return mTimestamp;
             }
 
-            /**
-             * Get the extras Bundle for this message.
-             */
+            /** Get the extras Bundle for this message. */
+            @NonNull
             public Bundle getExtras() {
                 return mExtras;
             }
 
             /**
              * Get the text used to display the contact's name in the messaging experience
+             *
+             * @deprecated Use {@link #getPerson()}
              */
+            @Deprecated
+            @Nullable
             public CharSequence getSender() {
-                return mSender;
+                return mPerson.getName();
             }
 
-            /**
-             * Get the MIME type of the data pointed to by the Uri
-             */
+            /** Returns the {@link Person} sender of this message. */
+            @Nullable
+            public Person getPerson() {
+                return mPerson;
+            }
+
+            /** Get the MIME type of the data pointed to by the URI. */
+            @Nullable
             public String getDataMimeType() {
                 return mDataMimeType;
             }
@@ -2567,6 +2615,7 @@ public class NotificationCompat {
              * Get the the Uri pointing to the content of the message. Can be null, in which case
              * {@see #getText()} is used.
              */
+            @Nullable
             public Uri getDataUri() {
                 return mDataUri;
             }
@@ -2577,8 +2626,8 @@ public class NotificationCompat {
                     bundle.putCharSequence(KEY_TEXT, mText);
                 }
                 bundle.putLong(KEY_TIMESTAMP, mTimestamp);
-                if (mSender != null) {
-                    bundle.putCharSequence(KEY_SENDER, mSender);
+                if (mPerson != null) {
+                    bundle.putBundle(KEY_PERSON, mPerson.toBundle());
                 }
                 if (mDataMimeType != null) {
                     bundle.putString(KEY_DATA_MIME_TYPE, mDataMimeType);
@@ -2592,6 +2641,7 @@ public class NotificationCompat {
                 return bundle;
             }
 
+            @NonNull
             static Bundle[] getBundleArrayForMessages(List<Message> messages) {
                 Bundle[] bundles = new Bundle[messages.size()];
                 final int N = messages.size();
@@ -2601,6 +2651,7 @@ public class NotificationCompat {
                 return bundles;
             }
 
+            @NonNull
             static List<Message> getMessagesFromBundleArray(Parcelable[] bundles) {
                 List<Message> messages = new ArrayList<>(bundles.length);
                 for (int i = 0; i < bundles.length; i++) {
@@ -2614,23 +2665,38 @@ public class NotificationCompat {
                 return messages;
             }
 
+            @Nullable
             static Message getMessageFromBundle(Bundle bundle) {
                 try {
                     if (!bundle.containsKey(KEY_TEXT) || !bundle.containsKey(KEY_TIMESTAMP)) {
                         return null;
-                    } else {
-                        Message message = new Message(bundle.getCharSequence(KEY_TEXT),
-                                bundle.getLong(KEY_TIMESTAMP), bundle.getCharSequence(KEY_SENDER));
-                        if (bundle.containsKey(KEY_DATA_MIME_TYPE) &&
-                                bundle.containsKey(KEY_DATA_URI)) {
-                            message.setData(bundle.getString(KEY_DATA_MIME_TYPE),
-                                    (Uri) bundle.getParcelable(KEY_DATA_URI));
-                        }
-                        if (bundle.containsKey(KEY_EXTRAS_BUNDLE)) {
-                            message.getExtras().putAll(bundle.getBundle(KEY_EXTRAS_BUNDLE));
-                        }
-                        return message;
                     }
+
+                    Message message;
+                    if (bundle.containsKey(KEY_SENDER)) {
+                        // Legacy sender
+                        message = new Message(
+                                bundle.getCharSequence(KEY_TEXT),
+                                bundle.getLong(KEY_TIMESTAMP),
+                                new Person.Builder()
+                                        .setName(bundle.getCharSequence(KEY_SENDER))
+                                        .build());
+                    } else {
+                        message = new Message(
+                                bundle.getCharSequence(KEY_TEXT),
+                                bundle.getLong(KEY_TIMESTAMP),
+                                Person.fromBundle(bundle.getBundle(KEY_PERSON)));
+                    }
+
+                    if (bundle.containsKey(KEY_DATA_MIME_TYPE)
+                            && bundle.containsKey(KEY_DATA_URI)) {
+                        message.setData(bundle.getString(KEY_DATA_MIME_TYPE),
+                                (Uri) bundle.getParcelable(KEY_DATA_URI));
+                    }
+                    if (bundle.containsKey(KEY_EXTRAS_BUNDLE)) {
+                        message.getExtras().putAll(bundle.getBundle(KEY_EXTRAS_BUNDLE));
+                    }
+                    return message;
                 } catch (ClassCastException e) {
                     return null;
                 }
