@@ -51,6 +51,8 @@ import androidx.slice.widget.ListContent;
 import androidx.slice.widget.RowContent;
 import androidx.slice.widget.SliceView;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +68,7 @@ public class SliceMetadata {
     @IntDef({
             LOADED_NONE, LOADED_PARTIAL, LOADED_ALL
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface SliceLoadingState{}
 
     /**
