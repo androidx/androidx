@@ -319,4 +319,6 @@ public class SliceProviderCompat {
         return Collections.emptyList();
     }
 
+    private SliceProviderCompat() {
+    }
 }
