@@ -133,7 +133,8 @@ final class CollapsiblePreferenceGroupController {
 
     private ExpandButton createExpandButton(final PreferenceGroup group,
             List<Preference> collapsedPreferences) {
-        final ExpandButton preference = new ExpandButton(mContext, collapsedPreferences);
+        final ExpandButton preference = new ExpandButton(mContext, collapsedPreferences,
+                group.getId());
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -150,10 +151,16 @@ final class CollapsiblePreferenceGroupController {
      * {@link PreferenceGroup}.
      */
     static class ExpandButton extends Preference {
-        ExpandButton(Context context, List<Preference> collapsedPreferences) {
+        private long mId;
+
+        ExpandButton(Context context, List<Preference> collapsedPreferences, long parentId) {
             super(context);
             initLayout();
             setSummary(collapsedPreferences);
+            // Since IDs are unique, using the parentId as a reference ensures that this expand
+            // button will have a unique ID and hence transitions will be correctly animated by
+            // RecyclerView when there are multiple ExpandButtons.
+            mId = parentId + 1000000;
         }
 
         private void initLayout() {
@@ -200,6 +207,11 @@ final class CollapsiblePreferenceGroupController {
         public void onBindViewHolder(PreferenceViewHolder holder) {
             super.onBindViewHolder(holder);
             holder.setDividerAllowedAbove(false);
+        }
+
+        @Override
+        public long getId() {
+            return mId;
         }
     }
 
