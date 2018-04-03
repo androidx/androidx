@@ -17,6 +17,7 @@
 package androidx.core.view;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Build;
 import android.util.Log;
 import android.util.TypedValue;
@@ -128,6 +129,22 @@ public final class ViewConfigurationCompat {
             return config.getScaledHoverSlop();
         }
         return config.getScaledTouchSlop() / 2;
+    }
+
+    /**
+     * Check if shortcuts should be displayed in menus.
+     *
+     * @return {@code True} if shortcuts should be displayed in menus.
+     */
+    public static boolean shouldShowMenuShortcutsWhenKeyboardPresent(ViewConfiguration config,
+            @NonNull Context context) {
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            return config.shouldShowMenuShortcutsWhenKeyboardPresent();
+        }
+        final Resources res = context.getResources();
+        final int platformResId = res.getIdentifier(
+                "config_showMenuShortcutsWhenKeyboardPresent", "bool", "android");
+        return platformResId != 0 && res.getBoolean(platformResId);
     }
 
     private ViewConfigurationCompat() {}
