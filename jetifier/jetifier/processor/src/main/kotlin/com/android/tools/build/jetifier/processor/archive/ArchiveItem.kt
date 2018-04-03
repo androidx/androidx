@@ -39,7 +39,9 @@ interface ArchiveItem {
     val fileName: String
 
     /**
-     * Whether the item's content or its children were changed by Jetifier.
+     * Whether the item's content or its children were changed by Jetifier. This determines
+     * whether the parent archive is going to be marked as changed thus having a dependency on
+     * support.
      */
     val wasChanged: Boolean
 

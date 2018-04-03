@@ -55,8 +55,25 @@ class ArchiveFile(relativePath: Path, data: ByteArray) : ArchiveItem {
         fileName = relativePath.fileName.toString()
     }
 
+    /**
+     * Sets new data while also marking this file as changed. This will result into the parent
+     * archive also being considered as changed thus marking it as dependent on the Support library.
+     */
     fun setNewData(newData: ByteArray) {
         data = newData
         wasChanged = true
+    }
+
+    /**
+     * Sets a potentially new data without triggering a change. Useful in cases the change is not
+     * significant for the refactoring because it occurred due to some optimization or
+     * formatting change.
+     *
+     * If there was at least one genuine change in any file of the parent archive this won't prevent
+     * this file from being updated. However this will prevent the change to propagate to
+     * the parent archive which would otherwise mark it as dependent on the Support Library.
+     */
+    fun setNewDataSilently(newData: ByteArray) {
+        data = newData
     }
 }
