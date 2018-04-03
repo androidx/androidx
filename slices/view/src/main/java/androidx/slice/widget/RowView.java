@@ -17,6 +17,7 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
+import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
@@ -177,7 +178,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             SliceView.OnSliceActionListener observer) {
         setSliceActionListener(observer);
         mRowIndex = index;
-        mIsHeader = isHeader;
+        mIsHeader = !slice.hasHint(HINT_LIST_ITEM);
         mHeaderActions = null;
         mRowContent = new RowContent(getContext(), slice, mIsHeader);
         populateViews();
@@ -189,10 +190,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     @Override
     public void setSlice(Slice slice) {
         mRowIndex = 0;
-        mIsHeader = true;
         mHeaderActions = null;
         ListContent lc = new ListContent(getContext(), slice);
-        mRowContent = new RowContent(getContext(), lc.getHeaderItem(), true /* isHeader */);
+        mIsHeader = lc.hasHeader();
+        mRowContent = new RowContent(getContext(), lc.getHeaderItem(), mIsHeader /* isHeader */);
         populateViews();
     }
 
