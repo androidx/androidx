@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.content.PermissionChecker;
 import androidx.core.os.BuildCompat;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -208,6 +209,18 @@ public abstract class SliceManager {
      * @see #grantSlicePermission
      */
     public abstract void revokeSlicePermission(@NonNull String toPackage, @NonNull Uri uri);
+
+    /**
+     * Obtains a list of slices that are descendants of the specified Uri.
+     * <p>
+     * Not all slice providers will implement this functionality, in which case,
+     * an empty collection will be returned.
+     *
+     * @param uri The uri to look for descendants under.
+     * @return All slices within the space.
+     * @see SliceProvider#onGetSliceDescendants(Uri)
+     */
+    public abstract @NonNull Collection<Uri> getSliceDescendants(@NonNull Uri uri);
 
     /**
      * Class that listens to changes in {@link Slice}s.
