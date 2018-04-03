@@ -50,6 +50,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.MediaPlayerBase.PlayerEventCallback;
+import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -123,7 +124,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
         // TODO: Set callback values properly
         mPlayerEventCallback = new MyPlayerEventCallback(this);
-        mPlaylistEventCallback = null;
+        mPlaylistEventCallback = new MyPlaylistEventCallback(this);
 
         // Infer type from the id and package name.
         String libraryService = getServiceName(context, MediaLibraryService2.SERVICE_INTERFACE, id);
@@ -640,6 +641,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         public void onCurrentDataSourceChanged(final MediaPlayerBase mpb,
                 final DataSourceDesc dsd) {
             final MediaSession2ImplBase session = getSession();
+            // TODO: handle properly when dsd == null
             if (session == null || dsd == null) {
                 return;
             }
@@ -736,6 +738,56 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                 }
             }
             return item;
+        }
+    }
+
+    private static class MyPlaylistEventCallback extends PlaylistEventCallback {
+        private final WeakReference<MediaSession2ImplBase> mSession;
+
+        private MyPlaylistEventCallback(MediaSession2ImplBase session) {
+            mSession = new WeakReference<>(session);
+        }
+
+        @Override
+        public void onPlaylistChanged(MediaPlaylistAgent playlistAgent, List<MediaItem2> list,
+                MediaMetadata2 metadata) {
+            final MediaSession2ImplBase session = mSession.get();
+            if (session == null) {
+                return;
+            }
+            // TODO: implement
+            //session.notifyPlaylistChangedOnExecutor(playlistAgent, list, metadata);
+        }
+
+        @Override
+        public void onPlaylistMetadataChanged(MediaPlaylistAgent playlistAgent,
+                MediaMetadata2 metadata) {
+            final MediaSession2ImplBase session = mSession.get();
+            if (session == null) {
+                return;
+            }
+            // TODO: implement
+            //session.notifyPlaylistMetadataChangedOnExecutor(playlistAgent, metadata);
+        }
+
+        @Override
+        public void onRepeatModeChanged(MediaPlaylistAgent playlistAgent, int repeatMode) {
+            final MediaSession2ImplBase session = mSession.get();
+            if (session == null) {
+                return;
+            }
+            // TODO: implement
+            //session.notifyRepeatModeChangedOnExecutor(playlistAgent, repeatMode);
+        }
+
+        @Override
+        public void onShuffleModeChanged(MediaPlaylistAgent playlistAgent, int shuffleMode) {
+            final MediaSession2ImplBase session = mSession.get();
+            if (session == null) {
+                return;
+            }
+            // TODO: implement
+            //session.notifyShuffleModeChangedOnExecutor(playlistAgent, shuffleMode);
         }
     }
 

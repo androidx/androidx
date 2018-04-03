@@ -395,6 +395,12 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         notifyShuffleModeChanged();
     }
 
+    @Override
+    public MediaItem2 getMediaItem(DataSourceDesc dsd) {
+        // TODO: implement this
+        return null;
+    }
+
     @VisibleForTesting
     int getCurShuffledIndex() {
         synchronized (mLock) {

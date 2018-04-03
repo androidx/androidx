@@ -99,8 +99,9 @@ public final class TestUtils {
         for (int i = 0; i < size; i++) {
             list.add(new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
                     .setMediaId(caller + "_item_" + (size + 1))
-                    // TODO(jaewan): Uncomment here after DataSourceDesc.builder is ready.
-//                    .setDataSourceDesc(
+                    .setDataSourceDesc(
+                            // TODO(jaewan): Uncomment here after DataSourceDesc.builder is ready.
+                            new DataSourceDesc())
 //                            new DataSourceDesc.Builder()
 //                                    .setDataSource(new FileDescriptor())
 //                                    .build())

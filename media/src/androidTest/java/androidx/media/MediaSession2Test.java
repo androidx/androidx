@@ -154,24 +154,18 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(targetState, controller.getPlayerState());
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testCurrentDataSourceChanged() throws Exception {
         final int listSize = 5;
         final List<MediaItem2> list = TestUtils.createPlaylist(listSize);
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
-            @Override
-            public List<MediaItem2> getPlaylist() {
-                return list;
-            }
-        };
+        mMockAgent.setPlaylist(list, null);
 
         final MediaItem2 currentItem = list.get(3);
-
         final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
-                .setPlaylistAgent(agent)
+                .setPlaylistAgent(mMockAgent)
                 .setId("testCurrentDataSourceChanged")
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
@@ -193,19 +187,14 @@ public class MediaSession2Test extends MediaSession2TestBase {
     public void testMediaPrepared() throws Exception {
         final int listSize = 5;
         final List<MediaItem2> list = TestUtils.createPlaylist(listSize);
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
-            @Override
-            public List<MediaItem2> getPlaylist() {
-                return list;
-            }
-        };
+        mMockAgent.setPlaylist(list, null);
 
         final MediaItem2 currentItem = list.get(3);
 
         final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
-                .setPlaylistAgent(agent)
+                .setPlaylistAgent(mMockAgent)
                 .setId("testMediaPrepared")
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
@@ -227,12 +216,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     public void testBufferingStateChanged() throws Exception {
         final int listSize = 5;
         final List<MediaItem2> list = TestUtils.createPlaylist(listSize);
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
-            @Override
-            public List<MediaItem2> getPlaylist() {
-                return list;
-            }
-        };
+        mMockAgent.setPlaylist(list, null);
 
         final MediaItem2 currentItem = list.get(3);
         final int buffState = MediaPlayerBase.BUFFERING_STATE_BUFFERING_COMPLETE;
@@ -240,7 +224,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
-                .setPlaylistAgent(agent)
+                .setPlaylistAgent(mMockAgent)
                 .setId("testBufferingStateChanged")
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
@@ -467,17 +451,13 @@ public class MediaSession2Test extends MediaSession2TestBase {
     public void testSessionCallback_onPlaylistChanged() throws InterruptedException {
         final List<MediaItem2> list = TestUtils.createPlaylist(2);
         final CountDownLatch latch = new CountDownLatch(1);
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
-            @Override
-            public List<MediaItem2> getPlaylist() {
-                return list;
-            }
-        };
+        mMockAgent.setPlaylist(list, null);
+
         final SessionCallback sessionCallback = new SessionCallback() {
             @Override
             public void onPlaylistChanged(MediaSession2 session, MediaPlaylistAgent playlistAgent,
                     List<MediaItem2> playlist, MediaMetadata2 metadata) {
-                assertEquals(agent, playlistAgent);
+                assertEquals(mMockAgent, playlistAgent);
                 assertEquals(list, playlist);
                 assertNull(metadata);
                 latch.countDown();
@@ -485,11 +465,11 @@ public class MediaSession2Test extends MediaSession2TestBase {
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
-                .setPlaylistAgent(agent)
+                .setPlaylistAgent(mMockAgent)
                 .setId("testSessionCallback")
                 .setSessionCallback(sHandlerExecutor, sessionCallback)
                 .build()) {
-            agent.notifyPlaylistChanged();
+            mMockAgent.notifyPlaylistChanged();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -533,29 +513,25 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testGetShuffleMode() throws InterruptedException {
         final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
-            @Override
-            public int getShuffleMode() {
-                return testShuffleMode;
-            }
-        };
+        mMockAgent.setShuffleMode(testShuffleMode);
+
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback sessionCallback = new SessionCallback() {
             @Override
             public void onShuffleModeChanged(MediaSession2 session,
                     MediaPlaylistAgent playlistAgent, int shuffleMode) {
-                assertEquals(agent, playlistAgent);
+                assertEquals(mMockAgent, playlistAgent);
                 assertEquals(testShuffleMode, shuffleMode);
                 latch.countDown();
             }
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
-                .setPlaylistAgent(agent)
+                .setPlaylistAgent(mMockAgent)
                 .setId("testGetShuffleMode")
                 .setSessionCallback(sHandlerExecutor, sessionCallback)
                 .build()) {
-            agent.notifyShuffleModeChanged();
+            mMockAgent.notifyShuffleModeChanged();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -577,29 +553,25 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testGetRepeatMode() throws InterruptedException {
         final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
-            @Override
-            public int getRepeatMode() {
-                return testRepeatMode;
-            }
-        };
+        mMockAgent.setRepeatMode(testRepeatMode);
+
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback sessionCallback = new SessionCallback() {
             @Override
             public void onRepeatModeChanged(MediaSession2 session, MediaPlaylistAgent playlistAgent,
                     int repeatMode) {
-                assertEquals(agent, playlistAgent);
+                assertEquals(mMockAgent, playlistAgent);
                 assertEquals(testRepeatMode, repeatMode);
                 latch.countDown();
             }
         };
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
-                .setPlaylistAgent(agent)
+                .setPlaylistAgent(mMockAgent)
                 .setId("testGetRepeatMode")
                 .setSessionCallback(sHandlerExecutor, sessionCallback)
                 .build()) {
-            agent.notifyRepeatModeChanged();
+            mMockAgent.notifyRepeatModeChanged();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }

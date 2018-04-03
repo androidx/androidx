@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 class MediaUtils2 {
-
     static final String AUDIO_ATTRIBUTES_USAGE = "androidx.media.audio_attrs.USAGE";
     static final String AUDIO_ATTRIBUTES_CONTENT_TYPE = "androidx.media.audio_attrs.CONTENT_TYPE";
     static final String AUDIO_ATTRIBUTES_FLAGS = "androidx.media.audio_attrs.FLAGS";

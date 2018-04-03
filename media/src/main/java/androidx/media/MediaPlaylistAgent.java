@@ -18,10 +18,14 @@ package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.util.Log;
+
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.collection.SimpleArrayMap;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -41,6 +45,8 @@ import java.util.concurrent.Executor;
 // This class only includes methods that contain {@link MediaItem2}.
 @RestrictTo(LIBRARY_GROUP)
 public abstract class MediaPlaylistAgent {
+    private static final String TAG = "MediaPlaylistAgent";
+
     /**
      * @hide
      */
@@ -97,7 +103,285 @@ public abstract class MediaPlaylistAgent {
      */
     public static final int SHUFFLE_MODE_GROUP = 2;
 
-    //private final MediaPlaylistAgentProvider mProvider;
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private final SimpleArrayMap<PlaylistEventCallback, Executor> mCallbacks =
+            new SimpleArrayMap<>();
+
+    /**
+     * Register {@link PlaylistEventCallback} to listen changes in the underlying
+     * {@link MediaPlaylistAgent}.
+     *
+     * @param executor a callback Executor
+     * @param callback a PlaylistEventCallback
+     * @throws IllegalArgumentException if executor or callback is {@code null}.
+     */
+    public final void registerPlaylistEventCallback(
+            @NonNull /*@CallbackExecutor*/ Executor executor,
+            @NonNull PlaylistEventCallback callback) {
+        if (executor == null) {
+            throw new IllegalArgumentException("executor shouldn't be null");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("callback shouldn't be null");
+        }
+
+        synchronized (mLock) {
+            if (mCallbacks.get(callback) != null) {
+                Log.w(TAG, "callback is already added. Ignoring.");
+                return;
+            }
+            mCallbacks.put(callback, executor);
+        }
+    }
+
+    /**
+     * Unregister the previously registered {@link PlaylistEventCallback}.
+     *
+     * @param callback the callback to be removed
+     * @throws IllegalArgumentException if the callback is {@code null}.
+     */
+    public final void unregisterPlaylistEventCallback(@NonNull PlaylistEventCallback callback) {
+        if (callback == null) {
+            throw new IllegalArgumentException("callback shouldn't be null");
+        }
+        synchronized (mLock) {
+            mCallbacks.remove(callback);
+        }
+    }
+
+    /**
+     * TODO: add javadoc
+     */
+    public final void notifyPlaylistChanged() {
+        SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
+        final List<MediaItem2> playlist = getPlaylist();
+        final MediaMetadata2 metadata = getPlaylistMetadata();
+        for (int i = 0; i < callbacks.size(); i++) {
+            final PlaylistEventCallback callback = callbacks.keyAt(i);
+            final Executor executor = callbacks.valueAt(i);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onPlaylistChanged(
+                            MediaPlaylistAgent.this, playlist, metadata);
+                }
+            });
+        }
+    }
+
+    /**
+     * TODO: add javadoc
+     */
+    public final void notifyPlaylistMetadataChanged() {
+        SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
+        for (int i = 0; i < callbacks.size(); i++) {
+            final PlaylistEventCallback callback = callbacks.keyAt(i);
+            final Executor executor = callbacks.valueAt(i);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onPlaylistMetadataChanged(
+                            MediaPlaylistAgent.this, MediaPlaylistAgent.this.getPlaylistMetadata());
+                }
+            });
+        }
+    }
+
+    /**
+     * TODO: add javadoc
+     */
+    public final void notifyShuffleModeChanged() {
+        SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
+        for (int i = 0; i < callbacks.size(); i++) {
+            final PlaylistEventCallback callback = callbacks.keyAt(i);
+            final Executor executor = callbacks.valueAt(i);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onShuffleModeChanged(
+                            MediaPlaylistAgent.this, MediaPlaylistAgent.this.getShuffleMode());
+                }
+            });
+        }
+    }
+
+    /**
+     * TODO: add javadoc
+     */
+    public final void notifyRepeatModeChanged() {
+        SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
+        for (int i = 0; i < callbacks.size(); i++) {
+            final PlaylistEventCallback callback = callbacks.keyAt(i);
+            final Executor executor = callbacks.valueAt(i);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onRepeatModeChanged(
+                            MediaPlaylistAgent.this, MediaPlaylistAgent.this.getRepeatMode());
+                }
+            });
+        }
+    }
+
+    /**
+     * Returns the playlist
+     *
+     * @return playlist, or null if none is set.
+     */
+    public abstract @Nullable List<MediaItem2> getPlaylist();
+
+    /**
+     * Sets the playlist.
+     *
+     * @param list playlist
+     * @param metadata metadata of the playlist
+     */
+    public abstract void setPlaylist(@NonNull List<MediaItem2> list,
+            @Nullable MediaMetadata2 metadata);
+
+    /**
+     * Returns the playlist metadata
+     *
+     * @return metadata metadata of the playlist, or null if none is set
+     */
+    public abstract @Nullable MediaMetadata2 getPlaylistMetadata();
+
+    /**
+     * Updates the playlist metadata
+     *
+     * @param metadata metadata of the playlist
+     */
+    public abstract void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata);
+
+    /**
+     * Adds the media item to the playlist at position index. Index equals or greater than
+     * the current playlist size will add the item at the end of the playlist.
+     * <p>
+     * This will not change the currently playing media item.
+     * If index is less than or equal to the current index of the playlist,
+     * the current index of the playlist will be incremented correspondingly.
+     *
+     * @param index the index you want to add
+     * @param item the media item you want to add
+     */
+    public abstract void addPlaylistItem(int index, @NonNull MediaItem2 item);
+
+    /**
+     * Removes the media item from the playlist
+     *
+     * @param item media item to remove
+     */
+    public abstract void removePlaylistItem(@NonNull MediaItem2 item);
+
+    /**
+     * Replace the media item at index in the playlist. This can be also used to update metadata of
+     * an item.
+     *
+     * @param index the index of the item to replace
+     * @param item the new item
+     */
+    public abstract void replacePlaylistItem(int index, @NonNull MediaItem2 item);
+
+    /**
+     * Skips to the the media item, and plays from it.
+     *
+     * @param item media item to start playing from
+     */
+    public abstract void skipToPlaylistItem(@NonNull MediaItem2 item);
+
+    /**
+     * Skips to the previous item in the playlist.
+     */
+    public abstract void skipToPreviousItem();
+
+    /**
+     * Skips to the next item in the playlist.
+     */
+    public abstract void skipToNextItem();
+
+    /**
+     * Gets the repeat mode
+     *
+     * @return repeat mode
+     * @see #REPEAT_MODE_NONE
+     * @see #REPEAT_MODE_ONE
+     * @see #REPEAT_MODE_ALL
+     * @see #REPEAT_MODE_GROUP
+     */
+    public abstract @RepeatMode int getRepeatMode();
+
+    /**
+     * Sets the repeat mode
+     *
+     * @param repeatMode repeat mode
+     * @see #REPEAT_MODE_NONE
+     * @see #REPEAT_MODE_ONE
+     * @see #REPEAT_MODE_ALL
+     * @see #REPEAT_MODE_GROUP
+     */
+    public abstract void setRepeatMode(@RepeatMode int repeatMode);
+
+    /**
+     * Gets the shuffle mode
+     *
+     * @return The shuffle mode
+     * @see #SHUFFLE_MODE_NONE
+     * @see #SHUFFLE_MODE_ALL
+     * @see #SHUFFLE_MODE_GROUP
+     */
+    public abstract @ShuffleMode int getShuffleMode();
+
+    /**
+     * Sets the shuffle mode
+     *
+     * @param shuffleMode The shuffle mode
+     * @see #SHUFFLE_MODE_NONE
+     * @see #SHUFFLE_MODE_ALL
+     * @see #SHUFFLE_MODE_GROUP
+     */
+    public abstract void setShuffleMode(@ShuffleMode int shuffleMode);
+
+    /**
+     * Called by {@link MediaSession2} when it wants to translate {@link DataSourceDesc} from the
+     * {@link MediaPlayerBase.PlayerEventCallback} to the {@link MediaItem2}. Override this method
+     * if you want to create {@link DataSourceDesc}s dynamically, instead of specifying them with
+     * {@link #setPlaylist(List, MediaMetadata2)}.
+     * <p>
+     * Session would throw an exception if this returns {@code null} for the dsd from the
+     * {@link MediaPlayerBase.PlayerEventCallback}.
+     * <p>
+     * Default implementation calls the {@link #getPlaylist()} and searches the {@link MediaItem2}
+     * with the {@param dsd}.
+     *
+     * @param dsd The dsd to query
+     * @return A {@link MediaItem2} object in the playlist that matches given {@code dsd}.
+     * @throws IllegalArgumentException if {@code dsd} is null
+     */
+    public @Nullable MediaItem2 getMediaItem(@NonNull DataSourceDesc dsd) {
+        if (dsd == null) {
+            throw new IllegalArgumentException("dsd shouldn't be null");
+        }
+        List<MediaItem2> itemList = getPlaylist();
+        if (itemList == null) {
+            return null;
+        }
+        for (int i = 0; i < itemList.size(); i++) {
+            MediaItem2 item = itemList.get(i);
+            if (item != null && item.getDataSourceDesc() == dsd) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private SimpleArrayMap<PlaylistEventCallback, Executor> getCallbacks() {
+        SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = new SimpleArrayMap<>();
+        synchronized (mLock) {
+            callbacks.putAll(mCallbacks);
+        }
+        return callbacks;
+    }
 
     /**
      * A callback class to receive notifications for events on the media player. See
@@ -148,235 +432,5 @@ public abstract class MediaPlaylistAgent {
          */
         public void onRepeatModeChanged(@NonNull MediaPlaylistAgent playlistAgent,
                 @RepeatMode int repeatMode) { }
-    }
-
-    /**
-     * TODO: add javadoc
-     */
-    public MediaPlaylistAgent() {
-        //mProvider = ApiLoader.getProvider().createMediaPlaylistAgent(context, this);
-    }
-
-    /**
-     * Register {@link PlaylistEventCallback} to listen changes in the underlying
-     * {@link MediaPlaylistAgent}.
-     *
-     * @param executor a callback Executor
-     * @param callback a PlaylistEventCallback
-     * @throws IllegalArgumentException if executor or callback is {@code null}.
-     */
-    public final void registerPlaylistEventCallback(
-            @NonNull /*@CallbackExecutor*/ Executor executor,
-            @NonNull PlaylistEventCallback callback) {
-        //mProvider.registerPlaylistEventCallback_impl(executor, callback);
-    }
-
-    /**
-     * Unregister the previously registered {@link PlaylistEventCallback}.
-     *
-     * @param callback the callback to be removed
-     * @throws IllegalArgumentException if the callback is {@code null}.
-     */
-    public final void unregisterPlaylistEventCallback(@NonNull PlaylistEventCallback callback) {
-        //mProvider.unregisterPlaylistEventCallback_impl(callback);
-    }
-
-    /**
-     * TODO: add javadoc
-     */
-    public final void notifyPlaylistChanged() {
-        //mProvider.notifyPlaylistChanged_impl();
-    }
-
-    /**
-     * TODO: add javadoc
-     */
-    public final void notifyPlaylistMetadataChanged() {
-        //mProvider.notifyPlaylistMetadataChanged_impl();
-    }
-
-    /**
-     * TODO: add javadoc
-     */
-    public final void notifyShuffleModeChanged() {
-        //mProvider.notifyShuffleModeChanged_impl();
-    }
-
-    /**
-     * TODO: add javadoc
-     */
-    public final void notifyRepeatModeChanged() {
-        //mProvider.notifyRepeatModeChanged_impl();
-    }
-
-    /**
-     * Returns the playlist
-     *
-     * @return playlist, or null if none is set.
-     */
-    public @Nullable List<MediaItem2> getPlaylist() {
-        //return mProvider.getPlaylist_impl();
-        return null;
-    }
-
-    /**
-     * Sets the playlist.
-     *
-     * @param list playlist
-     * @param metadata metadata of the playlist
-     */
-    public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-        //mProvider.setPlaylist_impl(list, metadata);
-    }
-
-    /**
-     * Returns the playlist metadata
-     *
-     * @return metadata metadata of the playlist, or null if none is set
-     */
-    public @Nullable MediaMetadata2 getPlaylistMetadata() {
-        //return mProvider.getPlaylistMetadata_impl();
-        return null;
-    }
-
-    /**
-     * Updates the playlist metadata
-     *
-     * @param metadata metadata of the playlist
-     */
-    public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
-        //mProvider.updatePlaylistMetadata_impl(metadata);
-    }
-
-    /**
-     * Adds the media item to the playlist at position index. Index equals or greater than
-     * the current playlist size will add the item at the end of the playlist.
-     * <p>
-     * This will not change the currently playing media item.
-     * If index is less than or equal to the current index of the playlist,
-     * the current index of the playlist will be incremented correspondingly.
-     *
-     * @param index the index you want to add
-     * @param item the media item you want to add
-     */
-    public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
-        //mProvider.addPlaylistItem_impl(index, item);
-    }
-
-    /**
-     * Removes the media item from the playlist
-     *
-     * @param item media item to remove
-     */
-    public void removePlaylistItem(@NonNull MediaItem2 item) {
-        //mProvider.removePlaylistItem_impl(item);
-    }
-
-    /**
-     * Replace the media item at index in the playlist. This can be also used to update metadata of
-     * an item.
-     *
-     * @param index the index of the item to replace
-     * @param item the new item
-     */
-    public void replacePlaylistItem(int index, @NonNull MediaItem2 item) {
-        //mProvider.replacePlaylistItem_impl(index, item);
-    }
-
-    /**
-     * Skips to the the media item, and plays from it.
-     *
-     * @param item media item to start playing from
-     */
-    public void skipToPlaylistItem(@NonNull MediaItem2 item) {
-        //mProvider.skipToPlaylistItem_impl(item);
-    }
-
-    /**
-     * Skips to the previous item in the playlist.
-     */
-    public void skipToPreviousItem() {
-        //mProvider.skipToPreviousItem_impl();
-    }
-
-    /**
-     * Skips to the next item in the playlist.
-     */
-    public void skipToNextItem() {
-        //mProvider.skipToNextItem_impl();
-    }
-
-    /**
-     * Gets the repeat mode
-     *
-     * @return repeat mode
-     * @see #REPEAT_MODE_NONE
-     * @see #REPEAT_MODE_ONE
-     * @see #REPEAT_MODE_ALL
-     * @see #REPEAT_MODE_GROUP
-     */
-    public @RepeatMode int getRepeatMode() {
-        //return mProvider.getRepeatMode_impl();
-        return REPEAT_MODE_NONE;
-    }
-
-    /**
-     * Sets the repeat mode
-     *
-     * @param repeatMode repeat mode
-     * @see #REPEAT_MODE_NONE
-     * @see #REPEAT_MODE_ONE
-     * @see #REPEAT_MODE_ALL
-     * @see #REPEAT_MODE_GROUP
-     */
-    public void setRepeatMode(@RepeatMode int repeatMode) {
-        //mProvider.setRepeatMode_impl(repeatMode);
-    }
-
-    /**
-     * Gets the shuffle mode
-     *
-     * @return The shuffle mode
-     * @see #SHUFFLE_MODE_NONE
-     * @see #SHUFFLE_MODE_ALL
-     * @see #SHUFFLE_MODE_GROUP
-     */
-    public @ShuffleMode int getShuffleMode() {
-        //return mProvider.getShuffleMode_impl();
-        return SHUFFLE_MODE_NONE;
-    }
-
-    /**
-     * Sets the shuffle mode
-     *
-     * @param shuffleMode The shuffle mode
-     * @see #SHUFFLE_MODE_NONE
-     * @see #SHUFFLE_MODE_ALL
-     * @see #SHUFFLE_MODE_GROUP
-     */
-    public void setShuffleMode(@ShuffleMode int shuffleMode) {
-        //mProvider.setShuffleMode_impl(shuffleMode);
-    }
-
-    /**
-     * Called by {@link MediaSession2} when it wants to translate {@link DataSourceDesc} from the
-     * {@link MediaPlayerBase.PlayerEventCallback} to the {@link MediaItem2}. Override this method
-     * if you want to create {@link DataSourceDesc}s dynamically, instead of specifying them with
-     * {@link #setPlaylist(List, MediaMetadata2)}.
-     * <p>
-     * Session would throw an exception if this returns {@code null} for the dsd from the
-     * {@link MediaPlayerBase.PlayerEventCallback}.
-     * <p>
-     * Default implementation calls the {@link #getPlaylist()} and searches the {@link MediaItem2}
-     * with the {@param dsd}.
-     *
-     * @param dsd The dsd to query
-     * @return A {@link MediaItem2} object in the playlist that matches given {@code dsd}.
-     * @throws IllegalArgumentException if {@code dsd} is null
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public @Nullable MediaItem2 getMediaItem(@NonNull DataSourceDesc dsd) {
-        //return mProvider.getMediaItem_impl(dsd);
-        return null;
     }
 }
