@@ -19,6 +19,9 @@ package androidx.slice.widget;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Represents information associated with a logged event on {@link SliceView}.
  */
@@ -37,6 +40,7 @@ public class EventInfo {
             ROW_TYPE_SLIDER,
             ROW_TYPE_PROGRESS,
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface SliceRowType {}
 
     /**
@@ -76,6 +80,7 @@ public class EventInfo {
             ACTION_TYPE_TOGGLE, ACTION_TYPE_BUTTON, ACTION_TYPE_SLIDER, ACTION_TYPE_CONTENT,
             ACTION_TYPE_SEE_MORE
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface SliceActionType{}
 
     /**
@@ -109,6 +114,7 @@ public class EventInfo {
     @IntDef({
             POSITION_START, POSITION_END, POSITION_CELL
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface SliceButtonPosition{}
 
     /**
