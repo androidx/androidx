@@ -38,7 +38,6 @@ import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.session.MediaSessionManager;
 import android.net.Uri;
@@ -279,21 +278,15 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Holds information about the current playback and how audio is handled for
-     * this session.
+     * Holds information about the the way volume is handled for this session.
      */
     // The same as MediaController.PlaybackInfo
     public static final class PlaybackInfo {
-        private static final String KEY_PLAYBACK_TYPE =
-                "android.media.playbackinfo_impl.playback_type";
-        private static final String KEY_CONTROL_TYPE =
-                "android.media.playbackinfo_impl.control_type";
-        private static final String KEY_MAX_VOLUME =
-                "android.media.playbackinfo_impl.max_volume";
-        private static final String KEY_CURRENT_VOLUME =
-                "android.media.playbackinfo_impl.current_volume";
-//        private static final String KEY_AUDIO_ATTRIBUTES =
-//                "android.media.playbackinfo_impl.audio_attrs";
+        private static final String KEY_PLAYBACK_TYPE = "android.media.audio_info.playback_type";
+        private static final String KEY_CONTROL_TYPE = "android.media.audio_info.control_type";
+        private static final String KEY_MAX_VOLUME = "android.media.audio_info.max_volume";
+        private static final String KEY_CURRENT_VOLUME = "android.media.audio_info.current_volume";
+        private static final String KEY_AUDIO_ATTRIBUTES = "android.media.audio_info.audio_attrs";
 
         private final int mPlaybackType;
         private final int mControlType;
@@ -310,7 +303,7 @@ public class MediaController2 implements AutoCloseable {
          */
         public static final int PLAYBACK_TYPE_LOCAL = 1;
 
-        PlaybackInfo(int playbackType, AudioAttributes attrs, int controlType, int max,
+        PlaybackInfo(int playbackType, AudioAttributesCompat attrs, int controlType, int max,
                 int current) {
             mPlaybackType = playbackType;
             // TODO: Use AudioAttributesCompat instead of AudioAttributes, and set the value
@@ -336,7 +329,7 @@ public class MediaController2 implements AutoCloseable {
         /**
          * Get the audio attributes for this session. The attributes will affect
          * volume handling for the session. When the volume type is
-         * {@link PlaybackInfo#PLAYBACK_TYPE_REMOTE} these may be ignored by the
+         * {@link #PLAYBACK_TYPE_REMOTE} these may be ignored by the
          * remote volume handler.
          *
          * @return The attributes for this session.
@@ -383,11 +376,12 @@ public class MediaController2 implements AutoCloseable {
             bundle.putInt(KEY_CONTROL_TYPE, mControlType);
             bundle.putInt(KEY_MAX_VOLUME, mMaxVolume);
             bundle.putInt(KEY_CURRENT_VOLUME, mCurrentVolume);
-            //bundle.putParcelable(KEY_AUDIO_ATTRIBUTES, mAudioAttrs);
+            bundle.putParcelable(KEY_AUDIO_ATTRIBUTES,
+                    MediaUtils2.toAudioAttributesBundle(mAudioAttrsCompat));
             return bundle;
         }
 
-        static PlaybackInfo createPlaybackInfo(int playbackType, AudioAttributes attrs,
+        static PlaybackInfo createPlaybackInfo(int playbackType, AudioAttributesCompat attrs,
                 int controlType, int max, int current) {
             return new PlaybackInfo(playbackType, attrs, controlType, max, current);
         }
@@ -400,9 +394,10 @@ public class MediaController2 implements AutoCloseable {
             final int volumeControl = bundle.getInt(KEY_CONTROL_TYPE);
             final int maxVolume = bundle.getInt(KEY_MAX_VOLUME);
             final int currentVolume = bundle.getInt(KEY_CURRENT_VOLUME);
-            //final AudioAttributes attrs = bundle.getParcelable(KEY_AUDIO_ATTRIBUTES);
+            final AudioAttributesCompat attrs = MediaUtils2.fromAudioAttributesBundle(
+                    bundle.getBundle(KEY_AUDIO_ATTRIBUTES));
 
-            return createPlaybackInfo(volumeType, null /*attrs*/, volumeControl, maxVolume,
+            return createPlaybackInfo(volumeType, attrs, volumeControl, maxVolume,
                     currentVolume);
         }
     }
@@ -956,14 +951,12 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Get the lastly cached position from
-     * {@link ControllerCallback#onPositionChanged(MediaController2, long, long)}.
+     * Gets the current playback position.
      * <p>
      * This returns the calculated value of the position, based on the difference between the
      * update time and current time.
      *
-     * @return the calculated value of the current playback position, or
-     *         {@link MediaPlayerBase#UNKNOWN_TIME} if unknown.
+     * @return position
      */
     public long getCurrentPosition() {
         synchronized (mLock) {

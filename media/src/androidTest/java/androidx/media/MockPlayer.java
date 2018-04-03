@@ -131,6 +131,9 @@ public class MockPlayer extends MediaPlayerBase {
     @Override
     public void registerPlayerEventCallback(@NonNull Executor executor,
             @NonNull PlayerEventCallback callback) {
+        if (callback == null || executor == null) {
+            throw new IllegalArgumentException("callback=" + callback + " executor=" + executor);
+        }
         mCallbacks.put(callback, executor);
     }
 

@@ -34,24 +34,25 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @hide
- */
-@RestrictTo(Scope.LIBRARY_GROUP)
-public class MediaUtils2 {
+class MediaUtils2 {
+
+    static final String AUDIO_ATTRIBUTES_USAGE = "androidx.media.audio_attrs.USAGE";
+    static final String AUDIO_ATTRIBUTES_CONTENT_TYPE = "androidx.media.audio_attrs.CONTENT_TYPE";
+    static final String AUDIO_ATTRIBUTES_FLAGS = "androidx.media.audio_attrs.FLAGS";
+
+    private MediaUtils2() {
+    }
+
     /**
      * Creates a {@link MediaItem} from the {@link MediaItem2}.
      *
      * @param item2 an item.
      * @return The newly created media item.
      */
-    public static MediaItem createMediaItem(MediaItem2 item2) {
+    static MediaItem createMediaItem(MediaItem2 item2) {
         if (item2 == null) {
             return null;
         }
@@ -98,7 +99,7 @@ public class MediaUtils2 {
      * @param item an item.
      * @return The newly created media item.
      */
-    public static MediaItem2 createMediaItem2(MediaItem item) {
+    static MediaItem2 createMediaItem2(MediaItem item) {
         if (item == null || item.getMediaId() == null) {
             return null;
         }
@@ -116,7 +117,7 @@ public class MediaUtils2 {
      * @param descCompat A {@link MediaDescriptionCompat} object.
      * @return The newly created {@link MediaMetadata2} object.
      */
-    public static MediaMetadata2 createMediaMetadata2(MediaDescriptionCompat descCompat) {
+    static MediaMetadata2 createMediaMetadata2(MediaDescriptionCompat descCompat) {
         if (descCompat == null) {
             return null;
         }
@@ -168,7 +169,7 @@ public class MediaUtils2 {
      * @param metadataCompat A {@link MediaMetadataCompat} object.
      * @return The newly created {@link MediaMetadata2} object.
      */
-    public MediaMetadata2 createMediaMetadata2(MediaMetadataCompat metadataCompat) {
+    MediaMetadata2 createMediaMetadata2(MediaMetadataCompat metadataCompat) {
         if (metadataCompat == null) {
             return null;
         }
@@ -181,7 +182,7 @@ public class MediaUtils2 {
      * @param metadata2 A {@link MediaMetadata2} object.
      * @return The newly created {@link MediaMetadataCompat} object.
      */
-    public MediaMetadataCompat createMediaMetadataCompat(MediaMetadata2 metadata2) {
+    MediaMetadataCompat createMediaMetadataCompat(MediaMetadata2 metadata2) {
         if (metadata2 == null) {
             return null;
         }
@@ -226,7 +227,7 @@ public class MediaUtils2 {
      * @param ratingCompat A {@link RatingCompat} object.
      * @return The newly created {@link Rating2} object.
      */
-    public Rating2 createRating2(RatingCompat ratingCompat) {
+    Rating2 createRating2(RatingCompat ratingCompat) {
         if (ratingCompat == null) {
             return null;
         }
@@ -257,7 +258,7 @@ public class MediaUtils2 {
      * @param rating2 A {@link Rating2} object.
      * @return The newly created {@link RatingCompat} object.
      */
-    public RatingCompat createRatingCompat(Rating2 rating2) {
+    RatingCompat createRatingCompat(Rating2 rating2) {
         if (rating2 == null) {
             return null;
         }
@@ -280,5 +281,27 @@ public class MediaUtils2 {
             default:
                 return null;
         }
+    }
+
+    static MediaController2.PlaybackInfo createPlaybackInfo(int playbackType,
+            AudioAttributesCompat attrs, VolumeProviderCompat vp) {
+        return new MediaController2.PlaybackInfo(playbackType, attrs, vp.getVolumeControl(),
+                vp.getMaxVolume(), vp.getCurrentVolume());
+    }
+
+    static Bundle toAudioAttributesBundle(AudioAttributesCompat attrs) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(AUDIO_ATTRIBUTES_USAGE, attrs.getUsage());
+        bundle.putInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, attrs.getContentType());
+        bundle.putInt(AUDIO_ATTRIBUTES_FLAGS, attrs.getFlags());
+        return bundle;
+    }
+
+    static AudioAttributesCompat fromAudioAttributesBundle(Bundle bundle) {
+        return new AudioAttributesCompat.Builder()
+                .setUsage(bundle.getInt(AUDIO_ATTRIBUTES_USAGE))
+                .setContentType(bundle.getInt(AUDIO_ATTRIBUTES_CONTENT_TYPE))
+                .setFlags(bundle.getInt(AUDIO_ATTRIBUTES_FLAGS))
+                .build();
     }
 }

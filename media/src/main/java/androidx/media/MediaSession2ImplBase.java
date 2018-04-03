@@ -49,11 +49,13 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.media.MediaPlayerBase.PlayerEventCallback;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -120,7 +122,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         // TODO: Set callback values properly
-        mPlayerEventCallback = null;
+        mPlayerEventCallback = new MyPlayerEventCallback(this);
         mPlaylistEventCallback = null;
 
         // Infer type from the id and package name.
@@ -182,8 +184,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
         if (oldPlayer != null) {
             // TODO: implement
-            //mSessionStub.notifyPlaybackInfoChanged(info);
-            //notifyPlayerUpdatedNotLocked(oldPlayer);
+            //mSession2Stub.notifyVolumeControlInfoChanged();
+            notifyPlayerUpdatedNotLocked(oldPlayer);
         }
         // TODO(jaewan): Repeat the same thing for the playlist agent.
     }
@@ -508,6 +510,10 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
     }
 
+    MediaSession2StubImplBase getSession2Stub() {
+        return mSession2Stub;
+    }
+
     private static String getServiceName(Context context, String serviceAction, String id) {
         PackageManager manager = context.getPackageManager();
         Intent serviceIntent = new Intent(serviceAction);
@@ -533,9 +539,155 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         return serviceName;
     }
 
+    private void notifyPlayerUpdatedNotLocked(MediaPlayerBase oldPlayer) {
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        // TODO(jaewan): (Can be post-P) Find better way for player.getPlayerState() //
+        //               In theory, Session.getXXX() may not be the same as Player.getXXX()
+        //               and we should notify information of the session.getXXX() instead of
+        //               player.getXXX()
+        // Notify to controllers as well.
+        final int state = player.getPlayerState();
+        if (state != oldPlayer.getPlayerState()) {
+            // TODO: implement
+            //mSession2Stub.notifyPlayerStateChangedNotLocked(state);
+        }
+
+        final long currentTimeMs = System.currentTimeMillis();
+        final long position = player.getCurrentPosition();
+        if (position != oldPlayer.getCurrentPosition()) {
+            // TODO: implement
+            //mSession2Stub.notifyPositionChangedNotLocked(currentTimeMs, position);
+        }
+
+        final float speed = player.getPlaybackSpeed();
+        if (speed != oldPlayer.getPlaybackSpeed()) {
+            // TODO: implement
+            //mSession2Stub.notifyPlaybackSpeedChangedNotLocked(speed);
+        }
+
+        final long bufferedPosition = player.getBufferedPosition();
+        if (bufferedPosition != oldPlayer.getBufferedPosition()) {
+            // TODO: implement
+            //mSession2Stub.notifyBufferedPositionChangedNotLocked(bufferedPosition);
+        }
+    }
+
     ///////////////////////////////////////////////////
     // Inner classes
     ///////////////////////////////////////////////////
+
+    private static class MyPlayerEventCallback extends PlayerEventCallback {
+        private final WeakReference<MediaSession2ImplBase> mSession;
+
+        private MyPlayerEventCallback(MediaSession2ImplBase session) {
+            mSession = new WeakReference<>(session);
+        }
+
+        @Override
+        public void onCurrentDataSourceChanged(final MediaPlayerBase mpb,
+                final DataSourceDesc dsd) {
+            final MediaSession2ImplBase session = getSession();
+            if (session == null || dsd == null) {
+                return;
+            }
+            session.getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    MediaItem2 item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
+                    if (item == null) {
+                        return;
+                    }
+                    session.getCallback().onCurrentMediaItemChanged(session.getInstance(), mpb,
+                            item);
+                    // TODO (jaewan): Notify controllers through appropriate callback. (b/74505936)
+                }
+            });
+        }
+
+        @Override
+        public void onMediaPrepared(final MediaPlayerBase mpb, final DataSourceDesc dsd) {
+            final MediaSession2ImplBase session = getSession();
+            if (session == null || dsd == null) {
+                return;
+            }
+            session.getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    MediaItem2 item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
+                    if (item == null) {
+                        return;
+                    }
+                    session.getCallback().onMediaPrepared(session.getInstance(), mpb, item);
+                    // TODO (jaewan): Notify controllers through appropriate callback. (b/74505936)
+                }
+            });
+        }
+
+        @Override
+        public void onPlayerStateChanged(final MediaPlayerBase mpb, final int state) {
+            final MediaSession2ImplBase session = getSession();
+            if (session == null) {
+                return;
+            }
+            session.getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    session.getCallback().onPlayerStateChanged(session.getInstance(), mpb, state);
+                    //session.getSession2Stub().notifyPlayerStateChangedNotLocked(state);
+                }
+            });
+        }
+
+        @Override
+        public void onBufferingStateChanged(final MediaPlayerBase mpb, final DataSourceDesc dsd,
+                final int state) {
+            final MediaSession2ImplBase session = getSession();
+            if (session == null || dsd == null) {
+                return;
+            }
+            session.getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    MediaItem2 item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
+                    if (item == null) {
+                        return;
+                    }
+                    session.getCallback().onBufferingStateChanged(
+                            session.getInstance(), mpb, item, state);
+                    // TODO (jaewan): Notify controllers through appropriate callback. (b/74505936)
+                }
+            });
+        }
+
+        private MediaSession2ImplBase getSession() {
+            final MediaSession2ImplBase session = mSession.get();
+            if (session == null && DEBUG) {
+                Log.d(TAG, "Session is closed", new IllegalStateException());
+            }
+            return session;
+        }
+
+        private MediaItem2 getMediaItem(MediaSession2ImplBase session, DataSourceDesc dsd) {
+            MediaPlaylistAgent agent = session.getPlaylistAgent();
+            if (agent == null) {
+                if (DEBUG) {
+                    Log.d(TAG, "Session is closed", new IllegalStateException());
+                }
+                return null;
+            }
+            MediaItem2 item = agent.getMediaItem(dsd);
+            if (item == null) {
+                if (DEBUG) {
+                    Log.d(TAG, "Could not find matching item for dsd=" + dsd,
+                            new NoSuchElementException());
+                }
+            }
+            return item;
+        }
+    }
 
     abstract static class BuilderBase
             <T extends MediaSession2, C extends SessionCallback> {

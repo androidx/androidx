@@ -140,8 +140,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                                 ? mSession.getPlaylist() : null;
                         if (playlist != null) {
                             List<Bundle> playlistBundle = new ArrayList<>();
-                            // TODO(jaewan): Find a way to avoid concurrent modification
-                            // exception.
+                            // TODO(jaewan): Find a way to avoid concurrent modification exception.
                             for (int i = 0; i < playlist.size(); i++) {
                                 final MediaItem2 item = playlist.get(i);
                                 if (item != null) {

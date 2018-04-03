@@ -259,7 +259,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testUpdatePlayer() throws Exception {
         final int targetState = MediaPlayerBase.PLAYER_STATE_PLAYING;
@@ -316,8 +315,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onPlaybackInfoChanged(MediaController2 controller,
-                    PlaybackInfo info) {
+            public void onPlaybackInfoChanged(MediaController2 controller, PlaybackInfo info) {
                 Assert.assertEquals(PlaybackInfo.PLAYBACK_TYPE_REMOTE, info.getPlaybackType());
                 assertEquals(attrs, info.getAudioAttributes());
                 assertEquals(volumeControlType, info.getPlaybackType());
