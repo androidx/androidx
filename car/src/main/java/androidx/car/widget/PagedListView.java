@@ -260,7 +260,7 @@ public class PagedListView extends FrameLayout {
         mSnapHelper = new PagedSnapHelper(context);
         mSnapHelper.attachToRecyclerView(mRecyclerView);
 
-        mRecyclerView.setOnScrollListener(mRecyclerViewOnScrollListener);
+        mRecyclerView.addOnScrollListener(mRecyclerViewOnScrollListener);
         mRecyclerView.getRecycledViewPool().setMaxRecycledViews(0, 12);
 
         int defaultGutterSize = getResources().getDimensionPixelSize(R.dimen.car_margin);
@@ -849,6 +849,13 @@ public class PagedListView extends FrameLayout {
                 getOrientationHelper(mRecyclerView.getLayoutManager());
         int screenSize = mRecyclerView.getHeight();
         int scrollDistance = screenSize;
+
+        // If the last item is partially visible, page down should bring it to the top.
+        View lastChild = mRecyclerView.getChildAt(mRecyclerView.getChildCount() - 1);
+        if (mRecyclerView.getLayoutManager().isViewPartiallyVisible(lastChild,
+                /* completelyVisible= */ false, /* acceptEndPointInclusion= */ false)) {
+            scrollDistance = orientationHelper.getDecoratedStart(lastChild);
+        }
 
         // The iteration order matters. In case where there are 2 items longer than screen size, we
         // want to focus on upcoming view (the one at the bottom of screen).
