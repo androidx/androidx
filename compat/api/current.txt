@@ -444,7 +444,8 @@ package androidx.core.app {
   public static class NotificationCompat.MessagingStyle extends androidx.core.app.NotificationCompat.Style {
     ctor public NotificationCompat.MessagingStyle(java.lang.CharSequence);
     method public void addCompatExtras(android.os.Bundle);
-    method public androidx.core.app.NotificationCompat.MessagingStyle addMessage(java.lang.CharSequence, long, java.lang.CharSequence);
+    method public deprecated androidx.core.app.NotificationCompat.MessagingStyle addMessage(java.lang.CharSequence, long, java.lang.CharSequence);
+    method public androidx.core.app.NotificationCompat.MessagingStyle addMessage(java.lang.CharSequence, long, androidx.core.app.Person);
     method public androidx.core.app.NotificationCompat.MessagingStyle addMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message);
     method public static androidx.core.app.NotificationCompat.MessagingStyle extractMessagingStyleFromNotification(android.app.Notification);
     method public java.lang.CharSequence getConversationTitle();
@@ -457,11 +458,13 @@ package androidx.core.app {
   }
 
   public static final class NotificationCompat.MessagingStyle.Message {
-    ctor public NotificationCompat.MessagingStyle.Message(java.lang.CharSequence, long, java.lang.CharSequence);
+    ctor public NotificationCompat.MessagingStyle.Message(java.lang.CharSequence, long, androidx.core.app.Person);
+    ctor public deprecated NotificationCompat.MessagingStyle.Message(java.lang.CharSequence, long, java.lang.CharSequence);
     method public java.lang.String getDataMimeType();
     method public android.net.Uri getDataUri();
     method public android.os.Bundle getExtras();
-    method public java.lang.CharSequence getSender();
+    method public androidx.core.app.Person getPerson();
+    method public deprecated java.lang.CharSequence getSender();
     method public java.lang.CharSequence getText();
     method public long getTimestamp();
     method public androidx.core.app.NotificationCompat.MessagingStyle.Message setData(java.lang.String, android.net.Uri);

@@ -44,6 +44,8 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 
+import androidx.core.app.NotificationCompat.MessagingStyle.Message;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -315,18 +317,18 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     public void testMessage_setAndGetExtras() throws Throwable {
         String extraKey = "extra_key";
         CharSequence extraValue = "extra_value";
-        NotificationCompat.MessagingStyle.Message m =
-                new NotificationCompat.MessagingStyle.Message("text", 0 /*timestamp */, "sender");
+        Message m =
+                new Message("text", 0 /*timestamp */, "sender");
         m.getExtras().putCharSequence(extraKey, extraValue);
         assertEquals(extraValue, m.getExtras().getCharSequence(extraKey));
 
-        ArrayList<NotificationCompat.MessagingStyle.Message> messages = new ArrayList<>(1);
+        ArrayList<Message> messages = new ArrayList<>(1);
         messages.add(m);
         Bundle[] bundleArray =
-                NotificationCompat.MessagingStyle.Message.getBundleArrayForMessages(messages);
+                Message.getBundleArrayForMessages(messages);
         assertEquals(1, bundleArray.length);
-        NotificationCompat.MessagingStyle.Message fromBundle =
-                NotificationCompat.MessagingStyle.Message.getMessageFromBundle(bundleArray[0]);
+        Message fromBundle =
+                Message.getMessageFromBundle(bundleArray[0]);
         assertEquals(extraValue, fromBundle.getExtras().getCharSequence(extraKey));
     }
 
@@ -526,6 +528,38 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @Test
+    public void testMessagingStyle_message() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name");
+        Person person = new Person.Builder().setName("test name").setKey("key").build();
+        Person person2 = new Person.Builder()
+                .setName("test name 2").setKey("key 2").setImportant(true).build();
+        messagingStyle.addMessage("text", 200, person);
+        messagingStyle.addMessage("text2", 300, person2);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(messagingStyle)
+                .build();
+
+        List<Message> result = NotificationCompat.MessagingStyle
+                .extractMessagingStyleFromNotification(notification)
+                .getMessages();
+
+        assertEquals(2, result.size());
+        assertEquals("text", result.get(0).getText());
+        assertEquals(200, result.get(0).getTimestamp());
+        assertEquals("test name", result.get(0).getPerson().getName());
+        assertEquals("key", result.get(0).getPerson().getKey());
+        assertEquals("text2", result.get(1).getText());
+        assertEquals(300, result.get(1).getTimestamp());
+        assertEquals("test name 2", result.get(1).getPerson().getName());
+        assertEquals("key 2", result.get(1).getPerson().getKey());
+        assertTrue(result.get(1).getPerson().isImportant());
+    }
+
+    @Test
     public void testMessagingStyle_isGroupConversation() {
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.P;
         NotificationCompat.MessagingStyle messagingStyle =
@@ -662,6 +696,17 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         resultMessagingStyle.restoreFromCompatExtras(bundle);
 
         assertTrue(resultMessagingStyle.isGroupConversation());
+    }
+
+    @Test
+    public void testMessagingStyleMessage_bundle_legacySender() {
+        Bundle legacyBundle = new Bundle();
+        legacyBundle.putCharSequence(Message.KEY_TEXT, "message");
+        legacyBundle.putLong(Message.KEY_TIMESTAMP, 100);
+        legacyBundle.putCharSequence(Message.KEY_SENDER, "sender");
+
+        Message result = Message.getMessageFromBundle(legacyBundle);
+        assertEquals("sender", result.getPerson().getName());
     }
 
     @Test
