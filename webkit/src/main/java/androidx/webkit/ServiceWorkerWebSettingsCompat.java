@@ -19,6 +19,7 @@ package androidx.webkit;
 import android.webkit.WebSettings;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -58,6 +59,8 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * {@link WebSettings#LOAD_DEFAULT}.
      *
      */
+    @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_CACHE_MODE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void setCacheMode(@CacheMode int mode);
 
     /**
@@ -68,6 +71,8 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * @see #setCacheMode
      *
      */
+    @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_CACHE_MODE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract @CacheMode int getCacheMode();
 
     /**
@@ -76,6 +81,8 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * {@link WebSettings#setAllowContentAccess}.
      *
      */
+    @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void setAllowContentAccess(boolean allow);
 
     /**
@@ -85,6 +92,8 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * @see #setAllowContentAccess
      *
      */
+    @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract boolean getAllowContentAccess();
 
     /**
@@ -93,6 +102,8 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * {@link WebSettings#setAllowFileAccess}.
      *
      */
+    @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_FILE_ACCESS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void setAllowFileAccess(boolean allow);
 
     /**
@@ -102,6 +113,8 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * @see #setAllowFileAccess
      *
      */
+    @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_FILE_ACCESS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract boolean getAllowFileAccess();
 
     /**
@@ -112,6 +125,8 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * @param flag {@code true} means block network loads by the Service Workers
      *
      */
+    @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void setBlockNetworkLoads(boolean flag);
 
     /**
@@ -123,5 +138,7 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * @see #setBlockNetworkLoads
      *
      */
+    @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract boolean getBlockNetworkLoads();
 }
