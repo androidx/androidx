@@ -43,6 +43,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
@@ -147,6 +149,26 @@ public class SliceManagerTest {
         verify(mSliceProvider).onMapIntentToUri(eq(intent));
     }
 
+    @Test
+    public void testGetDescendants() {
+        Uri uri = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_CONTENT)
+                .authority(mContext.getPackageName())
+                .build();
+        Collection<Uri> collection = Arrays.asList(
+                uri,
+                uri.buildUpon().appendPath("1").build(),
+                uri.buildUpon().appendPath("2").build()
+        );
+        when(mSliceProvider.onGetSliceDescendants(any(Uri.class)))
+                .thenReturn(collection);
+
+        Collection<Uri> allUris = mManager.getSliceDescendants(uri);
+
+        assertEquals(allUris, collection);
+        verify(mSliceProvider).onGetSliceDescendants(eq(uri));
+    }
+
     public static class TestSliceProvider extends SliceProvider {
 
         public static SliceProvider sSliceProviderReceiver;
@@ -188,6 +210,14 @@ public class SliceManagerTest {
             if (sSliceProviderReceiver != null) {
                 sSliceProviderReceiver.onSliceUnpinned(sliceUri);
             }
+        }
+
+        @Override
+        public Collection<Uri> onGetSliceDescendants(Uri uri) {
+            if (sSliceProviderReceiver != null) {
+                return sSliceProviderReceiver.onGetSliceDescendants(uri);
+            }
+            return super.onGetSliceDescendants(uri);
         }
     }
 }

@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo;
 import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.widget.SliceLiveData;
 
+import java.util.Collection;
 import java.util.Set;
 
 
@@ -72,5 +73,10 @@ class SliceManagerCompat extends SliceManagerBase {
     @Override
     public Uri mapIntentToUri(@NonNull Intent intent) {
         return SliceProviderCompat.mapIntentToUri(mContext, intent);
+    }
+
+    @Override
+    public Collection<Uri> getSliceDescendants(Uri uri) {
+        return SliceProviderCompat.getSliceDescendants(mContext, uri);
     }
 }
