@@ -33,7 +33,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavHelper;
+import androidx.navigation.ui.NavigationUI;
 
 /**
  * A simple activity demonstrating use of a NavHostFragment with a navigation drawer.
@@ -55,14 +55,14 @@ public class NavigationActivity extends AppCompatActivity {
         if (host != null) {
             NavController navController = host.getNavController();
             mDrawerLayout = findViewById(R.id.drawer_layout);
-            NavHelper.setupActionBar(navController, this, mDrawerLayout);
+            NavigationUI.setupActionBarWithNavController(this, navController, mDrawerLayout);
             NavigationView navigationView = findViewById(R.id.nav_view);
             if (navigationView != null) {
-                NavHelper.setupNavigationView(navController, navigationView);
+                NavigationUI.setupWithNavController(navigationView, navController);
             }
             BottomNavigationView bottomNavView = findViewById(R.id.bottom_nav_view);
             if (bottomNavView != null) {
-                NavHelper.setupBottomNavigationView(navController, bottomNavView);
+                NavigationUI.setupWithNavController(bottomNavView, navController);
             }
             navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
                 @Override
@@ -97,15 +97,15 @@ public class NavigationActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return NavHelper.handleMenuItemSelected(
-                Navigation.findNavController(this, R.id.my_nav_host_fragment), item)
+        return NavigationUI.onNavDestinationSelected(
+                item, Navigation.findNavController(this, R.id.my_nav_host_fragment))
                 || super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
-        return NavHelper.handleNavigateUp(
-                Navigation.findNavController(this, R.id.my_nav_host_fragment),
-                mDrawerLayout);
+        return NavigationUI.navigateUp(
+                mDrawerLayout, Navigation.findNavController(this, R.id.my_nav_host_fragment)
+        );
     }
 }
