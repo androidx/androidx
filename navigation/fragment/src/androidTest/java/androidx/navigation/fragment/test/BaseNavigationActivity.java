@@ -17,6 +17,7 @@
 package androidx.navigation.fragment.test;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 
@@ -36,7 +37,8 @@ public abstract class BaseNavigationActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
     }
 
+    @NonNull
     public NavController getNavController() {
-        return Navigation.findNavController(this, R.id.nav_host);
+        return Navigation.getNavController(this, R.id.nav_host);
     }
 }
