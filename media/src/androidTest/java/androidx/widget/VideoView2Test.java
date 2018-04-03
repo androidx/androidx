@@ -126,9 +126,7 @@ public class VideoView2Test {
     }
 
     private boolean hasCodec() {
-        return true;
-        // TODO (b/77455947)
-        // return MediaUtils.hasCodecsForResource(mActivity, R.raw.testvideo);
+        return MediaUtils2.hasCodecsForResource(mActivity, R.raw.testvideo);
     }
 
     private String prepareSampleVideo() throws IOException {
