@@ -71,15 +71,13 @@ class SliceManagerWrapper extends SliceManagerBase {
     @Nullable
     @Override
     public androidx.slice.Slice bindSlice(@NonNull Uri uri) {
-        return SliceConvert.wrap(android.app.slice.Slice.bindSlice(
-                mContext.getContentResolver(), uri, mSpecs));
+        return SliceConvert.wrap(mManager.bindSlice(uri, mSpecs));
     }
 
     @Nullable
     @Override
     public androidx.slice.Slice bindSlice(@NonNull Intent intent) {
-        return SliceConvert.wrap(android.app.slice.Slice.bindSlice(
-                mContext, intent, mSpecs));
+        return SliceConvert.wrap(mManager.bindSlice(intent, mSpecs));
     }
 
     @Nullable
