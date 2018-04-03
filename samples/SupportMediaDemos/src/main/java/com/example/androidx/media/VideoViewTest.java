@@ -22,10 +22,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.media.session.MediaController;
-import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -163,14 +163,14 @@ public class VideoViewTest extends Activity {
                         }).show();
     }
 
-    MediaController.Callback mMediaControllerCallback = new MediaController.Callback() {
+    MediaControllerCompat.Callback mMediaControllerCallback = new MediaControllerCompat.Callback() {
         @Override
-        public void onPlaybackStateChanged(PlaybackState state) {
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
             switch (state.getState()) {
-                case PlaybackState.STATE_STOPPED:
+                case PlaybackStateCompat.STATE_STOPPED:
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     break;
-                case PlaybackState.STATE_ERROR:
+                case PlaybackStateCompat.STATE_ERROR:
                     showErrorDialog("Error: (" + state.getErrorMessage() + ")");
                     break;
             }

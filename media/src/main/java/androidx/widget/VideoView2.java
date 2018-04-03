@@ -19,9 +19,17 @@ package androidx.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.PlaybackParams;
 import android.net.Uri;
@@ -33,12 +41,17 @@ import android.support.v4.media.session.MediaControllerCompat.PlaybackInfo;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.annotation.IntDef;
@@ -50,7 +63,9 @@ import androidx.annotation.VisibleForTesting;
 import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
+import androidx.media.R;
 import androidx.media.SessionToken2;
+import androidx.palette.graphics.Palette;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -161,6 +176,11 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     private static final int INVALID_TRACK_INDEX = -1;
     private static final float INVALID_SPEED = 0f;
 
+    private static final int SIZE_TYPE_EMBEDDED = 0;
+    private static final int SIZE_TYPE_FULL = 1;
+    // TODO: add support for Minimal size type.
+    private static final int SIZE_TYPE_MINIMAL = 2;
+
     private AccessibilityManager mAccessibilityManager;
     private AudioManager mAudioManager;
     private AudioAttributes mAudioAttributes;
@@ -181,12 +201,27 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     private MediaSessionCompat mMediaSession;
     private MediaControllerCompat mMediaController;
     private MediaMetadata2 mMediaMetadata;
+    private MediaMetadataRetriever mRetriever;
     private boolean mNeedUpdateMediaType;
     private Bundle mMediaTypeData;
     private String mTitle;
 
+    // TODO: move music view inside SurfaceView/TextureView or implement VideoViewInterface.
+    private WindowManager mManager;
+    private Resources mResources;
+    private View mMusicView;
+    private Drawable mMusicAlbumDrawable;
+    private String mMusicTitleText;
+    private String mMusicArtistText;
+    private boolean mIsMusicMediaType;
+    private int mPrevWidth;
+    private int mPrevHeight;
+    private int mDominantColor;
+    private int mSizeType;
+
     private PlaybackStateCompat.Builder mStateBuilder;
     private List<PlaybackStateCompat.CustomAction> mCustomActionList;
+
     private int mTargetState = STATE_IDLE;
     private int mCurrentState = STATE_IDLE;
     private int mCurrentBufferPercentage;
@@ -337,16 +372,11 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         mTextureView.setSurfaceListener(this);
         mSurfaceView.setSurfaceListener(this);
 
-        // TODO: Choose TextureView when SurfaceView cannot be created.
-        // Choose surface view by default
-        mTextureView.setVisibility(View.GONE);
-        mSurfaceView.setVisibility(View.VISIBLE);
         addView(mTextureView);
         addView(mSurfaceView);
-        mCurrentView = mSurfaceView;
 
         // mSubtitleView = new SubtitleView(getContext());
-        // mSubtitleView.setLayoutParams(subtitleParams);
+        // mSubtitleView.setLayoutParams(params);
         // mSubtitleView.setBackgroundColor(0);
         // addView(mSubtitleView);
 
@@ -361,16 +391,22 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                 "http://schemas.android.com/apk/res/android",
                 "enableSubtitle", false);
 
+        // TODO: Choose TextureView when SurfaceView cannot be created.
+        // Choose surface view by default
         int viewType = (attrs == null) ? VideoView2.VIEW_TYPE_SURFACEVIEW
                 : attrs.getAttributeIntValue(
                 "http://schemas.android.com/apk/res/android",
-                "viewType", 0);
-        if (viewType == 0) {
+                "viewType", VideoView2.VIEW_TYPE_SURFACEVIEW);
+        if (viewType == VideoView2.VIEW_TYPE_SURFACEVIEW) {
             Log.d(TAG, "viewType attribute is surfaceView.");
-            // TODO: implement
-        } else if (viewType == 1) {
+            mTextureView.setVisibility(View.GONE);
+            mSurfaceView.setVisibility(View.VISIBLE);
+            mCurrentView = mSurfaceView;
+        } else if (viewType == VideoView2.VIEW_TYPE_TEXTUREVIEW) {
             Log.d(TAG, "viewType attribute is textureView.");
-            // TODO: implement
+            mTextureView.setVisibility(View.VISIBLE);
+            mSurfaceView.setVisibility(View.GONE);
+            mCurrentView = mTextureView;
         }
 
         // TODO (b/77158231)
@@ -705,6 +741,14 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         // TODO: remove this after moving MediaSession creating code inside initializing VideoView2
         if (mCurrentState == STATE_PREPARED) {
             extractTracks();
+            extractMetadata();
+            extractAudioMetadata();
+            if (mNeedUpdateMediaType) {
+                mMediaSession.sendSessionEvent(
+                        MediaControlView2.EVENT_UPDATE_MEDIA_TYPE_STATUS,
+                        mMediaTypeData);
+                mNeedUpdateMediaType = false;
+            }
         }
     }
 
@@ -729,7 +773,9 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                     + ", mTargetState=" + mTargetState);
         }
         if (ev.getAction() == MotionEvent.ACTION_UP && mMediaControlView != null) {
-            toggleMediaControlViewVisibility();
+            if (!mIsMusicMediaType || mSizeType != SIZE_TYPE_FULL) {
+                toggleMediaControlViewVisibility();
+            }
         }
 
         return super.onTouchEvent(ev);
@@ -738,7 +784,9 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     @Override
     public boolean onTrackballEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_UP && mMediaControlView != null) {
-            toggleMediaControlViewVisibility();
+            if (!mIsMusicMediaType || mSizeType != SIZE_TYPE_FULL) {
+                toggleMediaControlViewVisibility();
+            }
         }
 
         return super.onTrackballEvent(ev);
@@ -748,6 +796,48 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     public boolean dispatchTouchEvent(MotionEvent ev) {
         // TODO: Test touch event handling logic thoroughly and simplify the logic.
         return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
+    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        if (mIsMusicMediaType) {
+            if (mPrevWidth != getMeasuredWidth()
+                    || mPrevHeight != getMeasuredHeight()) {
+                int currWidth = getMeasuredWidth();
+                int currHeight = getMeasuredHeight();
+                Point screenSize = new Point();
+                mManager.getDefaultDisplay().getSize(screenSize);
+                int screenWidth = screenSize.x;
+                int screenHeight = screenSize.y;
+
+                if (currWidth == screenWidth && currHeight == screenHeight) {
+                    int orientation = retrieveOrientation();
+                    if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                        inflateMusicView(R.layout.full_landscape_music);
+                    } else {
+                        inflateMusicView(R.layout.full_portrait_music);
+                    }
+
+                    if (mSizeType != SIZE_TYPE_FULL) {
+                        mSizeType = SIZE_TYPE_FULL;
+                        // Remove existing mFadeOut callback
+                        mMediaControlView.removeCallbacks(mFadeOut);
+                        mMediaControlView.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    if (mSizeType != SIZE_TYPE_EMBEDDED) {
+                        mSizeType = SIZE_TYPE_EMBEDDED;
+                        inflateMusicView(R.layout.embedded_music);
+                        // Add new mFadeOut callback
+                        mMediaControlView.postDelayed(mFadeOut, mShowControllerIntervalMs);
+                    }
+                }
+                mPrevWidth = currWidth;
+                mPrevHeight = currHeight;
+            }
+        }
     }
 
     /**
@@ -962,6 +1052,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             mMediaPlayer.setOnPreparedListener(mPreparedListener);
             mMediaPlayer.setOnVideoSizeChangedListener(mSizeChangedListener);
             mMediaPlayer.setOnCompletionListener(mCompletionListener);
+            mMediaPlayer.setOnSeekCompleteListener(mSeekCompleteListener);
             mMediaPlayer.setOnErrorListener(mErrorListener);
             mMediaPlayer.setOnInfoListener(mInfoListener);
             mMediaPlayer.setOnBufferingUpdateListener(mBufferingUpdateListener);
@@ -981,6 +1072,8 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             if (scheme != null && scheme.equals("file")) {
                 mTitle = uri.getLastPathSegment();
             }
+            mRetriever = new MediaMetadataRetriever();
+            mRetriever.setDataSource(getContext(), uri);
 
             if (DEBUG) {
                 Log.d(TAG, "openVideo(). mCurrentState=" + mCurrentState
@@ -1116,7 +1209,8 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
     private void showController() {
         // TODO: Decide what to show when the state is not in playback state
-        if (mMediaControlView == null || !isInPlaybackState()) {
+        if (mMediaControlView == null || !isInPlaybackState()
+                || (mIsMusicMediaType && mSizeType == SIZE_TYPE_FULL)) {
             return;
         }
         mMediaControlView.removeCallbacks(mFadeOut);
@@ -1195,21 +1289,24 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         MediaPlayer.TrackInfo[] trackInfos = mMediaPlayer.getTrackInfo();
         mVideoTrackIndices = new ArrayList<>();
         mAudioTrackIndices = new ArrayList<>();
-    /*
+        /*
         mSubtitleTrackIndices = new ArrayList<>();
         mSubtitleController.reset();
+        */
         for (int i = 0; i < trackInfos.length; ++i) {
             int trackType = trackInfos[i].getTrackType();
             if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
                 mVideoTrackIndices.add(i);
             } else if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
                 mAudioTrackIndices.add(i);
+                /*
             } else if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE
                     || trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT) {
                 SubtitleTrack track = mSubtitleController.addTrack(trackInfos[i].getFormat());
                 if (track != null) {
                     mSubtitleTrackIndices.add(new Pair<>(i, track));
                 }
+                */
             }
         }
         // Select first tracks as default
@@ -1219,16 +1316,129 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         if (mAudioTrackIndices.size() > 0) {
             mSelectedAudioTrackIndex = 0;
         }
+        if (mVideoTrackIndices.size() == 0 && mAudioTrackIndices.size() > 0) {
+            mIsMusicMediaType = true;
+        }
 
         Bundle data = new Bundle();
         data.putInt(MediaControlView2.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
         data.putInt(MediaControlView2.KEY_AUDIO_TRACK_COUNT, mAudioTrackIndices.size());
+        /*
         data.putInt(MediaControlView2.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTrackIndices.size());
         if (mSubtitleTrackIndices.size() > 0) {
             selectOrDeselectSubtitle(mSubtitleEnabled);
         }
+        */
         mMediaSession.sendSessionEvent(MediaControlView2.EVENT_UPDATE_TRACK_STATUS, data);
-    */
+    }
+
+    private void extractMetadata() {
+        // Get and set duration and title values as MediaMetadata for MediaControlView2
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+        String title = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        if (title != null) {
+            mTitle = title;
+        }
+        builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, mTitle);
+        builder.putLong(
+                MediaMetadataCompat.METADATA_KEY_DURATION, mMediaPlayer.getDuration());
+
+        if (mMediaSession != null) {
+            mMediaSession.setMetadata(builder.build());
+        }
+    }
+
+    private void extractAudioMetadata() {
+        if (!mIsMusicMediaType) {
+            return;
+        }
+
+        mResources = getResources();
+        mManager = (WindowManager) getContext().getApplicationContext()
+                .getSystemService(Context.WINDOW_SERVICE);
+
+        byte[] album = mRetriever.getEmbeddedPicture();
+        if (album != null) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(album, 0, album.length);
+            mMusicAlbumDrawable = new BitmapDrawable(bitmap);
+
+            // TODO: replace with visualizer
+            Palette.Builder builder = Palette.from(bitmap);
+            builder.generate(new Palette.PaletteAsyncListener() {
+                @Override
+                public void onGenerated(Palette palette) {
+                    // TODO: add dominant color for default album image.
+                    mDominantColor = palette.getDominantColor(0);
+                    if (mMusicView != null) {
+                        mMusicView.setBackgroundColor(mDominantColor);
+                    }
+                }
+            });
+        } else {
+            mMusicAlbumDrawable = mResources.getDrawable(R.drawable.ic_default_album_image);
+        }
+
+        String title = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        if (title != null) {
+            mMusicTitleText = title;
+        } else {
+            mMusicTitleText = mResources.getString(R.string.mcv2_music_title_unknown_text);
+        }
+
+        String artist = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        if (artist != null) {
+            mMusicArtistText = artist;
+        } else {
+            mMusicArtistText = mResources.getString(R.string.mcv2_music_artist_unknown_text);
+        }
+
+        // Send title and artist string to MediaControlView2
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+        builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, mMusicTitleText);
+        builder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, mMusicArtistText);
+        mMediaSession.setMetadata(builder.build());
+
+        // Display Embedded mode as default
+        removeView(mSurfaceView);
+        removeView(mTextureView);
+        inflateMusicView(R.layout.embedded_music);
+    }
+
+    private int retrieveOrientation() {
+        DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+
+        return (height > width)
+                ? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    }
+
+    private void inflateMusicView(int layoutId) {
+        removeView(mMusicView);
+
+        LayoutInflater inflater = (LayoutInflater) getContext()
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(layoutId, null);
+        v.setBackgroundColor(mDominantColor);
+
+        ImageView albumView = v.findViewById(R.id.album);
+        if (albumView != null) {
+            albumView.setImageDrawable(mMusicAlbumDrawable);
+        }
+
+        TextView titleView = v.findViewById(R.id.title);
+        if (titleView != null) {
+            titleView.setText(mMusicTitleText);
+        }
+
+        TextView artistView = v.findViewById(R.id.artist);
+        if (artistView != null) {
+            artistView.setText(mMusicArtistText);
+        }
+
+        mMusicView = v;
+        addView(mMusicView, 0);
     }
 
     /*
@@ -1359,6 +1569,14 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         }
     };
 
+    MediaPlayer.OnSeekCompleteListener mSeekCompleteListener =
+            new MediaPlayer.OnSeekCompleteListener() {
+                @Override
+                public void onSeekComplete(MediaPlayer mp) {
+                    updatePlaybackState();
+                }
+    };
+
     MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
@@ -1486,7 +1704,8 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             if (!isAudioGranted()) {
                 requestAudioFocus(mAudioFocusType);
             }
-            if (isInPlaybackState() && mCurrentView.hasAvailableSurface() && isAudioGranted()) {
+
+            if ((isInPlaybackState() && mCurrentView.hasAvailableSurface()) || mIsMusicMediaType) {
                 if (isRemotePlayback()) {
                     // TODO (b/77158231)
                     // mRoutePlayer.onPlay();
@@ -1541,7 +1760,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                         mMediaPlayer.seekTo(pos, MediaPlayer.SEEK_PREVIOUS_SYNC);
                     }
                     mSeekWhenPrepared = 0;
-                    updatePlaybackState();
                 }
             } else {
                 mSeekWhenPrepared = pos;

@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -30,10 +31,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -219,6 +222,10 @@ public class MediaControlView2 extends BaseLayout {
     private static final int SETTINGS_MODE_MAIN = 5;
     private static final int PLAYBACK_SPEED_1x_INDEX = 3;
 
+    private static final int MEDIA_TYPE_DEFAULT = 0;
+    private static final int MEDIA_TYPE_MUSIC = 1;
+    private static final int MEDIA_TYPE_ADVERTISEMENT = 2;
+
     private static final int SIZE_TYPE_EMBEDDED = 0;
     private static final int SIZE_TYPE_FULL = 1;
     // TODO: add support for Minimal size type.
@@ -240,6 +247,7 @@ public class MediaControlView2 extends BaseLayout {
     private int mDuration;
     private int mPrevState;
     private int mPrevWidth;
+    private int mPrevHeight;
     private int mOriginalLeftBarWidth;
     private int mVideoTrackCount;
     private int mAudioTrackCount;
@@ -254,6 +262,7 @@ public class MediaControlView2 extends BaseLayout {
     private int mEmbeddedSettingsItemHeight;
     private int mFullSettingsItemHeight;
     private int mSettingsWindowMargin;
+    private int mMediaType;
     private int mSizeType;
     private int mOrientation;
     private long mPlaybackActions;
@@ -265,9 +274,10 @@ public class MediaControlView2 extends BaseLayout {
     private boolean mSeekAvailable;
     private boolean mIsAdvertisement;
     private boolean mIsMute;
+    private boolean mNeedUXUpdate;
 
     // Relating to Title Bar View
-    private View mRoot;
+    private ViewGroup mRoot;
     private View mTitleBar;
     private TextView mTitleView;
     private View mAdExternalLink;
@@ -285,8 +295,15 @@ public class MediaControlView2 extends BaseLayout {
     private ImageButton mNextButton;
     private ImageButton mPrevButton;
 
+    // Relating to Minimal Extra View
+    private LinearLayout mMinimalExtraView;
+
     // Relating to Progress Bar View
     private ProgressBar mProgress;
+    private View mProgressBuffer;
+
+    // Relating to Bottom Bar View
+    private ViewGroup mBottomBar;
 
     // Relating to Bottom Bar Left View
     private ViewGroup mBottomBarLeftView;
@@ -324,10 +341,6 @@ public class MediaControlView2 extends BaseLayout {
     private List<String> mVideoQualityList;
     private List<String> mPlaybackSpeedTextList;
     private List<Float> mPlaybackSpeedList;
-
-    private CharSequence mPlayDescription;
-    private CharSequence mPauseDescription;
-    private CharSequence mReplayDescription;
 
     public MediaControlView2(@NonNull Context context) {
         this(context, null);
@@ -511,28 +524,64 @@ public class MediaControlView2 extends BaseLayout {
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (mPrevWidth != getMeasuredWidth()) {
-            int currWidth = getMeasuredWidth();
+        // Update layout when this view's width changes in order to avoid any UI overlap between
+        // transport controls.
+        if (mPrevWidth != getMeasuredWidth()
+                || mPrevHeight != getMeasuredHeight() || mNeedUXUpdate) {
+            // Dismiss SettingsWindow if it is showing.
+            mSettingsWindow.dismiss();
 
-            int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_full_icon_size);
-            int marginSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_margin);
-            int bottomBarRightWidthMax = iconSize * 4 + marginSize * 8;
-
-            int fullWidth = mTransportControls.getWidth() + mTimeView.getWidth()
-                    + bottomBarRightWidthMax;
             // These views may not have been initialized yet.
             if (mTransportControls.getWidth() == 0 || mTimeView.getWidth() == 0) {
                 return;
             }
-            if (mSizeType == SIZE_TYPE_EMBEDDED && fullWidth <= currWidth) {
-                updateLayoutForSizeChange(SIZE_TYPE_FULL);
-            } else if (mSizeType == SIZE_TYPE_FULL && fullWidth > currWidth) {
-                updateLayoutForSizeChange(SIZE_TYPE_EMBEDDED);
+
+            int currWidth = getMeasuredWidth();
+            int currHeight = getMeasuredHeight();
+            WindowManager manager = (WindowManager) getContext().getApplicationContext()
+                    .getSystemService(Context.WINDOW_SERVICE);
+            Point screenSize = new Point();
+            manager.getDefaultDisplay().getSize(screenSize);
+            int screenWidth = screenSize.x;
+            int screenHeight = screenSize.y;
+            int fullIconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_full_icon_size);
+            int embeddedIconSize = mResources.getDimensionPixelSize(
+                    R.dimen.mcv2_embedded_icon_size);
+            int marginSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_margin);
+
+            // TODO: add support for Advertisement Mode.
+            if (mMediaType == MEDIA_TYPE_DEFAULT) {
+                // Max number of icons inside BottomBarRightView for Music mode is 4.
+                int maxIconCount = 4;
+                updateLayout(maxIconCount, fullIconSize, embeddedIconSize, marginSize, currWidth,
+                        currHeight, screenWidth, screenHeight);
+
+            } else if (mMediaType == MEDIA_TYPE_MUSIC) {
+                if (mNeedUXUpdate) {
+                    // One-time operation for Music media type
+                    mBasicControls.removeView(mMuteButton);
+                    mExtraControls.addView(mMuteButton, 0);
+                    mVideoQualityButton.setVisibility(View.GONE);
+                    if (mFfwdButton != null) {
+                        mFfwdButton.setVisibility(View.GONE);
+                    }
+                    if (mRewButton != null) {
+                        mRewButton.setVisibility(View.GONE);
+                    }
+                }
+                mNeedUXUpdate = false;
+
+                // Max number of icons inside BottomBarRightView for Music mode is 3.
+                int maxIconCount = 3;
+                updateLayout(maxIconCount, fullIconSize, embeddedIconSize, marginSize, currWidth,
+                        currHeight, screenWidth, screenHeight);
             }
-            // Dismiss SettingsWindow if it is showing.
-            mSettingsWindow.dismiss();
             mPrevWidth = currWidth;
+            mPrevHeight = currHeight;
         }
+        // TODO: move this to a different location.
+        // Update title bar parameters in order to avoid overlap between title view and the right
+        // side of the title bar.
         updateTitleBarLayout();
     }
 
@@ -648,8 +697,8 @@ public class MediaControlView2 extends BaseLayout {
      * @return The controller view.
      */
     // TODO: This was "protected". Determine if it should be protected in MCV2.
-    private View makeControllerView() {
-        View root = inflateLayout(getContext(), R.layout.media_controller);
+    private ViewGroup makeControllerView() {
+        ViewGroup root = (ViewGroup) inflateLayout(getContext(), R.layout.media_controller);
         initControllerView(root);
         return root;
     }
@@ -661,16 +710,7 @@ public class MediaControlView2 extends BaseLayout {
         return inflater.inflate(resId, null);
     }
 
-    private void initControllerView(View v) {
-        // TODO (b/77176218) Make current file ToT.
-        /**
-        mPlayDescription = mResources.getText(R.string.lockscreen_play_button_content_description);
-        mPauseDescription =
-                mResources.getText(R.string.lockscreen_pause_button_content_description);
-        mReplayDescription =
-                mResources.getText(R.string.lockscreen_replay_button_content_description);
-        */
-
+    private void initControllerView(ViewGroup v) {
         // Relating to Title Bar View
         mTitleBar = v.findViewById(R.id.title_bar);
         mTitleView = v.findViewById(R.id.title_text);
@@ -678,6 +718,7 @@ public class MediaControlView2 extends BaseLayout {
         mBackButton = v.findViewById(R.id.back);
         if (mBackButton != null) {
             mBackButton.setOnClickListener(mBackListener);
+            mBackButton.setVisibility(View.GONE);
         }
         // TODO (b/77158231) revive
         // mRouteButton = v.findViewById(R.id.cast);
@@ -686,6 +727,16 @@ public class MediaControlView2 extends BaseLayout {
         mCenterView = v.findViewById(R.id.center_view);
         mTransportControls = inflateTransportControls(R.layout.embedded_transport_controls);
         mCenterView.addView(mTransportControls);
+
+        // Relating to Minimal Extra View
+        mMinimalExtraView = (LinearLayout) v.findViewById(R.id.minimal_extra_view);
+        LinearLayout.LayoutParams params =
+                (LinearLayout.LayoutParams) mMinimalExtraView.getLayoutParams();
+        int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_embedded_icon_size);
+        int marginSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_margin);
+        params.setMargins(0, (iconSize + marginSize * 2) * (-1), 0, 0);
+        mMinimalExtraView.setLayoutParams(params);
+        mMinimalExtraView.setVisibility(View.GONE);
 
         // Relating to Progress Bar View
         mProgress = v.findViewById(R.id.progress);
@@ -698,6 +749,10 @@ public class MediaControlView2 extends BaseLayout {
             }
             mProgress.setMax(MAX_PROGRESS);
         }
+        mProgressBuffer = v.findViewById(R.id.progress_buffer);
+
+        // Relating to Bottom Bar View
+        mBottomBar = v.findViewById(R.id.bottom_bar);
 
         // Relating to Bottom Bar Left View
         mBottomBarLeftView = v.findViewById(R.id.bottom_bar_left);
@@ -893,12 +948,14 @@ public class MediaControlView2 extends BaseLayout {
             mControls.pause();
             mPlayPauseButton.setImageDrawable(
                     mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
-            mPlayPauseButton.setContentDescription(mPlayDescription);
+            mPlayPauseButton.setContentDescription(
+                    mResources.getString(R.string.mcv2_play_button_desc));
         } else {
             mControls.play();
             mPlayPauseButton.setImageDrawable(
                     mResources.getDrawable(R.drawable.ic_pause_circle_filled, null));
-            mPlayPauseButton.setContentDescription(mPauseDescription);
+            mPlayPauseButton.setContentDescription(
+                    mResources.getString(R.string.mcv2_pause_button_desc));
         }
     }
 
@@ -934,7 +991,8 @@ public class MediaControlView2 extends BaseLayout {
             if (mIsStopped) {
                 mPlayPauseButton.setImageDrawable(
                         mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
-                mPlayPauseButton.setContentDescription(mPlayDescription);
+                mPlayPauseButton.setContentDescription(
+                        mResources.getString(R.string.mcv2_play_button_desc));
                 mIsStopped = false;
             }
         }
@@ -950,11 +1008,11 @@ public class MediaControlView2 extends BaseLayout {
                 return;
             }
             if (mDuration > 0) {
-                int newPosition = (int) (((long) mDuration * progress) / MAX_PROGRESS);
-                mControls.seekTo(newPosition);
+                int position = (int) (((long) mDuration * progress) / MAX_PROGRESS);
+                mControls.seekTo(position);
 
                 if (mCurrentTime != null) {
-                    mCurrentTime.setText(stringForTime(newPosition));
+                    mCurrentTime.setText(stringForTime(position));
                 }
             }
         }
@@ -1083,11 +1141,15 @@ public class MediaControlView2 extends BaseLayout {
             if (!mIsMute) {
                 mMuteButton.setImageDrawable(
                         mResources.getDrawable(R.drawable.ic_mute, null));
+                mMuteButton.setContentDescription(
+                        mResources.getString(R.string.mcv2_muted_button_desc));
                 mIsMute = true;
                 mController.sendCommand(COMMAND_MUTE, null, null);
             } else {
                 mMuteButton.setImageDrawable(
                         mResources.getDrawable(R.drawable.ic_unmute, null));
+                mMuteButton.setContentDescription(
+                        mResources.getString(R.string.mcv2_unmuted_button_desc));
                 mIsMute = false;
                 mController.sendCommand(COMMAND_UNMUTE, null, null);
             }
@@ -1160,12 +1222,15 @@ public class MediaControlView2 extends BaseLayout {
                             mController.sendCommand(COMMAND_SHOW_SUBTITLE, extra, null);
                             mSubtitleButton.setImageDrawable(
                                     mResources.getDrawable(R.drawable.ic_subtitle_on, null));
+                            mSubtitleButton.setContentDescription(
+                                    mResources.getString(R.string.mcv2_cc_is_on));
                             mSubtitleIsEnabled = true;
                         } else {
                             mController.sendCommand(COMMAND_HIDE_SUBTITLE, null, null);
                             mSubtitleButton.setImageDrawable(
                                     mResources.getDrawable(R.drawable.ic_subtitle_off, null));
-
+                            mSubtitleButton.setContentDescription(
+                                    mResources.getString(R.string.mcv2_cc_is_off));
                             mSubtitleIsEnabled = false;
                         }
                     }
@@ -1223,6 +1288,34 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
+    private void updateAudioMetadata() {
+        if (mMediaType != MEDIA_TYPE_MUSIC) {
+            return;
+        }
+
+        if (mMetadata != null) {
+            String titleText = "";
+            String artistText = "";
+            if (mMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_TITLE)) {
+                titleText = mMetadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+            } else {
+                titleText = mResources.getString(R.string.mcv2_music_title_unknown_text);
+            }
+
+            if (mMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_ARTIST)) {
+                artistText = mMetadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+            } else {
+                artistText = mResources.getString(R.string.mcv2_music_artist_unknown_text);
+            }
+
+            // Update title for Embedded size type
+            mTitleView.setText(titleText + " - " + artistText);
+
+            // Set to true to update layout inside onMeasure()
+            mNeedUXUpdate = true;
+        }
+    }
+
     private void updateLayout() {
         if (mIsAdvertisement) {
             mRewButton.setVisibility(View.GONE);
@@ -1254,47 +1347,154 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
+    private void updateLayout(int maxIconCount, int fullIconSize, int embeddedIconSize,
+             int marginSize, int currWidth, int currHeight, int screenWidth, int screenHeight) {
+        int fullBottomBarRightWidthMax = fullIconSize * maxIconCount
+                + marginSize * (maxIconCount * 2);
+        int embeddedBottomBarRightWidthMax = embeddedIconSize * maxIconCount
+                + marginSize * (maxIconCount * 2);
+        int fullWidth = mTransportControls.getWidth() + mTimeView.getWidth()
+                + fullBottomBarRightWidthMax;
+        int embeddedWidth = mTimeView.getWidth() + embeddedBottomBarRightWidthMax;
+        int screenMaxLength = Math.max(screenWidth, screenHeight);
+
+        if (fullWidth > screenMaxLength) {
+            // TODO: screen may be smaller than the length needed for Full size.
+        }
+
+        boolean isFullSize = (mMediaType == MEDIA_TYPE_DEFAULT) ? (currWidth == screenMaxLength) :
+                (currWidth == screenWidth && currHeight == screenHeight);
+
+        if (isFullSize) {
+            if (mSizeType != SIZE_TYPE_FULL) {
+                updateLayoutForSizeChange(SIZE_TYPE_FULL);
+                if (mMediaType == MEDIA_TYPE_MUSIC) {
+                    mTitleView.setVisibility(View.GONE);
+                }
+            }
+        } else if (embeddedWidth <= currWidth) {
+            if (mSizeType != SIZE_TYPE_EMBEDDED) {
+                updateLayoutForSizeChange(SIZE_TYPE_EMBEDDED);
+                if (mMediaType == MEDIA_TYPE_MUSIC) {
+                    mTitleView.setVisibility(View.VISIBLE);
+                }
+            }
+        } else {
+            if (mSizeType != SIZE_TYPE_MINIMAL) {
+                updateLayoutForSizeChange(SIZE_TYPE_MINIMAL);
+                if (mMediaType == MEDIA_TYPE_MUSIC) {
+                    mTitleView.setVisibility(View.GONE);
+                }
+            }
+        }
+    }
+
     private void updateLayoutForSizeChange(int sizeType) {
         mSizeType = sizeType;
-        RelativeLayout.LayoutParams params =
+        RelativeLayout.LayoutParams timeViewParams =
                 (RelativeLayout.LayoutParams) mTimeView.getLayoutParams();
+        SeekBar seeker = (SeekBar) mProgress;
         switch (mSizeType) {
             case SIZE_TYPE_EMBEDDED:
+                // Relating to Title Bar
+                mTitleBar.setVisibility(View.VISIBLE);
+                mBackButton.setVisibility(View.GONE);
+
+                // Relating to Full Screen Button
+                mMinimalExtraView.setVisibility(View.GONE);
+                mFullScreenButton = mBottomBarRightView.findViewById(R.id.fullscreen);
+                mFullScreenButton.setOnClickListener(mFullScreenListener);
+
+                // Relating to Center View
+                mCenterView.removeAllViews();
                 mBottomBarLeftView.removeView(mTransportControls);
                 mBottomBarLeftView.setVisibility(View.GONE);
                 mTransportControls = inflateTransportControls(R.layout.embedded_transport_controls);
-                mCenterView.addView(mTransportControls, 0);
+                mCenterView.addView(mTransportControls);
 
-                if (params.getRule(RelativeLayout.LEFT_OF) != 0) {
-                    params.removeRule(RelativeLayout.LEFT_OF);
-                    params.addRule(RelativeLayout.RIGHT_OF, R.id.bottom_bar_left);
+                // Relating to Progress Bar
+                seeker.setThumb(mResources.getDrawable(R.drawable.custom_progress_thumb));
+                mProgressBuffer.setVisibility(View.VISIBLE);
+
+                // Relating to Bottom Bar
+                mBottomBar.setVisibility(View.VISIBLE);
+                if (timeViewParams.getRule(RelativeLayout.LEFT_OF) != 0) {
+                    timeViewParams.removeRule(RelativeLayout.LEFT_OF);
+                    timeViewParams.addRule(RelativeLayout.RIGHT_OF, R.id.bottom_bar_left);
                 }
                 break;
             case SIZE_TYPE_FULL:
-                mCenterView.removeView(mTransportControls);
+                // Relating to Title Bar
+                mTitleBar.setVisibility(View.VISIBLE);
+                mBackButton.setVisibility(View.VISIBLE);
+
+                // Relating to Full Screen Button
+                mMinimalExtraView.setVisibility(View.GONE);
+                mFullScreenButton = mBottomBarRightView.findViewById(R.id.fullscreen);
+                mFullScreenButton.setOnClickListener(mFullScreenListener);
+
+                // Relating to Center View
+                mCenterView.removeAllViews();
+                mBottomBarLeftView.removeView(mTransportControls);
                 mTransportControls = inflateTransportControls(R.layout.full_transport_controls);
                 mBottomBarLeftView.addView(mTransportControls, 0);
                 mBottomBarLeftView.setVisibility(View.VISIBLE);
 
-                if (params.getRule(RelativeLayout.RIGHT_OF) != 0) {
-                    params.removeRule(RelativeLayout.RIGHT_OF);
-                    params.addRule(RelativeLayout.LEFT_OF, R.id.bottom_bar_right);
+                // Relating to Progress Bar
+                seeker.setThumb(mResources.getDrawable(R.drawable.custom_progress_thumb));
+                mProgressBuffer.setVisibility(View.VISIBLE);
+
+                // Relating to Bottom Bar
+                mBottomBar.setVisibility(View.VISIBLE);
+                if (timeViewParams.getRule(RelativeLayout.RIGHT_OF) != 0) {
+                    timeViewParams.removeRule(RelativeLayout.RIGHT_OF);
+                    timeViewParams.addRule(RelativeLayout.LEFT_OF, R.id.bottom_bar_right);
                 }
                 break;
             case SIZE_TYPE_MINIMAL:
-                // TODO: implement
+                // Relating to Title Bar
+                mTitleBar.setVisibility(View.GONE);
+                mBackButton.setVisibility(View.GONE);
+
+                // Relating to Full Screen Button
+                mMinimalExtraView.setVisibility(View.VISIBLE);
+                mFullScreenButton = mMinimalExtraView.findViewById(R.id.minimal_fullscreen);
+                mFullScreenButton.setOnClickListener(mFullScreenListener);
+
+                // Relating to Center View
+                mCenterView.removeAllViews();
+                mBottomBarLeftView.removeView(mTransportControls);
+                mTransportControls = inflateTransportControls(R.layout.minimal_transport_controls);
+                mCenterView.addView(mTransportControls);
+
+                // Relating to Progress Bar
+                seeker.setThumb(null);
+                mProgressBuffer.setVisibility(View.GONE);
+
+                // Relating to Bottom Bar
+                mBottomBar.setVisibility(View.GONE);
                 break;
         }
-        mTimeView.setLayoutParams(params);
+        mTimeView.setLayoutParams(timeViewParams);
 
         if (isPlaying()) {
             mPlayPauseButton.setImageDrawable(
                     mResources.getDrawable(R.drawable.ic_pause_circle_filled, null));
-            mPlayPauseButton.setContentDescription(mPauseDescription);
+            mPlayPauseButton.setContentDescription(
+                    mResources.getString(R.string.mcv2_pause_button_desc));
         } else {
             mPlayPauseButton.setImageDrawable(
                     mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
-            mPlayPauseButton.setContentDescription(mPlayDescription);
+            mPlayPauseButton.setContentDescription(
+                    mResources.getString(R.string.mcv2_play_button_desc));
+        }
+
+        if (mIsFullScreen) {
+            mFullScreenButton.setImageDrawable(
+                    mResources.getDrawable(R.drawable.ic_fullscreen_exit, null));
+        } else {
+            mFullScreenButton.setImageDrawable(
+                    mResources.getDrawable(R.drawable.ic_fullscreen, null));
         }
     }
 
@@ -1308,10 +1508,16 @@ public class MediaControlView2 extends BaseLayout {
         mFfwdButton = v.findViewById(R.id.ffwd);
         if (mFfwdButton != null) {
             mFfwdButton.setOnClickListener(mFfwdListener);
+            if (mMediaType == MEDIA_TYPE_MUSIC) {
+                mFfwdButton.setVisibility(View.GONE);
+            }
         }
         mRewButton = v.findViewById(R.id.rew);
         if (mRewButton != null) {
             mRewButton.setOnClickListener(mRewListener);
+            if (mMediaType == MEDIA_TYPE_MUSIC) {
+                mRewButton.setVisibility(View.GONE);
+            }
         }
         // TODO: Add support for Next and Previous buttons
         mNextButton = v.findViewById(R.id.next);
@@ -1403,19 +1609,22 @@ public class MediaControlView2 extends BaseLayout {
                     case PlaybackStateCompat.STATE_PLAYING:
                         mPlayPauseButton.setImageDrawable(
                                 mResources.getDrawable(R.drawable.ic_pause_circle_filled, null));
-                        mPlayPauseButton.setContentDescription(mPauseDescription);
+                        mPlayPauseButton.setContentDescription(
+                                mResources.getString(R.string.mcv2_pause_button_desc));
                         removeCallbacks(mUpdateProgress);
                         post(mUpdateProgress);
                         break;
                     case PlaybackStateCompat.STATE_PAUSED:
                         mPlayPauseButton.setImageDrawable(
                                 mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
-                        mPlayPauseButton.setContentDescription(mPlayDescription);
+                        mPlayPauseButton.setContentDescription(
+                                mResources.getString(R.string.mcv2_play_button_desc));
                         break;
                     case PlaybackStateCompat.STATE_STOPPED:
                         mPlayPauseButton.setImageDrawable(
                                 mResources.getDrawable(R.drawable.ic_replay_circle_filled, null));
-                        mPlayPauseButton.setContentDescription(mReplayDescription);
+                        mPlayPauseButton.setContentDescription(
+                                mResources.getString(R.string.mcv2_replay_button_desc));
                         mIsStopped = true;
                         break;
                     default:
@@ -1429,11 +1638,17 @@ public class MediaControlView2 extends BaseLayout {
                 if ((newActions & PlaybackStateCompat.ACTION_PAUSE) != 0) {
                     mPlayPauseButton.setVisibility(View.VISIBLE);
                 }
-                if ((newActions & PlaybackStateCompat.ACTION_REWIND) != 0) {
-                    mRewButton.setVisibility(View.VISIBLE);
+                if ((newActions & PlaybackStateCompat.ACTION_REWIND) != 0
+                        && mMediaType != MEDIA_TYPE_MUSIC) {
+                    if (mRewButton != null) {
+                        mRewButton.setVisibility(View.VISIBLE);
+                    }
                 }
-                if ((newActions & PlaybackStateCompat.ACTION_FAST_FORWARD) != 0) {
-                    mFfwdButton.setVisibility(View.VISIBLE);
+                if ((newActions & PlaybackStateCompat.ACTION_FAST_FORWARD) != 0
+                        && mMediaType != MEDIA_TYPE_MUSIC) {
+                    if (mFfwdButton != null) {
+                        mFfwdButton.setVisibility(View.VISIBLE);
+                    }
                 }
                 if ((newActions & PlaybackStateCompat.ACTION_SEEK_TO) != 0) {
                     mSeekAvailable = true;
@@ -1475,6 +1690,7 @@ public class MediaControlView2 extends BaseLayout {
             mMetadata = metadata;
             updateDuration();
             updateTitle();
+            updateAudioMetadata();
         }
 
         @Override
@@ -1500,6 +1716,9 @@ public class MediaControlView2 extends BaseLayout {
                     } else {
                         mAudioTrackList.add(mResources.getString(
                                 R.string.MediaControlView2_audio_track_none_text));
+                    }
+                    if (mVideoTrackCount == 0 && mAudioTrackCount > 0) {
+                        mMediaType = MEDIA_TYPE_MUSIC;
                     }
 
                     mSubtitleTrackCount = extras.getInt(KEY_SUBTITLE_TRACK_COUNT);
