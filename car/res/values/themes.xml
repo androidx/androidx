@@ -36,6 +36,7 @@ limitations under the License.
         <item name="listItemBackgroundColor">@color/car_card</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
+        <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
     </style>
 
     <!-- Theme for the Car that is a passthrough for the default theme. -->
@@ -51,6 +52,7 @@ limitations under the License.
         <item name="listItemBackgroundColor">@color/car_card_dark</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
+        <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader.Light</item>
     </style>
 
     <!-- A Theme for activities that have a drawer affordance. This theme will automatically switch
