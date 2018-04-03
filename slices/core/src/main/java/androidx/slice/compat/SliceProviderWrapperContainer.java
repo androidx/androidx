@@ -22,9 +22,7 @@ import android.annotation.TargetApi;
 import android.app.slice.Slice;
 import android.app.slice.SliceProvider;
 import android.app.slice.SliceSpec;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ProviderInfo;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
@@ -53,14 +51,8 @@ public class SliceProviderWrapperContainer {
         }
 
         @Override
-        public void attachInfo(Context context, ProviderInfo info) {
-            super.attachInfo(context, info);
-            mSliceProvider.attachInfo(context, info);
-        }
-
-        @Override
         public boolean onCreate() {
-            return mSliceProvider.onCreate();
+            return mSliceProvider.onCreateSliceProvider();
         }
 
         @Override
