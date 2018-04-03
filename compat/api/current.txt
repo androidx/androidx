@@ -571,6 +571,29 @@ package androidx.core.app {
     field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
   }
 
+  public class Person {
+    method public static androidx.core.app.Person fromBundle(android.os.Bundle);
+    method public android.graphics.Bitmap getIcon();
+    method public java.lang.String getKey();
+    method public java.lang.CharSequence getName();
+    method public java.lang.String getUri();
+    method public boolean isBot();
+    method public boolean isImportant();
+    method public androidx.core.app.Person.Builder toBuilder();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static class Person.Builder {
+    ctor public Person.Builder();
+    method public androidx.core.app.Person build();
+    method public androidx.core.app.Person.Builder setBot(boolean);
+    method public androidx.core.app.Person.Builder setIcon(android.graphics.Bitmap);
+    method public androidx.core.app.Person.Builder setImportant(boolean);
+    method public androidx.core.app.Person.Builder setKey(java.lang.String);
+    method public androidx.core.app.Person.Builder setName(java.lang.CharSequence);
+    method public androidx.core.app.Person.Builder setUri(java.lang.String);
+  }
+
   public final class RemoteInput {
     method public static void addDataResultToIntent(androidx.core.app.RemoteInput, android.content.Intent, java.util.Map<java.lang.String, android.net.Uri>);
     method public static void addResultsToIntent(androidx.core.app.RemoteInput[], android.content.Intent, android.os.Bundle);
