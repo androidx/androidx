@@ -118,6 +118,9 @@ project(':navigation:common').projectDir = new File(supportRoot, "navigation/com
 include ':navigation:runtime'
 project(':navigation:runtime').projectDir = new File(supportRoot, "navigation/runtime")
 
+include ':navigation:runtime-ktx'
+project(':navigation:runtime-ktx').projectDir = new File(supportRoot, "navigation/runtime/ktx")
+
 include ':navigation:testing'
 project(':navigation:testing').projectDir = new File(supportRoot, "navigation/testing")
 
