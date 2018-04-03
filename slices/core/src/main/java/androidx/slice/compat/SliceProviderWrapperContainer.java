@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 import androidx.slice.SliceConvert;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -80,6 +81,11 @@ public class SliceProviderWrapperContainer {
         @Override
         public void onSliceUnpinned(Uri sliceUri) {
             mSliceProvider.onSliceUnpinned(sliceUri);
+        }
+
+        @Override
+        public Collection<Uri> onGetSliceDescendants(Uri uri) {
+            return mSliceProvider.onGetSliceDescendants(uri);
         }
 
         /**
