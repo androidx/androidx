@@ -45,6 +45,8 @@ import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
@@ -103,6 +105,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     @IntDef({
             MODE_SMALL, MODE_LARGE, MODE_SHORTCUT
     })
+    @Retention(RetentionPolicy.SOURCE)
     public @interface SliceMode {}
 
     /**
