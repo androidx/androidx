@@ -747,6 +747,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     public static final class ControllerInfo {
         private final int mUid;
         private final String mPackageName;
+        // TODO: IMediaControllerCallback should be used only for MediaSession2ImplBase
         private final IMediaControllerCallback mIControllerCallback;
         private final boolean mIsTrusted;
 
@@ -829,6 +830,10 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         public static @NonNull ControllerInfo fromBundle(@NonNull Context context, Bundle bundle) {
             // TODO: Fill here.
             return new ControllerInfo(context, -1, -1, "TODO", null);
+        }
+
+        IMediaControllerCallback getControllerBinder() {
+            return mIControllerCallback;
         }
     }
 

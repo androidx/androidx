@@ -552,7 +552,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         final int state = player.getPlayerState();
         if (state != oldPlayer.getPlayerState()) {
             // TODO: implement
-            //mSession2Stub.notifyPlayerStateChangedNotLocked(state);
+            mSession2Stub.notifyPlayerStateChanged(state);
         }
 
         final long currentTimeMs = System.currentTimeMillis();
@@ -636,7 +636,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                 @Override
                 public void run() {
                     session.getCallback().onPlayerStateChanged(session.getInstance(), mpb, state);
-                    //session.getSession2Stub().notifyPlayerStateChangedNotLocked(state);
+                    session.getSession2Stub().notifyPlayerStateChanged(state);
                 }
             });
         }

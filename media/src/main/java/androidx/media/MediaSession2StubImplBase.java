@@ -28,13 +28,16 @@ import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
-import static androidx.media.MediaConstants2.CUSTOM_COMMAND_CONNECT;
+import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.DeadObjectException;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.IMediaControllerCallback;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -42,6 +45,7 @@ import android.util.ArrayMap;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.media.MediaSession2.ControllerInfo;
 
 import java.util.ArrayList;
@@ -74,7 +78,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
 
     @Override
     public void onCommand(String command, Bundle extras, final ResultReceiver cb) {
-        if (CUSTOM_COMMAND_CONNECT.equals(command)) {
+        if (CONTROLLER_COMMAND_CONNECT.equals(command)) {
             IMediaControllerCallback callback = IMediaControllerCallback.Stub.asInterface(
                     extras.getBinder(ARGUMENT_ICONTROLLER_CALLBACK));
             String packageName = extras.getString(ARGUMENT_PACKAGE_NAME);
@@ -172,5 +176,82 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 }
             });
         }
+    }
+
+    void notifyPlayerStateChanged(final int state) {
+        notifyAll(new NotifyRunnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putInt(ARGUMENT_PLAYER_STATE, state);
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_PLAYER_STATE_CHANGED, bundle);
+            }
+        });
+    }
+
+    private List<ControllerInfo> getControllers() {
+        ArrayList<ControllerInfo> controllers = new ArrayList<>();
+        synchronized (mLock) {
+            for (int i = 0; i < mControllers.size(); i++) {
+                controllers.add(mControllers.valueAt(i));
+            }
+        }
+        return controllers;
+    }
+
+    private void notifyAll(@NonNull NotifyRunnable runnable) {
+        List<ControllerInfo> controllers = getControllers();
+        for (int i = 0; i < controllers.size(); i++) {
+            notifyInternal(controllers.get(i), runnable);
+        }
+    }
+
+    // Do not call this API directly. Use notify() instead.
+    private void notifyInternal(@NonNull ControllerInfo controller,
+            @NonNull NotifyRunnable runnable) {
+        if (controller == null || controller.getControllerBinder() == null) {
+            return;
+        }
+        try {
+            runnable.run(controller);
+        } catch (DeadObjectException e) {
+            if (DEBUG) {
+                Log.d(TAG, controller.toString() + " is gone", e);
+            }
+            onControllerClosed(controller.getControllerBinder());
+        } catch (RemoteException e) {
+            // Currently it's TransactionTooLargeException or DeadSystemException.
+            // We'd better to leave log for those cases because
+            //   - TransactionTooLargeException means that we may need to fix our code.
+            //     (e.g. add pagination or special way to deliver Bitmap)
+            //   - DeadSystemException means that errors around it can be ignored.
+            Log.w(TAG, "Exception in " + controller.toString(), e);
+        }
+    }
+
+    private void onControllerClosed(IMediaControllerCallback iController) {
+        ControllerInfo controller;
+        synchronized (mLock) {
+            controller = mControllers.remove(iController.asBinder());
+            if (DEBUG) {
+                Log.d(TAG, "releasing " + controller);
+            }
+        }
+        if (controller == null) {
+            return;
+        }
+        final ControllerInfo removedController = controller;
+        mSession.getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                mSession.getCallback().onDisconnected(mSession.getInstance(), removedController);
+            }
+        });
+    }
+
+    @FunctionalInterface
+    private interface NotifyRunnable {
+        void run(ControllerInfo controller) throws RemoteException;
     }
 }

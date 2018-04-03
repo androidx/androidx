@@ -21,7 +21,12 @@ class MediaConstants2 {
     static final int CONNECT_RESULT_CONNECTED = 0;
     static final int CONNECT_RESULT_DISCONNECTED = -1;
 
-    static final String CUSTOM_COMMAND_CONNECT = "androidx.media.command.CONNECT";
+    // Event string used by IMediaControllerCallback.onEvent()
+    static final String SESSION_EVENT_ON_PLAYER_STATE_CHANGED =
+            "androidx.media.session.event.ON_PLAYER_STATE_CHANGED";
+
+    // Command string used by MediaControllerCompat.sendCommand()
+    static final String CONTROLLER_COMMAND_CONNECT = "androidx.media.controller.command.CONNECT";
 
     static final String ARGUMENT_ALLOWED_COMMANDS = "androidx.media.argument.ALLOWED_COMMANDS";
     static final String ARGUMENT_PLAYER_STATE = "androidx.media.argument.PLAYER_STATE";
