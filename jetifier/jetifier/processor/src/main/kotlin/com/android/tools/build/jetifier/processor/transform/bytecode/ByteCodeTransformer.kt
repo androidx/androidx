@@ -39,6 +39,7 @@ class ByteCodeTransformer internal constructor(
         reader.accept(remapper.classRemapper, 0 /* flags */)
 
         if (!remapper.changesDone) {
+            file.setNewDataSilently(writer.toByteArray())
             return
         }
 
