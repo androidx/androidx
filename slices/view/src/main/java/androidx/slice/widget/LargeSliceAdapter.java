@@ -65,6 +65,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     private SliceView.OnSliceActionListener mSliceObserver;
     private int mColor;
     private AttributeSet mAttrs;
+    private int mDefStyleAttr;
+    private int mDefStyleRes;
     private List<SliceItem> mSliceActions;
     private boolean mShowLastUpdated;
     private long mLastUpdated;
@@ -119,8 +121,10 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     /**
      * Sets the attribute set to use for views in the list.
      */
-    public void setStyle(AttributeSet attrs) {
+    public void setStyle(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         mAttrs = attrs;
+        mDefStyleAttr = defStyleAttr;
+        mDefStyleRes = defStyleRes;
         notifyDataSetChanged();
     }
 
@@ -246,7 +250,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
 
             final boolean isHeader = position == HEADER_INDEX;
             mSliceChildView.setTint(mColor);
-            mSliceChildView.setStyle(mAttrs);
+            mSliceChildView.setStyle(mAttrs, mDefStyleAttr, mDefStyleRes);
             mSliceChildView.setSliceItem(item, isHeader, position, mSliceObserver);
             if (isHeader && mSliceChildView instanceof RowView) {
                 mSliceChildView.setSliceActions(mSliceActions);

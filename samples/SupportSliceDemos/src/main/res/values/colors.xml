@@ -19,4 +19,8 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <!-- slice view custom theme -->
+    <color name="textColor">#D9000000</color>
+    <color name="tintColor">#FF12A4Af</color>
 </resources>

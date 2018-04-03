@@ -166,9 +166,9 @@ public class LargeTemplateView extends SliceChildView {
     }
 
     @Override
-    public void setStyle(AttributeSet attrs) {
-        super.setStyle(attrs);
-        mAdapter.setStyle(attrs);
+    public void setStyle(AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
+        super.setStyle(attrs, defStyleAttrs, defStyleRes);
+        mAdapter.setStyle(attrs, defStyleAttrs, defStyleRes);
     }
 
     @Override
