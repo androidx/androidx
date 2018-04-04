@@ -809,6 +809,11 @@ package androidx.core.content.pm {
     method public static long getLongVersionCode(android.content.pm.PackageInfo);
   }
 
+  public final class PermissionInfoCompat {
+    method public static int getProtection(android.content.pm.PermissionInfo);
+    method public static int getProtectionFlags(android.content.pm.PermissionInfo);
+  }
+
   public class ShortcutInfoCompat {
     method public android.content.ComponentName getActivity();
     method public java.lang.CharSequence getDisabledMessage();
