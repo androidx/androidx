@@ -1344,6 +1344,7 @@ public class ViewCompat {
      * @return a view with given ID
      * @see View#findViewById(int)
      */
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     @NonNull
     public static <T extends View> T requireViewById(@NonNull View view, @IdRes int id) {
         // TODO: use and link to View#requireViewById() directly, once available
