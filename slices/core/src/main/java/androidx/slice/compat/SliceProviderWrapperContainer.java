@@ -54,13 +54,13 @@ public class SliceProviderWrapperContainer {
 
         @Override
         public void attachInfo(Context context, ProviderInfo info) {
-            super.attachInfo(context, info);
             mSliceProvider.attachInfo(context, info);
+            super.attachInfo(context, info);
         }
 
         @Override
         public boolean onCreate() {
-            return mSliceProvider.onCreate();
+            return true;
         }
 
         @Override
