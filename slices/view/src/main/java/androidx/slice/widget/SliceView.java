@@ -236,7 +236,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
                     mSliceObserver.onSliceAction(eventInfo, mListContent.getPrimaryAction());
                 }
             } catch (PendingIntent.CanceledException e) {
-                e.printStackTrace();
+                Log.e(TAG, "PendingIntent for slice cannot be sent", e);
             }
         } else if (mOnClickListener != null) {
             mOnClickListener.onClick(this);
