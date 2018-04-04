@@ -182,11 +182,17 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createGallery(Uri sliceUri) {
+        SliceAction primaryAction = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "open photo album"),
+                IconCompat.createWithResource(getContext(), R.drawable.slices_1),
+                LARGE_IMAGE,
+                "Open photo album");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setColor(0xff4285F4)
                 .addRow(b -> b
                         .setTitle("Family trip to Hawaii")
-                        .setSubtitle("Sep 30, 2017 - Oct 2, 2017"))
+                        .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
+                        .setPrimaryAction(primaryAction))
                 .addAction(new SliceAction(
                         getBroadcastIntent(ACTION_TOAST, "cast photo album"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_cast),

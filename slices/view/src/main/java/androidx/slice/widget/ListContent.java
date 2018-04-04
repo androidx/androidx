@@ -207,11 +207,25 @@ public class ListContent {
      * @return the type of template that the header represents.
      */
     public int getHeaderTemplateType() {
-        if (mHeaderItem != null) {
-            if (mHeaderItem.hasHint(HINT_HORIZONTAL)) {
+        return getRowType(mContext, mHeaderItem, true, mSliceActions);
+    }
+
+    /**
+     * The type of template that the provided row item represents.
+     *
+     * @param context context used for this slice.
+     * @param rowItem the row item to determine the template type of.
+     * @param isHeader whether this row item is used as a header.
+     * @param actions the actions associated with this slice, only matter if this row is the header.
+     * @return the type of template the provided row item represents.
+     */
+    public static int getRowType(Context context, SliceItem rowItem, boolean isHeader,
+                                 List<SliceItem> actions) {
+        if (rowItem != null) {
+            if (rowItem.hasHint(HINT_HORIZONTAL)) {
                 return EventInfo.ROW_TYPE_GRID;
             } else {
-                RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+                RowContent rc = new RowContent(context, rowItem, isHeader);
                 SliceItem actionItem = rc.getPrimaryAction();
                 SliceAction primaryAction = null;
                 if (actionItem != null) {
@@ -223,9 +237,9 @@ public class ListContent {
                             : EventInfo.ROW_TYPE_PROGRESS;
                 } else if (primaryAction != null && primaryAction.isToggle()) {
                     return EventInfo.ROW_TYPE_TOGGLE;
-                } else if (mSliceActions != null) {
-                    for (int i = 0; i < mSliceActions.size(); i++) {
-                        if (new SliceActionImpl(mSliceActions.get(i)).isToggle()) {
+                } else if (isHeader && actions != null) {
+                    for (int i = 0; i < actions.size(); i++) {
+                        if (new SliceActionImpl(actions.get(i)).isToggle()) {
                             return EventInfo.ROW_TYPE_TOGGLE;
                         }
                     }

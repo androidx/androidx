@@ -16,11 +16,11 @@
   -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/row_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical"
     android:layout_gravity="center_vertical"
-    android:background="?android:attr/activatedBackgroundIndicator"
     android:orientation="horizontal"
     android:clipToPadding="false">
 
@@ -91,7 +91,8 @@
         android:background="?android:attr/listDivider"
         android:visibility="gone"/>
 
-    <LinearLayout android:id="@android:id/widget_frame"
+    <LinearLayout
+        android:id="@android:id/widget_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingStart="8dp"
