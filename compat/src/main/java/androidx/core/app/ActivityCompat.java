@@ -356,6 +356,7 @@ public class ActivityCompat extends ContextCompat {
      * @see Activity#findViewById(int)
      * @see androidx.core.view.ViewCompat#requireViewById(View, int)
      */
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     @NonNull
     public static <T extends View> T requireViewById(@NonNull Activity activity, @IdRes int id) {
         // TODO: use and link to Activity#requireViewById() directly, once available
