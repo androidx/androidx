@@ -31,6 +31,10 @@ package androidx.webkit {
     method public static void setSafeBrowsingEnabled(android.webkit.WebSettings, boolean);
   }
 
+  public class WebViewClientCompat extends android.webkit.WebViewClient {
+    ctor public WebViewClientCompat();
+  }
+
   public class WebViewCompat {
     method public static android.content.pm.PackageInfo getCurrentWebViewPackage(android.content.Context);
     method public static android.net.Uri getSafeBrowsingPrivacyPolicyUrl();
