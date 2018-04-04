@@ -175,7 +175,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }
-        assertTrue(mPlayer.mStopCalled);
+        assertTrue(mPlayer.mResetCalled);
     }
 
     @Ignore

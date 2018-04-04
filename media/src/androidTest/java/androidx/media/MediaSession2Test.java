@@ -352,40 +352,36 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(currentVolume, info.getCurrentVolume());
     }
 
-    @Ignore
     @Test
     public void testPlay() throws Exception {
-        sHandler.postAndSync(new Runnable() {
-            @Override
-            public void run() {
-                mSession.play();
-                assertTrue(mPlayer.mPlayCalled);
-            }
-        });
+        mSession.play();
+        assertTrue(mPlayer.mPlayCalled);
     }
 
-    @Ignore
     @Test
     public void testPause() throws Exception {
-        sHandler.postAndSync(new Runnable() {
-            @Override
-            public void run() {
-                mSession.pause();
-                assertTrue(mPlayer.mPauseCalled);
-            }
-        });
+        mSession.pause();
+        assertTrue(mPlayer.mPauseCalled);
     }
 
-    @Ignore
     @Test
     public void testReset() throws Exception {
-        sHandler.postAndSync(new Runnable() {
-            @Override
-            public void run() {
-                mSession.reset();
-                assertTrue(mPlayer.mStopCalled);
-            }
-        });
+        mSession.reset();
+        assertTrue(mPlayer.mResetCalled);
+    }
+
+    @Test
+    public void testPrepare() throws Exception {
+        mSession.prepare();
+        assertTrue(mPlayer.mPrepareCalled);
+    }
+
+    @Test
+    public void testSeekTo() throws Exception {
+        final long pos = 1004L;
+        mSession.seekTo(pos);
+        assertTrue(mPlayer.mSeekToCalled);
+        assertEquals(pos, mPlayer.mSeekPosition);
     }
 
     @Ignore
@@ -411,7 +407,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertSame(testMediaItem, mMockAgent.mItem);
     }
 
-    @Ignore
     @Test
     public void testGetPlayerState() {
         final int state = MediaPlayerBase.PLAYER_STATE_PLAYING;
@@ -419,7 +414,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(state, mSession.getPlayerState());
     }
 
-    @Ignore
     @Test
     public void testGetPosition() {
         final long position = 150000;
@@ -427,7 +421,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(position, mSession.getCurrentPosition());
     }
 
-    @Ignore
     @Test
     public void testGetBufferedPosition() {
         final long bufferedPosition = 900000;

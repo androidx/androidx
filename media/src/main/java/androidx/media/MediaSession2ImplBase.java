@@ -270,33 +270,67 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void play() {
-        final MediaPlayerBase player;
+        MediaPlayerBase player;
         synchronized (mLock) {
             player = mPlayer;
         }
         if (player != null) {
             player.play();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
     }
 
     @Override
     public void pause() {
-        //mProvider.pause_impl();
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            player.pause();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public void reset() {
-        //mProvider.stop_impl();
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            player.reset();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public void prepare() {
-        //mProvider.prepare_impl();
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            player.prepare();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public void seekTo(long pos) {
-        //mProvider.seekTo_impl(pos);
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            player.seekTo(pos);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
@@ -330,8 +364,16 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public long getCurrentPosition() {
-        //return mProvider.getPosition_impl();
-        return 0L;
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            return player.getCurrentPosition();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
+        return MediaPlayerBase.UNKNOWN_TIME;
     }
 
     @Override
@@ -342,8 +384,16 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public long getBufferedPosition() {
-        //return mProvider.getBufferedPosition_impl();
-        return 0L;
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            return player.getBufferedPosition();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
+        return MediaPlayerBase.UNKNOWN_TIME;
     }
 
     @Override
