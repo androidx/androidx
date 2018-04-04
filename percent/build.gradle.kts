@@ -1,6 +1,6 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.dependencies.*
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -9,14 +9,12 @@ plugins {
 dependencies {
     api(project(":core"))
 
-    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
-    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_RUNNER_TMP, ESPRESSO_EXCLUDE)
+    androidTestImplementation(ESPRESSO_CORE_TMP, ESPRESSO_EXCLUDE)
 }
 
 android {
-    sourceSets {
-        main.res.srcDir 'res'
-    }
+    sourceSets.getByName("main").res.srcDir("res")
 }
 
 supportLibrary {
