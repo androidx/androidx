@@ -16,10 +16,10 @@
 
 package androidx.slice.widget;
 
-import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_INT;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
@@ -41,6 +41,7 @@ import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceMetadata;
+import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
@@ -80,7 +81,7 @@ import java.util.List;
  * </pre>
  * @see SliceLiveData
  */
-public class SliceView extends ViewGroup implements Observer<Slice> {
+public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClickListener {
 
     private static final String TAG = "SliceView";
 
@@ -125,6 +126,7 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
 
     private int mMode = MODE_LARGE;
     private Slice mCurrentSlice;
+    private ListContent mListContent;
     private SliceChildView mCurrentView;
     private List<SliceItem> mActions;
     private ActionRow mActionRow;
@@ -144,11 +146,13 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
     private OnSliceActionListener mSliceObserver;
     private int mTouchSlopSquared;
     private View.OnLongClickListener mLongClickListener;
+    private View.OnClickListener mOnClickListener;
     private int mDownX;
     private int mDownY;
     private boolean mPressing;
     private boolean mInLongpress;
     private Handler mHandler;
+    int[] mClickInfo;
 
     public SliceView(Context context) {
         this(context, null);
@@ -178,13 +182,6 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         } finally {
             a.recycle();
         }
-        // TODO: action row background should support light / dark / maybe presenter customization
-        mActionRow = new ActionRow(getContext(), true);
-        mActionRow.setBackground(new ColorDrawable(0xffeeeeee));
-        mCurrentView = new LargeTemplateView(getContext());
-        mCurrentView.setMode(getMode());
-        addView(mCurrentView.getView(), getChildLp(mCurrentView.getView()));
-        addView(mActionRow, getChildLp(mActionRow));
         mShortcutSize = getContext().getResources()
                 .getDimensionPixelSize(R.dimen.abc_slice_shortcut_size);
         mMinLargeHeight = getResources().getDimensionPixelSize(R.dimen.abc_slice_large_height);
@@ -192,13 +189,68 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         mActionRowHeight = getResources().getDimensionPixelSize(
                 R.dimen.abc_slice_action_row_height);
 
+        mCurrentView = new LargeTemplateView(getContext());
+        mCurrentView.setMode(getMode());
+        addView(mCurrentView, getChildLp(mCurrentView));
+
+        // TODO: action row background should support light / dark / maybe presenter customization
+        mActionRow = new ActionRow(getContext(), true);
+        mActionRow.setBackground(new ColorDrawable(0xffeeeeee));
+        addView(mActionRow, getChildLp(mActionRow));
+
         final int slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
         mTouchSlopSquared = slop * slop;
         mHandler = new Handler();
+
+        super.setOnClickListener(this);
+    }
+
+    /**
+     * Indicates whether this view reacts to click events or not.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public boolean isSliceViewClickable() {
+        return mOnClickListener != null
+                || (mListContent != null && mListContent.getPrimaryAction() != null);
+    }
+
+    /**
+     * Sets the event info for logging a click.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setClickInfo(int[] info) {
+        mClickInfo = info;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (mListContent != null && mListContent.getPrimaryAction() != null) {
+            try {
+                SliceActionImpl sa = new SliceActionImpl(mListContent.getPrimaryAction());
+                sa.getAction().send();
+                if (mSliceObserver != null && mClickInfo != null && mClickInfo.length > 1) {
+                    EventInfo eventInfo = new EventInfo(getMode(),
+                            EventInfo.ACTION_TYPE_CONTENT, mClickInfo[0], mClickInfo[1]);
+                    mSliceObserver.onSliceAction(eventInfo, mListContent.getPrimaryAction());
+                }
+            } catch (PendingIntent.CanceledException e) {
+                e.printStackTrace();
+            }
+        } else if (mOnClickListener != null) {
+            mOnClickListener.onClick(this);
+        }
+    }
+
+    @Override
+    public void setOnClickListener(View.OnClickListener listener) {
+        mOnClickListener = listener;
     }
 
     @Override
     public void setOnLongClickListener(View.OnLongClickListener listener) {
+        super.setOnLongClickListener(listener);
         mLongClickListener = listener;
     }
 
@@ -469,53 +521,37 @@ public class SliceView extends ViewGroup implements Observer<Slice> {
         return mShowActions;
     }
 
-    private SliceChildView createView(int mode, boolean isGrid) {
-        switch (mode) {
-            case MODE_SHORTCUT:
-                return new ShortcutView(getContext());
-            case MODE_SMALL:
-                return isGrid ? new GridRowView(getContext()) : new RowView(getContext());
-        }
-        return new LargeTemplateView(getContext());
-    }
-
     private void reinflate() {
         if (mCurrentSlice == null) {
             mCurrentView.resetView();
             return;
         }
-        ListContent lc = new ListContent(getContext(), mCurrentSlice);
-        if (!lc.isValid()) {
+        mListContent = new ListContent(getContext(), mCurrentSlice);
+        if (!mListContent.isValid()) {
             mCurrentView.resetView();
-            mCurrentView.setVisibility(View.GONE);
             return;
         }
+
         // TODO: Smarter mapping here from one state to the next.
         int mode = getMode();
-        boolean reuseView = mode == mCurrentView.getMode();
-        SliceItem header = lc.getHeaderItem();
-        boolean isSmallGrid = header != null && SliceQuery.hasHints(header, HINT_HORIZONTAL);
-        if (reuseView && mode == MODE_SMALL) {
-            reuseView = (mCurrentView instanceof GridRowView) == isSmallGrid;
-        }
-        if (!reuseView) {
+        boolean isCurrentViewShortcut = mCurrentView instanceof ShortcutView;
+        if (mode == MODE_SHORTCUT && !isCurrentViewShortcut) {
             removeAllViews();
-            mCurrentView = createView(mode, isSmallGrid);
-            if (mSliceObserver != null) {
-                mCurrentView.setSliceActionListener(mSliceObserver);
-            }
-            addView(mCurrentView.getView(), getChildLp(mCurrentView.getView()));
-            addView(mActionRow, getChildLp(mActionRow));
-            mCurrentView.setMode(mode);
+            mCurrentView = new ShortcutView(getContext());
+            addView(mCurrentView, getChildLp(mCurrentView));
+        } else if (mode != MODE_SHORTCUT && isCurrentViewShortcut) {
+            removeAllViews();
+            mCurrentView = new LargeTemplateView(getContext());
+            addView(mCurrentView, getChildLp(mCurrentView));
         }
-        // Scrolling
-        if (mode == MODE_LARGE && (mCurrentView instanceof LargeTemplateView)) {
+        mCurrentView.setMode(mode);
+
+        mCurrentView.setSliceActionListener(mSliceObserver);
+        if (mCurrentView instanceof LargeTemplateView) {
             ((LargeTemplateView) mCurrentView).setScrollable(mIsScrollable);
         }
-        // Styles
         mCurrentView.setStyle(mAttrs);
         mCurrentView.setTint(getTintColor());
-        mCurrentView.setVisibility(lc.isValid() ? View.VISIBLE : View.GONE);
 
         // Check if the slice content is expired and show when it was last updated
         SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
