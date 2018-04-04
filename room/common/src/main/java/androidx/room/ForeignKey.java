@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.room;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import androidx.annotation.IntDef;
+
+import java.lang.annotation.Retention;
 
 /**
  * Declares a foreign key on another {@link Entity}.
@@ -161,6 +164,7 @@ public @interface ForeignKey {
      * {@link #onUpdate()}.
      */
     @IntDef({NO_ACTION, RESTRICT, SET_NULL, SET_DEFAULT, CASCADE})
+    @Retention(SOURCE)
     @interface Action {
     }
 }
