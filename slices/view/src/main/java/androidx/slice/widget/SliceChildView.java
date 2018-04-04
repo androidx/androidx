@@ -138,9 +138,9 @@ public abstract class SliceChildView extends FrameLayout {
     /**
      * Populates style information for this view.
      */
-    public void setStyle(AttributeSet attrs) {
+    public void setStyle(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TypedArray a = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
-                R.attr.sliceViewStyle, R.style.Widget_SliceView);
+                defStyleAttr, defStyleRes);
         try {
             int themeColor = a.getColor(R.styleable.SliceView_tintColor, -1);
             mTintColor = themeColor != -1 ? themeColor : mTintColor;
