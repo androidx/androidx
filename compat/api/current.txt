@@ -805,6 +805,10 @@ package androidx.core.content.pm {
     field public static final deprecated int CONFIG_UI_MODE = 512; // 0x200
   }
 
+  public final class PackageInfoCompat {
+    method public static long getLongVersionCode(android.content.pm.PackageInfo);
+  }
+
   public class ShortcutInfoCompat {
     method public android.content.ComponentName getActivity();
     method public java.lang.CharSequence getDisabledMessage();
