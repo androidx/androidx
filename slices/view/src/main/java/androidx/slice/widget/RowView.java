@@ -436,6 +436,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                         mObserver.onSliceAction(info, actionContent.getSliceItem());
                     }
                 } catch (CanceledException e) {
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
                     toggle.setSelected(!isChecked);
                 }
             }
@@ -517,7 +518,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                             mObserver.onSliceAction(info, finalAction.getSliceItem());
                         }
                     } catch (CanceledException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "PendingIntent for slice cannot be sent", e);
                     }
                 }
             });
@@ -541,7 +542,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                     }
                     mRowContent.getSlice().getAction().send();
                 } catch (CanceledException e) {
-                    Log.w(TAG, "PendingIntent for slice cannot be sent", e);
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
                 }
             }
         });
@@ -564,7 +565,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                     mObserver.onSliceAction(info, mRowAction.getSliceItem());
                 }
             } catch (CanceledException e) {
-                Log.w(TAG, "PendingIntent for slice cannot be sent", e);
+                Log.e(TAG, "PendingIntent for slice cannot be sent", e);
             }
         } else if (mToggles.size() == 1) {
             // If there is only one toggle and no row action, just toggle it.
