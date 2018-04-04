@@ -17,7 +17,6 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNECT;
@@ -1015,14 +1014,15 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     /**
-     * Overriden to change the visibility of {@link Service#attachBaseContext(Context)}.
-     *
-     * @hide
+     * Attaches to the base context. This method is added to change the visibility of
+     * {@link Service#attachBaseContext(Context)}.
+     * <p>
+     * Note that we cannot simply override {@link Service#attachBaseContext(Context)} and hide it
+     * because lint checks considers the overriden method as the new public API that needs update
+     * of current.txt.
      */
-    @RestrictTo(LIBRARY_GROUP)
-    @Override
-    public void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
+    void attachToBaseContext(Context base) {
+        attachBaseContext(base);
     }
 
     @Override

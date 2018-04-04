@@ -991,12 +991,12 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(SessionToken2.TYPE_SESSION_SERVICE, token.getType());
     }
 
-    @Ignore
     @Test
     public void testConnectToService_sessionService() throws InterruptedException {
         testConnectToService(MockMediaSessionService2.ID);
     }
 
+    @Ignore
     @Test
     public void testConnectToService_libraryService() throws InterruptedException {
         testConnectToService(MockMediaLibraryService2.ID);
