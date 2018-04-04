@@ -22,16 +22,16 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
-import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.media.PlaybackParams;
-import android.media.session.MediaController;
-import android.media.session.MediaController.PlaybackInfo;
-import android.media.session.MediaSession;
-import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaControllerCompat.PlaybackInfo;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
@@ -177,15 +177,15 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     private MediaPlayer mMediaPlayer;
     private DataSourceDesc mDsd;
     private MediaControlView2 mMediaControlView;
-    private MediaSession mMediaSession;
-    private MediaController mMediaController;
+    private MediaSessionCompat mMediaSession;
+    private MediaControllerCompat mMediaController;
     private MediaMetadata2 mMediaMetadata;
     private boolean mNeedUpdateMediaType;
     private Bundle mMediaTypeData;
     private String mTitle;
 
-    private PlaybackState.Builder mStateBuilder;
-    private List<PlaybackState.CustomAction> mCustomActionList;
+    private PlaybackStateCompat.Builder mStateBuilder;
+    private List<PlaybackStateCompat.CustomAction> mCustomActionList;
     private int mTargetState = STATE_IDLE;
     private int mCurrentState = STATE_IDLE;
     private int mCurrentBufferPercentage;
@@ -234,37 +234,38 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                 mRoutePlayer.setPlayerEventCallback(new RoutePlayer.PlayerEventCallback() {
                     @Override
                     public void onPlayerStateChanged(MediaItemStatus itemStatus) {
-                        PlaybackState.Builder psBuilder = new PlaybackState.Builder();
+                        PlaybackStateCompat.Builder psBuilder = new PlaybackStateCompat.Builder();
                         psBuilder.setActions(RoutePlayer.PLAYBACK_ACTIONS);
                         long position = itemStatus.getContentPosition();
                         switch (itemStatus.getPlaybackState()) {
                             case MediaItemStatus.PLAYBACK_STATE_PENDING:
-                                psBuilder.setState(PlaybackState.STATE_NONE, position, 0);
+                                psBuilder.setState(PlaybackStateCompat.STATE_NONE, position, 0);
                                 mCurrentState = STATE_IDLE;
                                 break;
                             case MediaItemStatus.PLAYBACK_STATE_PLAYING:
-                                psBuilder.setState(PlaybackState.STATE_PLAYING, position, 1);
+                                psBuilder.setState(PlaybackStateCompat.STATE_PLAYING, position, 1);
                                 mCurrentState = STATE_PLAYING;
                                 break;
                             case MediaItemStatus.PLAYBACK_STATE_PAUSED:
-                                psBuilder.setState(PlaybackState.STATE_PAUSED, position, 0);
+                                psBuilder.setState(PlaybackStateCompat.STATE_PAUSED, position, 0);
                                 mCurrentState = STATE_PAUSED;
                                 break;
                             case MediaItemStatus.PLAYBACK_STATE_BUFFERING:
-                                psBuilder.setState(PlaybackState.STATE_BUFFERING, position, 0);
+                                psBuilder.setState(
+                                        PlaybackStateCompat.STATE_BUFFERING, position, 0);
                                 mCurrentState = STATE_PAUSED;
                                 break;
                             case MediaItemStatus.PLAYBACK_STATE_FINISHED:
-                                psBuilder.setState(PlaybackState.STATE_STOPPED, position, 0);
+                                psBuilder.setState(PlaybackStateCompat.STATE_STOPPED, position, 0);
                                 mCurrentState = STATE_PLAYBACK_COMPLETED;
                                 break;
                         }
 
-                        PlaybackState pbState = psBuilder.build();
+                        PlaybackStateCompat pbState = psBuilder.build();
                         mMediaSession.setPlaybackState(pbState);
 
-                        MediaMetadata.Builder mmBuilder = new MediaMetadata.Builder();
-                        mmBuilder.putLong(MediaMetadata.METADATA_KEY_DURATION,
+                        MediaMetadataCompat.Builder mmBuilder = new MediaMetadataCompat.Builder();
+                        mmBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
                                 itemStatus.getContentDuration());
                         mMediaSession.setMetadata(mmBuilder.build());
                     }
@@ -441,7 +442,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
      * @hide  TODO: remove
      */
     @RestrictTo(LIBRARY_GROUP)
-    public MediaController getMediaController() {
+    public MediaControllerCompat getMediaController() {
         if (mMediaSession == null) {
             throw new IllegalStateException("MediaSession instance is not available.");
         }
@@ -646,15 +647,15 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     /**
      * Sets custom actions which will be shown as custom buttons in {@link MediaControlView2}.
      *
-     * @param actionList A list of {@link PlaybackState.CustomAction}. The return value of
-     *                   {@link PlaybackState.CustomAction#getIcon()} will be used to draw buttons
-     *                   in {@link MediaControlView2}.
+     * @param actionList A list of {@link PlaybackStateCompat.CustomAction}. The return value of
+     *                   {@link PlaybackStateCompat.CustomAction#getIcon()} will be used to draw
+     *                   buttons in {@link MediaControlView2}.
      * @param executor executor to run callbacks on.
      * @param listener A listener to be called when a custom button is clicked.
      * @hide  TODO remove
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void setCustomActions(List<PlaybackState.CustomAction> actionList,
+    public void setCustomActions(List<PlaybackStateCompat.CustomAction> actionList,
             Executor executor, OnCustomActionListener listener) {
         mCustomActionList = actionList;
         mCustomActionListenerRecord = new Pair<>(executor, listener);
@@ -691,7 +692,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         super.onAttachedToWindow();
 
         // Create MediaSession
-        mMediaSession = new MediaSession(getContext(), "VideoView2MediaSession");
+        mMediaSession = new MediaSessionCompat(getContext(), "VideoView2MediaSession");
         mMediaSession.setCallback(new MediaSessionCallback());
         mMediaSession.setActive(true);
         mMediaController = mMediaSession.getController();
@@ -792,7 +793,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
          * Called to indicate that a custom action is performed.
          *
          * @param action The action that was originally sent in the
-         *               {@link PlaybackState.CustomAction}.
+         *               {@link PlaybackStateCompat.CustomAction}.
          * @param extras Optional extras.
          */
         void onCustomAction(String action, Bundle extras);
@@ -969,39 +970,41 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                     MediaPlayer.BYPASS_METADATA_FILTER);
 
             // Add Play action as default
-            long playbackActions = PlaybackState.ACTION_PLAY;
+            long playbackActions = PlaybackStateCompat.ACTION_PLAY;
             if (mMetadata != null) {
                 if (!mMetadata.has(Metadata.PAUSE_AVAILABLE)
                         || mMetadata.getBoolean(Metadata.PAUSE_AVAILABLE)) {
-                    playbackActions |= PlaybackState.ACTION_PAUSE;
+                    playbackActions |= PlaybackStateCompat.ACTION_PAUSE;
                 }
                 if (!mMetadata.has(Metadata.SEEK_BACKWARD_AVAILABLE)
                         || mMetadata.getBoolean(Metadata.SEEK_BACKWARD_AVAILABLE)) {
-                    playbackActions |= PlaybackState.ACTION_REWIND;
+                    playbackActions |= PlaybackStateCompat.ACTION_REWIND;
                 }
                 if (!mMetadata.has(Metadata.SEEK_FORWARD_AVAILABLE)
                         || mMetadata.getBoolean(Metadata.SEEK_FORWARD_AVAILABLE)) {
-                    playbackActions |= PlaybackState.ACTION_FAST_FORWARD;
+                    playbackActions |= PlaybackStateCompat.ACTION_FAST_FORWARD;
                 }
                 if (!mMetadata.has(Metadata.SEEK_AVAILABLE)
                         || mMetadata.getBoolean(Metadata.SEEK_AVAILABLE)) {
-                    playbackActions |= PlaybackState.ACTION_SEEK_TO;
+                    playbackActions |= PlaybackStateCompat.ACTION_SEEK_TO;
                 }
             } else {
-                playbackActions |= (PlaybackState.ACTION_PAUSE
-                        | PlaybackState.ACTION_REWIND | PlaybackState.ACTION_FAST_FORWARD
-                        | PlaybackState.ACTION_SEEK_TO);
+                playbackActions |= (PlaybackStateCompat.ACTION_PAUSE
+                        | PlaybackStateCompat.ACTION_REWIND
+                        | PlaybackStateCompat.ACTION_FAST_FORWARD
+                        | PlaybackStateCompat.ACTION_SEEK_TO);
             }
             */
             // TODO determine the actionable list based the metadata info.
-            long playbackActions = PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PAUSE
-                    | PlaybackState.ACTION_REWIND | PlaybackState.ACTION_FAST_FORWARD
-                    | PlaybackState.ACTION_SEEK_TO;
-            mStateBuilder = new PlaybackState.Builder();
+            long playbackActions = PlaybackStateCompat.ACTION_PLAY
+                    | PlaybackStateCompat.ACTION_PAUSE
+                    | PlaybackStateCompat.ACTION_REWIND | PlaybackStateCompat.ACTION_FAST_FORWARD
+                    | PlaybackStateCompat.ACTION_SEEK_TO;
+            mStateBuilder = new PlaybackStateCompat.Builder();
             mStateBuilder.setActions(playbackActions);
 
             if (mCustomActionList != null) {
-                for (PlaybackState.CustomAction action : mCustomActionList) {
+                for (PlaybackStateCompat.CustomAction action : mCustomActionList) {
                     mStateBuilder.addCustomAction(action);
                 }
             }
@@ -1023,7 +1026,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
         // Set PlaybackState for MediaSession
         if (mMediaSession != null) {
-            PlaybackState state = mStateBuilder.build();
+            PlaybackStateCompat state = mStateBuilder.build();
             mMediaSession.setPlaybackState(state);
         }
     }
@@ -1031,19 +1034,19 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     private int getCorrespondingPlaybackState() {
         switch (mCurrentState) {
             case STATE_ERROR:
-                return PlaybackState.STATE_ERROR;
+                return PlaybackStateCompat.STATE_ERROR;
             case STATE_IDLE:
-                return PlaybackState.STATE_NONE;
+                return PlaybackStateCompat.STATE_NONE;
             case STATE_PREPARING:
-                return PlaybackState.STATE_CONNECTING;
+                return PlaybackStateCompat.STATE_CONNECTING;
             case STATE_PREPARED:
-                return PlaybackState.STATE_PAUSED;
+                return PlaybackStateCompat.STATE_PAUSED;
             case STATE_PLAYING:
-                return PlaybackState.STATE_PLAYING;
+                return PlaybackStateCompat.STATE_PLAYING;
             case STATE_PAUSED:
-                return PlaybackState.STATE_PAUSED;
+                return PlaybackStateCompat.STATE_PAUSED;
             case STATE_PLAYBACK_COMPLETED:
-                return PlaybackState.STATE_STOPPED;
+                return PlaybackStateCompat.STATE_STOPPED;
             default:
                 return -1;
         }
@@ -1278,7 +1281,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                 }
             }
             // Get and set duration and title values as MediaMetadata for MediaControlView2
-            MediaMetadata.Builder builder = new MediaMetadata.Builder();
+            MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
 
             // TODO: Get title via other public APIs.
             /*
@@ -1286,8 +1289,8 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                 mTitle = mMetadata.getString(Metadata.TITLE);
             }
             */
-            builder.putString(MediaMetadata.METADATA_KEY_TITLE, mTitle);
-            builder.putLong(MediaMetadata.METADATA_KEY_DURATION, mMediaPlayer.getDuration());
+            builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, mTitle);
+            builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mMediaPlayer.getDuration());
 
             if (mMediaSession != null) {
                 mMediaSession.setMetadata(builder.build());
@@ -1351,7 +1354,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         }
     };
 
-    private class MediaSessionCallback extends MediaSession.Callback {
+    private class MediaSessionCallback extends MediaSessionCompat.Callback {
         @Override
         public void onCommand(String command, Bundle args, ResultReceiver receiver) {
             if (isRemotePlayback()) {

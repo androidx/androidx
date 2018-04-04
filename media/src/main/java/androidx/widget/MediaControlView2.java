@@ -20,10 +20,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.media.MediaMetadata;
-import android.media.session.MediaController;
-import android.media.session.PlaybackState;
 import android.os.Bundle;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -233,10 +233,10 @@ public class MediaControlView2 extends BaseLayout {
     private static final String RESOURCE_EMPTY = "";
 
     private Resources mResources;
-    private MediaController mController;
-    private MediaController.TransportControls mControls;
-    private PlaybackState mPlaybackState;
-    private MediaMetadata mMetadata;
+    private MediaControllerCompat mController;
+    private MediaControllerCompat.TransportControls mControls;
+    private PlaybackStateCompat mPlaybackState;
+    private MediaMetadataCompat mMetadata;
     private int mDuration;
     private int mPrevState;
     private int mPrevWidth;
@@ -377,7 +377,7 @@ public class MediaControlView2 extends BaseLayout {
      * @hide TODO: remove once the implementation is revised
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void setController(MediaController controller) {
+    public void setController(MediaControllerCompat controller) {
         mController = controller;
         if (controller != null) {
             mControls = controller.getTransportControls();
@@ -595,7 +595,7 @@ public class MediaControlView2 extends BaseLayout {
 
     private boolean isPlaying() {
         if (mPlaybackState != null) {
-            return mPlaybackState.getState() == PlaybackState.STATE_PLAYING;
+            return mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING;
         }
         return false;
     }
@@ -622,21 +622,21 @@ public class MediaControlView2 extends BaseLayout {
 
     private boolean canPause() {
         if (mPlaybackState != null) {
-            return (mPlaybackState.getActions() & PlaybackState.ACTION_PAUSE) != 0;
+            return (mPlaybackState.getActions() & PlaybackStateCompat.ACTION_PAUSE) != 0;
         }
         return true;
     }
 
     private boolean canSeekBackward() {
         if (mPlaybackState != null) {
-            return (mPlaybackState.getActions() & PlaybackState.ACTION_REWIND) != 0;
+            return (mPlaybackState.getActions() & PlaybackStateCompat.ACTION_REWIND) != 0;
         }
         return true;
     }
 
     private boolean canSeekForward() {
         if (mPlaybackState != null) {
-            return (mPlaybackState.getActions() & PlaybackState.ACTION_FAST_FORWARD) != 0;
+            return (mPlaybackState.getActions() & PlaybackStateCompat.ACTION_FAST_FORWARD) != 0;
         }
         return true;
     }
@@ -1182,8 +1182,8 @@ public class MediaControlView2 extends BaseLayout {
 
     private void updateDuration() {
         if (mMetadata != null) {
-            if (mMetadata.containsKey(MediaMetadata.METADATA_KEY_DURATION)) {
-                mDuration = (int) mMetadata.getLong(MediaMetadata.METADATA_KEY_DURATION);
+            if (mMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {
+                mDuration = (int) mMetadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
                 // update progress bar
                 setProgress();
             }
@@ -1192,8 +1192,8 @@ public class MediaControlView2 extends BaseLayout {
 
     private void updateTitle() {
         if (mMetadata != null) {
-            if (mMetadata.containsKey(MediaMetadata.METADATA_KEY_TITLE)) {
-                mTitleView.setText(mMetadata.getString(MediaMetadata.METADATA_KEY_TITLE));
+            if (mMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_TITLE)) {
+                mTitleView.setText(mMetadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
             }
         }
     }
@@ -1389,9 +1389,9 @@ public class MediaControlView2 extends BaseLayout {
     }
 
     @RequiresApi(26) // TODO correct minSdk API use incompatibilities and remove before release.
-    private class MediaControllerCallback extends MediaController.Callback {
+    private class MediaControllerCallback extends MediaControllerCompat.Callback {
         @Override
-        public void onPlaybackStateChanged(PlaybackState state) {
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
             mPlaybackState = state;
 
             // Update pause button depending on playback state for the following two reasons:
@@ -1400,19 +1400,19 @@ public class MediaControlView2 extends BaseLayout {
             //   2) Need to handle case where the media file reaches end of duration.
             if (mPlaybackState.getState() != mPrevState) {
                 switch (mPlaybackState.getState()) {
-                    case PlaybackState.STATE_PLAYING:
+                    case PlaybackStateCompat.STATE_PLAYING:
                         mPlayPauseButton.setImageDrawable(
                                 mResources.getDrawable(R.drawable.ic_pause_circle_filled, null));
                         mPlayPauseButton.setContentDescription(mPauseDescription);
                         removeCallbacks(mUpdateProgress);
                         post(mUpdateProgress);
                         break;
-                    case PlaybackState.STATE_PAUSED:
+                    case PlaybackStateCompat.STATE_PAUSED:
                         mPlayPauseButton.setImageDrawable(
                                 mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
                         mPlayPauseButton.setContentDescription(mPlayDescription);
                         break;
-                    case PlaybackState.STATE_STOPPED:
+                    case PlaybackStateCompat.STATE_STOPPED:
                         mPlayPauseButton.setImageDrawable(
                                 mResources.getDrawable(R.drawable.ic_replay_circle_filled, null));
                         mPlayPauseButton.setContentDescription(mReplayDescription);
@@ -1426,16 +1426,16 @@ public class MediaControlView2 extends BaseLayout {
 
             if (mPlaybackActions != mPlaybackState.getActions()) {
                 long newActions = mPlaybackState.getActions();
-                if ((newActions & PlaybackState.ACTION_PAUSE) != 0) {
+                if ((newActions & PlaybackStateCompat.ACTION_PAUSE) != 0) {
                     mPlayPauseButton.setVisibility(View.VISIBLE);
                 }
-                if ((newActions & PlaybackState.ACTION_REWIND) != 0) {
+                if ((newActions & PlaybackStateCompat.ACTION_REWIND) != 0) {
                     mRewButton.setVisibility(View.VISIBLE);
                 }
-                if ((newActions & PlaybackState.ACTION_FAST_FORWARD) != 0) {
+                if ((newActions & PlaybackStateCompat.ACTION_FAST_FORWARD) != 0) {
                     mFfwdButton.setVisibility(View.VISIBLE);
                 }
-                if ((newActions & PlaybackState.ACTION_SEEK_TO) != 0) {
+                if ((newActions & PlaybackStateCompat.ACTION_SEEK_TO) != 0) {
                     mSeekAvailable = true;
                 } else {
                     mSeekAvailable = false;
@@ -1444,10 +1444,11 @@ public class MediaControlView2 extends BaseLayout {
             }
 
             // Add buttons if custom actions are present.
-            List<PlaybackState.CustomAction> customActions = mPlaybackState.getCustomActions();
+            List<PlaybackStateCompat.CustomAction> customActions =
+                    mPlaybackState.getCustomActions();
             mCustomButtons.removeAllViews();
             if (customActions.size() > 0) {
-                for (final PlaybackState.CustomAction action : customActions) {
+                for (final PlaybackStateCompat.CustomAction action : customActions) {
                     ImageButton button = new ImageButton(getContext(),
                             null /* AttributeSet */, 0 /* Style */);
                     // TODO: Apply R.style.BottomBarButton to this button using library context.
@@ -1470,7 +1471,7 @@ public class MediaControlView2 extends BaseLayout {
         }
 
         @Override
-        public void onMetadataChanged(MediaMetadata metadata) {
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
             mMetadata = metadata;
             updateDuration();
             updateTitle();
