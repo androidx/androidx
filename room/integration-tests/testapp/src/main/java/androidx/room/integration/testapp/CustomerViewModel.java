@@ -25,12 +25,16 @@ import androidx.lifecycle.LiveData;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
+import androidx.paging.RxPagedListBuilder;
 import androidx.room.Room;
 import androidx.room.integration.testapp.database.Customer;
 import androidx.room.integration.testapp.database.LastNameAscCustomerDataSource;
 import androidx.room.integration.testapp.database.SampleDatabase;
 
 import java.util.UUID;
+
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 
 /**
  * Sample database-backed view model of Customers
@@ -48,20 +52,17 @@ public class CustomerViewModel extends AndroidViewModel {
         mDatabase = Room.databaseBuilder(this.getApplication(),
                 SampleDatabase.class, "customerDatabase").build();
 
-        ArchTaskExecutor.getInstance().executeOnDiskIO(new Runnable() {
-            @Override
-            public void run() {
-                // fill with some simple data
-                int customerCount = mDatabase.getCustomerDao().countCustomers();
-                if (customerCount == 0) {
-                    Customer[] initialCustomers = new Customer[10];
-                    for (int i = 0; i < 10; i++) {
-                        initialCustomers[i] = createCustomer();
-                    }
-                    mDatabase.getCustomerDao().insertAll(initialCustomers);
+        ArchTaskExecutor.getInstance().executeOnDiskIO(() -> {
+            // fill with some simple data
+            int customerCount = mDatabase.getCustomerDao().countCustomers();
+            if (customerCount == 0) {
+                Customer[] initialCustomers = new Customer[10];
+                for (int i = 0; i < 10; i++) {
+                    initialCustomers[i] = createCustomer();
                 }
-
+                mDatabase.getCustomerDao().insertAll(initialCustomers);
             }
+
         });
     }
 
@@ -74,12 +75,13 @@ public class CustomerViewModel extends AndroidViewModel {
     }
 
     void insertCustomer() {
-        ArchTaskExecutor.getInstance().executeOnDiskIO(new Runnable() {
-            @Override
-            public void run() {
-                mDatabase.getCustomerDao().insert(createCustomer());
-            }
-        });
+        ArchTaskExecutor.getInstance().executeOnDiskIO(
+                () -> mDatabase.getCustomerDao().insert(createCustomer()));
+    }
+
+    void clearAllCustomers() {
+        ArchTaskExecutor.getInstance().executeOnDiskIO(
+                () -> mDatabase.getCustomerDao().removeAll());
     }
 
     private static <K> LiveData<PagedList<Customer>> getLivePagedList(
@@ -91,6 +93,20 @@ public class CustomerViewModel extends AndroidViewModel {
         return new LivePagedListBuilder<>(dataSourceFactory, config)
                 .setInitialLoadKey(initialLoadKey)
                 .build();
+    }
+
+    private static <K> Flowable<PagedList<Customer>> getPagedListFlowable(
+            DataSource.Factory<K, Customer> dataSourceFactory) {
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setPageSize(10)
+                .setEnablePlaceholders(false)
+                .build();
+        return new RxPagedListBuilder<>(dataSourceFactory, config)
+                .buildFlowable(BackpressureStrategy.LATEST);
+    }
+
+    Flowable<PagedList<Customer>> getPagedListFlowable() {
+        return getPagedListFlowable(mDatabase.getCustomerDao().loadPagedAgeOrder());
     }
 
     LiveData<PagedList<Customer>> getLivePagedList(int position) {
