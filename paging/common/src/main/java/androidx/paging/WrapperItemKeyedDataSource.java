@@ -25,13 +25,6 @@ import java.util.List;
 class WrapperItemKeyedDataSource<K, A, B> extends ItemKeyedDataSource<K, B> {
     private final ItemKeyedDataSource<K, A> mSource;
     private final Function<List<A>, List<B>> mListFunction;
-    private final InvalidatedCallback mInvalidatedCallback = new DataSource.InvalidatedCallback() {
-        @Override
-        public void onInvalidated() {
-            invalidate();
-            removeCallback();
-        }
-    };
 
     private final IdentityHashMap<B, K> mKeyMap = new IdentityHashMap<>();
 
@@ -39,11 +32,26 @@ class WrapperItemKeyedDataSource<K, A, B> extends ItemKeyedDataSource<K, B> {
             Function<List<A>, List<B>> listFunction) {
         mSource = source;
         mListFunction = listFunction;
-        mSource.addInvalidatedCallback(mInvalidatedCallback);
     }
 
-    private void removeCallback() {
-        mSource.removeInvalidatedCallback(mInvalidatedCallback);
+    @Override
+    public void addInvalidatedCallback(@NonNull InvalidatedCallback onInvalidatedCallback) {
+        mSource.addInvalidatedCallback(onInvalidatedCallback);
+    }
+
+    @Override
+    public void removeInvalidatedCallback(@NonNull InvalidatedCallback onInvalidatedCallback) {
+        mSource.removeInvalidatedCallback(onInvalidatedCallback);
+    }
+
+    @Override
+    public void invalidate() {
+        mSource.invalidate();
+    }
+
+    @Override
+    public boolean isInvalid() {
+        return mSource.isInvalid();
     }
 
     private List<B> convertWithStashedKeys(List<A> source) {

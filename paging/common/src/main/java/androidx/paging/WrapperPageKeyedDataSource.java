@@ -25,23 +25,31 @@ import java.util.List;
 class WrapperPageKeyedDataSource<K, A, B> extends PageKeyedDataSource<K, B> {
     private final PageKeyedDataSource<K, A> mSource;
     private final Function<List<A>, List<B>> mListFunction;
-    private final InvalidatedCallback mInvalidatedCallback = new DataSource.InvalidatedCallback() {
-        @Override
-        public void onInvalidated() {
-            invalidate();
-            removeCallback();
-        }
-    };
 
     WrapperPageKeyedDataSource(PageKeyedDataSource<K, A> source,
             Function<List<A>, List<B>> listFunction) {
         mSource = source;
         mListFunction = listFunction;
-        mSource.addInvalidatedCallback(mInvalidatedCallback);
     }
 
-    private void removeCallback() {
-        mSource.removeInvalidatedCallback(mInvalidatedCallback);
+    @Override
+    public void addInvalidatedCallback(@NonNull InvalidatedCallback onInvalidatedCallback) {
+        mSource.addInvalidatedCallback(onInvalidatedCallback);
+    }
+
+    @Override
+    public void removeInvalidatedCallback(@NonNull InvalidatedCallback onInvalidatedCallback) {
+        mSource.removeInvalidatedCallback(onInvalidatedCallback);
+    }
+
+    @Override
+    public void invalidate() {
+        mSource.invalidate();
+    }
+
+    @Override
+    public boolean isInvalid() {
+        return mSource.isInvalid();
     }
 
     @Override
