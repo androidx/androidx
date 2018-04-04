@@ -87,7 +87,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             mSession.getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (!mSession.isClosed()) {
+                    if (mSession.isClosed()) {
                         return;
                     }
                     synchronized (mLock) {

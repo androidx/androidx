@@ -106,7 +106,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             Executor callbackExecutor, SessionCallback callback) {
         mContext = context;
         mHandlerThread = new HandlerThread("MediaController2_Thread");
-        mHandlerThread.run();
+        mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
 
         mSessionCompat = sessionCompat;
@@ -543,8 +543,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                 throw new IllegalArgumentException("context shouldn't be null");
             }
             mContext = context;
-            // Ensure non-null
-            mId = "";
+            // Ensure MediaSessionCompat non-null or empty
+            mId = TAG;
         }
 
         void setPlayer(@NonNull MediaPlayerBase player) {
