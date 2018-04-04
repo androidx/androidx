@@ -44,6 +44,12 @@ public interface CustomerDao {
     void insertAll(Customer[] customers);
 
     /**
+     * Delete all customers
+     */
+    @Query("DELETE FROM customer")
+    void removeAll();
+
+    /**
      * @return DataSource.Factory of customers, ordered by last name. Use
      * {@link androidx.paging.LivePagedListBuilder} to get a LiveData of PagedLists.
      */
