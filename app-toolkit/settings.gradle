@@ -65,6 +65,7 @@ includeProject(":lifecycle:lifecycle-viewmodel", new File(supportRoot, "lifecycl
 includeProject(":paging:integration-tests:testapp", new File(supportRoot, "paging/integration-tests/testapp"))
 includeProject(":paging:paging-common", new File(supportRoot, "paging/common"))
 includeProject(":paging:paging-runtime", new File(supportRoot, "paging/runtime"))
+includeProject(":paging:paging-rxjava2", new File(supportRoot, "paging/rxjava2"))
 includeProject(":room:integration-tests:testapp", new File(supportRoot, "room/integration-tests/testapp"))
 includeProject(":room:integration-tests:kotlintestapp", new File(supportRoot, "room/integration-tests/kotlintestapp"))
 includeProject(":room:room-common", new File(supportRoot, "room/common"))
