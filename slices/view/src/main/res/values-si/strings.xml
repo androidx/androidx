@@ -21,8 +21,17 @@
     <string name="abc_slice_more" msgid="1983560225998630901">"තව"</string>
     <string name="abc_slice_show_more" msgid="1567717014004692768">"තව පෙන්වන්න"</string>
     <string name="abc_slice_updated" msgid="8155085405396453848">"<xliff:g id="TIME">%1$s</xliff:g> යාවත්කාලීන කරන ලදී"</string>
-    <!-- no translation found for abc_slice_duration_min (6996334305156847955) -->
-    <!-- no translation found for abc_slice_duration_years (6212691832333991589) -->
-    <!-- no translation found for abc_slice_duration_days (6241698511167107334) -->
+    <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
+      <item quantity="one">මිනි <xliff:g id="ID_2">%d</xliff:g>කට පෙර</item>
+      <item quantity="other">මිනි <xliff:g id="ID_2">%d</xliff:g>කට පෙර</item>
+    </plurals>
+    <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
+      <item quantity="one">වසර <xliff:g id="ID_2">%d</xliff:g>කට පෙර</item>
+      <item quantity="other">වසර <xliff:g id="ID_2">%d</xliff:g>කට පෙර</item>
+    </plurals>
+    <plurals name="abc_slice_duration_days" formatted="false" msgid="6241698511167107334">
+      <item quantity="one">දින <xliff:g id="ID_2">%d</xliff:g>කට පෙර</item>
+      <item quantity="other">දින <xliff:g id="ID_2">%d</xliff:g>කට පෙර</item>
+    </plurals>
     <string name="abc_slice_error" msgid="4188371422904147368">"සම්බන්ධ වීමට නොහැකි විය"</string>
 </resources>
