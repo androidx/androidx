@@ -30,13 +30,13 @@ import android.app.Instrumentation;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.media.AudioAttributes;
-import android.media.session.MediaController;
-import android.media.session.PlaybackState;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -83,7 +83,7 @@ public class VideoView2Test {
     private Activity mActivity;
     private KeyguardManager mKeyguardManager;
     private VideoView2 mVideoView;
-    private MediaController mController;
+    private MediaControllerCompat mController;
     private String mVideoPath;
 
     @Rule
@@ -156,23 +156,32 @@ public class VideoView2Test {
             Log.i(TAG, "SKIPPING testPlayVideo(): codec is not supported");
             return;
         }
-        final MediaController.Callback mockControllerCallback =
-                mock(MediaController.Callback.class);
+
+        final MediaControllerCompat.Callback mockControllerCallback =
+                mock(MediaControllerCompat.Callback.class);
+        final MediaControllerCompat.Callback callbackHelper = new MediaControllerCompat.Callback() {
+            @Override
+            public void onPlaybackStateChanged(PlaybackStateCompat state) {
+                mockControllerCallback.onPlaybackStateChanged(state);
+            }
+        };
+
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mController.registerCallback(mockControllerCallback);
+                mController.registerCallback(callbackHelper);
                 mVideoView.setVideoPath(mVideoPath);
                 mController.getTransportControls().play();
             }
         });
-        ArgumentCaptor<PlaybackState> someState = ArgumentCaptor.forClass(PlaybackState.class);
+        ArgumentCaptor<PlaybackStateCompat> someState =
+                ArgumentCaptor.forClass(PlaybackStateCompat.class);
         verify(mockControllerCallback, timeout(TIME_OUT).atLeast(3)).onPlaybackStateChanged(
                 someState.capture());
-        List<PlaybackState> states = someState.getAllValues();
-        assertEquals(PlaybackState.STATE_PAUSED, states.get(0).getState());
-        assertEquals(PlaybackState.STATE_PLAYING, states.get(1).getState());
-        assertEquals(PlaybackState.STATE_STOPPED, states.get(2).getState());
+        List<PlaybackStateCompat> states = someState.getAllValues();
+        assertEquals(PlaybackStateCompat.STATE_PAUSED, states.get(0).getState());
+        assertEquals(PlaybackStateCompat.STATE_PLAYING, states.get(1).getState());
+        assertEquals(PlaybackStateCompat.STATE_STOPPED, states.get(2).getState());
     }
 
     @Test
@@ -184,14 +193,20 @@ public class VideoView2Test {
         }
         final VideoView2.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView2.OnViewTypeChangedListener.class);
-        final MediaController.Callback mockControllerCallback =
-                mock(MediaController.Callback.class);
+        final MediaControllerCompat.Callback mockControllerCallback =
+                mock(MediaControllerCompat.Callback.class);
+        final MediaControllerCompat.Callback callbackHelper = new MediaControllerCompat.Callback() {
+            @Override
+            public void onPlaybackStateChanged(PlaybackStateCompat state) {
+                mockControllerCallback.onPlaybackStateChanged(state);
+            }
+        };
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mVideoView.setOnViewTypeChangedListener(mockViewTypeListener);
                 mVideoView.setViewType(mVideoView.VIEW_TYPE_TEXTUREVIEW);
-                mController.registerCallback(mockControllerCallback);
+                mController.registerCallback(callbackHelper);
                 mVideoView.setVideoPath(mVideoPath);
             }
         });
@@ -204,12 +219,13 @@ public class VideoView2Test {
                 mController.getTransportControls().play();
             }
         });
-        ArgumentCaptor<PlaybackState> someState = ArgumentCaptor.forClass(PlaybackState.class);
+        ArgumentCaptor<PlaybackStateCompat> someState =
+                ArgumentCaptor.forClass(PlaybackStateCompat.class);
         verify(mockControllerCallback, timeout(TIME_OUT).atLeast(3)).onPlaybackStateChanged(
                 someState.capture());
-        List<PlaybackState> states = someState.getAllValues();
-        assertEquals(PlaybackState.STATE_PAUSED, states.get(0).getState());
-        assertEquals(PlaybackState.STATE_PLAYING, states.get(1).getState());
-        assertEquals(PlaybackState.STATE_STOPPED, states.get(2).getState());
+        List<PlaybackStateCompat> states = someState.getAllValues();
+        assertEquals(PlaybackStateCompat.STATE_PAUSED, states.get(0).getState());
+        assertEquals(PlaybackStateCompat.STATE_PLAYING, states.get(1).getState());
+        assertEquals(PlaybackStateCompat.STATE_STOPPED, states.get(2).getState());
     }
 }
