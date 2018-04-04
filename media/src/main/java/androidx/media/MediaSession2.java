@@ -783,6 +783,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          *
          * @return {@code true} if the controller is trusted.
          */
+        // TODO: Remove this API
         public boolean isTrusted() {
             //return mProvider.isTrusted_impl();
             return false;
@@ -808,8 +809,26 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
 
         @Override
         public String toString() {
-            return "ControllerInfo {pkg=" + mPackageName + ", uid=" + mUid + ", trusted="
-                    + mIsTrusted + "}";
+            return "ControllerInfo {pkg=" + mPackageName + ", uid=" + mUid + "})";
+        }
+
+        /**
+         * @hide
+         * @return Bundle
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public @NonNull Bundle toBundle() {
+            return new Bundle();
+        }
+
+        /**
+         * @hide
+         * @return Bundle
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public static @NonNull ControllerInfo fromBundle(@NonNull Context context, Bundle bundle) {
+            // TODO: Fill here.
+            return new ControllerInfo(context, -1, -1, "TODO", null);
         }
     }
 
@@ -987,7 +1006,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
 
     private final SupportLibraryImpl mImpl;
 
-
     MediaSession2(SupportLibraryImpl impl) {
         mImpl = impl;
         mImpl.setInstance(this);
@@ -1049,6 +1067,18 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      */
     public @NonNull SessionToken2 getToken() {
         return mImpl.getToken();
+    }
+
+    @NonNull Context getContext() {
+        return mImpl.getContext();
+    }
+
+    @NonNull Executor getCallbackExecutor() {
+        return mImpl.getCallbackExecutor();
+    }
+
+    @NonNull SessionCallback getCallback() {
+        return mImpl.getCallback();
     }
 
     /**
@@ -1127,7 +1157,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     }
 
     /**
-     * Play playback
+     * Play playback.
      * <p>
      * This calls {@link MediaPlayerBase#play()}.
      */

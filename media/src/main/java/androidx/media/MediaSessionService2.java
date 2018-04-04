@@ -19,15 +19,23 @@ package androidx.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.MediaSession2.ControllerInfo;
+import androidx.media.SessionToken2.TokenType;
+
+import java.util.List;
 
 /**
  * @hide
@@ -120,14 +128,26 @@ public abstract class MediaSessionService2 extends Service {
      */
     public static final String SERVICE_META_DATA = "android.media.session";
 
+    private final MediaBrowserServiceCompat mBrowserServiceCompat;
+
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private NotificationManager mNotificationManager;
+    @GuardedBy("mLock")
+    private Intent mStartSelfIntent;
+    @GuardedBy("mLock")
+    private boolean mIsRunningForeground;
+    @GuardedBy("mLock")
+    private MediaSession2 mSession;
+
     public MediaSessionService2() {
         super();
-        //mProvider = createProvider();
+        mBrowserServiceCompat = createBrowserServiceCompat();
     }
 
-//    MediaSessionService2Provider createProvider() {
-//        return ApiLoader.getProvider().createMediaSessionService2(this);
-//    }
+    MediaBrowserServiceCompat createBrowserServiceCompat() {
+        return new MyBrowserService();
+    }
 
     /**
      * Default implementation for {@link MediaSessionService2} to initialize session service.
@@ -139,7 +159,28 @@ public abstract class MediaSessionService2 extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        //mProvider.onCreate_impl();
+        mBrowserServiceCompat.attachBaseContext(this);
+        mBrowserServiceCompat.onCreate();
+        SessionToken2 token = new SessionToken2(this,
+                new ComponentName(getPackageName(), getClass().getName()));
+        if (token.getType() != getSessionType()) {
+            throw new RuntimeException("Expected session service, but was " + token.getType());
+        }
+        MediaSession2 session = onCreateSession(token.getId());
+        synchronized (mLock) {
+            mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            mStartSelfIntent = new Intent(this, getClass());
+            mSession = session;
+            if (mSession == null || !token.getId().equals(mSession.getToken().getId())) {
+                throw new RuntimeException("Expected session with id " + token.getId()
+                        + ", but got " + mSession);
+            }
+            mBrowserServiceCompat.setSessionToken(mSession.getToken().getSessionCompatToken());
+        }
+    }
+
+    @TokenType int getSessionType() {
+        return SessionToken2.TYPE_SESSION_SERVICE;
     }
 
     /**
@@ -170,7 +211,6 @@ public abstract class MediaSessionService2 extends Service {
      * @return a {@link MediaNotification}. If it's {@code null}, notification wouldn't be shown.
      */
     public @Nullable MediaNotification onUpdateNotification() {
-        //return mProvider.onUpdateNotification_impl();
         return null;
     }
 
@@ -183,8 +223,9 @@ public abstract class MediaSessionService2 extends Service {
      * @return created session
      */
     public final @Nullable MediaSession2 getSession() {
-        //return mProvider.getSession_impl();
-        return null;
+        synchronized (mLock) {
+            return mSession;
+        }
     }
 
     /**
@@ -203,8 +244,18 @@ public abstract class MediaSessionService2 extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        //return mProvider.onBind_impl(intent);
+        if (MediaSessionService2.SERVICE_INTERFACE.equals(intent.getAction())
+                || MediaBrowserServiceCompat.SERVICE_INTERFACE.equals(intent.getAction())) {
+            // Change the intent action for browser service.
+            Intent browserServiceIntent = new Intent(intent);
+            browserServiceIntent.setAction(MediaSessionService2.SERVICE_INTERFACE);
+            return mBrowserServiceCompat.onBind(intent);
+        }
         return null;
+    }
+
+    MediaBrowserServiceCompat getServiceCompat() {
+        return mBrowserServiceCompat;
     }
 
     /**
@@ -213,35 +264,60 @@ public abstract class MediaSessionService2 extends Service {
      * notification here.
      */
     public static class MediaNotification {
-        //private final MediaNotificationProvider mProvider;
+        private final int mNotificationId;
+        private final Notification mNotification;
 
         /**
          * Default constructor
          *
          * @param notificationId notification id to be used for
-         *      {@link android.app.NotificationManager#notify(int, Notification)}.
+         *      {@link NotificationManager#notify(int, Notification)}.
          * @param notification a notification to make session service foreground service. Media
          *      style notification is recommended here.
          */
         public MediaNotification(int notificationId, @NonNull Notification notification) {
-//            mProvider = ApiLoader.getProvider().createMediaSessionService2MediaNotification(
-//                    context, this, notificationId, notification);
+            if (notification == null) {
+                throw new IllegalArgumentException("notification shouldn't be null");
+            }
+            mNotificationId = notificationId;
+            mNotification = notification;
         }
 
         /**
-         * TODO: javadoc
+         * Gets the id of the id.
+         *
+         * @return the notification id
          */
         public int getNotificationId() {
-            //return mProvider.getNotificationId_impl();
-            return 0;
+            return mNotificationId;
         }
 
         /**
-         * TODO: javadoc
+         * Gets the notification.
+         *
+         * @return the notification
          */
-        public /*@NonNull*/ Notification getNotification() {
-            //return mProvider.getNotification_impl();
-            return null;
+        public @NonNull Notification getNotification() {
+            return mNotification;
+        }
+    }
+
+    private static class MyBrowserService extends MediaBrowserServiceCompat {
+        @Override
+        public BrowserRoot onGetRoot(String clientPackageName, int clientUid, Bundle rootHints) {
+            // Returns *stub* root here. Here's the reason.
+            //   1. A non-null BrowserRoot should be returned here to keep the binding
+            //   2. MediaSessionService2 is defined as the simplified version of the library
+            //      service with no browsing feature, so shouldn't allow MediaBrowserServiceCompat
+            //      specific operations.
+            // TODO: Revisit here API not to return stub root here. The fake media ID here may be
+            //       used by the browser service for real.
+            return new BrowserRoot(SERVICE_INTERFACE, null);
+        }
+
+        @Override
+        public void onLoadChildren(String parentId, Result<List<MediaItem>> result) {
+            // Disallow loading children.
         }
     }
 }

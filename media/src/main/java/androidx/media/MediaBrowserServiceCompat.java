@@ -17,6 +17,7 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNECT;
@@ -49,6 +50,7 @@ import static androidx.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
 import static androidx.media.MediaBrowserProtocol.SERVICE_VERSION_CURRENT;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Binder;
@@ -1010,6 +1012,17 @@ public abstract class MediaBrowserServiceCompat extends Service {
             msg.setData(data);
             mCallbacks.send(msg);
         }
+    }
+
+    /**
+     * Overriden to change the visibility of {@link Service#attachBaseContext(Context)}.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
     }
 
     @Override

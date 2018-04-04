@@ -180,7 +180,7 @@ public final class SessionToken2 {
     @Override
     public String toString() {
         return "SessionToken {pkg=" + mPackageName + " id=" + mId + " type=" + mType
-                + " service=" + mServiceName + " sessionCompatTOken=" + mSessionCompatToken + "}";
+                + " service=" + mServiceName + " sessionCompatToken=" + mSessionCompatToken + "}";
     }
 
     /**
@@ -202,6 +202,16 @@ public final class SessionToken2 {
      */
     public String getServiceName() {
         return mServiceName;
+    }
+
+    /**
+     * @hide
+     * @return component name of this session token. Can be null for TYPE_SESSION.
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public ComponentName getComponentName() {
+        // TODO: Cache the component name?
+        return mType == TYPE_SESSION ? null : new ComponentName(mPackageName, mServiceName);
     }
 
     /**

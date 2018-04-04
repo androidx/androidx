@@ -55,6 +55,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Tests {@link MediaBrowser2}.
@@ -70,12 +71,22 @@ public class MediaBrowser2Test extends MediaController2Test {
     private static final String TAG = "MediaBrowser2Test";
 
     @Override
-    TestControllerInterface onCreateController(@NonNull SessionToken2 token,
-            @Nullable ControllerCallback callback) {
-        if (callback == null) {
-            callback = new BrowserCallback() {};
-        }
-        return new TestMediaBrowser(mContext, token, new TestBrowserCallback(callback));
+    TestControllerInterface onCreateController(final @NonNull SessionToken2 token,
+            @Nullable ControllerCallback callback) throws InterruptedException {
+        final BrowserCallback browserCallback =
+                callback != null ? (BrowserCallback) callback : new BrowserCallback() {};
+        final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
+        sHandler.postAndSync(new Runnable() {
+            @Override
+            public void run() {
+                // Create controller on the test handler, for changing MediaBrowserCompat's Handler
+                // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
+                // and commands wouldn't be run if tests codes waits on the test handler.
+                controller.set(new TestMediaBrowser(
+                        mContext, token, new TestBrowserCallback(browserCallback)));
+            }
+        });
+        return controller.get();
     }
 
     /**

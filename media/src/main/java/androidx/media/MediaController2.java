@@ -50,6 +50,7 @@ import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -435,6 +436,9 @@ public class MediaController2 implements AutoCloseable {
     private static final String TAG = "MediaController2";
     private static final boolean DEBUG = true; // TODO(jaewan): Change
 
+    // TODO: Is null root suitable here?
+    static final Bundle sDefaultRootHints = null;
+
     private final Context mContext;
     private final Object mLock = new Object();
 
@@ -446,8 +450,8 @@ public class MediaController2 implements AutoCloseable {
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
 
-    //@GuardedBy("mLock")
-    //private SessionServiceConnection mServiceConnection;
+    @GuardedBy("mLock")
+    private MediaBrowserCompat mBrowserCompat;
     @GuardedBy("mLock")
     private boolean mIsReleased;
     @GuardedBy("mLock")
@@ -528,20 +532,24 @@ public class MediaController2 implements AutoCloseable {
     @Override
     public void close() {
         if (DEBUG) {
-            Log.d(TAG, "release from " + mToken);
+            Log.d(TAG, "release from " + mToken, new IllegalStateException());
         }
-        mHandlerThread.quitSafely();
         synchronized (mLock) {
             if (mIsReleased) {
                 // Prevent re-enterance from the ControllerCallback.onDisconnected()
                 return;
             }
+            mHandler.removeCallbacksAndMessages(null);
+            mHandlerThread.quitSafely();
+
             mIsReleased = true;
-//            if (mServiceConnection != null) {
-//                mContext.unbindService(mServiceConnection);
-//                mServiceConnection = null;
-//            }
-            mControllerCompat.unregisterCallback(mControllerCompatCallback);
+            if (mControllerCompat != null) {
+                mControllerCompat.unregisterCallback(mControllerCompatCallback);
+            }
+            if (mBrowserCompat != null) {
+                mBrowserCompat.disconnect();
+                mBrowserCompat = null;
+            }
             mConnected = false;
         }
         mCallbackExecutor.execute(new Runnable() {
@@ -1317,14 +1325,12 @@ public class MediaController2 implements AutoCloseable {
         // TODO(jaewan): More sanity checks.
         // TODO: Check the connection between 1.0 and 2.0 APIs
         if (mToken.getType() == SessionToken2.TYPE_SESSION) {
-            // Session
-            //mServiceConnection = null;
+            synchronized (mLock) {
+                mBrowserCompat = null;
+            }
             connectToSession(mToken.getSessionCompatToken());
         } else {
-            // TODO: implement connect to services.
-            // Session service
-            //mServiceConnection = new SessionServiceConnection();
-            //connectToService();
+            connectToService();
         }
     }
 
@@ -1340,6 +1346,14 @@ public class MediaController2 implements AutoCloseable {
             if (mControllerCompat.isSessionReady()) {
                 sendCustomCommand(CUSTOM_COMMAND_CONNECT);
             }
+        }
+    }
+
+    private void connectToService() {
+        synchronized (mLock) {
+            mBrowserCompat = new MediaBrowserCompat(mContext, mToken.getComponentName(),
+                    new ConnectionCallback(), sDefaultRootHints);
+            mBrowserCompat.connect();
         }
     }
 
@@ -1374,6 +1388,46 @@ public class MediaController2 implements AutoCloseable {
                     }
                 }
             });
+        }
+    }
+
+    @NonNull Context getContext() {
+        return mContext;
+    }
+
+    @NonNull ControllerCallback getCallback() {
+        return mCallback;
+    }
+
+    @NonNull Executor getCallbackExecutor() {
+        return mCallbackExecutor;
+    }
+
+    @Nullable MediaBrowserCompat getBrowserCompat() {
+        synchronized (mLock) {
+            return mBrowserCompat;
+        }
+    }
+
+    private class ConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
+        @Override
+        public void onConnected() {
+            MediaBrowserCompat browser = getBrowserCompat();
+            if (browser != null) {
+                connectToSession(browser.getSessionToken());
+            } else if (DEBUG) {
+                Log.d(TAG, "Controller is closed prematually", new IllegalStateException());
+            }
+        }
+
+        @Override
+        public void onConnectionSuspended() {
+            close();
+        }
+
+        @Override
+        public void onConnectionFailed() {
+            close();
         }
     }
 }
