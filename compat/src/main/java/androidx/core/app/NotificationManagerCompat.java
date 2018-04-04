@@ -267,7 +267,7 @@ public final class NotificationManagerCompat {
             // Parse the string again if it is different from the last time this method was called.
             if (enabledNotificationListeners != null
                     && !enabledNotificationListeners.equals(sEnabledNotificationListeners)) {
-                final String[] components = enabledNotificationListeners.split(":");
+                final String[] components = enabledNotificationListeners.split(":", -1);
                 Set<String> packageNames = new HashSet<String>(components.length);
                 for (String component : components) {
                     ComponentName componentName = ComponentName.unflattenFromString(component);

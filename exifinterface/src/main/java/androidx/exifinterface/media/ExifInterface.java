@@ -3920,7 +3920,7 @@ public class ExifInterface {
                         break;
                     }
                     case IFD_FORMAT_USHORT: {
-                        final String[] values = value.split(",");
+                        final String[] values = value.split(",", -1);
                         final int[] intArray = new int[values.length];
                         for (int j = 0; j < values.length; ++j) {
                             intArray[j] = Integer.parseInt(values[j]);
@@ -3930,7 +3930,7 @@ public class ExifInterface {
                         break;
                     }
                     case IFD_FORMAT_SLONG: {
-                        final String[] values = value.split(",");
+                        final String[] values = value.split(",", -1);
                         final int[] intArray = new int[values.length];
                         for (int j = 0; j < values.length; ++j) {
                             intArray[j] = Integer.parseInt(values[j]);
@@ -3940,7 +3940,7 @@ public class ExifInterface {
                         break;
                     }
                     case IFD_FORMAT_ULONG: {
-                        final String[] values = value.split(",");
+                        final String[] values = value.split(",", -1);
                         final long[] longArray = new long[values.length];
                         for (int j = 0; j < values.length; ++j) {
                             longArray[j] = Long.parseLong(values[j]);
@@ -3950,10 +3950,10 @@ public class ExifInterface {
                         break;
                     }
                     case IFD_FORMAT_URATIONAL: {
-                        final String[] values = value.split(",");
+                        final String[] values = value.split(",", -1);
                         final Rational[] rationalArray = new Rational[values.length];
                         for (int j = 0; j < values.length; ++j) {
-                            final String[] numbers = values[j].split("/");
+                            final String[] numbers = values[j].split("/", -1);
                             rationalArray[j] = new Rational((long) Double.parseDouble(numbers[0]),
                                     (long) Double.parseDouble(numbers[1]));
                         }
@@ -3962,10 +3962,10 @@ public class ExifInterface {
                         break;
                     }
                     case IFD_FORMAT_SRATIONAL: {
-                        final String[] values = value.split(",");
+                        final String[] values = value.split(",", -1);
                         final Rational[] rationalArray = new Rational[values.length];
                         for (int j = 0; j < values.length; ++j) {
-                            final String[] numbers = values[j].split("/");
+                            final String[] numbers = values[j].split("/", -1);
                             rationalArray[j] = new Rational((long) Double.parseDouble(numbers[0]),
                                     (long) Double.parseDouble(numbers[1]));
                         }
@@ -3974,7 +3974,7 @@ public class ExifInterface {
                         break;
                     }
                     case IFD_FORMAT_DOUBLE: {
-                        final String[] values = value.split(",");
+                        final String[] values = value.split(",", -1);
                         final double[] doubleArray = new double[values.length];
                         for (int j = 0; j < values.length; ++j) {
                             doubleArray[j] = Double.parseDouble(values[j]);
@@ -4510,7 +4510,7 @@ public class ExifInterface {
         setAttribute(TAG_GPS_SPEED_REF, "K");
         setAttribute(TAG_GPS_SPEED, new Rational(location.getSpeed()
                 * TimeUnit.HOURS.toSeconds(1) / 1000).toString());
-        String[] dateTime = sFormatter.format(new Date(location.getTime())).split("\\s+");
+        String[] dateTime = sFormatter.format(new Date(location.getTime())).split("\\s+", -1);
         setAttribute(ExifInterface.TAG_GPS_DATESTAMP, dateTime[0]);
         setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, dateTime[1]);
     }
@@ -4643,18 +4643,18 @@ public class ExifInterface {
 
     private static double convertRationalLatLonToDouble(String rationalString, String ref) {
         try {
-            String [] parts = rationalString.split(",");
+            String [] parts = rationalString.split(",", -1);
 
             String [] pair;
-            pair = parts[0].split("/");
+            pair = parts[0].split("/", -1);
             double degrees = Double.parseDouble(pair[0].trim())
                     / Double.parseDouble(pair[1].trim());
 
-            pair = parts[1].split("/");
+            pair = parts[1].split("/", -1);
             double minutes = Double.parseDouble(pair[0].trim())
                     / Double.parseDouble(pair[1].trim());
 
-            pair = parts[2].split("/");
+            pair = parts[2].split("/", -1);
             double seconds = Double.parseDouble(pair[0].trim())
                     / Double.parseDouble(pair[1].trim());
 
@@ -6017,7 +6017,7 @@ public class ExifInterface {
         // See TIFF 6.0 Section 2, "Image File Directory".
         // Take the first component if there are more than one component.
         if (entryValue.contains(",")) {
-            String[] entryValues = entryValue.split(",");
+            String[] entryValues = entryValue.split(",", -1);
             Pair<Integer, Integer> dataFormat = guessDataFormat(entryValues[0]);
             if (dataFormat.first == IFD_FORMAT_STRING) {
                 return dataFormat;
@@ -6049,7 +6049,7 @@ public class ExifInterface {
         }
 
         if (entryValue.contains("/")) {
-            String[] rationalNumber = entryValue.split("/");
+            String[] rationalNumber = entryValue.split("/", -1);
             if (rationalNumber.length == 2) {
                 try {
                     long numerator = (long) Double.parseDouble(rationalNumber[0]);
