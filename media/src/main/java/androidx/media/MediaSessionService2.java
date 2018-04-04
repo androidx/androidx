@@ -159,7 +159,7 @@ public abstract class MediaSessionService2 extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mBrowserServiceCompat.attachBaseContext(this);
+        mBrowserServiceCompat.attachToBaseContext(this);
         mBrowserServiceCompat.onCreate();
         SessionToken2 token = new SessionToken2(this,
                 new ComponentName(getPackageName(), getClass().getName()));
