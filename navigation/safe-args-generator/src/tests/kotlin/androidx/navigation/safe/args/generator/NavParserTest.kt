@@ -17,6 +17,7 @@
 package androidx.navigation.safe.args.generator
 
 import androidx.navigation.safe.args.generator.NavType.INT
+import androidx.navigation.safe.args.generator.NavType.REFERENCE
 import androidx.navigation.safe.args.generator.NavType.STRING
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
@@ -83,6 +84,26 @@ class NavParserTest {
         assertThat(parseIntValue("0xFFFFFFFF"), `is`(IntValue("0xFFFFFFFF")))
         assertThat(errorOf({ parseIntValue("0x1FFFFFFFF") }),
                 instanceOf(IllegalArgumentException::class.java))
+    }
+
+    @Test
+    fun testArgInference() {
+        val infer = { value: String -> inferArgument("foo", value, "a.b") }
+        val intArg = { value: String -> Argument("foo", INT, IntValue(value)) }
+        val stringArg = { value: String -> Argument("foo", STRING, StringValue(value)) }
+        val referenceArg = { pName: String, type: String, value: String ->
+            Argument("foo", REFERENCE, ReferenceValue(ResReference(pName, type, value)))
+        }
+
+        assertThat(infer("spb"), `is`(stringArg("spb")))
+        assertThat(infer("10"), `is`(intArg("10")))
+        assertThat(infer("0x10"), `is`(intArg("0x10")))
+        assertThat(infer("@android:id/some_la"), `is`(referenceArg("android", "id", "some_la")))
+        assertThat(infer("@foo"), `is`(stringArg("@foo")))
+        assertThat(infer("@+id/foo"), `is`(referenceArg("a.b", "id", "foo")))
+        assertThat(infer("@foo:stuff"), `is`(stringArg("@foo:stuff")))
+        assertThat(infer("@/stuff"), `is`(stringArg("@/stuff")))
+        assertThat(infer("10101010100100"), `is`(stringArg("10101010100100")))
     }
 
     private fun errorOf(f: () -> Unit, message: String = ""): Exception {
