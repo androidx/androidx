@@ -337,17 +337,20 @@ class ItemKeyedDataSourceTest {
 
     private abstract class WrapperDataSource<K, A, B>(private val source: ItemKeyedDataSource<K, A>)
             : ItemKeyedDataSource<K, B>() {
-        private val invalidatedCallback = DataSource.InvalidatedCallback {
-            invalidate()
-            removeCallback()
+        override fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
+            source.addInvalidatedCallback(onInvalidatedCallback)
         }
 
-        init {
-            source.addInvalidatedCallback(invalidatedCallback)
+        override fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
+            source.removeInvalidatedCallback(onInvalidatedCallback)
         }
 
-        private fun removeCallback() {
-            removeInvalidatedCallback(invalidatedCallback)
+        override fun invalidate() {
+            source.invalidate()
+        }
+
+        override fun isInvalid(): Boolean {
+            return source.isInvalid
         }
 
         override fun loadInitial(params: LoadInitialParams<K>, callback: LoadInitialCallback<B>) {
@@ -399,7 +402,7 @@ class ItemKeyedDataSourceTest {
         // verify that it's possible to wrap an ItemKeyedDataSource, and add info to its data
 
         val orig = ItemDataSource(items = ITEMS_BY_NAME_ID)
-        val wrapper = DecoratedWrapperDataSource(orig)
+        val wrapper = createWrapper(orig)
 
         // load initial
         @Suppress("UNCHECKED_CAST")
@@ -425,6 +428,10 @@ class ItemKeyedDataSourceTest {
         wrapper.loadBefore(ItemKeyedDataSource.LoadParams(key, 10), loadCallback)
         verify(loadCallback).onResult(ITEMS_BY_NAME_ID.subList(10, 20).map { DecoratedItem(it) })
         verifyNoMoreInteractions(loadCallback)
+
+        // verify invalidation
+        orig.invalidate()
+        assertTrue(wrapper.isInvalid)
     }
 
     @Test
@@ -440,6 +447,24 @@ class ItemKeyedDataSourceTest {
     @Test
     fun testItemConverterWrappedDataSource() = verifyWrappedDataSource {
         it.map { DecoratedItem(it) }
+    }
+
+    @Test
+    fun testInvalidateToWrapper() {
+        val orig = ItemDataSource()
+        val wrapper = orig.map { DecoratedItem(it) }
+
+        orig.invalidate()
+        assertTrue(wrapper.isInvalid)
+    }
+
+    @Test
+    fun testInvalidateFromWrapper() {
+        val orig = ItemDataSource()
+        val wrapper = orig.map { DecoratedItem(it) }
+
+        wrapper.invalidate()
+        assertTrue(orig.isInvalid)
     }
 
     companion object {
