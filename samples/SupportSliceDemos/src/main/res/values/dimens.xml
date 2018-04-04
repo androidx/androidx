@@ -15,8 +15,7 @@
   ~ limitations under the License.
   -->
 
-<androidx.slice.widget.SliceView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    style="@style/CustomSliceView"/>
+<resources>
+    <dimen name="textSize">10sp</dimen>
+    <dimen name="smallTextSize">9sp</dimen>
+</resources>
