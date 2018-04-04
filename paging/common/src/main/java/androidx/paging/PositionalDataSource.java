@@ -459,13 +459,34 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
     @SuppressWarnings("deprecation")
     static class ContiguousWithoutPlaceholdersWrapper<Value>
             extends ContiguousDataSource<Integer, Value> {
-
         @NonNull
-        final PositionalDataSource<Value> mPositionalDataSource;
+        final PositionalDataSource<Value> mSource;
 
         ContiguousWithoutPlaceholdersWrapper(
-                @NonNull PositionalDataSource<Value> positionalDataSource) {
-            mPositionalDataSource = positionalDataSource;
+                @NonNull PositionalDataSource<Value> source) {
+            mSource = source;
+        }
+
+        @Override
+        public void addInvalidatedCallback(
+                @NonNull InvalidatedCallback onInvalidatedCallback) {
+            mSource.addInvalidatedCallback(onInvalidatedCallback);
+        }
+
+        @Override
+        public void removeInvalidatedCallback(
+                @NonNull InvalidatedCallback onInvalidatedCallback) {
+            mSource.removeInvalidatedCallback(onInvalidatedCallback);
+        }
+
+        @Override
+        public void invalidate() {
+            mSource.invalidate();
+        }
+
+        @Override
+        public boolean isInvalid() {
+            return mSource.isInvalid();
         }
 
         @NonNull
@@ -493,7 +514,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
             // Note enablePlaceholders will be false here, but we don't have a way to communicate
             // this to PositionalDataSource. This is fine, because only the list and its position
             // offset will be consumed by the LoadInitialCallback.
-            mPositionalDataSource.dispatchLoadInitial(false, convertPosition, initialLoadSize,
+            mSource.dispatchLoadInitial(false, convertPosition, initialLoadSize,
                     pageSize, mainThreadExecutor, receiver);
         }
 
@@ -502,7 +523,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
                 @NonNull Executor mainThreadExecutor,
                 @NonNull PageResult.Receiver<Value> receiver) {
             int startIndex = currentEndIndex + 1;
-            mPositionalDataSource.dispatchLoadRange(
+            mSource.dispatchLoadRange(
                     PageResult.APPEND, startIndex, pageSize, mainThreadExecutor, receiver);
         }
 
@@ -514,12 +535,12 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
             int startIndex = currentBeginIndex - 1;
             if (startIndex < 0) {
                 // trigger empty list load
-                mPositionalDataSource.dispatchLoadRange(
+                mSource.dispatchLoadRange(
                         PageResult.PREPEND, startIndex, 0, mainThreadExecutor, receiver);
             } else {
                 int loadSize = Math.min(pageSize, startIndex + 1);
                 startIndex = startIndex - loadSize + 1;
-                mPositionalDataSource.dispatchLoadRange(
+                mSource.dispatchLoadRange(
                         PageResult.PREPEND, startIndex, loadSize, mainThreadExecutor, receiver);
             }
         }

@@ -17,6 +17,7 @@
 package androidx.paging
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -219,17 +220,20 @@ class PositionalDataSourceTest {
 
     private abstract class WrapperDataSource<in A, B>(private val source: PositionalDataSource<A>)
             : PositionalDataSource<B>() {
-        private val invalidatedCallback = DataSource.InvalidatedCallback {
-            invalidate()
-            removeCallback()
+        override fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
+            source.addInvalidatedCallback(onInvalidatedCallback)
         }
 
-        init {
-            source.addInvalidatedCallback(invalidatedCallback)
+        override fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
+            source.removeInvalidatedCallback(onInvalidatedCallback)
         }
 
-        private fun removeCallback() {
-            removeInvalidatedCallback(invalidatedCallback)
+        override fun invalidate() {
+            source.invalidate()
+        }
+
+        override fun isInvalid(): Boolean {
+            return source.isInvalid
         }
 
         override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<B>) {
@@ -292,6 +296,10 @@ class PositionalDataSourceTest {
         orig.invalidate()
         verify(invalCallback).onInvalidated()
         verifyNoMoreInteractions(invalCallback)
+
+        // verify invalidation
+        orig.invalidate()
+        assertTrue(wrapper.isInvalid)
     }
 
     @Test
@@ -307,5 +315,41 @@ class PositionalDataSourceTest {
     @Test
     fun testItemConverterWrappedDataSource() = verifyWrappedDataSource {
         it.map { it.toString() }
+    }
+
+    @Test
+    fun testInvalidateToWrapper() {
+        val orig = ListDataSource(listOf(0, 1, 2))
+        val wrapper = orig.map { it.toString() }
+
+        orig.invalidate()
+        assertTrue(wrapper.isInvalid)
+    }
+
+    @Test
+    fun testInvalidateFromWrapper() {
+        val orig = ListDataSource(listOf(0, 1, 2))
+        val wrapper = orig.map { it.toString() }
+
+        wrapper.invalidate()
+        assertTrue(orig.isInvalid)
+    }
+
+    @Test
+    fun testInvalidateToWrapper_contiguous() {
+        val orig = ListDataSource(listOf(0, 1, 2))
+        val wrapper = orig.wrapAsContiguousWithoutPlaceholders()
+
+        orig.invalidate()
+        assertTrue(wrapper.isInvalid)
+    }
+
+    @Test
+    fun testInvalidateFromWrapper_contiguous() {
+        val orig = ListDataSource(listOf(0, 1, 2))
+        val wrapper = orig.wrapAsContiguousWithoutPlaceholders()
+
+        wrapper.invalidate()
+        assertTrue(orig.isInvalid)
     }
 }
