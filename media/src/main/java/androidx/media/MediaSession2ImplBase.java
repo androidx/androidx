@@ -194,6 +194,11 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @Override
     public void close() {
         synchronized (mLock) {
+            if (mPlayer == null) {
+                return;
+            }
+            mPlayer = null;
+            mSessionCompat.release();
             mHandler.removeCallbacksAndMessages(null);
             if (mHandlerThread.isAlive()) {
                 mHandlerThread.quitSafely();

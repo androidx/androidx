@@ -451,6 +451,7 @@ public class MediaController2 implements AutoCloseable {
 
         @Override
         public void onSessionDestroyed() {
+            android.util.Log.d("jaewan", "onSessionDestroyed");
             close();
         }
 

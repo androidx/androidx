@@ -916,7 +916,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testIsConnected() throws InterruptedException {
         prepareLooper();
@@ -927,13 +926,8 @@ public class MediaController2Test extends MediaSession2TestBase {
                 mSession.close();
             }
         });
-        // postAndSync() to wait until the disconnection is propagated.
-        sHandler.postAndSync(new Runnable() {
-            @Override
-            public void run() {
-                assertFalse(mController.isConnected());
-            }
-        });
+        waitForDisconnect(mController, true);
+        assertFalse(mController.isConnected());
     }
 
     /**
@@ -1016,7 +1010,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testGetServiceToken() {
         prepareLooper();
@@ -1106,7 +1099,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         */
     }
 
-    @Ignore
     @Test
     public void testClose_beforeConnected() throws InterruptedException {
         prepareLooper();
@@ -1115,7 +1107,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         controller.close();
     }
 
-    @Ignore
     @Test
     public void testClose_twice() {
         prepareLooper();
