@@ -66,6 +66,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
 
     testImplementation(JUNIT)
+    compile project(path: ':paging:rxjava2')
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])

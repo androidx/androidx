@@ -39,6 +39,9 @@ project(':paging:common').projectDir = new File(supportRoot, "paging/common")
 include ":paging:runtime"
 project(':paging:runtime').projectDir = new File(supportRoot, "paging/runtime")
 
+include ":paging:rxjava2"
+project(':paging:rxjava2').projectDir = new File(supportRoot, "paging/rxjava2")
+
 include ':paging:integration-tests:testapp'
 project(':paging:integration-tests:testapp').projectDir = new File(supportRoot, "paging/integration-tests/testapp")
 
