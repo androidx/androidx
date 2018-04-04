@@ -42,4 +42,5 @@ supportLibrary {
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData Core"
     url = SupportLibraryExtension.ARCHITECTURE_URL
+    failOnUncheckedWarnings = false
 }

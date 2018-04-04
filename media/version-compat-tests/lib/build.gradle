@@ -23,3 +23,7 @@ plugins {
 dependencies {
     implementation(JUNIT)
 }
+
+supportLibrary {
+    failOnUncheckedWarnings = false
+}
