@@ -120,7 +120,7 @@ import java.util.concurrent.Executor;
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
  */
-@RequiresApi(26) // TODO correct minSdk API use incompatibilities and remove before release.
+@RequiresApi(23) // TODO correct minSdk API use incompatibilities and remove before release.
 @RestrictTo(LIBRARY_GROUP)
 public class VideoView2 extends BaseLayout implements VideoViewInterface.SurfaceListener {
     /** @hide */
@@ -1478,7 +1478,12 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                     // TODO (b/77158231)
                     // mRoutePlayer.onSeekTo(pos);
                 } else {
-                    mMediaPlayer.seekTo(pos, MediaPlayer.SEEK_PREVIOUS_SYNC);
+                    // TODO Refactor VideoView2 with FooImplBase and FooImplApiXX.
+                    if (android.os.Build.VERSION.SDK_INT < 26) {
+                        mMediaPlayer.seekTo((int) pos);
+                    } else {
+                        mMediaPlayer.seekTo(pos, MediaPlayer.SEEK_PREVIOUS_SYNC);
+                    }
                     mSeekWhenPrepared = 0;
                     updatePlaybackState();
                 }

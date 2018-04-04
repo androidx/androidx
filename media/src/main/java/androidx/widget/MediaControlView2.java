@@ -90,7 +90,7 @@ import java.util.Locale;
  * Those buttons will be shown when the overflow button is clicked.
  * See VideoView2#setCustomActions for more details on how to add.
  */
-@RequiresApi(26) // TODO correct minSdk API use incompatibilities and remove before release.
+@RequiresApi(23) // TODO correct minSdk API use incompatibilities and remove before release.
 @RestrictTo(LIBRARY_GROUP)
 public class MediaControlView2 extends BaseLayout {
     /** @hide */
