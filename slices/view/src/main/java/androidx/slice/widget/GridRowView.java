@@ -359,7 +359,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
                     mObserver.onSliceAction(info, actionItem);
                 }
             } catch (PendingIntent.CanceledException e) {
-                Log.w(TAG, "PendingIntent for slice cannot be sent", e);
+                Log.e(TAG, "PendingIntent for slice cannot be sent", e);
             }
         }
     }
