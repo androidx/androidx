@@ -30,6 +30,8 @@ import static androidx.slice.SliceMetadata.LOADED_NONE;
 import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -43,6 +45,7 @@ import androidx.slice.core.SliceQuery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,6 +119,7 @@ public class SliceUtils {
         public static final int MODE_CONVERT = 2;
 
         @IntDef({MODE_THROW, MODE_REMOVE, MODE_CONVERT})
+        @Retention(SOURCE)
         @interface FormatMode {
         }
 

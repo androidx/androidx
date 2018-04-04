@@ -16,7 +16,11 @@
 
 package androidx.car.widget;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import androidx.annotation.IntDef;
+
+import java.lang.annotation.Retention;
 
 /**
  * Specifies how the system UI should respond to day/night mode events.
@@ -37,6 +41,7 @@ import androidx.annotation.IntDef;
         DayNightStyle.FORCE_NIGHT,
         DayNightStyle.FORCE_DAY,
 })
+@Retention(SOURCE)
 public @interface DayNightStyle {
     /**
      * Sets the foreground color to be automatically changed based on day/night mode, assuming the

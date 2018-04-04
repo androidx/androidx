@@ -18,6 +18,8 @@ package androidx.core.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Build;
@@ -32,6 +34,8 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import java.lang.annotation.Retention;
 
 /**
  * Backwards compatible version of {@link Html}.
@@ -119,6 +123,7 @@ public final class HtmlCompat {
             FROM_HTML_MODE_LEGACY
     }, flag = true)
     @RestrictTo(LIBRARY)
+    @Retention(SOURCE)
     @interface FromHtmlFlags {
     }
 
@@ -128,6 +133,7 @@ public final class HtmlCompat {
             TO_HTML_PARAGRAPH_LINES_INDIVIDUAL
     })
     @RestrictTo(LIBRARY)
+    @Retention(SOURCE)
     @interface ToHtmlOptions {
     }
 
