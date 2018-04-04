@@ -440,49 +440,142 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public List<MediaItem2> getPlaylist() {
-        //return mProvider.getPlaylist_impl();
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            return agent.getPlaylist();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
         return null;
     }
 
     @Override
     public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-        //mProvider.setPlaylist_impl(list, metadata);
+        if (list == null) {
+            throw new IllegalArgumentException("list shouldn't be null");
+        }
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            agent.setPlaylist(list, metadata);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public void skipToPlaylistItem(@NonNull MediaItem2 item) {
-        //mProvider.skipToPlaylistItem_impl(item);
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            agent.skipToPlaylistItem(item);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public void skipToPreviousItem() {
-        //mProvider.skipToPreviousItem_impl();
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            agent.skipToPreviousItem();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public void skipToNextItem() {
-        //mProvider.skipToNextItem_impl();
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            agent.skipToNextItem();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public MediaMetadata2 getPlaylistMetadata() {
-        //return mProvider.getPlaylistMetadata_impl();
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            return agent.getPlaylistMetadata();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
         return null;
     }
 
     @Override
     public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
-        //mProvider.addPlaylistItem_impl(index, item);
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
+        }
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            agent.addPlaylistItem(index, item);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public void removePlaylistItem(@NonNull MediaItem2 item) {
-        //mProvider.removePlaylistItem_impl(item);
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            agent.removePlaylistItem(item);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public void replacePlaylistItem(int index, @NonNull MediaItem2 item) {
-        //mProvider.replacePlaylistItem_impl(index, item);
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
+        }
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            agent.replacePlaylistItem(index, item);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
@@ -494,29 +587,69 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
-        //mProvider.updatePlaylistMetadata_impl(metadata);
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            agent.updatePlaylistMetadata(metadata);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public @MediaPlaylistAgent.RepeatMode int getRepeatMode() {
-        //return mProvider.getRepeatMode_impl();
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            return agent.getRepeatMode();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
         return MediaPlaylistAgent.REPEAT_MODE_NONE;
     }
 
     @Override
     public void setRepeatMode(@MediaPlaylistAgent.RepeatMode int repeatMode) {
-        //mProvider.setRepeatMode_impl(repeatMode);
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            agent.setRepeatMode(repeatMode);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
     public @MediaPlaylistAgent.ShuffleMode int getShuffleMode() {
-        //return mProvider.getShuffleMode_impl();
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            return agent.getShuffleMode();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
         return MediaPlaylistAgent.SHUFFLE_MODE_NONE;
     }
 
     @Override
     public void setShuffleMode(int shuffleMode) {
-        //mProvider.setShuffleMode_impl(shuffleMode);
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            agent.setShuffleMode(shuffleMode);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     ///////////////////////////////////////////////////
@@ -623,6 +756,66 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         if (bufferedPosition != oldPlayer.getBufferedPosition()) {
             // TODO: implement
             //mSession2Stub.notifyBufferedPositionChangedNotLocked(bufferedPosition);
+        }
+    }
+
+    private void notifyPlaylistChangedOnExecutor(MediaPlaylistAgent playlistAgent,
+            List<MediaItem2> list, MediaMetadata2 metadata) {
+        synchronized (mLock) {
+            if (playlistAgent != mPlaylistAgent) {
+                // Ignore calls from the old agent.
+                return;
+            }
+        }
+        MediaSession2 session2 = mInstance.get();
+        if (session2 != null) {
+            mCallback.onPlaylistChanged(session2, playlistAgent, list, metadata);
+            mSession2Stub.notifyPlaylistChanged(list, metadata);
+        }
+    }
+
+    private void notifyPlaylistMetadataChangedOnExecutor(MediaPlaylistAgent playlistAgent,
+            MediaMetadata2 metadata) {
+        synchronized (mLock) {
+            if (playlistAgent != mPlaylistAgent) {
+                // Ignore calls from the old agent.
+                return;
+            }
+        }
+        MediaSession2 session2 = mInstance.get();
+        if (session2 != null) {
+            mCallback.onPlaylistMetadataChanged(session2, playlistAgent, metadata);
+            mSession2Stub.notifyPlaylistMetadataChanged(metadata);
+        }
+    }
+
+    private void notifyRepeatModeChangedOnExecutor(MediaPlaylistAgent playlistAgent,
+            int repeatMode) {
+        synchronized (mLock) {
+            if (playlistAgent != mPlaylistAgent) {
+                // Ignore calls from the old agent.
+                return;
+            }
+        }
+        MediaSession2 session2 = mInstance.get();
+        if (session2 != null) {
+            mCallback.onRepeatModeChanged(session2, playlistAgent, repeatMode);
+            mSession2Stub.notifyRepeatModeChanged(repeatMode);
+        }
+    }
+
+    private void notifyShuffleModeChangedOnExecutor(MediaPlaylistAgent playlistAgent,
+            int shuffleMode) {
+        synchronized (mLock) {
+            if (playlistAgent != mPlaylistAgent) {
+                // Ignore calls from the old agent.
+                return;
+            }
+        }
+        MediaSession2 session2 = mInstance.get();
+        if (session2 != null) {
+            mCallback.onShuffleModeChanged(session2, playlistAgent, shuffleMode);
+            mSession2Stub.notifyShuffleModeChanged(shuffleMode);
         }
     }
 
@@ -755,8 +948,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             if (session == null) {
                 return;
             }
-            // TODO: implement
-            //session.notifyPlaylistChangedOnExecutor(playlistAgent, list, metadata);
+            session.notifyPlaylistChangedOnExecutor(playlistAgent, list, metadata);
         }
 
         @Override
@@ -766,8 +958,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             if (session == null) {
                 return;
             }
-            // TODO: implement
-            //session.notifyPlaylistMetadataChangedOnExecutor(playlistAgent, metadata);
+            session.notifyPlaylistMetadataChangedOnExecutor(playlistAgent, metadata);
         }
 
         @Override
@@ -776,8 +967,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             if (session == null) {
                 return;
             }
-            // TODO: implement
-            //session.notifyRepeatModeChangedOnExecutor(playlistAgent, repeatMode);
+            session.notifyRepeatModeChangedOnExecutor(playlistAgent, repeatMode);
         }
 
         @Override
@@ -786,8 +976,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             if (session == null) {
                 return;
             }
-            // TODO: implement
-            //session.notifyShuffleModeChangedOnExecutor(playlistAgent, shuffleMode);
+            session.notifyShuffleModeChangedOnExecutor(playlistAgent, shuffleMode);
         }
     }
 

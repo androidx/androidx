@@ -25,6 +25,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_PID;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
+import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
@@ -33,6 +34,10 @@ import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -211,19 +216,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                                 SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
                                 ? mSession.getPlaylist() : null;
                         if (playlist != null) {
-                            List<Bundle> playlistBundle = new ArrayList<>();
-                            // TODO(jaewan): Find a way to avoid concurrent modification exception.
-                            for (int i = 0; i < playlist.size(); i++) {
-                                final MediaItem2 item = playlist.get(i);
-                                if (item != null) {
-                                    final Bundle itemBundle = item.toBundle();
-                                    if (itemBundle != null) {
-                                        playlistBundle.add(itemBundle);
-                                    }
-                                }
-                            }
                             resultData.putParcelableArray(ARGUMENT_PLAYLIST,
-                                    (Bundle[]) playlistBundle.toArray());
+                                    MediaUtils2.toMediaItem2BundleArray(playlist));
                         }
 
                         // Double check if session is still there, because close() can be
@@ -270,6 +264,59 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         });
     }
 
+    public void notifyPlaylistChanged(final List<MediaItem2> playlist,
+            final MediaMetadata2 metadata) {
+        notifyAll(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST, new NotifyRunnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArray(ARGUMENT_PLAYLIST,
+                        MediaUtils2.toMediaItem2BundleArray(playlist));
+                bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
+                        metadata == null ? null : metadata.toBundle());
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);
+            }
+        });
+    }
+
+    public void notifyPlaylistMetadataChanged(final MediaMetadata2 metadata) {
+        notifyAll(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA, new NotifyRunnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
+                        metadata == null ? null : metadata.toBundle());
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED, bundle);
+            }
+        });
+    }
+
+    public void notifyRepeatModeChanged(final int repeatMode) {
+        notifyAll(new NotifyRunnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_REPEAT_MODE_CHANGED, bundle);
+            }
+        });
+    }
+
+    public void notifyShuffleModeChanged(final int shuffleMode) {
+        notifyAll(new NotifyRunnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED, bundle);
+            }
+        });
+    }
+
     private List<ControllerInfo> getControllers() {
         ArrayList<ControllerInfo> controllers = new ArrayList<>();
         synchronized (mLock) {
@@ -283,6 +330,15 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
     private void notifyAll(@NonNull NotifyRunnable runnable) {
         List<ControllerInfo> controllers = getControllers();
         for (int i = 0; i < controllers.size(); i++) {
+            notifyInternal(controllers.get(i), runnable);
+        }
+    }
+
+    private void notifyAll(int commandCode, @NonNull NotifyRunnable runnable) {
+        List<ControllerInfo> controllers = getControllers();
+        for (int i = 0; i < controllers.size(); i++) {
+            // TODO: Do not notify to the controller which doesn't have permission on the given
+            // commandCode.
             notifyInternal(controllers.get(i), runnable);
         }
     }

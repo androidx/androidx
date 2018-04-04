@@ -288,6 +288,36 @@ class MediaUtils2 {
                 vp.getMaxVolume(), vp.getCurrentVolume());
     }
 
+    static Bundle[] toMediaItem2BundleArray(List<MediaItem2> playlist) {
+        if (playlist == null) {
+            return null;
+        }
+        List<Bundle> bundleList = new ArrayList<>();
+        for (int i = 0; i < playlist.size(); i++) {
+            final MediaItem2 item = playlist.get(i);
+            if (item != null) {
+                final Bundle itemBundle = item.toBundle();
+                if (itemBundle != null) {
+                    bundleList.add(itemBundle);
+                }
+            }
+        }
+        return (Bundle[]) bundleList.toArray();
+    }
+
+    static List<MediaItem2> fromMediaItem2BundleArray(Bundle[] itemBundleList) {
+        List<MediaItem2> playlist = new ArrayList<>();
+        if (itemBundleList != null) {
+            for (int i = 0; i < itemBundleList.length; i++) {
+                MediaItem2 item = MediaItem2.fromBundle(itemBundleList[i]);
+                if (item != null) {
+                    playlist.add(item);
+                }
+            }
+        }
+        return playlist;
+    }
+
     static Bundle toAudioAttributesBundle(AudioAttributesCompat attrs) {
         Bundle bundle = new Bundle();
         bundle.putInt(AUDIO_ATTRIBUTES_USAGE, attrs.getUsage());

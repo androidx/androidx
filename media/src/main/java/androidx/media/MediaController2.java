@@ -28,6 +28,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_PID;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
+import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
@@ -36,6 +37,10 @@ import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
 
@@ -70,7 +75,6 @@ import androidx.media.MediaSession2.CommandButton;
 import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.MediaSession2.ErrorCode;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -434,18 +438,57 @@ public class MediaController2 implements AutoCloseable {
         @Override
         public void onSessionEvent(String event, Bundle extras) {
             switch (event) {
-                case SESSION_EVENT_ON_PLAYER_STATE_CHANGED:
+                case SESSION_EVENT_ON_PLAYER_STATE_CHANGED: {
                     int playerState = extras.getInt(ARGUMENT_PLAYER_STATE);
                     synchronized (mLock) {
                         mPlayerState = playerState;
                     }
                     mCallback.onPlayerStateChanged(MediaController2.this, playerState);
                     break;
-                case SESSION_EVENT_NOTIFY_ERROR:
+                }
+                case SESSION_EVENT_NOTIFY_ERROR: {
                     int errorCode = extras.getInt(ARGUMENT_ERROR_CODE);
                     Bundle errorExtras = extras.getBundle(ARGUMENT_ERROR_EXTRAS);
                     mCallback.onError(MediaController2.this, errorCode, errorExtras);
                     break;
+                }
+                case SESSION_EVENT_ON_PLAYLIST_CHANGED: {
+                    MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
+                            extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
+                    List<MediaItem2> playlist = MediaUtils2.fromMediaItem2BundleArray(
+                            (Bundle[]) extras.getParcelableArray(ARGUMENT_PLAYLIST));
+                    synchronized (mLock) {
+                        mPlaylist = playlist;
+                        mPlaylistMetadata = playlistMetadata;
+                    }
+                    mCallback.onPlaylistChanged(MediaController2.this, playlist, playlistMetadata);
+                    break;
+                }
+                case SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED: {
+                    MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
+                            extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
+                    synchronized (mLock) {
+                        mPlaylistMetadata = playlistMetadata;
+                    }
+                    mCallback.onPlaylistMetadataChanged(MediaController2.this, playlistMetadata);
+                    break;
+                }
+                case SESSION_EVENT_ON_REPEAT_MODE_CHANGED: {
+                    int repeatMode = extras.getInt(ARGUMENT_REPEAT_MODE);
+                    synchronized (mLock) {
+                        mRepeatMode = repeatMode;
+                    }
+                    mCallback.onRepeatModeChanged(MediaController2.this, repeatMode);
+                    break;
+                }
+                case SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED: {
+                    int shuffleMode = extras.getInt(ARGUMENT_SHUFFLE_MODE);
+                    synchronized (mLock) {
+                        mShuffleMode = shuffleMode;
+                    }
+                    mCallback.onShuffleModeChanged(MediaController2.this, shuffleMode);
+                    break;
+                }
             }
         }
     }
@@ -1283,16 +1326,8 @@ public class MediaController2 implements AutoCloseable {
         final int repeatMode = data.getInt(ARGUMENT_REPEAT_MODE);
         final int shuffleMode = data.getInt(ARGUMENT_SHUFFLE_MODE);
         // TODO: Set mMediaMetadataCompat from the data.
-        final List<MediaItem2> playlist = new ArrayList<>();
-        Bundle[] itemBundleList = (Bundle[]) data.getParcelableArray(ARGUMENT_PLAYLIST);
-        if (itemBundleList != null) {
-            for (int i = 0; i < itemBundleList.length; i++) {
-                MediaItem2 item = MediaItem2.fromBundle(itemBundleList[i]);
-                if (item != null) {
-                    playlist.add(item);
-                }
-            }
-        }
+        final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2BundleArray(
+                (Bundle[]) data.getParcelableArray(ARGUMENT_PLAYLIST));
         if (DEBUG) {
             Log.d(TAG, "onConnectedNotLocked sessionCompatToken=" + mToken.getSessionCompatToken()
                     + ", allowedCommands=" + allowedCommands);
