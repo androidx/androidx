@@ -17,6 +17,7 @@
 package androidx.paging
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -160,17 +161,20 @@ class PageKeyedDataSourceTest {
 
     private abstract class WrapperDataSource<K, A, B>(private val source: PageKeyedDataSource<K, A>)
             : PageKeyedDataSource<K, B>() {
-        private val invalidatedCallback = DataSource.InvalidatedCallback {
-            invalidate()
-            removeCallback()
+        override fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
+            source.addInvalidatedCallback(onInvalidatedCallback)
         }
 
-        init {
-            source.addInvalidatedCallback(invalidatedCallback)
+        override fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
+            source.removeInvalidatedCallback(onInvalidatedCallback)
         }
 
-        private fun removeCallback() {
-            removeInvalidatedCallback(invalidatedCallback)
+        override fun invalidate() {
+            source.invalidate()
+        }
+
+        override fun isInvalid(): Boolean {
+            return source.isInvalid
         }
 
         override fun loadInitial(params: LoadInitialParams<K>,
@@ -247,6 +251,10 @@ class PageKeyedDataSourceTest {
         verify(loadCallback).onResult(expectedInitial.data.map { it.toString() },
                 expectedInitial.prev)
         verifyNoMoreInteractions(loadCallback)
+
+        // verify invalidation
+        orig.invalidate()
+        assertTrue(wrapper.isInvalid)
     }
 
     @Test
@@ -258,9 +266,28 @@ class PageKeyedDataSourceTest {
     fun testListConverterWrappedDataSource() = verifyWrappedDataSource {
         it.mapByPage { it.map { it.toString() } }
     }
+
     @Test
     fun testItemConverterWrappedDataSource() = verifyWrappedDataSource {
         it.map { it.toString() }
+    }
+
+    @Test
+    fun testInvalidateToWrapper() {
+        val orig = ItemDataSource()
+        val wrapper = orig.map { it.toString() }
+
+        orig.invalidate()
+        assertTrue(wrapper.isInvalid)
+    }
+
+    @Test
+    fun testInvalidateFromWrapper() {
+        val orig = ItemDataSource()
+        val wrapper = orig.map { it.toString() }
+
+        wrapper.invalidate()
+        assertTrue(orig.isInvalid)
     }
 
     companion object {
