@@ -23,4 +23,6 @@ supportLibrary {
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
     minSdkVersion = 21
+    failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
 }

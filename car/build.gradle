@@ -54,4 +54,5 @@ supportLibrary {
     description = "Android Car Support UI"
     java8Library = true
     minSdkVersion = 24
+    failOnUncheckedWarnings = false
 }

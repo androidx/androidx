@@ -55,4 +55,5 @@ supportLibrary {
     inceptionYear = "2017"
     description = "Android Lifecycle Extensions"
     url = SupportLibraryExtension.ARCHITECTURE_URL
+    failOnDeprecationWarnings = false
 }
