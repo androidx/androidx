@@ -280,8 +280,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
 
     private SliceView createSliceView() {
         SliceView v = TEST_THEMES
-                ? (SliceView) getLayoutInflater().inflate(
-                R.layout.slice_view, mContainer, false)
+                ? new SliceView(this)
                 : new SliceView(getApplicationContext());
         v.setOnSliceActionListener(this);
         v.setOnClickListener(new View.OnClickListener() {
