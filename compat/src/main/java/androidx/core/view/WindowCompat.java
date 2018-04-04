@@ -78,6 +78,7 @@ public final class WindowCompat {
      * @see ViewCompat#requireViewById(View, int)
      * @see Window#findViewById(int)
      */
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     @NonNull
     public static <T extends View> T requireViewById(@NonNull Window window, @IdRes int id) {
         // TODO: use and link to Window#requireViewById() directly, once available
