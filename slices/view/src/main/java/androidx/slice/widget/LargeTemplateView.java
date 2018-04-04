@@ -16,8 +16,14 @@
 
 package androidx.slice.widget;
 
+import static android.app.slice.Slice.HINT_HORIZONTAL;
+
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,6 +32,7 @@ import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,6 +41,8 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class LargeTemplateView extends SliceChildView {
 
+    private SliceView mParent;
+    private final View mForeground;
     private final LargeSliceAdapter mAdapter;
     private final RecyclerView mRecyclerView;
     private Slice mSlice;
@@ -41,6 +50,7 @@ public class LargeTemplateView extends SliceChildView {
     private ListContent mListContent;
     private List<SliceItem> mDisplayedItems = new ArrayList<>();
     private int mDisplayedItemsHeight = 0;
+    private int[] mLoc = new int[2];
 
     public LargeTemplateView(Context context) {
         super(context);
@@ -49,6 +59,23 @@ public class LargeTemplateView extends SliceChildView {
         mAdapter = new LargeSliceAdapter(context);
         mRecyclerView.setAdapter(mAdapter);
         addView(mRecyclerView);
+
+        mForeground = new View(getContext());
+        mForeground.setBackground(SliceViewUtil.getDrawable(getContext(),
+                android.R.attr.selectableItemBackground));
+        addView(mForeground);
+
+        FrameLayout.LayoutParams lp = (LayoutParams) mForeground.getLayoutParams();
+        lp.width = LayoutParams.MATCH_PARENT;
+        lp.height = LayoutParams.MATCH_PARENT;
+        mForeground.setLayoutParams(lp);
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mParent = (SliceView) getParent();
+        mAdapter.setParents(mParent, this);
     }
 
     @Override
@@ -61,20 +88,62 @@ public class LargeTemplateView extends SliceChildView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    /**
+     * Called when the foreground view handling touch feedback should be activated.
+     * @param event the event to handle.
+     */
+    public void onForegroundActivated(MotionEvent event) {
+        if (mParent != null && !mParent.isSliceViewClickable()) {
+            // Only show highlight if clickable
+            mForeground.setPressed(false);
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mForeground.getLocationOnScreen(mLoc);
+            final int x = (int) (event.getRawX() - mLoc[0]);
+            final int y = (int) (event.getRawY() - mLoc[1]);
+            mForeground.getBackground().setHotspot(x, y);
+        }
+        int action = event.getActionMasked();
+        if (action == MotionEvent.ACTION_DOWN) {
+            mForeground.setPressed(true);
+        } else if (action == MotionEvent.ACTION_CANCEL
+                || action == MotionEvent.ACTION_UP
+                || action == MotionEvent.ACTION_MOVE) {
+            mForeground.setPressed(false);
+        }
+    }
+
+    @Override
+    public void setMode(int newMode) {
+        super.setMode(newMode);
+        updateDisplayedItems(getMeasuredHeight());
+    }
+
     @Override
     public int getActualHeight() {
         return mDisplayedItemsHeight;
     }
 
     @Override
-    public void setTint(int tint) {
-        super.setTint(tint);
-        populate();
+    public int getSmallHeight() {
+        if (mListContent == null || mListContent.getHeaderItem() == null) {
+            return 0;
+        }
+        SliceItem headerItem = mListContent.getHeaderItem();
+        if (headerItem.hasHint(HINT_HORIZONTAL)) {
+            GridContent gc = new GridContent(getContext(), headerItem);
+            return gc.getSmallHeight();
+        } else {
+            RowContent rc = new RowContent(getContext(), headerItem, mListContent.hasHeader());
+            return rc.getSmallHeight();
+        }
     }
 
     @Override
-    public @SliceView.SliceMode int getMode() {
-        return SliceView.MODE_LARGE;
+    public void setTint(int tint) {
+        super.setTint(tint);
+        populate();
     }
 
     @Override
@@ -148,7 +217,12 @@ public class LargeTemplateView extends SliceChildView {
             mDisplayedItems = mListContent.getRowItems();
         }
         mDisplayedItemsHeight = ListContent.getListHeight(getContext(), mDisplayedItems);
-        mAdapter.setSliceItems(mDisplayedItems, mTintColor);
+        if (getMode() == SliceView.MODE_LARGE) {
+            mAdapter.setSliceItems(mDisplayedItems, mTintColor);
+        } else if (getMode() == SliceView.MODE_SMALL) {
+            mAdapter.setSliceItems(
+                    Collections.singletonList(mDisplayedItems.get(0)), mTintColor);
+        }
     }
 
     @Override
