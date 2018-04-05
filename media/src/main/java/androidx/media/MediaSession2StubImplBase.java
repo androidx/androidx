@@ -25,6 +25,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_PID;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
+import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
@@ -33,6 +34,10 @@ import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -46,6 +51,7 @@ import android.support.v4.media.session.IMediaControllerCallback;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -60,6 +66,18 @@ import java.util.Set;
 class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
     private static final String TAG = "MS2StubImplBase";
     private static final boolean DEBUG = true; // TODO: Log.isLoggable(TAG, Log.DEBUG);
+
+    private static final SparseArray<SessionCommand2> sCommandsForOnCommandRequest =
+            new SparseArray<>();
+    static {
+        SessionCommandGroup2 group = new SessionCommandGroup2();
+        group.addAllPlaybackCommands();
+        group.addAllPlaylistCommands();
+        Set<SessionCommand2> commands = group.getCommands();
+        for (SessionCommand2 command : commands) {
+            sCommandsForOnCommandRequest.append(command.getCommandCode(), command);
+        }
+    }
 
     private final Object mLock = new Object();
 
@@ -146,108 +164,15 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
 
     @Override
     public void onCommand(String command, Bundle extras, final ResultReceiver cb) {
-        if (CONTROLLER_COMMAND_CONNECT.equals(command)) {
-            IMediaControllerCallback callback = IMediaControllerCallback.Stub.asInterface(
-                    extras.getBinder(ARGUMENT_ICONTROLLER_CALLBACK));
-            String packageName = extras.getString(ARGUMENT_PACKAGE_NAME);
-            int uid = extras.getInt(ARGUMENT_UID);
-            int pid = extras.getInt(ARGUMENT_PID);
-            // TODO: sanity check for packageName, uid, and pid.
-
-            final ControllerInfo controllerInfo =
-                    new ControllerInfo(mContext, uid, pid, packageName, callback);
-            mSession.getCallbackExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (mSession.isClosed()) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        // Keep connecting controllers.
-                        // This helps sessions to call APIs in the onConnect()
-                        // (e.g. setCustomLayout()) instead of pending them.
-                        mConnectingControllers.add(controllerInfo.getId());
-                    }
-                    SessionCommandGroup2 allowedCommands = mSession.getCallback().onConnect(
-                            mSession.getInstance(), controllerInfo);
-                    // Don't reject connection for the request from trusted app.
-                    // Otherwise server will fail to retrieve session's information to dispatch
-                    // media keys to.
-                    boolean accept = allowedCommands != null || controllerInfo.isTrusted();
-                    if (accept) {
-                        if (DEBUG) {
-                            Log.d(TAG, "Accepting connection, controllerInfo=" + controllerInfo
-                                    + " allowedCommands=" + allowedCommands);
-                        }
-                        if (allowedCommands == null) {
-                            // For trusted apps, send non-null allowed commands to keep
-                            // connection.
-                            allowedCommands = new SessionCommandGroup2();
-                        }
-                        synchronized (mLock) {
-                            mConnectingControllers.remove(controllerInfo.getId());
-                            mControllers.put(controllerInfo.getId(), controllerInfo);
-                            mAllowedCommandGroupMap.put(controllerInfo, allowedCommands);
-                        }
-                        // If connection is accepted, notify the current state to the
-                        // controller. It's needed because we cannot call synchronous calls
-                        // between session/controller.
-                        // Note: We're doing this after the onConnectionChanged(), but there's
-                        //       no guarantee that events here are notified after the
-                        //       onConnected() because IMediaController2 is oneway (i.e. async
-                        //       call) and Stub will use thread poll for incoming calls.
-                        final Bundle resultData = new Bundle();
-                        resultData.putBundle(ARGUMENT_ALLOWED_COMMANDS,
-                                allowedCommands.toBundle());
-                        resultData.putInt(ARGUMENT_PLAYER_STATE, mSession.getPlayerState());
-                        synchronized (mLock) {
-                            resultData.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
-                                    mSession.getPlaybackStateCompat());
-                            // TODO: Insert MediaMetadataCompat
-                        }
-                        resultData.putInt(ARGUMENT_REPEAT_MODE, mSession.getRepeatMode());
-                        resultData.putInt(ARGUMENT_SHUFFLE_MODE, mSession.getShuffleMode());
-                        final List<MediaItem2> playlist = allowedCommands.hasCommand(
-                                SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
-                                ? mSession.getPlaylist() : null;
-                        if (playlist != null) {
-                            List<Bundle> playlistBundle = new ArrayList<>();
-                            // TODO(jaewan): Find a way to avoid concurrent modification exception.
-                            for (int i = 0; i < playlist.size(); i++) {
-                                final MediaItem2 item = playlist.get(i);
-                                if (item != null) {
-                                    final Bundle itemBundle = item.toBundle();
-                                    if (itemBundle != null) {
-                                        playlistBundle.add(itemBundle);
-                                    }
-                                }
-                            }
-                            resultData.putParcelableArray(ARGUMENT_PLAYLIST,
-                                    (Bundle[]) playlistBundle.toArray());
-                        }
-
-                        // Double check if session is still there, because close() can be
-                        // called in another thread.
-                        if (mSession.isClosed()) {
-                            return;
-                        }
-                        cb.send(CONNECT_RESULT_CONNECTED, resultData);
-                    } else {
-                        synchronized (mLock) {
-                            mConnectingControllers.remove(controllerInfo.getId());
-                        }
-                        if (DEBUG) {
-                            Log.d(TAG, "Rejecting connection, controllerInfo=" + controllerInfo);
-                        }
-                        cb.send(CONNECT_RESULT_DISCONNECTED, null);
-                    }
-                }
-            });
+        switch (command) {
+            case CONTROLLER_COMMAND_CONNECT:
+                connect(extras, cb);
+                break;
         }
     }
 
     void notifyPlayerStateChanged(final int state) {
-        notifyAll(new NotifyRunnable() {
+        notifyAll(new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
@@ -259,13 +184,66 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
     }
 
     void notifyError(final int errorCode, final Bundle extras) {
-        notifyAll(new NotifyRunnable() {
+        notifyAll(new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
                 bundle.putInt(ARGUMENT_ERROR_CODE, errorCode);
                 bundle.putBundle(ARGUMENT_ERROR_EXTRAS, extras);
                 controller.getControllerBinder().onEvent(SESSION_EVENT_NOTIFY_ERROR, bundle);
+            }
+        });
+    }
+
+    void notifyPlaylistChanged(final List<MediaItem2> playlist,
+            final MediaMetadata2 metadata) {
+        notifyAll(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST, new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArray(ARGUMENT_PLAYLIST,
+                        MediaUtils2.toMediaItem2BundleArray(playlist));
+                bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
+                        metadata == null ? null : metadata.toBundle());
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);
+            }
+        });
+    }
+
+    void notifyPlaylistMetadataChanged(final MediaMetadata2 metadata) {
+        notifyAll(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA, new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
+                        metadata == null ? null : metadata.toBundle());
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED, bundle);
+            }
+        });
+    }
+
+    void notifyRepeatModeChanged(final int repeatMode) {
+        notifyAll(new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_REPEAT_MODE_CHANGED, bundle);
+            }
+        });
+    }
+
+    void notifyShuffleModeChanged(final int shuffleMode) {
+        notifyAll(new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED, bundle);
             }
         });
     }
@@ -280,16 +258,26 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         return controllers;
     }
 
-    private void notifyAll(@NonNull NotifyRunnable runnable) {
+    private void notifyAll(@NonNull Session2Runnable runnable) {
         List<ControllerInfo> controllers = getControllers();
         for (int i = 0; i < controllers.size(); i++) {
             notifyInternal(controllers.get(i), runnable);
         }
     }
 
+    private void notifyAll(int commandCode, @NonNull Session2Runnable runnable) {
+        List<ControllerInfo> controllers = getControllers();
+        for (int i = 0; i < controllers.size(); i++) {
+            ControllerInfo controller = controllers.get(i);
+            if (isAllowedCommand(controller, commandCode)) {
+                notifyInternal(controller, runnable);
+            }
+        }
+    }
+
     // Do not call this API directly. Use notify() instead.
     private void notifyInternal(@NonNull ControllerInfo controller,
-            @NonNull NotifyRunnable runnable) {
+            @NonNull Session2Runnable runnable) {
         if (controller == null || controller.getControllerBinder() == null) {
             return;
         }
@@ -308,6 +296,56 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             //   - DeadSystemException means that errors around it can be ignored.
             Log.w(TAG, "Exception in " + controller.toString(), e);
         }
+    }
+
+    private boolean isAllowedCommand(ControllerInfo controller, int commandCode) {
+        SessionCommandGroup2 allowedCommands;
+        synchronized (mLock) {
+            allowedCommands = mAllowedCommandGroupMap.get(controller);
+        }
+        return allowedCommands != null && allowedCommands.hasCommand(commandCode);
+    }
+
+    private void onCommand(@NonNull IBinder caller, final int commandCode,
+            @NonNull final Session2Runnable runnable) {
+        final ControllerInfo controller;
+        synchronized (mLock) {
+            controller = mControllers.get(caller);
+        }
+        if (mSession == null || controller == null) {
+            return;
+        }
+        mSession.getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!MediaSession2StubImplBase.this.isAllowedCommand(controller, commandCode)) {
+                    return;
+                }
+                SessionCommand2 command = sCommandsForOnCommandRequest.get(commandCode);
+                if (command != null) {
+                    boolean accepted = mSession.getCallback().onCommandRequest(
+                            mSession.getInstance(), controller, command);
+                    if (!accepted) {
+                        // Don't run rejected command.
+                        if (DEBUG) {
+                            Log.d(TAG, "Command (code=" + commandCode + ") from "
+                                    + controller + " was rejected by " + mSession);
+                        }
+                        return;
+                    }
+                }
+                try {
+                    runnable.run(controller);
+                } catch (RemoteException e) {
+                    // Currently it's TransactionTooLargeException or DeadSystemException.
+                    // We'd better to leave log for those cases because
+                    //   - TransactionTooLargeException means that we may need to fix our code.
+                    //     (e.g. add pagination or special way to deliver Bitmap)
+                    //   - DeadSystemException means that errors around it can be ignored.
+                    Log.w(TAG, "Exception in " + controller.toString(), e);
+                }
+            }
+        });
     }
 
     private void onControllerClosed(IMediaControllerCallback iController) {
@@ -330,8 +368,96 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         });
     }
 
+    private void connect(Bundle extras, final ResultReceiver cb) {
+        IMediaControllerCallback callback = IMediaControllerCallback.Stub.asInterface(
+                extras.getBinder(ARGUMENT_ICONTROLLER_CALLBACK));
+        String packageName = extras.getString(ARGUMENT_PACKAGE_NAME);
+        int uid = extras.getInt(ARGUMENT_UID);
+        int pid = extras.getInt(ARGUMENT_PID);
+        // TODO: sanity check for packageName, uid, and pid.
+
+        final ControllerInfo controllerInfo =
+                new ControllerInfo(mContext, uid, pid, packageName, callback);
+        mSession.getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mSession.isClosed()) {
+                    return;
+                }
+                synchronized (mLock) {
+                    // Keep connecting controllers.
+                    // This helps sessions to call APIs in the onConnect()
+                    // (e.g. setCustomLayout()) instead of pending them.
+                    mConnectingControllers.add(controllerInfo.getId());
+                }
+                SessionCommandGroup2 allowedCommands = mSession.getCallback().onConnect(
+                        mSession.getInstance(), controllerInfo);
+                // Don't reject connection for the request from trusted app.
+                // Otherwise server will fail to retrieve session's information to dispatch
+                // media keys to.
+                boolean accept = allowedCommands != null || controllerInfo.isTrusted();
+                if (accept) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Accepting connection, controllerInfo=" + controllerInfo
+                                + " allowedCommands=" + allowedCommands);
+                    }
+                    if (allowedCommands == null) {
+                        // For trusted apps, send non-null allowed commands to keep
+                        // connection.
+                        allowedCommands = new SessionCommandGroup2();
+                    }
+                    synchronized (mLock) {
+                        mConnectingControllers.remove(controllerInfo.getId());
+                        mControllers.put(controllerInfo.getId(), controllerInfo);
+                        mAllowedCommandGroupMap.put(controllerInfo, allowedCommands);
+                    }
+                    // If connection is accepted, notify the current state to the
+                    // controller. It's needed because we cannot call synchronous calls
+                    // between session/controller.
+                    // Note: We're doing this after the onConnectionChanged(), but there's
+                    //       no guarantee that events here are notified after the
+                    //       onConnected() because IMediaController2 is oneway (i.e. async
+                    //       call) and Stub will use thread poll for incoming calls.
+                    final Bundle resultData = new Bundle();
+                    resultData.putBundle(ARGUMENT_ALLOWED_COMMANDS,
+                            allowedCommands.toBundle());
+                    resultData.putInt(ARGUMENT_PLAYER_STATE, mSession.getPlayerState());
+                    synchronized (mLock) {
+                        resultData.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
+                                mSession.getPlaybackStateCompat());
+                        // TODO: Insert MediaMetadataCompat
+                    }
+                    resultData.putInt(ARGUMENT_REPEAT_MODE, mSession.getRepeatMode());
+                    resultData.putInt(ARGUMENT_SHUFFLE_MODE, mSession.getShuffleMode());
+                    final List<MediaItem2> playlist = allowedCommands.hasCommand(
+                            SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
+                            ? mSession.getPlaylist() : null;
+                    if (playlist != null) {
+                        resultData.putParcelableArray(ARGUMENT_PLAYLIST,
+                                MediaUtils2.toMediaItem2BundleArray(playlist));
+                    }
+
+                    // Double check if session is still there, because close() can be
+                    // called in another thread.
+                    if (mSession.isClosed()) {
+                        return;
+                    }
+                    cb.send(CONNECT_RESULT_CONNECTED, resultData);
+                } else {
+                    synchronized (mLock) {
+                        mConnectingControllers.remove(controllerInfo.getId());
+                    }
+                    if (DEBUG) {
+                        Log.d(TAG, "Rejecting connection, controllerInfo=" + controllerInfo);
+                    }
+                    cb.send(CONNECT_RESULT_DISCONNECTED, null);
+                }
+            }
+        });
+    }
+
     @FunctionalInterface
-    private interface NotifyRunnable {
+    private interface Session2Runnable {
         void run(ControllerInfo controller) throws RemoteException;
     }
 }

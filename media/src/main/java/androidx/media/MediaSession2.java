@@ -1398,7 +1398,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      */
     @Override
     public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-        //mProvider.setPlaylist_impl(list, metadata);
+        mImpl.setPlaylist(list, metadata);
     }
 
     /**

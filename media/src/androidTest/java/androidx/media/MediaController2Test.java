@@ -280,7 +280,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
+        final MediaPlaylistAgent agent = new MockPlaylistAgent() {
             @Override
             public List<MediaItem2> getPlaylist() {
                 return testList;
@@ -328,7 +328,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
+        final MediaPlaylistAgent agent = new MockPlaylistAgent() {
             @Override
             public MediaMetadata2 getPlaylistMetadata() {
                 return testMetadata;
@@ -383,7 +383,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 return super.onConnect(session, controller);
             }
         };
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
+        final MediaPlaylistAgent agent = new MockPlaylistAgent() {
             @Override
             public MediaMetadata2 getPlaylistMetadata() {
                 return item.getMetadata();
@@ -483,11 +483,11 @@ public class MediaController2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link ControllerCallback#onShuffleModeChanged(MediaController2, int)}.
      */
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetShuffleMode() throws InterruptedException {
         final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
+        final MediaPlaylistAgent agent = new MockPlaylistAgent() {
             @Override
             public int getShuffleMode() {
                 return testShuffleMode;
@@ -522,11 +522,11 @@ public class MediaController2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link ControllerCallback#onRepeatModeChanged(MediaController2, int)}.
      */
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetRepeatMode() throws InterruptedException {
         final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
-        final MediaPlaylistAgent agent = new MediaPlaylistAgent() {
+        final MediaPlaylistAgent agent = new MockPlaylistAgent() {
             @Override
             public int getRepeatMode() {
                 return testRepeatMode;

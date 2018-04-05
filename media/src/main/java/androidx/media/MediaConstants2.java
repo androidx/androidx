@@ -26,9 +26,21 @@ class MediaConstants2 {
             "androidx.media.session.event.ON_PLAYER_STATE_CHANGED";
     static final String SESSION_EVENT_NOTIFY_ERROR =
             "androidx.media.session.event.NOTIFY_ERROR";
+    static final String SESSION_EVENT_ON_REPEAT_MODE_CHANGED =
+            "androidx.media.session.event.ON_REPEAT_MODE_CHANGED";
+    static final String SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED =
+            "androidx.media.session.event.ON_SHUFFLE_MODE_CHANGED";
+    static final String SESSION_EVENT_ON_PLAYLIST_CHANGED =
+            "androidx.media.session.event.ON_PLAYLIST_CHANGED";
+    static final String SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED =
+            "androidx.media.session.event.ON_PLAYLIST_METADATA_CHANGED";
 
     // Command string used by MediaControllerCompat.sendCommand()
     static final String CONTROLLER_COMMAND_CONNECT = "androidx.media.controller.command.CONNECT";
+    static final String CONTROLLER_COMMAND_SET_REPEAT_MODE =
+            "androidx.media.controller.command.SET_REPEAT_MODE";
+    static final String CONTROLLER_COMMAND_SET_SHUFFLE_MODE =
+            "androidx.media.controller.command.SET_SHUFFLE_MODE";
 
     static final String ARGUMENT_ALLOWED_COMMANDS = "androidx.media.argument.ALLOWED_COMMANDS";
     static final String ARGUMENT_PLAYER_STATE = "androidx.media.argument.PLAYER_STATE";
@@ -37,10 +49,9 @@ class MediaConstants2 {
     static final String ARGUMENT_REPEAT_MODE = "androidx.media.argument.REPEAT_MODE";
     static final String ARGUMENT_SHUFFLE_MODE = "androidx.media.argument.SHUFFLE_MODE";
     static final String ARGUMENT_PLAYLIST = "androidx.media.argument.PLAYLIST";
+    static final String ARGUMENT_PLAYLIST_METADATA = "androidx.media.argument.PLAYLIST_METADATA";
     static final String ARGUMENT_PLAYBACK_STATE_COMPAT =
             "androidx.media.argument.PLAYBACK_STATE_COMPAT";
-    static final String ARGUMENT_MEDIA_METADATA_COMPAT =
-            "androidx.media.argument.MEDIA_METADATA_COMPAT";
     static final String ARGUMENT_ICONTROLLER_CALLBACK =
             "androidx.media.argument.ICONTROLLER_CALLBACK";
     static final String ARGUMENT_UID = "androidx.media.argument.UID";

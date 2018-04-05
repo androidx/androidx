@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 class MediaUtils2 {
-
     static final String AUDIO_ATTRIBUTES_USAGE = "androidx.media.audio_attrs.USAGE";
     static final String AUDIO_ATTRIBUTES_CONTENT_TYPE = "androidx.media.audio_attrs.CONTENT_TYPE";
     static final String AUDIO_ATTRIBUTES_FLAGS = "androidx.media.audio_attrs.FLAGS";
@@ -287,6 +286,36 @@ class MediaUtils2 {
             AudioAttributesCompat attrs, VolumeProviderCompat vp) {
         return new MediaController2.PlaybackInfo(playbackType, attrs, vp.getVolumeControl(),
                 vp.getMaxVolume(), vp.getCurrentVolume());
+    }
+
+    static Bundle[] toMediaItem2BundleArray(List<MediaItem2> playlist) {
+        if (playlist == null) {
+            return null;
+        }
+        List<Bundle> bundleList = new ArrayList<>();
+        for (int i = 0; i < playlist.size(); i++) {
+            final MediaItem2 item = playlist.get(i);
+            if (item != null) {
+                final Bundle itemBundle = item.toBundle();
+                if (itemBundle != null) {
+                    bundleList.add(itemBundle);
+                }
+            }
+        }
+        return bundleList.toArray(new Bundle[0]);
+    }
+
+    static List<MediaItem2> fromMediaItem2BundleArray(Bundle[] itemBundleList) {
+        List<MediaItem2> playlist = new ArrayList<>();
+        if (itemBundleList != null) {
+            for (int i = 0; i < itemBundleList.length; i++) {
+                MediaItem2 item = MediaItem2.fromBundle(itemBundleList[i]);
+                if (item != null) {
+                    playlist.add(item);
+                }
+            }
+        }
+        return playlist;
     }
 
     static Bundle toAudioAttributesBundle(AudioAttributesCompat attrs) {
