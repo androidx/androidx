@@ -240,7 +240,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         //assertEquals(position + speed * elapsedTime, controller.getPosition(), delta);
     }
 
-    @Ignore
     @Test
     public void testGetSessionActivity() {
         prepareLooper();
@@ -658,7 +657,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Ignore
     @Test
     public void testControllerCallback_onConnected() throws InterruptedException {
         prepareLooper();
@@ -668,7 +666,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertNotNull(controller);
     }
 
-    @Ignore
     @Test
     public void testControllerCallback_sessionRejects() throws InterruptedException {
         prepareLooper();
@@ -694,22 +691,15 @@ public class MediaController2Test extends MediaSession2TestBase {
         waitForDisconnect(controller, true);
     }
 
-    @Ignore
     @Test
     public void testControllerCallback_releaseSession() throws InterruptedException {
         prepareLooper();
-        sHandler.postAndSync(new Runnable() {
-            @Override
-            public void run() {
-                mSession.close();
-            }
-        });
+        mSession.close();
         waitForDisconnect(mController, true);
     }
 
-    @Ignore
     @Test
-    public void testControllerCallback_release() throws InterruptedException {
+    public void testControllerCallback_close() throws InterruptedException {
         prepareLooper();
         mController.close();
         waitForDisconnect(mController, true);
