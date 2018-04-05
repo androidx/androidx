@@ -22,6 +22,9 @@
     <string name="abc_slice_show_more" msgid="1567717014004692768">"மேலும் காட்டு"</string>
     <!-- no translation found for abc_slice_updated (8155085405396453848) -->
     <skip />
+    <!-- no translation found for abc_slice_duration_min (6996334305156847955) -->
+    <!-- no translation found for abc_slice_duration_years (6212691832333991589) -->
+    <!-- no translation found for abc_slice_duration_days (6241698511167107334) -->
     <!-- no translation found for abc_slice_error (4188371422904147368) -->
     <skip />
 </resources>
