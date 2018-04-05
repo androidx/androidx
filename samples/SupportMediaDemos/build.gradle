@@ -21,3 +21,11 @@ plugins {
 dependencies {
     implementation(project(":media"))
 }
+
+android {
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 26
+    }
+}
+
