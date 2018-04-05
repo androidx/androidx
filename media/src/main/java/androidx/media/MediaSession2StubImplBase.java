@@ -47,6 +47,7 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE;
 
@@ -202,25 +203,35 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                             case COMMAND_CODE_PLAYBACK_PREPARE:
                                 mSession.prepare();
                                 break;
-                            case COMMAND_CODE_PLAYBACK_SEEK_TO:
+                            case COMMAND_CODE_PLAYBACK_SEEK_TO: {
                                 long seekPos = extras.getLong(ARGUMENT_SEEK_POSITION);
                                 mSession.seekTo(seekPos);
                                 break;
-                            case COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE:
+                            }
+                            case COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE: {
                                 int repeatMode = extras.getInt(ARGUMENT_REPEAT_MODE);
                                 mSession.setRepeatMode(repeatMode);
                                 break;
-                            case COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE:
+                            }
+                            case COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE: {
                                 int shuffleMode = extras.getInt(ARGUMENT_SHUFFLE_MODE);
                                 mSession.setShuffleMode(shuffleMode);
                                 break;
-                            case COMMAND_CODE_PLAYLIST_SET_LIST:
+                            }
+                            case COMMAND_CODE_PLAYLIST_SET_LIST: {
                                 List<MediaItem2> list = MediaUtils2.fromMediaItem2BundleArray(
                                         (Bundle[]) extras.getParcelableArray(ARGUMENT_PLAYLIST));
-                                MediaMetadata2 metadata =  MediaMetadata2.fromBundle(
+                                MediaMetadata2 metadata = MediaMetadata2.fromBundle(
                                         extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
                                 mSession.setPlaylist(list, metadata);
                                 break;
+                            }
+                            case COMMAND_CODE_PLAYLIST_SET_LIST_METADATA: {
+                                MediaMetadata2 metadata = MediaMetadata2.fromBundle(
+                                        extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
+                                mSession.updatePlaylistMetadata(metadata);
+                                break;
+                            }
                         }
                     }
                 });

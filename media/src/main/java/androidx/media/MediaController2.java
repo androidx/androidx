@@ -52,6 +52,7 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE;
 
@@ -1153,8 +1154,9 @@ public class MediaController2 implements AutoCloseable {
      * @return playlist. Can be {@code null} if the controller doesn't have enough permission.
      */
     public @Nullable List<MediaItem2> getPlaylist() {
-        //return mProvider.getPlaylist_impl();
-        return null;
+        synchronized (mLock) {
+            return mPlaylist;
+        }
     }
 
     /**
@@ -1185,7 +1187,9 @@ public class MediaController2 implements AutoCloseable {
      * @param metadata metadata of the playlist
      */
     public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
-        //mProvider.updatePlaylistMetadata_impl(metadata);
+        Bundle args = new Bundle();
+        args.putBundle(ARGUMENT_PLAYLIST_METADATA, metadata == null ? null : metadata.toBundle());
+        sendCommand(COMMAND_CODE_PLAYLIST_SET_LIST_METADATA, args);
     }
 
     /**
@@ -1196,8 +1200,9 @@ public class MediaController2 implements AutoCloseable {
      * @return metadata metadata of the playlist, or null if none is set
      */
     public @Nullable MediaMetadata2 getPlaylistMetadata() {
-        //return mProvider.getPlaylistMetadata_impl();
-        return null;
+        synchronized (mLock) {
+            return mPlaylistMetadata;
+        }
     }
 
     /**

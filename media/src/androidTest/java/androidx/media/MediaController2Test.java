@@ -261,7 +261,7 @@ public class MediaController2Test extends MediaSession2TestBase {
      * This also tests {@link ControllerCallback#onPlaylistChanged(
      * MediaController2, List, MediaMetadata2)}.
      */
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetPlaylist() throws InterruptedException {
         final List<MediaItem2> testList = TestUtils.createPlaylist(2);
@@ -300,7 +300,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testUpdatePlaylistMetadata() throws InterruptedException {
         final MediaMetadata2 testMetadata = TestUtils.createMetadata();
@@ -312,7 +312,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testMetadata.getMediaId(), mMockAgent.mMetadata.getMediaId());
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetPlaylistMetadata() throws InterruptedException {
         final MediaMetadata2 testMetadata = TestUtils.createMetadata();
