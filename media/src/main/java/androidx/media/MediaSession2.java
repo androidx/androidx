@@ -234,7 +234,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @return {@code true} if you want to accept incoming command. {@code false} otherwise.
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PLAY
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PAUSE
-         * @see SessionCommand2#COMMAND_CODE_PLAYBACK_STOP
+         * @see SessionCommand2#COMMAND_CODE_PLAYBACK_RESET
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_NEXT_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_PREV_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PREPARE

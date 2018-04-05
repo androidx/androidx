@@ -18,8 +18,8 @@ package androidx.media;
 
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_STOP;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM;
@@ -166,7 +166,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
 
     @Test
     public void testReset() throws InterruptedException {
-        testOnCommandRequest(COMMAND_CODE_PLAYBACK_STOP, new PermissionTestRunnable() {
+        testOnCommandRequest(COMMAND_CODE_PLAYBACK_RESET, new PermissionTestRunnable() {
             @Override
             public void run(MediaController2 controller) {
                 controller.reset();

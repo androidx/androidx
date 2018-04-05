@@ -1811,7 +1811,7 @@ public class MediaControlView2 extends BaseLayout {
 
             // Remove sub text and center the main text if sub texts do not exist at all or the sub
             // text at this particular position is empty.
-            if (mSubTexts == null || mSubTexts.get(position) == RESOURCE_EMPTY) {
+            if (mSubTexts == null || RESOURCE_EMPTY.equals(mSubTexts.get(position))) {
                 subTextView.setVisibility(View.GONE);
             } else {
                 // Otherwise, set sub text.
