@@ -117,7 +117,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testPlayerStateChange() throws Exception {
         final int targetState = MediaPlayerBase.PLAYER_STATE_PLAYING;

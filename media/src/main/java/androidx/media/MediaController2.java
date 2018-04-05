@@ -31,7 +31,8 @@ import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
-import static androidx.media.MediaConstants2.CUSTOM_COMMAND_CONNECT;
+import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
 
@@ -405,7 +406,7 @@ public class MediaController2 implements AutoCloseable {
     private final class ControllerCompatCallback extends MediaControllerCompat.Callback {
         @Override
         public void onSessionReady() {
-            sendCustomCommand(CUSTOM_COMMAND_CONNECT);
+            sendCustomCommand(CONTROLLER_COMMAND_CONNECT);
         }
 
         @Override
@@ -424,6 +425,17 @@ public class MediaController2 implements AutoCloseable {
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             synchronized (mLock) {
                 mMediaMetadataCompat = metadata;
+            }
+        }
+
+        @Override
+        public void onSessionEvent(String event, Bundle extras) {
+            if (SESSION_EVENT_ON_PLAYER_STATE_CHANGED.equals(event)) {
+                int playerState = extras.getInt(ARGUMENT_PLAYER_STATE);
+                synchronized (mLock) {
+                    mPlayerState = playerState;
+                }
+                mCallback.onPlayerStateChanged(MediaController2.this, playerState);
             }
         }
     }
@@ -1337,7 +1349,7 @@ public class MediaController2 implements AutoCloseable {
             }
 
             if (mControllerCompat.isSessionReady()) {
-                sendCustomCommand(CUSTOM_COMMAND_CONNECT);
+                sendCustomCommand(CONTROLLER_COMMAND_CONNECT);
             }
         }
     }
@@ -1351,7 +1363,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     private void sendCustomCommand(String command) {
-        if (CUSTOM_COMMAND_CONNECT.equals(command)) {
+        if (CONTROLLER_COMMAND_CONNECT.equals(command)) {
             MediaControllerCompat controller;
             ControllerCompatCallback callback;
             synchronized (mLock) {
@@ -1364,7 +1376,7 @@ public class MediaController2 implements AutoCloseable {
             args.putString(ARGUMENT_PACKAGE_NAME, mContext.getPackageName());
             args.putInt(ARGUMENT_UID, Process.myUid());
             args.putInt(ARGUMENT_PID, Process.myPid());
-            controller.sendCommand(CUSTOM_COMMAND_CONNECT, args, new ResultReceiver(mHandler) {
+            controller.sendCommand(CONTROLLER_COMMAND_CONNECT, args, new ResultReceiver(mHandler) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
                     if (!mHandlerThread.isAlive()) {
