@@ -94,6 +94,7 @@ public class MediaBrowser2Test extends MediaController2Test {
      */
     @Test
     public void testTestBrowserCallback() {
+        prepareLooper();
         Method[] methods = TestBrowserCallback.class.getMethods();
         assertNotNull(methods);
         for (int i = 0; i < methods.length; i++) {
@@ -107,6 +108,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
     @Test
     public void testGetLibraryRoot() throws InterruptedException {
+        prepareLooper();
         final Bundle param = new Bundle();
         param.putString(TAG, TAG);
 
@@ -131,6 +133,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
     @Test
     public void testGetItem() throws InterruptedException {
+        prepareLooper();
         final String mediaId = MockMediaLibraryService2.MEDIA_ID_GET_ITEM;
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -152,6 +155,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
     @Test
     public void testGetItemNullResult() throws InterruptedException {
+        prepareLooper();
         final String mediaId = "random_media_id";
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -172,6 +176,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
     @Test
     public void testGetChildren() throws InterruptedException {
+        prepareLooper();
         final String parentId = MockMediaLibraryService2.PARENT_ID;
         final int page = 4;
         final int pageSize = 10;
@@ -212,6 +217,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
     @Test
     public void testGetChildrenEmptyResult() throws InterruptedException {
+        prepareLooper();
         final String parentId = MockMediaLibraryService2.PARENT_ID_NO_CHILDREN;
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -233,6 +239,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
     @Test
     public void testGetChildrenNullResult() throws InterruptedException {
+        prepareLooper();
         final String parentId = MockMediaLibraryService2.PARENT_ID_ERROR;
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -254,6 +261,7 @@ public class MediaBrowser2Test extends MediaController2Test {
     @Ignore
     @Test
     public void testSearch() throws InterruptedException {
+        prepareLooper();
         final String query = MockMediaLibraryService2.SEARCH_QUERY;
         final int page = 4;
         final int pageSize = 10;
@@ -309,6 +317,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
     @Test
     public void testSearchTakesTime() throws InterruptedException {
+        prepareLooper();
         final String query = MockMediaLibraryService2.SEARCH_QUERY_TAKES_TIME;
         final Bundle extras = new Bundle();
         extras.putString(TAG, TAG);
@@ -334,6 +343,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
     @Test
     public void testSearchEmptyResult() throws InterruptedException {
+        prepareLooper();
         final String query = MockMediaLibraryService2.SEARCH_QUERY_EMPTY_RESULT;
         final Bundle extras = new Bundle();
         extras.putString(TAG, TAG);
@@ -358,6 +368,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
     @Test
     public void testSubscribe() throws InterruptedException {
+        prepareLooper();
         final String testParentId = "testSubscribeId";
         final Bundle testExtras = new Bundle();
         testExtras.putString(testParentId, testParentId);
@@ -385,6 +396,7 @@ public class MediaBrowser2Test extends MediaController2Test {
     @Ignore
     @Test
     public void testUnsubscribe() throws InterruptedException {
+        prepareLooper();
         final String testParentId = "testUnsubscribeId";
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaLibrarySessionCallback callback = new MediaLibrarySessionCallback() {
@@ -406,6 +418,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
     @Test
     public void testBrowserCallback_notifyChildrenChanged() throws InterruptedException {
+        prepareLooper();
         // TODO(jaewan): Add test for the notifyChildrenChanged itself.
         final String testParentId1 = "testBrowserCallback_notifyChildrenChanged_unexpectedParent";
         final String testParentId2 = "testBrowserCallback_notifyChildrenChanged";

@@ -67,12 +67,16 @@ abstract class MediaSession2TestBase {
         void waitForDisconnect(boolean expect) throws InterruptedException;
     }
 
+    public static void prepareLooper() {
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
+    }
+
     @BeforeClass
     public static void setUpThread() {
         if (sHandler == null) {
-            if (Looper.myLooper() == null) {
-                Looper.prepare();
-            }
+            prepareLooper();
             HandlerThread handlerThread = new HandlerThread("MediaSession2TestBase");
             handlerThread.start();
             sHandler = new TestUtils.SyncHandler(handlerThread.getLooper());
