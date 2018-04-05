@@ -39,25 +39,26 @@ public class WebViewGlueCommunicator {
     /**
      * Fetch the one global support library WebViewProviderFactory from the WebView glue layer.
      */
-    public static WebViewProviderFactoryAdapter getFactory() {
+    public static WebViewProviderFactory getFactory() {
         return LAZY_FACTORY_HOLDER.INSTANCE;
     }
 
     public static WebkitToCompatConverter getCompatConverter() {
-        return LAZY_FACTORY_HOLDER.COMPAT_CONVERTER;
+        return LAZY_COMPAT_CONVERTER_HOLDER.INSTANCE;
     }
 
     private static class LAZY_FACTORY_HOLDER {
-        static final WebViewProviderFactoryAdapter INSTANCE =
-                new WebViewProviderFactoryAdapter(
-                        WebViewGlueCommunicator.createGlueProviderFactory());
-        static final WebkitToCompatConverter COMPAT_CONVERTER =
-                new WebkitToCompatConverter(
-                        INSTANCE.getWebkitToCompatConverter());
+        private static final WebViewProviderFactory INSTANCE =
+                        WebViewGlueCommunicator.createGlueProviderFactory();
     }
 
-    private static InvocationHandler fetchGlueProviderFactoryImpl() {
-        try {
+    private static class LAZY_COMPAT_CONVERTER_HOLDER {
+        static final WebkitToCompatConverter INSTANCE = new WebkitToCompatConverter(
+                WebViewGlueCommunicator.getFactory().getWebkitToCompatConverter());
+    }
+
+    private static InvocationHandler fetchGlueProviderFactoryImpl() throws IllegalAccessException,
+            InvocationTargetException, ClassNotFoundException, NoSuchMethodException {
             Class<?> glueFactoryProviderFetcherClass = Class.forName(
                     GLUE_FACTORY_PROVIDER_FETCHER_CLASS, false, getWebViewClassLoader());
             Method createProviderFactoryMethod = glueFactoryProviderFetcherClass.getDeclaredMethod(
@@ -65,23 +66,28 @@ public class WebViewGlueCommunicator {
             return (InvocationHandler) createProviderFactoryMethod.invoke(null,
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                             new SupportLibraryInfo()));
+    }
+
+    private static WebViewProviderFactory createGlueProviderFactory() {
+        InvocationHandler invocationHandler;
+        try {
+            invocationHandler = fetchGlueProviderFactoryImpl();
+            // The only way we should fail to fetch the provider-factory is if the class we are
+            // calling into doesn't exist - any other kind of failure is unexpected and should cause
+            // a run-time exception.
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            // If WebView APK support library glue entry point doesn't exist then return a Provider
+            // factory that declares that there are no features available.
+            return new IncompatibleApkWebViewProviderFactory();
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
-        // TODO(gsennton) if the above happens we should avoid throwing an exception! And probably
-        // declare that the list of features supported by the WebView APK is empty.
-    }
-
-    private static WebViewProviderFactoryBoundaryInterface createGlueProviderFactory() {
-        InvocationHandler invocationHandler = fetchGlueProviderFactoryImpl();
-        return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                WebViewProviderFactoryBoundaryInterface.class, invocationHandler);
+        return new WebViewProviderFactoryAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                WebViewProviderFactoryBoundaryInterface.class, invocationHandler));
     }
 
     /**
