@@ -20,6 +20,8 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
+import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
+import static androidx.media.MediaConstants2.ARGUMENT_ERROR_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media.MediaConstants2.ARGUMENT_PID;
@@ -32,6 +34,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_UID;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
+import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
@@ -430,12 +433,19 @@ public class MediaController2 implements AutoCloseable {
 
         @Override
         public void onSessionEvent(String event, Bundle extras) {
-            if (SESSION_EVENT_ON_PLAYER_STATE_CHANGED.equals(event)) {
-                int playerState = extras.getInt(ARGUMENT_PLAYER_STATE);
-                synchronized (mLock) {
-                    mPlayerState = playerState;
-                }
-                mCallback.onPlayerStateChanged(MediaController2.this, playerState);
+            switch (event) {
+                case SESSION_EVENT_ON_PLAYER_STATE_CHANGED:
+                    int playerState = extras.getInt(ARGUMENT_PLAYER_STATE);
+                    synchronized (mLock) {
+                        mPlayerState = playerState;
+                    }
+                    mCallback.onPlayerStateChanged(MediaController2.this, playerState);
+                    break;
+                case SESSION_EVENT_NOTIFY_ERROR:
+                    int errorCode = extras.getInt(ARGUMENT_ERROR_CODE);
+                    Bundle errorExtras = extras.getBundle(ARGUMENT_ERROR_EXTRAS);
+                    mCallback.onError(MediaController2.this, errorCode, errorExtras);
+                    break;
             }
         }
     }

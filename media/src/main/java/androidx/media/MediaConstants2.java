@@ -24,12 +24,16 @@ class MediaConstants2 {
     // Event string used by IMediaControllerCallback.onEvent()
     static final String SESSION_EVENT_ON_PLAYER_STATE_CHANGED =
             "androidx.media.session.event.ON_PLAYER_STATE_CHANGED";
+    static final String SESSION_EVENT_NOTIFY_ERROR =
+            "androidx.media.session.event.NOTIFY_ERROR";
 
     // Command string used by MediaControllerCompat.sendCommand()
     static final String CONTROLLER_COMMAND_CONNECT = "androidx.media.controller.command.CONNECT";
 
     static final String ARGUMENT_ALLOWED_COMMANDS = "androidx.media.argument.ALLOWED_COMMANDS";
     static final String ARGUMENT_PLAYER_STATE = "androidx.media.argument.PLAYER_STATE";
+    static final String ARGUMENT_ERROR_CODE = "androidx.media.argument.ERROR_CODE";
+    static final String ARGUMENT_ERROR_EXTRAS = "androidx.media.argument.ERROR_EXTRAS";
     static final String ARGUMENT_REPEAT_MODE = "androidx.media.argument.REPEAT_MODE";
     static final String ARGUMENT_SHUFFLE_MODE = "androidx.media.argument.SHUFFLE_MODE";
     static final String ARGUMENT_PLAYLIST = "androidx.media.argument.PLAYLIST";

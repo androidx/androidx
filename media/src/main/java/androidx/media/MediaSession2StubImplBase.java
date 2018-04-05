@@ -17,6 +17,8 @@
 package androidx.media;
 
 import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
+import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
+import static androidx.media.MediaConstants2.ARGUMENT_ERROR_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media.MediaConstants2.ARGUMENT_PID;
@@ -29,6 +31,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_UID;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
+import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 
 import android.annotation.TargetApi;
@@ -251,6 +254,18 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 bundle.putInt(ARGUMENT_PLAYER_STATE, state);
                 controller.getControllerBinder().onEvent(
                         SESSION_EVENT_ON_PLAYER_STATE_CHANGED, bundle);
+            }
+        });
+    }
+
+    void notifyError(final int errorCode, final Bundle extras) {
+        notifyAll(new NotifyRunnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putInt(ARGUMENT_ERROR_CODE, errorCode);
+                bundle.putBundle(ARGUMENT_ERROR_EXTRAS, extras);
+                controller.getControllerBinder().onEvent(SESSION_EVENT_NOTIFY_ERROR, bundle);
             }
         });
     }
