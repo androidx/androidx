@@ -32,7 +32,7 @@ public class MockPlayer extends MediaPlayerBase {
 
     public boolean mPlayCalled;
     public boolean mPauseCalled;
-    public boolean mStopCalled;
+    public boolean mResetCalled;
     public boolean mPrepareCalled;
     public boolean mSeekToCalled;
     public long mSeekPosition;
@@ -55,7 +55,10 @@ public class MockPlayer extends MediaPlayerBase {
 
     @Override
     public void reset() {
-        // no-op
+        mResetCalled = true;
+        if (mCountDownLatch != null) {
+            mCountDownLatch.countDown();
+        }
     }
 
     @Override
@@ -73,17 +76,6 @@ public class MockPlayer extends MediaPlayerBase {
             mCountDownLatch.countDown();
         }
     }
-
-    // TODO: Uncomment or remove
-    /*
-    @Override
-    public void stop() {
-        mStopCalled = true;
-        if (mCountDownLatch != null) {
-            mCountDownLatch.countDown();
-        }
-    }
-    */
 
     @Override
     public void prepare() {
