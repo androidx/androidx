@@ -365,4 +365,23 @@ public class AppCompatTextViewTest
 
         assertEquals(Typeface.MONOSPACE, textView.getTypeface());
     }
+
+    @Test
+    @UiThreadTest
+    public void testBaselineAttributes() {
+        TextView textView = mContainer.findViewById(R.id.textview_baseline);
+
+        final int firstBaselineToTopHeight = textView.getResources()
+                .getDimensionPixelSize(R.dimen.textview_firstBaselineToTopHeight);
+        final int lastBaselineToBottomHeight = textView.getResources()
+                .getDimensionPixelSize(R.dimen.textview_lastBaselineToBottomHeight);
+        final int lineHeight = textView.getResources()
+                .getDimensionPixelSize(R.dimen.textview_lineHeight);
+
+        assertEquals(firstBaselineToTopHeight,
+                TextViewCompat.getFirstBaselineToTopHeight(textView));
+        assertEquals(lastBaselineToBottomHeight,
+                TextViewCompat.getLastBaselineToBottomHeight(textView));
+        assertEquals(lineHeight, textView.getLineHeight());
+    }
 }

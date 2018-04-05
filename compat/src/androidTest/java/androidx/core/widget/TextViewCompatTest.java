@@ -28,6 +28,7 @@ import static android.support.v4.testutils.TextViewActions.setText;
 import static android.support.v4.testutils.TextViewActions.setTextAppearance;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,9 +43,12 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Looper;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -560,5 +564,136 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
         for (int i = 0; i < menu.size(); ++i) {
             assertEquals("Option " + (i + 1), menu.getItem(i).getTitle());
         }
+    }
+
+    @UiThreadTest
+    @Test
+    public void testSetFirstBaselineToTopHeight() {
+        mTextView.setText("This is some random text");
+        final int padding = 100;
+        mTextView.setPadding(padding, padding, padding, padding);
+
+        final Paint.FontMetricsInt fontMetrics = mTextView.getPaint().getFontMetricsInt();
+        final int fontMetricsTop = Math.max(
+                Math.abs(fontMetrics.top), Math.abs(fontMetrics.ascent));
+
+        int firstBaselineToTopHeight = fontMetricsTop + 10;
+        TextViewCompat.setFirstBaselineToTopHeight(mTextView, firstBaselineToTopHeight);
+        assertEquals(firstBaselineToTopHeight,
+                TextViewCompat.getFirstBaselineToTopHeight(mTextView));
+        assertNotEquals(padding, mTextView.getPaddingTop());
+
+        firstBaselineToTopHeight = fontMetricsTop + 40;
+        TextViewCompat.setFirstBaselineToTopHeight(mTextView, firstBaselineToTopHeight);
+        assertEquals(firstBaselineToTopHeight,
+                TextViewCompat.getFirstBaselineToTopHeight(mTextView));
+
+        mTextView.setPadding(padding, padding, padding, padding);
+        assertEquals(padding, mTextView.getPaddingTop());
+    }
+
+    @UiThreadTest
+    @Test
+    public void testSetFirstBaselineToTopHeight_tooSmall() {
+        mTextView.setText("This is some random text");
+        final int padding = 100;
+        mTextView.setPadding(padding, padding, padding, padding);
+
+        final Paint.FontMetricsInt fontMetrics = mTextView.getPaint().getFontMetricsInt();
+        final int fontMetricsTop = Math.min(
+                Math.abs(fontMetrics.top), Math.abs(fontMetrics.ascent));
+
+        int firstBaselineToTopHeight = fontMetricsTop - 1;
+        TextViewCompat.setFirstBaselineToTopHeight(mTextView, firstBaselineToTopHeight);
+        assertNotEquals(firstBaselineToTopHeight,
+                TextViewCompat.getFirstBaselineToTopHeight(mTextView));
+        assertEquals(padding, mTextView.getPaddingTop());
+    }
+
+    @UiThreadTest
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetFirstBaselineToTopHeight_negative() {
+        TextViewCompat.setFirstBaselineToTopHeight(mTextView, -1);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testSetLastBaselineToBottomHeight() {
+        mTextView.setText("This is some random text");
+        final int padding = 100;
+        mTextView.setPadding(padding, padding, padding, padding);
+
+        final Paint.FontMetricsInt fontMetrics = mTextView.getPaint().getFontMetricsInt();
+        final int fontMetricsBottom = Math.max(
+                Math.abs(fontMetrics.bottom), Math.abs(fontMetrics.descent));
+
+        int lastBaselineToBottomHeight = fontMetricsBottom + 20;
+        TextViewCompat.setLastBaselineToBottomHeight(mTextView, lastBaselineToBottomHeight);
+        assertEquals(lastBaselineToBottomHeight,
+                TextViewCompat.getLastBaselineToBottomHeight(mTextView));
+        assertNotEquals(padding, mTextView.getPaddingBottom());
+
+        lastBaselineToBottomHeight = fontMetricsBottom + 30;
+        TextViewCompat.setLastBaselineToBottomHeight(mTextView, lastBaselineToBottomHeight);
+        assertEquals(lastBaselineToBottomHeight,
+                TextViewCompat.getLastBaselineToBottomHeight(mTextView));
+
+        mTextView.setPadding(padding, padding, padding, padding);
+        assertEquals(padding, mTextView.getPaddingBottom());
+    }
+
+    @UiThreadTest
+    @Test
+    public void testSetLastBaselineToBottomHeight_tooSmall() {
+        mTextView.setText("This is some random text");
+        final int padding = 100;
+        mTextView.setPadding(padding, padding, padding, padding);
+
+        final Paint.FontMetricsInt fontMetrics = mTextView.getPaint().getFontMetricsInt();
+        final int fontMetricsBottom = Math.min(
+                Math.abs(fontMetrics.bottom), Math.abs(fontMetrics.descent));
+
+        int lastBaselineToBottomHeight = fontMetricsBottom - 1;
+        TextViewCompat.setLastBaselineToBottomHeight(mTextView, lastBaselineToBottomHeight);
+        assertNotEquals(lastBaselineToBottomHeight,
+                TextViewCompat.getLastBaselineToBottomHeight(mTextView));
+        assertEquals(padding, mTextView.getPaddingBottom());
+    }
+
+    @UiThreadTest
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetLastBaselineToBottomHeight_negative() {
+        TextViewCompat.setLastBaselineToBottomHeight(mTextView, -1);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testSetLineHeight() {
+        mTextView.setText("This is some random text");
+        final float lineSpacingExtra = 50;
+        final float lineSpacingMultiplier = 0.2f;
+        mTextView.setLineSpacing(lineSpacingExtra, lineSpacingMultiplier);
+
+        TextViewCompat.setLineHeight(mTextView, 100);
+        assertEquals(100, mTextView.getLineHeight());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            assertNotEquals(lineSpacingExtra, mTextView.getLineSpacingExtra(), 0);
+            assertNotEquals(lineSpacingMultiplier, mTextView.getLineSpacingMultiplier(), 0);
+        }
+
+        TextViewCompat.setLineHeight(mTextView, 200);
+        assertEquals(200, mTextView.getLineHeight());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            mTextView.setLineSpacing(lineSpacingExtra, lineSpacingMultiplier);
+            assertEquals(lineSpacingExtra, mTextView.getLineSpacingExtra(), 0);
+            assertEquals(lineSpacingMultiplier, mTextView.getLineSpacingMultiplier(), 0);
+        }
+    }
+
+    @UiThreadTest
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetLineHeight_negative() {
+        TextViewCompat.setLineHeight(mTextView, -1);
     }
 }
