@@ -576,7 +576,7 @@ package androidx.core.app {
 
   public class Person {
     method public static androidx.core.app.Person fromBundle(android.os.Bundle);
-    method public android.graphics.Bitmap getIcon();
+    method public androidx.core.graphics.drawable.IconCompat getIcon();
     method public java.lang.String getKey();
     method public java.lang.CharSequence getName();
     method public java.lang.String getUri();
@@ -590,7 +590,7 @@ package androidx.core.app {
     ctor public Person.Builder();
     method public androidx.core.app.Person build();
     method public androidx.core.app.Person.Builder setBot(boolean);
-    method public androidx.core.app.Person.Builder setIcon(android.graphics.Bitmap);
+    method public androidx.core.app.Person.Builder setIcon(androidx.core.graphics.drawable.IconCompat);
     method public androidx.core.app.Person.Builder setImportant(boolean);
     method public androidx.core.app.Person.Builder setKey(java.lang.String);
     method public androidx.core.app.Person.Builder setName(java.lang.CharSequence);
