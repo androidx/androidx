@@ -212,6 +212,18 @@ public class TextListItemTest {
     }
 
     @Test
+    public void testSetSupplementalActionWithDrawable() {
+        Drawable drawable = mActivity.getDrawable(android.R.drawable.sym_def_app_icon);
+        TextListItem item = new TextListItem(mActivity);
+        item.setSupplementalIcon(drawable, true);
+
+        setupPagedListView(Arrays.asList(item));
+
+        assertThat(getViewHolderAtPosition(0).getSupplementalIcon().getDrawable(),
+                is(equalTo(drawable)));
+    }
+
+    @Test
     public void testSwitchVisibleAndCheckedState() {
         TextListItem item0 = new TextListItem(mActivity);
         item0.setSwitch(true, true, null);
