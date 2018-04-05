@@ -37,6 +37,7 @@ import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
+import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
@@ -81,6 +82,7 @@ import java.util.Set;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
+
     private static final String TAG = "MS2StubImplBase";
     private static final boolean DEBUG = true; // TODO: Log.isLoggable(TAG, Log.DEBUG);
 
@@ -185,6 +187,9 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             case CONTROLLER_COMMAND_CONNECT:
                 connect(extras, cb);
                 break;
+            case CONTROLLER_COMMAND_DISCONNECT:
+                disconnect(extras);
+                break;
             case CONTROLLER_COMMAND_BY_COMMAND_CODE:
                 final int commandCode = extras.getInt(ARGUMENT_COMMAND_CODE);
                 IMediaControllerCallback caller =
@@ -192,6 +197,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 if (caller == null) {
                     return;
                 }
+
                 onCommand2(caller.asBinder(), commandCode, new Session2Runnable() {
                     @Override
                     public void run(ControllerInfo controller) {
@@ -460,7 +466,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         });
     }
 
-    private void connect(Bundle extras, final ResultReceiver cb) {
+    private ControllerInfo createControllerInfo(Bundle extras) {
         IMediaControllerCallback callback = IMediaControllerCallback.Stub.asInterface(
                 extras.getBinder(ARGUMENT_ICONTROLLER_CALLBACK));
         String packageName = extras.getString(ARGUMENT_PACKAGE_NAME);
@@ -468,8 +474,11 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         int pid = extras.getInt(ARGUMENT_PID);
         // TODO: sanity check for packageName, uid, and pid.
 
-        final ControllerInfo controllerInfo =
-                new ControllerInfo(mContext, uid, pid, packageName, callback);
+        return new ControllerInfo(mContext, uid, pid, packageName, callback);
+    }
+
+    private void connect(Bundle extras, final ResultReceiver cb) {
+        final ControllerInfo controllerInfo = createControllerInfo(extras);
         mSession.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
@@ -544,6 +553,19 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                     }
                     cb.send(CONNECT_RESULT_DISCONNECTED, null);
                 }
+            }
+        });
+    }
+
+    private void disconnect(Bundle extras) {
+        final ControllerInfo controllerInfo = createControllerInfo(extras);
+        mSession.getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mSession.isClosed()) {
+                    return;
+                }
+                mSession.getCallback().onDisconnected(mSession.getInstance(), controllerInfo);
             }
         });
     }

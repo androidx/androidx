@@ -37,8 +37,11 @@ class MediaConstants2 {
 
     // Command string used by MediaControllerCompat.sendCommand()
     static final String CONTROLLER_COMMAND_CONNECT = "androidx.media.controller.command.CONNECT";
+    static final String CONTROLLER_COMMAND_DISCONNECT =
+            "androidx.media.controller.command.DISCONNECT";
     static final String CONTROLLER_COMMAND_BY_COMMAND_CODE =
             "androidx.media.controller.command.BY_COMMAND_CODE";
+
 
     static final String ARGUMENT_COMMAND_CODE = "androidx.media.argument.COMMAND_CODE";
     static final String ARGUMENT_ALLOWED_COMMANDS = "androidx.media.argument.ALLOWED_COMMANDS";

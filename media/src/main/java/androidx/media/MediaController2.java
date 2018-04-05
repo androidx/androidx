@@ -40,6 +40,7 @@ import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
+import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
@@ -430,7 +431,7 @@ public class MediaController2 implements AutoCloseable {
     private final class ControllerCompatCallback extends MediaControllerCompat.Callback {
         @Override
         public void onSessionReady() {
-            sendCommand(CONTROLLER_COMMAND_CONNECT, null, new ResultReceiver(mHandler) {
+            sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
                     if (!mHandlerThread.isAlive()) {
@@ -451,7 +452,6 @@ public class MediaController2 implements AutoCloseable {
 
         @Override
         public void onSessionDestroyed() {
-            android.util.Log.d("jaewan", "onSessionDestroyed");
             close();
         }
 
@@ -626,7 +626,7 @@ public class MediaController2 implements AutoCloseable {
     @Override
     public void close() {
         if (DEBUG) {
-            Log.d(TAG, "release from " + mToken, new IllegalStateException());
+            //Log.d(TAG, "release from " + mToken, new IllegalStateException());
         }
         synchronized (mLock) {
             if (mIsReleased) {
@@ -637,6 +637,13 @@ public class MediaController2 implements AutoCloseable {
             mHandlerThread.quitSafely();
 
             mIsReleased = true;
+
+            // Send command before the unregister callback to use mIControllerCallback in the
+            // callback.
+            sendCommand(CONTROLLER_COMMAND_DISCONNECT);
+            if (mControllerCompat != null) {
+                mControllerCompat.unregisterCallback(mControllerCompatCallback);
+            }
             if (mBrowserCompat != null) {
                 mBrowserCompat.disconnect();
                 mBrowserCompat = null;
@@ -1441,7 +1448,7 @@ public class MediaController2 implements AutoCloseable {
         }
 
         if (controllerCompat.isSessionReady()) {
-            sendCommand(CONTROLLER_COMMAND_CONNECT, null, new ResultReceiver(mHandler) {
+            sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
                     if (!mHandlerThread.isAlive()) {
@@ -1479,6 +1486,14 @@ public class MediaController2 implements AutoCloseable {
         }
         args.putInt(ARGUMENT_COMMAND_CODE, commandCode);
         sendCommand(CONTROLLER_COMMAND_BY_COMMAND_CODE, args, null);
+    }
+
+    private void sendCommand(String command) {
+        sendCommand(command, null, null);
+    }
+
+    private void sendCommand(String command, ResultReceiver receiver) {
+        sendCommand(command, null, receiver);
     }
 
     private void sendCommand(String command, Bundle args, ResultReceiver receiver) {

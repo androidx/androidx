@@ -43,6 +43,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.media.AudioAttributesCompat;
 import androidx.media.test.R;
 
 import org.junit.After;
@@ -78,7 +79,7 @@ public class VideoView2Test {
         hardware that report a duration that's different by a few milliseconds */
     private static final int DURATION_DELTA = 100;
     /** AudioAttributes to be used by this player */
-    private static final AudioAttributes AUDIO_ATTR = new AudioAttributes.Builder()
+    private static final AudioAttributesCompat AUDIO_ATTR = new AudioAttributesCompat.Builder()
             .setUsage(AudioAttributes.USAGE_GAME)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build();

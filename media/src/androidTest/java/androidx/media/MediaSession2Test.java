@@ -672,7 +672,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
                 (long) callback.commands.get(1).getCommandCode());
     }
 
-    @Ignore
     @Test
     public void testOnConnectCallback() throws InterruptedException {
         prepareLooper();
@@ -691,7 +690,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         waitForDisconnect(controller, true);
     }
 
-    @Ignore
     @Test
     public void testOnDisconnectCallback() throws InterruptedException {
         prepareLooper();
