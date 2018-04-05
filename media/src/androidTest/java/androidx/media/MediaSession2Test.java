@@ -156,7 +156,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(targetState, controller.getPlayerState());
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testCurrentDataSourceChanged() throws Exception {
         prepareLooper();
@@ -377,7 +376,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(pos, mPlayer.mSeekPosition);
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testSkipToPreviousItem() {
         prepareLooper();
@@ -385,7 +383,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertTrue(mMockAgent.mSkipToPreviousItemCalled);
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testSkipToNextItem() throws Exception {
         prepareLooper();
@@ -393,7 +390,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertTrue(mMockAgent.mSkipToNextItemCalled);
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testSkipToPlaylistItem() throws Exception {
         prepareLooper();
@@ -427,7 +423,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(bufferedPosition, mSession.getBufferedPosition());
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testSetPlaylist() {
         prepareLooper();
@@ -438,7 +433,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertNull(mMockAgent.mMetadata);
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetPlaylist() {
         prepareLooper();
@@ -447,7 +441,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(list, mSession.getPlaylist());
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testUpdatePlaylistMetadata() {
         prepareLooper();
@@ -457,7 +450,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertSame(testMetadata, mMockAgent.mMetadata);
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetPlaylistMetadata() {
         prepareLooper();
@@ -466,7 +458,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(testMetadata, mSession.getPlaylistMetadata());
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testSessionCallback_onPlaylistChanged() throws InterruptedException {
         prepareLooper();
@@ -495,7 +486,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testAddPlaylistItem() {
         prepareLooper();
@@ -507,7 +497,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertSame(testMediaItem, mMockAgent.mItem);
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testRemovePlaylistItem() {
         prepareLooper();
@@ -517,7 +506,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertSame(testMediaItem, mMockAgent.mItem);
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testReplacePlaylistItem() throws InterruptedException {
         prepareLooper();
@@ -532,7 +520,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link SessionCallback#onShuffleModeChanged}
      */
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetShuffleMode() throws InterruptedException {
         prepareLooper();
@@ -560,7 +547,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testSetShuffleMode() {
         prepareLooper();
@@ -573,7 +559,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link SessionCallback#onShuffleModeChanged}
      */
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetRepeatMode() throws InterruptedException {
         prepareLooper();
@@ -601,7 +586,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testSetRepeatMode() {
         prepareLooper();

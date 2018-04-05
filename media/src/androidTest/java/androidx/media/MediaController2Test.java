@@ -248,7 +248,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(Process.myUid(), sessionActivity.getCreatorUid());
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testSetPlaylist() throws InterruptedException {
         prepareLooper();
@@ -271,7 +270,6 @@ public class MediaController2Test extends MediaSession2TestBase {
      * This also tests {@link ControllerCallback#onPlaylistChanged(
      * MediaController2, List, MediaMetadata2)}.
      */
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetPlaylist() throws InterruptedException {
         prepareLooper();
@@ -311,7 +309,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testUpdatePlaylistMetadata() throws InterruptedException {
         prepareLooper();
@@ -324,7 +321,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testMetadata.getMediaId(), mMockAgent.mMetadata.getMediaId());
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetPlaylistMetadata() throws InterruptedException {
         prepareLooper();
@@ -368,7 +364,6 @@ public class MediaController2Test extends MediaSession2TestBase {
      * if the controller doesn't have {@link SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST} but
      * {@link SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST_METADATA}.
      */
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testControllerCallback_onPlaylistMetadataChanged() throws InterruptedException {
         prepareLooper();
@@ -420,7 +415,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testAddPlaylistItem() throws InterruptedException {
         prepareLooper();
@@ -435,7 +429,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testMediaItem.getMediaId(), mMockAgent.mItem.getMediaId());
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testRemovePlaylistItem() throws InterruptedException {
         prepareLooper();
@@ -453,7 +446,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(targetItem, mMockAgent.mItem);
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testReplacePlaylistItem() throws InterruptedException {
         prepareLooper();
@@ -501,7 +493,6 @@ public class MediaController2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link ControllerCallback#onShuffleModeChanged(MediaController2, int)}.
      */
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetShuffleMode() throws InterruptedException {
         prepareLooper();
@@ -527,7 +518,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testShuffleMode, controller.getShuffleMode());
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testSetShuffleMode() throws InterruptedException {
         prepareLooper();
@@ -542,7 +532,6 @@ public class MediaController2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link ControllerCallback#onRepeatModeChanged(MediaController2, int)}.
      */
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetRepeatMode() throws InterruptedException {
         prepareLooper();
@@ -568,7 +557,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testRepeatMode, controller.getRepeatMode());
     }
 
-    @Ignore // TODO: remove @Ignore
     @Test
     public void testSetRepeatMode() throws InterruptedException {
         prepareLooper();

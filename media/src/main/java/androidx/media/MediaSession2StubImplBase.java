@@ -230,8 +230,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                                 break;
                             }
                             case COMMAND_CODE_PLAYLIST_SET_LIST: {
-                                List<MediaItem2> list = MediaUtils2.fromMediaItem2BundleArray(
-                                        (Bundle[]) extras.getParcelableArray(ARGUMENT_PLAYLIST));
+                                List<MediaItem2> list = MediaUtils2.fromMediaItem2ParcelableArray(
+                                        extras.getParcelableArray(ARGUMENT_PLAYLIST));
                                 MediaMetadata2 metadata = MediaMetadata2.fromBundle(
                                         extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
                                 mSession.setPlaylist(list, metadata);
@@ -300,7 +300,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
                 bundle.putParcelableArray(ARGUMENT_PLAYLIST,
-                        MediaUtils2.toMediaItem2BundleArray(playlist));
+                        MediaUtils2.toMediaItem2ParcelableArray(playlist));
                 bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
                         metadata == null ? null : metadata.toBundle());
                 controller.getControllerBinder().onEvent(
@@ -535,7 +535,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                             ? mSession.getPlaylist() : null;
                     if (playlist != null) {
                         resultData.putParcelableArray(ARGUMENT_PLAYLIST,
-                                MediaUtils2.toMediaItem2BundleArray(playlist));
+                                MediaUtils2.toMediaItem2ParcelableArray(playlist));
                     }
 
                     // Double check if session is still there, because close() can be
