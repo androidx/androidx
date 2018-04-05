@@ -46,6 +46,7 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE;
 
@@ -190,28 +191,35 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                     public void run(ControllerInfo controller) {
                         switch (commandCode) {
                             case COMMAND_CODE_PLAYBACK_PLAY:
-                                mSession.getInstance().play();
+                                mSession.play();
                                 break;
                             case COMMAND_CODE_PLAYBACK_PAUSE:
-                                mSession.getInstance().pause();
+                                mSession.pause();
                                 break;
                             case COMMAND_CODE_PLAYBACK_RESET:
-                                mSession.getInstance().reset();
+                                mSession.reset();
                                 break;
                             case COMMAND_CODE_PLAYBACK_PREPARE:
-                                mSession.getInstance().prepare();
+                                mSession.prepare();
                                 break;
                             case COMMAND_CODE_PLAYBACK_SEEK_TO:
                                 long seekPos = extras.getLong(ARGUMENT_SEEK_POSITION);
-                                mSession.getInstance().seekTo(seekPos);
+                                mSession.seekTo(seekPos);
                                 break;
                             case COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE:
                                 int repeatMode = extras.getInt(ARGUMENT_REPEAT_MODE);
-                                mSession.getInstance().setRepeatMode(repeatMode);
+                                mSession.setRepeatMode(repeatMode);
                                 break;
                             case COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE:
                                 int shuffleMode = extras.getInt(ARGUMENT_SHUFFLE_MODE);
-                                mSession.getInstance().setShuffleMode(shuffleMode);
+                                mSession.setShuffleMode(shuffleMode);
+                                break;
+                            case COMMAND_CODE_PLAYLIST_SET_LIST:
+                                List<MediaItem2> list = MediaUtils2.fromMediaItem2BundleArray(
+                                        (Bundle[]) extras.getParcelableArray(ARGUMENT_PLAYLIST));
+                                MediaMetadata2 metadata =  MediaMetadata2.fromBundle(
+                                        extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
+                                mSession.setPlaylist(list, metadata);
                                 break;
                         }
                     }

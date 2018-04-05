@@ -51,6 +51,7 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE;
 
@@ -635,8 +636,8 @@ public class MediaController2 implements AutoCloseable {
             }
             if (mControllerCompat != null) {
                 mControllerCompat.unregisterCallback(mControllerCompatCallback);
+                mControllerCompat = null;
             }
-            mControllerCompat = null;
             mConnected = false;
         }
         mCallbackExecutor.execute(new Runnable() {
@@ -1169,7 +1170,13 @@ public class MediaController2 implements AutoCloseable {
      * @see ControllerCallback#onPlaylistChanged
      */
     public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-        //mProvider.setPlaylist_impl(list, metadata);
+        if (list == null) {
+            throw new IllegalArgumentException("list shouldn't be null");
+        }
+        Bundle args = new Bundle();
+        args.putParcelableArray(ARGUMENT_PLAYLIST, MediaUtils2.toMediaItem2BundleArray(list));
+        args.putBundle(ARGUMENT_PLAYLIST_METADATA, metadata == null ? null : metadata.toBundle());
+        sendCommand(COMMAND_CODE_PLAYLIST_SET_LIST, args);
     }
 
     /**
@@ -1402,8 +1409,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     private void connectToSession(MediaSessionCompat.Token sessionCompatToken) {
-        MediaControllerCompat controllerCompat =
-                null;
+        MediaControllerCompat controllerCompat = null;
         try {
             controllerCompat = new MediaControllerCompat(mContext, sessionCompatToken);
         } catch (RemoteException e) {
