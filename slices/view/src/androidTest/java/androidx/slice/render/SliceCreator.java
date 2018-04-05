@@ -486,9 +486,10 @@ public class SliceCreator {
                         .setTitle("Star rating")
                         .setSubtitle("Pick a rating from 0 to 5")
                         .setThumb(icon)
+                        .setMin(5)
                         .setInputAction(getBroadcastIntent(ACTION_TOAST, "range changed"))
-                        .setMax(5)
-                        .setValue(3)
+                        .setMax(10)
+                        .setValue(7)
                         .setPrimaryAction(primaryAction)
                         .setContentDescription("Slider for star ratings"))
                 .build();

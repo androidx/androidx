@@ -42,7 +42,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
-
 /**
  * A slice can be constructed with ListBuilder.
  * <p>
@@ -653,6 +652,15 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         public InputRangeBuilder(@NonNull ListBuilder parent) {
             super(parent.mImpl.createInputRangeBuilder());
+        }
+
+        /**
+         * Set the lower limit of the range. The default is 0.
+         */
+        @NonNull
+        public InputRangeBuilder setMin(int min) {
+            mImpl.setMin(min);
+            return this;
         }
 
         /**
