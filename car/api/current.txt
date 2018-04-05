@@ -386,6 +386,8 @@ package androidx.car.widget {
     method public void setSupplementalEmptyIcon(boolean);
     method public void setSupplementalIcon(int, boolean);
     method public void setSupplementalIcon(int, boolean, android.view.View.OnClickListener);
+    method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean);
+    method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean, android.view.View.OnClickListener);
   }
 
   public static class SeekbarListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
@@ -436,7 +438,9 @@ package androidx.car.widget {
     method public void setPrimaryActionIcon(android.graphics.drawable.Drawable, boolean);
     method public void setPrimaryActionNoIcon();
     method public void setSupplementalIcon(int, boolean);
+    method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean);
     method public void setSupplementalIcon(int, boolean, android.view.View.OnClickListener);
+    method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean, android.view.View.OnClickListener);
     method public void setSwitch(boolean, boolean, android.widget.CompoundButton.OnCheckedChangeListener);
     method public void setSwitchState(boolean);
     method public void setTitle(java.lang.String);
