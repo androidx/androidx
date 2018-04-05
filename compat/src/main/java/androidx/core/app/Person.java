@@ -16,11 +16,11 @@
 
 package androidx.core.app;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.IconCompat;
 
 /**
  * Provides an immutable reference to an entity that appears repeatedly on different surfaces of the
@@ -39,9 +39,10 @@ public class Person {
      * created from a {@link Person} using {@link #toBundle()}.
      */
     public static Person fromBundle(Bundle bundle) {
+        Bundle iconBundle = bundle.getBundle(ICON_KEY);
         return new Builder()
                 .setName(bundle.getCharSequence(NAME_KEY))
-                .setIcon((Bitmap) bundle.getParcelable(ICON_KEY))
+                .setIcon(iconBundle != null ? IconCompat.createFromBundle(iconBundle) : null)
                 .setUri(bundle.getString(URI_KEY))
                 .setKey(bundle.getString(KEY_KEY))
                 .setBot(bundle.getBoolean(IS_BOT_KEY))
@@ -50,7 +51,7 @@ public class Person {
     }
 
     @Nullable private CharSequence mName;
-    @Nullable private Bitmap mIcon;
+    @Nullable private IconCompat mIcon;
     @Nullable private String mUri;
     @Nullable private String mKey;
     private boolean mIsBot;
@@ -72,7 +73,7 @@ public class Person {
     public Bundle toBundle() {
         Bundle result = new Bundle();
         result.putCharSequence(NAME_KEY, mName);
-        result.putParcelable(ICON_KEY, mIcon);
+        result.putBundle(ICON_KEY, mIcon != null ? mIcon.toBundle() : null);
         result.putString(URI_KEY, mUri);
         result.putString(KEY_KEY, mKey);
         result.putBoolean(IS_BOT_KEY, mIsBot);
@@ -96,7 +97,7 @@ public class Person {
 
     /** Returns the icon for this {@link Person} or {@code null} if no icon was provided. */
     @Nullable
-    public Bitmap getIcon() {
+    public IconCompat getIcon() {
         return mIcon;
     }
 
@@ -146,7 +147,7 @@ public class Person {
     /** Builder for the immutable {@link Person} class. */
     public static class Builder {
         @Nullable private CharSequence mName;
-        @Nullable private Bitmap mIcon;
+        @Nullable private IconCompat mIcon;
         @Nullable private String mUri;
         @Nullable private String mKey;
         private boolean mIsBot;
@@ -181,7 +182,7 @@ public class Person {
          * {@link #setUri(String)}.
          */
         @NonNull
-        public Builder setIcon(@Nullable Bitmap icon) {
+        public Builder setIcon(@Nullable IconCompat icon) {
             mIcon = icon;
             return this;
         }
