@@ -29,7 +29,6 @@ import android.os.Build;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
-import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.webkit.SafeBrowsingResponse;
 import android.webkit.ValueCallback;
@@ -85,9 +84,12 @@ public class WebViewCompatTest {
         assertTrue(callbackLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
     }
 
-    @Suppress // TODO(gsennton) remove @Suppress when b/76202025 has been resolved
     @Test
     public void testCheckThread() {
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.VISUAL_STATE_CALLBACK)) {
+            // Skip this test if VisualStateCallback is not supported.
+            return;
+        }
         try {
             WebViewCompat.postVisualStateCallback(mWebViewOnUiThread.getWebViewOnCurrentThread(), 5,
                     new WebViewCompat.VisualStateCallback() {
