@@ -822,7 +822,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Ignore
     @Test
     public void testNotifyError() throws InterruptedException {
         final int errorCode = MediaSession2.ERROR_CODE_NOT_AVAILABLE_IN_REGION;

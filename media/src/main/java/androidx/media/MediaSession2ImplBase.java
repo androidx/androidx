@@ -345,7 +345,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void notifyError(@ErrorCode int errorCode, @Nullable Bundle extras) {
-        //mProvider.notifyError_impl(errorCode, extras);
+        mSession2Stub.notifyError(errorCode, extras);
     }
 
     @Override
