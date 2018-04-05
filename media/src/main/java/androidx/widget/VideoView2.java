@@ -135,7 +135,7 @@ import java.util.concurrent.Executor;
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
  */
-@RequiresApi(23) // TODO correct minSdk API use incompatibilities and remove before release.
+@RequiresApi(21) // TODO correct minSdk API use incompatibilities and remove before release.
 @RestrictTo(LIBRARY_GROUP)
 public class VideoView2 extends BaseLayout implements VideoViewInterface.SurfaceListener {
     /** @hide */
@@ -1231,6 +1231,10 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     }
 
     private void applySpeed() {
+        if (android.os.Build.VERSION.SDK_INT < 23) {
+            // TODO: MediaPlayer2 will cover this, or implement with SoundPool.
+            return;
+        }
         PlaybackParams params = mMediaPlayer.getPlaybackParams().allowDefaults();
         if (mSpeed != params.getSpeed()) {
             try {

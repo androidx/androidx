@@ -93,7 +93,7 @@ import java.util.Locale;
  * Those buttons will be shown when the overflow button is clicked.
  * See VideoView2#setCustomActions for more details on how to add.
  */
-@RequiresApi(23) // TODO correct minSdk API use incompatibilities and remove before release.
+@RequiresApi(21) // TODO correct minSdk API use incompatibilities and remove before release.
 @RestrictTo(LIBRARY_GROUP)
 public class MediaControlView2 extends BaseLayout {
     /** @hide */
@@ -1418,7 +1418,7 @@ public class MediaControlView2 extends BaseLayout {
 
                 // Relating to Bottom Bar
                 mBottomBar.setVisibility(View.VISIBLE);
-                if (timeViewParams.getRule(RelativeLayout.LEFT_OF) != 0) {
+                if (timeViewParams.getRules()[RelativeLayout.LEFT_OF] != 0) {
                     timeViewParams.removeRule(RelativeLayout.LEFT_OF);
                     timeViewParams.addRule(RelativeLayout.RIGHT_OF, R.id.bottom_bar_left);
                 }
@@ -1446,7 +1446,7 @@ public class MediaControlView2 extends BaseLayout {
 
                 // Relating to Bottom Bar
                 mBottomBar.setVisibility(View.VISIBLE);
-                if (timeViewParams.getRule(RelativeLayout.RIGHT_OF) != 0) {
+                if (timeViewParams.getRules()[RelativeLayout.RIGHT_OF] != 0) {
                     timeViewParams.removeRule(RelativeLayout.RIGHT_OF);
                     timeViewParams.addRule(RelativeLayout.LEFT_OF, R.id.bottom_bar_right);
                 }
@@ -1811,7 +1811,7 @@ public class MediaControlView2 extends BaseLayout {
 
             // Remove sub text and center the main text if sub texts do not exist at all or the sub
             // text at this particular position is empty.
-            if (mSubTexts == null || mSubTexts.get(position) == RESOURCE_EMPTY) {
+            if (mSubTexts == null || RESOURCE_EMPTY.equals(mSubTexts.get(position))) {
                 subTextView.setVisibility(View.GONE);
             } else {
                 // Otherwise, set sub text.
