@@ -136,6 +136,9 @@ project(':navigation:fragment-ktx').projectDir = new File(supportRoot, "navigati
 include ':navigation:ui'
 project(':navigation:ui').projectDir = new File(supportRoot, "navigation/ui")
 
+include ':navigation:ui-ktx'
+project(':navigation:ui-ktx').projectDir = new File(supportRoot, "navigation/ui/ktx")
+
 include ':navigation:integration-tests:testapp'
 project(':navigation:integration-tests:testapp').projectDir = new File(supportRoot, "navigation/integration-tests/testapp")
 
