@@ -17,13 +17,15 @@
 package androidx.core.app;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,14 +34,14 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class PersonTest {
     private static final CharSequence TEST_NAME = "Example Name";
-    private static final Bitmap TEST_ICON = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+    private static final IconCompat TEST_ICON =
+            IconCompat.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888));
     private static final String TEST_URI = "mailto:example@example.com";
     private static final String TEST_KEY = "example-key";
     private static final boolean TEST_IS_BOT = true;
     private static final boolean TEST_IS_IMPORTANT = true;
 
     @Test
-    @SdkSuppress(minSdkVersion = 12)
     public void bundle() {
         Person person = new Person.Builder()
                 .setImportant(TEST_IS_IMPORTANT)
@@ -58,13 +60,25 @@ public class PersonTest {
         assertEquals(TEST_KEY, result.getKey());
         assertEquals(TEST_IS_BOT, result.isBot());
         assertEquals(TEST_IS_IMPORTANT, result.isImportant());
-
-        // Requires SDK >= 12
-        assertTrue(TEST_ICON.sameAs(result.getIcon()));
+        assertEquals(TEST_ICON.toBundle().toString(), result.getIcon().toBundle().toString());
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 12)
+    public void bundle_defaultValues() {
+        Person person = new Person.Builder().build();
+
+        Bundle personBundle = person.toBundle();
+        Person result = Person.fromBundle(personBundle);
+
+        assertNull(result.getIcon());
+        assertNull(result.getKey());
+        assertNull(result.getName());
+        assertNull(result.getUri());
+        assertFalse(result.isImportant());
+        assertFalse(result.isBot());
+    }
+
+    @Test
     public void toBuilder() {
         Person person = new Person.Builder()
                 .setImportant(TEST_IS_IMPORTANT)
@@ -81,9 +95,7 @@ public class PersonTest {
         assertEquals(TEST_KEY, result.getKey());
         assertEquals(TEST_IS_BOT, result.isBot());
         assertEquals(TEST_IS_IMPORTANT, result.isImportant());
-
-        // Requires SDK >= 12
-        assertTrue(TEST_ICON.sameAs(result.getIcon()));
+        assertEquals(TEST_ICON.toBundle().toString(), result.getIcon().toBundle().toString());
     }
 
     @Test
