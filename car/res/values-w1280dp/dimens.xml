@@ -21,4 +21,7 @@ limitations under the License.
     <!-- Keylines -->
     <dimen name="car_keyline_4">182dp</dimen>
     <dimen name="car_keyline_4_neg">-182dp</dimen>
+
+    <!-- Drawer Max Width -->
+    <dimen name="car_drawer_max_width">1200dp</dimen>
 </resources>

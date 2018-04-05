@@ -23,17 +23,24 @@ limitations under the License.
     <dimen name="car_body2_size">32sp</dimen>
     <dimen name="car_label1_size">32sp</dimen>
     <dimen name="car_action1_size">32sp</dimen>
+    <dimen name="car_action2_size">32sp</dimen>
+
+    <!-- Navigation Bar -->
+    <dimen name="car_navigation_bar_height">128dp</dimen>
 
     <!-- Icons and Buttons -->
     <!-- Icons -->
     <dimen name="car_primary_icon_size">56dp</dimen>
     <dimen name="car_secondary_icon_size">36dp</dimen>
 
-    <!-- Avatars -->
-    <dimen name="car_avatar_size">96dp</dimen>
+    <!-- Buttons -->
+    <dimen name="car_pill_button_size">76dp</dimen>
 
     <!-- Minimum touch target size. -->
     <dimen name="car_touch_target_size">96dp</dimen>
+
+    <!-- Status Bar -->
+    <dimen name="car_status_bar_height">56dp</dimen>
 
     <!-- Application Bar -->
     <dimen name="car_app_bar_height">112dp</dimen>
@@ -50,4 +57,7 @@ limitations under the License.
 
     <!-- Sub Header -->
     <dimen name="car_sub_header_height">96dp</dimen>
+
+    <!-- The height of a vertical line divider. -->
+    <dimen name="car_vertical_line_divider_height">96dp</dimen>
 </resources>
