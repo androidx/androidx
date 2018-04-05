@@ -367,21 +367,21 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(pos, mPlayer.mSeekPosition);
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testSkipToPreviousItem() {
         mSession.skipToPreviousItem();
         assertTrue(mMockAgent.mSkipToPreviousItemCalled);
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testSkipToNextItem() throws Exception {
         mSession.skipToNextItem();
         assertTrue(mMockAgent.mSkipToNextItemCalled);
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testSkipToPlaylistItem() throws Exception {
         final MediaItem2 testMediaItem = TestUtils.createMediaItemWithMetadata();
@@ -547,6 +547,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link SessionCallback#onShuffleModeChanged}
      */
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetRepeatMode() throws InterruptedException {
         final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
@@ -573,6 +574,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testSetRepeatMode() {
         final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;

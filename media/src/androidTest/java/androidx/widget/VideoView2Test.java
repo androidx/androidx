@@ -30,9 +30,11 @@ import android.app.Instrumentation;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.media.AudioAttributes;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -58,6 +60,7 @@ import java.util.List;
 /**
  * Test {@link VideoView2}.
  */
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // TODO: KITKAT
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class VideoView2Test {

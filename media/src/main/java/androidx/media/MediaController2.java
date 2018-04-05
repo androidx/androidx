@@ -35,6 +35,8 @@ import static androidx.media.MediaConstants2.ARGUMENT_UID;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
+import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_SET_REPEAT_MODE;
+import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_SET_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
@@ -413,7 +415,23 @@ public class MediaController2 implements AutoCloseable {
     private final class ControllerCompatCallback extends MediaControllerCompat.Callback {
         @Override
         public void onSessionReady() {
-            sendCustomCommand(CONTROLLER_COMMAND_CONNECT);
+            sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    if (!mHandlerThread.isAlive()) {
+                        return;
+                    }
+                    switch (resultCode) {
+                        case CONNECT_RESULT_CONNECTED:
+                            onConnectedNotLocked(resultData);
+                            break;
+                        case CONNECT_RESULT_DISCONNECTED:
+                            mCallback.onDisconnected(MediaController2.this);
+                            close();
+                            break;
+                    }
+                }
+            });
         }
 
         @Override
@@ -603,13 +621,14 @@ public class MediaController2 implements AutoCloseable {
             mHandlerThread.quitSafely();
 
             mIsReleased = true;
-            if (mControllerCompat != null) {
-                mControllerCompat.unregisterCallback(mControllerCompatCallback);
-            }
             if (mBrowserCompat != null) {
                 mBrowserCompat.disconnect();
                 mBrowserCompat = null;
             }
+            if (mControllerCompat != null) {
+                mControllerCompat.unregisterCallback(mControllerCompatCallback);
+            }
+            mControllerCompat = null;
             mConnected = false;
         }
         mCallbackExecutor.execute(new Runnable() {
@@ -1272,8 +1291,9 @@ public class MediaController2 implements AutoCloseable {
      * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
      */
     public @RepeatMode int getRepeatMode() {
-        //return mProvider.getRepeatMode_impl();
-        return MediaPlaylistAgent.REPEAT_MODE_NONE;
+        synchronized (mLock) {
+            return mRepeatMode;
+        }
     }
 
     /**
@@ -1286,7 +1306,10 @@ public class MediaController2 implements AutoCloseable {
      * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
      */
     public void setRepeatMode(@RepeatMode int repeatMode) {
-        //mProvider.setRepeatMode_impl(repeatMode);
+        // TODO: check permission
+        Bundle args = new Bundle();
+        args.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
+        sendCommand(CONTROLLER_COMMAND_SET_REPEAT_MODE, args);
     }
 
     /**
@@ -1298,8 +1321,9 @@ public class MediaController2 implements AutoCloseable {
      * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
      */
     public @ShuffleMode int getShuffleMode() {
-        //return mProvider.getShuffleMode_impl();
-        return MediaPlaylistAgent.SHUFFLE_MODE_NONE;
+        synchronized (mLock) {
+            return mShuffleMode;
+        }
     }
 
     /**
@@ -1311,7 +1335,10 @@ public class MediaController2 implements AutoCloseable {
      * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
      */
     public void setShuffleMode(@ShuffleMode int shuffleMode) {
-        //mProvider.setShuffleMode_impl(shuffleMode);
+        // TODO: check permission
+        Bundle args = new Bundle();
+        args.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
+        sendCommand(CONTROLLER_COMMAND_SET_SHUFFLE_MODE, args);
     }
 
     // Should be used without a lock to prevent potential deadlock.
@@ -1385,43 +1412,21 @@ public class MediaController2 implements AutoCloseable {
     }
 
     private void connectToSession(MediaSessionCompat.Token sessionCompatToken) {
-        synchronized (mLock) {
-            try {
-                mControllerCompat = new MediaControllerCompat(mContext, sessionCompatToken);
-                mControllerCompatCallback = new ControllerCompatCallback();
-                mControllerCompat.registerCallback(mControllerCompatCallback, mHandler);
-            } catch (RemoteException e) {
-            }
-
-            if (mControllerCompat.isSessionReady()) {
-                sendCustomCommand(CONTROLLER_COMMAND_CONNECT);
-            }
+        MediaControllerCompat controllerCompat =
+                null;
+        try {
+            controllerCompat = new MediaControllerCompat(mContext, sessionCompatToken);
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
-    }
-
-    private void connectToService() {
         synchronized (mLock) {
-            mBrowserCompat = new MediaBrowserCompat(mContext, mToken.getComponentName(),
-                    new ConnectionCallback(), sDefaultRootHints);
-            mBrowserCompat.connect();
+            mControllerCompat = controllerCompat;
+            mControllerCompatCallback = new ControllerCompatCallback();
+            mControllerCompat.registerCallback(mControllerCompatCallback, mHandler);
         }
-    }
 
-    private void sendCustomCommand(String command) {
-        if (CONTROLLER_COMMAND_CONNECT.equals(command)) {
-            MediaControllerCompat controller;
-            ControllerCompatCallback callback;
-            synchronized (mLock) {
-                controller = mControllerCompat;
-                callback = mControllerCompatCallback;
-            }
-            Bundle args = new Bundle();
-            args.putBinder(ARGUMENT_ICONTROLLER_CALLBACK,
-                    callback.getIControllerCallback().asBinder());
-            args.putString(ARGUMENT_PACKAGE_NAME, mContext.getPackageName());
-            args.putInt(ARGUMENT_UID, Process.myUid());
-            args.putInt(ARGUMENT_PID, Process.myPid());
-            controller.sendCommand(CONTROLLER_COMMAND_CONNECT, args, new ResultReceiver(mHandler) {
+        if (controllerCompat.isSessionReady()) {
+            sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
                     if (!mHandlerThread.isAlive()) {
@@ -1439,6 +1444,40 @@ public class MediaController2 implements AutoCloseable {
                 }
             });
         }
+    }
+
+    private void connectToService() {
+        synchronized (mLock) {
+            mBrowserCompat = new MediaBrowserCompat(mContext, mToken.getComponentName(),
+                    new ConnectionCallback(), sDefaultRootHints);
+            mBrowserCompat.connect();
+        }
+    }
+
+    private void sendCommand(String command) {
+        sendCommand(command, new Bundle(), null);
+    }
+
+    private void sendCommand(String command, Bundle bundle) {
+        sendCommand(command, bundle, null);
+    }
+
+    private void sendCommand(String command, ResultReceiver receiver) {
+        sendCommand(command, new Bundle(), receiver);
+    }
+
+    private void sendCommand(String command, Bundle args, ResultReceiver receiver) {
+        MediaControllerCompat controller;
+        ControllerCompatCallback callback;
+        synchronized (mLock) {
+            controller = mControllerCompat;
+            callback = mControllerCompatCallback;
+        }
+        args.putBinder(ARGUMENT_ICONTROLLER_CALLBACK, callback.getIControllerCallback().asBinder());
+        args.putString(ARGUMENT_PACKAGE_NAME, mContext.getPackageName());
+        args.putInt(ARGUMENT_UID, Process.myUid());
+        args.putInt(ARGUMENT_PID, Process.myPid());
+        controller.sendCommand(command, args, receiver);
     }
 
     @NonNull Context getContext() {

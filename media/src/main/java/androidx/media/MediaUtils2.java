@@ -302,7 +302,7 @@ class MediaUtils2 {
                 }
             }
         }
-        return (Bundle[]) bundleList.toArray();
+        return bundleList.toArray(new Bundle[0]);
     }
 
     static List<MediaItem2> fromMediaItem2BundleArray(Bundle[] itemBundleList) {

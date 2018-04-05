@@ -483,7 +483,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link ControllerCallback#onShuffleModeChanged(MediaController2, int)}.
      */
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetShuffleMode() throws InterruptedException {
         final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
@@ -522,7 +522,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     /**
      * This also tests {@link ControllerCallback#onRepeatModeChanged(MediaController2, int)}.
      */
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testGetRepeatMode() throws InterruptedException {
         final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
