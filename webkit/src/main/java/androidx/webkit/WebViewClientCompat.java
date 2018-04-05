@@ -17,6 +17,7 @@
 package androidx.webkit;
 
 import android.os.Build;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -57,17 +58,56 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     }
 
     /**
-     * Invoked by chromium for the {@code onReceivedError} event. Applications are not meant to
-     * override this, and should instead override the non-final {@code onReceivedError} method.
-     * TODO(ntfschr): link to that method once it's implemented.
+     * Invoked by chromium (for up-to-date WebView APKs) for the {@code onReceivedError} event.
+     * Applications are not meant to override this, and should instead override the non-final {@link
+     * onReceivedError(WebView, WebResourceRequest, WebResourceErrorCompat)} method.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
+    @RequiresApi(21)
     public final void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
-            /* WebResourceError */ @NonNull InvocationHandler error) {
-        // TODO(ntfschr): implement this (b/73151460).
+            /* WebResourceError */ @NonNull InvocationHandler handler) {
+        onReceivedError(view, request, WebResourceErrorCompat.fromInvocationHandler(handler));
+    }
+
+    /**
+     * Invoked by chromium (in legacy WebView APKs) for the {@code onReceivedError} event on {@link
+     * Build.VERSION_CODES.M} and above. Applications are not meant to override this, and should
+     * instead override the non-final {@link onReceivedError(WebView, WebResourceRequest,
+     * WebResourceErrorCompat)} method.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    @RequiresApi(23)
+    public final void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
+            @NonNull WebResourceError error) {
+        if (Build.VERSION.SDK_INT < 23) return;
+        onReceivedError(view, request, WebResourceErrorCompat.fromWebResourceError(error));
+    }
+
+    /**
+     * Report web resource loading error to the host application. These errors usually indicate
+     * inability to connect to the server. Note that unlike the deprecated version of the callback,
+     * the new version will be called for any resource (iframe, image, etc.), not just for the main
+     * page. Thus, it is recommended to perform minimum required work in this callback.
+     * @param view The WebView that is initiating the callback.
+     * @param request The originating request.
+     * @param error Information about the error occurred.
+     */
+    @SuppressWarnings("deprecation") // for invoking the old onReceivedError.
+    @RequiresApi(21)
+    public void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
+            @NonNull WebResourceErrorCompat error) {
+        if (Build.VERSION.SDK_INT < 21) return;
+        if (request.isForMainFrame()) {
+            onReceivedError(view,
+                    error.getErrorCode(), error.getDescription().toString(),
+                    request.getUrl().toString());
+        }
     }
 
     @Override
@@ -90,10 +130,8 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
         // TODO(ntfschr): implement this (b/73151460).
     }
 
-    // Default behavior in WebViewClient is to invoke the other (deprecated)
-    // shouldOverrideUrlLoading method.
     @Override
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // for invoking the old shouldOverrideUrlLoading.
     @RequiresApi(21)
     public boolean shouldOverrideUrlLoading(@NonNull WebView view,
             @NonNull WebResourceRequest request) {
