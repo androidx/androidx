@@ -23,8 +23,11 @@ limitations under the License.
     <integer name="column_card_default_column_span">12</integer>
 
     <!-- Dialogs -->
-    <integer name="car_dialog_column_number">10</integer>
+    <integer name="car_dialog_column_number">12</integer>
 
     <!-- Slide Up Menu -->
     <integer name="car_slide_up_menu_column_number">12</integer>
+
+    <!-- Slide Down Menu -->
+    <integer name="car_slide_down_menu_column_number">12</integer>
 </resources>

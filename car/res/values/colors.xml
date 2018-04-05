@@ -32,11 +32,10 @@
     <color name="car_white_1000">#1effffff</color>
     <color name="car_blue_grey_800">#ff37474F</color>
     <color name="car_blue_grey_900">#ff263238</color>
-    <color name="car_dark_blue_grey_600">#ff1d272d</color>
+    <color name="car_dark_blue_grey_600">#ff222B31</color>
     <color name="car_dark_blue_grey_700">#ff172026</color>
     <color name="car_dark_blue_grey_800">#ff11181d</color>
-    <color name="car_dark_blue_grey_900">#ff0c1013</color>
-    <color name="car_dark_blue_grey_1000">#ff090c0f</color>
+    <color name="car_dark_blue_grey_900">#ff090C0F</color>
     <color name="car_light_blue_300">#ff4fc3f7</color>
     <color name="car_light_blue_500">#ff03A9F4</color>
     <color name="car_light_blue_600">#ff039be5</color>
@@ -175,7 +174,7 @@
 
     <!-- The inverted color of the seekbar track background. This color is always the opposite of
          car_seekbar_track_background. -->
-    <color name="car_seekbar_track_background_inverse"> @color/car_seekbar_track_background_light
+    <color name="car_seekbar_track_background_inverse">@color/car_seekbar_track_background_light
     </color>
     <!-- The color of the seekbar track background in SeekbarListItem. This color is assumed to be
          on a light-colored background. -->
