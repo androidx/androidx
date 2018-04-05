@@ -621,7 +621,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(direction, volumeProvider.mDirection);
     }
 
-    @Ignore
     @Test
     public void testGetPackageName() {
         prepareLooper();
@@ -1081,21 +1080,20 @@ public class MediaController2Test extends MediaSession2TestBase {
         */
     }
 
-    @Ignore
     @Test
     public void testControllerAfterSessionIsGone_session() throws InterruptedException {
         prepareLooper();
-        testControllerAfterSessionIsGone(mSession.getToken().getId());
+        testControllerAfterSessionIsClosed(mSession.getToken().getId());
     }
 
     // TODO(jaewan): Re-enable this test
     @Ignore
     @Test
-    public void testControllerAfterSessionIsGone_sessionService() throws InterruptedException {
+    public void testControllerAfterSessionIsClosed_sessionService() throws InterruptedException {
         prepareLooper();
         /*
         connectToService(TestUtils.getServiceToken(mContext, MockMediaSessionService2.ID));
-        testControllerAfterSessionIsGone(MockMediaSessionService2.ID);
+        testControllerAfterSessionIsClosed(MockMediaSessionService2.ID);
         */
     }
 
@@ -1114,7 +1112,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         mController.close();
     }
 
-    @Ignore
     @Test
     public void testClose_session() throws InterruptedException {
         prepareLooper();
@@ -1125,7 +1122,7 @@ public class MediaController2Test extends MediaSession2TestBase {
 
         // Test whether the controller is notified about later close of the session or
         // re-creation.
-        testControllerAfterSessionIsGone(id);
+        testControllerAfterSessionIsClosed(id);
     }
 
     @Ignore
@@ -1164,56 +1161,43 @@ public class MediaController2Test extends MediaSession2TestBase {
 
         // Test whether the controller is notified about later close of the session or
         // re-creation.
-        testControllerAfterSessionIsGone(id);
+        testControllerAfterSessionIsClosed(id);
     }
 
-    private void testControllerAfterSessionIsGone(final String id) throws InterruptedException {
-        sHandler.postAndSync(new Runnable() {
-            @Override
-            public void run() {
-                // TODO(jaewan): Use Session.close later when we add the API.
-                mSession.close();
-            }
-        });
+    private void testControllerAfterSessionIsClosed(final String id) throws InterruptedException {
+        // This cause session service to be died.
+        mSession.close();
         waitForDisconnect(mController, true);
         testNoInteraction();
 
         // Ensure that the controller cannot use newly create session with the same ID.
-        sHandler.postAndSync(new Runnable() {
-            @Override
-            public void run() {
-                // Recreated session has different session stub, so previously created controller
-                // shouldn't be available.
-                mSession = new MediaSession2.Builder(mContext)
-                        .setPlayer(mPlayer)
-                        .setSessionCallback(sHandlerExecutor, new SessionCallback() {
-                        })
-                        .setId(id).build();
-            }
-        });
+        // Recreated session has different session stub, so previously created controller
+        // shouldn't be available.
+        mSession = new MediaSession2.Builder(mContext)
+                .setPlayer(mPlayer)
+                .setSessionCallback(sHandlerExecutor, new SessionCallback() {})
+                .setId(id).build();
         testNoInteraction();
     }
 
+    // Test that mSession and mController doesn't interact.
+    // Note that this method can be called after the mSession is died, so mSession may not have
+    // valid player.
     private void testNoInteraction() throws InterruptedException {
-        // TODO: Uncomment
-        /*
+        // TODO: check that calls from the controller to session shouldn't be delivered.
+
+        // Calls from the session to controller shouldn't be delivered.
         final CountDownLatch latch = new CountDownLatch(1);
-        final PlayerEventCallback callback = new PlayerEventCallback() {
+        setRunnableForOnCustomCommand(mController, new Runnable() {
             @Override
-            public void onPlaybackStateChanged(PlaybackState2 state) {
-                fail("Controller shouldn't be notified about change in session after the close.");
+            public void run() {
                 latch.countDown();
             }
-        };
-        */
-
-        // TODO(jaewan): Add equivalent tests again
-        /*
-        mController.registerPlayerEventCallback(playbackListener, sHandler);
-        mPlayer.notifyPlaybackState(TestUtils.createPlaybackState(PlaybackState.STATE_BUFFERING));
-        assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        mController.unregisterPlayerEventCallback(playbackListener);
-        */
+        });
+        SessionCommand2 customCommand = new SessionCommand2("testNoInteraction", null);
+        mSession.sendCustomCommand(customCommand, null);
+        assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        setRunnableForOnCustomCommand(mController, null);
     }
 
     // TODO(jaewan): Add  test for service connect rejection, when we differentiate session

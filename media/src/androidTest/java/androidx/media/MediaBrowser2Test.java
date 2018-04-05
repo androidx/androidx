@@ -36,6 +36,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.MediaBrowser2.BrowserCallback;
@@ -494,10 +495,12 @@ public class MediaBrowser2Test extends MediaController2Test {
     }
 
     public static class TestBrowserCallback extends BrowserCallback
-            implements WaitForConnectionInterface {
+            implements TestControllerCallbackInterface {
         private final ControllerCallback mCallbackProxy;
         public final CountDownLatch connectLatch = new CountDownLatch(1);
         public final CountDownLatch disconnectLatch = new CountDownLatch(1);
+        @GuardedBy("this")
+        private Runnable mOnCustomCommandRunnable;
 
         TestBrowserCallback(ControllerCallback callbackProxy) {
             if (callbackProxy == null) {
@@ -546,6 +549,11 @@ public class MediaBrowser2Test extends MediaController2Test {
         public void onCustomCommand(MediaController2 controller, SessionCommand2 command,
                 Bundle args, ResultReceiver receiver) {
             mCallbackProxy.onCustomCommand(controller, command, args, receiver);
+            synchronized (this) {
+                if (mOnCustomCommandRunnable != null) {
+                    mOnCustomCommandRunnable.run();
+                }
+            }
         }
 
         @Override
@@ -667,6 +675,13 @@ public class MediaBrowser2Test extends MediaController2Test {
             if (mCallbackProxy instanceof BrowserCallback) {
                 ((BrowserCallback) mCallbackProxy)
                         .onChildrenChanged(browser, parentId, itemCount, extras);
+            }
+        }
+
+        @Override
+        public void setRunnableForOnCustomCommand(Runnable runnable) {
+            synchronized (this) {
+                mOnCustomCommandRunnable = runnable;
             }
         }
     }

@@ -27,6 +27,7 @@ import android.os.ResultReceiver;
 import android.support.test.InstrumentationRegistry;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.MediaController2.ControllerCallback;
@@ -62,9 +63,10 @@ abstract class MediaSession2TestBase {
         ControllerCallback getCallback();
     }
 
-    interface WaitForConnectionInterface {
+    interface TestControllerCallbackInterface {
         void waitForConnect(boolean expect) throws InterruptedException;
         void waitForDisconnect(boolean expect) throws InterruptedException;
+        void setRunnableForOnCustomCommand(Runnable runnable);
     }
 
     public static void prepareLooper() {
@@ -130,28 +132,33 @@ abstract class MediaSession2TestBase {
         return controller;
     }
 
-    private static WaitForConnectionInterface getWaitForConnectionInterface(
+    private static TestControllerCallbackInterface getTestControllerCallbackInterface(
             MediaController2 controller) {
         if (!(controller instanceof TestControllerInterface)) {
             throw new RuntimeException("Test has a bug. Expected controller implemented"
                     + " TestControllerInterface but got " + controller);
         }
         ControllerCallback callback = ((TestControllerInterface) controller).getCallback();
-        if (!(callback instanceof WaitForConnectionInterface)) {
+        if (!(callback instanceof TestControllerCallbackInterface)) {
             throw new RuntimeException("Test has a bug. Expected controller with callback "
-                    + " implemented WaitForConnectionInterface but got " + controller);
+                    + " implemented TestControllerCallbackInterface but got " + controller);
         }
-        return (WaitForConnectionInterface) callback;
+        return (TestControllerCallbackInterface) callback;
     }
 
     public static void waitForConnect(MediaController2 controller, boolean expected)
             throws InterruptedException {
-        getWaitForConnectionInterface(controller).waitForConnect(expected);
+        getTestControllerCallbackInterface(controller).waitForConnect(expected);
     }
 
     public static void waitForDisconnect(MediaController2 controller, boolean expected)
             throws InterruptedException {
-        getWaitForConnectionInterface(controller).waitForDisconnect(expected);
+        getTestControllerCallbackInterface(controller).waitForDisconnect(expected);
+    }
+
+    public static void setRunnableForOnCustomCommand(MediaController2 controller,
+            Runnable runnable) {
+        getTestControllerCallbackInterface(controller).setRunnableForOnCustomCommand(runnable);
     }
 
     TestControllerInterface onCreateController(final @NonNull SessionToken2 token,
@@ -174,10 +181,12 @@ abstract class MediaSession2TestBase {
 
     // TODO(jaewan): (Can be Post-P): Deprecate this
     public static class TestControllerCallback extends MediaController2.ControllerCallback
-            implements WaitForConnectionInterface {
+            implements TestControllerCallbackInterface {
         public final ControllerCallback mCallbackProxy;
         public final CountDownLatch connectLatch = new CountDownLatch(1);
         public final CountDownLatch disconnectLatch = new CountDownLatch(1);
+        @GuardedBy("this")
+        private Runnable mOnCustomCommandRunnable;
 
         TestControllerCallback(@NonNull ControllerCallback callbackProxy) {
             if (callbackProxy == null) {
@@ -220,6 +229,11 @@ abstract class MediaSession2TestBase {
         public void onCustomCommand(MediaController2 controller, SessionCommand2 command,
                 Bundle args, ResultReceiver receiver) {
             mCallbackProxy.onCustomCommand(controller, command, args, receiver);
+            synchronized (this) {
+                if (mOnCustomCommandRunnable != null) {
+                    mOnCustomCommandRunnable.run();
+                }
+            }
         }
 
         @Override
@@ -290,6 +304,13 @@ abstract class MediaSession2TestBase {
         @Override
         public void onRepeatModeChanged(MediaController2 controller, int repeatMode) {
             mCallbackProxy.onRepeatModeChanged(controller, repeatMode);
+        }
+
+        @Override
+        public void setRunnableForOnCustomCommand(Runnable runnable) {
+            synchronized (this) {
+                mOnCustomCommandRunnable = runnable;
+            }
         }
     }
 
