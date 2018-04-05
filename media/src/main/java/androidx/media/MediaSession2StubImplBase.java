@@ -77,6 +77,71 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
     }
 
     @Override
+    public void onPrepare() {
+        mSession.getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mSession.isClosed()) {
+                    return;
+                }
+                mSession.prepare();
+            }
+        });
+    }
+
+    @Override
+    public void onPlay() {
+        mSession.getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mSession.isClosed()) {
+                    return;
+                }
+                mSession.play();
+            }
+        });
+    }
+
+    @Override
+    public void onPause() {
+        mSession.getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mSession.isClosed()) {
+                    return;
+                }
+                mSession.pause();
+            }
+        });
+    }
+
+    @Override
+    public void onStop() {
+        mSession.getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mSession.isClosed()) {
+                    return;
+                }
+                mSession.reset();
+            }
+        });
+    }
+
+    @Override
+    public void onSeekTo(final long pos) {
+        mSession.getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mSession.isClosed()) {
+                    return;
+                }
+                mSession.seekTo(pos);
+            }
+        });
+    }
+
+    @Override
     public void onCommand(String command, Bundle extras, final ResultReceiver cb) {
         if (CONTROLLER_COMMAND_CONNECT.equals(command)) {
             IMediaControllerCallback callback = IMediaControllerCallback.Stub.asInterface(
@@ -118,7 +183,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                         }
                         synchronized (mLock) {
                             mConnectingControllers.remove(controllerInfo.getId());
-                            mControllers.put(controllerInfo.getId(),  controllerInfo);
+                            mControllers.put(controllerInfo.getId(), controllerInfo);
                             mAllowedCommandGroupMap.put(controllerInfo, allowedCommands);
                         }
                         // If connection is accepted, notify the current state to the

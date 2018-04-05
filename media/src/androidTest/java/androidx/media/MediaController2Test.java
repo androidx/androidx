@@ -142,7 +142,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testPlay() {
         mController.play();
@@ -154,7 +153,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mPlayer.mPlayCalled);
     }
 
-    @Ignore
     @Test
     public void testPause() {
         mController.pause();
@@ -166,7 +164,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mPlayer.mPauseCalled);
     }
 
-    @Ignore
     @Test
     public void testReset() {
         mController.reset();
@@ -178,7 +175,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mPlayer.mResetCalled);
     }
 
-    @Ignore
     @Test
     public void testPrepare() {
         mController.prepare();
@@ -202,7 +198,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         // TODO(jaewan): Implement
     }
 
-    @Ignore
     @Test
     public void testSeekTo() {
         final long seekPosition = 12125L;
