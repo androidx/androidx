@@ -318,7 +318,7 @@ public class WebViewCompat {
     @SuppressWarnings("NewApi")
     private static void checkThread(WebView webview) {
         if (BuildCompat.isAtLeastP()) {
-            if (webview.getLooper() != Looper.myLooper()) {
+            if (webview.getWebViewLooper() != Looper.myLooper()) {
                 throw new RuntimeException("A WebView method was called on thread '"
                         + Thread.currentThread().getName() + "'. "
                         + "All WebView methods must be called on the same thread. "
