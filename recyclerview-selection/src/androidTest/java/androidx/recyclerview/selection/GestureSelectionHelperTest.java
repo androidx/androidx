@@ -18,7 +18,6 @@ package androidx.recyclerview.selection;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -56,17 +55,17 @@ public class GestureSelectionHelperTest {
     private GestureSelectionHelper mHelper;
     private SelectionTracker<String> mSelectionTracker;
     private SelectionProbe mSelection;
-    private OperationMonitor mLock;
+    private OperationMonitor mMonitor;
     private TestViewDelegate mView;
 
     @Before
     public void setUp() {
         mSelectionTracker = SelectionTrackers.createStringTracker("gesture-selection-test", 100);
         mSelection = new SelectionProbe(mSelectionTracker);
-        mLock = new OperationMonitor();
+        mMonitor = new OperationMonitor();
         mView = new TestViewDelegate();
         mHelper = new GestureSelectionHelper(
-                mSelectionTracker, mView, new TestAutoScroller(), mLock);
+                mSelectionTracker, mView, new TestAutoScroller(), mMonitor);
     }
 
     @Test
@@ -78,12 +77,10 @@ public class GestureSelectionHelperTest {
 
     @Test
     public void testNoStartOnIllegalPosition() {
+        mView.mNextPosition = RecyclerView.NO_POSITION;
         mHelper.onInterceptTouchEvent(null, DOWN);
-        try {
-            mHelper.start();
-            fail("Should have thrown.");
-        } catch (Exception expected) {
-        }
+        mHelper.start();
+        assertFalse(mMonitor.isStarted());
     }
 
     @Test
