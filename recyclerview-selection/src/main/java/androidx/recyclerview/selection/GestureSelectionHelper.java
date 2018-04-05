@@ -75,7 +75,13 @@ final class GestureSelectionHelper implements OnItemTouchListener {
      */
     void start() {
         checkState(!mStarted);
-        checkState(mLastStartedItemPos > -1);
+        // See: b/70518185. It appears start() is being called via onLongPress
+        // even though we never received an intial handleInterceptedDownEvent
+        // where we would usually initialize mLastStartedItemPos.
+        if (mLastStartedItemPos < 0) {
+            Log.w(TAG, "Illegal state. Can't start without valid mLastStartedItemPos.");
+            return;
+        }
 
         // Partner code in MotionInputHandler ensures items
         // are selected and range established prior to
