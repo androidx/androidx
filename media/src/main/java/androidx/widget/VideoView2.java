@@ -120,7 +120,7 @@ import java.util.concurrent.Executor;
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
  */
-@RequiresApi(26) // TODO correct minSdk API use incompatibilities and remove before release.
+@RequiresApi(23) // TODO correct minSdk API use incompatibilities and remove before release.
 @RestrictTo(LIBRARY_GROUP)
 public class VideoView2 extends BaseLayout implements VideoViewInterface.SurfaceListener {
     /** @hide */
@@ -165,6 +165,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     private AudioManager mAudioManager;
     private AudioAttributes mAudioAttributes;
     private int mAudioFocusType = AudioManager.AUDIOFOCUS_GAIN; // legacy focus gain
+    private boolean mAudioFocused = false;
 
     private Pair<Executor, VideoView2.OnCustomActionListener> mCustomActionListenerRecord;
     private VideoView2.OnViewTypeChangedListener mViewTypeChangedListener;
@@ -872,8 +873,68 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         // TODO (b/77158231)
         // return (mMediaPlayer != null || mRoutePlayer != null)
         return (mMediaPlayer != null)
-                && mCurrentState != STATE_PLAYING
-                && mTargetState == STATE_PLAYING;
+                && isAudioGranted()
+                && isWaitingPlayback();
+    }
+
+    private boolean isWaitingPlayback() {
+        return mCurrentState != STATE_PLAYING && mTargetState == STATE_PLAYING;
+    }
+
+    private boolean isAudioGranted() {
+        return mAudioFocused || mAudioFocusType == AudioManager.AUDIOFOCUS_NONE;
+    }
+
+    AudioManager.OnAudioFocusChangeListener mAudioFocusListener =
+            new AudioManager.OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            switch (focusChange) {
+                case AudioManager.AUDIOFOCUS_GAIN:
+                    mAudioFocused = true;
+                    if (needToStart()) {
+                        mMediaController.getTransportControls().play();
+                    }
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS:
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                    // There is no way to distinguish pause() by transient
+                    // audio focus loss and by other explicit actions.
+                    // TODO: If we can distinguish those cases, change the code to resume when it
+                    // gains audio focus again for AUDIOFOCUS_LOSS_TRANSIENT and
+                    // AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
+                    mAudioFocused = false;
+                    if (isInPlaybackState() && mMediaPlayer.isPlaying()) {
+                        mMediaController.getTransportControls().pause();
+                    } else {
+                        mTargetState = STATE_PAUSED;
+                    }
+            }
+        }
+    };
+
+    private void requestAudioFocus(int focusType) {
+        int result;
+        if (android.os.Build.VERSION.SDK_INT >= 26) {
+            AudioFocusRequest focusRequest;
+            focusRequest = new AudioFocusRequest.Builder(focusType)
+                    .setAudioAttributes(mAudioAttributes)
+                    .setOnAudioFocusChangeListener(mAudioFocusListener)
+                    .build();
+            result = mAudioManager.requestAudioFocus(focusRequest);
+        } else {
+            result = mAudioManager.requestAudioFocus(mAudioFocusListener,
+                    AudioManager.STREAM_MUSIC,
+                    focusType);
+        }
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
+            mAudioFocused = false;
+        } else if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            mAudioFocused = true;
+        } else if (result == AudioManager.AUDIOFOCUS_REQUEST_DELAYED) {
+            mAudioFocused = false;
+        }
     }
 
     // Creates a MediaPlayer instance and prepare playback.
@@ -883,14 +944,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             // TODO (b/77158231)
             // mRoutePlayer.openVideo(dsd);
             return;
-        }
-        if (mAudioFocusType != AudioManager.AUDIOFOCUS_NONE) {
-            // TODO this should have a focus listener
-            AudioFocusRequest focusRequest;
-            focusRequest = new AudioFocusRequest.Builder(mAudioFocusType)
-                    .setAudioAttributes(mAudioAttributes)
-                    .build();
-            mAudioManager.requestAudioFocus(focusRequest);
         }
 
         try {
@@ -1430,7 +1483,10 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
         @Override
         public void onPlay() {
-            if (isInPlaybackState() && mCurrentView.hasAvailableSurface()) {
+            if (!isAudioGranted()) {
+                requestAudioFocus(mAudioFocusType);
+            }
+            if (isInPlaybackState() && mCurrentView.hasAvailableSurface() && isAudioGranted()) {
                 if (isRemotePlayback()) {
                     // TODO (b/77158231)
                     // mRoutePlayer.onPlay();
@@ -1478,7 +1534,12 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                     // TODO (b/77158231)
                     // mRoutePlayer.onSeekTo(pos);
                 } else {
-                    mMediaPlayer.seekTo(pos, MediaPlayer.SEEK_PREVIOUS_SYNC);
+                    // TODO Refactor VideoView2 with FooImplBase and FooImplApiXX.
+                    if (android.os.Build.VERSION.SDK_INT < 26) {
+                        mMediaPlayer.seekTo((int) pos);
+                    } else {
+                        mMediaPlayer.seekTo(pos, MediaPlayer.SEEK_PREVIOUS_SYNC);
+                    }
                     mSeekWhenPrepared = 0;
                     updatePlaybackState();
                 }

@@ -30,13 +30,12 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-@RequiresApi(26)
+@RequiresApi(23)
 class VideoTextureView extends TextureView
         implements VideoViewInterface, TextureView.SurfaceTextureListener {
     private static final String TAG = "VideoTextureView";
     private static final boolean DEBUG = true; // STOPSHIP: Log.isLoggable(TAG, Log.DEBUG);
 
-    private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
     private SurfaceListener mSurfaceListener;
     private MediaPlayer mMediaPlayer;
@@ -68,7 +67,6 @@ class VideoTextureView extends TextureView
 
     @Override
     public boolean assignSurfaceToMediaPlayer(MediaPlayer mp) {
-        Log.d(TAG, "assignSurfaceToMediaPlayer(): mSurfaceTexture: " + mSurfaceTexture);
         if (mp == null || !hasAvailableSurface()) {
             // Surface is not ready.
             return false;
@@ -112,7 +110,7 @@ class VideoTextureView extends TextureView
 
     @Override
     public boolean hasAvailableSurface() {
-        return (mSurfaceTexture != null && !mSurfaceTexture.isReleased() && mSurface != null);
+        return mSurface != null && mSurface.isValid();
     }
 
     ////////////////////////////////////////////////////
@@ -121,10 +119,7 @@ class VideoTextureView extends TextureView
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-        Log.d(TAG, "onSurfaceTextureAvailable: mSurfaceTexture: " + mSurfaceTexture
-                + ", new surface: " + surfaceTexture);
-        mSurfaceTexture = surfaceTexture;
-        mSurface = new Surface(mSurfaceTexture);
+        mSurface = new Surface(surfaceTexture);
         if (mIsTakingOverOldView) {
             takeOver(mOldView);
         } else {
@@ -153,7 +148,6 @@ class VideoTextureView extends TextureView
         if (mSurfaceListener != null) {
             mSurfaceListener.onSurfaceDestroyed(this);
         }
-        mSurfaceTexture = null;
         mSurface = null;
         return true;
     }
@@ -200,12 +194,5 @@ class VideoTextureView extends TextureView
             Log.i(TAG, "end of onMeasure()");
             Log.i(TAG, " measuredSize: " + getMeasuredWidth() + "/" + getMeasuredHeight());
         }
-    }
-
-    @Override
-    public String toString() {
-        return "ViewType: TextureView / Visibility: " + getVisibility()
-                + " / surfaceTexture: " + mSurfaceTexture;
-
     }
 }
