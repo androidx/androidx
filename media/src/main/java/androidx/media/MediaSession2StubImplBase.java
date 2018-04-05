@@ -17,6 +17,7 @@
 package androidx.media;
 
 import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
+import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
@@ -27,10 +28,12 @@ import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
+import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
+import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
@@ -38,6 +41,14 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -163,11 +174,56 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
     }
 
     @Override
-    public void onCommand(String command, Bundle extras, final ResultReceiver cb) {
+    public void onCommand(String command, final Bundle extras, final ResultReceiver cb) {
         switch (command) {
             case CONTROLLER_COMMAND_CONNECT:
                 connect(extras, cb);
                 break;
+            case CONTROLLER_COMMAND_BY_COMMAND_CODE:
+                final int commandCode = extras.getInt(ARGUMENT_COMMAND_CODE);
+                IMediaControllerCallback caller =
+                        (IMediaControllerCallback) extras.getBinder(ARGUMENT_ICONTROLLER_CALLBACK);
+                if (caller == null) {
+                    return;
+                }
+                onCommand2(caller.asBinder(), commandCode, new Session2Runnable() {
+                    @Override
+                    public void run(ControllerInfo controller) {
+                        switch (commandCode) {
+                            case COMMAND_CODE_PLAYBACK_PLAY:
+                                mSession.play();
+                                break;
+                            case COMMAND_CODE_PLAYBACK_PAUSE:
+                                mSession.pause();
+                                break;
+                            case COMMAND_CODE_PLAYBACK_RESET:
+                                mSession.reset();
+                                break;
+                            case COMMAND_CODE_PLAYBACK_PREPARE:
+                                mSession.prepare();
+                                break;
+                            case COMMAND_CODE_PLAYBACK_SEEK_TO:
+                                long seekPos = extras.getLong(ARGUMENT_SEEK_POSITION);
+                                mSession.seekTo(seekPos);
+                                break;
+                            case COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE:
+                                int repeatMode = extras.getInt(ARGUMENT_REPEAT_MODE);
+                                mSession.setRepeatMode(repeatMode);
+                                break;
+                            case COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE:
+                                int shuffleMode = extras.getInt(ARGUMENT_SHUFFLE_MODE);
+                                mSession.setShuffleMode(shuffleMode);
+                                break;
+                            case COMMAND_CODE_PLAYLIST_SET_LIST:
+                                List<MediaItem2> list = MediaUtils2.fromMediaItem2BundleArray(
+                                        (Bundle[]) extras.getParcelableArray(ARGUMENT_PLAYLIST));
+                                MediaMetadata2 metadata =  MediaMetadata2.fromBundle(
+                                        extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
+                                mSession.setPlaylist(list, metadata);
+                                break;
+                        }
+                    }
+                });
         }
     }
 
@@ -306,7 +362,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         return allowedCommands != null && allowedCommands.hasCommand(commandCode);
     }
 
-    private void onCommand(@NonNull IBinder caller, final int commandCode,
+    private void onCommand2(@NonNull IBinder caller, final int commandCode,
             @NonNull final Session2Runnable runnable) {
         final ControllerInfo controller;
         synchronized (mLock) {

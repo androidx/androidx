@@ -20,6 +20,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
+import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
@@ -30,13 +31,13 @@ import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
+import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
+import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
-import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_SET_REPEAT_MODE;
-import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_SET_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
@@ -45,6 +46,14 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGE
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -415,7 +424,7 @@ public class MediaController2 implements AutoCloseable {
     private final class ControllerCompatCallback extends MediaControllerCompat.Callback {
         @Override
         public void onSessionReady() {
-            sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
+            sendCommand(CONTROLLER_COMMAND_CONNECT, null, new ResultReceiver(mHandler) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
                     if (!mHandlerThread.isAlive()) {
@@ -627,8 +636,8 @@ public class MediaController2 implements AutoCloseable {
             }
             if (mControllerCompat != null) {
                 mControllerCompat.unregisterCallback(mControllerCompatCallback);
+                mControllerCompat = null;
             }
-            mControllerCompat = null;
             mConnected = false;
         }
         mCallbackExecutor.execute(new Runnable() {
@@ -664,11 +673,7 @@ public class MediaController2 implements AutoCloseable {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            MediaControllerCompat.TransportControls control =
-                    mControllerCompat.getTransportControls();
-            if (control != null) {
-                control.play();
-            }
+            sendCommand(COMMAND_CODE_PLAYBACK_PLAY);
         }
     }
 
@@ -681,11 +686,7 @@ public class MediaController2 implements AutoCloseable {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            MediaControllerCompat.TransportControls control =
-                    mControllerCompat.getTransportControls();
-            if (control != null) {
-                control.pause();
-            }
+            sendCommand(COMMAND_CODE_PLAYBACK_PAUSE);
         }
     }
 
@@ -698,11 +699,7 @@ public class MediaController2 implements AutoCloseable {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            MediaControllerCompat.TransportControls control =
-                    mControllerCompat.getTransportControls();
-            if (control != null) {
-                control.stop();
-            }
+            sendCommand(COMMAND_CODE_PLAYBACK_RESET);
         }
     }
 
@@ -719,11 +716,7 @@ public class MediaController2 implements AutoCloseable {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            MediaControllerCompat.TransportControls control =
-                    mControllerCompat.getTransportControls();
-            if (control != null) {
-                control.prepare();
-            }
+            sendCommand(COMMAND_CODE_PLAYBACK_PREPARE);
         }
     }
 
@@ -774,11 +767,9 @@ public class MediaController2 implements AutoCloseable {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            MediaControllerCompat.TransportControls control =
-                    mControllerCompat.getTransportControls();
-            if (control != null) {
-                control.seekTo(pos);
-            }
+            Bundle args = new Bundle();
+            args.putLong(ARGUMENT_SEEK_POSITION, pos);
+            sendCommand(COMMAND_CODE_PLAYBACK_SEEK_TO, args);
         }
     }
 
@@ -1179,7 +1170,13 @@ public class MediaController2 implements AutoCloseable {
      * @see ControllerCallback#onPlaylistChanged
      */
     public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-        //mProvider.setPlaylist_impl(list, metadata);
+        if (list == null) {
+            throw new IllegalArgumentException("list shouldn't be null");
+        }
+        Bundle args = new Bundle();
+        args.putParcelableArray(ARGUMENT_PLAYLIST, MediaUtils2.toMediaItem2BundleArray(list));
+        args.putBundle(ARGUMENT_PLAYLIST_METADATA, metadata == null ? null : metadata.toBundle());
+        sendCommand(COMMAND_CODE_PLAYLIST_SET_LIST, args);
     }
 
     /**
@@ -1309,7 +1306,7 @@ public class MediaController2 implements AutoCloseable {
         // TODO: check permission
         Bundle args = new Bundle();
         args.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
-        sendCommand(CONTROLLER_COMMAND_SET_REPEAT_MODE, args);
+        sendCommand(COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE, args);
     }
 
     /**
@@ -1338,7 +1335,7 @@ public class MediaController2 implements AutoCloseable {
         // TODO: check permission
         Bundle args = new Bundle();
         args.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
-        sendCommand(CONTROLLER_COMMAND_SET_SHUFFLE_MODE, args);
+        sendCommand(COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE, args);
     }
 
     // Should be used without a lock to prevent potential deadlock.
@@ -1412,8 +1409,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     private void connectToSession(MediaSessionCompat.Token sessionCompatToken) {
-        MediaControllerCompat controllerCompat =
-                null;
+        MediaControllerCompat controllerCompat = null;
         try {
             controllerCompat = new MediaControllerCompat(mContext, sessionCompatToken);
         } catch (RemoteException e) {
@@ -1426,7 +1422,7 @@ public class MediaController2 implements AutoCloseable {
         }
 
         if (controllerCompat.isSessionReady()) {
-            sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
+            sendCommand(CONTROLLER_COMMAND_CONNECT, null, new ResultReceiver(mHandler) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
                     if (!mHandlerThread.isAlive()) {
@@ -1454,19 +1450,22 @@ public class MediaController2 implements AutoCloseable {
         }
     }
 
-    private void sendCommand(String command) {
-        sendCommand(command, new Bundle(), null);
+    private void sendCommand(int commandCode) {
+        sendCommand(commandCode, null);
     }
 
-    private void sendCommand(String command, Bundle bundle) {
-        sendCommand(command, bundle, null);
-    }
-
-    private void sendCommand(String command, ResultReceiver receiver) {
-        sendCommand(command, new Bundle(), receiver);
+    private void sendCommand(int commandCode, Bundle args) {
+        if (args == null) {
+            args = new Bundle();
+        }
+        args.putInt(ARGUMENT_COMMAND_CODE, commandCode);
+        sendCommand(CONTROLLER_COMMAND_BY_COMMAND_CODE, args, null);
     }
 
     private void sendCommand(String command, Bundle args, ResultReceiver receiver) {
+        if (args == null) {
+            args = new Bundle();
+        }
         MediaControllerCompat controller;
         ControllerCompatCallback callback;
         synchronized (mLock) {

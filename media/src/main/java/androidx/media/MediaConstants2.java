@@ -37,12 +37,12 @@ class MediaConstants2 {
 
     // Command string used by MediaControllerCompat.sendCommand()
     static final String CONTROLLER_COMMAND_CONNECT = "androidx.media.controller.command.CONNECT";
-    static final String CONTROLLER_COMMAND_SET_REPEAT_MODE =
-            "androidx.media.controller.command.SET_REPEAT_MODE";
-    static final String CONTROLLER_COMMAND_SET_SHUFFLE_MODE =
-            "androidx.media.controller.command.SET_SHUFFLE_MODE";
+    static final String CONTROLLER_COMMAND_BY_COMMAND_CODE =
+            "androidx.media.controller.command.BY_COMMAND_CODE";
 
+    static final String ARGUMENT_COMMAND_CODE = "androidx.media.argument.COMMAND_CODE";
     static final String ARGUMENT_ALLOWED_COMMANDS = "androidx.media.argument.ALLOWED_COMMANDS";
+    static final String ARGUMENT_SEEK_POSITION = "androidx.media.argument.SEEK_POSITION";
     static final String ARGUMENT_PLAYER_STATE = "androidx.media.argument.PLAYER_STATE";
     static final String ARGUMENT_ERROR_CODE = "androidx.media.argument.ERROR_CODE";
     static final String ARGUMENT_ERROR_EXTRAS = "androidx.media.argument.ERROR_EXTRAS";

@@ -109,10 +109,11 @@ public final class SessionCommandGroup2 {
 
     private void addCommandsWithPrefix(String prefix) {
         // TODO(jaewan): (Can be post-P): Don't use reflection for this purpose.
-        final Field[] fields = MediaSession2.class.getFields();
+        final Field[] fields = SessionCommand2.class.getFields();
         if (fields != null) {
             for (int i = 0; i < fields.length; i++) {
-                if (fields[i].getName().startsWith(prefix)) {
+                if (fields[i].getName().startsWith(prefix)
+                        && !fields[i].getName().equals("COMMAND_CODE_CUSTOM")) {
                     try {
                         mCommands.add(new SessionCommand2(fields[i].getInt(null)));
                     } catch (IllegalAccessException e) {

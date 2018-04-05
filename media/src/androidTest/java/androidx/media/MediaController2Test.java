@@ -239,7 +239,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(Process.myUid(), sessionActivity.getCreatorUid());
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testSetPlaylist() throws InterruptedException {
         final List<MediaItem2> list = TestUtils.createPlaylist(2);
@@ -508,7 +508,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testShuffleMode, controller.getShuffleMode());
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testSetShuffleMode() throws InterruptedException {
         final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
@@ -547,7 +547,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testRepeatMode, controller.getRepeatMode());
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testSetRepeatMode() throws InterruptedException {
         final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;

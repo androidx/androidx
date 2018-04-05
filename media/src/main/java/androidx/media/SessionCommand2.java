@@ -65,13 +65,13 @@ public final class SessionCommand2 {
     public static final int COMMAND_CODE_PLAYBACK_PAUSE = 2;
 
     /**
-     * Command code for {@link MediaController2#stop()}.
+     * Command code for {@link MediaController2#reset()}.
      * <p>
      * Command would be sent directly to the player if the session doesn't reject the request
      * through the {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo,
      * SessionCommand2)}.
      */
-    public static final int COMMAND_CODE_PLAYBACK_STOP = 3;
+    public static final int COMMAND_CODE_PLAYBACK_RESET = 3;
 
     /**
      * Command code for {@link MediaController2#skipToNextItem()}.
