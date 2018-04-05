@@ -24,11 +24,13 @@ import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
+import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media.MediaConstants2.ARGUMENT_PID;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
+import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_INDEX;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
@@ -51,6 +53,9 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
@@ -1217,7 +1222,10 @@ public class MediaController2 implements AutoCloseable {
      * @param item the media item you want to add
      */
     public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
-        //mProvider.addPlaylistItem_impl(index, item);
+        Bundle args = new Bundle();
+        args.putInt(ARGUMENT_PLAYLIST_INDEX, index);
+        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
+        sendCommand(COMMAND_CODE_PLAYLIST_ADD_ITEM, args);
     }
 
     /**
@@ -1229,7 +1237,9 @@ public class MediaController2 implements AutoCloseable {
      * @param item the media item you want to add
      */
     public void removePlaylistItem(@NonNull MediaItem2 item) {
-        //mProvider.removePlaylistItem_impl(item);
+        Bundle args = new Bundle();
+        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
+        sendCommand(COMMAND_CODE_PLAYLIST_REMOVE_ITEM, args);
     }
 
     /**
@@ -1240,7 +1250,10 @@ public class MediaController2 implements AutoCloseable {
      * @param item the new item
      */
     public void replacePlaylistItem(int index, @NonNull MediaItem2 item) {
-        //mProvider.replacePlaylistItem_impl(index, item);
+        Bundle args = new Bundle();
+        args.putInt(ARGUMENT_PLAYLIST_INDEX, index);
+        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
+        sendCommand(COMMAND_CODE_PLAYLIST_REPLACE_ITEM, args);
     }
 
     /**
