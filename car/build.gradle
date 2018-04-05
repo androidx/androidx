@@ -9,7 +9,8 @@ plugins {
 dependencies {
     api project(':appcompat')
     api project(':cardview')
-    api "com.android.temp.support:design-widget:28.0.0-alpha1", {
+    api "com.android.temp.support:design-widget:28.0.0-alpha1@aar", {
+        transitive = true
         exclude group: 'androidx.annotation'
         exclude group: 'androidx.core'
         exclude group: 'androidx.legacy'
