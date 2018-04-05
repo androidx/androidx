@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.filters.SmallTest;
@@ -276,6 +277,18 @@ public class SeekbarListItemTest {
             assertThat(getViewHolderAtPosition(i - 1).getSeekBar().getRight(),
                     is(equalTo(getViewHolderAtPosition(i).getSeekBar().getRight())));
         }
+    }
+
+    @Test
+    public void testSettingSupplementalIconWithDrawable() {
+        Drawable drawable = mActivity.getDrawable(android.R.drawable.sym_def_app_icon);
+        SeekbarListItem item = new SeekbarListItem(mActivity, 0, 0, null, null);
+        item.setSupplementalIcon(drawable, false);
+
+        setupPagedListView(Arrays.asList(item));
+
+        assertThat(getViewHolderAtPosition(0).getSupplementalIcon().getDrawable(),
+                is(equalTo(drawable)));
     }
 
     private static ViewAction clickChildViewWithId(final int id) {

@@ -109,7 +109,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private View.OnClickListener mOnClickListener;
 
     @PrimaryActionType private int mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
-    private int mPrimaryActionIconResId;
     private Drawable mPrimaryActionIconDrawable;
 
     private String mTitle;
@@ -117,7 +116,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private boolean mIsBodyPrimary;
 
     @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_NO_ACTION;
-    private int mSupplementalIconResId;
+    private Drawable mSupplementalIconDrawable;
     private View.OnClickListener mSupplementalIconOnClickListener;
     private boolean mShowSupplementalIconDivider;
 
@@ -257,11 +256,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                 mBinders.add(vh -> {
                     vh.getPrimaryIcon().setVisibility(View.VISIBLE);
 
-                    if (mPrimaryActionIconDrawable != null) {
-                        vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
-                    } else if (mPrimaryActionIconResId != 0) {
-                        vh.getPrimaryIcon().setImageResource(mPrimaryActionIconResId);
-                    }
+                    vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
                 });
                 break;
             case PRIMARY_ACTION_TYPE_EMPTY_ICON:
@@ -544,7 +539,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                         vh.getSupplementalIconDivider().setVisibility(View.VISIBLE);
                     }
 
-                    vh.getSupplementalIcon().setImageResource(mSupplementalIconResId);
+                    vh.getSupplementalIcon().setImageDrawable(mSupplementalIconDrawable);
                     vh.getSupplementalIcon().setOnClickListener(
                             mSupplementalIconOnClickListener);
                     vh.getSupplementalIcon().setClickable(
@@ -606,7 +601,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param useLargeIcon the size of primary icon. Large Icon is a square as tall as an item.
      */
     public void setPrimaryActionIcon(@DrawableRes int iconResId, boolean useLargeIcon) {
-        setPrimaryActionIcon(null, iconResId, useLargeIcon);
+        setPrimaryActionIcon(mContext.getDrawable(iconResId), useLargeIcon);
     }
 
     /**
@@ -616,15 +611,9 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param useLargeIcon the size of primary icon. Large Icon is a square as tall as an item.
      */
     public void setPrimaryActionIcon(Drawable drawable, boolean useLargeIcon) {
-        setPrimaryActionIcon(drawable, 0, useLargeIcon);
-    }
-
-    private void setPrimaryActionIcon(Drawable drawable, @DrawableRes int iconResId,
-            boolean useLargeIcon) {
         mPrimaryActionType = useLargeIcon
                 ? PRIMARY_ACTION_TYPE_LARGE_ICON
                 : PRIMARY_ACTION_TYPE_SMALL_ICON;
-        mPrimaryActionIconResId = iconResId;
         mPrimaryActionIconDrawable = drawable;
 
         markDirty();
@@ -696,7 +685,18 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      *                    {@code Supplemental Icon}.
      */
     public void setSupplementalIcon(int iconResId, boolean showDivider) {
-        setSupplementalIcon(iconResId, showDivider, null);
+        setSupplementalIcon(mContext.getDrawable(iconResId), showDivider, null);
+    }
+
+    /**
+     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
+     *
+     * @param drawable the Drawable to set, or null to clear the content.
+     * @param showDivider whether to display a vertical bar that separates {@code text} and
+     *                    {@code Supplemental Icon}.
+     */
+    public void setSupplementalIcon(Drawable drawable, boolean showDivider) {
+        setSupplementalIcon(drawable, showDivider, null);
     }
 
     /**
@@ -709,9 +709,22 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      */
     public void setSupplementalIcon(int iconResId, boolean showDivider,
             View.OnClickListener listener) {
+        setSupplementalIcon(mContext.getDrawable(iconResId), showDivider, listener);
+    }
+
+    /**
+     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
+     *
+     * @param drawable the Drawable to set, or null to clear the content.
+     * @param showDivider whether to display a vertical bar that separates {@code text} and
+     *                    {@code Supplemental Icon}.
+     * @param listener the callback that will run when icon is clicked.
+     */
+    public void setSupplementalIcon(Drawable drawable, boolean showDivider,
+                                    View.OnClickListener listener) {
         mSupplementalActionType = SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON;
 
-        mSupplementalIconResId = iconResId;
+        mSupplementalIconDrawable = drawable;
         mSupplementalIconOnClickListener = listener;
         mShowSupplementalIconDivider = showDivider;
         markDirty();
