@@ -355,12 +355,12 @@ public class MediaController2Test extends MediaSession2TestBase {
      * if the controller doesn't have {@link SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST} but
      * {@link SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST_METADATA}.
      */
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testControllerCallback_onPlaylistMetadataChanged() throws InterruptedException {
         final MediaItem2 item = TestUtils.createMediaItemWithMetadata();
         final List<MediaItem2> list = TestUtils.createPlaylist(2);
-        final CountDownLatch latch = new CountDownLatch(2);
+        final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
             public void onPlaylistMetadataChanged(MediaController2 controller,
@@ -402,13 +402,11 @@ public class MediaController2Test extends MediaSession2TestBase {
                 .build()) {
             MediaController2 controller = createController(session.getToken(), true, callback);
             agent.notifyPlaylistMetadataChanged();
-            // It also calls onPlaylistMetadataChanged() if it doesn't have permission for getList()
-            agent.notifyPlaylistChanged();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testAddPlaylistItem() throws InterruptedException {
         final int testIndex = 12;
@@ -422,7 +420,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testMediaItem.getMediaId(), mMockAgent.mItem.getMediaId());
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testRemovePlaylistItem() throws InterruptedException {
         mMockAgent.mPlaylist = TestUtils.createPlaylist(2);
@@ -439,7 +437,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(targetItem, mMockAgent.mItem);
     }
 
-    @Ignore
+    @Ignore // TODO: remove @Ignore
     @Test
     public void testReplacePlaylistItem() throws InterruptedException {
         final int testIndex = 12;

@@ -49,7 +49,9 @@ class MediaConstants2 {
     static final String ARGUMENT_REPEAT_MODE = "androidx.media.argument.REPEAT_MODE";
     static final String ARGUMENT_SHUFFLE_MODE = "androidx.media.argument.SHUFFLE_MODE";
     static final String ARGUMENT_PLAYLIST = "androidx.media.argument.PLAYLIST";
+    static final String ARGUMENT_PLAYLIST_INDEX = "androidx.media.argument.PLAYLIST_INDEX";
     static final String ARGUMENT_PLAYLIST_METADATA = "androidx.media.argument.PLAYLIST_METADATA";
+    static final String ARGUMENT_MEDIA_ITEM = "androidx.media.argument.MEDIA_ITEM";
     static final String ARGUMENT_PLAYBACK_STATE_COMPAT =
             "androidx.media.argument.PLAYBACK_STATE_COMPAT";
     static final String ARGUMENT_ICONTROLLER_CALLBACK =
