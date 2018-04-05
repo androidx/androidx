@@ -24,9 +24,16 @@ limitations under the License.
     <!-- Type Sizings -->
     <dimen name="car_headline2_size">36sp</dimen>
 
+    <!-- Icons and Buttons -->
+    <!-- Icons -->
+    <dimen name="car_secondary_icon_size">36dp</dimen>
+
     <!-- Car Component Dimensions -->
     <!-- Application Bar -->
     <dimen name="car_app_bar_height">96dp</dimen>
+
+    <!-- Action Bar -->
+    <dimen name="car_action_bar_height">128dp</dimen>
 
     <!-- List Items -->
     <dimen name="car_single_line_list_item_height">116dp</dimen>
@@ -41,4 +48,7 @@ limitations under the License.
     <dimen name="car_drawer_list_item_icon_size">108dp</dimen>
     <dimen name="car_drawer_list_item_small_icon_size">56dp</dimen>
     <dimen name="car_drawer_list_item_end_icon_size">56dp</dimen>
+
+    <!-- The height of a vertical line divider. -->
+    <dimen name="car_vertical_line_divider_height">76dp</dimen>
 </resources>
