@@ -48,4 +48,5 @@ supportLibrary {
     inceptionYear = "2017"
     description = "Android Paging-Runtime"
     url = SupportLibraryExtension.ARCHITECTURE_URL
+    failOnUncheckedWarnings = false
 }
