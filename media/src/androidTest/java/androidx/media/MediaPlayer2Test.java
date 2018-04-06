@@ -29,6 +29,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaRecorder;
 import android.media.MediaTimestamp;
 import android.media.PlaybackParams;
+import android.media.SubtitleData;
 import android.media.SyncParams;
 import android.media.audiofx.AudioEffect;
 import android.media.audiofx.Visualizer;
@@ -54,9 +55,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -1452,6 +1455,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
     }
 
+    @Test
+    @LargeTest
     public void testDeselectTrackForSubtitleTracks() throws Throwable {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
@@ -1482,21 +1487,18 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                     mOnDeselectTrackCalled.signal();
                 }
             }
-        };
-        synchronized (mEventCbLock) {
-            mEventCallbacks.add(ecb);
-        }
 
-        /* TODO: uncomment once API is available in supportlib.
-        mPlayer.setOnSubtitleDataListener(new MediaPlayer2.OnSubtitleDataListener() {
             @Override
-            public void onSubtitleData(MediaPlayer2 mp, SubtitleData data) {
+            public void onSubtitleData(
+                    MediaPlayer2 mp, DataSourceDesc dsd, SubtitleData data) {
                 if (data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
             }
-        });
-        */
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
 
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
@@ -1539,21 +1541,12 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.reset();
     }
 
+    @Test
+    @LargeTest
     public void testChangeSubtitleTrack() throws Throwable {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
         }
-
-        /* TODO: uncomment once API is available in supportlib.
-        mPlayer.setOnSubtitleDataListener(new MediaPlayer2.OnSubtitleDataListener() {
-            @Override
-            public void onSubtitleData(MediaPlayer2 mp, SubtitleData data) {
-                if (data != null && data.getData() != null) {
-                    mOnSubtitleDataCalled.signal();
-                }
-            }
-        });
-        */
 
         MediaPlayer2.MediaPlayer2EventCallback ecb = new MediaPlayer2.MediaPlayer2EventCallback() {
             @Override
@@ -1569,6 +1562,14 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     mOnPlayCalled.signal();
+                }
+            }
+
+            @Override
+            public void onSubtitleData(
+                    MediaPlayer2 mp, DataSourceDesc dsd, SubtitleData data) {
+                if (data != null && data.getData() != null) {
+                    mOnSubtitleDataCalled.signal();
                 }
             }
         };
@@ -1656,6 +1657,71 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         readSubtitleTracks();
         assertEquals(2, mSubtitleTrackIndex.size());
+
+        mPlayer.reset();
+    }
+
+    @Test
+    @LargeTest
+    public void testMediaTimeDiscontinuity() throws Exception {
+        if (!checkLoadResource(
+                R.raw.bbb_s1_320x240_mp4_h264_mp2_800kbps_30fps_aac_lc_5ch_240kbps_44100hz)) {
+            return; // skip
+        }
+
+        final BlockingDeque<MediaTimestamp> timestamps = new LinkedBlockingDeque<>();
+        MediaPlayer2.MediaPlayer2EventCallback ecb = new MediaPlayer2.MediaPlayer2EventCallback() {
+            @Override
+            public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
+                if (what == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
+                    mOnSeekCompleteCalled.signal();
+                }
+            }
+            @Override
+            public void onMediaTimeDiscontinuity(
+                    MediaPlayer2 mp, DataSourceDesc dsd, MediaTimestamp timestamp) {
+                timestamps.add(timestamp);
+                mOnMediaTimeDiscontinuityCalled.signal();
+            }
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
+
+        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+        mPlayer.prepare();
+
+        // Timestamp needs to be reported when playback starts.
+        mOnMediaTimeDiscontinuityCalled.reset();
+        mPlayer.play();
+        do {
+            assertTrue(mOnMediaTimeDiscontinuityCalled.waitForSignal(1000));
+        } while (Math.abs(timestamps.getLast().getMediaClockRate() - 1.0f) > 0.01f);
+
+        // Timestamp needs to be reported when seeking is done.
+        mOnSeekCompleteCalled.reset();
+        mOnMediaTimeDiscontinuityCalled.reset();
+        mPlayer.seekTo(3000);
+        mOnSeekCompleteCalled.waitForSignal();
+        do {
+            assertTrue(mOnMediaTimeDiscontinuityCalled.waitForSignal(1000));
+        } while (Math.abs(timestamps.getLast().getMediaClockRate() - 1.0f) > 0.01f);
+
+        // Timestamp needs to be updated when playback rate changes.
+        mOnMediaTimeDiscontinuityCalled.reset();
+        mPlayer.setPlaybackParams(new PlaybackParams().setSpeed(0.5f));
+        mOnMediaTimeDiscontinuityCalled.waitForSignal();
+        do {
+            assertTrue(mOnMediaTimeDiscontinuityCalled.waitForSignal(1000));
+        } while (Math.abs(timestamps.getLast().getMediaClockRate() - 0.5f) > 0.01f);
+
+        // Timestamp needs to be updated when player is paused.
+        mOnMediaTimeDiscontinuityCalled.reset();
+        mPlayer.pause();
+        mOnMediaTimeDiscontinuityCalled.waitForSignal();
+        do {
+            assertTrue(mOnMediaTimeDiscontinuityCalled.waitForSignal(1000));
+        } while (Math.abs(timestamps.getLast().getMediaClockRate() - 0.0f) > 0.01f);
 
         mPlayer.reset();
     }
