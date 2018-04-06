@@ -36,36 +36,39 @@ import javax.lang.model.type.TypeMirror
 /**
  * Generic Result binder for Rx classes that accept a callable.
  */
-class RxCallableQueryResultBinder(val rxType: RxType,
-                                  val typeArg: TypeMirror,
-                                  adapter: QueryResultAdapter?)
-    : QueryResultBinder(adapter) {
-    override fun convertAndReturn(roomSQLiteQueryVar: String,
-                                  canReleaseQuery: Boolean,
-                                  dbField: FieldSpec,
-                                  inTransaction: Boolean,
-                                  scope: CodeGenScope) {
+class RxCallableQueryResultBinder(
+        private val rxType: RxType,
+        val typeArg: TypeMirror,
+        adapter: QueryResultAdapter?) : QueryResultBinder(adapter) {
+    override fun convertAndReturn(
+            roomSQLiteQueryVar: String,
+            canReleaseQuery: Boolean,
+            dbField: FieldSpec,
+            inTransaction: Boolean,
+            scope: CodeGenScope) {
         val callable = TypeSpec.anonymousClassBuilder("").apply {
             val typeName = typeArg.typeName()
             superclass(ParameterizedTypeName.get(java.util.concurrent.Callable::class.typeName(),
                     typeName))
             addMethod(createCallMethod(
                     roomSQLiteQueryVar = roomSQLiteQueryVar,
-                    canReleaseQuery = canReleaseQuery,
                     dbField = dbField,
                     inTransaction = inTransaction,
                     scope = scope))
+            if (canReleaseQuery) {
+                addMethod(createFinalizeMethod(roomSQLiteQueryVar))
+            }
         }.build()
         scope.builder().apply {
             addStatement("return $T.fromCallable($L)", rxType.className, callable)
         }
     }
 
-    private fun createCallMethod(roomSQLiteQueryVar: String,
-                                 canReleaseQuery: Boolean,
-                                 dbField: FieldSpec,
-                                 inTransaction: Boolean,
-                                 scope: CodeGenScope): MethodSpec {
+    private fun createCallMethod(
+            roomSQLiteQueryVar: String,
+            dbField: FieldSpec,
+            inTransaction: Boolean,
+            scope: CodeGenScope): MethodSpec {
         val adapterScope = scope.fork()
         return MethodSpec.methodBuilder("call").apply {
             returns(typeArg.typeName())
@@ -99,12 +102,17 @@ class RxCallableQueryResultBinder(val rxType: RxType,
             }
             nextControlFlow("finally").apply {
                 addStatement("$L.close()", cursorVar)
-                if (canReleaseQuery) {
-                    addStatement("$L.release()", roomSQLiteQueryVar)
-                }
             }
             endControlFlow()
             transactionWrapper?.endTransactionWithControlFlow()
+        }.build()
+    }
+
+    private fun createFinalizeMethod(roomSQLiteQueryVar: String): MethodSpec {
+        return MethodSpec.methodBuilder("finalize").apply {
+            addModifiers(Modifier.PROTECTED)
+            addAnnotation(Override::class.java)
+            addStatement("$L.release()", roomSQLiteQueryVar)
         }.build()
     }
 
