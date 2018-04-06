@@ -37,13 +37,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.IBinder;
 import android.os.Process;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
-import android.util.ArrayMap;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -53,11 +51,8 @@ import androidx.media.MediaPlayerBase.PlayerEventCallback;
 import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -95,13 +90,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private OnDataSourceMissingHelper mDsmHelper;
     @GuardedBy("mLock")
     private PlaybackStateCompat mPlaybackStateCompat;
-    @GuardedBy("mLock")
-    private final ArrayMap<IBinder, MediaSession2.ControllerInfo> mControllers = new ArrayMap<>();
-    @GuardedBy("mLock")
-    private final Set<IBinder> mConnectingControllers = new HashSet<>();
-    @GuardedBy("mLock")
-    private final ArrayMap<MediaSession2.ControllerInfo, SessionCommandGroup2>
-            mAllowedCommandGroupMap = new ArrayMap<>();
 
     MediaSession2ImplBase(Context context, MediaSessionCompat sessionCompat, String id,
             MediaPlayerBase player, MediaPlaylistAgent playlistAgent,
@@ -234,13 +222,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public @NonNull List<MediaSession2.ControllerInfo> getConnectedControllers() {
-        ArrayList<MediaSession2.ControllerInfo> controllers = new ArrayList<>();
-        synchronized (mLock) {
-            for (int i = 0; i < mControllers.size(); i++) {
-                controllers.add(mControllers.valueAt(i));
-            }
-        }
-        return controllers;
+        return mSession2Stub.getConnectedControllers();
     }
 
     @Override
@@ -258,7 +240,13 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @Override
     public void setAllowedCommands(@NonNull ControllerInfo controller,
             @NonNull SessionCommandGroup2 commands) {
-        //mProvider.setAllowedCommands_impl(controller, commands);
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
+        if (commands == null) {
+            throw new IllegalArgumentException("commands shouldn't be null");
+        }
+        mSession2Stub.setAllowedCommands(controller, commands);
     }
 
     @Override

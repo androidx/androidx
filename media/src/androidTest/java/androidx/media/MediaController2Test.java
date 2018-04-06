@@ -191,20 +191,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mPlayer.mPrepareCalled);
     }
 
-    @Ignore
-    @Test
-    public void testFastForward() {
-        prepareLooper();
-        // TODO(jaewan): Implement
-    }
-
-    @Ignore
-    @Test
-    public void testRewind() {
-        prepareLooper();
-        // TODO(jaewan): Implement
-    }
-
     @Test
     public void testSeekTo() {
         prepareLooper();
@@ -459,7 +445,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testMediaItem.getMediaId(), mMockAgent.mItem.getMediaId());
     }
 
-    @Ignore
     @Test
     public void testSkipToPreviousItem() throws InterruptedException {
         prepareLooper();
@@ -468,7 +453,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mMockAgent.mSkipToPreviousItemCalled);
     }
 
-    @Ignore
     @Test
     public void testSkipToNextItem() throws InterruptedException {
         prepareLooper();
@@ -477,7 +461,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(mMockAgent.mSkipToNextItemCalled);
     }
 
-    @Ignore
     @Test
     public void testSkipToPlaylistItem() throws InterruptedException {
         prepareLooper();
@@ -568,9 +551,9 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(testRepeatMode, mMockAgent.mRepeatMode);
     }
 
-    @Ignore
     @Test
     public void testSetVolumeTo() throws Exception {
+        // TODO(jaewan): Also test with local volume.
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
@@ -588,9 +571,9 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(targetVolume, volumeProvider.mVolume);
     }
 
-    @Ignore
     @Test
     public void testAdjustVolume() throws Exception {
+        // TODO(jaewan): Also test with local volume.
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
@@ -622,7 +605,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         final SessionCommand2 testCommand =
                 new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE);
         final Bundle testArgs = new Bundle();
-        testArgs.putString("args", "testSendCustomAction");
+        testArgs.putString("args", "testSendCustomCommand");
 
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
@@ -693,7 +676,48 @@ public class MediaController2Test extends MediaSession2TestBase {
         waitForDisconnect(mController, true);
     }
 
-    @Ignore
+    @Test
+    public void testFastForward() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionCallback callback = new SessionCallback() {
+            @Override
+            public void onFastForward(MediaSession2 session, ControllerInfo controller) {
+                assertEquals(mContext.getPackageName(), controller.getPackageName());
+                latch.countDown();
+            }
+        };
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+                .setPlayer(mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testFastForward").build()) {
+            MediaController2 controller = createController(session.getToken());
+            controller.fastForward();
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    public void testRewind() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionCallback callback = new SessionCallback() {
+            @Override
+            public void onRewind(MediaSession2 session, ControllerInfo controller) {
+                assertEquals(mContext.getPackageName(), controller.getPackageName());
+                latch.countDown();
+            }
+        };
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+                .setPlayer(mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testRewind").build()) {
+            MediaController2 controller = createController(session.getToken());
+            controller.rewind();
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
     @Test
     public void testPlayFromSearch() throws InterruptedException {
         prepareLooper();
@@ -722,7 +746,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testPlayFromUri() throws InterruptedException {
         prepareLooper();
@@ -750,7 +773,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testPlayFromMediaId() throws InterruptedException {
         prepareLooper();
@@ -778,7 +800,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testPrepareFromSearch() throws InterruptedException {
         prepareLooper();
@@ -806,7 +827,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testPrepareFromUri() throws InterruptedException {
         prepareLooper();
@@ -834,7 +854,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testPrepareFromMediaId() throws InterruptedException {
         prepareLooper();
@@ -862,7 +881,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testSetRating() throws InterruptedException {
         prepareLooper();

@@ -741,7 +741,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testSetAllowedCommands() throws InterruptedException {
         prepareLooper();

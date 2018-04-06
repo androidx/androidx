@@ -225,8 +225,14 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
                 @NonNull ControllerInfo controller) { }
 
         /**
-         * Called when a controller sent a command that will be sent directly to the player. Return
-         * {@code false} here to reject the request and stop sending command to the player.
+         * Called when a controller sent a command which will be sent directly to one of the
+         * following:
+         * <ul>
+         *  <li> {@link MediaPlayerBase} </li>
+         *  <li> {@link MediaPlaylistAgent} </li>
+         *  <li> {@link android.media.AudioManager} or {@link VolumeProviderCompat} </li>
+         * </ul>
+         * Return {@code false} here to reject the request and stop sending command.
          *
          * @param session the session for this event
          * @param controller controller information.
@@ -235,8 +241,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PLAY
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PAUSE
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_RESET
-         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_NEXT_ITEM
-         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_PREV_ITEM
+         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM
+         * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_PREPARE
          * @see SessionCommand2#COMMAND_CODE_PLAYBACK_SEEK_TO
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM
@@ -249,7 +255,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SET_LIST
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST_METADATA
          * @see SessionCommand2#COMMAND_CODE_PLAYLIST_SET_LIST_METADATA
-         * @see SessionCommand2#COMMAND_CODE_SET_VOLUME
+         * @see SessionCommand2#COMMAND_CODE_VOLUME_SET_VOLUME
+         * @see SessionCommand2#COMMAND_CODE_VOLUME_ADJUST_VOLUME
          */
         public boolean onCommandRequest(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull SessionCommand2 command) {
@@ -409,17 +416,19 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * Called when a controller called {@link MediaController2#fastForward()}
          *
          * @param session the session for this event
+         * @param controller controller information
          * @see SessionCommand2#COMMAND_CODE_SESSION_FAST_FORWARD
          */
-        public void onFastForward(@NonNull MediaSession2 session) { }
+        public void onFastForward(@NonNull MediaSession2 session, ControllerInfo controller) { }
 
         /**
          * Called when a controller called {@link MediaController2#rewind()}
          *
          * @param session the session for this event
+         * @param controller controller information
          * @see SessionCommand2#COMMAND_CODE_SESSION_REWIND
          */
-        public void onRewind(@NonNull MediaSession2 session) { }
+        public void onRewind(@NonNull MediaSession2 session, ControllerInfo controller) { }
 
         /**
          * Called when the player's current playing item is changed
