@@ -1,0 +1,14 @@
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
+
+dependencies {
+    implementation(project(":appcompat"))
+    implementation(project(":biometric"))
+}
+
+android {
+    defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+    }
+}
