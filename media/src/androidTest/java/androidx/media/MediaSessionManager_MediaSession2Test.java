@@ -71,6 +71,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
     @Ignore
     @Test
     public void testGetMediaSession2Tokens_hasMediaController() throws InterruptedException {
+        prepareLooper();
         final MockPlayer player = (MockPlayer) mSession.getPlayer();
         player.notifyPlaybackState(MediaPlayerBase.PLAYER_STATE_IDLE);
 
@@ -102,6 +103,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
      */
     @Test
     public void testGetSessionTokens_sessionRejected() throws InterruptedException {
+        prepareLooper();
         mSession.close();
         mSession = new MediaSession2.Builder(mContext).setPlayer(new MockPlayer(0))
                 .setId(TAG).setSessionCallback(sHandlerExecutor, new SessionCallback() {
@@ -129,6 +131,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
 
     @Test
     public void testGetMediaSession2Tokens_sessionClosed() throws InterruptedException {
+        prepareLooper();
         mSession.close();
 
         // When a session is closed, it should lose binder connection between server immediately.
@@ -143,6 +146,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
 
     @Test
     public void testGetMediaSessionService2Token() throws InterruptedException {
+        prepareLooper();
         boolean foundTestSessionService = false;
         boolean foundTestLibraryService = false;
 //        List<SessionToken2> tokens = mManager.getSessionServiceTokens();
@@ -166,6 +170,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
 
     @Test
     public void testGetAllSessionTokens() throws InterruptedException {
+        prepareLooper();
         boolean foundTestSession = false;
         boolean foundTestSessionService = false;
         boolean foundTestLibraryService = false;
@@ -201,6 +206,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
 
     @Test
     public void testAddOnSessionTokensChangedListener() throws InterruptedException {
+//        prepareLooper();
 //        TokensChangedListener listener = new TokensChangedListener();
 //        mManager.addOnSessionTokensChangedListener(sHandlerExecutor, listener);
 //
@@ -255,6 +261,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
 
     @Test
     public void testRemoveOnSessionTokensChangedListener() throws InterruptedException {
+//        prepareLooper();
 //        TokensChangedListener listener = new TokensChangedListener();
 //        mManager.addOnSessionTokensChangedListener(sHandlerExecutor, listener);
 //
