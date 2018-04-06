@@ -16,11 +16,13 @@
 
 package androidx.room.integration.testapp.test;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -133,6 +135,29 @@ public class ClearAllTablesTest {
 
     @Test
     @SmallTest
+    public void inTransaction() {
+        mDao.insertParent(new Parent(1, "A"));
+        assertThat(mDao.countParent(), is(1));
+        // Running clearAllTables in a transaction is not recommended, but we should not crash.
+        mDatabase.runInTransaction(() -> mDatabase.clearAllTables());
+        assertThat(mDao.countParent(), is(0));
+    }
+
+    @Test
+    @SmallTest
+    public void inMainThread() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            try {
+                mDatabase.clearAllTables();
+                fail("Was expecting an exception");
+            } catch (IllegalStateException e) {
+                assertThat(e.getMessage(), containsString("main thread"));
+            }
+        });
+    }
+
+    @Test
+    @SmallTest
     public void foreignKey() {
         mDao.insertParent(new Parent(1, "A"));
         mDao.insertChild(new Child(1, "a", 1));
@@ -187,12 +212,12 @@ public class ClearAllTablesTest {
         db.dao().insertParent(new Parent(1, uuid));
         assertThat(queryEncoding(db), is(equalTo("UTF-8")));
         db.close();
-        assertThat(containsString(file, uuid), is(true));
+        assertThat(fileContainsString(file, uuid), is(true));
         db = Room.databaseBuilder(context, ClearAllTablesDatabase.class, dbName)
                 .setJournalMode(journalMode).build();
         db.clearAllTables();
         db.close();
-        assertThat(containsString(file, uuid), is(false));
+        assertThat(fileContainsString(file, uuid), is(false));
     }
 
     private String queryEncoding(RoomDatabase db) {
@@ -208,7 +233,7 @@ public class ClearAllTablesTest {
         }
     }
 
-    private boolean containsString(File file, String s) throws IOException {
+    private boolean fileContainsString(File file, String s) throws IOException {
         final byte[] content = new byte[(int) file.length()];
         final FileInputStream stream = new FileInputStream(file);
         //noinspection TryFinallyCanBeTryWithResources
