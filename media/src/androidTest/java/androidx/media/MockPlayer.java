@@ -38,6 +38,7 @@ public class MockPlayer extends MediaPlayerBase {
     public long mSeekPosition;
     public long mCurrentPosition;
     public long mBufferedPosition;
+    public float mPlaybackSpeed = 1.0f;
     public @PlayerState int mLastPlayerState;
 
     public ArrayMap<PlayerEventCallback, Executor> mCallbacks = new ArrayMap<>();
@@ -112,6 +113,11 @@ public class MockPlayer extends MediaPlayerBase {
     @Override
     public long getBufferedPosition() {
         return mBufferedPosition;
+    }
+
+    @Override
+    public float getPlaybackSpeed() {
+        return mPlaybackSpeed;
     }
 
     @Override
@@ -235,7 +241,7 @@ public class MockPlayer extends MediaPlayerBase {
 
     @Override
     public void setPlaybackSpeed(float speed) {
-        // TODO: implement this
+        mPlaybackSpeed = speed;
     }
 
     @Override

@@ -204,25 +204,27 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(seekPosition, mPlayer.mSeekPosition);
     }
 
-    @Ignore
     @Test
     public void testGettersAfterConnected() throws InterruptedException {
         prepareLooper();
         final int state = MediaPlayerBase.PLAYER_STATE_PLAYING;
         final long position = 150000;
         final long bufferedPosition = 900000;
+        final float speed = 0.5f;
 
         mPlayer.mLastPlayerState = state;
         mPlayer.mCurrentPosition = position;
         mPlayer.mBufferedPosition = bufferedPosition;
+        mPlayer.mPlaybackSpeed = speed;
 
+        long time = System.currentTimeMillis();
         MediaController2 controller = createController(mSession.getToken());
         assertEquals(state, controller.getPlayerState());
         assertEquals(bufferedPosition, controller.getBufferedPosition());
-        // TODO(jaewan): Enable this test when Session2/Controller2's get(set)PlaybackSpeed
-        //                is implemented. (b/74093080)
-        //assertEquals(speed, controller.getPlaybackSpeed());
-        //assertEquals(position + speed * elapsedTime, controller.getPosition(), delta);
+        assertEquals(speed, controller.getPlaybackSpeed());
+        long elapsedTime = System.currentTimeMillis() - time;
+        final long tolerance = 10;
+        assertEquals(position + speed * elapsedTime, controller.getCurrentPosition(), tolerance);
     }
 
     @Test

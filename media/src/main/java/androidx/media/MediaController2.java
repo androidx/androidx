@@ -101,6 +101,7 @@ import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -1080,7 +1081,7 @@ public class MediaController2 implements AutoCloseable {
                 return UNKNOWN_TIME;
             }
             if (mPlaybackStateCompat != null) {
-                long timeDiff = System.currentTimeMillis()
+                long timeDiff = SystemClock.elapsedRealtime()
                         - mPlaybackStateCompat.getLastPositionUpdateTime();
                 long expectedPosition = mPlaybackStateCompat.getPosition()
                         + (long) (mPlaybackStateCompat.getPlaybackSpeed() * timeDiff);

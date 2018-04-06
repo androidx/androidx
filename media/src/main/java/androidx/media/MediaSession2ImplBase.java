@@ -392,19 +392,43 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public @MediaPlayerBase.BuffState int getBufferingState() {
-        // TODO(jaewan): Implement this
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            return player.getBufferingState();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
         return BUFFERING_STATE_UNKNOWN;
     }
 
     @Override
     public float getPlaybackSpeed() {
-        // TODO(jaewan): implement this (b/74093080)
-        return -1;
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            return player.getPlaybackSpeed();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
+        return 1.0f;
     }
 
     @Override
     public void setPlaybackSpeed(float speed) {
-        // TODO(jaewan): implement this (b/74093080)
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            player.setPlaybackSpeed(speed);
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
     }
 
     @Override
@@ -683,7 +707,36 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @Override
     PlaybackStateCompat getPlaybackStateCompat() {
         synchronized (mLock) {
-            return mPlaybackStateCompat;
+            int state = MediaUtils2.toPlaybackStateCompatState(getPlayerState(),
+                    getBufferingState());
+            // TODO: Consider following missing stuff
+            //       - setCustomAction(): Fill custom layout
+            //       - setErrorMessage(): Fill error message when notifyError() is called.
+            //       - setActiveQueueItemId(): Fill here with the current media item...
+            //       - setExtra(): No idea at this moment.
+            // TODO: generate actions from the allowed commands.
+            long allActions = PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_PAUSE
+                    | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_REWIND
+                    | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                    | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                    | PlaybackStateCompat.ACTION_FAST_FORWARD
+                    | PlaybackStateCompat.ACTION_SET_RATING
+                    | PlaybackStateCompat.ACTION_SEEK_TO | PlaybackStateCompat.ACTION_PLAY_PAUSE
+                    | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+                    | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                    | PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
+                    | PlaybackStateCompat.ACTION_PLAY_FROM_URI | PlaybackStateCompat.ACTION_PREPARE
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
+                    | PlaybackStateCompat.ACTION_PREPARE_FROM_URI
+                    | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+                    | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
+                    | PlaybackStateCompat.ACTION_SET_CAPTIONING_ENABLED;
+            return new PlaybackStateCompat.Builder()
+                    .setState(state, getCurrentPosition(), getPlaybackSpeed())
+                    .setActions(allActions)
+                    .setBufferedPosition(getBufferedPosition())
+                    .build();
         }
     }
 

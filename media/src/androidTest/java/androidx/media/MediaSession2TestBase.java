@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.MediaController2.ControllerCallback;
 import androidx.media.MediaSession2.CommandButton;
+import androidx.media.TestUtils.SyncHandler;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -45,6 +46,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base class for session test.
+ * <p>
+ * For all subclasses, all individual tests should begin with the {@link #prepareLooper()}. See
+ * {@link #prepareLooper} for details.
  */
 abstract class MediaSession2TestBase {
     // Expected success
@@ -53,7 +57,7 @@ abstract class MediaSession2TestBase {
     // Expected timeout
     static final int TIMEOUT_MS = 500;
 
-    static TestUtils.SyncHandler sHandler;
+    static SyncHandler sHandler;
     static Executor sHandlerExecutor;
 
     Context mContext;
@@ -69,6 +73,17 @@ abstract class MediaSession2TestBase {
         void setRunnableForOnCustomCommand(Runnable runnable);
     }
 
+    /**
+     * All tests methods should start with this.
+     * <p>
+     * MediaControllerCompat, which is wrapped by the MediaSession2, can be only created by the
+     * thread whose Looper is prepared. However, when the presubmit tests runs on the server,
+     * test runs with the {@link org.junit.internal.runners.statements.FailOnTimeout} which creates
+     * dedicated thread for running test methods while methods annotated with @After or @Before
+     * runs on the different thread. This ensures that the current Looper is prepared.
+     * <p>
+     * To address the issue .
+     */
     public static void prepareLooper() {
         if (Looper.myLooper() == null) {
             Looper.prepare();
@@ -77,15 +92,24 @@ abstract class MediaSession2TestBase {
 
     @BeforeClass
     public static void setUpThread() {
-        if (sHandler == null) {
+        synchronized (MediaSession2TestBase.class) {
+            if (sHandler != null) {
+                return;
+            }
             prepareLooper();
             HandlerThread handlerThread = new HandlerThread("MediaSession2TestBase");
             handlerThread.start();
-            sHandler = new TestUtils.SyncHandler(handlerThread.getLooper());
+            sHandler = new SyncHandler(handlerThread.getLooper());
             sHandlerExecutor = new Executor() {
                 @Override
                 public void execute(Runnable runnable) {
-                    sHandler.post(runnable);
+                    SyncHandler handler;
+                    synchronized (MediaSession2TestBase.class) {
+                        handler = sHandler;
+                    }
+                    if (handler != null) {
+                        handler.post(runnable);
+                    }
                 }
             };
         }
@@ -93,7 +117,10 @@ abstract class MediaSession2TestBase {
 
     @AfterClass
     public static void cleanUpThread() {
-        if (sHandler != null) {
+        synchronized (MediaSession2TestBase.class) {
+            if (sHandler == null) {
+                return;
+            }
             sHandler.getLooper().quitSafely();
             sHandler = null;
             sHandlerExecutor = null;

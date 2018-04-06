@@ -34,6 +34,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -333,5 +334,46 @@ class MediaUtils2 {
                 .setContentType(bundle.getInt(AUDIO_ATTRIBUTES_CONTENT_TYPE))
                 .setFlags(bundle.getInt(AUDIO_ATTRIBUTES_FLAGS))
                 .build();
+    }
+
+    static int toPlaybackStateCompatState(int playerState, int bufferingState) {
+        switch (playerState) {
+            case MediaPlayerBase.PLAYER_STATE_PLAYING:
+                switch (bufferingState) {
+                    case MediaPlayerBase.BUFFERING_STATE_BUFFERING_AND_STARVED:
+                        return PlaybackStateCompat.STATE_BUFFERING;
+                }
+                return PlaybackStateCompat.STATE_PLAYING;
+            case MediaPlayerBase.PLAYER_STATE_PAUSED:
+                return PlaybackStateCompat.STATE_PAUSED;
+            case MediaPlayerBase.PLAYER_STATE_IDLE:
+                return PlaybackStateCompat.STATE_NONE;
+            case MediaPlayerBase.PLAYER_STATE_ERROR:
+                return PlaybackStateCompat.STATE_ERROR;
+        }
+        // For unknown value
+        return PlaybackStateCompat.STATE_ERROR;
+    }
+
+    static int toPlayerState(int playbackStateCompatState) {
+        switch (playbackStateCompatState) {
+            case PlaybackStateCompat.STATE_ERROR:
+                return MediaPlayerBase.PLAYER_STATE_ERROR;
+            case PlaybackStateCompat.STATE_NONE:
+                return MediaPlayerBase.PLAYER_STATE_IDLE;
+            case PlaybackStateCompat.STATE_PAUSED:
+            case PlaybackStateCompat.STATE_STOPPED:
+            case PlaybackStateCompat.STATE_BUFFERING: // means paused for buffering.
+                return MediaPlayerBase.PLAYER_STATE_PAUSED;
+            case PlaybackStateCompat.STATE_FAST_FORWARDING:
+            case PlaybackStateCompat.STATE_PLAYING:
+            case PlaybackStateCompat.STATE_REWINDING:
+            case PlaybackStateCompat.STATE_SKIPPING_TO_NEXT:
+            case PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS:
+            case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
+            case PlaybackStateCompat.STATE_CONNECTING: // Note: there's no perfect match for this.
+                return MediaPlayerBase.PLAYER_STATE_PLAYING;
+        }
+        return MediaPlayerBase.PLAYER_STATE_ERROR;
     }
 }
