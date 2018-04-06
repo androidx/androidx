@@ -59,6 +59,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
     private fun createClearAllTables(): MethodSpec {
         val scope = CodeGenScope(this)
         return MethodSpec.methodBuilder("clearAllTables").apply {
+            addStatement("super.assertNotMainThread()")
             val dbVar = scope.getTmpVar("_db")
             addStatement("final $T $L = super.getOpenHelper().getWritableDatabase()",
                     SupportDbTypeNames.DB, dbVar)
@@ -98,7 +99,10 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                     endControlFlow()
                 }
                 addStatement("$L.query($S).close()", dbVar, "PRAGMA wal_checkpoint(FULL)")
-                addStatement("$L.execSQL($S)", dbVar, "VACUUM")
+                beginControlFlow("if (!$L.inTransaction())", dbVar).apply {
+                    addStatement("$L.execSQL($S)", dbVar, "VACUUM")
+                }
+                endControlFlow()
             }
             endControlFlow()
         }.build()
