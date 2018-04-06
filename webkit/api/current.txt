@@ -66,6 +66,7 @@ package androidx.webkit {
     field public static final java.lang.String SERVICE_WORKER_CACHE_MODE = "SERVICE_WORKER_CACHE_MODE";
     field public static final java.lang.String SERVICE_WORKER_CONTENT_ACCESS = "SERVICE_WORKER_CONTENT_ACCESS";
     field public static final java.lang.String SERVICE_WORKER_FILE_ACCESS = "SERVICE_WORKER_FILE_ACCESS";
+    field public static final java.lang.String SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST = "SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST";
     field public static final java.lang.String START_SAFE_BROWSING = "START_SAFE_BROWSING";
     field public static final java.lang.String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
   }
