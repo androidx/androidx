@@ -1294,6 +1294,40 @@ package androidx.core.text {
     method public static java.lang.String maximizeAndGetScript(java.util.Locale);
   }
 
+  public class PrecomputedTextCompat implements android.text.Spannable {
+    method public char charAt(int);
+    method public static androidx.core.text.PrecomputedTextCompat create(java.lang.CharSequence, androidx.core.text.PrecomputedTextCompat.Params);
+    method public int getParagraphCount();
+    method public int getParagraphEnd(int);
+    method public int getParagraphStart(int);
+    method public androidx.core.text.PrecomputedTextCompat.Params getParams();
+    method public int getSpanEnd(java.lang.Object);
+    method public int getSpanFlags(java.lang.Object);
+    method public int getSpanStart(java.lang.Object);
+    method public <T> T[] getSpans(int, int, java.lang.Class<T>);
+    method public int length();
+    method public int nextSpanTransition(int, int, java.lang.Class);
+    method public void removeSpan(java.lang.Object);
+    method public void setSpan(java.lang.Object, int, int, int);
+    method public java.lang.CharSequence subSequence(int, int);
+  }
+
+  public static final class PrecomputedTextCompat.Params {
+    ctor public PrecomputedTextCompat.Params(android.text.PrecomputedText.Params);
+    method public int getBreakStrategy();
+    method public int getHyphenationFrequency();
+    method public android.text.TextDirectionHeuristic getTextDirection();
+    method public android.text.TextPaint getTextPaint();
+  }
+
+  public static class PrecomputedTextCompat.Params.Builder {
+    ctor public PrecomputedTextCompat.Params.Builder(android.text.TextPaint);
+    method public androidx.core.text.PrecomputedTextCompat.Params build();
+    method public androidx.core.text.PrecomputedTextCompat.Params.Builder setBreakStrategy(int);
+    method public androidx.core.text.PrecomputedTextCompat.Params.Builder setHyphenationFrequency(int);
+    method public androidx.core.text.PrecomputedTextCompat.Params.Builder setTextDirection(android.text.TextDirectionHeuristic);
+  }
+
   public abstract interface TextDirectionHeuristicCompat {
     method public abstract boolean isRtl(char[], int, int);
     method public abstract boolean isRtl(java.lang.CharSequence, int, int);
