@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
  * Allows a media app to expose its transport controls and playback information in a process to
  * other processes including the Android framework and other apps. Common use cases are as follows.
  * <ul>
@@ -81,7 +80,6 @@ import java.util.concurrent.Executor;
  * @see MediaSessionService2
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
-@RestrictTo(LIBRARY_GROUP)
 public class MediaSession2 extends MediaInterface2.SessionPlayer implements AutoCloseable {
     /**
      * @hide
@@ -163,21 +161,18 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     public static final int ERROR_CODE_SETUP_REQUIRED = 12;
 
     /**
-     * TODO: Fix {link DataSourceDesc}
      * Interface definition of a callback to be invoked when a {@link MediaItem2} in the playlist
-     * didn't have a {link DataSourceDesc} but it's needed now for preparing or playing it.
+     * didn't have a {@link DataSourceDesc} but it's needed now for preparing or playing it.
      *
      * #see #setOnDataSourceMissingHelper
      */
     public interface OnDataSourceMissingHelper {
         /**
-         * TODO: Fix {link DataSourceDesc}
-         * Called when a {@link MediaItem2} in the playlist didn't have a {link DataSourceDesc}
+         * Called when a {@link MediaItem2} in the playlist didn't have a {@link DataSourceDesc}
          * but it's needed now for preparing or playing it. Returned data source descriptor will be
          * sent to the player directly to prepare or play the contents.
          * <p>
-         * TODO: Fix {link DataSourceDesc}
-         * An exception may be thrown if the returned {link DataSourceDesc} is duplicated in the
+         * An exception may be thrown if the returned {@link DataSourceDesc} is duplicated in the
          * playlist, so items cannot be differentiated.
          *
          * @param session the session for this event
@@ -195,7 +190,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      * If it's not set, the session will accept all controllers and all incoming commands by
      * default.
      */
-    // TODO(jaewan): Move this to updatable for default implementation (b/74091963)
     public abstract static class SessionCallback {
         /**
          * Called when a controller is created for this session. Return allowed commands for
@@ -472,7 +466,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @param player the player for this event
          * @param item new item
          */
-        // TODO(jaewan): Use this (b/74316764)
         public void onCurrentMediaItemChanged(@NonNull MediaSession2 session,
                 @NonNull MediaPlayerBase player, @NonNull MediaItem2 item) { }
 
@@ -788,7 +781,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     public static final class ControllerInfo {
         private final int mUid;
         private final String mPackageName;
-        // TODO: IMediaControllerCallback should be used only for MediaSession2ImplBase
+        // Note: IMediaControllerCallback should be used only for MediaSession2ImplBase
         private final IMediaControllerCallback mIControllerCallback;
         private final boolean mIsTrusted;
 
@@ -801,7 +794,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             mUid = uid;
             mPackageName = packageName;
             mIControllerCallback = callback;
-            mIsTrusted = isTrusted();
+            mIsTrusted = false;
         }
 
         /**
@@ -824,11 +817,11 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * command request.
          *
          * @return {@code true} if the controller is trusted.
+         * @hide
          */
-        // TODO: Remove this API
+        @RestrictTo(LIBRARY_GROUP)
         public boolean isTrusted() {
-            //return mProvider.isTrusted_impl();
-            return false;
+            return mIsTrusted;
         }
 
         IBinder getId() {
@@ -860,7 +853,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          */
         @RestrictTo(LIBRARY_GROUP)
         public @NonNull Bundle toBundle() {
-            // TODO: Fill here.
             return new Bundle();
         }
 
@@ -870,7 +862,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          */
         @RestrictTo(LIBRARY_GROUP)
         public static @NonNull ControllerInfo fromBundle(@NonNull Context context, Bundle bundle) {
-            // TODO: Fill here.
             return new ControllerInfo(context, -1, -1, "TODO", null);
         }
 
@@ -951,7 +942,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         }
 
         /**
-         * Return whether it's enabled
+         * Return whether it's enabled.
          *
          * @return {@code true} if enabled. {@code false} otherwise.
          */
@@ -1008,7 +999,10 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             private boolean mEnabled;
 
             /**
-             * TODO: javadoc
+             * Sets the {@link SessionCommand2} that would be sent to the session when the button
+             * is clicked.
+             *
+             * @param command session command
              */
             public @NonNull Builder setCommand(@Nullable SessionCommand2 command) {
                 mCommand = command;
@@ -1016,7 +1010,13 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             }
 
             /**
-             * TODO: javadoc
+             * Sets the bitmap-type (e.g. PNG) icon resource id of the button.
+             * <p>
+             * None bitmap type (e.g. VectorDrawabale) may cause unexpected behavior when it's sent
+             * to {@link MediaController2} app, so please avoid using it especially for the older
+             * platform (API < 21).
+             *
+             * @param resId resource id of the button
              */
             public @NonNull Builder setIconResId(int resId) {
                 mIconResId = resId;
@@ -1024,7 +1024,9 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             }
 
             /**
-             * TODO: javadoc
+             * Sets the display name of the button.
+             *
+             * @param displayName display name of the button
              */
             public @NonNull Builder setDisplayName(@Nullable String displayName) {
                 mDisplayName = displayName;
@@ -1032,7 +1034,11 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             }
 
             /**
-             * TODO: javadoc
+             * Sets whether the button is enabled. Can be {@code false} to indicate that the button
+             * should be shown but isn't clickable.
+             *
+             * @param enabled {@code true} if the button is enabled and ready.
+             *          {@code false} otherwise.
              */
             public @NonNull Builder setEnabled(boolean enabled) {
                 mEnabled = enabled;
@@ -1040,7 +1046,9 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             }
 
             /**
-             * TODO: javadoc
+             * Sets the extras of the button.
+             *
+             * @param extras extras information of the button
              */
             public @NonNull Builder setExtras(@Nullable Bundle extras) {
                 mExtras = extras;
@@ -1048,7 +1056,9 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             }
 
             /**
-             * TODO: javadoc
+             * Builds the {@link CommandButton}.
+             *
+             * @return a new {@link CommandButton}
              */
             public @NonNull CommandButton build() {
                 return new CommandButton(mCommand, mIconResId, mDisplayName, mExtras, mEnabled);
@@ -1170,7 +1180,9 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     }
 
     /**
-     * TODO: add javadoc
+     * Returns the list of connected controller.
+     *
+     * @return list of {@link ControllerInfo}
      */
     public @NonNull List<ControllerInfo> getConnectedControllers() {
         return mImpl.getConnectedControllers();
@@ -1409,14 +1421,12 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      * Sets the data source missing helper. Helper will be used to provide default implementation of
      * {@link MediaPlaylistAgent} when it isn't set by developer.
      * <p>
-     * TODO: Fix {link DataSourceDesc}
      * Default implementation of the {@link MediaPlaylistAgent} will call helper when a
-     * {@link MediaItem2} in the playlist doesn't have a {link DataSourceDesc}. This may happen
+     * {@link MediaItem2} in the playlist doesn't have a {@link DataSourceDesc}. This may happen
      * when
      * <ul>
-     * TODO: Fix {link DataSourceDesc}
      *      <li>{@link MediaItem2} specified by {@link #setPlaylist(List, MediaMetadata2)} doesn't
-     *          have {link DataSourceDesc}</li>
+     *          have {@link DataSourceDesc}</li>
      *      <li>{@link MediaController2#addPlaylistItem(int, MediaItem2)} is called and accepted
      *          by {@link SessionCallback#onCommandRequest(
      *          MediaSession2, ControllerInfo, SessionCommand2)}.
@@ -1477,8 +1487,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      * list. Wait for {@link SessionCallback#onPlaylistChanged(MediaSession2, MediaPlaylistAgent,
      * List, MediaMetadata2)} to know the operation finishes.
      * <p>
-     * TODO: Fix {link DataSourceDesc}
-     * You may specify a {@link MediaItem2} without {link DataSourceDesc}. In that case,
+     * You may specify a {@link MediaItem2} without {@link DataSourceDesc}. In that case,
      * {@link MediaPlaylistAgent} has responsibility to dynamically query {link DataSourceDesc}
      * when such media item is ready for preparation or play. Default implementation needs
      * {@link OnDataSourceMissingHelper} for such case.
@@ -1551,7 +1560,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
 
     /**
      * Adds the media item to the playlist at position index. Index equals or greater than
-     * the current playlist size will add the item at the end of the playlist.
+     * the current playlist size (e.g. {@link Integer#MAX_VALUE}) will add the item at the end of
+     * the playlist.
      * <p>
      * This will not change the currently playing media item.
      * If index is less than or equal to the current index of the play list,

@@ -31,7 +31,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
 /**
- * @hide
  * A class with information on a single media item with the metadata information.
  * Media item are application dependent so we cannot guarantee that they contain the right values.
  * <p>
@@ -39,7 +38,6 @@ import java.util.UUID;
  * <p>
  * This object isn't a thread safe.
  */
-@RestrictTo(LIBRARY_GROUP)
 public class MediaItem2 {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
@@ -298,7 +296,6 @@ public class MediaItem2 {
             String id = (mMetadata != null)
                     ? mMetadata.getString(MediaMetadata2.METADATA_KEY_MEDIA_ID) : null;
             if (id == null) {
-                //  TODO(jaewan): Double check if its sufficient (e.g. Use UUID instead?)
                 id = (mMediaId != null) ? mMediaId : toString();
             }
             return new MediaItem2(id, mDataSourceDesc, mMetadata, mFlags);

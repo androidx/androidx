@@ -16,14 +16,11 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
 import java.io.FileDescriptor;
@@ -36,16 +33,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @hide
  * Structure for data source descriptor.
  *
  * Used by {@link MediaPlayer2#setDataSource(DataSourceDesc)}
  * to set data source for playback.
  *
  * <p>Users should use {@link Builder} to change {@link DataSourceDesc}.
- *
  */
-@RestrictTo(LIBRARY_GROUP)
 public final class DataSourceDesc {
     /* No data source has been set yet */
     public static final int TYPE_NONE     = 0;
@@ -56,8 +50,23 @@ public final class DataSourceDesc {
     /* data source is type of Uri */
     public static final int TYPE_URI      = 3;
 
-    // intentionally less than long.MAX_VALUE
-    public static final long LONG_MAX = 0x7ffffffffffffffL;
+    // intentionally less than long.MAX_VALUE.
+    // Declare this first to avoid 'illegal forward reference'.
+    private static final long LONG_MAX = 0x7ffffffffffffffL;
+
+    /**
+     * Used when a position is unknown.
+     *
+     * @see #getEndPosition()
+     */
+    public static final long POSITION_UNKNOWN = LONG_MAX;
+
+    /**
+     * Used when the length of file descriptor is unknown.
+     *
+     * @see #getFileDescriptorLength()
+     */
+    public static final long FD_LENGTH_UNKNOWN = LONG_MAX;
 
     private int mType = TYPE_NONE;
 
@@ -65,7 +74,7 @@ public final class DataSourceDesc {
 
     private FileDescriptor mFD;
     private long mFDOffset = 0;
-    private long mFDLength = LONG_MAX;
+    private long mFDLength = FD_LENGTH_UNKNOWN;
 
     private Uri mUri;
     private Map<String, String> mUriHeader;
@@ -74,7 +83,7 @@ public final class DataSourceDesc {
 
     private String mMediaId;
     private long mStartPositionMs = 0;
-    private long mEndPositionMs = LONG_MAX;
+    private long mEndPositionMs = POSITION_UNKNOWN;
 
     private DataSourceDesc() {
     }
@@ -83,7 +92,7 @@ public final class DataSourceDesc {
      * Return the media Id of data source.
      * @return the media Id of data source
      */
-    public String getMediaId() {
+    public @Nullable String getMediaId() {
         return mMediaId;
     }
 
@@ -97,7 +106,7 @@ public final class DataSourceDesc {
 
     /**
      * Return the position in milliseconds at which the playback will end.
-     * -1 means ending at the end of source content.
+     * {@link #POSITION_UNKNOWN} means ending at the end of source content.
      * @return the position in milliseconds at which the playback will end
      */
     public long getEndPosition() {
@@ -117,7 +126,7 @@ public final class DataSourceDesc {
      * It's meaningful only when {@code getType} returns {@link #TYPE_CALLBACK}.
      * @return the Media2DataSource of this data source
      */
-    public Media2DataSource getMedia2DataSource() {
+    public @Nullable Media2DataSource getMedia2DataSource() {
         return mMedia2DataSource;
     }
 
@@ -126,7 +135,7 @@ public final class DataSourceDesc {
      * It's meaningful only when {@code getType} returns {@link #TYPE_FD}.
      * @return the FileDescriptor of this data source
      */
-    public FileDescriptor getFileDescriptor() {
+    public @Nullable FileDescriptor getFileDescriptor() {
         return mFD;
     }
 
@@ -143,7 +152,7 @@ public final class DataSourceDesc {
     /**
      * Return the content length associated with the FileDescriptor of this data source.
      * It's meaningful only when {@code getType} returns {@link #TYPE_FD}.
-     * -1 means same as the length of source content.
+     * {@link #FD_LENGTH_UNKNOWN} means same as the length of source content.
      * @return the content length associated with the FileDescriptor of this data source
      */
     public long getFileDescriptorLength() {
@@ -155,7 +164,7 @@ public final class DataSourceDesc {
      * It's meaningful only when {@code getType} returns {@link #TYPE_URI}.
      * @return the Uri of this data source
      */
-    public Uri getUri() {
+    public @Nullable Uri getUri() {
         return mUri;
     }
 
@@ -164,7 +173,7 @@ public final class DataSourceDesc {
      * It's meaningful only when {@code getType} returns {@link #TYPE_URI}.
      * @return the Uri headers of this data source
      */
-    public Map<String, String> getUriHeaders() {
+    public @Nullable Map<String, String> getUriHeaders() {
         if (mUriHeader == null) {
             return null;
         }
@@ -176,7 +185,7 @@ public final class DataSourceDesc {
      * It's meaningful only when {@code getType} returns {@link #TYPE_URI}.
      * @return the Uri cookies of this data source
      */
-    public List<HttpCookie> getUriCookies() {
+    public @Nullable List<HttpCookie> getUriCookies() {
         if (mUriCookies == null) {
             return null;
         }
@@ -188,7 +197,7 @@ public final class DataSourceDesc {
      * It's meaningful only when {@code getType} returns {@link #TYPE_URI}.
      * @return the Context used for resolving the Uri of this data source
      */
-    public Context getUriContext() {
+    public @Nullable Context getUriContext() {
         return mUriContext;
     }
 
@@ -213,7 +222,7 @@ public final class DataSourceDesc {
 
         private FileDescriptor mFD;
         private long mFDOffset = 0;
-        private long mFDLength = LONG_MAX;
+        private long mFDLength = FD_LENGTH_UNKNOWN;
 
         private Uri mUri;
         private Map<String, String> mUriHeader;
@@ -222,7 +231,7 @@ public final class DataSourceDesc {
 
         private String mMediaId;
         private long mStartPositionMs = 0;
-        private long mEndPositionMs = LONG_MAX;
+        private long mEndPositionMs = POSITION_UNKNOWN;
 
         /**
          * Constructs a new Builder with the defaults.
@@ -235,7 +244,7 @@ public final class DataSourceDesc {
          * @param dsd the {@link DataSourceDesc} object whose data will be reused
          * in the new Builder.
          */
-        public Builder(DataSourceDesc dsd) {
+        public Builder(@NonNull DataSourceDesc dsd) {
             mType = dsd.mType;
             mMedia2DataSource = dsd.mMedia2DataSource;
             mFD = dsd.mFD;
@@ -258,7 +267,7 @@ public final class DataSourceDesc {
          *
          * @return a new {@link DataSourceDesc} object
          */
-        public DataSourceDesc build() {
+        public @NonNull DataSourceDesc build() {
             if (mType != TYPE_CALLBACK
                     && mType != TYPE_FD
                     && mType != TYPE_URI) {
@@ -293,7 +302,7 @@ public final class DataSourceDesc {
          * @param mediaId the media Id of this data source
          * @return the same Builder instance.
          */
-        public Builder setMediaId(String mediaId) {
+        public @NonNull Builder setMediaId(String mediaId) {
             mMediaId = mediaId;
             return this;
         }
@@ -306,7 +315,7 @@ public final class DataSourceDesc {
          * @return the same Builder instance.
          *
          */
-        public Builder setStartPosition(long position) {
+        public @NonNull Builder setStartPosition(long position) {
             if (position < 0) {
                 position = 0;
             }
@@ -321,9 +330,9 @@ public final class DataSourceDesc {
          * @param position the end position in milliseconds at which the playback will end
          * @return the same Builder instance.
          */
-        public Builder setEndPosition(long position) {
+        public @NonNull Builder setEndPosition(long position) {
             if (position < 0) {
-                position = LONG_MAX;
+                position = POSITION_UNKNOWN;
             }
             mEndPositionMs = position;
             return this;
@@ -336,7 +345,7 @@ public final class DataSourceDesc {
          * @return the same Builder instance.
          * @throws NullPointerException if m2ds is null.
          */
-        public Builder setDataSource(@NonNull Media2DataSource m2ds) {
+        public @NonNull Builder setDataSource(@NonNull Media2DataSource m2ds) {
             Preconditions.checkNotNull(m2ds);
             resetDataSource();
             mType = TYPE_CALLBACK;
@@ -353,7 +362,7 @@ public final class DataSourceDesc {
          * @return the same Builder instance.
          * @throws NullPointerException if fd is null.
          */
-        public Builder setDataSource(FileDescriptor fd) {
+        public @NonNull Builder setDataSource(@NonNull FileDescriptor fd) {
             Preconditions.checkNotNull(fd);
             resetDataSource();
             mType = TYPE_FD;
@@ -375,13 +384,14 @@ public final class DataSourceDesc {
          * @return the same Builder instance.
          * @throws NullPointerException if fd is null.
          */
-        public Builder setDataSource(FileDescriptor fd, long offset, long length) {
+        public @NonNull Builder setDataSource(@NonNull FileDescriptor fd, long offset,
+                long length) {
             Preconditions.checkNotNull(fd);
             if (offset < 0) {
                 offset = 0;
             }
             if (length < 0) {
-                length = LONG_MAX;
+                length = FD_LENGTH_UNKNOWN;
             }
             resetDataSource();
             mType = TYPE_FD;
@@ -399,7 +409,7 @@ public final class DataSourceDesc {
          * @return the same Builder instance.
          * @throws NullPointerException if context or uri is null.
          */
-        public Builder setDataSource(@NonNull Context context, @NonNull Uri uri) {
+        public @NonNull Builder setDataSource(@NonNull Context context, @NonNull Uri uri) {
             Preconditions.checkNotNull(context, "context cannot be null");
             Preconditions.checkNotNull(uri, "uri cannot be null");
             resetDataSource();
@@ -436,7 +446,7 @@ public final class DataSourceDesc {
          * @throws IllegalArgumentException if the cookie handler is not of CookieManager type
          *                                  when cookies are provided.
          */
-        public Builder setDataSource(@NonNull Context context, @NonNull Uri uri,
+        public @NonNull Builder setDataSource(@NonNull Context context, @NonNull Uri uri,
                 @Nullable Map<String, String> headers, @Nullable List<HttpCookie> cookies) {
             Preconditions.checkNotNull(context, "context cannot be null");
             Preconditions.checkNotNull(uri);
@@ -467,7 +477,7 @@ public final class DataSourceDesc {
             mMedia2DataSource = null;
             mFD = null;
             mFDOffset = 0;
-            mFDLength = LONG_MAX;
+            mFDLength = FD_LENGTH_UNKNOWN;
             mUri = null;
             mUriHeader = null;
             mUriCookies = null;

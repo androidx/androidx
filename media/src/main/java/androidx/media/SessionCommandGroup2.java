@@ -34,10 +34,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @hide
  * A set of {@link SessionCommand2} which represents a command group.
  */
-@RestrictTo(LIBRARY_GROUP)
 public final class SessionCommandGroup2 {
 
     private static final String TAG = "SessionCommandGroup2";
@@ -114,7 +112,6 @@ public final class SessionCommandGroup2 {
     }
 
     private void addCommandsWithPrefix(String prefix) {
-        // TODO(jaewan): (Can be post-P): Don't use reflection for this purpose.
         final Field[] fields = SessionCommand2.class.getFields();
         if (fields != null) {
             for (int i = 0; i < fields.length; i++) {
