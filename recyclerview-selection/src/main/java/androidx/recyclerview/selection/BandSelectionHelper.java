@@ -48,7 +48,7 @@ import java.util.Set;
  * the user interacts with items using their pointer (and the band). Selectable items that intersect
  * with the band, both on and off screen, are selected on pointer up.
  *
- * @see SelectionTracker.Builder#withBandTooltypes(int...) for details on the specific
+ * @see SelectionTracker.Builder#withPointerTooltypes(int...) for details on the specific
  *     tooltypes routed to this helper.
  *
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
