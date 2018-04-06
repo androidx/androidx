@@ -93,6 +93,7 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
 
     @Override
     public void clearAllTables() {
+        super.assertNotMainThread();
         final SupportSQLiteDatabase _db = super.getOpenHelper().getWritableDatabase();
         try {
             super.beginTransaction();
@@ -101,7 +102,9 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
         } finally {
             super.endTransaction();
             _db.query("PRAGMA wal_checkpoint(FULL)").close();
-            _db.execSQL("VACUUM");
+            if (!_db.inTransaction()) {
+                _db.execSQL("VACUUM");
+            }
         }
     }
 
