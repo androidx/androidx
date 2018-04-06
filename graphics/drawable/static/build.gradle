@@ -31,4 +31,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.VECTORDRAWABLE
     inceptionYear = "2015"
     description = "Android Support VectorDrawable"
+    failOnDeprecationWarnings = false
 }
