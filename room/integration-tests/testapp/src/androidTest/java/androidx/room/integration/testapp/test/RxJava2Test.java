@@ -40,6 +40,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Predicate;
 import io.reactivex.observers.TestObserver;
@@ -135,6 +138,42 @@ public class RxJava2Test extends TestDatabaseTest {
     }
 
     @Test
+    public void maybeUsers_keepMaybeReference() throws InterruptedException {
+        User[] users = TestUtil.createUsersArray(1, 2);
+        mUserDao.insertAll(users);
+        TestObserver<User> testObserver1 = new TestObserver<>();
+        Maybe<User> maybe1 = mUserDao.maybeUserById(1);
+        Disposable disposable1 = maybe1.observeOn(mTestScheduler)
+                .subscribeWith(testObserver1);
+        drain();
+        testObserver1.assertComplete();
+        // since this is a clean db, it is ok to rely on the order for the test.
+        testObserver1.assertValue(users[0]);
+
+        TestObserver<User> testObserver2 = new TestObserver<>();
+        Maybe<User> maybe2 = mUserDao.maybeUserById(2);
+        Disposable disposable2 = maybe2.observeOn(mTestScheduler)
+                .subscribeWith(testObserver2);
+        drain();
+        testObserver2.assertComplete();
+        // since this is a clean db, it is ok to rely on the order for the test.
+        testObserver2.assertValue(users[1]);
+
+        TestObserver<User> testObserver3 = new TestObserver<>();
+
+        Disposable disposable3 = maybe1.observeOn(mTestScheduler)
+                .subscribeWith(testObserver3);
+        drain();
+        testObserver3.assertComplete();
+        // since this is a clean db, it is ok to rely on the order for the test.
+        testObserver3.assertValue(users[0]);
+
+        disposable1.dispose();
+        disposable2.dispose();
+        disposable3.dispose();
+    }
+
+    @Test
     public void singleUser_Empty() throws InterruptedException {
         TestObserver<User> testObserver = new TestObserver<>();
         Disposable disposable = mUserDao.singleUserById(3).observeOn(mTestScheduler)
@@ -184,6 +223,40 @@ public class RxJava2Test extends TestDatabaseTest {
         testObserver.assertValue(Arrays.asList(users));
         disposable.dispose();
     }
+
+    @Test
+    public void singleUser_keepSingleReference() throws InterruptedException {
+        User[] users = TestUtil.createUsersArray(1, 2);
+        mUserDao.insertAll(users);
+        TestObserver<User> testObserver1 = new TestObserver<>();
+        Single<User> userSingle1 = mUserDao.singleUserById(1);
+        Disposable disposable1 = userSingle1.observeOn(mTestScheduler)
+                .subscribeWith(testObserver1);
+        drain();
+        testObserver1.assertComplete();
+        testObserver1.assertValue(users[0]);
+        disposable1.dispose();
+
+        // how get single for 2
+        TestObserver<User> testObserver2 = new TestObserver<>();
+        Single<User> userSingle2 = mUserDao.singleUserById(2);
+        Disposable disposable2 = userSingle2.observeOn(mTestScheduler)
+                .subscribeWith(testObserver2);
+        drain();
+        testObserver2.assertComplete();
+        testObserver2.assertValue(users[1]);
+        disposable2.dispose();
+
+        // now re-use the first single
+        TestObserver<User> testObserver3 = new TestObserver<>();
+        Disposable disposable3 = userSingle1.observeOn(mTestScheduler)
+                .subscribeWith(testObserver3);
+        drain();
+        testObserver3.assertComplete();
+        testObserver3.assertValue(users[0]);
+        disposable3.dispose();
+    }
+
 
     @Test
     public void observeOnce() throws InterruptedException {
@@ -236,6 +309,33 @@ public class RxJava2Test extends TestDatabaseTest {
         mUserDao.insertOrReplace(user);
         drain();
         assertThat(consumer.valueCount(), is(1));
+    }
+
+    @Test
+    public void observeFlowable_keepReference() throws InterruptedException {
+        User[] users = TestUtil.createUsersArray(1, 2);
+        mUserDao.insertAll(users);
+        drain();
+
+        TestSubscriber<User> consumer1 = new TestSubscriber<>();
+        Flowable<User> flowable1 = mUserDao.flowableUserById(1);
+        Disposable disposable1 = flowable1.subscribeWith(consumer1);
+        drain();
+        consumer1.assertValue(users[0]);
+
+        TestSubscriber<User> consumer2 = new TestSubscriber<>();
+        Disposable disposable2 = mUserDao.flowableUserById(2).subscribeWith(consumer2);
+        drain();
+        consumer2.assertValue(users[1]);
+
+        TestSubscriber<User> consumer3 = new TestSubscriber<>();
+        Disposable disposable3 = flowable1.subscribeWith(consumer3);
+        drain();
+        consumer3.assertValue(users[0]);
+
+        disposable1.dispose();
+        disposable2.dispose();
+        disposable3.dispose();
     }
 
     @Test
