@@ -54,5 +54,22 @@
     <string name="drawer_demo_activity_title">Drawer Demo</string>
     <string name="drawer_demo_root_item_label">Item %1$d</string>
     <string name="drawer_demo_subitem_label">SubItem %1$d</string>
+
+    <!-- Strings for CarAlertDialog Demo. -->
+    <string name="alert_dialog_checkbox_title">Title</string>
+    <string name="alert_dialog_checkbox_body">Body</string>
+    <string name="alert_dialog_checkbox_action1">Action 1</string>
+    <string name="alert_dialog_checkbox_action2">Action 2</string>
+    <string name="create_alert_dialog_button">Create CarAlertDialog</string>
+
+    <string name="alert_dialog_title">Title</string>
+    <string name="alert_dialog_body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec fringilla orci id nulla facilisis, sed luctus massa consectetur. Vivamus sagittis leo eget ultrices malesuada. Duis hendrerit nibh non pretium tincidunt.</string>
+    <string name="alert_dialog_action1">Action 1</string>
+    <string name="alert_dialog_action2">Action 2</string>
+
+    <!-- Strings for CarListDialog Demo. -->
+    <string name="list_dialog_num_of_items_hint">Number of Items</string>
+    <string name="list_dialog_initial_position_hint">Initial Position</string>
+    <string name="create_list_dialog_button">Create CarListDialog</string>
 </resources>
 
