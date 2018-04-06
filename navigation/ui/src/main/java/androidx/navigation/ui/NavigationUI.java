@@ -62,16 +62,25 @@ public class NavigationUI {
      */
     public static boolean onNavDestinationSelected(@NonNull MenuItem item,
             @NonNull NavController navController) {
+        return onNavDestinationSelected(item, navController, false);
+    }
+
+    private static boolean onNavDestinationSelected(@NonNull MenuItem item,
+            @NonNull NavController navController, boolean popUp) {
+        NavOptions.Builder builder = new NavOptions.Builder()
+                .setPopUpTo(navController.getGraph().getStartDestination(), false)
+                .setLaunchSingleTop(true)
+                .setEnterAnim(R.anim.nav_default_enter_anim)
+                .setExitAnim(R.anim.nav_default_exit_anim)
+                .setPopEnterAnim(R.anim.nav_default_pop_enter_anim)
+                .setPopExitAnim(R.anim.nav_default_pop_exit_anim);
+        if (popUp) {
+            builder.setPopUpTo(navController.getGraph().getStartDestination(), false);
+        }
+        NavOptions options = builder.build();
         try {
-            navController.navigate(item.getItemId(), null,
-                    new NavOptions.Builder()
-                            .setPopUpTo(navController.getGraph().getStartDestination(), false)
-                            .setLaunchSingleTop(true)
-                            .setEnterAnim(R.anim.nav_default_enter_anim)
-                            .setExitAnim(R.anim.nav_default_exit_anim)
-                            .setPopEnterAnim(R.anim.nav_default_pop_enter_anim)
-                            .setPopExitAnim(R.anim.nav_default_pop_exit_anim)
-                            .build());
+            //TODO provide proper API instead of using Exceptions as Control-Flow.
+            navController.navigate(item.getItemId(), null, options);
             return true;
         } catch (IllegalArgumentException e) {
             return false;
@@ -161,7 +170,7 @@ public class NavigationUI {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        boolean handled = onNavDestinationSelected(item, navController);
+                        boolean handled = onNavDestinationSelected(item, navController, true);
                         if (handled) {
                             ViewParent parent = navigationView.getParent();
                             if (parent instanceof DrawerLayout) {
@@ -204,7 +213,7 @@ public class NavigationUI {
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        return onNavDestinationSelected(item, navController);
+                        return onNavDestinationSelected(item, navController, true);
                     }
                 });
         navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
