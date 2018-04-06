@@ -596,7 +596,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(mContext.getPackageName(), mController.getSessionToken().getPackageName());
     }
 
-    @Ignore
     @Test
     public void testSendCustomCommand() throws InterruptedException {
         prepareLooper();
@@ -611,7 +610,6 @@ public class MediaController2Test extends MediaSession2TestBase {
             @Override
             public void onCustomCommand(MediaSession2 session, ControllerInfo controller,
                     SessionCommand2 customCommand, Bundle args, ResultReceiver cb) {
-                super.onCustomCommand(session, controller, customCommand, args, cb);
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(testCommand, customCommand);
                 assertTrue(TestUtils.equals(testArgs, args));

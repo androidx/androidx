@@ -20,7 +20,9 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
+import static androidx.media.MediaConstants2.ARGUMENT_ARGUMENTS;
 import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
+import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
@@ -46,6 +48,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_VOLUME_FLAGS;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
+import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
@@ -1185,7 +1188,16 @@ public class MediaController2 implements AutoCloseable {
      */
     public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args,
             @Nullable ResultReceiver cb) {
-        //mProvider.sendCustomCommand_impl(command, args, cb);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            Bundle bundle = new Bundle();
+            bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
+            bundle.putBundle(ARGUMENT_ARGUMENTS, args);
+            sendCommand(CONTROLLER_COMMAND_BY_CUSTOM_COMMAND, bundle, cb);
+        }
     }
 
     /**

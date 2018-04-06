@@ -43,9 +43,12 @@ class MediaConstants2 {
             "androidx.media.controller.command.DISCONNECT";
     static final String CONTROLLER_COMMAND_BY_COMMAND_CODE =
             "androidx.media.controller.command.BY_COMMAND_CODE";
+    static final String CONTROLLER_COMMAND_BY_CUSTOM_COMMAND =
+            "androidx.media.controller.command.BY_CUSTOM_COMMAND";
 
 
     static final String ARGUMENT_COMMAND_CODE = "androidx.media.argument.COMMAND_CODE";
+    static final String ARGUMENT_CUSTOM_COMMAND = "androidx.media.argument.CUSTOM_COMMAND";
     static final String ARGUMENT_ALLOWED_COMMANDS = "androidx.media.argument.ALLOWED_COMMANDS";
     static final String ARGUMENT_SEEK_POSITION = "androidx.media.argument.SEEK_POSITION";
     static final String ARGUMENT_PLAYER_STATE = "androidx.media.argument.PLAYER_STATE";
@@ -66,6 +69,7 @@ class MediaConstants2 {
     static final String ARGUMENT_VOLUME_DIRECTION = "androidx.media.argument.VOLUME_DIRECTION";
     static final String ARGUMENT_VOLUME_FLAGS = "androidx.media.argument.VOLUME_FLAGS";
     static final String ARGUMENT_EXTRAS = "androidx.media.argument.EXTRAS";
+    static final String ARGUMENT_ARGUMENTS = "androidx.media.argument.ARGUMENTS";
 
     static final String ARGUMENT_ICONTROLLER_CALLBACK =
             "androidx.media.argument.ICONTROLLER_CALLBACK";
