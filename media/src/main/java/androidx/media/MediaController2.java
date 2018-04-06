@@ -21,6 +21,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
 import static androidx.media.MediaConstants2.ARGUMENT_ARGUMENTS;
+import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_BUTTONS;
 import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
@@ -60,6 +61,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
+import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
 import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
@@ -499,6 +501,7 @@ public class MediaController2 implements AutoCloseable {
 
         @Override
         public void onSessionEvent(String event, Bundle extras) {
+            // TODO: Call callbacks on the executor
             switch (event) {
                 case SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED: {
                     SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
@@ -569,6 +572,16 @@ public class MediaController2 implements AutoCloseable {
                     Bundle args = extras.getBundle(ARGUMENT_ARGUMENTS);
                     ResultReceiver receiver = extras.getParcelable(ARGUMENT_RESULT_RECEIVER);
                     mCallback.onCustomCommand(MediaController2.this, command, args, receiver);
+                    break;
+                }
+                case SESSION_EVENT_SET_CUSTOM_LAYOUT: {
+                    List<CommandButton> layout = MediaUtils2.fromCommandButtonParcelableArray(
+                            extras.getParcelableArray(ARGUMENT_COMMAND_BUTTONS));
+                    if (layout == null) {
+                        return;
+                    }
+                    mCallback.onCustomLayoutChanged(MediaController2.this, layout);
+                    break;
                 }
             }
         }

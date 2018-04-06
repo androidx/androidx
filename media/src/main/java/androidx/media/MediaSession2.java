@@ -828,6 +828,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          */
         @RestrictTo(LIBRARY_GROUP)
         public @NonNull Bundle toBundle() {
+            // TODO: Fill here.
             return new Bundle();
         }
 
@@ -924,6 +925,44 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          */
         public boolean isEnabled() {
             return mEnabled;
+        }
+
+        /**
+         * @hide
+         * @return Bundle
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public @NonNull Bundle toBundle() {
+            Bundle bundle = new Bundle();
+            bundle.putBundle(KEY_COMMAND, mCommand.toBundle());
+            bundle.putInt(KEY_ICON_RES_ID, mIconResId);
+            bundle.putString(KEY_DISPLAY_NAME, mDisplayName);
+            bundle.putBundle(KEY_EXTRAS, mExtras);
+            bundle.putBoolean(KEY_ENABLED, mEnabled);
+            return bundle;
+        }
+
+        /**
+         * @hide
+         * @return CommandButton
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public static @Nullable CommandButton fromBundle(Bundle bundle) {
+            if (bundle == null) {
+                return null;
+            }
+            CommandButton.Builder builder = new CommandButton.Builder();
+            builder.setCommand(SessionCommand2.fromBundle(bundle.getBundle(KEY_COMMAND)));
+            builder.setIconResId(bundle.getInt(KEY_ICON_RES_ID, 0));
+            builder.setDisplayName(bundle.getString(KEY_DISPLAY_NAME));
+            builder.setExtras(bundle.getBundle(KEY_EXTRAS));
+            builder.setEnabled(bundle.getBoolean(KEY_ENABLED));
+            try {
+                return builder.build();
+            } catch (IllegalStateException e) {
+                // Malformed or version mismatch. Return null for now.
+                return null;
+            }
         }
 
         /**

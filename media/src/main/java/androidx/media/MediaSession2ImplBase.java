@@ -234,7 +234,13 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @Override
     public void setCustomLayout(@NonNull ControllerInfo controller,
             @NonNull List<MediaSession2.CommandButton> layout) {
-        //mProvider.setCustomLayout_impl(controller, layout);
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
+        if (layout == null) {
+            throw new IllegalArgumentException("layout shouldn't be null");
+        }
+        mSession2Stub.notifyCustomLayoutNotLocked(controller, layout);
     }
 
     @Override

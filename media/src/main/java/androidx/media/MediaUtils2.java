@@ -36,6 +36,8 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import androidx.media.MediaSession2.CommandButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -311,6 +313,9 @@ class MediaUtils2 {
         List<MediaItem2> playlist = new ArrayList<>();
         if (itemParcelableList != null) {
             for (int i = 0; i < itemParcelableList.length; i++) {
+                if (!(itemParcelableList[i] instanceof Bundle)) {
+                    continue;
+                }
                 MediaItem2 item = MediaItem2.fromBundle((Bundle) itemParcelableList[i]);
                 if (item != null) {
                     playlist.add(item);
@@ -318,6 +323,36 @@ class MediaUtils2 {
             }
         }
         return playlist;
+    }
+
+    static Parcelable[] toCommandButtonParcelableArray(List<CommandButton> layout) {
+        if (layout == null) {
+            return null;
+        }
+        List<Bundle> layoutBundles = new ArrayList<>();
+        for (int i = 0; i < layout.size(); i++) {
+            Bundle bundle = layout.get(i).toBundle();
+            if (bundle != null) {
+                layoutBundles.add(bundle);
+            }
+        }
+        return layoutBundles.toArray(new Parcelable[0]);
+    }
+
+    static List<CommandButton> fromCommandButtonParcelableArray(Parcelable[] list) {
+        List<CommandButton> layout = new ArrayList<>();
+        if (layout != null) {
+            for (int i = 0; i < list.length; i++) {
+                if (!(list[i] instanceof Bundle)) {
+                    continue;
+                }
+                CommandButton button = CommandButton.fromBundle((Bundle) list[i]);
+                if (button != null) {
+                    layout.add(button);
+                }
+            }
+        }
+        return layout;
     }
 
     static Bundle toAudioAttributesBundle(AudioAttributesCompat attrs) {

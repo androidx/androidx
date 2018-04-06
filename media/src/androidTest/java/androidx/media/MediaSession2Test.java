@@ -693,7 +693,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testSetCustomLayout() throws InterruptedException {
         prepareLooper();

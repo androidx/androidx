@@ -18,6 +18,7 @@ package androidx.media;
 
 import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
 import static androidx.media.MediaConstants2.ARGUMENT_ARGUMENTS;
+import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_BUTTONS;
 import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
@@ -57,6 +58,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
+import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
@@ -101,6 +103,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.media.MediaSession2.CommandButton;
 import androidx.media.MediaSession2.ControllerInfo;
 
 import java.util.ArrayList;
@@ -423,6 +426,18 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             }
         }
         return controllers;
+    }
+
+    void notifyCustomLayoutNotLocked(ControllerInfo controller, final List<CommandButton> layout) {
+        notifyInternal(controller, new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArray(ARGUMENT_COMMAND_BUTTONS,
+                        MediaUtils2.toCommandButtonParcelableArray(layout));
+                controller.getControllerBinder().onEvent(SESSION_EVENT_SET_CUSTOM_LAYOUT, bundle);
+            }
+        });
     }
 
     void setAllowedCommands(ControllerInfo controller, final SessionCommandGroup2 commands) {
