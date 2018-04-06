@@ -80,7 +80,7 @@ public final class SessionCommand2 {
      * request through the {@link SessionCallback#onCommandRequest(
      * MediaSession2, ControllerInfo, SessionCommand2)}.
      */
-    public static final int COMMAND_CODE_PLAYLIST_SKIP_NEXT_ITEM = 4;
+    public static final int COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM = 4;
 
     /**
      * Command code for {@link MediaController2#skipToPreviousItem()}.
@@ -89,7 +89,7 @@ public final class SessionCommand2 {
      * request through the {@link SessionCallback#onCommandRequest(
      * MediaSession2, ControllerInfo, SessionCommand2)}.
      */
-    public static final int COMMAND_CODE_PLAYLIST_SKIP_PREV_ITEM = 5;
+    public static final int COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM = 5;
 
     /**
      * Command code for {@link MediaController2#prepare()}.
@@ -126,7 +126,7 @@ public final class SessionCommand2 {
      * doesn't reject the request through the
      * {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)}.
      */
-    public static final int COMMAND_CODE_SET_VOLUME = 10;
+    public static final int COMMAND_CODE_VOLUME_SET_VOLUME = 10;
 
     /**
      * Command code for both {@link MediaController2#adjustVolume(int, int)}.
@@ -135,7 +135,7 @@ public final class SessionCommand2 {
      * doesn't reject the request through the
      * {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)}.
      */
-    public static final int COMMAND_CODE_ADJUST_VOLUME = 11;
+    public static final int COMMAND_CODE_VOLUME_ADJUST_VOLUME = 11;
 
     /**
      * Command code for {@link MediaController2#skipToPlaylistItem(MediaItem2)}.

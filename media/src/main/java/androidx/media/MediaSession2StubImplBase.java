@@ -19,8 +19,9 @@ package androidx.media;
 import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
 import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
-import static androidx.media.MediaConstants2.ARGUMENT_ERROR_EXTRAS;
+import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
+import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ID;
 import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media.MediaConstants2.ARGUMENT_PID;
@@ -29,16 +30,23 @@ import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_INDEX;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
+import static androidx.media.MediaConstants2.ARGUMENT_QUERY;
+import static androidx.media.MediaConstants2.ARGUMENT_RATING;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
+import static androidx.media.MediaConstants2.ARGUMENT_URI;
+import static androidx.media.MediaConstants2.ARGUMENT_VOLUME;
+import static androidx.media.MediaConstants2.ARGUMENT_VOLUME_DIRECTION;
+import static androidx.media.MediaConstants2.ARGUMENT_VOLUME_FLAGS;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
-import static androidx.media.MediaConstants2.SESSION_EVENT_NOTIFY_ERROR;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
@@ -56,9 +64,24 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_REWIND;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SET_RATING;
+import static androidx.media.SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
+import static androidx.media.SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.DeadObjectException;
@@ -92,6 +115,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         SessionCommandGroup2 group = new SessionCommandGroup2();
         group.addAllPlaybackCommands();
         group.addAllPlaylistCommands();
+        group.addAllVolumeCommands();
         Set<SessionCommand2> commands = group.getCommands();
         for (SessionCommand2 command : commands) {
             sCommandsForOnCommandRequest.append(command.getCommandCode(), command);
@@ -263,10 +287,131 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                                 mSession.replacePlaylistItem(index, item);
                                 break;
                             }
+                            case COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM: {
+                                mSession.skipToNextItem();
+                                break;
+                            }
+                            case COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM: {
+                                mSession.skipToPreviousItem();
+                                break;
+                            }
+                            case COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM: {
+                                MediaItem2 item = MediaItem2.fromBundle(
+                                        extras.getBundle(ARGUMENT_MEDIA_ITEM));
+                                mSession.skipToPlaylistItem(item);
+                                break;
+                            }
+                            case COMMAND_CODE_VOLUME_SET_VOLUME: {
+                                int value = extras.getInt(ARGUMENT_VOLUME);
+                                int flags = extras.getInt(ARGUMENT_VOLUME_FLAGS);
+                                VolumeProviderCompat vp = mSession.getVolumeProvider();
+                                if (vp == null) {
+                                    // TODO: Revisit
+                                } else {
+                                    vp.onSetVolumeTo(value);
+                                }
+                                break;
+                            }
+                            case COMMAND_CODE_VOLUME_ADJUST_VOLUME: {
+                                int direction = extras.getInt(ARGUMENT_VOLUME_DIRECTION);
+                                int flags = extras.getInt(ARGUMENT_VOLUME_FLAGS);
+                                VolumeProviderCompat vp = mSession.getVolumeProvider();
+                                if (vp == null) {
+                                    // TODO: Revisit
+                                } else {
+                                    vp.onAdjustVolume(direction);
+                                }
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_REWIND: {
+                                mSession.getCallback().onRewind(
+                                        mSession.getInstance(), controller);
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_FAST_FORWARD: {
+                                mSession.getCallback().onFastForward(
+                                        mSession.getInstance(), controller);
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID: {
+                                String mediaId = extras.getString(ARGUMENT_MEDIA_ID);
+                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
+                                mSession.getCallback().onPlayFromMediaId(
+                                        mSession.getInstance(), controller, mediaId, extra);
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_PLAY_FROM_SEARCH: {
+                                String query = extras.getString(ARGUMENT_QUERY);
+                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
+                                mSession.getCallback().onPlayFromSearch(
+                                        mSession.getInstance(), controller, query, extra);
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_PLAY_FROM_URI: {
+                                Uri uri = extras.getParcelable(ARGUMENT_URI);
+                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
+                                mSession.getCallback().onPlayFromUri(
+                                        mSession.getInstance(), controller, uri, extra);
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID: {
+                                String mediaId = extras.getString(ARGUMENT_MEDIA_ID);
+                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
+                                mSession.getCallback().onPrepareFromMediaId(
+                                        mSession.getInstance(), controller, mediaId, extra);
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH: {
+                                String query = extras.getString(ARGUMENT_QUERY);
+                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
+                                mSession.getCallback().onPrepareFromSearch(
+                                        mSession.getInstance(), controller, query, extra);
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_PREPARE_FROM_URI: {
+                                Uri uri = extras.getParcelable(ARGUMENT_URI);
+                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
+                                mSession.getCallback().onPrepareFromUri(
+                                        mSession.getInstance(), controller, uri, extra);
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_SET_RATING: {
+                                String mediaId = extras.getString(ARGUMENT_MEDIA_ID);
+                                Rating2 rating = Rating2.fromBundle(
+                                        extras.getBundle(ARGUMENT_RATING));
+                                mSession.getCallback().onSetRating(
+                                        mSession.getInstance(), controller, mediaId, rating);
+                                break;
+                            }
                         }
                     }
                 });
         }
+    }
+
+    List<ControllerInfo> getConnectedControllers() {
+        ArrayList<ControllerInfo> controllers = new ArrayList<>();
+        synchronized (mLock) {
+            for (int i = 0; i < mControllers.size(); i++) {
+                controllers.add(mControllers.valueAt(i));
+            }
+        }
+        return controllers;
+    }
+
+    void setAllowedCommands(ControllerInfo controller, final SessionCommandGroup2 commands) {
+        synchronized (mLock) {
+            mAllowedCommandGroupMap.put(controller, commands);
+        }
+        notifyInternal(controller, new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putBundle(ARGUMENT_ALLOWED_COMMANDS, commands.toBundle());
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED, bundle);
+            }
+        });
     }
 
     void notifyPlayerStateChanged(final int state) {
@@ -287,8 +432,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
                 bundle.putInt(ARGUMENT_ERROR_CODE, errorCode);
-                bundle.putBundle(ARGUMENT_ERROR_EXTRAS, extras);
-                controller.getControllerBinder().onEvent(SESSION_EVENT_NOTIFY_ERROR, bundle);
+                bundle.putBundle(ARGUMENT_EXTRAS, extras);
+                controller.getControllerBinder().onEvent(SESSION_EVENT_ON_ERROR, bundle);
             }
         });
     }

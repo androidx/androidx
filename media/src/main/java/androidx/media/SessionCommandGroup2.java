@@ -48,6 +48,8 @@ public final class SessionCommandGroup2 {
     private static final String PREFIX_COMMAND_CODE_PLAYBACK = "COMMAND_CODE_PLAYBACK_";
     // Prefix for command codes that will be sent directly to the MediaPlaylistAgent
     private static final String PREFIX_COMMAND_CODE_PLAYLIST = "COMMAND_CODE_PLAYLIST_";
+    // Prefix for command codes that will be sent directly to AudioManager or VolumeProvider.
+    private static final String PREFIX_COMMAND_CODE_VOLUME = "COMMAND_CODE_VOLUME_";
 
     private Set<SessionCommand2> mCommands = new HashSet<>();
 
@@ -105,6 +107,10 @@ public final class SessionCommandGroup2 {
 
     void addAllPlaylistCommands() {
         addCommandsWithPrefix(PREFIX_COMMAND_CODE_PLAYLIST);
+    }
+
+    void addAllVolumeCommands() {
+        addCommandsWithPrefix(PREFIX_COMMAND_CODE_VOLUME);
     }
 
     private void addCommandsWithPrefix(String prefix) {
