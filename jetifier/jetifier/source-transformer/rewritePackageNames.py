@@ -11,6 +11,17 @@ import json
 import os.path
 import subprocess
 
+HARDCODED_RULES_REVERSE = [
+  "s|androidx.core.media.MediaBrowserCompat|android.support.v4.media.MediaBrowserCompat|g\n",
+  "s|androidx.core.media.MediaDescriptionCompat|android.support.v4.media.MediaDescriptionCompat|g\n",
+  "s|androidx.core.media.MediaMetadataCompat|android.support.v4.media.MediaMetadataCompat|g\n",
+  "s|androidx.core.media.RatingCompat|android.support.v4.media.RatingCompat|g\n",
+  "s|androidx.core.media.session.MediaControllerCompat|android.support.v4.media.session.MediaControllerCompat|g\n",
+  "s|androidx.core.media.session.MediaSessionCompat|android.support.v4.media.session.MediaSessionCompat|g\n",
+  "s|androidx.core.media.session.ParcelableVolumeInfo|android.support.v4.media.session.ParcelableVolumeInfo|g\n",
+  "s|androidx.core.media.session.PlaybackStateCompat|android.support.v4.media.session.PlaybackStateCompat|g\n",
+]
+
 class StringBuilder(object):
   def __init__(self, item=None):
     self.items = []
@@ -76,7 +87,7 @@ def createRewriteCommand(executionConfig):
     finderTextBuilder.add(" ").add(sourceRoot)
   for exclusion in executionConfig.excludeDirs:
     finderTextBuilder.add(" -name ").add(exclusion).add(" -prune -o")
-  finderTextBuilder.add(" -iregex '.*\.java\|.*\.xml' -print")
+  finderTextBuilder.add(" -iregex '.*\.java\|.*\.xml\|.*\.cfg\|.*\.flags' -print")
 
   # create command to rewrite one source
   print("Building sed instructions")
@@ -84,6 +95,8 @@ def createRewriteCommand(executionConfig):
   rewriteRules = executionConfig.jetifierConfig.getTypesMap()
   for rule in rewriteRules:
     rewriterTextBuilder.add("s|").add(rule.fromName).add("|").add(rule.toName).add("|g\n")
+  for rule in HARDCODED_RULES_REVERSE:
+    rewriterTextBuilder.add(rule)
   scriptPath = "/tmp/jetifier-sed-script.txt"
   print("Writing " + scriptPath)
   with open(scriptPath, 'w') as scriptFile:
