@@ -18,8 +18,10 @@ import android.content.res.TypedArray;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.ActionMode;
 import android.widget.TextView;
 
+import androidx.core.widget.TextViewCompat;
 import androidx.leanback.R;
 
 /**
@@ -270,5 +272,15 @@ class ResizingTextView extends TextView {
         } else {
             setPadding(getPaddingLeft(), paddingTop, getPaddingRight(), paddingBottom);
         }
+    }
+
+    /**
+     * See
+     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        super.setCustomSelectionActionModeCallback(TextViewCompat
+                .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }
 }

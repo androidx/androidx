@@ -20,11 +20,14 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.autofill.AutofillValue;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.core.widget.TextViewCompat;
 
 /**
  * A custom EditText that satisfies the IME key monitoring requirements of GuidedStepFragment.
@@ -137,5 +140,15 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor,
         if (mAutofillListener != null) {
             mAutofillListener.onAutofill(this);
         }
+    }
+
+    /**
+     * See
+     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        super.setCustomSelectionActionModeCallback(TextViewCompat
+                .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }
 }

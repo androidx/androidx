@@ -27,10 +27,13 @@ import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Property;
+import android.view.ActionMode;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 
+import androidx.core.widget.TextViewCompat;
 import androidx.leanback.R;
 
 import java.util.List;
@@ -291,4 +294,14 @@ class StreamingTextView extends EditText {
     }
 
     public void updateRecognizedText(String stableText, List<Float> rmsValues) {}
+
+    /**
+     * See
+     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        super.setCustomSelectionActionModeCallback(TextViewCompat
+                .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
+    }
 }
