@@ -128,7 +128,6 @@ public class MediaController2Test extends MediaSession2TestBase {
      * Test if the {@link MediaSession2TestBase.TestControllerCallback} wraps the callback proxy
      * without missing any method.
      */
-    @Ignore
     @Test
     public void testTestControllerCallback() {
         prepareLooper();
@@ -922,7 +921,6 @@ public class MediaController2Test extends MediaSession2TestBase {
     /**
      * Test potential deadlock for calls between controller and session.
      */
-    @Ignore
     @Test
     public void testDeadlock() throws InterruptedException {
         prepareLooper();
