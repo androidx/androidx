@@ -16,6 +16,8 @@
 
 package androidx.work;
 
+import android.support.annotation.NonNull;
+
 import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +42,7 @@ import java.util.Map;
 public class ArrayCreatingInputMerger extends InputMerger {
 
     @Override
-    public Data merge(List<Data> inputs) {
+    public @NonNull Data merge(@NonNull List<Data> inputs) {
         Data.Builder output = new Data.Builder();
         Map<String, Object> mergedValues = new HashMap<>();
 

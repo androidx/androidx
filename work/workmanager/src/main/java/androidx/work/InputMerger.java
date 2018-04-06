@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
@@ -35,7 +36,7 @@ public abstract class InputMerger {
      * @param inputs A list of {@link Data} from previous Workers or the Work.Builder
      * @return The merged output
      */
-    public abstract Data merge(List<Data> inputs);
+    public abstract @NonNull Data merge(@NonNull List<Data> inputs);
 
     /**
      * Instantiates an {@link InputMerger} from its class name.
