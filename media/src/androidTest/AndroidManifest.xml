@@ -27,6 +27,15 @@
                 <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
             </intent-filter>
         </activity>
+        <activity android:name="androidx.media.MediaStubActivity"
+                  android:label="MediaStubActivity"
+                  android:screenOrientation="nosensor"
+                  android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
+            </intent-filter>
+        </activity>
 
         <activity android:name="androidx.media.MockActivity" />
 
