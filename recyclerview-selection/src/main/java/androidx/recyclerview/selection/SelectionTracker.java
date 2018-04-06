@@ -29,6 +29,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
 
 import java.util.Set;
 
@@ -471,7 +472,7 @@ public abstract class SelectionTracker<K> {
                 MotionEvent.TOOL_TYPE_UNKNOWN
         };
 
-        private int[] mBandToolTypes = new int[] {
+        private int[] mPointerToolTypes = new int[] {
                 MotionEvent.TOOL_TYPE_MOUSE
         };
 
@@ -637,14 +638,16 @@ public abstract class SelectionTracker<K> {
         }
 
         /**
-         * Replaces default band selection tool-types. Defaults are:
+         * Replaces default pointer tool-types. Pointer tools
+         * are associated with band selection, and certain
+         * drag and drop behaviors. Defaults are:
          * {@link MotionEvent#TOOL_TYPE_MOUSE}.
          *
          * @param toolTypes the tool types to be used
          * @return this
          */
-        public Builder<K> withBandTooltypes(int... toolTypes) {
-            mBandToolTypes = toolTypes;
+        public Builder<K> withPointerTooltypes(int... toolTypes) {
+            mPointerToolTypes = toolTypes;
             return this;
         }
 
@@ -769,9 +772,11 @@ public abstract class SelectionTracker<K> {
                     mOnItemActivatedListener,
                     mFocusDelegate);
 
-            for (int toolType : mBandToolTypes) {
+            for (int toolType : mPointerToolTypes) {
                 gestureRouter.register(toolType, mouseHandler);
             }
+
+            @Nullable BandSelectionHelper bandHelper = null;
 
             // Band selection not supported in single select mode, or when key access
             // is limited to anything less than the entire corpus.
@@ -782,7 +787,7 @@ public abstract class SelectionTracker<K> {
                 // necessarily models and caches list/grid information as the user's pointer
                 // interacts with the item in the RecyclerView. Selectable items that intersect
                 // with the band, both on and off screen, are selected.
-                BandSelectionHelper bandHelper = BandSelectionHelper.create(
+                bandHelper = BandSelectionHelper.create(
                         mRecyclerView,
                         scroller,
                         mBandOverlayId,
@@ -792,10 +797,13 @@ public abstract class SelectionTracker<K> {
                         mBandPredicate,
                         mFocusDelegate,
                         mMonitor);
+            }
 
-                for (int toolType : mBandToolTypes) {
-                    eventRouter.register(toolType, bandHelper);
-                }
+            OnItemTouchListener pointerEventHandler = new PointerDragEventInterceptor(
+                    mDetailsLookup, mOnDragInitiatedListener, bandHelper);
+
+            for (int toolType : mPointerToolTypes) {
+                eventRouter.register(toolType, pointerEventHandler);
             }
 
             return tracker;
