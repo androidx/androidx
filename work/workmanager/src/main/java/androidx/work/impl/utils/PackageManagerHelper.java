@@ -57,7 +57,7 @@ public class PackageManagerHelper {
 
             Logger.debug(TAG, "%s %s", className, (enabled ? "enabled" : "disabled"));
         } catch (Exception exception) {
-            Logger.debug(TAG, "% could not be %s", exception, className,
+            Logger.debug(TAG, "%s could not be %s", exception, className,
                     (enabled ? "enabled" : "disabled"));
         }
     }

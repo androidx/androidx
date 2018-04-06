@@ -110,20 +110,22 @@ public class EnqueueRunnable implements Runnable {
     }
 
     private static boolean processContinuation(@NonNull WorkContinuationImpl workContinuation) {
+        boolean needsScheduling = false;
         List<WorkContinuationImpl> parents = workContinuation.getParents();
         if (parents != null) {
             for (WorkContinuationImpl parent : parents) {
                 // When chaining off a completed continuation we need to pay
                 // attention to parents that may have been marked as enqueued before.
                 if (!parent.isEnqueued()) {
-                    processContinuation(parent);
+                    needsScheduling |= processContinuation(parent);
                 } else {
                     Logger.warn(TAG, "Already enqueued work ids (%s).",
                             TextUtils.join(", ", parent.getIds()));
                 }
             }
         }
-        return enqueueContinuation(workContinuation);
+        needsScheduling |= enqueueContinuation(workContinuation);
+        return needsScheduling;
     }
 
     private static boolean enqueueContinuation(@NonNull WorkContinuationImpl workContinuation) {

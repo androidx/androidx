@@ -23,9 +23,11 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.lifecycle.Lifecycle;
@@ -51,10 +53,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 
@@ -64,6 +69,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
+    private Scheduler mScheduler;
 
     @Rule
     public InstantTaskExecutorRule mRule = new InstantTaskExecutorRule();
@@ -90,12 +96,15 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.CREATED);
 
+        mScheduler = mock(Scheduler.class);
         Context context = InstrumentationRegistry.getTargetContext();
         WorkManagerConfiguration configuration = new WorkManagerConfiguration(
                 context,
                 true,
                 Executors.newSingleThreadExecutor());
-        mWorkManagerImpl = new WorkManagerImpl(context, configuration);
+
+        mWorkManagerImpl = spy(new WorkManagerImpl(context, configuration));
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
     }
@@ -147,6 +156,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         assertThat(continuation.isEnqueued(), is(false));
         continuation.enqueueBlocking();
         verifyEnqueued(continuation);
+        verifyScheduled(mScheduler, continuation);
     }
 
     @Test
@@ -157,6 +167,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
         chain.enqueueBlocking();
         verifyEnqueued(continuation);
+        verifyScheduled(mScheduler, continuation);
     }
 
     @Test
@@ -167,6 +178,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
         chain.enqueueBlocking();
         verifyEnqueued(continuation);
+        verifyScheduled(mScheduler, continuation);
         WorkContinuationImpl spy = spy(chain);
         spy.enqueueBlocking();
         // Verify no more calls to markEnqueued().
@@ -222,6 +234,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 firstDependent, secondDependent);
         dependent.enqueueBlocking();
         verifyEnqueued(dependent);
+        verifyScheduled(mScheduler, dependent);
     }
 
     @Test
@@ -240,6 +253,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 firstDependent, secondDependent);
         dependent.enqueueBlocking();
         verifyEnqueued(dependent);
+        verifyScheduled(mScheduler, dependent);
     }
 
     @Test
@@ -459,13 +473,33 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         assertThat(joined.hasCycles(), is(false));
     }
 
-    private void verifyEnqueued(WorkContinuationImpl continuation) {
+    private static void verifyEnqueued(WorkContinuationImpl continuation) {
         assertThat(continuation.isEnqueued(), is(true));
         List<WorkContinuationImpl> parents = continuation.getParents();
         if (parents != null) {
             for (WorkContinuationImpl parent : parents) {
                 verifyEnqueued(parent);
             }
+        }
+    }
+
+    private static void verifyScheduled(Scheduler scheduler, WorkContinuationImpl continuation) {
+        ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
+        verify(scheduler, times(1)).schedule(captor.capture());
+        List<WorkSpec> workSpecs = captor.getAllValues();
+        assertThat(workSpecs, notNullValue());
+
+        WorkDatabase workDatabase = continuation.getWorkManagerImpl().getWorkDatabase();
+        List<WorkSpec> eligibleWorkSpecs =
+                workDatabase.workSpecDao().getEligibleWorkForScheduling();
+
+        Set<String> capturedIds = new HashSet<>();
+        for (WorkSpec workSpec : workSpecs) {
+            capturedIds.add(workSpec.id);
+        }
+
+        for (WorkSpec eligibleWorkSpec : eligibleWorkSpecs) {
+            assertThat(capturedIds.contains(eligibleWorkSpec.id), is(true));
         }
     }
 
