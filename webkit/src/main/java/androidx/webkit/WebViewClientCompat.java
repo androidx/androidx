@@ -17,6 +17,7 @@
 package androidx.webkit;
 
 import android.os.Build;
+import android.webkit.SafeBrowsingResponse;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -48,6 +49,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
         Features.RECEIVE_WEB_RESOURCE_ERROR,
         Features.RECEIVE_HTTP_ERROR,
         Features.SHOULD_OVERRIDE_WITH_REDIRECTS,
+        Features.SAFE_BROWSING_HIT,
     };
 
     /** @hide */
@@ -109,7 +111,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     }
 
     /**
-     * Invoked by chromium (for up-to-date WebView APKs) for the {@code onReceivedError} event.
+     * Invoked by chromium (for WebView APks 67+) for the {@code onReceivedError} event.
      * Applications are not meant to override this, and should instead override the non-final {@link
      * onReceivedError(WebView, WebResourceRequest, WebResourceErrorCompat)} method.
      *
@@ -187,9 +189,9 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     }
 
     /**
-     * Invoked by chromium for the {@code onSafeBrowsingHit} event. Applications are not meant to
-     * override this, and should instead override the non-final {@code onSafeBrowsingHit} method.
-     * TODO(ntfschr): link to that method once it's implemented.
+     * Invoked by chromium (for WebView APks 67+) for the {@code onSafeBrowsingHit} event.
+     * Applications are not meant to override this, and should instead override the non-final {@link
+     * onSafeBrowsingHit(WebView, WebResourceRequest, int, SafeBrowsingResponseCompat)} method.
      *
      * @hide
      */
@@ -197,8 +199,47 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     @Override
     public final void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
             @SafeBrowsingThreat int threatType,
-            /* SafeBrowsingResponse */ @NonNull InvocationHandler callback) {
-        // TODO(ntfschr): implement this (b/73151460).
+            /* SafeBrowsingResponse */ @NonNull InvocationHandler handler) {
+        onSafeBrowsingHit(view, request, threatType,
+                SafeBrowsingResponseCompat.fromInvocationHandler(handler));
+    }
+
+    /**
+     * Invoked by chromium (in legacy WebView APKs) for the {@code onSafeBrowsingHit} event on
+     * {@link Build.VERSION_CODES.O_MR1} and above. Applications are not meant to override this, and
+     * should instead override the non-final {@link onSafeBrowsingHit(WebView, WebResourceRequest,
+     * int, SafeBrowsingResponseCompat)} method.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    @RequiresApi(27)
+    public final void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
+            @SafeBrowsingThreat int threatType, @NonNull SafeBrowsingResponse response) {
+        onSafeBrowsingHit(view, request, threatType,
+                SafeBrowsingResponseCompat.fromSafeBrowsingResponse(response));
+    }
+
+    /**
+     * Notify the host application that a loading URL has been flagged by Safe Browsing.
+     *
+     * The application must invoke the callback to indicate the preferred response. The default
+     * behavior is to show an interstitial to the user, with the reporting checkbox visible.
+     *
+     * If the application needs to show its own custom interstitial UI, the callback can be invoked
+     * asynchronously with {@link SafeBrowsingResponseCompat#backToSafety} or {@link
+     * SafeBrowsingResponseCompat#proceed}, depending on user response.
+     *
+     * @param view The WebView that hit the malicious resource.
+     * @param request Object containing the details of the request.
+     * @param threatType The reason the resource was caught by Safe Browsing, corresponding to a
+     *                   {@code SAFE_BROWSING_THREAT_*} value.
+     * @param callback Applications must invoke one of the callback methods.
+     */
+    public void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
+            @SafeBrowsingThreat int threatType, @NonNull SafeBrowsingResponseCompat callback) {
+        callback.showInterstitial(true);
     }
 
     /**

@@ -202,11 +202,8 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView,
-     * WebResourceRequest, int, SafeBrowsingResponseCompat).
-     *
-     * TODO(ntfschr): turn this into a javadoc link once the method is implemented in
-     * http://ag/3858246.
+     * {@link WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView,
+     * WebResourceRequest, int, SafeBrowsingResponseCompat)}.
      */
     public static final String SAFE_BROWSING_HIT = Features.SAFE_BROWSING_HIT;
 

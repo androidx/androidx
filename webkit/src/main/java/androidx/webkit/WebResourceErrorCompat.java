@@ -91,7 +91,8 @@ public abstract class WebResourceErrorCompat {
      * @param handler The InvocationHandler that chromium passed in the callback.
      */
     @NonNull
-    /* package */ static WebResourceErrorCompat fromInvocationHandler(InvocationHandler handler) {
+    /* package */ static WebResourceErrorCompat fromInvocationHandler(
+            @NonNull InvocationHandler handler) {
         final WebResourceErrorBoundaryInterface errorDelegate =
                 BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                         WebResourceErrorBoundaryInterface.class, handler);
@@ -116,7 +117,8 @@ public abstract class WebResourceErrorCompat {
      */
     @NonNull
     @RequiresApi(23)
-    /* package */ static WebResourceErrorCompat fromWebResourceError(final WebResourceError error) {
+    /* package */ static WebResourceErrorCompat fromWebResourceError(
+            @NonNull final WebResourceError error) {
         return new WebResourceErrorCompat() {
             @Override
             public @NetErrorCode int getErrorCode() {
