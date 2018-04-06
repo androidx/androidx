@@ -35,6 +35,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
 import static androidx.media.MediaConstants2.ARGUMENT_QUERY;
 import static androidx.media.MediaConstants2.ARGUMENT_RATING;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
+import static androidx.media.MediaConstants2.ARGUMENT_RESULT_RECEIVER;
 import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
@@ -55,6 +56,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
@@ -438,6 +440,43 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         });
     }
 
+    public void sendCustomCommand(ControllerInfo controller, final SessionCommand2 command,
+            final Bundle args, final ResultReceiver receiver) {
+        if (receiver != null && controller == null) {
+            throw new IllegalArgumentException("Controller shouldn't be null if result receiver is"
+                    + " specified");
+        }
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
+        notifyInternal(controller, new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                // TODO: Send this event through MediaSessionCompat.XXX()
+                Bundle bundle = new Bundle();
+                bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
+                bundle.putBundle(ARGUMENT_ARGUMENTS, args);
+                bundle.putParcelable(ARGUMENT_RESULT_RECEIVER, receiver);
+                controller.getControllerBinder().onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
+            }
+        });
+    }
+
+    public void sendCustomCommand(final SessionCommand2 command, final Bundle args) {
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
+        final Bundle bundle = new Bundle();
+        bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
+        bundle.putBundle(ARGUMENT_ARGUMENTS, args);
+        notifyAll(new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                controller.getControllerBinder().onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
+            }
+        });
+    }
+
     void notifyPlayerStateChanged(final int state) {
         notifyAll(new Session2Runnable() {
             @Override
@@ -542,7 +581,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         }
     }
 
-    // Do not call this API directly. Use notify() instead.
+    // TODO: Add a way to check permission from here.
     private void notifyInternal(@NonNull ControllerInfo controller,
             @NonNull Session2Runnable runnable) {
         if (controller == null || controller.getControllerBinder() == null) {

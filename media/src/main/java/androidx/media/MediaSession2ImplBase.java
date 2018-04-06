@@ -251,15 +251,23 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
-        //mProvider.sendCustomCommand_impl(command, args);
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
+        mSession2Stub.sendCustomCommand(command, args);
     }
 
     @Override
     public void sendCustomCommand(@NonNull ControllerInfo controller,
             @NonNull SessionCommand2 command, @Nullable Bundle args,
             @Nullable ResultReceiver receiver) {
-        // Equivalent to the MediaController.sendCustomCommand(Action action, ResultReceiver r);
-        //mProvider.sendCustomCommand_impl(controller, command, args, receiver);
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
+        mSession2Stub.sendCustomCommand(controller, command, args, receiver);
     }
 
     @Override

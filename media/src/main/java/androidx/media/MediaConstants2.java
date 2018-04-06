@@ -36,6 +36,8 @@ class MediaConstants2 {
             "androidx.media.session.event.ON_PLAYLIST_METADATA_CHANGED";
     static final String SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED =
             "androidx.media.session.event.ON_ALLOWED_COMMANDS_CHANGED";
+    static final String SESSION_EVENT_SEND_CUSTOM_COMMAND =
+            "androidx.media.session.event.SEND_CUSTOM_COMMAND";
 
     // Command string used by MediaControllerCompat.sendCommand()
     static final String CONTROLLER_COMMAND_CONNECT = "androidx.media.controller.command.CONNECT";
@@ -70,6 +72,7 @@ class MediaConstants2 {
     static final String ARGUMENT_VOLUME_FLAGS = "androidx.media.argument.VOLUME_FLAGS";
     static final String ARGUMENT_EXTRAS = "androidx.media.argument.EXTRAS";
     static final String ARGUMENT_ARGUMENTS = "androidx.media.argument.ARGUMENTS";
+    static final String ARGUMENT_RESULT_RECEIVER = "androidx.media.argument.RESULT_RECEIVER";
 
     static final String ARGUMENT_ICONTROLLER_CALLBACK =
             "androidx.media.argument.ICONTROLLER_CALLBACK";

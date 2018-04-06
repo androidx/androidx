@@ -38,6 +38,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
 import static androidx.media.MediaConstants2.ARGUMENT_QUERY;
 import static androidx.media.MediaConstants2.ARGUMENT_RATING;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
+import static androidx.media.MediaConstants2.ARGUMENT_RESULT_RECEIVER;
 import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
@@ -58,6 +59,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
 import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
@@ -557,6 +559,16 @@ public class MediaController2 implements AutoCloseable {
                     }
                     mCallback.onShuffleModeChanged(MediaController2.this, shuffleMode);
                     break;
+                }
+                case SESSION_EVENT_SEND_CUSTOM_COMMAND: {
+                    Bundle commandBundle = extras.getBundle(ARGUMENT_CUSTOM_COMMAND);
+                    if (commandBundle == null) {
+                        return;
+                    }
+                    SessionCommand2 command = SessionCommand2.fromBundle(commandBundle);
+                    Bundle args = extras.getBundle(ARGUMENT_ARGUMENTS);
+                    ResultReceiver receiver = extras.getParcelable(ARGUMENT_RESULT_RECEIVER);
+                    mCallback.onCustomCommand(MediaController2.this, command, args, receiver);
                 }
             }
         }
