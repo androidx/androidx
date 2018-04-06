@@ -17,7 +17,9 @@
 package androidx.media;
 
 import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
+import static androidx.media.MediaConstants2.ARGUMENT_ARGUMENTS;
 import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
+import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
@@ -43,6 +45,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_VOLUME_FLAGS;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
+import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
@@ -214,7 +217,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             case CONTROLLER_COMMAND_DISCONNECT:
                 disconnect(extras);
                 break;
-            case CONTROLLER_COMMAND_BY_COMMAND_CODE:
+            case CONTROLLER_COMMAND_BY_COMMAND_CODE: {
                 final int commandCode = extras.getInt(ARGUMENT_COMMAND_CODE);
                 IMediaControllerCallback caller =
                         (IMediaControllerCallback) extras.getBinder(ARGUMENT_ICONTROLLER_CALLBACK);
@@ -386,6 +389,27 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                         }
                     }
                 });
+                break;
+            }
+            case CONTROLLER_COMMAND_BY_CUSTOM_COMMAND: {
+                final SessionCommand2 customCommand =
+                        SessionCommand2.fromBundle(extras.getBundle(ARGUMENT_CUSTOM_COMMAND));
+                IMediaControllerCallback caller =
+                        (IMediaControllerCallback) extras.getBinder(ARGUMENT_ICONTROLLER_CALLBACK);
+                if (caller == null || customCommand == null) {
+                    return;
+                }
+
+                final Bundle args = extras.getBundle(ARGUMENT_ARGUMENTS);
+                onCommand2(caller.asBinder(), customCommand, new Session2Runnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        mSession.getCallback().onCustomCommand(
+                                mSession.getInstance(), controller, customCommand, args, cb);
+                    }
+                });
+                break;
+            }
         }
     }
 
@@ -541,6 +565,14 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         }
     }
 
+    private boolean isAllowedCommand(ControllerInfo controller, SessionCommand2 command) {
+        SessionCommandGroup2 allowedCommands;
+        synchronized (mLock) {
+            allowedCommands = mAllowedCommandGroupMap.get(controller);
+        }
+        return allowedCommands != null && allowedCommands.hasCommand(command);
+    }
+
     private boolean isAllowedCommand(ControllerInfo controller, int commandCode) {
         SessionCommandGroup2 allowedCommands;
         synchronized (mLock) {
@@ -550,6 +582,12 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
     }
 
     private void onCommand2(@NonNull IBinder caller, final int commandCode,
+            @NonNull final Session2Runnable runnable) {
+        // TODO: Prevent instantiation of SessionCommand2
+        onCommand2(caller, new SessionCommand2(commandCode), runnable);
+    }
+
+    private void onCommand2(@NonNull IBinder caller, @NonNull final SessionCommand2 sessionCommand,
             @NonNull final Session2Runnable runnable) {
         final ControllerInfo controller;
         synchronized (mLock) {
@@ -561,9 +599,10 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         mSession.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                if (!MediaSession2StubImplBase.this.isAllowedCommand(controller, commandCode)) {
+                if (!isAllowedCommand(controller, sessionCommand)) {
                     return;
                 }
+                int commandCode = sessionCommand.getCommandCode();
                 SessionCommand2 command = sCommandsForOnCommandRequest.get(commandCode);
                 if (command != null) {
                     boolean accepted = mSession.getCallback().onCommandRequest(
