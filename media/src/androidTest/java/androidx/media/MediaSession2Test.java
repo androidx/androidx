@@ -185,7 +185,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testMediaPrepared() throws Exception {
         prepareLooper();
@@ -215,7 +214,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testBufferingStateChanged() throws Exception {
         prepareLooper();
@@ -672,7 +670,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
                 (long) callback.commands.get(1).getCommandCode());
     }
 
-    @Ignore
     @Test
     public void testOnConnectCallback() throws InterruptedException {
         prepareLooper();
