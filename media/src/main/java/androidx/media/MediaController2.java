@@ -489,8 +489,8 @@ public class MediaController2 implements AutoCloseable {
                 case SESSION_EVENT_ON_PLAYLIST_CHANGED: {
                     MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
                             extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
-                    List<MediaItem2> playlist = MediaUtils2.fromMediaItem2BundleArray(
-                            (Bundle[]) extras.getParcelableArray(ARGUMENT_PLAYLIST));
+                    List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
+                            extras.getParcelableArray(ARGUMENT_PLAYLIST));
                     synchronized (mLock) {
                         mPlaylist = playlist;
                         mPlaylistMetadata = playlistMetadata;
@@ -1189,7 +1189,7 @@ public class MediaController2 implements AutoCloseable {
             throw new IllegalArgumentException("list shouldn't be null");
         }
         Bundle args = new Bundle();
-        args.putParcelableArray(ARGUMENT_PLAYLIST, MediaUtils2.toMediaItem2BundleArray(list));
+        args.putParcelableArray(ARGUMENT_PLAYLIST, MediaUtils2.toMediaItem2ParcelableArray(list));
         args.putBundle(ARGUMENT_PLAYLIST_METADATA, metadata == null ? null : metadata.toBundle());
         sendCommand(COMMAND_CODE_PLAYLIST_SET_LIST, args);
     }
@@ -1376,8 +1376,8 @@ public class MediaController2 implements AutoCloseable {
         final int repeatMode = data.getInt(ARGUMENT_REPEAT_MODE);
         final int shuffleMode = data.getInt(ARGUMENT_SHUFFLE_MODE);
         // TODO: Set mMediaMetadataCompat from the data.
-        final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2BundleArray(
-                (Bundle[]) data.getParcelableArray(ARGUMENT_PLAYLIST));
+        final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
+                data.getParcelableArray(ARGUMENT_PLAYLIST));
         if (DEBUG) {
             Log.d(TAG, "onConnectedNotLocked sessionCompatToken=" + mToken.getSessionCompatToken()
                     + ", allowedCommands=" + allowedCommands);

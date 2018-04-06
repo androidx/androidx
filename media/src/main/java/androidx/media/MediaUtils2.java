@@ -29,6 +29,7 @@ import static androidx.media.MediaMetadata2.METADATA_KEY_TITLE;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -288,28 +289,28 @@ class MediaUtils2 {
                 vp.getMaxVolume(), vp.getCurrentVolume());
     }
 
-    static Bundle[] toMediaItem2BundleArray(List<MediaItem2> playlist) {
+    static Parcelable[] toMediaItem2ParcelableArray(List<MediaItem2> playlist) {
         if (playlist == null) {
             return null;
         }
-        List<Bundle> bundleList = new ArrayList<>();
+        List<Parcelable> parcelableList = new ArrayList<>();
         for (int i = 0; i < playlist.size(); i++) {
             final MediaItem2 item = playlist.get(i);
             if (item != null) {
-                final Bundle itemBundle = item.toBundle();
+                final Parcelable itemBundle = item.toBundle();
                 if (itemBundle != null) {
-                    bundleList.add(itemBundle);
+                    parcelableList.add(itemBundle);
                 }
             }
         }
-        return bundleList.toArray(new Bundle[0]);
+        return parcelableList.toArray(new Parcelable[0]);
     }
 
-    static List<MediaItem2> fromMediaItem2BundleArray(Bundle[] itemBundleList) {
+    static List<MediaItem2> fromMediaItem2ParcelableArray(Parcelable[] itemParcelableList) {
         List<MediaItem2> playlist = new ArrayList<>();
-        if (itemBundleList != null) {
-            for (int i = 0; i < itemBundleList.length; i++) {
-                MediaItem2 item = MediaItem2.fromBundle(itemBundleList[i]);
+        if (itemParcelableList != null) {
+            for (int i = 0; i < itemParcelableList.length; i++) {
+                MediaItem2 item = MediaItem2.fromBundle((Bundle) itemParcelableList[i]);
                 if (item != null) {
                     playlist.add(item);
                 }
