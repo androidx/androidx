@@ -1,0 +1,32 @@
+package androidx.paging {
+
+  public class AsyncPagedListDiffer<T> {
+    ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
+    ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T>);
+    method public androidx.paging.PagedList<T> getCurrentList();
+    method public T getItem(int);
+    method public int getItemCount();
+    method public void submitList(androidx.paging.PagedList<T>);
+  }
+
+  public final class LivePagedListBuilder<Key, Value> {
+    ctor public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key, Value>, androidx.paging.PagedList.Config);
+    ctor public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key, Value>, int);
+    method public androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> build();
+    method public androidx.paging.LivePagedListBuilder<Key, Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>);
+    method public androidx.paging.LivePagedListBuilder<Key, Value> setFetchExecutor(java.util.concurrent.Executor);
+    method public androidx.paging.LivePagedListBuilder<Key, Value> setInitialLoadKey(Key);
+  }
+
+  public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter {
+    ctor protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
+    ctor protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T>);
+    method public androidx.paging.PagedList<T> getCurrentList();
+    method protected T getItem(int);
+    method public int getItemCount();
+    method public void onCurrentListChanged(androidx.paging.PagedList<T>);
+    method public void submitList(androidx.paging.PagedList<T>);
+  }
+
+}
+
