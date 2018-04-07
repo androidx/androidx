@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.content.PermissionChecker;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,6 +85,22 @@ class SliceManagerWrapper extends SliceManagerBase {
     @Override
     public Collection<Uri> getSliceDescendants(Uri uri) {
         return mManager.getSliceDescendants(uri);
+    }
+
+    @Override
+    @PermissionChecker.PermissionResult
+    public int checkSlicePermission(@NonNull Uri uri, int pid, int uid) {
+        return mManager.checkSlicePermission(uri, pid, uid);
+    }
+
+    @Override
+    public void grantSlicePermission(@NonNull String toPackage, @NonNull Uri uri) {
+        mManager.grantSlicePermission(toPackage, uri);
+    }
+
+    @Override
+    public void revokeSlicePermission(@NonNull String toPackage, @NonNull Uri uri) {
+        mManager.revokeSlicePermission(toPackage, uri);
     }
 
     @Nullable

@@ -17,6 +17,8 @@ package androidx.slice.compat;
 
 import static android.app.slice.SliceProvider.SLICE_TYPE;
 
+import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
+
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -24,10 +26,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
+import android.os.Process;
 import android.os.RemoteException;
+import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -36,6 +43,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 import androidx.slice.Slice;
+import androidx.slice.SliceProvider;
 import androidx.slice.SliceSpec;
 import androidx.slice.core.SliceHints;
 
@@ -51,8 +59,11 @@ import java.util.Set;
 @RestrictTo(Scope.LIBRARY)
 public class SliceProviderCompat {
     private static final String TAG = "SliceProviderCompat";
+    private static final String DATA_PREFIX = "slice_data_";
+    private static final String PERMS_PREFIX = "slice_perms_";
 
-    public static final String EXTRA_BIND_URI = "slice_uri";
+    private static final long SLICE_BIND_ANR = 2000;
+
     public static final String METHOD_SLICE = "bind_slice";
     public static final String METHOD_MAP_INTENT = "map_slice";
     public static final String METHOD_PIN = "pin_slice";
@@ -60,7 +71,11 @@ public class SliceProviderCompat {
     public static final String METHOD_GET_PINNED_SPECS = "get_specs";
     public static final String METHOD_MAP_ONLY_INTENT = "map_only";
     public static final String METHOD_GET_DESCENDANTS = "get_descendants";
+    public static final String METHOD_CHECK_PERMISSION = "check_perms";
+    public static final String METHOD_GRANT_PERMISSION = "grant_perms";
+    public static final String METHOD_REVOKE_PERMISSION = "revoke_perms";
 
+    public static final String EXTRA_BIND_URI = "slice_uri";
     public static final String EXTRA_INTENT = "slice_intent";
     public static final String EXTRA_SLICE = "slice";
     public static final String EXTRA_SUPPORTED_SPECS = "specs";
@@ -68,6 +83,198 @@ public class SliceProviderCompat {
     public static final String EXTRA_PKG = "pkg";
     public static final String EXTRA_PROVIDER_PKG = "provider_pkg";
     public static final String EXTRA_SLICE_DESCENDANTS = "slice_descendants";
+    public static final String EXTRA_UID = "uid";
+    public static final String EXTRA_PID = "pid";
+    public static final String EXTRA_RESULT = "result";
+
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
+
+    private String mCallback;
+    private final SliceProvider mProvider;
+    private CompatPinnedList mPinnedList;
+    private CompatPermissionManager mPermissionManager;
+
+    public SliceProviderCompat(SliceProvider provider) {
+        mProvider = provider;
+        mPinnedList = new CompatPinnedList(provider.getContext(),
+                DATA_PREFIX + getClass().getName());
+        mPermissionManager = new CompatPermissionManager(provider.getContext(),
+                PERMS_PREFIX + getClass().getName());
+    }
+
+    private Context getContext() {
+        return mProvider.getContext();
+    }
+
+    private String getCallingPackage() {
+        return mProvider.getCallingPackage();
+    }
+
+    /**
+     * Called by SliceProvider when compat is needed.
+     */
+    public Bundle call(String method, String arg, Bundle extras) {
+        if (method.equals(METHOD_SLICE)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            if (Binder.getCallingUid() != Process.myUid()) {
+                getContext().enforceUriPermission(uri, Binder.getCallingPid(),
+                        Binder.getCallingUid(),
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                        "Slice binding requires write access to the uri");
+            }
+            Set<SliceSpec> specs = getSpecs(extras);
+
+            Slice s = handleBindSlice(uri, specs, getCallingPackage());
+            Bundle b = new Bundle();
+            b.putParcelable(EXTRA_SLICE, s.toBundle());
+            return b;
+        } else if (method.equals(METHOD_MAP_INTENT)) {
+            Intent intent = extras.getParcelable(EXTRA_INTENT);
+            Uri uri = mProvider.onMapIntentToUri(intent);
+            Bundle b = new Bundle();
+            if (uri != null) {
+                Set<SliceSpec> specs = getSpecs(extras);
+                Slice s = handleBindSlice(uri, specs, getCallingPackage());
+                b.putParcelable(EXTRA_SLICE, s.toBundle());
+            } else {
+                b.putParcelable(EXTRA_SLICE, null);
+            }
+            return b;
+        } else if (method.equals(METHOD_MAP_ONLY_INTENT)) {
+            Intent intent = extras.getParcelable(EXTRA_INTENT);
+            Uri uri = mProvider.onMapIntentToUri(intent);
+            Bundle b = new Bundle();
+            b.putParcelable(EXTRA_SLICE, uri);
+            return b;
+        } else if (method.equals(METHOD_PIN)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            Set<SliceSpec> specs = getSpecs(extras);
+            String pkg = extras.getString(EXTRA_PKG);
+            if (mPinnedList.addPin(uri, pkg, specs)) {
+                handleSlicePinned(uri);
+            }
+            return null;
+        } else if (method.equals(METHOD_UNPIN)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            String pkg = extras.getString(EXTRA_PKG);
+            if (mPinnedList.removePin(uri, pkg)) {
+                handleSliceUnpinned(uri);
+            }
+            return null;
+        } else if (method.equals(METHOD_GET_PINNED_SPECS)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            Bundle b = new Bundle();
+            addSpecs(b, mPinnedList.getSpecs(uri));
+            return b;
+        } else if (method.equals(METHOD_GET_DESCENDANTS)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            Bundle b = new Bundle();
+            b.putParcelableArrayList(EXTRA_SLICE_DESCENDANTS,
+                    new ArrayList<>(handleGetDescendants(uri)));
+            return b;
+        } else if (method.equals(METHOD_CHECK_PERMISSION)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            String pkg = extras.getString(EXTRA_PKG);
+            int pid = extras.getInt(EXTRA_PID);
+            int uid = extras.getInt(EXTRA_UID);
+            Bundle b = new Bundle();
+            b.putInt(EXTRA_RESULT, mPermissionManager.checkSlicePermission(uri, pid, uid));
+            return b;
+        } else if (method.equals(METHOD_GRANT_PERMISSION)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            String toPkg = extras.getString(EXTRA_PKG);
+            if (Binder.getCallingUid() != Process.myUid()) {
+                throw new SecurityException("Only the owning process can manage slice permissions");
+            }
+            mPermissionManager.grantSlicePermission(uri, toPkg);
+        } else if (method.equals(METHOD_REVOKE_PERMISSION)) {
+            Uri uri = extras.getParcelable(EXTRA_BIND_URI);
+            String toPkg = extras.getString(EXTRA_PKG);
+            if (Binder.getCallingUid() != Process.myUid()) {
+                throw new SecurityException("Only the owning process can manage slice permissions");
+            }
+            mPermissionManager.revokeSlicePermission(uri, toPkg);
+        }
+        return null;
+    }
+
+    private Collection<Uri> handleGetDescendants(Uri uri) {
+        mCallback = "onGetSliceDescendants";
+        mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
+        try {
+            return mProvider.onGetSliceDescendants(uri);
+        } finally {
+            mHandler.removeCallbacks(mAnr);
+        }
+    }
+
+    private void handleSlicePinned(final Uri sliceUri) {
+        mCallback = "onSlicePinned";
+        mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
+        try {
+            mProvider.onSlicePinned(sliceUri);
+        } finally {
+            mHandler.removeCallbacks(mAnr);
+        }
+    }
+
+    private void handleSliceUnpinned(final Uri sliceUri) {
+        mCallback = "onSliceUnpinned";
+        mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
+        try {
+            mProvider.onSliceUnpinned(sliceUri);
+        } finally {
+            mHandler.removeCallbacks(mAnr);
+        }
+    }
+
+    private Slice handleBindSlice(final Uri sliceUri, final Set<SliceSpec> specs,
+            final String callingPkg) {
+        // This can be removed once Slice#bindSlice is removed and everyone is using
+        // SliceManager#bindSlice.
+        String pkg = callingPkg != null ? callingPkg
+                : getContext().getPackageManager().getNameForUid(Binder.getCallingUid());
+        if (Binder.getCallingUid() != Process.myUid()) {
+            try {
+                getContext().enforceUriPermission(sliceUri,
+                        Binder.getCallingPid(), Binder.getCallingUid(),
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                        "Slice binding requires write access to Uri");
+            } catch (SecurityException e) {
+                return mProvider.createPermissionSlice(getContext(), sliceUri, pkg);
+            }
+        }
+        return onBindSliceStrict(sliceUri, specs);
+    }
+
+    private Slice onBindSliceStrict(Uri sliceUri, Set<SliceSpec> specs) {
+        StrictMode.ThreadPolicy oldPolicy = StrictMode.getThreadPolicy();
+        mCallback = "onBindSlice";
+        mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
+        try {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectAll()
+                    .penaltyDeath()
+                    .build());
+            SliceProvider.setSpecs(specs);
+            try {
+                return mProvider.onBindSlice(sliceUri);
+            } finally {
+                SliceProvider.setSpecs(null);
+                mHandler.removeCallbacks(mAnr);
+            }
+        } finally {
+            StrictMode.setThreadPolicy(oldPolicy);
+        }
+    }
+
+    private final Runnable mAnr = new Runnable() {
+        @Override
+        public void run() {
+            Process.sendSignal(Process.myPid(), Process.SIGNAL_QUIT);
+            Log.wtf(TAG, "Timed out while handling slice callback " + mCallback);
+        }
+    };
 
     /**
      * Compat version of {@link Slice#bindSlice}.
@@ -319,6 +526,60 @@ public class SliceProviderCompat {
         return Collections.emptyList();
     }
 
-    private SliceProviderCompat() {
+    /**
+     * Compat version of {@link android.app.slice.SliceManager#checkSlicePermission}.
+     */
+    public static int checkSlicePermission(Context context, String packageName, Uri uri, int pid,
+            int uid) {
+        ContentResolver resolver = context.getContentResolver();
+        try (ContentProviderClient provider = resolver.acquireContentProviderClient(uri)) {
+            Bundle extras = new Bundle();
+            extras.putParcelable(EXTRA_BIND_URI, uri);
+            extras.putString(EXTRA_PKG, packageName);
+            extras.putInt(EXTRA_PID, pid);
+            extras.putInt(EXTRA_UID, uid);
+
+            final Bundle res = provider.call(METHOD_CHECK_PERMISSION, null, extras);
+            return res.getInt(EXTRA_RESULT);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Unable to check slice permission", e);
+        }
+        return PERMISSION_DENIED;
+    }
+
+    /**
+     * Compat version of {@link android.app.slice.SliceManager#grantSlicePermission}.
+     */
+    public static void grantSlicePermission(Context context, String packageName, String toPackage,
+            Uri uri) {
+        ContentResolver resolver = context.getContentResolver();
+        try (ContentProviderClient provider = resolver.acquireContentProviderClient(uri)) {
+            Bundle extras = new Bundle();
+            extras.putParcelable(EXTRA_BIND_URI, uri);
+            extras.putString(EXTRA_PROVIDER_PKG, packageName);
+            extras.putString(EXTRA_PKG, toPackage);
+
+            provider.call(METHOD_GRANT_PERMISSION, null, extras);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Unable to get slice descendants", e);
+        }
+    }
+
+    /**
+     * Compat version of {@link android.app.slice.SliceManager#revokeSlicePermission}.
+     */
+    public static void revokeSlicePermission(Context context, String packageName, String toPackage,
+            Uri uri) {
+        ContentResolver resolver = context.getContentResolver();
+        try (ContentProviderClient provider = resolver.acquireContentProviderClient(uri)) {
+            Bundle extras = new Bundle();
+            extras.putParcelable(EXTRA_BIND_URI, uri);
+            extras.putString(EXTRA_PROVIDER_PKG, packageName);
+            extras.putString(EXTRA_PKG, toPackage);
+
+            provider.call(METHOD_REVOKE_PERMISSION, null, extras);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Unable to get slice descendants", e);
+        }
     }
 }
