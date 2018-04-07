@@ -26,7 +26,6 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.Arrays;
@@ -74,7 +73,6 @@ public class ShortcutInfoCompat {
         return builder.build();
     }
 
-    @VisibleForTesting
     Intent addToIntent(Intent outIntent) {
         outIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, mIntents[mIntents.length - 1])
                 .putExtra(Intent.EXTRA_SHORTCUT_NAME, mLabel.toString());
