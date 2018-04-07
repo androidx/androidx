@@ -22,7 +22,7 @@
     <string name="abc_slice_show_more" msgid="1567717014004692768">"Яшчэ"</string>
     <string name="abc_slice_updated" msgid="8155085405396453848">"Абноўлена <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
-      <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> хвіліна таму</item>
+      <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> хвіліну таму</item>
       <item quantity="few"><xliff:g id="ID_2">%d</xliff:g> хвіліны таму</item>
       <item quantity="many"><xliff:g id="ID_2">%d</xliff:g> хвілін таму</item>
       <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> хвіліны таму</item>
