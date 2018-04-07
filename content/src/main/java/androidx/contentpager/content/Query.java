@@ -28,7 +28,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 
 import java.util.Arrays;
 
@@ -52,7 +51,6 @@ public final class Query {
     private final CancellationSignal mCancellationSignal;
     private final ContentPager.ContentCallback mCallback;
 
-    @VisibleForTesting
     Query(
             @NonNull Uri uri,
             @Nullable String[] projection,

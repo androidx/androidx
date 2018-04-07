@@ -17,6 +17,7 @@
 package androidx.recyclerview.selection;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.recyclerview.selection.Shared.VERBOSE;
 
@@ -39,7 +40,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@VisibleForTesting
+@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
 public class EventBridge {
 
     private static final String TAG = "EventsRelays";
