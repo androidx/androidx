@@ -12,6 +12,7 @@ import os.path
 import subprocess
 
 HARDCODED_RULES_REVERSE = [
+  "s|androidx.core.os.ResultReceiver|android.support.v4.os.ResultsReceiver|g\n",
   "s|androidx.core.media.MediaBrowserCompat|android.support.v4.media.MediaBrowserCompat|g\n",
   "s|androidx.core.media.MediaDescriptionCompat|android.support.v4.media.MediaDescriptionCompat|g\n",
   "s|androidx.core.media.MediaMetadataCompat|android.support.v4.media.MediaMetadataCompat|g\n",
