@@ -495,8 +495,7 @@ class FindAddress {
      * @param content The string to search.
      * @return The first valid address, or null if no address was matched.
      */
-    @VisibleForTesting
-    public static String findAddress(String content) {
+    static String findAddress(String content) {
         Matcher houseNumberMatcher = sHouseNumberRe.matcher(content);
         int start = 0;
         while (houseNumberMatcher.find(start)) {
