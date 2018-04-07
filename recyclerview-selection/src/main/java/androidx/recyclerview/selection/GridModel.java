@@ -27,7 +27,6 @@ import android.util.SparseIntArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
@@ -169,7 +168,6 @@ final class GridModel<K> {
      *                        though its
      *                        absolute point has a higher y-value.
      */
-    @VisibleForTesting
     void resizeSelection(Point relativePointer) {
         mPointer = mHost.createAbsolutePoint(relativePointer);
         updateModel();
