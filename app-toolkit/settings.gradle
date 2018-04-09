@@ -118,6 +118,9 @@ project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "r
 include ':navigation:common'
 project(':navigation:common').projectDir = new File(supportRoot, "navigation/common")
 
+include ':navigation:common-ktx'
+project(':navigation:common-ktx').projectDir = new File(supportRoot, "navigation/common/ktx")
+
 include ':navigation:runtime'
 project(':navigation:runtime').projectDir = new File(supportRoot, "navigation/runtime")
 
