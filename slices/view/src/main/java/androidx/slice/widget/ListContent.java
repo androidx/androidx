@@ -108,9 +108,12 @@ public class ListContent {
      * @return the total height of all the rows contained in the provided list.
      */
     public static int getListHeight(Context context, List<SliceItem> listItems) {
+        if (listItems == null) {
+            return 0;
+        }
         int height = 0;
         boolean hasRealHeader = false;
-        if (listItems.size() > 0) {
+        if (!listItems.isEmpty()) {
             SliceItem maybeHeader = listItems.get(0);
             hasRealHeader = !maybeHeader.hasAnyHints(HINT_LIST_ITEM, HINT_HORIZONTAL);
         }
@@ -200,6 +203,7 @@ public class ListContent {
         return mSeeMoreItem;
     }
 
+    @NonNull
     public ArrayList<SliceItem> getRowItems() {
         return mRowItems;
     }
