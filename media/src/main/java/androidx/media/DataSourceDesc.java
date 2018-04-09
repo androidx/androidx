@@ -33,12 +33,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Structure for data source descriptor.
+ * Structure for data source descriptor. Used by {@link MediaItem2}.
+ * <p>
+ * Users should use {@link Builder} to change {@link DataSourceDesc}.
  *
- * Used by {@link MediaPlayer2#setDataSource(DataSourceDesc)}
- * to set data source for playback.
- *
- * <p>Users should use {@link Builder} to change {@link DataSourceDesc}.
+ * @see MediaItem2
  */
 public final class DataSourceDesc {
     /* No data source has been set yet */
@@ -203,17 +202,6 @@ public final class DataSourceDesc {
 
     /**
      * Builder class for {@link DataSourceDesc} objects.
-     * <p> Here is an example where <code>Builder</code> is used to define the
-     * {@link DataSourceDesc} to be used by a {@link MediaPlayer2} instance:
-     *
-     * <pre class="prettyprint">
-     * DataSourceDesc oldDSD = mediaplayer2.getDataSourceDesc();
-     * DataSourceDesc newDSD = new DataSourceDesc.Builder(oldDSD)
-     *         .setStartPosition(1000)
-     *         .setEndPosition(15000)
-     *         .build();
-     * mediaplayer2.setDataSourceDesc(newDSD);
-     * </pre>
      */
     public static class Builder {
         private int mType = TYPE_NONE;
@@ -423,13 +411,7 @@ public final class DataSourceDesc {
          * Sets the data source as a content Uri.
          *
          * To provide cookies for the subsequent HTTP requests, you can install your own default
-         * cookie handler and use other variants of setDataSource APIs instead. Alternatively, you
-         * can use this API to pass the cookies as a list of HttpCookie. If the app has not
-         * installed a CookieHandler already, {@link MediaPlayer2} will create a CookieManager
-         * and populates its CookieStore with the provided cookies when this data source is passed
-         * to {@link MediaPlayer2}. If the app has installed its own handler already, the handler
-         * is required to be of CookieManager type such that {@link MediaPlayer2} can update the
-         * manager’s CookieStore.
+         * cookie handler and use other variants of setDataSource APIs instead.
          *
          *  <p><strong>Note</strong> that the cross domain redirection is allowed by default,
          * but that can be changed with key/value pairs through the headers parameter with
