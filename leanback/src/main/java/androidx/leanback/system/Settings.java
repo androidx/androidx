@@ -43,7 +43,7 @@ public class Settings {
     // The intent action that must be provided by a broadcast receiver
     // in a customization package.
     private static final String ACTION_PARTNER_CUSTOMIZATION =
-            "androidx.leanback.action.PARTNER_CUSTOMIZATION";
+            "android.support.v17.leanback.action.PARTNER_CUSTOMIZATION";
 
     public static final String PREFER_STATIC_SHADOWS = "PREFER_STATIC_SHADOWS";
 
