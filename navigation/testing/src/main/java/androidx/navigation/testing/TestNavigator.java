@@ -20,11 +20,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 
-import java.util.ArrayDeque;
-
 import androidx.navigation.NavDestination;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigator;
+
+import java.util.ArrayDeque;
 
 /**
  * A simple Navigator that doesn't actually navigate anywhere, but does dispatch correctly
@@ -66,7 +66,10 @@ public class TestNavigator extends Navigator<TestNavigator.Destination> {
         return popped;
     }
 
-    static class Destination extends NavDestination {
+    /**
+     * A simple Test destination
+     */
+    public static class Destination extends NavDestination {
         /**
          * NavDestinations should be created via {@link Navigator#createDestination}.
          */
