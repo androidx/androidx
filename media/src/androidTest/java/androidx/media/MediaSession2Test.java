@@ -693,7 +693,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
-    @Ignore
     @Test
     public void testSetCustomLayout() throws InterruptedException {
         prepareLooper();
@@ -775,9 +774,8 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Ignore
     @Test
-    public void testSendCustomAction() throws InterruptedException {
+    public void testSendCustomCommand() throws InterruptedException {
         prepareLooper();
         final SessionCommand2 testCommand = new SessionCommand2(
                 SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE);

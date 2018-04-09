@@ -21,6 +21,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
 import static androidx.media.MediaConstants2.ARGUMENT_ARGUMENTS;
+import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_BUTTONS;
 import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
@@ -38,6 +39,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
 import static androidx.media.MediaConstants2.ARGUMENT_QUERY;
 import static androidx.media.MediaConstants2.ARGUMENT_RATING;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
+import static androidx.media.MediaConstants2.ARGUMENT_RESULT_RECEIVER;
 import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
@@ -58,6 +60,8 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
+import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
 import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
@@ -101,6 +105,7 @@ import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -496,6 +501,7 @@ public class MediaController2 implements AutoCloseable {
 
         @Override
         public void onSessionEvent(String event, Bundle extras) {
+            // TODO: Call callbacks on the executor
             switch (event) {
                 case SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED: {
                     SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
@@ -555,6 +561,26 @@ public class MediaController2 implements AutoCloseable {
                         mShuffleMode = shuffleMode;
                     }
                     mCallback.onShuffleModeChanged(MediaController2.this, shuffleMode);
+                    break;
+                }
+                case SESSION_EVENT_SEND_CUSTOM_COMMAND: {
+                    Bundle commandBundle = extras.getBundle(ARGUMENT_CUSTOM_COMMAND);
+                    if (commandBundle == null) {
+                        return;
+                    }
+                    SessionCommand2 command = SessionCommand2.fromBundle(commandBundle);
+                    Bundle args = extras.getBundle(ARGUMENT_ARGUMENTS);
+                    ResultReceiver receiver = extras.getParcelable(ARGUMENT_RESULT_RECEIVER);
+                    mCallback.onCustomCommand(MediaController2.this, command, args, receiver);
+                    break;
+                }
+                case SESSION_EVENT_SET_CUSTOM_LAYOUT: {
+                    List<CommandButton> layout = MediaUtils2.fromCommandButtonParcelableArray(
+                            extras.getParcelableArray(ARGUMENT_COMMAND_BUTTONS));
+                    if (layout == null) {
+                        return;
+                    }
+                    mCallback.onCustomLayoutChanged(MediaController2.this, layout);
                     break;
                 }
             }
@@ -1080,7 +1106,7 @@ public class MediaController2 implements AutoCloseable {
                 return UNKNOWN_TIME;
             }
             if (mPlaybackStateCompat != null) {
-                long timeDiff = System.currentTimeMillis()
+                long timeDiff = SystemClock.elapsedRealtime()
                         - mPlaybackStateCompat.getLastPositionUpdateTime();
                 long expectedPosition = mPlaybackStateCompat.getPosition()
                         + (long) (mPlaybackStateCompat.getPlaybackSpeed() * timeDiff);
