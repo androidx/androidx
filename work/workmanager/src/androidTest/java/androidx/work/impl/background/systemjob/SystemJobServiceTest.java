@@ -35,12 +35,12 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.BaseWork;
+import androidx.work.Configuration;
 import androidx.work.State;
 import androidx.work.Work;
 import androidx.work.WorkManagerTest;
 import androidx.work.Worker;
 import androidx.work.impl.WorkDatabase;
-import androidx.work.impl.WorkManagerConfiguration;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
@@ -85,10 +85,9 @@ public class SystemJobServiceTest extends WorkManagerTest {
         });
 
         Context context = InstrumentationRegistry.getTargetContext();
-        WorkManagerConfiguration configuration = new WorkManagerConfiguration(
-                context,
-                true,
-                Executors.newSingleThreadExecutor());
+        Configuration configuration = new Configuration.Builder()
+                .withExecutorService(Executors.newSingleThreadExecutor())
+                .build();
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();

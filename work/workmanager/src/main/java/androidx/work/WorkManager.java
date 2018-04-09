@@ -17,6 +17,7 @@
 package androidx.work;
 
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import androidx.work.impl.WorkManagerImpl;
@@ -37,6 +38,33 @@ public abstract class WorkManager {
      */
     public static synchronized WorkManager getInstance() {
         return WorkManagerImpl.getInstance();
+    }
+
+    /**
+     * Used to do a one-time initialization of the {@link WorkManager} singleton with the default
+     * configuration.
+     *
+     * @param context A {@link Context} object for configuration purposes. Internally, this class
+     *                will call {@link Context#getApplicationContext()}, so you may safely pass in
+     *                any Context without risking a memory leak.
+     */
+    public static synchronized void initialize(@NonNull Context context) {
+        WorkManagerImpl.initialize(context);
+    }
+
+    /**
+     * Used to do a one-time initialization of the {@link WorkManager} singleton with the default
+     * configuration.
+     *
+     * @param context A {@link Context} object for configuration purposes. Internally, this class
+     *                will call {@link Context#getApplicationContext()}, so you may safely pass in
+     *                any Context without risking a memory leak.
+     * @param configuration The {@link Configuration} for used to set up WorkManager.
+     */
+    public static synchronized void initialize(
+            @NonNull Context context,
+            @NonNull Configuration configuration) {
+        WorkManagerImpl.initialize(context, configuration);
     }
 
     /**

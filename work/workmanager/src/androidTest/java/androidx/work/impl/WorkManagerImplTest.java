@@ -62,6 +62,7 @@ import android.util.Log;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.BaseWork;
+import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
 import androidx.work.Data;
@@ -129,10 +130,9 @@ public class WorkManagerImplTest {
         });
 
         Context context = InstrumentationRegistry.getTargetContext();
-        WorkManagerConfiguration configuration = new WorkManagerConfiguration(
-                context,
-                true,
-                Executors.newSingleThreadExecutor());
+        Configuration configuration = new Configuration.Builder()
+                .withExecutorService(Executors.newSingleThreadExecutor())
+                .build();
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();

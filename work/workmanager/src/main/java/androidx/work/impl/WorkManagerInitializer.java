@@ -24,6 +24,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
+import androidx.work.WorkManager;
+
 /**
  * The {@link ContentProvider} responsible for initializing {@link WorkManagerImpl}.
  *
@@ -33,8 +35,8 @@ import android.support.annotation.RestrictTo;
 public class WorkManagerInitializer extends ContentProvider {
     @Override
     public boolean onCreate() {
-        // Initialize WorkManager.
-        WorkManagerImpl.initialize(getContext());
+        // Initialize WorkManager with the default configuration.
+        WorkManager.initialize(getContext());
         return true;
     }
 

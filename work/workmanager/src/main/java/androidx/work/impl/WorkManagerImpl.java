@@ -28,7 +28,9 @@ import android.support.annotation.WorkerThread;
 
 import androidx.work.BaseWork;
 import androidx.work.BlockingWorkManager;
+import androidx.work.Configuration;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.R;
 import androidx.work.Work;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
@@ -95,7 +97,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     /**
      * Initializes the singleton instance of {@link WorkManagerImpl}.
      *
-     * @param context A {@link Context} object for configuration purposes.  Internally, this class
+     * @param context   Internally, this class
      *                will call {@link Context#getApplicationContext()}, so you may safely pass in
      *                any Context without risking a memory leak.
      * @return The singleton instance of {@link WorkManagerImpl}
@@ -103,32 +105,38 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static synchronized WorkManagerImpl initialize(Context context) {
+    public static synchronized void initialize(@NonNull Context context) {
         if (sDelegatedInstance == null) {
             context = context.getApplicationContext();
             if (sDefaultInstance == null) {
-                sDefaultInstance =
-                        new WorkManagerImpl(context, new WorkManagerConfiguration(context));
+                sDefaultInstance = new WorkManagerImpl(
+                        context,
+                        new Configuration.Builder().build());
             }
             sDelegatedInstance = sDefaultInstance;
         }
-        return sDelegatedInstance;
     }
 
     /**
      * Create an instance of {@link WorkManagerImpl}.
      * @param context The application {@link Context}
-     * @param configuration The {@link WorkManagerConfiguration} configuration.
+     * @param configuration The {@link Configuration} configuration.
      *
      * @hide
      */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public WorkManagerImpl(Context context, WorkManagerConfiguration configuration) {
-        mWorkDatabase = configuration.getWorkDatabase();
+    public WorkManagerImpl(
+            @NonNull Context context,
+            @NonNull Configuration configuration) {
+        context = context.getApplicationContext();
+
+        boolean useTestDatabase =
+                context.getResources().getBoolean(R.bool.workmanager_test_configuration);
+        mWorkDatabase = WorkDatabase.create(context, useTestDatabase);
 
         mSchedulers = new ArrayList<>();
-        mSchedulers.add(configuration.getBackgroundScheduler());
+        mSchedulers.add(Schedulers.createBestAvailableBackgroundScheduler(context));
         mSchedulers.add(new GreedyScheduler(context, this));
 
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();

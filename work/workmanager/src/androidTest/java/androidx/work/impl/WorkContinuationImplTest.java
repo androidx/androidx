@@ -37,6 +37,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.State;
 import androidx.work.TestLifecycleOwner;
@@ -98,10 +99,9 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
         mScheduler = mock(Scheduler.class);
         Context context = InstrumentationRegistry.getTargetContext();
-        WorkManagerConfiguration configuration = new WorkManagerConfiguration(
-                context,
-                true,
-                Executors.newSingleThreadExecutor());
+        Configuration configuration = new Configuration.Builder()
+                .withExecutorService(Executors.newSingleThreadExecutor())
+                .build();
 
         mWorkManagerImpl = spy(new WorkManagerImpl(context, configuration));
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));

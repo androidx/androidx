@@ -16,7 +16,6 @@
 
 package androidx.work.impl;
 
-import static androidx.work.impl.WorkManagerConfiguration.FIREBASE_JOB_SERVICE_CLASSNAME;
 import static androidx.work.impl.utils.PackageManagerHelper.isComponentExplicitlyEnabled;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -41,21 +40,19 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class WorkManagerConfigurationTest {
+public class SchedulersTest {
 
     private Context mAppContext;
-    private WorkManagerConfiguration mConfiguration;
 
     @Before
     public void setUp() {
         mAppContext = InstrumentationRegistry.getTargetContext();
-        mConfiguration = new WorkManagerConfiguration(mAppContext);
     }
 
     @Test
     @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
     public void testGetBackgroundScheduler_withJobSchedulerApiLevel() {
-        Scheduler scheduler = mConfiguration.getBackgroundScheduler();
+        Scheduler scheduler = Schedulers.createBestAvailableBackgroundScheduler(mAppContext);
         assertThat(scheduler, is(instanceOf(SystemJobScheduler.class)));
         assertServicesEnabled(true, false, false);
     }
@@ -63,7 +60,7 @@ public class WorkManagerConfigurationTest {
     @Test
     @SdkSuppress(maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL)
     public void testGetBackgroundScheduler_beforeJobSchedulerApiLevel() {
-        Scheduler scheduler = mConfiguration.getBackgroundScheduler();
+        Scheduler scheduler = Schedulers.createBestAvailableBackgroundScheduler(mAppContext);
         assertThat(scheduler, is(instanceOf(SystemAlarmScheduler.class)));
         assertServicesEnabled(false, false, true);
     }
@@ -75,7 +72,9 @@ public class WorkManagerConfigurationTest {
             assertThat(isComponentExplicitlyEnabled(mAppContext, SystemJobService.class),
                     is(systemJobEnabled));
         }
-        assertThat(isComponentExplicitlyEnabled(mAppContext, FIREBASE_JOB_SERVICE_CLASSNAME),
+        assertThat(isComponentExplicitlyEnabled(
+                mAppContext,
+                Schedulers.FIREBASE_JOB_SERVICE_CLASSNAME),
                 is(firebaseJobEnabled));
         assertThat(isComponentExplicitlyEnabled(mAppContext, SystemAlarmService.class),
                 is(systemAlarmEnabled));
