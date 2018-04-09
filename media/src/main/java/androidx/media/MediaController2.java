@@ -32,6 +32,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media.MediaConstants2.ARGUMENT_PID;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_INFO;
+import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_SPEED;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
@@ -58,6 +59,7 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
@@ -73,6 +75,7 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM;
@@ -617,6 +620,20 @@ public class MediaController2 implements AutoCloseable {
                         mPlaybackInfo = info;
                     }
                     mCallback.onPlaybackInfoChanged(MediaController2.this, info);
+                    break;
+                }
+                case SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED: {
+                    PlaybackStateCompat state =
+                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
+                    if (state == null) {
+                        return;
+                    }
+                    synchronized (mLock) {
+                        mPlaybackStateCompat = state;
+                    }
+                    mCallback.onPlaybackSpeedChanged(
+                            MediaController2.this, state.getPlaybackSpeed());
+                    break;
                 }
             }
         }
@@ -1171,7 +1188,15 @@ public class MediaController2 implements AutoCloseable {
      * Set the playback speed.
      */
     public void setPlaybackSpeed(float speed) {
-        // TODO(jaewan): implement this (b/74093080)
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            Bundle args = new Bundle();
+            args.putFloat(ARGUMENT_PLAYBACK_SPEED, speed);
+            sendCommand(COMMAND_CODE_PLAYBACK_SET_SPEED, args);
+        }
     }
 
     /**

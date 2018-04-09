@@ -1022,6 +1022,21 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             });
         }
 
+        @Override
+        public void onPlaybackSpeedChanged(final MediaPlayerBase mpb, final float speed) {
+            final MediaSession2ImplBase session = getSession();
+            if (session == null) {
+                return;
+            }
+            session.getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    session.getCallback().onPlaybackSpeedChanged(session.getInstance(), mpb, speed);
+                    session.getSession2Stub().notifyPlaybackSpeedChanged(speed);
+                }
+            });
+        }
+
         private MediaSession2ImplBase getSession() {
             final MediaSession2ImplBase session = mSession.get();
             if (session == null && DEBUG) {
