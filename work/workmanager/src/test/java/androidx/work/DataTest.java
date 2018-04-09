@@ -23,8 +23,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Test;
 
-import java.io.IOException;
-
 public class DataTest {
     private static final String KEY1 = "key1";
     private static final String KEY2 = "key2";
@@ -42,7 +40,7 @@ public class DataTest {
     }
 
     @Test
-    public void testSerializeEmpty() throws IOException, ClassNotFoundException {
+    public void testSerializeEmpty() {
         Data data = Data.EMPTY;
 
         byte[] byteArray = Data.toByteArray(data);
@@ -52,7 +50,7 @@ public class DataTest {
     }
 
     @Test
-    public void testSerializeString() throws IOException, ClassNotFoundException {
+    public void testSerializeString() {
         String expectedValue1 = "value1";
         String expectedValue2 = "value2";
         Data data = new Data.Builder()
@@ -67,7 +65,7 @@ public class DataTest {
     }
 
     @Test
-    public void testSerializeIntArray() throws IOException, ClassNotFoundException {
+    public void testSerializeIntArray() {
         int[] expectedValue1 = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         int[] expectedValue2 = new int[]{10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
         Data data = new Data.Builder()
@@ -82,5 +80,32 @@ public class DataTest {
         assertThat(restoredData.size(), is(2));
         assertThat(restoredData.getIntArray(KEY1), is(equalTo(expectedValue1)));
         assertThat(restoredData.getIntArray(KEY2), is(equalTo(expectedValue2)));
+    }
+
+    @Test
+    public void testSerializePastMaxSize() {
+        int[] payload = new int[Data.MAX_DATA_BYTES + 1];
+        Data data = new Data.Builder().putIntArray("payload", payload).build();
+        boolean caughtIllegalStateException = false;
+        try {
+            Data.toByteArray(data);
+        } catch (IllegalStateException e) {
+            caughtIllegalStateException = true;
+        } finally {
+            assertThat(caughtIllegalStateException, is(true));
+        }
+    }
+
+    @Test
+    public void testDeserializePastMaxSize() {
+        byte[] payload = new byte[Data.MAX_DATA_BYTES + 1];
+        boolean caughtIllegalStateException = false;
+        try {
+            Data.fromByteArray(payload);
+        } catch (IllegalStateException e) {
+            caughtIllegalStateException = true;
+        } finally {
+            assertThat(caughtIllegalStateException, is(true));
+        }
     }
 }

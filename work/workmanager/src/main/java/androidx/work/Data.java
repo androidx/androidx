@@ -32,16 +32,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Persistable set of key/value pairs which are passed to {@link Worker}s.
+ * Persistable set of key/value pairs which are passed as inputs and outputs for {@link Worker}s.
+ * This is a lightweight container, and should not be considered your data store.  As such, there is
+ * an enforced {@link #MAX_DATA_BYTES} limit on the serialized (byte array) size of the payloads.
+ * This class will throw {@link IllegalStateException}s if you try to serialize or deserialize past
+ * this limit.
  */
 
 public final class Data {
 
+    public static final Data EMPTY = new Data.Builder().build();
+    public static final int MAX_DATA_BYTES = 10 * 1024;    // 10KB
+
     private static final String TAG = "Data";
 
     private Map<String, Object> mValues;
-
-    public static final Data EMPTY = new Data.Builder().build();
 
     Data() {    // stub required for room
     }
@@ -285,9 +290,11 @@ public final class Data {
      *
      * @param data The {@link Data} object to convert
      * @return The byte array representation of the input
+     * @throws IllegalStateException if the serialized payload is bigger than
+     *         {@link #MAX_DATA_BYTES}
      */
     @TypeConverter
-    public static byte[] toByteArray(Data data) {
+    public static byte[] toByteArray(Data data) throws IllegalStateException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = null;
         try {
@@ -313,6 +320,11 @@ public final class Data {
                 e.printStackTrace();
             }
         }
+
+        if (outputStream.size() > MAX_DATA_BYTES) {
+            throw new IllegalStateException(
+                    "Data cannot occupy more than " + MAX_DATA_BYTES + "KB when serialized");
+        }
         return outputStream.toByteArray();
     }
 
@@ -321,9 +333,15 @@ public final class Data {
      *
      * @param bytes The byte array representation to convert
      * @return An {@link Data} object built from the input
+     * @throws IllegalStateException if bytes is bigger than {@link #MAX_DATA_BYTES}
      */
     @TypeConverter
-    public static Data fromByteArray(byte[] bytes) {
+    public static Data fromByteArray(byte[] bytes) throws IllegalStateException {
+        if (bytes.length > MAX_DATA_BYTES) {
+            throw new IllegalStateException(
+                    "Data cannot occupy more than " + MAX_DATA_BYTES + "KB when serialized");
+        }
+
         Map<String, Object> map = new HashMap<>();
         ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
         ObjectInputStream objectInputStream = null;
