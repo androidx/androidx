@@ -280,7 +280,7 @@ public class WebViewCompat {
     private static PackageInfo getLoadedWebViewPackageInfo()
             throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
-        Class webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
+        Class<?> webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
         PackageInfo webviewPackageInfo =
                 (PackageInfo) webViewFactoryClass.getMethod(
                         "getLoadedPackageInfo").invoke(null);
@@ -296,13 +296,13 @@ public class WebViewCompat {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
                     && Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-                Class webViewFactoryClass = null;
+                Class<?> webViewFactoryClass = null;
                 webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
 
                 webviewPackageName = (String) webViewFactoryClass.getMethod(
                         "getWebViewPackageName").invoke(null);
             } else {
-                Class webviewUpdateServiceClass =
+                Class<?> webviewUpdateServiceClass =
                         Class.forName("android.webkit.WebViewUpdateService");
                 webviewPackageName = (String) webviewUpdateServiceClass.getMethod(
                         "getCurrentWebViewPackageName").invoke(null);
