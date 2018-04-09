@@ -16,22 +16,23 @@
 
 package androidx.slice.widget;
 
+import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
+import static android.app.slice.Slice.SUBTYPE_MAX;
 import static android.app.slice.Slice.SUBTYPE_TOGGLE;
+import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
-import static androidx.slice.core.SliceHints.EXTRA_RANGE_VALUE;
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.SMALL_IMAGE;
-import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
-import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
+import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_BUTTON;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_TOGGLE;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_LIST;
@@ -326,20 +327,26 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private void addRange(final SliceItem range) {
         final boolean isSeekBar = FORMAT_ACTION.equals(range.getFormat());
         final ProgressBar progressBar = isSeekBar ? mSeekBar : mProgressBar;
-        SliceItem max = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MAX);
-        if (max != null) {
-            progressBar.setMax(max.getInt());
-        }
-        SliceItem progress = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_VALUE);
-        if (progress != null) {
-            progressBar.setProgress(progress.getInt());
-        }
-        progressBar.setVisibility(View.VISIBLE);
         if (mTintColor != -1) {
             Drawable drawable = DrawableCompat.wrap(progressBar.getProgressDrawable());
             DrawableCompat.setTint(drawable, mTintColor);
-            mProgressBar.setProgressDrawable(drawable);
+            progressBar.setProgressDrawable(drawable);
         }
+        // TODO: Need to handle custom accessibility for min
+        SliceItem min = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MIN);
+        int minValue = 0;
+        if (min != null) {
+            minValue = min.getInt();
+        }
+        SliceItem max = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MAX);
+        if (max != null) {
+            progressBar.setMax(max.getInt() - minValue);
+        }
+        SliceItem progress = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_VALUE);
+        if (progress != null) {
+            progressBar.setProgress(progress.getInt() - minValue);
+        }
+        progressBar.setVisibility(View.VISIBLE);
         if (isSeekBar) {
             SliceItem thumb = SliceQuery.find(range, FORMAT_IMAGE);
             if (thumb != null) {
@@ -350,9 +357,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 DrawableCompat.setTint(drawable, mTintColor);
                 mSeekBar.setThumb(drawable);
             }
+            final int finalMinValue = minValue;
             mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    progress += finalMinValue;
                     try {
                         // TODO: sending this PendingIntent should be rate limited.
                         range.fireAction(getContext(),
