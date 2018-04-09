@@ -96,8 +96,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private View mDivider;
     private ArrayList<SliceActionView> mToggles = new ArrayList<>();
     private LinearLayout mEndContainer;
-    private SeekBar mSeekBar;
-    private ProgressBar mProgressBar;
+    private ProgressBar mRangeBar;
     private View mSeeMoreView;
 
     private int mRowIndex;
@@ -108,14 +107,16 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     private int mImageSize;
     private int mIconSize;
+    private int mRangeHeight;
 
     public RowView(Context context) {
         super(context);
         mIconSize = getContext().getResources().getDimensionPixelSize(R.dimen.abc_slice_icon_size);
         mImageSize = getContext().getResources().getDimensionPixelSize(
                 R.dimen.abc_slice_small_image_size);
-        inflate(context, R.layout.abc_slice_small_template, this);
-        mRootView = findViewById(R.id.row_view);
+        mRootView = (LinearLayout) LayoutInflater.from(context).inflate(
+                R.layout.abc_slice_small_template, this, false);
+        addView(mRootView);
 
         mStartContainer = (LinearLayout) findViewById(R.id.icon_frame);
         mContent = (LinearLayout) findViewById(android.R.id.content);
@@ -124,8 +125,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mLastUpdatedText = (TextView) findViewById(R.id.last_updated);
         mDivider = findViewById(R.id.divider);
         mEndContainer = (LinearLayout) findViewById(android.R.id.widget_frame);
-        mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
-        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
+        mRangeHeight = context.getResources().getDimensionPixelSize(
+                R.dimen.abc_slice_row_range_height);
     }
 
 
@@ -138,6 +140,16 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     @Override
     public int getActualHeight() {
         return mRowContent != null && mRowContent.isValid() ? mRowContent.getActualHeight() : 0;
+    }
+    /**
+     * @return height row content (i.e. title, subtitle) without the height of the range element.
+     */
+    private int getRowContentHeight() {
+        int rowHeight = getMode() == MODE_SMALL ? getSmallHeight() : getActualHeight();
+        if (mRangeBar != null) {
+            rowHeight -= mRangeHeight;
+        }
+        return rowHeight;
     }
 
     @Override
@@ -167,9 +179,31 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = getMode() == MODE_SMALL ? getSmallHeight() : getActualHeight();
-        heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int totalHeight = getMode() == MODE_SMALL ? getSmallHeight() : getActualHeight();
+        int rowHeight = getRowContentHeight();
+        if (rowHeight != 0 && mRootView.getVisibility() != View.GONE) {
+            // Might be gone if we have range / progress but nothing else
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(rowHeight, MeasureSpec.EXACTLY);
+            measureChild(mRootView, widthMeasureSpec, heightMeasureSpec);
+        } else {
+            mRootView.setVisibility(View.GONE);
+        }
+        if (mRangeBar != null) {
+            int rangeMeasureSpec = MeasureSpec.makeMeasureSpec(mRangeHeight, MeasureSpec.EXACTLY);
+            measureChild(mRangeBar, widthMeasureSpec, rangeMeasureSpec);
+        }
+
+        int totalHeightSpec = MeasureSpec.makeMeasureSpec(totalHeight, MeasureSpec.EXACTLY);
+        super.onMeasure(widthMeasureSpec, totalHeightSpec);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        mRootView.layout(l, t, l + mRootView.getMeasuredWidth(), t + getRowContentHeight());
+        if (mRangeBar != null) {
+            mRangeBar.layout(l, t + getRowContentHeight(), l + mRangeBar.getMeasuredWidth(),
+                    t + getRowContentHeight() + mRangeHeight);
+        }
     }
 
     @Override
@@ -343,7 +377,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     private void addRange(final SliceItem range) {
         final boolean isSeekBar = FORMAT_ACTION.equals(range.getFormat());
-        final ProgressBar progressBar = isSeekBar ? mSeekBar : mProgressBar;
+        final ProgressBar progressBar = isSeekBar
+                ? new SeekBar(getContext())
+                : new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
         if (mTintColor != -1) {
             Drawable drawable = DrawableCompat.wrap(progressBar.getProgressDrawable());
             DrawableCompat.setTint(drawable, mTintColor);
@@ -364,18 +400,21 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             progressBar.setProgress(progress.getInt() - minValue);
         }
         progressBar.setVisibility(View.VISIBLE);
+        addView(progressBar);
+        mRangeBar = progressBar;
         if (isSeekBar) {
             SliceItem thumb = SliceQuery.find(range, FORMAT_IMAGE);
+            SeekBar seekBar = (SeekBar) mRangeBar;
             if (thumb != null) {
-                mSeekBar.setThumb(thumb.getIcon().loadDrawable(getContext()));
+                seekBar.setThumb(thumb.getIcon().loadDrawable(getContext()));
             }
             if (mTintColor != -1) {
-                Drawable drawable = DrawableCompat.wrap(mSeekBar.getThumb());
+                Drawable drawable = DrawableCompat.wrap(seekBar.getThumb());
                 DrawableCompat.setTint(drawable, mTintColor);
-                mSeekBar.setThumb(drawable);
+                seekBar.setThumb(drawable);
             }
             final int finalMinValue = minValue;
-            mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     progress += finalMinValue;
@@ -524,6 +563,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     public void resetView() {
+        mRootView.setVisibility(View.VISIBLE);
         setViewClickable(mRootView, false);
         setViewClickable(mContent, false);
         mStartContainer.removeAllViews();
@@ -533,8 +573,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mToggles.clear();
         mRowAction = null;
         mDivider.setVisibility(View.GONE);
-        mSeekBar.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.GONE);
+        if (mRangeBar != null) {
+            removeView(mRangeBar);
+        }
         if (mSeeMoreView != null) {
             removeView(mSeeMoreView);
         }
