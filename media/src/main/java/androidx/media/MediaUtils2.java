@@ -16,6 +16,8 @@
 
 package androidx.media;
 
+import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_UNKNOWN;
+import static androidx.media.AudioAttributesCompat.USAGE_UNKNOWN;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_DESCRIPTION;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_ICON;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_ICON_URI;
@@ -286,12 +288,6 @@ class MediaUtils2 {
         }
     }
 
-    static MediaController2.PlaybackInfo createPlaybackInfo(int playbackType,
-            AudioAttributesCompat attrs, VolumeProviderCompat vp) {
-        return new MediaController2.PlaybackInfo(playbackType, attrs, vp.getVolumeControl(),
-                vp.getMaxVolume(), vp.getCurrentVolume());
-    }
-
     static Parcelable[] toMediaItem2ParcelableArray(List<MediaItem2> playlist) {
         if (playlist == null) {
             return null;
@@ -356,6 +352,9 @@ class MediaUtils2 {
     }
 
     static Bundle toAudioAttributesBundle(AudioAttributesCompat attrs) {
+        if (attrs == null) {
+            return null;
+        }
         Bundle bundle = new Bundle();
         bundle.putInt(AUDIO_ATTRIBUTES_USAGE, attrs.getUsage());
         bundle.putInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, attrs.getContentType());
@@ -364,10 +363,13 @@ class MediaUtils2 {
     }
 
     static AudioAttributesCompat fromAudioAttributesBundle(Bundle bundle) {
+        if (bundle == null) {
+            return null;
+        }
         return new AudioAttributesCompat.Builder()
-                .setUsage(bundle.getInt(AUDIO_ATTRIBUTES_USAGE))
-                .setContentType(bundle.getInt(AUDIO_ATTRIBUTES_CONTENT_TYPE))
-                .setFlags(bundle.getInt(AUDIO_ATTRIBUTES_FLAGS))
+                .setUsage(bundle.getInt(AUDIO_ATTRIBUTES_USAGE, USAGE_UNKNOWN))
+                .setContentType(bundle.getInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, CONTENT_TYPE_UNKNOWN))
+                .setFlags(bundle.getInt(AUDIO_ATTRIBUTES_FLAGS, 0))
                 .build();
     }
 

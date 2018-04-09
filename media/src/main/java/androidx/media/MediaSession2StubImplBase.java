@@ -28,6 +28,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ID;
 import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media.MediaConstants2.ARGUMENT_PID;
+import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_INFO;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
@@ -52,6 +53,7 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
@@ -103,6 +105,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaSession2.CommandButton;
 import androidx.media.MediaSession2.ControllerInfo;
 
@@ -492,6 +495,18 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         });
     }
 
+    void notifyPlaybackInfoChanged(final PlaybackInfo info) {
+        notifyAll(new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putBundle(ARGUMENT_PLAYBACK_INFO, info.toBundle());
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED, bundle);
+            }
+        });
+    }
+
     void notifyPlayerStateChanged(final int state) {
         notifyAll(new Session2Runnable() {
             @Override
@@ -775,6 +790,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                         resultData.putParcelableArray(ARGUMENT_PLAYLIST,
                                 MediaUtils2.toMediaItem2ParcelableArray(playlist));
                     }
+                    resultData.putBundle(ARGUMENT_PLAYBACK_INFO,
+                            mSession.getPlaybackInfo().toBundle());
 
                     // Double check if session is still there, because close() can be
                     // called in another thread.
