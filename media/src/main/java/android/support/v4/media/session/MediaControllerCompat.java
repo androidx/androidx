@@ -667,13 +667,13 @@ public final class MediaControllerCompat {
     public static abstract class Callback implements IBinder.DeathRecipient {
         private final Object mCallbackObj;
         MessageHandler mHandler;
-        boolean mHasExtraCallback;
+        IMediaControllerCallback mIControllerCallback;
 
         public Callback() {
             if (android.os.Build.VERSION.SDK_INT >= 21) {
                 mCallbackObj = MediaControllerCompatApi21.createCallback(new StubApi21(this));
             } else {
-                mCallbackObj = new StubCompat(this);
+                mCallbackObj = mIControllerCallback = new StubCompat(this);
             }
         }
 
@@ -789,6 +789,14 @@ public final class MediaControllerCompat {
         public void onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode int shuffleMode) {
         }
 
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public IMediaControllerCallback getIControllerCallback() {
+            return mIControllerCallback;
+        }
+
         @Override
         public void binderDied() {
             onSessionDestroyed();
@@ -837,7 +845,8 @@ public final class MediaControllerCompat {
             public void onSessionEvent(String event, Bundle extras) {
                 MediaControllerCompat.Callback callback = mCallback.get();
                 if (callback != null) {
-                    if (callback.mHasExtraCallback && android.os.Build.VERSION.SDK_INT < 23) {
+                    if (callback.mIControllerCallback != null
+                            && android.os.Build.VERSION.SDK_INT < 23) {
                         // Ignore. ExtraCallback will handle this.
                     } else {
                         callback.onSessionEvent(event, extras);
@@ -849,7 +858,7 @@ public final class MediaControllerCompat {
             public void onPlaybackStateChanged(Object stateObj) {
                 MediaControllerCompat.Callback callback = mCallback.get();
                 if (callback != null) {
-                    if (callback.mHasExtraCallback) {
+                    if (callback.mIControllerCallback != null) {
                         // Ignore. ExtraCallback will handle this.
                     } else {
                         callback.onPlaybackStateChanged(
@@ -1944,7 +1953,7 @@ public final class MediaControllerCompat {
             if (mExtraBinder != null) {
                 ExtraCallback extraCallback = new ExtraCallback(callback);
                 mCallbackMap.put(callback, extraCallback);
-                callback.mHasExtraCallback = true;
+                callback.mIControllerCallback = extraCallback;
                 try {
                     mExtraBinder.registerCallbackListener(extraCallback);
                 } catch (RemoteException e) {
@@ -1952,7 +1961,7 @@ public final class MediaControllerCompat {
                 }
             } else {
                 synchronized (mPendingCallbacks) {
-                    callback.mHasExtraCallback = false;
+                    callback.mIControllerCallback = null;
                     mPendingCallbacks.add(callback);
                 }
             }
@@ -1965,7 +1974,7 @@ public final class MediaControllerCompat {
                 try {
                     ExtraCallback extraCallback = mCallbackMap.remove(callback);
                     if (extraCallback != null) {
-                        callback.mHasExtraCallback = false;
+                        callback.mIControllerCallback = null;
                         mExtraBinder.unregisterCallbackListener(extraCallback);
                     }
                 } catch (RemoteException e) {
@@ -2173,7 +2182,7 @@ public final class MediaControllerCompat {
                 for (Callback callback : mPendingCallbacks) {
                     ExtraCallback extraCallback = new ExtraCallback(callback);
                     mCallbackMap.put(callback, extraCallback);
-                    callback.mHasExtraCallback = true;
+                    callback.mIControllerCallback = extraCallback;
                     try {
                         mExtraBinder.registerCallbackListener(extraCallback);
                     } catch (RemoteException e) {
