@@ -16,10 +16,16 @@
 
 package androidx.webkit.internal;
 
+import android.content.Context;
 import android.os.Build;
+import android.webkit.ValueCallback;
+import android.webkit.WebSettings;
 
+import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 import androidx.webkit.WebViewFeature.WebViewSupportFeature;
+
+import java.util.List;
 
 /**
  * Enum representing a WebView feature, this provides functionality for determining whether a
@@ -31,7 +37,84 @@ public enum WebViewFeatureInternal {
      * {@link androidx.webkit.WebViewCompat#postVisualStateCallback(android.webkit.WebView, long,
      * androidx.webkit.WebViewCompat.VisualStateCallback)}.
      */
-    VISUAL_STATE_CALLBACK_FEATURE(WebViewFeature.VISUAL_STATE_CALLBACK, Build.VERSION_CODES.M);
+    VISUAL_STATE_CALLBACK_FEATURE(WebViewFeature.VISUAL_STATE_CALLBACK, Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#getOffscreenPreRaster(WebSettings)}, and
+     * {@link androidx.webkit.WebSettingsCompat#setOffscreenPreRaster(WebSettings, boolean)}.
+     */
+    OFF_SCREEN_PRERASTER(WebViewFeature.OFF_SCREEN_PRERASTER, Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#getSafeBrowsingEnabled(WebSettings)}, and
+     * {@link androidx.webkit.WebSettingsCompat#setSafeBrowsingEnabled(WebSettings, boolean)}.
+     */
+    SAFE_BROWSING_ENABLE(WebViewFeature.SAFE_BROWSING_ENABLE, Build.VERSION_CODES.O),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#getDisabledActionModeMenuItems(WebSettings)}, and
+     * {@link androidx.webkit.WebSettingsCompat#setDisabledActionModeMenuItems(WebSettings, int)}.
+     */
+    DISABLED_ACTION_MODE_MENU_ITEMS(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
+                                    Build.VERSION_CODES.N),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebViewCompat#startSafeBrowsing(Context, ValueCallback)}.
+     */
+    START_SAFE_BROWSING(WebViewFeature.START_SAFE_BROWSING, Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(List, ValueCallback)}.
+     */
+    SAFE_BROWSING_WHITELIST(WebViewFeature.SAFE_BROWSING_WHITELIST, Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers
+     * {@link WebViewCompat#getSafeBrowsingPrivacyPolicyUrl()}.
+     */
+    SAFE_BROWSING_PRIVACY_POLICY_URL(WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL,
+            Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.ServiceWorkerControllerCompat#getInstance()}.
+     */
+    SERVICE_WORKER_BASIC_USAGE(WebViewFeature.SERVICE_WORKER_BASIC_USAGE, Build.VERSION_CODES.N),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getCacheMode()}, and
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setCacheMode(int)}.
+     */
+    SERVICE_WORKER_CACHE_MODE(WebViewFeature.SERVICE_WORKER_CACHE_MODE, Build.VERSION_CODES.N),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getAllowContentAccess()}, and
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setAllowContentAccess(boolean)}.
+     */
+    SERVICE_WORKER_CONTENT_ACCESS(WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS,
+            Build.VERSION_CODES.N),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getAllowFileAccess()}, and
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setAllowFileAccess(boolean)}.
+     */
+    SERVICE_WORKER_FILE_ACCESS(WebViewFeature.SERVICE_WORKER_FILE_ACCESS, Build.VERSION_CODES.N),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getBlockNetworkLoads()}, and
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setBlockNetworkLoads(boolean)}.
+     */
+    SERVICE_WORKER_BLOCK_NETWORK_LOADS(WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS,
+            Build.VERSION_CODES.N);
 
     private final String mFeatureValue;
     private final int mOsVersion;
@@ -45,12 +128,10 @@ public enum WebViewFeatureInternal {
      * Return the {@link WebViewFeatureInternal} corresponding to {@param feature}.
      */
     public static WebViewFeatureInternal getFeature(@WebViewSupportFeature String feature) {
-        switch (feature) {
-            case WebViewFeature.VISUAL_STATE_CALLBACK:
-                return VISUAL_STATE_CALLBACK_FEATURE;
-            default:
-                throw new RuntimeException("Unknown feature " + feature);
+        for (WebViewFeatureInternal internalFeature : WebViewFeatureInternal.values()) {
+            if (internalFeature.mFeatureValue.equals(feature)) return internalFeature;
         }
+        throw new RuntimeException("Unknown feature " + feature);
     }
 
     /**
@@ -86,8 +167,8 @@ public enum WebViewFeatureInternal {
      * Utility method for throwing an exception explaining that the feature the app trying to use
      * isn't supported.
      */
-    public static void throwUnsupportedOperationException(String feature) {
-        throw new UnsupportedOperationException("Feature " + feature
-                + " is not supported by the current version of the framework and WebView APK");
+    public static UnsupportedOperationException getUnsupportedOperationException() {
+        return new UnsupportedOperationException("This method is not supported by the current "
+                + "version of the framework and the current WebView APK");
     }
 }

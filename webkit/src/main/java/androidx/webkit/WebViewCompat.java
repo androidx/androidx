@@ -16,6 +16,7 @@
 
 package androidx.webkit;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -135,7 +136,7 @@ public class WebViewCompat {
             checkThread(webview);
             getProvider(webview).insertVisualStateCallback(requestId, callback);
         } else {
-            WebViewFeatureInternal.throwUnsupportedOperationException("postVisualStateCallback");
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -157,12 +158,19 @@ public class WebViewCompat {
      * @param callback will be called on the UI thread with {@code true} if initialization is
      * successful, {@code false} otherwise.
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.START_SAFE_BROWSING,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void startSafeBrowsing(@NonNull Context context,
             @Nullable ValueCallback<Boolean> callback) {
-        if (Build.VERSION.SDK_INT >= 27) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.START_SAFE_BROWSING);
+        if (webviewFeature.isSupportedByFramework()) {
             WebView.startSafeBrowsing(context, callback);
-        } else { // TODO(gsennton): guard with WebViewApk.hasFeature(SafeBrowsing)
+        } else if (webviewFeature.isSupportedByWebView()) {
             getFactory().getStatics().initSafeBrowsing(context, callback);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -189,12 +197,19 @@ public class WebViewCompat {
      * whitelist. It will be called with {@code false} if any hosts are malformed. The callback
      * will be run on the UI thread
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_WHITELIST,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingWhitelist(@NonNull List<String> hosts,
             @Nullable ValueCallback<Boolean> callback) {
-        if (Build.VERSION.SDK_INT >= 27) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.SAFE_BROWSING_WHITELIST);
+        if (webviewFeature.isSupportedByFramework()) {
             WebView.setSafeBrowsingWhitelist(hosts, callback);
-        } else { // TODO(gsennton): guard with WebViewApk.hasFeature(SafeBrowsing)
+        } else if (webviewFeature.isSupportedByWebView()) {
             getFactory().getStatics().setSafeBrowsingWhitelist(hosts, callback);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -203,12 +218,19 @@ public class WebViewCompat {
      *
      * @return the url pointing to a privacy policy document which can be displayed to users.
      */
+    @SuppressLint("NewApi")
     @NonNull
+    @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static Uri getSafeBrowsingPrivacyPolicyUrl() {
-        if (Build.VERSION.SDK_INT >= 27) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL);
+        if (webviewFeature.isSupportedByFramework()) {
             return WebView.getSafeBrowsingPrivacyPolicyUrl();
-        } else { // TODO(gsennton): guard with WebViewApk.hasFeature(SafeBrowsing)
+        } else if (webviewFeature.isSupportedByWebView()) {
             return getFactory().getStatics().getSafeBrowsingPrivacyPolicyUrl();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 

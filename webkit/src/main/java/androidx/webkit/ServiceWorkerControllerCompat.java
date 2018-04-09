@@ -22,12 +22,12 @@ import android.webkit.ServiceWorkerController;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.FrameworkServiceWorkerController;
 import androidx.webkit.internal.ServiceWorkerControllerAdapter;
+import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
-
-// TODO(gsennton) guard APIs with isFeatureSupported(String)
 
 /**
  * Manages Service Workers used by WebView.
@@ -61,14 +61,27 @@ public abstract class ServiceWorkerControllerCompat {
      * @return the default ServiceWorkerController instance
      */
     @NonNull
+    @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_BASIC_USAGE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static ServiceWorkerControllerCompat getInstance() {
         return LAZY_HOLDER.INSTANCE;
     }
 
     private static class LAZY_HOLDER {
-        static final ServiceWorkerControllerCompat INSTANCE =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                        ? getFrameworkControllerCompat() : getSupportLibraryControllerCompat();
+        static final ServiceWorkerControllerCompat INSTANCE = createController();
+
+        @SuppressWarnings("NewApi")
+        private static ServiceWorkerControllerCompat createController() {
+            WebViewFeatureInternal webviewFeature =
+                    WebViewFeatureInternal.getFeature(WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
+            if (webviewFeature.isSupportedByFramework()) {
+                return getFrameworkControllerCompat();
+            } else if (webviewFeature.isSupportedByWebView()) {
+                return getSupportLibraryControllerCompat();
+            } else {
+                throw WebViewFeatureInternal.getUnsupportedOperationException();
+            }
+        }
     }
 
     /**
