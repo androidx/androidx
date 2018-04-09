@@ -20,6 +20,8 @@ import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
+import static android.app.slice.Slice.SUBTYPE_MAX;
+import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
@@ -29,8 +31,7 @@ import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_PERMISSION_REQUEST;
 import static androidx.slice.core.SliceHints.HINT_TTL;
-import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
-import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
+import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_PROGRESS;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
 
@@ -199,7 +200,7 @@ public class SliceMetadata {
      * Gets the range information associated with a progress bar or input range associated with this
      * slice, if it exists.
      *
-     * @return a pair where the first item is the current value of the range and the second item is
+     * @return a pair where the first item is the minimum value of the range and the second item is
      * the maximum value of the range.
      */
     @Nullable
@@ -209,12 +210,31 @@ public class SliceMetadata {
             RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
             SliceItem range = rc.getRange();
             SliceItem maxItem = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MAX);
-            SliceItem currentItem = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_VALUE);
-            int max = maxItem != null ? maxItem.getInt() : -1;
-            int current = currentItem != null ? currentItem.getInt() : -1;
-            return new Pair<>(current, max);
+            SliceItem minItem = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MIN);
+            int max = maxItem != null ? maxItem.getInt() : 100; // default max of range
+            int min = minItem != null ? minItem.getInt() : 0; // default min of range
+            return new Pair<>(min, max);
         }
         return null;
+    }
+
+    /**
+     * Gets the current value for a progress bar or input range associated with this slice, if it
+     * exists, -1 if unknown.
+     *
+     * @return the current value of a progress bar or input range associated with this slice.
+     */
+    @NonNull
+    public int getRangeValue() {
+        if (mTemplateType == ROW_TYPE_SLIDER
+                || mTemplateType == ROW_TYPE_PROGRESS) {
+            RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+            SliceItem range = rc.getRange();
+            SliceItem currentItem = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_VALUE);
+            return currentItem != null ? currentItem.getInt() : -1;
+        }
+        return -1;
+
     }
 
     /**

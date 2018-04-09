@@ -27,6 +27,9 @@ import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
+import static android.app.slice.Slice.SUBTYPE_MAX;
+import static android.app.slice.Slice.SUBTYPE_RANGE;
+import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
@@ -36,10 +39,8 @@ import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
-import static androidx.slice.core.SliceHints.SUBTYPE_MAX;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
-import static androidx.slice.core.SliceHints.SUBTYPE_RANGE;
-import static androidx.slice.core.SliceHints.SUBTYPE_VALUE;
+import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 
 import android.app.PendingIntent;
 import android.net.Uri;
@@ -158,6 +159,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      * Builder to construct an input row.
      */
     public static class RangeBuilderImpl extends TemplateBuilderImpl implements RangeBuilder {
+        private int mMin = 0;
         private int mMax = 100;
         private int mValue = 0;
         private CharSequence mTitle;
@@ -167,6 +169,11 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
         public RangeBuilderImpl(Slice.Builder sb) {
             super(sb, null);
+        }
+
+        @Override
+        public void setMin(int min) {
+            mMin = min;
         }
 
         @Override
@@ -216,6 +223,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 builder.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
             }
             builder.addHints(HINT_LIST_ITEM)
+                    .addInt(mMin, SUBTYPE_MIN)
                     .addInt(mMax, SUBTYPE_MAX)
                     .addInt(mValue, SUBTYPE_VALUE);
         }

@@ -23,6 +23,7 @@ import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
+import static android.app.slice.Slice.SUBTYPE_RANGE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
@@ -34,7 +35,6 @@ import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
-import static androidx.slice.core.SliceHints.SUBTYPE_RANGE;
 
 import android.content.Context;
 import android.text.TextUtils;
