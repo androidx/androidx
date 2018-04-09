@@ -49,6 +49,7 @@ import static androidx.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
 import static androidx.media.MediaBrowserProtocol.SERVICE_VERSION_CURRENT;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Binder;
@@ -1010,6 +1011,18 @@ public abstract class MediaBrowserServiceCompat extends Service {
             msg.setData(data);
             mCallbacks.send(msg);
         }
+    }
+
+    /**
+     * Attaches to the base context. This method is added to change the visibility of
+     * {@link Service#attachBaseContext(Context)}.
+     * <p>
+     * Note that we cannot simply override {@link Service#attachBaseContext(Context)} and hide it
+     * because lint checks considers the overriden method as the new public API that needs update
+     * of current.txt.
+     */
+    void attachToBaseContext(Context base) {
+        attachBaseContext(base);
     }
 
     @Override
