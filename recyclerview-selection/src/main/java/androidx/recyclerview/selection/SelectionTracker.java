@@ -29,6 +29,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
 
 import java.util.Set;
@@ -176,7 +177,7 @@ public abstract class SelectionTracker<K> {
      */
     public abstract boolean deselect(@NonNull K key);
 
-    abstract void onDataSetChanged();
+    abstract AdapterDataObserver getAdapterDataObserver();
 
     /**
      * Attempts to establish a range selection at {@code position}, selecting the item
