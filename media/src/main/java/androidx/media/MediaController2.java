@@ -1684,11 +1684,16 @@ public class MediaController2 implements AutoCloseable {
     }
 
     private void connectToService() {
-        synchronized (mLock) {
-            mBrowserCompat = new MediaBrowserCompat(mContext, mToken.getComponentName(),
-                    new ConnectionCallback(), sDefaultRootExtras);
-            mBrowserCompat.connect();
-        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mLock) {
+                    mBrowserCompat = new MediaBrowserCompat(mContext, mToken.getComponentName(),
+                            new ConnectionCallback(), sDefaultRootExtras);
+                    mBrowserCompat.connect();
+                }
+            }
+        });
     }
 
     private void sendCommand(int commandCode) {

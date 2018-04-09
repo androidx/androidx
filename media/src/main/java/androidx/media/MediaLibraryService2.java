@@ -23,8 +23,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Process;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import androidx.annotation.NonNull;
@@ -36,7 +38,6 @@ import androidx.media.MediaSession2.ControllerInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 /**
@@ -291,7 +292,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          */
         public void notifyChildrenChanged(@NonNull ControllerInfo controller,
                 @NonNull String parentId, int itemCount, @Nullable Bundle extras) {
-            Bundle options = new Bundle(extras);
+            Bundle options = MediaUtils2.createBundle(extras);
             options.putInt(MediaBrowser2.EXTRA_ITEM_COUNT, itemCount);
             options.putBundle(MediaBrowser2.EXTRA_TARGET, controller.toBundle());
         }
@@ -308,7 +309,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         // This is for the backward compatibility.
         public void notifyChildrenChanged(@NonNull String parentId, int itemCount,
                 @Nullable Bundle extras) {
-            Bundle options = new Bundle(extras);
+            Bundle options = MediaUtils2.createBundle(extras);
             options.putInt(MediaBrowser2.EXTRA_ITEM_COUNT, itemCount);
             getServiceCompat().notifyChildrenChanged(parentId, options);
         }
@@ -494,7 +495,6 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                 // controller.
                 return sDefaultBrowserRoot;
             }
-            final CountDownLatch latch = new CountDownLatch(1);
             // TODO: Revisit this when we support caller information.
             final ControllerInfo info = new ControllerInfo(MediaLibraryService2.this, clientUid, -1,
                     clientPackageName, null);
@@ -526,36 +526,47 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         @Override
         public void onLoadChildren(final String parentId, final Result<List<MediaItem>> result,
                 final Bundle options) {
+            result.detach();
             final ControllerInfo controller = getController();
             getLibrarySession().getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
-                    int page = options.getInt(EXTRA_PAGE, -1);
-                    int pageSize = options.getInt(EXTRA_PAGE_SIZE, -1);
-                    if (page >= 0 && pageSize >= 0) {
-                        // Requesting the list of children through the pagenation.
-                        List<MediaItem2> children = getLibrarySession().getCallback().onGetChildren(
-                                getLibrarySession(), controller, parentId, page, pageSize, options);
-                        if (children == null) {
-                            result.sendError(null);
-                        } else {
-                            List<MediaItem> list = new ArrayList<>();
-                            for (int i = 0; i < children.size(); i++) {
-                                list.add(MediaUtils2.createMediaItem(children.get(i)));
+                    if (options != null) {
+                        options.setClassLoader(MediaLibraryService2.this.getClassLoader());
+                        try {
+                            int page = options.getInt(EXTRA_PAGE, -1);
+                            int pageSize = options.getInt(EXTRA_PAGE_SIZE, -1);
+                            if (page >= 0 && pageSize >= 0) {
+                                // Requesting the list of children through the pagenation.
+                                List<MediaItem2> children = getLibrarySession().getCallback()
+                                        .onGetChildren(getLibrarySession(), controller, parentId,
+                                                page,
+                                                pageSize, options);
+                                if (children == null) {
+                                    result.sendResult(null);
+                                } else {
+                                    List<MediaItem> list = new ArrayList<>();
+                                    for (int i = 0; i < children.size(); i++) {
+                                        list.add(MediaUtils2.createMediaItem(children.get(i)));
+                                    }
+                                    result.sendResult(list);
+                                }
+                                return;
                             }
-                            result.sendResult(list);
+                        } catch (BadParcelableException e) {
+                            // pass-through.
                         }
-                    } else {
-                        // Only wants to register callbacks
-                        getLibrarySession().getCallback().onSubscribe(getLibrarySession(),
-                                controller, parentId, options);
                     }
+                    // No valid pagination info. Only wants to register callbacks
+                    getLibrarySession().getCallback().onSubscribe(getLibrarySession(),
+                            controller, parentId, options);
                 }
             });
         }
 
         @Override
         public void onLoadItem(final String itemId, final Result<MediaItem> result) {
+            result.detach();
             final ControllerInfo controller = getController();
             getLibrarySession().getCallbackExecutor().execute(new Runnable() {
                 @Override
@@ -563,7 +574,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                     MediaItem2 item = getLibrarySession().getCallback().onGetItem(
                             getLibrarySession(), controller, itemId);
                     if (item == null) {
-                        result.sendError(null);
+                        result.sendResult(null);
                     } else {
                         result.sendResult(MediaUtils2.createMediaItem(item));
                     }
@@ -583,7 +594,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
 
         private ControllerInfo getController() {
             // TODO: Implement, by using getBrowserRootHints() / getCurrentBrowserInfo() / ...
-            return null;
+            return new ControllerInfo(MediaLibraryService2.this, Process.myUid(), Process.myPid(),
+                    getPackageName(), null);
         }
     }
 }

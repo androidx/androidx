@@ -19,6 +19,7 @@ package androidx.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.ItemCallback;
@@ -195,13 +196,20 @@ public class MediaBrowser2 extends MediaController2 {
                 }
             });
         } else {
-            MediaBrowserCompat newBrowser = new MediaBrowserCompat(getContext(),
-                    getSessionToken().getComponentName(), new GetLibraryRootCallback(extras),
-                    extras);
-            newBrowser.connect();
-            synchronized (mLock) {
-                mBrowserCompats.put(extras, newBrowser);
-            }
+            getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    // Do this on the callback executor to set the looper of MediaBrowserCompat's
+                    // callback handler to this looper.
+                    MediaBrowserCompat newBrowser = new MediaBrowserCompat(getContext(),
+                            getSessionToken().getComponentName(),
+                            new GetLibraryRootCallback(extras), extras);
+                    synchronized (mLock) {
+                        mBrowserCompats.put(extras, newBrowser);
+                    }
+                    newBrowser.connect();
+                }
+            });
         }
     }
 
@@ -218,16 +226,17 @@ public class MediaBrowser2 extends MediaController2 {
         if (parentId == null) {
             throw new IllegalArgumentException("parentId shouldn't be null");
         }
-        // TODO: Document this behavior
-        Bundle option;
-        if (extras != null && (extras.containsKey(MediaBrowserCompat.EXTRA_PAGE)
-                || extras.containsKey(MediaBrowserCompat.EXTRA_PAGE_SIZE))) {
-            option = new Bundle(extras);
-            option.remove(MediaBrowserCompat.EXTRA_PAGE);
-            option.remove(MediaBrowserCompat.EXTRA_PAGE_SIZE);
-        } else {
-            option = extras;
+        // TODO: Revisit using default browser is OK. Here's my concern.
+        //       Assume that MediaBrowser2 is connected with the MediaBrowserServiceCompat.
+        //       Since MediaBrowserServiceCompat can call MediaBrowserServiceCompat#
+        //       getBrowserRootHints(), the service may refuse calls from MediaBrowser2.
+        //       It may be safe because there's not much app that implements MediaBrowserService
+        //       for sharing contents.
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
         }
+        // TODO: Document that this API creates new SubscriptionCallback for each calls.
         SubscribeCallback callback = new SubscribeCallback();
         synchronized (mLock) {
             List<SubscribeCallback> list = mSubscribeCallbacks.get(parentId);
@@ -237,11 +246,11 @@ public class MediaBrowser2 extends MediaController2 {
             }
             list.add(callback);
         }
-        // TODO: Revisit using default browser is OK. Here's my concern.
-        //       Assume that MediaBrowser2 is connected with the MediaBrowserServiceCompat.
-        //       Since MediaBrowserServiceCompat can call MediaBrowserServiceCompat#
-        //       getBrowserRootHints(), the service may refuse calls from MediaBrowser2
-        getBrowserCompat().subscribe(parentId, option, callback);
+        if (extras == null) {
+            browser.subscribe(parentId, callback);
+        } else {
+            browser.subscribe(parentId, extras, callback);
+        }
     }
 
     /**
@@ -257,6 +266,10 @@ public class MediaBrowser2 extends MediaController2 {
         if (parentId == null) {
             throw new IllegalArgumentException("parentId shouldn't be null");
         }
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
+        }
         // Note: don't use MediaBrowserCompat#unsubscribe(String) here, to keep the subscription
         // callback for getChildren.
         synchronized (mLock) {
@@ -264,7 +277,6 @@ public class MediaBrowser2 extends MediaController2 {
             if (list == null) {
                 return;
             }
-            MediaBrowserCompat browser = getBrowserCompat();
             for (int i = 0; i < list.size(); i++) {
                 browser.unsubscribe(parentId, list.get(i));
             }
@@ -288,12 +300,16 @@ public class MediaBrowser2 extends MediaController2 {
         if (page < 1 || pageSize < 1) {
             throw new IllegalArgumentException("Neither page nor pageSize should be less than 1");
         }
-        Bundle options = new Bundle(extras);
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
+        }
+
+        Bundle options = MediaUtils2.createBundle(extras);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
         // TODO: Revisit using default browser is OK. See TODO in subscribe
-        getBrowserCompat().subscribe(parentId, options,
-                new GetChildrenCallback(parentId, page, pageSize));
+        browser.subscribe(parentId, options, new GetChildrenCallback(parentId, page, pageSize));
     }
 
     /**
@@ -304,7 +320,11 @@ public class MediaBrowser2 extends MediaController2 {
      */
     public void getItem(@NonNull final String mediaId) {
         // TODO: Revisit using default browser is OK. See TODO in subscribe
-        getBrowserCompat().getItem(mediaId, new ItemCallback() {
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
+        }
+        browser.getItem(mediaId, new ItemCallback() {
             @Override
             public void onItemLoaded(final MediaItem item) {
                 getCallbackExecutor().execute(new Runnable() {
@@ -365,6 +385,20 @@ public class MediaBrowser2 extends MediaController2 {
         synchronized (mLock) {
             return mBrowserCompats.get(extras);
         }
+    }
+
+    private Bundle getExtrasWithoutPagination(Bundle extras) {
+        if (extras == null) {
+            return null;
+        }
+        extras.setClassLoader(getContext().getClassLoader());
+        try {
+            extras.remove(MediaBrowserCompat.EXTRA_PAGE);
+            extras.remove(MediaBrowserCompat.EXTRA_PAGE_SIZE);
+        } catch (BadParcelableException e) {
+            // Pass through...
+        }
+        return extras;
     }
 
     private class GetLibraryRootCallback extends MediaBrowserCompat.ConnectionCallback {
@@ -472,7 +506,7 @@ public class MediaBrowser2 extends MediaController2 {
 
         @Override
         public void onChildrenLoaded(final String parentId, List<MediaItem> children,
-                final Bundle options) {
+                Bundle options) {
             final List<MediaItem2> items;
             if (children == null) {
                 items = null;
@@ -482,12 +516,17 @@ public class MediaBrowser2 extends MediaController2 {
                     items.add(MediaUtils2.createMediaItem2(children.get(i)));
                 }
             }
+            final Bundle extras = getExtrasWithoutPagination(options);
             getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
+                    MediaBrowserCompat browser = getBrowserCompat();
+                    if (browser == null) {
+                        return;
+                    }
                     getCallback().onGetChildrenDone(MediaBrowser2.this, parentId, mPage, mPageSize,
-                            items, options);
-                    getBrowserCompat().unsubscribe(mParentId, GetChildrenCallback.this);
+                            items, extras);
+                    browser.unsubscribe(mParentId, GetChildrenCallback.this);
                 }
             });
         }
