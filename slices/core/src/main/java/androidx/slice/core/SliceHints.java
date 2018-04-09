@@ -31,25 +31,11 @@ import java.lang.annotation.Retention;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class SliceHints {
-    /**
-     * Subtype to range an item representing a range.
-     */
-    public static final String SUBTYPE_RANGE = "range";
 
     /**
-     * Subtype indicating that this content is the maximum value for a range.
+     * Subtype indicating that this content is the minimum value for a range.
      */
-    public static final String SUBTYPE_MAX = "max";
-
-    /**
-     * Subtype indicating that this content is the current value for a range.
-     */
-    public static final String SUBTYPE_VALUE = "value";
-
-    /**
-     * Key to retrieve an extra added to an intent when the value of an input range has changed.
-     */
-    public static final String EXTRA_RANGE_VALUE = "android.app.slice.extra.RANGE_VALUE";
+    public static final String SUBTYPE_MIN = "min";
 
     /**
      * The meta-data key that allows an activity to easily be linked directly to a slice.

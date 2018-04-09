@@ -111,6 +111,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setInputAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setMax(int);
+    method public androidx.slice.builders.ListBuilder.InputRangeBuilder setMin(int);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.InputRangeBuilder setSubtitle(java.lang.CharSequence);
     method public deprecated androidx.slice.builders.ListBuilder.InputRangeBuilder setThumb(android.graphics.drawable.Icon);
