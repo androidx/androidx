@@ -30,6 +30,8 @@ import android.net.Uri;
 import android.support.test.rule.ActivityTestRule;
 import android.view.SurfaceHolder;
 
+import androidx.annotation.CallSuper;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -255,6 +257,7 @@ public class MediaPlayer2TestBase {
     }
 
     @Before
+    @CallSuper
     public void setUp() throws Exception {
         mActivity = mActivityRule.getActivity();
         try {
@@ -277,6 +280,7 @@ public class MediaPlayer2TestBase {
     }
 
     @After
+    @CallSuper
     public void tearDown() throws Exception {
         if (mPlayer != null) {
             mPlayer.close();
