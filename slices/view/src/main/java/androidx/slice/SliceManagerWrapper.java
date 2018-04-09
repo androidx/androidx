@@ -31,6 +31,7 @@ import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -66,7 +67,9 @@ class SliceManagerWrapper extends SliceManagerBase {
 
     @Override
     public @NonNull Set<androidx.slice.SliceSpec> getPinnedSpecs(@NonNull Uri uri) {
-        return SliceConvert.wrap(mManager.getPinnedSpecs(uri));
+        // Disabled while we update APIs.
+        //return SliceConvert.wrap(mManager.getPinnedSpecs(uri));
+        return Collections.EMPTY_SET;
     }
 
     @Nullable
