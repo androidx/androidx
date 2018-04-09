@@ -17,7 +17,6 @@
 package androidx.webkit.internal;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Handler;
 import android.webkit.WebMessage;
 import android.webkit.WebMessagePort;
@@ -25,6 +24,7 @@ import android.webkit.WebMessagePort;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
+import androidx.webkit.WebViewFeature;
 
 import org.chromium.support_lib_boundary.WebMessagePortBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -72,28 +72,39 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     @SuppressLint("NewApi")
     @Override
     public void postMessage(WebMessageCompat message) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE);
+        if (feature.isSupportedByFramework()) {
             getFrameworksImpl().postMessage(compatToFrameworkMessage(message));
-        } else { // TODO(gsennton) use feature flag
+        } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().postMessage(
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                             new WebMessageAdapter(message)));
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
     @SuppressLint("NewApi")
     @Override
     public void close() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_PORT_CLOSE);
+        if (feature.isSupportedByFramework()) {
             getFrameworksImpl().close();
-        } else { // TODO(gsennton) use feature flag
+        } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().close();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
+    @SuppressLint("NewApi")
     @Override
     public void setWebMessageCallback(final WebMessageCallbackCompat callback) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
+                WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK);
+        if (feature.isSupportedByFramework()) {
             getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
                 @Override
                 @SuppressWarnings("NewApi")
@@ -102,16 +113,21 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
                             frameworkMessageToCompat(message));
                 }
             });
-        } else { // TODO(gsennton) use feature flag
+        } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setWebMessageCallback(
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                             new WebMessageCallbackAdapter(callback)));
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
+    @SuppressLint("NewApi")
     @Override
     public void setWebMessageCallback(Handler handler, final WebMessageCallbackCompat callback) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL);
+        if (feature.isSupportedByFramework()) {
             getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
                 @Override
                 @SuppressWarnings("NewApi")
@@ -120,10 +136,12 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
                             frameworkMessageToCompat(message));
                 }
             }, handler);
-        } else { // TODO(gsennton) use feature flag
+        } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setWebMessageCallback(
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                             new WebMessageCallbackAdapter(callback)), handler);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 

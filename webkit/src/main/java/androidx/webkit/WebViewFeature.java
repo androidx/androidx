@@ -17,9 +17,12 @@
 package androidx.webkit;
 
 import android.content.Context;
+import android.net.Uri;
+import android.os.Handler;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -68,7 +71,13 @@ public class WebViewFeature {
             WEB_RESOURCE_ERROR_GET_CODE,
             SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY,
             SAFE_BROWSING_RESPONSE_PROCEED,
-            SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL
+            SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL,
+            WEB_MESSAGE_PORT_POST_MESSAGE,
+            WEB_MESSAGE_PORT_CLOSE,
+            WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK,
+            CREATE_WEB_MESSAGE_CHANNEL,
+            POST_WEB_MESSAGE,
+            WEB_MESSAGE_CALLBACK_ON_MESSAGE
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -260,6 +269,55 @@ public class WebViewFeature {
      */
     public static final String SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL =
             Features.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebMessagePortCompat#postMessage(WebMessageCompat)}.
+     */
+    public static final String WEB_MESSAGE_PORT_POST_MESSAGE =
+            Features.WEB_MESSAGE_PORT_POST_MESSAGE;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebMessagePortCompat#close()}.
+     */
+    public static final String WEB_MESSAGE_PORT_CLOSE = Features.WEB_MESSAGE_PORT_CLOSE;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebMessagePortCompat#setWebMessageCallback(
+     * WebMessagePortCompat.WebMessageCallbackCompat)}, and
+     * {@link androidx.webkit.WebMessagePortCompat#setWebMessageCallback(Handler,
+     * WebMessagePortCompat.WebMessageCallbackCompat)}.
+     */
+    public static final String WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK =
+            Features.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebViewCompat#createWebMessageChannel(WebView)}.
+     */
+    public static final String CREATE_WEB_MESSAGE_CHANNEL = Features.CREATE_WEB_MESSAGE_CHANNEL;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)}.
+     */
+    public static final String POST_WEB_MESSAGE = Features.POST_WEB_MESSAGE;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebMessagePortCompat.WebMessageCallbackCompat#onMessage(WebMessagePortCompat,
+     * WebMessageCompat)}.
+     */
+    public static final String WEB_MESSAGE_CALLBACK_ON_MESSAGE =
+            Features.WEB_MESSAGE_CALLBACK_ON_MESSAGE;
 
     /**
      * Return whether a feature is supported at run-time. This depends on the Android version of the

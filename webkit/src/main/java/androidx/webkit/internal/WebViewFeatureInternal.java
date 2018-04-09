@@ -17,12 +17,17 @@
 package androidx.webkit.internal;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import androidx.webkit.ServiceWorkerClientCompat;
+import androidx.webkit.WebMessageCompat;
+import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebResourceRequestCompat;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
@@ -198,7 +203,52 @@ public enum WebViewFeatureInternal {
      */
     SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL(
             WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL,
-            Build.VERSION_CODES.O_MR1);
+            Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers
+     * {@link WebMessagePortCompat#postMessage(WebMessageCompat)}.
+     */
+    WEB_MESSAGE_PORT_POST_MESSAGE(WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE,
+            Build.VERSION_CODES.M),
+
+    /**
+     * * This feature covers
+     * {@link androidx.webkit.WebMessagePortCompat#close()}.
+     */
+    WEB_MESSAGE_PORT_CLOSE(WebViewFeature.WEB_MESSAGE_PORT_CLOSE,
+            Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers
+     * {@link WebMessagePortCompat#setWebMessageCallback(
+     * WebMessagePortCompat.WebMessageCallbackCompat)}, and
+     * {@link WebMessagePortCompat#setWebMessageCallback(Handler,
+     * WebMessagePortCompat.WebMessageCallbackCompat)}.
+     */
+     WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK(WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK,
+            Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers
+     * {@link WebViewCompat#createWebMessageChannel(WebView)}.
+     */
+    CREATE_WEB_MESSAGE_CHANNEL(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL,
+            Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers
+     * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)}.
+     */
+    POST_WEB_MESSAGE(WebViewFeature.POST_WEB_MESSAGE,
+            Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers
+     * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)}.
+     */
+    WEB_MESSAGE_CALLBACK_ON_MESSAGE(WebViewFeature.WEB_MESSAGE_CALLBACK_ON_MESSAGE,
+            Build.VERSION_CODES.M);
 
     private final String mFeatureValue;
     private final int mOsVersion;
