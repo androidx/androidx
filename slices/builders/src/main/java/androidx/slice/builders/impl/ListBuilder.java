@@ -141,6 +141,11 @@ public interface ListBuilder {
      */
     interface RangeBuilder {
         /**
+         * Set the lower limit.
+         */
+        void setMin(int min);
+
+        /**
          * Set the upper limit.
          */
         void setMax(int max);

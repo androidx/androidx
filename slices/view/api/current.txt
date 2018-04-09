@@ -28,6 +28,7 @@ package androidx.slice {
     method public int getLoadingState();
     method public androidx.slice.core.SliceAction getPrimaryAction();
     method public androidx.core.util.Pair<java.lang.Integer, java.lang.Integer> getRange();
+    method public int getRangeValue();
     method public java.util.List<androidx.slice.SliceItem> getSliceActions();
     method public java.util.List<java.lang.String> getSliceKeywords();
     method public java.util.List<androidx.slice.core.SliceAction> getToggles();
