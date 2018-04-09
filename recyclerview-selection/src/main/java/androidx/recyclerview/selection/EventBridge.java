@@ -24,7 +24,6 @@ import static androidx.recyclerview.selection.Shared.VERBOSE;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.RecyclerView;
@@ -59,49 +58,9 @@ public class EventBridge {
             @NonNull SelectionTracker<K> selectionTracker,
             @NonNull ItemKeyProvider<K> keyProvider) {
 
-        // setup bridges to relay selection events.
-        new AdapterToTrackerBridge(adapter, selectionTracker);
+        // setup bridges to relay selection and adapter events
         new TrackerToAdapterBridge<>(selectionTracker, keyProvider, adapter);
-    }
-
-    private static final class AdapterToTrackerBridge extends RecyclerView.AdapterDataObserver {
-
-        private final SelectionTracker<?> mSelectionTracker;
-
-        AdapterToTrackerBridge(
-                @NonNull RecyclerView.Adapter<?> adapter,
-                @NonNull SelectionTracker<?> selectionTracker) {
-            adapter.registerAdapterDataObserver(this);
-
-            checkArgument(selectionTracker != null);
-            mSelectionTracker = selectionTracker;
-        }
-
-        @Override
-        public void onChanged() {
-            mSelectionTracker.onDataSetChanged();
-        }
-
-        @Override
-        public void onItemRangeChanged(int startPosition, int itemCount, @Nullable Object payload) {
-            // No change in position. Ignore.
-            // TODO(b/72393576): Properties of items could change. Should reevaluate selected status
-        }
-
-        @Override
-        public void onItemRangeInserted(int startPosition, int itemCount) {
-            // Uninteresting to us since selection is stable ID based.
-        }
-
-        @Override
-        public void onItemRangeRemoved(int startPosition, int itemCount) {
-            // Uninteresting to us since selection is stable ID based.
-        }
-
-        @Override
-        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-            // Uninteresting to us since selection is stable ID based.
-        }
+        adapter.registerAdapterDataObserver(selectionTracker.getAdapterDataObserver());
     }
 
     private static final class TrackerToAdapterBridge<K>

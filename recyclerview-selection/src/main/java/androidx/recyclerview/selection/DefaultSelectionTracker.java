@@ -30,6 +30,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.selection.Range.RangeType;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     private final SelectionPredicate<K> mSelectionPredicate;
     private final StorageStrategy<K> mStorage;
     private final RangeCallbacks mRangeCallbacks;
+    private final AdapterObserver mAdapterObserver;
     private final boolean mSingleSelect;
     private final String mSelectionId;
 
@@ -94,6 +96,8 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
         mRangeCallbacks = new RangeCallbacks();
 
         mSingleSelect = !selectionPredicate.canSelectMultiple();
+
+        mAdapterObserver = new AdapterObserver(this);
     }
 
     @Override
@@ -344,7 +348,11 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     }
 
     @Override
-    void onDataSetChanged() {
+    AdapterDataObserver getAdapterDataObserver() {
+        return mAdapterObserver;
+    }
+
+    private void onDataSetChanged() {
         mSelection.clearProvisionalSelection();
 
         notifySelectionRefresh();
@@ -522,6 +530,43 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
                 default:
                     throw new IllegalArgumentException("Invalid range type: " + type);
             }
+        }
+    }
+
+    private static final class AdapterObserver extends AdapterDataObserver {
+
+        private final DefaultSelectionTracker<?> mSelectionTracker;
+
+        AdapterObserver(@NonNull DefaultSelectionTracker<?> selectionTracker) {
+            checkArgument(selectionTracker != null);
+            mSelectionTracker = selectionTracker;
+        }
+
+        @Override
+        public void onChanged() {
+            mSelectionTracker.onDataSetChanged();
+        }
+
+        @Override
+        public void onItemRangeChanged(int startPosition, int itemCount, @Nullable Object payload) {
+            if (!SelectionTracker.SELECTION_CHANGED_MARKER.equals(payload)) {
+                mSelectionTracker.onDataSetChanged();
+            }
+        }
+
+        @Override
+        public void onItemRangeInserted(int startPosition, int itemCount) {
+            mSelectionTracker.endRange();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int startPosition, int itemCount) {
+            mSelectionTracker.endRange();
+        }
+
+        @Override
+        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            mSelectionTracker.endRange();
         }
     }
 }
