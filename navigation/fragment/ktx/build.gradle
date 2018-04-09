@@ -34,6 +34,8 @@ android {
 
 dependencies {
     api(project(":navigation:fragment"))
+    // Ensure that the -ktx dependency graph mirrors the Java dependency graph
+    api(project(":navigation:runtime-ktx"))
     api(KOTLIN_STDLIB)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
