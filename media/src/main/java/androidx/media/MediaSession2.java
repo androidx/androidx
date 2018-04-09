@@ -35,7 +35,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaPlayerBase.BuffState;
 import androidx.media.MediaPlayerBase.PlayerState;
 import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
@@ -1054,7 +1053,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         abstract SessionCallback getCallback();
         abstract boolean isClosed();
         abstract PlaybackStateCompat getPlaybackStateCompat();
-        abstract PlaybackInfo getPlaybackInfo();
     }
 
     static final String TAG = "MediaSession2";

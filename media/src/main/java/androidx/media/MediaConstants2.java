@@ -24,8 +24,6 @@ class MediaConstants2 {
     // Event string used by IMediaControllerCallback.onEvent()
     static final String SESSION_EVENT_ON_PLAYER_STATE_CHANGED =
             "androidx.media.session.event.ON_PLAYER_STATE_CHANGED";
-    static final String SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED =
-            "androidx.media.session.event.ON_PLAYBACK_INFO_CHANGED";
     static final String SESSION_EVENT_ON_ERROR =
             "androidx.media.session.event.ON_ERROR";
     static final String SESSION_EVENT_ON_REPEAT_MODE_CHANGED =
@@ -78,7 +76,6 @@ class MediaConstants2 {
     static final String ARGUMENT_ARGUMENTS = "androidx.media.argument.ARGUMENTS";
     static final String ARGUMENT_RESULT_RECEIVER = "androidx.media.argument.RESULT_RECEIVER";
     static final String ARGUMENT_COMMAND_BUTTONS = "androidx.media.argument.COMMAND_BUTTONS";
-    static final String ARGUMENT_PLAYBACK_INFO = "androidx.media.argument.PLAYBACK_INFO";
 
     static final String ARGUMENT_ICONTROLLER_CALLBACK =
             "androidx.media.argument.ICONTROLLER_CALLBACK";

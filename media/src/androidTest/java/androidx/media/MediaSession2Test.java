@@ -18,9 +18,6 @@ package androidx.media;
 
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
-import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
-import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_FIXED;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -285,6 +282,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
+    @Ignore
     @Test
     public void testSetPlayer_playbackInfo() throws Exception {
         prepareLooper();
@@ -296,9 +294,10 @@ public class MediaSession2Test extends MediaSession2TestBase {
 
         final int maxVolume = 100;
         final int currentVolume = 23;
-        final int volumeControlType = VOLUME_CONTROL_ABSOLUTE;
-        VolumeProviderCompat volumeProvider = new VolumeProviderCompat(
-                volumeControlType, maxVolume, currentVolume) { };
+        final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+        VolumeProviderCompat volumeProvider =
+                new VolumeProviderCompat(volumeControlType, maxVolume, currentVolume) {
+                };
 
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
@@ -321,11 +320,9 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertEquals(PlaybackInfo.PLAYBACK_TYPE_LOCAL, info.getPlaybackType());
         assertEquals(attrs, info.getAudioAttributes());
         AudioManager manager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-
-        int localVolumeControlType = VOLUME_CONTROL_ABSOLUTE;
-        if (Build.VERSION.SDK_INT >= 21 && manager.isVolumeFixed()) {
-            localVolumeControlType = VOLUME_CONTROL_FIXED;
-        }
+        int localVolumeControlType = manager.isVolumeFixed()
+                ? VolumeProviderCompat.VOLUME_CONTROL_FIXED
+                : VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
         assertEquals(localVolumeControlType, info.getControlType());
         assertEquals(manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), info.getMaxVolume());
         assertEquals(manager.getStreamVolume(AudioManager.STREAM_MUSIC), info.getCurrentVolume());

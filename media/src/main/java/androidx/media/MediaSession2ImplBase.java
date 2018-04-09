@@ -47,7 +47,6 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaPlayerBase.PlayerEventCallback;
 import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
 
@@ -91,8 +90,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private OnDataSourceMissingHelper mDsmHelper;
     @GuardedBy("mLock")
     private PlaybackStateCompat mPlaybackStateCompat;
-    @GuardedBy("mLock")
-    private PlaybackInfo mPlaybackInfo;
 
     MediaSession2ImplBase(Context context, MediaSessionCompat sessionCompat, String id,
             MediaPlayerBase player, MediaPlaylistAgent playlistAgent,
@@ -145,7 +142,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
         final MediaPlayerBase oldPlayer;
         final MediaPlaylistAgent oldAgent;
-        final PlaybackInfo info = createPlaybackInfo(volumeProvider, player.getAudioAttributes());
         synchronized (mLock) {
             oldPlayer = mPlayer;
             oldAgent = mPlaylistAgent;
@@ -159,7 +155,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             }
             mPlaylistAgent = playlistAgent;
             mVolumeProvider = volumeProvider;
-            mPlaybackInfo = info;
         }
         if (player != oldPlayer) {
             player.registerPlayerEventCallback(mCallbackExecutor, mPlayerEventCallback);
@@ -177,48 +172,11 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
 
         if (oldPlayer != null) {
-            mSession2Stub.notifyPlaybackInfoChanged(info);
+            // TODO: implement
+            //mSession2Stub.notifyVolumeControlInfoChanged();
             notifyPlayerUpdatedNotLocked(oldPlayer);
         }
         // TODO(jaewan): Repeat the same thing for the playlist agent.
-    }
-
-    private PlaybackInfo createPlaybackInfo(VolumeProviderCompat volumeProvider,
-            AudioAttributesCompat attrs) {
-        PlaybackInfo info;
-        if (volumeProvider == null) {
-            int stream;
-            if (attrs == null) {
-                stream = AudioManager.STREAM_MUSIC;
-            } else {
-                stream = attrs.getVolumeControlStream();
-                if (stream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
-                    // It may happen if the AudioAttributes doesn't have usage.
-                    // Change it to the STREAM_MUSIC because it's not supported by audio manager
-                    // for querying volume level.
-                    stream = AudioManager.STREAM_MUSIC;
-                }
-            }
-
-            int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
-            if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
-                controlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
-            }
-            info = PlaybackInfo.createPlaybackInfo(
-                    PlaybackInfo.PLAYBACK_TYPE_LOCAL,
-                    attrs,
-                    controlType,
-                    mAudioManager.getStreamMaxVolume(stream),
-                    mAudioManager.getStreamVolume(stream));
-        } else {
-            info = PlaybackInfo.createPlaybackInfo(
-                    PlaybackInfo.PLAYBACK_TYPE_REMOTE,
-                    attrs,
-                    volumeProvider.getVolumeControl(),
-                    volumeProvider.getMaxVolume(),
-                    volumeProvider.getCurrentVolume());
-        }
-        return info;
     }
 
     @Override
@@ -793,13 +751,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     .setActions(allActions)
                     .setBufferedPosition(getBufferedPosition())
                     .build();
-        }
-    }
-
-    @Override
-    PlaybackInfo getPlaybackInfo() {
-        synchronized (mLock) {
-            return mPlaybackInfo;
         }
     }
 

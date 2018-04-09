@@ -31,7 +31,6 @@ import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ID;
 import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media.MediaConstants2.ARGUMENT_PID;
-import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_INFO;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
@@ -56,7 +55,6 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
@@ -364,7 +362,8 @@ public class MediaController2 implements AutoCloseable {
         PlaybackInfo(int playbackType, AudioAttributesCompat attrs, int controlType, int max,
                 int current) {
             mPlaybackType = playbackType;
-            mAudioAttrsCompat = attrs;
+            // TODO: Use AudioAttributesCompat instead of AudioAttributes, and set the value
+            mAudioAttrsCompat = null;
             mControlType = controlType;
             mMaxVolume = max;
             mCurrentVolume = current;
@@ -433,10 +432,8 @@ public class MediaController2 implements AutoCloseable {
             bundle.putInt(KEY_CONTROL_TYPE, mControlType);
             bundle.putInt(KEY_MAX_VOLUME, mMaxVolume);
             bundle.putInt(KEY_CURRENT_VOLUME, mCurrentVolume);
-            if (mAudioAttrsCompat != null) {
-                bundle.putParcelable(KEY_AUDIO_ATTRIBUTES,
-                        MediaUtils2.toAudioAttributesBundle(mAudioAttrsCompat));
-            }
+            bundle.putParcelable(KEY_AUDIO_ATTRIBUTES,
+                    MediaUtils2.toAudioAttributesBundle(mAudioAttrsCompat));
             return bundle;
         }
 
@@ -455,6 +452,7 @@ public class MediaController2 implements AutoCloseable {
             final int currentVolume = bundle.getInt(KEY_CURRENT_VOLUME);
             final AudioAttributesCompat attrs = MediaUtils2.fromAudioAttributesBundle(
                     bundle.getBundle(KEY_AUDIO_ATTRIBUTES));
+
             return createPlaybackInfo(volumeType, attrs, volumeControl, maxVolume,
                     currentVolume);
         }
@@ -584,17 +582,6 @@ public class MediaController2 implements AutoCloseable {
                     }
                     mCallback.onCustomLayoutChanged(MediaController2.this, layout);
                     break;
-                }
-                case SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED: {
-                    PlaybackInfo info = PlaybackInfo.fromBundle(
-                            extras.getBundle(ARGUMENT_PLAYBACK_INFO));
-                    if (info == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mPlaybackInfo = info;
-                    }
-                    mCallback.onPlaybackInfoChanged(MediaController2.this, info);
                 }
             }
         }
@@ -1463,8 +1450,6 @@ public class MediaController2 implements AutoCloseable {
         // TODO: Set mMediaMetadataCompat from the data.
         final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
                 data.getParcelableArray(ARGUMENT_PLAYLIST));
-        final PlaybackInfo playbackInfo =
-                PlaybackInfo.fromBundle(data.getBundle(ARGUMENT_PLAYBACK_INFO));
         if (DEBUG) {
             Log.d(TAG, "onConnectedNotLocked sessionCompatToken=" + mToken.getSessionCompatToken()
                     + ", allowedCommands=" + allowedCommands);
@@ -1488,7 +1473,6 @@ public class MediaController2 implements AutoCloseable {
                 mShuffleMode = shuffleMode;
                 mPlaylist = playlist;
                 mConnected = true;
-                mPlaybackInfo = playbackInfo;
             }
             // TODO(jaewan): Keep commands to prevents illegal API calls.
             mCallbackExecutor.execute(new Runnable() {
