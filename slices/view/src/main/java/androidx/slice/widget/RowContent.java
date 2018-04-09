@@ -75,14 +75,14 @@ public class RowContent {
     private int mLineCount = 0;
     private int mMaxHeight;
     private int mMinHeight;
-    private int mMaxRangeHeight;
+    private int mRangeHeight;
 
     public RowContent(Context context, SliceItem rowSlice, boolean isHeader) {
         populate(rowSlice, isHeader);
         mMaxHeight = context.getResources().getDimensionPixelSize(R.dimen.abc_slice_row_max_height);
         mMinHeight = context.getResources().getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
-        mMaxRangeHeight = context.getResources().getDimensionPixelSize(
-                R.dimen.abc_slice_row_range_max_height);
+        mRangeHeight = context.getResources().getDimensionPixelSize(
+                R.dimen.abc_slice_row_range_height);
     }
 
     /**
@@ -278,8 +278,8 @@ public class RowContent {
      * @return the height to display a row at when it is used as a small template.
      */
     public int getSmallHeight() {
-        return (getRange() != null && mLineCount > 1)
-                ? mMaxRangeHeight
+        return getRange() != null
+                ? getActualHeight()
                 : mMaxHeight;
     }
 
@@ -290,10 +290,15 @@ public class RowContent {
         if (!isValid()) {
             return 0;
         }
-        if (getRange() != null && mLineCount > 1) {
-            return mMaxRangeHeight;
+        int rowHeight = (getLineCount() > 1 || mIsHeader) ? mMaxHeight : mMinHeight;
+        if (getRange() != null) {
+            if (getLineCount() > 0) {
+                rowHeight += mRangeHeight;
+            } else {
+                rowHeight = mIsHeader ? mMaxHeight : mRangeHeight;
+            }
         }
-        return (getLineCount() > 1 || mIsHeader) ? mMaxHeight : mMinHeight;
+        return rowHeight;
     }
 
     private static boolean hasText(SliceItem textSlice) {
@@ -319,6 +324,7 @@ public class RowContent {
                 || mTitleItem != null
                 || mSubtitleItem != null
                 || mEndItems.size() > 0
+                || mRange != null
                 || isDefaultSeeMore();
     }
 
