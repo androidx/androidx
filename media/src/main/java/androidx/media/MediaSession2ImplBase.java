@@ -227,6 +227,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             if (mPlayer == null) {
                 return;
             }
+            mPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
             mPlayer = null;
             mSessionCompat.release();
             mHandler.removeCallbacksAndMessages(null);
@@ -969,7 +970,9 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     }
                     session.getCallback().onCurrentMediaItemChanged(session.getInstance(), mpb,
                             item);
-                    session.getSession2Stub().notifyCurrentMediaItemChanged(item);
+                    if (item.equals(session.getCurrentMediaItem())) {
+                        session.getSession2Stub().notifyCurrentMediaItemChanged(item);
+                    }
                 }
             });
         }
@@ -1024,7 +1027,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     }
                     session.getCallback().onBufferingStateChanged(
                             session.getInstance(), mpb, item, state);
-                    // TODO (jaewan): Notify controllers through appropriate callback. (b/74505936)
+                    session.getSession2Stub().notifyBufferingStateChanged(item, state);
                 }
             });
         }

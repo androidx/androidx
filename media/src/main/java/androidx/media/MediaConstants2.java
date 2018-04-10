@@ -33,6 +33,8 @@ class MediaConstants2 {
             "androidx.media.session.event.ON_PLAYBACK_INFO_CHANGED";
     static final String SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED =
             "androidx.media.session.event.ON_PLAYBACK_SPEED_CHANGED";
+    static final String SESSION_EVENT_ON_BUFFERING_STATE_CHAGNED =
+            "androidx.media.session.event.ON_BUFFERING_STATE_CHANGED";
     static final String SESSION_EVENT_ON_REPEAT_MODE_CHANGED =
             "androidx.media.session.event.ON_REPEAT_MODE_CHANGED";
     static final String SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED =
@@ -64,6 +66,7 @@ class MediaConstants2 {
     static final String ARGUMENT_SEEK_POSITION = "androidx.media.argument.SEEK_POSITION";
     static final String ARGUMENT_PLAYER_STATE = "androidx.media.argument.PLAYER_STATE";
     static final String ARGUMENT_PLAYBACK_SPEED = "androidx.media.argument.PLAYBACK_SPEED";
+    static final String ARGUMENT_BUFFERING_STATE = "androidx.media.argument.BUFFERING_STATE";
     static final String ARGUMENT_ERROR_CODE = "androidx.media.argument.ERROR_CODE";
     static final String ARGUMENT_REPEAT_MODE = "androidx.media.argument.REPEAT_MODE";
     static final String ARGUMENT_SHUFFLE_MODE = "androidx.media.argument.SHUFFLE_MODE";
