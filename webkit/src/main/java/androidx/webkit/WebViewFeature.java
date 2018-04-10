@@ -18,6 +18,7 @@ package androidx.webkit;
 
 import android.content.Context;
 import android.webkit.ValueCallback;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 
 import androidx.annotation.NonNull;
@@ -56,7 +57,8 @@ public class WebViewFeature {
             SERVICE_WORKER_CACHE_MODE,
             SERVICE_WORKER_CONTENT_ACCESS,
             SERVICE_WORKER_FILE_ACCESS,
-            SERVICE_WORKER_BLOCK_NETWORK_LOADS
+            SERVICE_WORKER_BLOCK_NETWORK_LOADS,
+            SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST
 
     })
     @Retention(RetentionPolicy.SOURCE)
@@ -158,6 +160,14 @@ public class WebViewFeature {
      */
     public static final String SERVICE_WORKER_BLOCK_NETWORK_LOADS =
             Features.SERVICE_WORKER_BLOCK_NETWORK_LOADS;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link ServiceWorkerClientCompat#shouldInterceptRequest(WebResourceRequest)}.
+     */
+    public static final String SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST =
+            Features.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST;
 
 
     /**
