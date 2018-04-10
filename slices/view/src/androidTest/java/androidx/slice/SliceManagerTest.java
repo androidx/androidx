@@ -145,8 +145,8 @@ public class SliceManagerTest {
         when(mSliceProvider.onMapIntentToUri(eq(intent))).thenReturn(expected);
         Uri uri = mManager.mapIntentToUri(intent);
 
-        assertEquals(expected, uri);
         verify(mSliceProvider).onMapIntentToUri(eq(intent));
+        assertEquals(expected, uri);
     }
 
     @Test

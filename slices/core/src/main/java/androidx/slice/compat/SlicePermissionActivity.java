@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
@@ -78,11 +77,8 @@ public class SlicePermissionActivity extends Activity implements OnClickListener
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            grantUriPermission(mCallingPkg, mUri.buildUpon().path("").build(),
-                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                            | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-            getContentResolver().notifyChange(mUri, null);
+            SliceProviderCompat.grantSlicePermission(this, getPackageName(), mCallingPkg,
+                    mUri.buildUpon().path("").build());
         }
         finish();
     }
