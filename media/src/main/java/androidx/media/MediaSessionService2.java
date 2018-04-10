@@ -32,7 +32,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.SessionToken2.TokenType;
 
@@ -129,10 +128,6 @@ public abstract class MediaSessionService2 extends Service {
      */
     public static final String SERVICE_META_DATA = "android.media.session";
 
-    // Stub BrowserRoot for accepting any connction here.
-    // See MyBrowserService#onGetRoot() for detail.
-    static final BrowserRoot sDefaultBrowserRoot = new BrowserRoot(SERVICE_INTERFACE, null);
-
     private final MediaBrowserServiceCompat mBrowserServiceCompat;
 
     private final Object mLock = new Object();
@@ -169,8 +164,7 @@ public abstract class MediaSessionService2 extends Service {
         SessionToken2 token = new SessionToken2(this,
                 new ComponentName(getPackageName(), getClass().getName()));
         if (token.getType() != getSessionType()) {
-            throw new RuntimeException("Expected session type " + getSessionType()
-                    + " but was " + token.getType());
+            throw new RuntimeException("Expected session service, but was " + token.getType());
         }
         MediaSession2 session = onCreateSession(token.getId());
         synchronized (mLock) {
@@ -318,7 +312,7 @@ public abstract class MediaSessionService2 extends Service {
             //      specific operations.
             // TODO: Revisit here API not to return stub root here. The fake media ID here may be
             //       used by the browser service for real.
-            return sDefaultBrowserRoot;
+            return new BrowserRoot(SERVICE_INTERFACE, null);
         }
 
         @Override
