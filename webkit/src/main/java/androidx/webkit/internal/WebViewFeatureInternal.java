@@ -23,6 +23,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 
 import androidx.webkit.ServiceWorkerClientCompat;
+import androidx.webkit.WebResourceRequestCompat;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
@@ -157,7 +158,14 @@ public enum WebViewFeatureInternal {
      * TODO(ntfschr): turn this into a javadoc link once the method is implemented in
      * http://ag/3858246.
      */
-    SAFE_BROWSING_HIT(WebViewFeature.SAFE_BROWSING_HIT, Build.VERSION_CODES.O_MR1);
+    SAFE_BROWSING_HIT(WebViewFeature.SAFE_BROWSING_HIT, Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers
+     * {@link WebResourceRequestCompat#isRedirect(WebResourceRequest)}.
+     */
+    WEB_RESOURCE_REQUEST_IS_REDIRECT(WebViewFeature.WEB_RESOURCE_REQUEST_IS_REDIRECT,
+            Build.VERSION_CODES.N);
 
     private final String mFeatureValue;
     private final int mOsVersion;

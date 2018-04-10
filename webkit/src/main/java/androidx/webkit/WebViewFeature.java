@@ -62,7 +62,8 @@ public class WebViewFeature {
             RECEIVE_WEB_RESOURCE_ERROR,
             RECEIVE_HTTP_ERROR,
             SHOULD_OVERRIDE_WITH_REDIRECTS,
-            SAFE_BROWSING_HIT
+            SAFE_BROWSING_HIT,
+            WEB_RESOURCE_REQUEST_IS_REDIRECT
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -209,6 +210,14 @@ public class WebViewFeature {
      * http://ag/3858246.
      */
     public static final String SAFE_BROWSING_HIT = Features.SAFE_BROWSING_HIT;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebResourceRequestCompat#isRedirect(WebResourceRequest)}.
+     */
+    public static final String WEB_RESOURCE_REQUEST_IS_REDIRECT =
+            Features.WEB_RESOURCE_REQUEST_IS_REDIRECT;
 
     /**
      * Return whether a feature is supported at run-time. This depends on the Android version of the
