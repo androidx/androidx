@@ -23,6 +23,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.TouchDelegate;
 import android.view.View;
@@ -90,17 +91,24 @@ public class CarAlertDialog extends Dialog {
 
     private void setTitleInternal(CharSequence title) {
         boolean hasTitle = !TextUtils.isEmpty(title);
+        boolean hasBody = mBodyView.getVisibility() == View.VISIBLE;
+        boolean hasButton = mButtonPanel.getVisibility() == View.VISIBLE;
 
         mTitleView.setText(title);
         mTitleView.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
 
+        // Center title if there is no button.
+        mTitleView.setGravity(hasButton ? Gravity.CENTER_VERTICAL | Gravity.START : Gravity.CENTER);
+
         // If there's a title, then remove the padding at the top of the content view.
         int topPadding = hasTitle ? 0 : mTopPadding;
+        // If there is only title, also remove the padding at the bottom so title is centered.
+        int bottomPadding = !hasButton && !hasBody ? 0 : mContentView.getPaddingBottom();
         mContentView.setPaddingRelative(
                 mContentView.getPaddingStart(),
                 topPadding,
                 mContentView.getPaddingEnd(),
-                mContentView.getPaddingBottom());
+                bottomPadding);
     }
 
     private void setBody(CharSequence body) {
@@ -226,10 +234,12 @@ public class CarAlertDialog extends Dialog {
      * contents based on what data is present.
      */
     private void initializeDialogWithData() {
-        setTitleInternal(mData.mTitle);
         setBody(mData.mBody);
         setPositiveButton(mData.mPositiveButtonText);
         setNegativeButton(mData.mNegativeButtonText);
+        // setTitleInternal() should be called last because we want to center title and adjust
+        // padding depending on body/button configuration.
+        setTitleInternal(mData.mTitle);
     }
 
     /**
