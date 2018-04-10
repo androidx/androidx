@@ -40,6 +40,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_QUERY;
 import static androidx.media.MediaConstants2.ARGUMENT_RATING;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_RESULT_RECEIVER;
+import static androidx.media.MediaConstants2.ARGUMENT_ROUTE_BUNDLE;
 import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
@@ -59,6 +60,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANG
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ROUTES_INFO_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
@@ -87,7 +89,10 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_M
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH;
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_REWIND;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SET_RATING;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
 import static androidx.media.SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
 import static androidx.media.SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME;
 
@@ -331,6 +336,17 @@ public class MediaController2 implements AutoCloseable {
          */
         public void onRepeatModeChanged(@NonNull MediaController2 controller,
                 @MediaPlaylistAgent.RepeatMode int repeatMode) { }
+
+        /**
+         * Called when a property of the indicated media route has changed.
+         *
+         * @param controller the controller for this event
+         * @param routes The list of Bundle from MediaRouteDescriptor.asBundle().
+         *              See MediaRouteDescriptor.fromBundle(Bundle bundle) to get
+         *              MediaRouteDescriptor object from the {@code routes}
+         */
+        public void onRoutesInfoChanged(@NonNull MediaController2 controller,
+                @Nullable List<Bundle> routes) { }
     }
 
     /**
@@ -524,6 +540,12 @@ public class MediaController2 implements AutoCloseable {
                     int errorCode = extras.getInt(ARGUMENT_ERROR_CODE);
                     Bundle errorExtras = extras.getBundle(ARGUMENT_EXTRAS);
                     mCallback.onError(MediaController2.this, errorCode, errorExtras);
+                    break;
+                }
+                case SESSION_EVENT_ON_ROUTES_INFO_CHANGED: {
+                    List<Bundle> routes = MediaUtils2.toBundleList(
+                            extras.getParcelableArray(ARGUMENT_ROUTE_BUNDLE));
+                    mCallback.onRoutesInfoChanged(MediaController2.this, routes);
                     break;
                 }
                 case SESSION_EVENT_ON_PLAYLIST_CHANGED: {
@@ -1438,6 +1460,38 @@ public class MediaController2 implements AutoCloseable {
         Bundle args = new Bundle();
         args.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
         sendCommand(COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE, args);
+    }
+
+    /**
+     * Queries for information about the routes currently known.
+     */
+    public void subscribeRoutesInfo() {
+        sendCommand(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
+    }
+
+    /**
+     * Unsubscribes for changes to the routes.
+     * <p>
+     * The {@link ControllerCallback#onRoutesInfoChanged callback} will no longer be invoked for
+     * the routes once this method returns.
+     * </p>
+     */
+    public void unsubscribeRoutesInfo() {
+        sendCommand(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
+    }
+
+    /**
+     * Selects the specified route.
+     *
+     * @param route The route to select.
+     */
+    public void selectRoute(@NonNull Bundle route) {
+        if (route == null) {
+            throw new IllegalArgumentException("route shouldn't be null");
+        }
+        Bundle args = new Bundle();
+        args.putBundle(ARGUMENT_ROUTE_BUNDLE, route);
+        sendCommand(COMMAND_CODE_SESSION_SELECT_ROUTE, args);
     }
 
     // Should be used without a lock to prevent potential deadlock.

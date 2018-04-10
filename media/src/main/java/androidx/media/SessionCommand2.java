@@ -265,6 +265,22 @@ public final class SessionCommand2 {
     public static final int COMMAND_CODE_SESSION_SET_RATING = 28;
 
     /**
+     * Command code for {@link MediaController2#subscribeRoutesInfo()}
+     */
+    public static final int COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO = 36;
+
+    /**
+     * Command code for {@link MediaController2#unsubscribeRoutesInfo()}
+     */
+    public static final int COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO = 37;
+
+    /**
+     * Command code for {@link MediaController2#selectRoute(Bundle)}}
+     */
+    public static final int COMMAND_CODE_SESSION_SELECT_ROUTE = 38;
+
+
+    /**
      * Command code for {@link MediaBrowser2#getChildren(String, int, int, Bundle)}.
      */
     public static final int COMMAND_CODE_LIBRARY_GET_CHILDREN = 29;

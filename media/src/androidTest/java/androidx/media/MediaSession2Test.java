@@ -38,6 +38,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media.MediaController2.ControllerCallback;
 import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaSession2.CommandButton;
@@ -824,6 +825,24 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final MediaController2 controller = createController(mSession.getToken(), true, callback);
         // TODO(jaewan): Test with multiple controllers
         mSession.notifyError(errorCode, extras);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testNotifyRoutesInfoChanged() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onRoutesInfoChanged(@NonNull MediaController2 controller,
+                    @Nullable List<Bundle> routes) {
+                assertNull(routes);
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller = createController(mSession.getToken(), true, callback);
+        ControllerInfo controllerInfo = getTestControllerInfo();
+        mSession.notifyRoutesInfoChanged(controllerInfo, null);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
