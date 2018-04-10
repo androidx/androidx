@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":slices-core"))
+    implementation(project(":slice-core"))
     implementation project(":annotation")
     implementation project(path: ':core')
 }
