@@ -306,9 +306,12 @@ public class ListContent {
         return null;
     }
 
-    private static boolean isValidHeader(SliceItem sliceItem) {
+    /**
+     * @return whether the provided slice item is a valid header.
+     */
+    public static boolean isValidHeader(SliceItem sliceItem) {
         if (FORMAT_SLICE.equals(sliceItem.getFormat()) && !sliceItem.hasAnyHints(HINT_LIST_ITEM,
-                HINT_ACTIONS, HINT_KEYWORDS)) {
+                HINT_ACTIONS, HINT_KEYWORDS, HINT_SEE_MORE)) {
              // Minimum valid header is a slice with text
             SliceItem item = SliceQuery.find(sliceItem, FORMAT_TEXT, (String) null, null);
             return item != null;

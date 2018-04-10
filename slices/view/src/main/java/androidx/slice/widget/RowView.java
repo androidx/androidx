@@ -17,7 +17,6 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
-import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
@@ -219,7 +218,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             SliceView.OnSliceActionListener observer) {
         setSliceActionListener(observer);
         mRowIndex = index;
-        mIsHeader = !slice.hasHint(HINT_LIST_ITEM);
+        mIsHeader = ListContent.isValidHeader(slice);
         mHeaderActions = null;
         mRowContent = new RowContent(getContext(), slice, mIsHeader);
         populateViews();
@@ -530,7 +529,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             b.setTextColor(mTintColor);
         }
         mSeeMoreView = b;
-        addView(mSeeMoreView);
+        mRootView.addView(mSeeMoreView);
     }
 
     @Override
@@ -577,7 +576,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             removeView(mRangeBar);
         }
         if (mSeeMoreView != null) {
-            removeView(mSeeMoreView);
+            mRootView.removeView(mSeeMoreView);
         }
     }
 }
