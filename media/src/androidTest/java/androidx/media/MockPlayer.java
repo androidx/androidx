@@ -35,6 +35,7 @@ public class MockPlayer extends MediaPlayerBase {
     public boolean mResetCalled;
     public boolean mPrepareCalled;
     public boolean mSeekToCalled;
+    public boolean mSetPlaybackSpeedCalled;
     public long mSeekPosition;
     public long mCurrentPosition;
     public long mBufferedPosition;
@@ -194,6 +195,19 @@ public class MockPlayer extends MediaPlayerBase {
         }
     }
 
+    public void notifyPlaybackSpeedChanged(final float speed) {
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            final PlayerEventCallback callback = mCallbacks.keyAt(i);
+            final Executor executor = mCallbacks.valueAt(i);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onPlaybackSpeedChanged(MockPlayer.this, speed);
+                }
+            });
+        }
+    }
+
     public void notifyError(int what) {
         for (int i = 0; i < mCallbacks.size(); i++) {
             final PlayerEventCallback callback = mCallbacks.keyAt(i);
@@ -241,7 +255,11 @@ public class MockPlayer extends MediaPlayerBase {
 
     @Override
     public void setPlaybackSpeed(float speed) {
+        mSetPlaybackSpeedCalled = true;
         mPlaybackSpeed = speed;
+        if (mCountDownLatch != null) {
+            mCountDownLatch.countDown();
+        }
     }
 
     @Override

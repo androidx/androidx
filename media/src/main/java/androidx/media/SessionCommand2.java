@@ -315,6 +315,15 @@ public final class SessionCommand2 {
      */
     public static final int COMMAND_CODE_LIBRARY_UNSUBSCRIBE = 35;
 
+    /**
+     * Command code for {@link MediaController2#setPlaybackSpeed(float)}}.
+     * <p>
+     * Command would be sent directly to the player if the session doesn't reject the request
+     * through the {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo,
+     * SessionCommand2)}.
+     */
+    public static final int COMMAND_CODE_PLAYBACK_SET_SPEED = 39;
+
     private static final String KEY_COMMAND_CODE =
             "android.media.media_session2.command.command_code";
     private static final String KEY_COMMAND_CUSTOM_COMMAND =

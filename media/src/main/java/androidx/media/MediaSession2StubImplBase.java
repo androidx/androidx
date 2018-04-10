@@ -29,6 +29,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media.MediaConstants2.ARGUMENT_PID;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_INFO;
+import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_SPEED;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
@@ -55,6 +56,7 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
@@ -68,6 +70,7 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM;
@@ -415,6 +418,12 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                                 Bundle route = extras.getBundle(ARGUMENT_ROUTE_BUNDLE);
                                 mSession.getCallback().onSelectRoute(
                                         mSession.getInstance(), controller, route);
+                                break;
+                            }
+                            case COMMAND_CODE_PLAYBACK_SET_SPEED: {
+                                float speed = extras.getFloat(ARGUMENT_PLAYBACK_SPEED);
+                                mSession.setPlaybackSpeed(speed);
+                                break;
                             }
                         }
                     }
@@ -537,6 +546,19 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 bundle.putInt(ARGUMENT_PLAYER_STATE, state);
                 controller.getControllerBinder().onEvent(
                         SESSION_EVENT_ON_PLAYER_STATE_CHANGED, bundle);
+            }
+        });
+    }
+
+    void notifyPlaybackSpeedChanged(final float speed) {
+        notifyAll(new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(
+                        ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED, bundle);
             }
         });
     }
