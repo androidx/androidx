@@ -33,6 +33,8 @@
         android:id="@+id/seek_bar_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/car_padding_1"
+        android:layout_marginBottom="@dimen/car_padding_1"
         android:orientation="vertical">
         <TextView
             android:id="@+id/text"
