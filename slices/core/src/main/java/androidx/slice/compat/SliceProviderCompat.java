@@ -15,6 +15,8 @@
  */
 package androidx.slice.compat;
 
+import static android.app.slice.SliceManager.CATEGORY_SLICE;
+import static android.app.slice.SliceManager.SLICE_METADATA_KEY;
 import static android.app.slice.SliceProvider.SLICE_TYPE;
 
 import android.content.ContentProviderClient;
@@ -37,7 +39,6 @@ import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
-import androidx.slice.core.SliceHints;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -137,6 +138,10 @@ public class SliceProviderCompat {
      */
     public static Slice bindSlice(Context context, Intent intent,
             Set<SliceSpec> supportedSpecs) {
+        Preconditions.checkNotNull(intent, "intent");
+        Preconditions.checkArgument(intent.getComponent() != null || intent.getPackage() != null
+                || intent.getData() != null,
+                String.format("Slice intent must be explicit %s", intent));
         ContentResolver resolver = context.getContentResolver();
 
         // Check if the intent has data for the slice uri on it and use that
@@ -145,10 +150,24 @@ public class SliceProviderCompat {
             return bindSlice(context, intentData, supportedSpecs);
         }
         // Otherwise ask the app
+        Intent queryIntent = new Intent(intent);
+        if (!queryIntent.hasCategory(CATEGORY_SLICE)) {
+            queryIntent.addCategory(CATEGORY_SLICE);
+        }
         List<ResolveInfo> providers =
-                context.getPackageManager().queryIntentContentProviders(intent, 0);
-        if (providers == null) {
-            throw new IllegalArgumentException("Unable to resolve intent " + intent);
+                context.getPackageManager().queryIntentContentProviders(queryIntent, 0);
+        if (providers == null || providers.isEmpty()) {
+            // There are no providers, see if this activity has a direct link.
+            ResolveInfo resolve = context.getPackageManager().resolveActivity(intent,
+                    PackageManager.GET_META_DATA);
+            if (resolve != null && resolve.activityInfo != null
+                    && resolve.activityInfo.metaData != null
+                    && resolve.activityInfo.metaData.containsKey(SLICE_METADATA_KEY)) {
+                return bindSlice(context, Uri.parse(
+                        resolve.activityInfo.metaData.getString(SLICE_METADATA_KEY)),
+                        supportedSpecs);
+            }
+            return null;
         }
         String authority = providers.get(0).providerInfo.authority;
         Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
@@ -258,7 +277,8 @@ public class SliceProviderCompat {
      */
     public static Uri mapIntentToUri(Context context, Intent intent) {
         Preconditions.checkNotNull(intent, "intent");
-        Preconditions.checkArgument(intent.getComponent() != null || intent.getPackage() != null,
+        Preconditions.checkArgument(intent.getComponent() != null || intent.getPackage() != null
+                || intent.getData() != null,
                 String.format("Slice intent must be explicit %s", intent));
         ContentResolver resolver = context.getContentResolver();
 
@@ -268,17 +288,21 @@ public class SliceProviderCompat {
             return intentData;
         }
         // Otherwise ask the app
+        Intent queryIntent = new Intent(intent);
+        if (!queryIntent.hasCategory(CATEGORY_SLICE)) {
+            queryIntent.addCategory(CATEGORY_SLICE);
+        }
         List<ResolveInfo> providers =
-                context.getPackageManager().queryIntentContentProviders(intent, 0);
+                context.getPackageManager().queryIntentContentProviders(queryIntent, 0);
         if (providers == null || providers.isEmpty()) {
             // There are no providers, see if this activity has a direct link.
             ResolveInfo resolve = context.getPackageManager().resolveActivity(intent,
                     PackageManager.GET_META_DATA);
             if (resolve != null && resolve.activityInfo != null
                     && resolve.activityInfo.metaData != null
-                    && resolve.activityInfo.metaData.containsKey(SliceHints.SLICE_METADATA_KEY)) {
+                    && resolve.activityInfo.metaData.containsKey(SLICE_METADATA_KEY)) {
                 return Uri.parse(
-                        resolve.activityInfo.metaData.getString(SliceHints.SLICE_METADATA_KEY));
+                        resolve.activityInfo.metaData.getString(SLICE_METADATA_KEY));
             }
             return null;
         }

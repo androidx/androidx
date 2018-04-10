@@ -27,6 +27,7 @@
                   android:exported="true">
             <intent-filter>
                 <action android:name="androidx.slice.action.TEST" />
+                <category android:name="android.app.slice.category.SLICE" />
             </intent-filter>
         </provider>
 
