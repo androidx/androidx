@@ -20,8 +20,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Base64;
+import android.util.TypedValue;
 import android.util.Xml;
 
 import androidx.annotation.ArrayRes;
@@ -224,33 +226,50 @@ public class FontResourcesParserCompat {
                 new FontFileResourceEntry[fonts.size()]));
     }
 
+    private static int getType(TypedArray typedArray, int index) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return typedArray.getType(index);
+        } else {
+            TypedValue tv = new TypedValue();
+            typedArray.getValue(index, tv);
+            return tv.type;
+        }
+    }
+
     /**
      * Creates the necessary cert structure given a resources array. This method is capable of
      * loading one string array as well as an array of string arrays.
+     *
+     * Provider cert entry must be cert string array or array of cert string array.
      */
     public static List<List<byte[]>> readCerts(Resources resources, @ArrayRes int certsId) {
-        List<List<byte[]>> certs = null;
-        if (certsId != 0) {
-            TypedArray typedArray = resources.obtainTypedArray(certsId);
-            if (typedArray.length() > 0) {
-                certs = new ArrayList<>();
-                boolean isArrayOfArrays = typedArray.getResourceId(0, 0) != 0;
-                if (isArrayOfArrays) {
-                    for (int i = 0; i < typedArray.length(); i++) {
-                        int certId = typedArray.getResourceId(i, 0);
-                        String[] certsArray = resources.getStringArray(certId);
-                        List<byte[]> certsList = toByteArrayList(certsArray);
-                        certs.add(certsList);
-                    }
-                } else {
-                    String[] certsArray = resources.getStringArray(certsId);
-                    List<byte[]> certsList = toByteArrayList(certsArray);
-                    certs.add(certsList);
-                }
+        if (certsId == 0) {
+            return Collections.<List<byte[]>>emptyList();
+        }
+        final TypedArray typedArray = resources.obtainTypedArray(certsId);
+        try {
+            if (typedArray.length() == 0) {
+                return Collections.<List<byte[]>>emptyList();
             }
+
+            final List<List<byte[]>> result = new ArrayList<>();
+            // We support array of string or array of string-array.
+            // Check the first item and if it is reference type, regard as array of string-array.
+            if (getType(typedArray, 0) == TypedValue.TYPE_REFERENCE) {
+                for (int i = 0; i < typedArray.length(); i++) {
+                    final int certId = typedArray.getResourceId(i, 0);
+                    if (certId != 0) {
+                        result.add(toByteArrayList(resources.getStringArray(certId)));
+                    }
+                }
+            } else {  // string array
+                result.add(toByteArrayList(resources.getStringArray(certsId)));
+            }
+            return result;
+        } finally {
             typedArray.recycle();
         }
-        return certs != null ?  certs : Collections.<List<byte[]>>emptyList();
+
     }
 
     private static List<byte[]> toByteArrayList(String[] stringArray) {
