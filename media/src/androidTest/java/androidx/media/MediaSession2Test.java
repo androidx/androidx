@@ -248,6 +248,47 @@ public class MediaSession2Test extends MediaSession2TestBase {
         }
     }
 
+    /**
+     * This also tests {@link ControllerCallback#onPlaybackSpeedChanged(MediaController2, float)}
+     * and {@link MediaController2#getPlaybackSpeed()}.
+     */
+    @Test
+    public void testPlaybackSpeedChanged() throws Exception {
+        prepareLooper();
+        final float speed = 1.5f;
+        mPlayer.setPlaybackSpeed(speed);
+
+        final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+                .setPlayer(mPlayer)
+                .setId("testPlaybackSpeedChanged")
+                .setSessionCallback(sHandlerExecutor, new SessionCallback() {
+                    @Override
+                    public void onPlaybackSpeedChanged(MediaSession2 session,
+                            MediaPlayerBase player, float speedOut) {
+                        assertEquals(speed, speedOut, 0.0f);
+                        latchForSessionCallback.countDown();
+                    }
+                }).build()) {
+
+            final CountDownLatch latchForControllerCallback = new CountDownLatch(1);
+            final MediaController2 controller =
+                    createController(mSession.getToken(), true, new ControllerCallback() {
+                        @Override
+                        public void onPlaybackSpeedChanged(MediaController2 controller,
+                                float speedOut) {
+                            assertEquals(speed, speedOut, 0.0f);
+                            latchForControllerCallback.countDown();
+                        }
+                    });
+
+            mPlayer.notifyPlaybackSpeedChanged(speed);
+            assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
+        }
+    }
+
     @Test
     public void testUpdatePlayer() throws Exception {
         prepareLooper();
@@ -378,6 +419,23 @@ public class MediaSession2Test extends MediaSession2TestBase {
         mSession.seekTo(pos);
         assertTrue(mPlayer.mSeekToCalled);
         assertEquals(pos, mPlayer.mSeekPosition);
+    }
+
+    @Test
+    public void testSetPlaybackSpeed() throws Exception {
+        prepareLooper();
+        final float speed = 1.5f;
+        mSession.setPlaybackSpeed(speed);
+        assertTrue(mPlayer.mSetPlaybackSpeedCalled);
+        assertEquals(speed, mPlayer.mPlaybackSpeed, 0.0f);
+    }
+
+    @Test
+    public void testGetPlaybackSpeed() throws Exception {
+        prepareLooper();
+        final float speed = 1.5f;
+        mPlayer.setPlaybackSpeed(speed);
+        assertEquals(speed, mSession.getPlaybackSpeed(), 0.0f);
     }
 
     @Test
