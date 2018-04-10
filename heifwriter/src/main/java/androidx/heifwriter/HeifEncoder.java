@@ -180,12 +180,27 @@ public final class HeifEncoder implements AutoCloseable,
             throw new IllegalArgumentException("invalid encoder inputs");
         }
 
+        // Disable grid if the image is too small
+        useGrid &= (width > GRID_WIDTH || height > GRID_HEIGHT);
+
         boolean useHeicEncoder = false;
+        MediaCodecInfo.CodecCapabilities caps = null;
         try {
             mEncoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
+            caps = mEncoder.getCodecInfo().getCapabilitiesForType(
+                    MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
+            // If the HEIC encoder can't support the size, fall back to HEVC encoder.
+            if (!caps.getVideoCapabilities().isSizeSupported(width, height)) {
+                mEncoder.release();
+                mEncoder = null;
+                throw new Exception();
+            }
             useHeicEncoder = true;
         } catch (Exception e) {
             mEncoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+            caps = mEncoder.getCodecInfo().getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+            // Always enable grid if the size is too large for the HEVC encoder
+            useGrid |= !caps.getVideoCapabilities().isSizeSupported(width, height);
         }
 
         mInputMode = inputMode;
@@ -207,20 +222,10 @@ public final class HeifEncoder implements AutoCloseable,
         int colorFormat = useSurfaceInternally ? CodecCapabilities.COLOR_FormatSurface :
                 CodecCapabilities.COLOR_FormatYUV420Flexible;
 
-        // TODO: determine how to set bitrate and framerate, or use constant quality
         mWidth = width;
         mHeight = height;
 
         int gridWidth, gridHeight, gridRows, gridCols;
-
-        MediaCodecInfo.CodecCapabilities caps =
-                mEncoder.getCodecInfo().getCapabilitiesForType(useHeicEncoder
-                        ? MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC
-                        : MediaFormat.MIMETYPE_VIDEO_HEVC);
-
-        useGrid &= (width > GRID_WIDTH || height > GRID_HEIGHT);
-        // Always enable grid if the size is too large for the HEVC encoder
-        useGrid |= !caps.getVideoCapabilities().isSizeSupported(width, height);
 
         if (useGrid) {
             gridWidth = GRID_WIDTH;
