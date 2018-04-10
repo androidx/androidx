@@ -42,6 +42,8 @@ import android.util.Log;
 
 import androidx.media.test.R;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -77,6 +79,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     private File mOutFile;
     private Camera mCamera;
 
+    @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -85,6 +88,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOutFile = new File(mRecordedFilePath);
     }
 
+    @After
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
