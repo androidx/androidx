@@ -23,8 +23,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":slices-core"))
-    implementation(project(":slices-builders"))
+    implementation(project(":slice-core"))
+    implementation(project(":slice-builders"))
     implementation(project(":recyclerview"))
     api(ARCH_LIFECYCLE_LIVEDATA_CORE, libs.exclude_annotations_transitive)
 
