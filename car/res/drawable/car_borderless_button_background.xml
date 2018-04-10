@@ -18,6 +18,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="?attr/listItemBackgroundColor">
     <item android:id="@android:id/mask">
-        <color android:color="#42ffffff "/>
+        <color android:color="#42ffffff"/>
     </item>
 </ripple>
