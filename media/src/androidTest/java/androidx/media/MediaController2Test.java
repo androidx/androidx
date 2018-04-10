@@ -218,14 +218,18 @@ public class MediaController2Test extends MediaSession2TestBase {
         mPlayer.mBufferedPosition = bufferedPosition;
         mPlayer.mPlaybackSpeed = speed;
 
-        long time = System.currentTimeMillis();
+        long time1 = System.currentTimeMillis();
         MediaController2 controller = createController(mSession.getToken());
+        long time2 = System.currentTimeMillis();
         assertEquals(state, controller.getPlayerState());
         assertEquals(bufferedPosition, controller.getBufferedPosition());
         assertEquals(speed, controller.getPlaybackSpeed());
-        long elapsedTime = System.currentTimeMillis() - time;
-        final long tolerance = 10;
-        assertEquals(position + speed * elapsedTime, controller.getCurrentPosition(), tolerance);
+        long positionLowerBound = (long) (position + speed * (System.currentTimeMillis() - time2));
+        long currentPosition = controller.getCurrentPosition();
+        long positionUpperBound = (long) (position + speed * (System.currentTimeMillis() - time1));
+        assertTrue("curPos=" + currentPosition + ", lowerBound=" + positionLowerBound
+                        + ", upperBound=" + positionUpperBound,
+                positionLowerBound <= currentPosition && currentPosition <= positionUpperBound);
     }
 
     @Test
