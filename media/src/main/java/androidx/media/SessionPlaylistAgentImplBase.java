@@ -220,6 +220,13 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     }
 
     @Override
+    public MediaItem2 getCurrentMediaItem() {
+        synchronized (mLock) {
+            return mCurrent == null ? null : mCurrent.mediaItem;
+        }
+    }
+
+    @Override
     public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");

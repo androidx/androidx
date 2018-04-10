@@ -208,14 +208,18 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testGettersAfterConnected() throws InterruptedException {
         prepareLooper();
         final int state = MediaPlayerBase.PLAYER_STATE_PLAYING;
+        final int bufferingState = MediaPlayerBase.BUFFERING_STATE_BUFFERING_COMPLETE;
         final long position = 150000;
         final long bufferedPosition = 900000;
         final float speed = 0.5f;
+        final MediaItem2 currentMediaItem = TestUtils.createMediaItemWithMetadata();
 
         mPlayer.mLastPlayerState = state;
+        mPlayer.mLastBufferingState = bufferingState;
         mPlayer.mCurrentPosition = position;
         mPlayer.mBufferedPosition = bufferedPosition;
         mPlayer.mPlaybackSpeed = speed;
+        mMockAgent.mCurrentMediaItem = currentMediaItem;
 
         long time1 = System.currentTimeMillis();
         MediaController2 controller = createController(mSession.getToken());
@@ -229,6 +233,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue("curPos=" + currentPosition + ", lowerBound=" + positionLowerBound
                         + ", upperBound=" + positionUpperBound,
                 positionLowerBound <= currentPosition && currentPosition <= positionUpperBound);
+        assertEquals(currentMediaItem, controller.getCurrentMediaItem());
     }
 
     @Test

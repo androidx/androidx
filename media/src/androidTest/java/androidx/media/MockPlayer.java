@@ -41,6 +41,7 @@ public class MockPlayer extends MediaPlayerBase {
     public long mBufferedPosition;
     public float mPlaybackSpeed = 1.0f;
     public @PlayerState int mLastPlayerState;
+    public @BuffState int mLastBufferingState;
 
     public ArrayMap<PlayerEventCallback, Executor> mCallbacks = new ArrayMap<>();
 
@@ -123,8 +124,7 @@ public class MockPlayer extends MediaPlayerBase {
 
     @Override
     public int getBufferingState() {
-        // TODO: implement this
-        return -1;
+        return mLastBufferingState;
     }
 
     @Override
@@ -150,6 +150,21 @@ public class MockPlayer extends MediaPlayerBase {
                 @Override
                 public void run() {
                     callback.onPlayerStateChanged(MockPlayer.this, state);
+                }
+            });
+        }
+    }
+
+    public void notifyBufferingState(final MediaItem2 item, final int bufferingState) {
+        mLastBufferingState = bufferingState;
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            final PlayerEventCallback callback = mCallbacks.keyAt(i);
+            final Executor executor = mCallbacks.valueAt(i);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onBufferingStateChanged(
+                            MockPlayer.this, item.getDataSourceDesc(), bufferingState);
                 }
             });
         }
