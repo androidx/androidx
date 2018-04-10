@@ -85,8 +85,8 @@ public class CompatPinnedList {
         if (TextUtils.isEmpty(specNamesStr) || TextUtils.isEmpty(specRevsStr)) {
             return new ArraySet<>();
         }
-        String[] specNames = specNamesStr.split(",");
-        String[] specRevs = specRevsStr.split(",");
+        String[] specNames = specNamesStr.split(",", -1);
+        String[] specRevs = specRevsStr.split(",", -1);
         if (specNames.length != specRevs.length) {
             return new ArraySet<>();
         }

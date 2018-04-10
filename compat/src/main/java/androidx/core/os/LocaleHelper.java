@@ -33,7 +33,7 @@ final class LocaleHelper {
     // Simpleton implementation for Locale.forLanguageTag(...)
     static Locale forLanguageTag(String str) {
         if (str.contains("-")) {
-            String[] args = str.split("-");
+            String[] args = str.split("-", -1);
             if (args.length > 2) {
                 return new Locale(args[0], args[1], args[2]);
             } else if (args.length > 1) {
@@ -42,7 +42,7 @@ final class LocaleHelper {
                 return new Locale(args[0]);
             }
         } else if (str.contains("_")) {
-            String[] args = str.split("_");
+            String[] args = str.split("_", -1);
             if (args.length > 2) {
                 return new Locale(args[0], args[1], args[2]);
             } else if (args.length > 1) {

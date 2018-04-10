@@ -150,7 +150,7 @@ public class AsyncPagedListDiffer<T> {
     public AsyncPagedListDiffer(@NonNull RecyclerView.Adapter adapter,
             @NonNull DiffUtil.ItemCallback<T> diffCallback) {
         mUpdateCallback = new AdapterListUpdateCallback(adapter);
-        mConfig = new AsyncDifferConfig.Builder<T>(diffCallback).build();
+        mConfig = new AsyncDifferConfig.Builder<>(diffCallback).build();
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -227,6 +227,7 @@ public class AsyncPagedListDiffer<T> {
      *
      * @param pagedList The new PagedList.
      */
+    @SuppressWarnings("ReferenceEquality")
     public void submitList(final PagedList<T> pagedList) {
         if (pagedList != null) {
             if (mPagedList == null && mSnapshot == null) {

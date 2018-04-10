@@ -25,6 +25,8 @@ import android.opengl.EGLSurface;
 import android.util.Log;
 import android.view.Surface;
 
+import java.util.Objects;
+
 /**
  * Holds state associated with a Surface used for MediaCodec encoder input.
  * <p>
@@ -63,7 +65,7 @@ public class EglWindowSurface {
      */
     private void eglSetup() {
         mEGLDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-        if (mEGLDisplay == EGL14.EGL_NO_DISPLAY) {
+        if (Objects.equals(mEGLDisplay, EGL14.EGL_NO_DISPLAY)) {
             throw new RuntimeException("unable to get EGL14 display");
         }
         int[] version = new int[2];
@@ -130,7 +132,7 @@ public class EglWindowSurface {
     }
 
     private void releaseEGLSurface() {
-        if (mEGLDisplay != EGL14.EGL_NO_DISPLAY) {
+        if (!Objects.equals(mEGLDisplay, EGL14.EGL_NO_DISPLAY)) {
             EGL14.eglDestroySurface(mEGLDisplay, mEGLSurface);
             mEGLSurface = EGL14.EGL_NO_SURFACE;
         }
@@ -141,7 +143,7 @@ public class EglWindowSurface {
      * Surface that was passed to our constructor.
      */
     public void release() {
-        if (mEGLDisplay != EGL14.EGL_NO_DISPLAY) {
+        if (!Objects.equals(mEGLDisplay, EGL14.EGL_NO_DISPLAY)) {
             EGL14.eglDestroySurface(mEGLDisplay, mEGLSurface);
             EGL14.eglDestroyContext(mEGLDisplay, mEGLContext);
             EGL14.eglReleaseThread();
