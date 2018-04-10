@@ -42,6 +42,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
 import androidx.media.MediaController2.ControllerCallback;
+import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.MediaSession2.SessionCallback;
 import androidx.media.TestServiceRegistry.SessionServiceCallback;
@@ -1023,7 +1024,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         testConnectToService(MockMediaSessionService2.ID);
     }
 
-    @Ignore
     @Test
     public void testConnectToService_libraryService() throws InterruptedException {
         prepareLooper();
@@ -1033,7 +1033,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testConnectToService(String id) throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
-        final SessionCallback sessionCallback = new SessionCallback() {
+        final MediaLibrarySessionCallback sessionCallback = new MediaLibrarySessionCallback() {
             @Override
             public SessionCommandGroup2 onConnect(@NonNull MediaSession2 session,
                     @NonNull ControllerInfo controller) {
