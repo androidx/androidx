@@ -1862,7 +1862,7 @@ public final class MediaBrowserCompat {
                 mCallbacksMessenger = new Messenger(mHandler);
                 mHandler.setCallbacksMessenger(mCallbacksMessenger);
                 try {
-                    mServiceBinderWrapper.registerCallbackMessenger(mCallbacksMessenger);
+                    mServiceBinderWrapper.registerCallbackMessenger(mContext, mCallbacksMessenger);
                 } catch (RemoteException e) {
                     Log.i(TAG, "Remote error registering client messenger." );
                 }
@@ -2147,8 +2147,10 @@ public final class MediaBrowserCompat {
             sendRequest(CLIENT_MSG_GET_MEDIA_ITEM, data, callbacksMessenger);
         }
 
-        void registerCallbackMessenger(Messenger callbackMessenger) throws RemoteException {
+        void registerCallbackMessenger(Context context, Messenger callbackMessenger)
+                throws RemoteException {
             Bundle data = new Bundle();
+            data.putString(DATA_PACKAGE_NAME, context.getPackageName());
             data.putBundle(DATA_ROOT_HINTS, mRootHints);
             sendRequest(CLIENT_MSG_REGISTER_CALLBACK_MESSENGER, data, callbackMessenger);
         }

@@ -74,7 +74,8 @@ public final class MediaSessionManager {
      * permission or has an enabled notification listener.
      *
      * @param userInfo The remote user info from either
-     *            {@link MediaSessionCompat} and {@link MediaBrowserServiceCompat}.
+     *            {@link MediaSessionCompat#getCurrentControllerInfo()} and
+     *            {@link MediaBrowserServiceCompat#getCurrentBrowserInfo()}.
      * @return {@code true} if the remote user is trusted and its package name matches with the UID.
      *            {@code false} otherwise.
      */
