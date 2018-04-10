@@ -362,8 +362,12 @@ public class MediaBrowser2 extends MediaController2 {
     }
 
     private MediaBrowserCompat getBrowserCompat(Bundle extras) {
-        synchronized (mLock) {
-            return mBrowserCompats.get(extras);
+        if (extras == sDefaultRootHints) {
+            return getBrowserCompat();
+        } else {
+            synchronized (mLock) {
+                return mBrowserCompats.get(extras);
+            }
         }
     }
 

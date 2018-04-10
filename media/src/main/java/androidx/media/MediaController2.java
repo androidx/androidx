@@ -590,12 +590,8 @@ public class MediaController2 implements AutoCloseable {
     private static final String TAG = "MediaController2";
     private static final boolean DEBUG = true; // TODO(jaewan): Change
 
-    // Note: Using {@code null} doesn't helpful here because MediaBrowserServiceCompat always wraps
-    //       the rootHints so it becomes non-null.
-    static final Bundle sDefaultRootExtras = new Bundle();
-    static {
-        sDefaultRootExtras.putBoolean(MediaConstants2.ROOT_EXTRA_DEFAULT, true);
-    }
+    // TODO: Is null root suitable here?
+    static final Bundle sDefaultRootHints = null;
 
     private final Context mContext;
     private final Object mLock = new Object();
@@ -1547,7 +1543,7 @@ public class MediaController2 implements AutoCloseable {
     private void connectToService() {
         synchronized (mLock) {
             mBrowserCompat = new MediaBrowserCompat(mContext, mToken.getComponentName(),
-                    new ConnectionCallback(), sDefaultRootExtras);
+                    new ConnectionCallback(), sDefaultRootHints);
             mBrowserCompat.connect();
         }
     }

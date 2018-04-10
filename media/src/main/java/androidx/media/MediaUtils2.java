@@ -411,8 +411,4 @@ class MediaUtils2 {
         }
         return MediaPlayerBase.PLAYER_STATE_ERROR;
     }
-
-    static boolean isDefaultLibraryRootHint(Bundle bundle) {
-        return bundle != null && bundle.getBoolean(MediaConstants2.ROOT_EXTRA_DEFAULT, false);
-    }
 }

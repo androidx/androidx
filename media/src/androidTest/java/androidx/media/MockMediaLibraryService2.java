@@ -25,7 +25,6 @@ import android.util.Log;
 
 import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media.MediaSession2.ControllerInfo;
-import androidx.media.MediaSession2.SessionCallback;
 import androidx.media.TestUtils.SyncHandler;
 
 import java.util.ArrayList;
@@ -109,12 +108,10 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                 handler.post(runnable);
             }
         };
-        SessionCallback callback = TestServiceRegistry.getInstance().getSessionCallback();
-        MediaLibrarySessionCallback librarySessionCallback;
-        if (callback instanceof MediaLibrarySessionCallback) {
-            librarySessionCallback = (MediaLibrarySessionCallback) callback;
-        } else {
-            // Callback hasn't set. Use default callback
+        MediaLibrarySessionCallback librarySessionCallback = (MediaLibrarySessionCallback)
+                TestServiceRegistry.getInstance().getSessionCallback();
+        if (librarySessionCallback == null) {
+            // Use default callback
             librarySessionCallback = new TestLibrarySessionCallback();
         }
         mSession = new MediaLibrarySession.Builder(MockMediaLibraryService2.this, executor,

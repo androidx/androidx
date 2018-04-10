@@ -83,8 +83,6 @@ class MediaConstants2 {
     static final String ARGUMENT_PID = "androidx.media.argument.PID";
     static final String ARGUMENT_PACKAGE_NAME = "androidx.media.argument.PACKAGE_NAME";
 
-    static final String ROOT_EXTRA_DEFAULT = "androidx.media.root_default_root";
-
     private MediaConstants2() {
     }
 }
