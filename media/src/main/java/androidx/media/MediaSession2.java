@@ -431,6 +431,37 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         public void onRewind(@NonNull MediaSession2 session, ControllerInfo controller) { }
 
         /**
+         * Called when a controller called {@link MediaController2#subscribeRoutesInfo()}
+         * Session app should notify the routes information by calling
+         * {@link MediaSession2#notifyRoutesInfoChanged(ControllerInfo, List<Bundle>)}.
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @see SessionCommand2#COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO
+         */
+        public void onSubscribeRoutesInfo(@NonNull MediaSession2 session,
+                @NonNull ControllerInfo controller) { }
+
+        /**
+         * Called when a controller called {@link MediaController2#unsubscribeRoutesInfo()}
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @see SessionCommand2#COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO
+         */
+        public void onUnsubscribeRoutesInfo(@NonNull MediaSession2 session,
+                @NonNull ControllerInfo controller) { }
+
+        /**
+         * Called when a controller called {@link MediaController2#selectRoute(Bundle)}.
+         * @param session the session for this event
+         * @param controller controller information
+         * @param route The route bundle which may be from MediaRouteDescritor.asBundle().
+         * @see SessionCommand2#COMMAND_CODE_SESSION_SELECT_ROUTE
+         */
+        public void onSelectRoute(@NonNull MediaSession2 session,
+                @NonNull ControllerInfo controller, @NonNull Bundle route) { }
+        /**
          * Called when the player's current playing item is changed
          * <p>
          * When it's called, you should invalidate previous playback information and wait for later
@@ -1044,6 +1075,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         abstract void sendCustomCommand(@NonNull ControllerInfo controller,
                 @NonNull SessionCommand2 command, @Nullable Bundle args,
                 @Nullable ResultReceiver receiver);
+        abstract void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
+                @Nullable List<Bundle> routes);
 
         // Internally used methods
         abstract void setInstance(MediaSession2 session);
@@ -1290,6 +1323,18 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     @Override
     public void notifyError(@ErrorCode int errorCode, @Nullable Bundle extras) {
         mImpl.notifyError(errorCode, extras);
+    }
+
+    /**
+     * Notify routes information to a connected controller
+     *
+     * @param controller controller information
+     * @param routes The routes information. Each bundle should be from
+     *              MediaRouteDescritor.asBundle().
+     */
+    public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
+            @Nullable List<Bundle> routes) {
+        mImpl.notifyRoutesInfoChanged(controller, routes);
     }
 
     /**
