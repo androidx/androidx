@@ -64,7 +64,7 @@ public final class SelectionProbe {
     }
 
     public void assertSelectionSize(int expected) {
-        Selection selection = mMgr.getSelection();
+        Selection<String> selection = mMgr.getSelection();
         assertEquals(selection.toString(), expected, selection.size());
 
         mSelectionListener.assertSelectionSize(expected);

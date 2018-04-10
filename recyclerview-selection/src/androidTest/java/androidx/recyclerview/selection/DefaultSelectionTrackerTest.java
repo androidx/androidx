@@ -303,7 +303,7 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testProvisionalSelection() {
-        Selection s = mTracker.getSelection();
+        Selection<String> s = mTracker.getSelection();
         mSelection.assertNoSelection();
 
         // Mimicking band selection case -- BandController notifies item callback by itself.
@@ -319,7 +319,7 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testProvisionalSelection_Replace() {
-        Selection s = mTracker.getSelection();
+        Selection<String> s = mTracker.getSelection();
 
         // Mimicking band selection case -- BandController notifies item callback by itself.
         mListener.onItemStateChanged(mItems.get(1), true);
@@ -343,7 +343,7 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testProvisionalSelection_IntersectsExistingProvisionalSelection() {
-        Selection s = mTracker.getSelection();
+        Selection<String> s = mTracker.getSelection();
 
         // Mimicking band selection case -- BandController notifies item callback by itself.
         mListener.onItemStateChanged(mItems.get(1), true);
@@ -365,7 +365,7 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testProvisionalSelection_Apply() {
-        Selection s = mTracker.getSelection();
+        Selection<String> s = mTracker.getSelection();
 
         // Mimicking band selection case -- BandController notifies item callback by itself.
         mListener.onItemStateChanged(mItems.get(1), true);
@@ -383,7 +383,7 @@ public class DefaultSelectionTrackerTest {
     public void testProvisionalSelection_Cancel() {
         mTracker.select(mItems.get(1));
         mTracker.select(mItems.get(2));
-        Selection s = mTracker.getSelection();
+        Selection<String> s = mTracker.getSelection();
 
         SparseBooleanArray provisional = new SparseBooleanArray();
         provisional.append(3, true);
@@ -399,7 +399,7 @@ public class DefaultSelectionTrackerTest {
     public void testProvisionalSelection_IntersectsAppliedSelection() {
         mTracker.select(mItems.get(1));
         mTracker.select(mItems.get(2));
-        Selection s = mTracker.getSelection();
+        Selection<String> s = mTracker.getSelection();
 
         // Mimicking band selection case -- BandController notifies item callback by itself.
         mListener.onItemStateChanged(mItems.get(3), true);

@@ -97,7 +97,7 @@ package androidx.recyclerview.selection {
     method public abstract boolean clearSelection();
     method public abstract void copySelection(androidx.recyclerview.selection.MutableSelection<K>);
     method public abstract boolean deselect(K);
-    method public abstract androidx.recyclerview.selection.Selection getSelection();
+    method public abstract androidx.recyclerview.selection.Selection<K> getSelection();
     method public abstract boolean hasSelection();
     method public abstract boolean isSelected(K);
     method public abstract void onRestoreInstanceState(android.os.Bundle);
