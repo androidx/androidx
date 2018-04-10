@@ -255,6 +255,11 @@ public abstract class MediaPlaylistAgent {
     public abstract void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata);
 
     /**
+     * Returns currently playing media item.
+     */
+    public abstract MediaItem2 getCurrentMediaItem();
+
+    /**
      * Adds the media item to the playlist at position index. Index equals or greater than
      * the current playlist size will add the item at the end of the playlist.
      * <p>
@@ -368,7 +373,7 @@ public abstract class MediaPlaylistAgent {
         }
         for (int i = 0; i < itemList.size(); i++) {
             MediaItem2 item = itemList.get(i);
-            if (item != null && item.getDataSourceDesc() == dsd) {
+            if (item != null && item.getDataSourceDesc().equals(dsd)) {
                 return item;
             }
         }
