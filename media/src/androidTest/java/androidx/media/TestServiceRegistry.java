@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 import android.os.Handler;
 
 import androidx.annotation.GuardedBy;
-import androidx.media.MediaSession2.SessionCallback;
+import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media.TestUtils.SyncHandler;
 
 /**
@@ -38,7 +38,7 @@ public class TestServiceRegistry {
     @GuardedBy("TestServiceRegistry.class")
     private SyncHandler mHandler;
     @GuardedBy("TestServiceRegistry.class")
-    private SessionCallback mSessionCallback;
+    private MediaLibrarySessionCallback mSessionCallback;
     @GuardedBy("TestServiceRegistry.class")
     private SessionServiceCallback mSessionServiceCallback;
 
@@ -77,13 +77,13 @@ public class TestServiceRegistry {
         }
     }
 
-    public void setSessionCallback(SessionCallback sessionCallback) {
+    public void setSessionCallback(MediaLibrarySessionCallback sessionCallback) {
         synchronized (TestServiceRegistry.class) {
             mSessionCallback = sessionCallback;
         }
     }
 
-    public SessionCallback getSessionCallback() {
+    public MediaLibrarySessionCallback getSessionCallback() {
         synchronized (TestServiceRegistry.class) {
             return mSessionCallback;
         }

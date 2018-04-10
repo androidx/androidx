@@ -36,8 +36,8 @@ import androidx.media.MediaSession2.ControllerInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @hide
@@ -70,6 +70,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
      */
     public static final String SERVICE_INTERFACE = "android.media.MediaLibraryService2";
 
+    // TODO: Revisit this value.
+
     /**
      * Session for the {@link MediaLibraryService2}. Build this object with
      * {@link Builder} and return in {@link #onCreateSession(String)}.
@@ -86,6 +88,9 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * to access browse media information before returning the root id; it
              * should return null if the client is not allowed to access this
              * information.
+             * <p>
+             * Note: this callback may be called on the main thread, regardless of the callback
+             * executor.
              *
              * @param session the session for this event
              * @param controllerInfo information of the controller requesting access to browse
@@ -269,7 +274,6 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
 
         MediaLibrarySession(SupportLibraryImpl impl) {
             super(impl);
-
         }
 
         /**
@@ -339,6 +343,11 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
     @Override
     MediaBrowserServiceCompat createBrowserServiceCompat() {
         return new MyBrowserService();
+    }
+
+    @Override
+    int getSessionType() {
+        return SessionToken2.TYPE_LIBRARY_SERVICE;
     }
 
     @Override
@@ -476,41 +485,37 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
     }
 
     private class MyBrowserService extends MediaBrowserServiceCompat {
-        private final Object mWaitLock = new Object();
-
         @Override
         public BrowserRoot onGetRoot(String clientPackageName, int clientUid,
                 final Bundle extras) {
+            if (MediaUtils2.isDefaultLibraryRootHint(extras)) {
+                // For connection request from the MediaController2. accept the connection from
+                // here, and let MediaLibrarySession decide whether to accept or reject the
+                // controller.
+                return sDefaultBrowserRoot;
+            }
+            final CountDownLatch latch = new CountDownLatch(1);
+            // TODO: Revisit this when we support caller information.
             final ControllerInfo info = new ControllerInfo(MediaLibraryService2.this, clientUid, -1,
                     clientPackageName, null);
-            final AtomicReference<LibraryRoot> root = new AtomicReference<>();
-            synchronized (mWaitLock) {
-                // TODO: (Post-P) Fix waiting on the main thread.
-                getLibrarySession().getCallbackExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        MediaLibrarySession session = getLibrarySession();
-                        LibraryRoot libraryRoot = session.getCallback().onGetLibraryRoot(
-                                session, info, extras);
-                        root.set(libraryRoot);
-                        mWaitLock.notify();
-                    }
-                });
-                while (true) {
-                    if (root.get() != null) {
-                        break;
-                    }
-                    try {
-                        mWaitLock.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            if (root.get() == null) {
+            MediaLibrarySession session = getLibrarySession();
+            // Call onGetLibraryRoot() directly instead of execute on the executor. Here's the
+            // reason.
+            // We need to return browser root here. So if we run the callback on the executor, we
+            // should wait for the completion.
+            // However, we cannot wait if the callback executor is the main executor, which posts
+            // the runnable to the main thread's. In that case, since this onGetRoot() always runs
+            // on the main thread, the posted runnable for calling onGetLibraryRoot() wouldn't run
+            // in here. Even worse, we cannot know whether it would be run on the main thread or
+            // not.
+            // Because of the reason, just call onGetLibraryRoot directly here. onGetLibraryRoot()
+            // has documentation that it may be called on the main thread.
+            LibraryRoot libraryRoot = session.getCallback().onGetLibraryRoot(
+                    session, info, extras);
+            if (libraryRoot == null) {
                 return null;
             }
-            return new BrowserRoot(root.get().getRootId(), root.get().getExtras());
+            return new BrowserRoot(libraryRoot.getRootId(), libraryRoot.getExtras());
         }
 
         @Override
