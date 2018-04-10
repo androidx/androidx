@@ -181,8 +181,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int totalHeight = getMode() == MODE_SMALL ? getSmallHeight() : getActualHeight();
         int rowHeight = getRowContentHeight();
-        if (rowHeight != 0 && mRootView.getVisibility() != View.GONE) {
+        if (rowHeight != 0) {
             // Might be gone if we have range / progress but nothing else
+            mRootView.setVisibility(View.VISIBLE);
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(rowHeight, MeasureSpec.EXACTLY);
             measureChild(mRootView, widthMeasureSpec, heightMeasureSpec);
         } else {
@@ -199,10 +200,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        mRootView.layout(l, t, l + mRootView.getMeasuredWidth(), t + getRowContentHeight());
+        mRootView.layout(0, 0, mRootView.getMeasuredWidth(), getRowContentHeight());
         if (mRangeBar != null) {
-            mRangeBar.layout(l, t + getRowContentHeight(), l + mRangeBar.getMeasuredWidth(),
-                    t + getRowContentHeight() + mRangeHeight);
+            mRangeBar.layout(0, getRowContentHeight(), mRangeBar.getMeasuredWidth(),
+                    getRowContentHeight() + mRangeHeight);
         }
     }
 
