@@ -659,8 +659,15 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public MediaItem2 getCurrentMediaItem() {
-        // TODO(jaewan): Rename provider, and implement (b/74316764)
-        //return mProvider.getCurrentPlaylistItem_impl();
+        MediaPlaylistAgent agent;
+        synchronized (mLock) {
+            agent = mPlaylistAgent;
+        }
+        if (agent != null) {
+            return agent.getCurrentMediaItem();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
         return null;
     }
 
@@ -962,7 +969,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     }
                     session.getCallback().onCurrentMediaItemChanged(session.getInstance(), mpb,
                             item);
-                    // TODO (jaewan): Notify controllers through appropriate callback. (b/74505936)
+                    session.getSession2Stub().notifyCurrentMediaItemChanged(item);
                 }
             });
         }

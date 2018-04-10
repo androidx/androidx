@@ -255,6 +255,11 @@ public abstract class MediaPlaylistAgent {
     public abstract void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata);
 
     /**
+     * Returns currently playing media item.
+     */
+    public abstract MediaItem2 getCurrentMediaItem();
+
+    /**
      * Adds the media item to the playlist at position index. Index equals or greater than
      * the current playlist size will add the item at the end of the playlist.
      * <p>

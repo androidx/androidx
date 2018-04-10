@@ -24,6 +24,8 @@ class MediaConstants2 {
     // Event string used by IMediaControllerCallback.onEvent()
     static final String SESSION_EVENT_ON_PLAYER_STATE_CHANGED =
             "androidx.media.session.event.ON_PLAYER_STATE_CHANGED";
+    static final String SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED =
+            "androidx.media.session.event.ON_CURRENT_MEDIA_ITEM_CHANGED";
     static final String SESSION_EVENT_ON_ERROR = "androidx.media.session.event.ON_ERROR";
     static final String SESSION_EVENT_ON_ROUTES_INFO_CHANGED =
             "androidx.media.session.event.ON_ROUTES_INFO_CHANGED";

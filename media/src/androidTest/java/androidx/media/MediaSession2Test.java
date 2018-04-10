@@ -182,9 +182,21 @@ public class MediaSession2Test extends MediaSession2TestBase {
                     }
                 }).build()) {
 
+            final CountDownLatch latchForControllerCallback = new CountDownLatch(1);
+            final MediaController2 controller =
+                    createController(mSession.getToken(), true, new ControllerCallback() {
+                        @Override
+                        public void onCurrentMediaItemChanged(MediaController2 controller,
+                                MediaItem2 item) {
+                            assertEquals(currentItem, item);
+                            latchForControllerCallback.countDown();
+                        }
+                    });
+
             mPlayer.notifyCurrentDataSourceChanged(currentItem.getDataSourceDesc());
             assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-            // TODO(jaewan): Test that controllers are also notified. (b/74505936)
+            assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertEquals(currentItem, controller.getCurrentMediaItem());
         }
     }
 
@@ -436,6 +448,14 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final float speed = 1.5f;
         mPlayer.setPlaybackSpeed(speed);
         assertEquals(speed, mSession.getPlaybackSpeed(), 0.0f);
+    }
+
+    @Test
+    public void testGetCurrentMediaItem() {
+        prepareLooper();
+        MediaItem2 item = TestUtils.createMediaItemWithMetadata();
+        mMockAgent.mCurrentMediaItem = item;
+        assertEquals(item, mSession.getCurrentMediaItem());
     }
 
     @Test

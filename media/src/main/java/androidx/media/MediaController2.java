@@ -57,6 +57,7 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_CUSTOM_COMMAN
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED;
@@ -541,6 +542,17 @@ public class MediaController2 implements AutoCloseable {
                     mCallback.onPlayerStateChanged(MediaController2.this, playerState);
                     break;
                 }
+                case SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED: {
+                    MediaItem2 item = MediaItem2.fromBundle(extras.getBundle(ARGUMENT_MEDIA_ITEM));
+                    if (item == null) {
+                        return;
+                    }
+                    synchronized (mLock) {
+                        mCurrentMediaItem = item;
+                    }
+                    mCallback.onCurrentMediaItemChanged(MediaController2.this, item);
+                    break;
+                }
                 case SESSION_EVENT_ON_ERROR: {
                     int errorCode = extras.getInt(ARGUMENT_ERROR_CODE);
                     Bundle errorExtras = extras.getBundle(ARGUMENT_EXTRAS);
@@ -674,6 +686,8 @@ public class MediaController2 implements AutoCloseable {
     private @ShuffleMode int mShuffleMode;
     @GuardedBy("mLock")
     private int mPlayerState;
+    @GuardedBy("mLock")
+    private MediaItem2 mCurrentMediaItem;
     @GuardedBy("mLock")
     private PlaybackInfo mPlaybackInfo;
     @GuardedBy("mLock")
@@ -1402,11 +1416,12 @@ public class MediaController2 implements AutoCloseable {
      * Get the lastly cached current item from
      * {@link ControllerCallback#onCurrentMediaItemChanged(MediaController2, MediaItem2)}.
      *
-     * @return index of the current item
+     * @return the currently playing item, or null if unknown.
      */
     public MediaItem2 getCurrentMediaItem() {
-        //return mProvider.getCurrentMediaItem_impl();
-        return null;
+        synchronized (mLock) {
+            return mCurrentMediaItem;
+        }
     }
 
     /**
@@ -1546,6 +1561,8 @@ public class MediaController2 implements AutoCloseable {
         // TODO: Set mMediaMetadataCompat from the data.
         final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
                 data.getParcelableArray(ARGUMENT_PLAYLIST));
+        final MediaItem2 currentMediaItem = MediaItem2.fromBundle(
+                data.getBundle(ARGUMENT_MEDIA_ITEM));
         final PlaybackInfo playbackInfo =
                 PlaybackInfo.fromBundle(data.getBundle(ARGUMENT_PLAYBACK_INFO));
         if (DEBUG) {
@@ -1570,6 +1587,7 @@ public class MediaController2 implements AutoCloseable {
                 mRepeatMode = repeatMode;
                 mShuffleMode = shuffleMode;
                 mPlaylist = playlist;
+                mCurrentMediaItem = currentMediaItem;
                 mConnected = true;
                 mPlaybackInfo = playbackInfo;
             }

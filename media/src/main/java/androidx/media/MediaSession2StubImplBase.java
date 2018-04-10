@@ -54,6 +54,7 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_CUSTOM_COMMAN
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED;
@@ -72,6 +73,7 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
@@ -526,6 +528,18 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         });
     }
 
+    void notifyCurrentMediaItemChanged(final MediaItem2 item) {
+        notifyAll(COMMAND_CODE_PLAYLIST_GET_LIST, new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED, bundle);
+            }
+        });
+    }
+
     void notifyPlaybackInfoChanged(final PlaybackInfo info) {
         notifyAll(new Session2Runnable() {
             @Override
@@ -849,6 +863,12 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                     if (playlist != null) {
                         resultData.putParcelableArray(ARGUMENT_PLAYLIST,
                                 MediaUtils2.toMediaItem2ParcelableArray(playlist));
+                    }
+                    final MediaItem2 currentMediaItem =
+                            allowedCommands.hasCommand(COMMAND_CODE_PLAYLIST_GET_LIST)
+                                    ? mSession.getCurrentMediaItem() : null;
+                    if (currentMediaItem != null) {
+                        resultData.putBundle(ARGUMENT_MEDIA_ITEM, currentMediaItem.toBundle());
                     }
                     resultData.putBundle(ARGUMENT_PLAYBACK_INFO,
                             mSession.getPlaybackInfo().toBundle());

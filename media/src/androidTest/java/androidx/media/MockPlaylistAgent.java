@@ -30,6 +30,7 @@ public class MockPlaylistAgent extends MediaPlaylistAgent {
 
     public List<MediaItem2> mPlaylist;
     public MediaMetadata2 mMetadata;
+    public MediaItem2 mCurrentMediaItem;
     public MediaItem2 mItem;
     public int mIndex = -1;
     public @RepeatMode int mRepeatMode = -1;
@@ -69,6 +70,11 @@ public class MockPlaylistAgent extends MediaPlaylistAgent {
         mUpdatePlaylistMetadataCalled = true;
         mMetadata = metadata;
         mCountDownLatch.countDown();
+    }
+
+    @Override
+    public MediaItem2 getCurrentMediaItem() {
+        return mCurrentMediaItem;
     }
 
     @Override
