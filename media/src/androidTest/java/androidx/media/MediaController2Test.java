@@ -16,8 +16,7 @@
 
 package androidx.media;
 
-import static junit.framework.Assert.assertEquals;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -223,7 +222,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         long time2 = System.currentTimeMillis();
         assertEquals(state, controller.getPlayerState());
         assertEquals(bufferedPosition, controller.getBufferedPosition());
-        assertEquals(speed, controller.getPlaybackSpeed());
+        assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
         long positionLowerBound = (long) (position + speed * (System.currentTimeMillis() - time2));
         long currentPosition = controller.getCurrentPosition();
         long positionUpperBound = (long) (position + speed * (System.currentTimeMillis() - time1));
@@ -347,6 +346,15 @@ public class MediaController2Test extends MediaSession2TestBase {
             assertEquals(metadataFromCallback.get().getMediaId(),
                     controller.getPlaylistMetadata().getMediaId());
         }
+    }
+
+    @Test
+    public void testSetPlaybackSpeed() throws Exception {
+        prepareLooper();
+        final float speed = 1.5f;
+        mController.setPlaybackSpeed(speed);
+        assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(speed, mPlayer.mPlaybackSpeed, 0.0f);
     }
 
     /**
