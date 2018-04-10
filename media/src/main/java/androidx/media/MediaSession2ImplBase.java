@@ -240,7 +240,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         if (layout == null) {
             throw new IllegalArgumentException("layout shouldn't be null");
         }
-        mSession2Stub.notifyCustomLayoutNotLocked(controller, layout);
+        mSession2Stub.notifyCustomLayout(controller, layout);
     }
 
     @Override
@@ -354,6 +354,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @Override
     public void notifyError(@ErrorCode int errorCode, @Nullable Bundle extras) {
         mSession2Stub.notifyError(errorCode, extras);
+    }
+
+    @Override
+    public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
+            @Nullable List<Bundle> routes) {
+        mSession2Stub.notifyRoutesInfoChanged(controller, routes);
     }
 
     @Override
@@ -721,7 +727,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @Override
     PlaybackStateCompat getPlaybackStateCompat() {
         synchronized (mLock) {
-            int state = MediaUtils2.toPlaybackStateCompatState(getPlayerState(),
+            int state = MediaUtils2.createPlaybackStateCompatState(getPlayerState(),
                     getBufferingState());
             // TODO: Consider following missing stuff
             //       - setCustomAction(): Fill custom layout
