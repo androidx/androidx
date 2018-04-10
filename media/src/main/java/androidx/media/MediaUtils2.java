@@ -371,18 +371,7 @@ class MediaUtils2 {
                 .build();
     }
 
-    static List<Bundle> toBundleList(Parcelable[] array) {
-        if (array == null) {
-            return null;
-        }
-        List<Bundle> bundleList = new ArrayList<>();
-        for (Parcelable p : array) {
-            bundleList.add((Bundle) p);
-        }
-        return bundleList;
-    }
-
-    static int createPlaybackStateCompatState(int playerState, int bufferingState) {
+    static int toPlaybackStateCompatState(int playerState, int bufferingState) {
         switch (playerState) {
             case MediaPlayerBase.PLAYER_STATE_PLAYING:
                 switch (bufferingState) {
