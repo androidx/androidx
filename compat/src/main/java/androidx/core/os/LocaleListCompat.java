@@ -289,7 +289,7 @@ public final class LocaleListCompat {
         if (list == null || list.isEmpty()) {
             return getEmptyLocaleList();
         } else {
-            final String[] tags = list.split(",");
+            final String[] tags = list.split(",", -1);
             final Locale[] localeArray = new Locale[tags.length];
             for (int i = 0; i < localeArray.length; i++) {
                 localeArray[i] = Build.VERSION.SDK_INT >= 21
