@@ -19,8 +19,10 @@ package androidx.webkit.internal;
 import android.content.Context;
 import android.os.Build;
 import android.webkit.ValueCallback;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 
+import androidx.webkit.ServiceWorkerClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 import androidx.webkit.WebViewFeature.WebViewSupportFeature;
@@ -114,6 +116,13 @@ public enum WebViewFeatureInternal {
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setBlockNetworkLoads(boolean)}.
      */
     SERVICE_WORKER_BLOCK_NETWORK_LOADS(WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS,
+            Build.VERSION_CODES.N),
+
+    /**
+     * This feature covers
+     * {@link ServiceWorkerClientCompat#shouldInterceptRequest(WebResourceRequest)}.
+     */
+    SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST,
             Build.VERSION_CODES.N);
 
     private final String mFeatureValue;
