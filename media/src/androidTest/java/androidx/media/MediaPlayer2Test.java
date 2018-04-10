@@ -53,6 +53,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
@@ -1767,7 +1771,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    public void testCallback() throws Throwable {
+    public void testMediaPlayer2Callback() throws Throwable {
         final int mp4Duration = 8484;
 
         if (!checkLoadResource(R.raw.testvideo)) {
@@ -1833,6 +1837,150 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnCompletionCalled.waitForSignal();
         assertFalse(mOnErrorCalled.isSignalled());
         mPlayer.reset();
+    }
+
+    @Test
+    @LargeTest
+    public void testPlayerStates() throws Throwable {
+        final int mp4Duration = 8484;
+
+        if (!checkLoadResource(R.raw.testvideo)) {
+            return; // skip;
+        }
+        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+
+        final Monitor prepareCompleted = new Monitor();
+        final Monitor playCompleted = new Monitor();
+        final Monitor pauseCompleted = new Monitor();
+
+        MediaPlayer2.MediaPlayer2EventCallback ecb = new MediaPlayer2.MediaPlayer2EventCallback() {
+            @Override
+            public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
+                if (what == MediaPlayer2.CALL_COMPLETED_PREPARE) {
+                    prepareCompleted.signal();
+                } else if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
+                    playCompleted.signal();
+                } else if (what == MediaPlayer2.CALL_COMPLETED_PAUSE) {
+                    pauseCompleted.signal();
+                }
+            }
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
+
+        assertEquals(MediaPlayerBase.BUFFERING_STATE_UNKNOWN, mPlayer.getBufferingState());
+        assertEquals(MediaPlayerBase.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
+        prepareCompleted.reset();
+        mPlayer.prepare();
+        prepareCompleted.waitForSignal();
+        assertEquals(MediaPlayerBase.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
+                mPlayer.getBufferingState());
+        assertEquals(MediaPlayerBase.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
+
+        playCompleted.reset();
+        mPlayer.play();
+        playCompleted.waitForSignal();
+        assertEquals(MediaPlayerBase.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
+                mPlayer.getBufferingState());
+        assertEquals(MediaPlayerBase.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
+
+        pauseCompleted.reset();
+        mPlayer.pause();
+        pauseCompleted.waitForSignal();
+        assertEquals(MediaPlayerBase.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
+                mPlayer.getBufferingState());
+        assertEquals(MediaPlayerBase.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
+
+        mPlayer.reset();
+        assertEquals(MediaPlayerBase.BUFFERING_STATE_UNKNOWN, mPlayer.getBufferingState());
+        assertEquals(MediaPlayerBase.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
+    }
+
+    @Test
+    @LargeTest
+    public void testPlayerEventCallback() throws Throwable {
+        final int mp4Duration = 8484;
+
+        if (!checkLoadResource(R.raw.testvideo)) {
+            return; // skip;
+        }
+
+        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+
+        final Monitor onPrepareCalled = new Monitor();
+        final Monitor onSeekCompleteCalled = new Monitor();
+        final Monitor onPlayerStateChangedCalled = new Monitor();
+        final AtomicInteger playerState = new AtomicInteger();
+        final Monitor onBufferingStateChangedCalled = new Monitor();
+        final AtomicInteger bufferingState = new AtomicInteger();
+        final Monitor onPlaybackSpeedChanged = new Monitor();
+        final AtomicReference<Float> playbackSpeed = new AtomicReference<>();
+
+        MediaPlayerBase.PlayerEventCallback callback = new MediaPlayerBase.PlayerEventCallback() {
+            // TODO: implement and add test case for onCurrentDataSourceChanged() callback.
+            @Override
+            public void onMediaPrepared(MediaPlayerBase mpb, DataSourceDesc dsd) {
+                onPrepareCalled.signal();
+            }
+
+            @Override
+            public void onPlayerStateChanged(MediaPlayerBase mpb, int state) {
+                playerState.set(state);
+                onPlayerStateChangedCalled.signal();
+            }
+
+            @Override
+            public void onBufferingStateChanged(MediaPlayerBase mpb, DataSourceDesc dsd,
+                    int state) {
+                bufferingState.set(state);
+                onBufferingStateChangedCalled.signal();
+            }
+
+            @Override
+            public void onPlaybackSpeedChanged(MediaPlayerBase mpb, float speed) {
+                playbackSpeed.set(speed);
+                onPlaybackSpeedChanged.signal();
+            }
+
+            @Override
+            public void onSeekCompleted(MediaPlayerBase mpb, long position) {
+                onSeekCompleteCalled.signal();
+            }
+        };
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        mPlayer.registerPlayerEventCallback(executor, callback);
+
+        onPrepareCalled.reset();
+        onPlayerStateChangedCalled.reset();
+        onBufferingStateChangedCalled.reset();
+        mPlayer.prepare();
+        do {
+            assertTrue(onBufferingStateChangedCalled.waitForSignal(1000));
+        } while (bufferingState.get() != MediaPlayerBase.BUFFERING_STATE_BUFFERING_AND_STARVED);
+
+        assertTrue(onPrepareCalled.waitForSignal(1000));
+        do {
+            assertTrue(onPlayerStateChangedCalled.waitForSignal(1000));
+        } while (playerState.get() != MediaPlayerBase.PLAYER_STATE_PAUSED);
+        do {
+            assertTrue(onBufferingStateChangedCalled.waitForSignal(1000));
+        } while (bufferingState.get() != MediaPlayerBase.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
+
+        onSeekCompleteCalled.reset();
+        mPlayer.seekTo(mp4Duration >> 1, MediaPlayer2.SEEK_PREVIOUS_SYNC);
+        onSeekCompleteCalled.waitForSignal();
+
+        onPlaybackSpeedChanged.reset();
+        mPlayer.setPlaybackSpeed(0.5f);
+        do {
+            assertTrue(onPlaybackSpeedChanged.waitForSignal(1000));
+        } while (Math.abs(playbackSpeed.get() - 0.5f) > FLOAT_TOLERANCE);
+
+        mPlayer.reset();
+
+        mPlayer.unregisterPlayerEventCallback(callback);
+        executor.shutdown();
     }
 
     public void testRecordAndPlay() throws Exception {
