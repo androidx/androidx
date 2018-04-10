@@ -37,6 +37,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_QUERY;
 import static androidx.media.MediaConstants2.ARGUMENT_RATING;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_RESULT_RECEIVER;
+import static androidx.media.MediaConstants2.ARGUMENT_ROUTE_BUNDLE;
 import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
@@ -56,6 +57,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANG
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ROUTES_INFO_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
@@ -82,7 +84,10 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_M
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH;
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_REWIND;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SET_RATING;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
+import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
 import static androidx.media.SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
 import static androidx.media.SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME;
 
@@ -103,6 +108,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media.MediaSession2.CommandButton;
 import androidx.media.MediaSession2.ControllerInfo;
 
@@ -119,6 +125,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
 
     private static final SparseArray<SessionCommand2> sCommandsForOnCommandRequest =
             new SparseArray<>();
+
     static {
         SessionCommandGroup2 group = new SessionCommandGroup2();
         group.addAllPlaybackCommands();
@@ -391,6 +398,21 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                                         mSession.getInstance(), controller, mediaId, rating);
                                 break;
                             }
+                            case COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO: {
+                                mSession.getCallback().onSubscribeRoutesInfo(
+                                        mSession.getInstance(), controller);
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO: {
+                                mSession.getCallback().onUnsubscribeRoutesInfo(
+                                        mSession.getInstance(), controller);
+                                break;
+                            }
+                            case COMMAND_CODE_SESSION_SELECT_ROUTE: {
+                                Bundle route = extras.getBundle(ARGUMENT_ROUTE_BUNDLE);
+                                mSession.getCallback().onSelectRoute(
+                                        mSession.getInstance(), controller, route);
+                            }
                         }
                     }
                 });
@@ -428,7 +450,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         return controllers;
     }
 
-    void notifyCustomLayoutNotLocked(ControllerInfo controller, final List<CommandButton> layout) {
+    void notifyCustomLayout(ControllerInfo controller, final List<CommandButton> layout) {
         notifyInternal(controller, new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -512,6 +534,22 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 bundle.putInt(ARGUMENT_ERROR_CODE, errorCode);
                 bundle.putBundle(ARGUMENT_EXTRAS, extras);
                 controller.getControllerBinder().onEvent(SESSION_EVENT_ON_ERROR, bundle);
+            }
+        });
+    }
+
+    void notifyRoutesInfoChanged(@NonNull final ControllerInfo controller,
+            @Nullable final List<Bundle> routes) {
+        notifyInternal(controller, new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = null;
+                if (routes != null) {
+                    bundle = new Bundle();
+                    bundle.putParcelableArray(ARGUMENT_ROUTE_BUNDLE, routes.toArray(new Bundle[0]));
+                }
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_ROUTES_INFO_CHANGED, bundle);
             }
         });
     }
