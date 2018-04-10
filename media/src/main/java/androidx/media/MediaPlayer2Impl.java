@@ -75,12 +75,43 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     private static final int NEXT_SOURCE_STATE_PREPARING = 1;
     private static final int NEXT_SOURCE_STATE_PREPARED = 2;
 
+    private static ArrayMap<Integer, Integer> sInfoEventMap;
+    private static ArrayMap<Integer, Integer> sErrorEventMap;
+
+    static {
+        sInfoEventMap = new ArrayMap<>();
+        sInfoEventMap.put(MediaPlayer.MEDIA_INFO_UNKNOWN, MEDIA_INFO_UNKNOWN);
+        sInfoEventMap.put(2 /*MediaPlayer.MEDIA_INFO_STARTED_AS_NEXT*/, MEDIA_INFO_STARTED_AS_NEXT);
+        sInfoEventMap.put(
+                MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START, MEDIA_INFO_VIDEO_RENDERING_START);
+        sInfoEventMap.put(
+                MediaPlayer.MEDIA_INFO_VIDEO_TRACK_LAGGING, MEDIA_INFO_VIDEO_TRACK_LAGGING);
+        sInfoEventMap.put(MediaPlayer.MEDIA_INFO_BUFFERING_START, MEDIA_INFO_BUFFERING_START);
+        sInfoEventMap.put(MediaPlayer.MEDIA_INFO_BUFFERING_END, MEDIA_INFO_BUFFERING_END);
+        sInfoEventMap.put(MediaPlayer.MEDIA_INFO_BAD_INTERLEAVING, MEDIA_INFO_BAD_INTERLEAVING);
+        sInfoEventMap.put(MediaPlayer.MEDIA_INFO_NOT_SEEKABLE, MEDIA_INFO_NOT_SEEKABLE);
+        sInfoEventMap.put(MediaPlayer.MEDIA_INFO_METADATA_UPDATE, MEDIA_INFO_METADATA_UPDATE);
+        sInfoEventMap.put(MediaPlayer.MEDIA_INFO_AUDIO_NOT_PLAYING, MEDIA_INFO_AUDIO_NOT_PLAYING);
+        sInfoEventMap.put(MediaPlayer.MEDIA_INFO_VIDEO_NOT_PLAYING, MEDIA_INFO_VIDEO_NOT_PLAYING);
+        sInfoEventMap.put(
+                MediaPlayer.MEDIA_INFO_UNSUPPORTED_SUBTITLE, MEDIA_INFO_UNSUPPORTED_SUBTITLE);
+        sInfoEventMap.put(MediaPlayer.MEDIA_INFO_SUBTITLE_TIMED_OUT, MEDIA_INFO_SUBTITLE_TIMED_OUT);
+
+        sErrorEventMap = new ArrayMap<>();
+        sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_UNKNOWN, MEDIA_ERROR_UNKNOWN);
+        sErrorEventMap.put(
+                MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK,
+                MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK);
+        sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_IO, MEDIA_ERROR_IO);
+        sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_MALFORMED, MEDIA_ERROR_MALFORMED);
+        sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_UNSUPPORTED, MEDIA_ERROR_UNSUPPORTED);
+        sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_TIMED_OUT, MEDIA_ERROR_TIMED_OUT);
+    }
+
     // TODO: This class has too many locks. Use one single lock to protect internal variables.
     private MediaPlayer mPlayer;
-    @PlayerState
-    private int mPlayerState;
-    @BuffState
-    private int mBufferingState;
+    @PlayerState private int mPlayerState;
+    @BuffState private int mBufferingState;
     private AudioAttributesCompat mAudioAttributes;
 
     private final Object mSrcLock = new Object();
@@ -1643,9 +1674,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         cb.first.execute(new Runnable() {
                             @Override
                             public void run() {
-                                // TODO: translate what value to MP2's definition.
-                                cb.second.onError(MediaPlayer2Impl.this, mCurrentDSD,
-                                        what, extra);
+                                int w = sErrorEventMap.getOrDefault(what, MEDIA_ERROR_UNKNOWN);
+                                cb.second.onError(MediaPlayer2Impl.this, mCurrentDSD, w, extra);
                             }
                         });
                     }
@@ -1710,8 +1740,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         cb.first.execute(new Runnable() {
                             @Override
                             public void run() {
-                                // TODO: translate what value to MP2's definition.
-                                cb.second.onInfo(MediaPlayer2Impl.this, mCurrentDSD, what, extra);
+                                int w = sInfoEventMap.getOrDefault(what, MEDIA_INFO_UNKNOWN);
+                                cb.second.onInfo(MediaPlayer2Impl.this, mCurrentDSD, w, extra);
                             }
                         });
                     }
