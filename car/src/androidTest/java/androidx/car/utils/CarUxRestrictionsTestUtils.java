@@ -27,10 +27,12 @@ public class CarUxRestrictionsTestUtils {
     private CarUxRestrictionsTestUtils() {};
 
     public static CarUxRestrictions getFullyRestricted() {
-        return new CarUxRestrictions(true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED, 0);
+        return new CarUxRestrictions.Builder(
+                true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED, 0).build();
     }
 
     public static CarUxRestrictions getBaseline() {
-        return new CarUxRestrictions(false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE, 0);
+        return new CarUxRestrictions.Builder(
+                false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE, 0).build();
     }
 }
