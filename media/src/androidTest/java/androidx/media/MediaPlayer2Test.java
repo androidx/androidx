@@ -824,6 +824,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         assertEquals(Integer.parseInt(rotation), angle);
     }
 
+    @Test
+    @LargeTest
     public void testPlaylist() throws Exception {
         if (!checkLoadResource(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz)) {
