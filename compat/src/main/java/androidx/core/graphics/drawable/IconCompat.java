@@ -569,6 +569,58 @@ public class IconCompat {
         return bundle;
     }
 
+    @Override
+    public String toString() {
+        if (mType == TYPE_UNKOWN) {
+            return String.valueOf(mObj1);
+        }
+        final StringBuilder sb = new StringBuilder("Icon(typ=").append(typeToString(mType));
+        switch (mType) {
+            case TYPE_BITMAP:
+            case TYPE_ADAPTIVE_BITMAP:
+                sb.append(" size=")
+                        .append(((Bitmap) mObj1).getWidth())
+                        .append("x")
+                        .append(((Bitmap) mObj1).getHeight());
+                break;
+            case TYPE_RESOURCE:
+                sb.append(" pkg=")
+                        .append(getResPackage())
+                        .append(" id=")
+                        .append(String.format("0x%08x", getResId()));
+                break;
+            case TYPE_DATA:
+                sb.append(" len=").append(mInt1);
+                if (mInt2 != 0) {
+                    sb.append(" off=").append(mInt2);
+                }
+                break;
+            case TYPE_URI:
+                sb.append(" uri=").append(mObj1);
+                break;
+        }
+        if (mTintList != null) {
+            sb.append(" tint=");
+            sb.append(mTintList);
+        }
+        if (mTintMode != DEFAULT_TINT_MODE) {
+            sb.append(" mode=").append(mTintMode);
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    private static String typeToString(int x) {
+        switch (x) {
+            case TYPE_BITMAP: return "BITMAP";
+            case TYPE_ADAPTIVE_BITMAP: return "BITMAP_MASKABLE";
+            case TYPE_DATA: return "DATA";
+            case TYPE_RESOURCE: return "RESOURCE";
+            case TYPE_URI: return "URI";
+            default: return "UNKNOWN";
+        }
+    }
+
     /**
      * Extracts an icon from a bundle that was added using {@link #toBundle()}.
      */
