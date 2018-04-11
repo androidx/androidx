@@ -113,6 +113,7 @@ package androidx.slice.widget {
     ctor public SliceView(android.content.Context, android.util.AttributeSet, int);
     ctor public SliceView(android.content.Context, android.util.AttributeSet, int, int);
     method public int getMode();
+    method public androidx.slice.Slice getSlice();
     method public java.util.List<androidx.slice.SliceItem> getSliceActions();
     method public void onChanged(androidx.slice.Slice);
     method public void onClick(android.view.View);
