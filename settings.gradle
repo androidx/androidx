@@ -122,7 +122,6 @@ includeProject(":support-design-demos", new File(samplesRoot, "SupportDesignDemo
 includeProject(":support-emoji-demos", new File(samplesRoot, "SupportEmojiDemos"))
 includeProject(":support-leanback-demos", new File(samplesRoot, "SupportLeanbackDemos"))
 //includeProject(":support-leanback-jank", new File(samplesRoot, "SupportLeanbackJank"))
-includeProject(":support-media-demos", new File(samplesRoot, "SupportMediaDemos"))
 includeProject(":support-percent-demos", new File(samplesRoot, "SupportPercentDemos"))
 includeProject(":support-preference-demos", new File(samplesRoot, "SupportPreferenceDemos"))
 includeProject(":support-slices-demos", new File(samplesRoot, "SupportSliceDemos"))
