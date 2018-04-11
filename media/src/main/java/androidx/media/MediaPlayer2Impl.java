@@ -78,6 +78,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     private static ArrayMap<Integer, Integer> sInfoEventMap;
     private static ArrayMap<Integer, Integer> sErrorEventMap;
+    private static ArrayMap<Integer, Integer> sPrepareDrmStatusMap;
 
     static {
         sInfoEventMap = new ArrayMap<>();
@@ -107,6 +108,18 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_MALFORMED, MEDIA_ERROR_MALFORMED);
         sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_UNSUPPORTED, MEDIA_ERROR_UNSUPPORTED);
         sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_TIMED_OUT, MEDIA_ERROR_TIMED_OUT);
+
+        sPrepareDrmStatusMap.put(
+                MediaPlayer.PREPARE_DRM_STATUS_SUCCESS, PREPARE_DRM_STATUS_SUCCESS);
+        sPrepareDrmStatusMap.put(
+                MediaPlayer.PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,
+                PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR);
+        sPrepareDrmStatusMap.put(
+                MediaPlayer.PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR,
+                PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR);
+        sPrepareDrmStatusMap.put(
+                MediaPlayer.PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR,
+                PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR);
     }
 
     private MediaPlayer mPlayer;  // MediaPlayer is thread-safe.
@@ -1232,8 +1245,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         mPlayer.setOnDrmConfigHelper(new MediaPlayer.OnDrmConfigHelper() {
             @Override
             public void onDrmConfig(MediaPlayer mp) {
-                /** FIXME: pass the right DSD. */
-                listener.onDrmConfig(MediaPlayer2Impl.this, null);
+                listener.onDrmConfig(MediaPlayer2Impl.this, mCurrentDSD);
             }
         });
     }
@@ -1579,12 +1591,31 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
+    private void notifyDrmEvent(final DrmEventNotifier notifier) {
+        List<Pair<Executor, DrmEventCallback>> records;
+        synchronized (mLock) {
+            records = new ArrayList<>(mDrmEventCallbackRecords);
+        }
+        for (final Pair<Executor, DrmEventCallback> record : records) {
+            record.first.execute(new Runnable() {
+                @Override
+                public void run() {
+                    notifier.notify(record.second);
+                }
+            });
+        }
+    }
+
     private interface Mp2EventNotifier {
         void notify(MediaPlayer2EventCallback callback);
     }
 
     private interface PlayerEventNotifier {
         void notify(PlayerEventCallback callback);
+    }
+
+    private interface DrmEventNotifier {
+        void notify(DrmEventCallback callback);
     }
 
     private void setUpListeners() {
@@ -1765,6 +1796,31 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     @Override
                     public void notify(MediaPlayer2EventCallback cb) {
                         cb.onSubtitleData(MediaPlayer2Impl.this, mCurrentDSD, data);
+                    }
+                });
+            }
+        });
+        mPlayer.setOnDrmInfoListener(new MediaPlayer.OnDrmInfoListener() {
+            @Override
+            public void onDrmInfo(MediaPlayer mp, final MediaPlayer.DrmInfo drmInfo) {
+                notifyDrmEvent(new DrmEventNotifier() {
+                    @Override
+                    public void notify(DrmEventCallback cb) {
+                        cb.onDrmInfo(MediaPlayer2Impl.this, mCurrentDSD,
+                                new DrmInfoImpl(drmInfo.getPssh(), drmInfo.getSupportedSchemes()));
+                    }
+                });
+            }
+        });
+        mPlayer.setOnDrmPreparedListener(new MediaPlayer.OnDrmPreparedListener() {
+            @Override
+            public void onDrmPrepared(MediaPlayer mp, final int status) {
+                notifyDrmEvent(new DrmEventNotifier() {
+                    @Override
+                    public void notify(DrmEventCallback cb) {
+                        int s = sPrepareDrmStatusMap.getOrDefault(
+                                status, PREPARE_DRM_STATUS_PREPARATION_ERROR);
+                        cb.onDrmPrepared(MediaPlayer2Impl.this, mCurrentDSD, s);
                     }
                 });
             }
