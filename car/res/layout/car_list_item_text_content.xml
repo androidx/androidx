@@ -59,11 +59,11 @@
     <View
         android:id="@+id/switch_divider"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@id/switch_widget"
+        android:layout_toStartOf="@+id/switch_widget"
         android:layout_marginEnd="@dimen/car_padding_4"
         style="@style/CarListVerticalDivider"/>
     <Switch
-        android:id="@+id/switch_widget"
+        android:id="@id/switch_widget"
         android:layout_centerVertical="true"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
@@ -75,28 +75,28 @@
     <View
         android:id="@+id/action2_divider"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@id/action2"
+        android:layout_toStartOf="@+id/action2"
         android:layout_marginEnd="@dimen/car_padding_4"
         style="@style/CarListVerticalDivider"/>
     <Button
-        android:id="@+id/action2"
+        android:id="@id/action2"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/action1_divider"
+        android:layout_toStartOf="@+id/action1_divider"
         android:layout_marginEnd="@dimen/car_padding_4"
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
         style="?android:attr/borderlessButtonStyle"/>
     <View
-        android:id="@+id/action1_divider"
+        android:id="@id/action1_divider"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@id/action1"
+        android:layout_toStartOf="@+id/action1"
         android:layout_marginEnd="@dimen/car_padding_4"
         style="@style/CarListVerticalDivider"/>
     <Button
-        android:id="@+id/action1"
+        android:id="@id/action1"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
