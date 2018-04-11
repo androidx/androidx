@@ -28,6 +28,7 @@ import android.media.MediaFormat;
 import android.media.MediaTimestamp;
 import android.media.PlaybackParams;
 import android.media.ResourceBusyException;
+import android.media.SubtitleData;
 import android.media.SyncParams;
 import android.media.TimedMetaData;
 import android.media.UnsupportedSchemeException;
@@ -46,7 +47,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-
 
 /**
  * @hide
@@ -1229,13 +1229,26 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
                 @CallStatus int status) { }
 
         /**
-         * Called to indicate media clock has changed.
+         * Called when a discontinuity in the normal progression of the media time is detected.
+         * The "normal progression" of media time is defined as the expected increase of the
+         * playback position when playing media, relative to the playback speed (for instance every
+         * second, media time increases by two seconds when playing at 2x).<br>
+         * Discontinuities are encountered in the following cases:
+         * <ul>
+         * <li>when the player is starved for data and cannot play anymore</li>
+         * <li>when the player encounters a playback error</li>
+         * <li>when the a seek operation starts, and when it's completed</li>
+         * <li>when the playback speed changes</li>
+         * <li>when the playback state changes</li>
+         * <li>when the player is reset</li>
+         * </ul>
          *
          * @param mp the MediaPlayer2 the media time pertains to.
          * @param dsd the DataSourceDesc of this data source
-         * @param timestamp the new media clock.
+         * @param timestamp the timestamp that correlates media time, system time and clock rate,
+         *     or {@link MediaTimestamp#TIMESTAMP_UNKNOWN} in an error case.
          */
-        public void onMediaTimeChanged(
+        public void onMediaTimeDiscontinuity(
                 MediaPlayer2 mp, DataSourceDesc dsd, MediaTimestamp timestamp) { }
 
         /**
@@ -1247,12 +1260,14 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
          */
         public void onCommandLabelReached(MediaPlayer2 mp, @NonNull Object label) { }
 
-        /* TODO : uncomment below once API is available in supportlib.
+        /**
          * Called when when a player subtitle track has new subtitle data available.
          * @param mp the player that reports the new subtitle data
+         * @param dsd the DataSourceDesc of this data source
          * @param data the subtitle data
          */
-        // public void onSubtitleData(MediaPlayer2 mp, @NonNull SubtitleData data) { }
+        public void onSubtitleData(
+                MediaPlayer2 mp, DataSourceDesc dsd, @NonNull SubtitleData data) { }
     }
 
     /**
