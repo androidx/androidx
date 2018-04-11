@@ -25,6 +25,8 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
+import static androidx.slice.Slice.addHints;
+
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Context;
@@ -412,36 +414,35 @@ public class SliceItem {
     @RestrictTo(Scope.LIBRARY)
     public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
-        if (!FORMAT_SLICE.equals(getFormat())) {
-            sb.append(indent);
-            sb.append(getFormat());
-            sb.append(": ");
-        }
         switch (getFormat()) {
             case FORMAT_SLICE:
                 sb.append(getSlice().toString(indent));
                 break;
             case FORMAT_ACTION:
-                sb.append(getAction());
-                sb.append("\n");
+                sb.append(indent).append(getAction()).append(",\n");
                 sb.append(getSlice().toString(indent));
                 break;
             case FORMAT_TEXT:
-                sb.append(getText());
+                sb.append(indent).append('"').append(getText()).append('"');
                 break;
             case FORMAT_IMAGE:
-                sb.append(getIcon());
+                sb.append(indent).append(getIcon());
                 break;
             case FORMAT_INT:
-                sb.append(getInt());
+                sb.append(indent).append(getInt());
                 break;
-            case FORMAT_TIMESTAMP:
-                sb.append(getTimestamp());
+            case FORMAT_LONG:
+                sb.append(indent).append(getLong());
                 break;
             default:
-                sb.append(SliceItem.typeToString(getFormat()));
+                sb.append(indent).append(SliceItem.typeToString(getFormat()));
                 break;
         }
+        if (!FORMAT_SLICE.equals(getFormat())) {
+            sb.append(' ');
+            addHints(sb, mHints);
+        }
+        sb.append(",\n");
         return sb.toString();
     }
 }

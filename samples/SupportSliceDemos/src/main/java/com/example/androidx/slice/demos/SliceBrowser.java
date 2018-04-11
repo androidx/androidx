@@ -240,6 +240,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             mSliceLiveData = SliceLiveData.fromUri(this, uri);
             v.setMode(mSelectedMode);
             mSliceLiveData.observe(this, v);
+            mSliceLiveData.observe(this, slice -> Log.d(TAG, "Slice: " + slice));
         } else {
             Log.w(TAG, "Invalid uri, skipping slice: " + uri);
         }
