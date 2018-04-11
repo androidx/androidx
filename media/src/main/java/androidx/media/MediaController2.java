@@ -108,7 +108,6 @@ import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.media.AudioManager;
-import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -127,6 +126,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -136,14 +136,14 @@ import androidx.media.MediaSession2.CommandButton;
 import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.MediaSession2.ErrorCode;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
- * Allows an app to interact with an active {@link MediaSession2} or a
- * {@link MediaSessionService2} in any status. Media buttons and other commands can be sent to
- * the session.
+ * Allows an app to interact with an active {@link MediaSession2} in any status. Media buttons and
+ * other commands can be sent to the session.
  * <p>
  * When you're done, use {@link #close()} to clean up resources. This also helps session service
  * to be destroyed when there's no controller associated with it.
@@ -151,25 +151,31 @@ import java.util.concurrent.Executor;
  * When controlling {@link MediaSession2}, the controller will be available immediately after
  * the creation.
  * <p>
- * When controlling {@link MediaSessionService2}, the {@link MediaController2} would be
- * available only if the session service allows this controller by
- * {@link MediaSession2.SessionCallback#onConnect(MediaSession2, ControllerInfo)} for the service.
- * Wait {@link ControllerCallback#onConnected(MediaController2, SessionCommandGroup2)} or
- * {@link ControllerCallback#onDisconnected(MediaController2)} for the result.
- * <p>
- * A controller can be created through token from {@link MediaSessionManager} if you hold the
- * signature|privileged permission "android.permission.MEDIA_CONTENT_CONTROL" permission or are
- * an enabled notification listener or by getting a {@link SessionToken2} directly the
- * the session owner.
- * <p>
  * MediaController2 objects are thread-safe.
  * <p>
  * @see MediaSession2
- * @see MediaSessionService2
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
-@RestrictTo(LIBRARY_GROUP)
 public class MediaController2 implements AutoCloseable {
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({AudioManager.ADJUST_LOWER, AudioManager.ADJUST_RAISE, AudioManager.ADJUST_SAME,
+            AudioManager.ADJUST_MUTE, AudioManager.ADJUST_UNMUTE, AudioManager.ADJUST_TOGGLE_MUTE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface VolumeDirection {}
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef(value = {AudioManager.FLAG_SHOW_UI, AudioManager.FLAG_ALLOW_RINGER_MODES,
+            AudioManager.FLAG_PLAY_SOUND, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE,
+            AudioManager.FLAG_VIBRATE}, flag = true)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface VolumeFlags {}
+
     /**
      * Interface for listening to change in activeness of the {@link MediaSession2}.  It's
      * active if and only if it has set a player.
@@ -297,7 +303,6 @@ public class MediaController2 implements AutoCloseable {
          * @param item new item
          * @see #onBufferingStateChanged(MediaController2, MediaItem2, int)
          */
-        // TODO(jaewan): Use this (b/74316764)
         public void onCurrentMediaItemChanged(@NonNull MediaController2 controller,
                 @NonNull MediaItem2 item) { }
 
@@ -525,7 +530,6 @@ public class MediaController2 implements AutoCloseable {
 
         @Override
         public void onSessionEvent(String event, Bundle extras) {
-            // TODO: Call callbacks on the executor
             switch (event) {
                 case SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED: {
                     SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
@@ -666,7 +670,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     private static final String TAG = "MediaController2";
-    private static final boolean DEBUG = true; // TODO(jaewan): Change
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     // Note: Using {@code null} doesn't helpful here because MediaBrowserServiceCompat always wraps
     //       the rootHints so it becomes non-null.
@@ -1090,7 +1094,7 @@ public class MediaController2 implements AutoCloseable {
      * @param flags flags from {@link AudioManager} to include with the volume request for local
      *              playback
      */
-    public void setVolumeTo(int value, int flags) {
+    public void setVolumeTo(int value, @VolumeFlags int flags) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -1107,6 +1111,7 @@ public class MediaController2 implements AutoCloseable {
      * Adjust the volume of the output this session is playing on. The direction
      * must be one of {@link AudioManager#ADJUST_LOWER},
      * {@link AudioManager#ADJUST_RAISE}, or {@link AudioManager#ADJUST_SAME}.
+     * <p>
      * The command will be ignored if the session does not support
      * {@link VolumeProviderCompat#VOLUME_CONTROL_RELATIVE} or
      * {@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}.
@@ -1122,7 +1127,7 @@ public class MediaController2 implements AutoCloseable {
      * @param flags flags from {@link AudioManager} to include with the volume request for local
      *              playback
      */
-    public void adjustVolume(int direction, int flags) {
+    public void adjustVolume(@VolumeDirection int direction, @VolumeFlags int flags) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -1274,7 +1279,6 @@ public class MediaController2 implements AutoCloseable {
      */
     public @Nullable PlaybackInfo getPlaybackInfo() {
         synchronized (mLock) {
-            // TODO: update mPlaybackInfo via MediaControllerCompat.Callback.onAudioInfoChanged().
             return mPlaybackInfo;
         }
     }
@@ -1333,7 +1337,9 @@ public class MediaController2 implements AutoCloseable {
      * implementation. Use media items returned here for other playlist agent APIs such as
      * {@link MediaPlaylistAgent#skipToPlaylistItem(MediaItem2)}.
      *
-     * @return playlist. Can be {@code null} if the controller doesn't have enough permission.
+     * @return playlist. Can be {@code null} if the playlist hasn't set nor controller doesn't have
+     *      enough permission.
+     * @see SessionCommand2#COMMAND_CODE_PLAYLIST_GET_LIST
      */
     public @Nullable List<MediaItem2> getPlaylist() {
         synchronized (mLock) {
@@ -1389,7 +1395,8 @@ public class MediaController2 implements AutoCloseable {
 
     /**
      * Adds the media item to the playlist at position index. Index equals or greater than
-     * the current playlist size will add the item at the end of the playlist.
+     * the current playlist size (e.g. {@link Integer#MAX_VALUE}) will add the item at the end of
+     * the playlist.
      * <p>
      * This will not change the currently playing media item.
      * If index is less than or equal to the current index of the playlist,
@@ -1501,7 +1508,6 @@ public class MediaController2 implements AutoCloseable {
      * @see MediaPlaylistAgent#REPEAT_MODE_GROUP
      */
     public void setRepeatMode(@RepeatMode int repeatMode) {
-        // TODO: check permission
         Bundle args = new Bundle();
         args.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
         sendCommand(COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE, args);
@@ -1530,7 +1536,6 @@ public class MediaController2 implements AutoCloseable {
      * @see MediaPlaylistAgent#SHUFFLE_MODE_GROUP
      */
     public void setShuffleMode(@ShuffleMode int shuffleMode) {
-        // TODO: check permission
         Bundle args = new Bundle();
         args.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
         sendCommand(COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE, args);
@@ -1570,7 +1575,6 @@ public class MediaController2 implements AutoCloseable {
 
     // Should be used without a lock to prevent potential deadlock.
     void onConnectedNotLocked(Bundle data) {
-        // TODO: Getting mPlaybackInfo via MediaControllerCompat.Callback.onAudioInfoChanged()
         // is enough or should we pass it while connecting?
         final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
                 data.getBundle(ARGUMENT_ALLOWED_COMMANDS));
@@ -1580,13 +1584,14 @@ public class MediaController2 implements AutoCloseable {
                 ARGUMENT_PLAYBACK_STATE_COMPAT);
         final int repeatMode = data.getInt(ARGUMENT_REPEAT_MODE);
         final int shuffleMode = data.getInt(ARGUMENT_SHUFFLE_MODE);
-        // TODO: Set mMediaMetadataCompat from the data.
         final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
                 data.getParcelableArray(ARGUMENT_PLAYLIST));
         final MediaItem2 currentMediaItem = MediaItem2.fromBundle(
                 data.getBundle(ARGUMENT_MEDIA_ITEM));
         final PlaybackInfo playbackInfo =
                 PlaybackInfo.fromBundle(data.getBundle(ARGUMENT_PLAYBACK_INFO));
+        final MediaMetadata2 metadata = MediaMetadata2.fromBundle(
+                data.getBundle(ARGUMENT_PLAYLIST_METADATA));
         if (DEBUG) {
             Log.d(TAG, "onConnectedNotLocked sessionCompatToken=" + mToken.getSessionCompatToken()
                     + ", allowedCommands=" + allowedCommands);
@@ -1611,10 +1616,10 @@ public class MediaController2 implements AutoCloseable {
                 mShuffleMode = shuffleMode;
                 mPlaylist = playlist;
                 mCurrentMediaItem = currentMediaItem;
+                mPlaylistMetadata = metadata;
                 mConnected = true;
                 mPlaybackInfo = playbackInfo;
             }
-            // TODO(jaewan): Keep commands to prevents illegal API calls.
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1634,8 +1639,6 @@ public class MediaController2 implements AutoCloseable {
     }
 
     private void initialize() {
-        // TODO(jaewan): More sanity checks.
-        // TODO: Check the connection between 1.0 and 2.0 APIs
         if (mToken.getType() == SessionToken2.TYPE_SESSION) {
             synchronized (mLock) {
                 mBrowserCompat = null;
