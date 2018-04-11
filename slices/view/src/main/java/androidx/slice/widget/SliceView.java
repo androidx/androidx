@@ -413,7 +413,18 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
+     * @return the slice being used to populate this view.
+     */
+    @Nullable
+    public Slice getSlice() {
+        return mCurrentSlice;
+    }
+
+    /**
      * Returns the slice actions presented in this view.
+     * <p>
+     * Note that these may be different from {@link SliceMetadata#getSliceActions()} if the actions
+     * set on the view have been adjusted using {@link #setSliceActions(List)}.
      */
     @Nullable
     public List<SliceItem> getSliceActions() {
