@@ -16,8 +16,10 @@
 
 package androidx.webkit.internal;
 
+import android.webkit.ServiceWorkerWebSettings;
 import android.webkit.WebSettings;
 
+import org.chromium.support_lib_boundary.ServiceWorkerWebSettingsBoundaryInterface;
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -41,5 +43,17 @@ public class WebkitToCompatConverter {
     public WebSettingsAdapter convertSettings(WebSettings webSettings) {
         return new WebSettingsAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebSettingsBoundaryInterface.class, mImpl.convertSettings(webSettings)));
+    }
+
+    /**
+     * Return a {@link ServiceWorkerWebSettingsBoundaryInterface} linked to the given
+     * {@link ServiceWorkerWebSettings }such that calls on either of those objects affect the other
+     * object.
+     */
+    public ServiceWorkerWebSettingsBoundaryInterface convertServiceWorkerSettings(
+            ServiceWorkerWebSettings settings) {
+        return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                ServiceWorkerWebSettingsBoundaryInterface.class,
+                mImpl.convertServiceWorkerSettings(settings));
     }
 }

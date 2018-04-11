@@ -16,18 +16,11 @@
 
 package androidx.webkit;
 
-import android.os.Build;
-import android.webkit.ServiceWorkerController;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
-import androidx.webkit.internal.FrameworkServiceWorkerController;
-import androidx.webkit.internal.ServiceWorkerControllerAdapter;
-import androidx.webkit.internal.WebViewFeatureInternal;
-import androidx.webkit.internal.WebViewGlueCommunicator;
+import androidx.webkit.internal.ServiceWorkerControllerImpl;
 
 /**
  * Manages Service Workers used by WebView.
@@ -68,34 +61,7 @@ public abstract class ServiceWorkerControllerCompat {
     }
 
     private static class LAZY_HOLDER {
-        static final ServiceWorkerControllerCompat INSTANCE = createController();
-
-        @SuppressWarnings("NewApi")
-        private static ServiceWorkerControllerCompat createController() {
-            WebViewFeatureInternal webviewFeature =
-                    WebViewFeatureInternal.getFeature(WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
-            if (webviewFeature.isSupportedByFramework()) {
-                return getFrameworkControllerCompat();
-            } else if (webviewFeature.isSupportedByWebView()) {
-                return getSupportLibraryControllerCompat();
-            } else {
-                throw WebViewFeatureInternal.getUnsupportedOperationException();
-            }
-        }
-    }
-
-    /**
-     * Return a version of {@link ServiceWorkerControllerCompat} that only uses framework APIs.
-     */
-    @RequiresApi(Build.VERSION_CODES.N)
-    private static ServiceWorkerControllerCompat getFrameworkControllerCompat() {
-        return new FrameworkServiceWorkerController(
-                ServiceWorkerController.getInstance());
-    }
-
-    private static ServiceWorkerControllerCompat getSupportLibraryControllerCompat() {
-        return new ServiceWorkerControllerAdapter(
-                WebViewGlueCommunicator.getFactory().getServiceWorkerController());
+        static final ServiceWorkerControllerCompat INSTANCE = new ServiceWorkerControllerImpl();
     }
 
     /**
