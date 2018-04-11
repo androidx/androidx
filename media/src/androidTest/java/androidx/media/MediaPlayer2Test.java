@@ -37,6 +37,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
@@ -84,7 +85,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Before
     @Override
-    public void setUp() throws Exception {
+    public void setUp() throws Throwable {
         super.setUp();
         mRecordedFilePath = new File(Environment.getExternalStorageDirectory(),
                 "mediaplayer_record.out").getAbsolutePath();
@@ -100,61 +101,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
     }
 
-    // Bug 13652927
-    public void testVorbisCrash() throws Exception {
-        MediaPlayer2 mp = mPlayer;
-        MediaPlayer2 mp2 = mPlayer2;
-        AssetFileDescriptor afd2 = mResources.openRawResourceFd(R.raw.testmp3_2);
-        mp2.setDataSource(new DataSourceDesc.Builder()
-                .setDataSource(afd2.getFileDescriptor(), afd2.getStartOffset(), afd2.getLength())
-                .build());
-        final Monitor onPrepareCalled = new Monitor();
-        final Monitor onErrorCalled = new Monitor();
-        MediaPlayer2.MediaPlayer2EventCallback ecb = new MediaPlayer2.MediaPlayer2EventCallback() {
-            @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
-                if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
-                    onPrepareCalled.signal();
-                }
-            }
-
-            @Override
-            public void onError(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
-                onErrorCalled.signal();
-            }
-        };
-        mp2.setMediaPlayer2EventCallback(mExecutor, ecb);
-        mp2.prepare();
-        onPrepareCalled.waitForSignal();
-        afd2.close();
-        mp2.clearMediaPlayer2EventCallback();
-
-        mp2.loopCurrent(true);
-        mp2.play();
-
-        for (int i = 0; i < 20; i++) {
-            try {
-                AssetFileDescriptor afd = mResources.openRawResourceFd(R.raw.bug13652927);
-                mp.setDataSource(new DataSourceDesc.Builder()
-                        .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(),
-                            afd.getLength())
-                        .build());
-                mp.setMediaPlayer2EventCallback(mExecutor, ecb);
-                onPrepareCalled.reset();
-                mp.prepare();
-                onErrorCalled.waitForSignal();
-                afd.close();
-            } catch (Exception e) {
-                // expected to fail
-                Log.i("@@@", "failed: " + e);
-            }
-            Thread.sleep(500);
-            assertTrue("media player died",
-                    mp2.getPlayerState() == MediaPlayerBase.PLAYER_STATE_PLAYING);
-            mp.reset();
-        }
-    }
-
+    @Test
+    @MediumTest
     public void testPlayNullSourcePath() throws Exception {
         final Monitor onSetDataSourceCalled = new Monitor();
         MediaPlayer2.MediaPlayer2EventCallback ecb = new MediaPlayer2.MediaPlayer2EventCallback() {
@@ -175,6 +123,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         onSetDataSourceCalled.waitForSignal();
     }
 
+    @Test
+    @LargeTest
     public void testPlayAudioFromDataURI() throws Exception {
         final int mp3Duration = 34909;
         final int tolerance = 70;
@@ -223,9 +173,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                     .setLegacyStreamType(AudioManager.STREAM_MUSIC)
                     .build();
             mp.setAudioAttributes(attributes);
-            /* FIXME: ensure screen is on while testing.
-            mp.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
-            */
 
             assertFalse(mp.getPlayerState() == MediaPlayerBase.PLAYER_STATE_PLAYING);
             onPlayCalled.reset();
@@ -287,6 +234,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
     }
 
+    @Test
+    @LargeTest
     public void testPlayAudio() throws Exception {
         final int resid = R.raw.testmp3_2;
         final int mp3Duration = 34909;
@@ -417,7 +366,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                         .setInternalLegacyStreamType(AudioManager.STREAM_MUSIC)
                         .build();
                 mp.setAudioAttributes(attributes);
-                mp.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
 
                 assertFalse(mp.isPlaying());
                 onPlayCalled.reset();
@@ -448,6 +396,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
     */
 
+    @Test
+    @LargeTest
     public void testPlayAudioLooping() throws Exception {
         final int resid = R.raw.testmp3;
 
@@ -465,8 +415,10 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                         @Override
                         public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd,
                                 int what, int extra) {
-                            Log.i("@@@", "got oncompletion");
-                            onCompletionCalled.signal();
+                            if (what == MediaPlayer2.MEDIA_INFO_PLAYBACK_COMPLETE) {
+                                Log.i("@@@", "got oncompletion");
+                                onCompletionCalled.signal();
+                            }
                         }
 
                         @Override
@@ -503,6 +455,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
     }
 
+    @Test
+    @LargeTest
     public void testPlayMidi() throws Exception {
         final int resid = R.raw.midi8sec;
         final int midiDuration = 8000;
@@ -1462,9 +1416,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             return; // skip;
         }
 
-        /* FIXME: find out counter part of waitForIdleSync.
-        getInstrumentation().waitForIdleSync();
-        */
+        mInstrumentation.waitForIdleSync();
 
         MediaPlayer2.MediaPlayer2EventCallback ecb = new MediaPlayer2.MediaPlayer2EventCallback() {
             @Override
@@ -1730,6 +1682,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
      *  This test assumes the resources being tested are between 8 and 14 seconds long
      *  The ones being used here are 10 seconds long.
      */
+    @Test
+    @LargeTest
     public void testResumeAtEnd() throws Throwable {
         int testsRun = testResumeAtEnd(R.raw.loudsoftmp3)
                 + testResumeAtEnd(R.raw.loudsoftwav)

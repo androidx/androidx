@@ -832,10 +832,7 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      *
      *  Additional vendor-specific fields may also be present in
      *  the return value.
-     *  @hide
-     *  TODO: This method is not ready for public. Currently returns metrics data in MediaPlayer1.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public abstract PersistableBundle getMetrics();
 
     /**
@@ -2022,5 +2019,101 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
         public ProvisioningServerErrorException(String detailMessage) {
             super(detailMessage);
         }
+    }
+
+    /**
+     * Definitions for the metrics that are reported via the {@link #getMetrics} call.
+     */
+    public static final class MetricsConstants {
+        private MetricsConstants() {}
+
+        /**
+         * Key to extract the MIME type of the video track
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is a String.
+         */
+        public static final String MIME_TYPE_VIDEO = "android.media.mediaplayer.video.mime";
+
+        /**
+         * Key to extract the codec being used to decode the video track
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is a String.
+         */
+        public static final String CODEC_VIDEO = "android.media.mediaplayer.video.codec";
+
+        /**
+         * Key to extract the width (in pixels) of the video track
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is an integer.
+         */
+        public static final String WIDTH = "android.media.mediaplayer.width";
+
+        /**
+         * Key to extract the height (in pixels) of the video track
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is an integer.
+         */
+        public static final String HEIGHT = "android.media.mediaplayer.height";
+
+        /**
+         * Key to extract the count of video frames played
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is an integer.
+         */
+        public static final String FRAMES = "android.media.mediaplayer.frames";
+
+        /**
+         * Key to extract the count of video frames dropped
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is an integer.
+         */
+        public static final String FRAMES_DROPPED = "android.media.mediaplayer.dropped";
+
+        /**
+         * Key to extract the MIME type of the audio track
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is a String.
+         */
+        public static final String MIME_TYPE_AUDIO = "android.media.mediaplayer.audio.mime";
+
+        /**
+         * Key to extract the codec being used to decode the audio track
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is a String.
+         */
+        public static final String CODEC_AUDIO = "android.media.mediaplayer.audio.codec";
+
+        /**
+         * Key to extract the duration (in milliseconds) of the
+         * media being played
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is a long.
+         */
+        public static final String DURATION = "android.media.mediaplayer.durationMs";
+
+        /**
+         * Key to extract the playing time (in milliseconds) of the
+         * media being played
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is a long.
+         */
+        public static final String PLAYING = "android.media.mediaplayer.playingMs";
+
+        /**
+         * Key to extract the count of errors encountered while
+         * playing the media
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is an integer.
+         */
+        public static final String ERRORS = "android.media.mediaplayer.err";
+
+        /**
+         * Key to extract an (optional) error code detected while
+         * playing the media
+         * from the {@link MediaPlayer2#getMetrics} return value.
+         * The value is an integer.
+         */
+        public static final String ERROR_CODE = "android.media.mediaplayer.errcode";
+
     }
 }
