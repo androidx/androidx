@@ -1519,7 +1519,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     private void setPlaybackParamsInternal(final PlaybackParams params) {
         PlaybackParams current = mPlayer.getPlaybackParams();
         mPlayer.setPlaybackParams(params);
-        if (Math.abs(current.getSpeed() - params.getSpeed()) > 0.0001f) {
+        if (current.getSpeed() != params.getSpeed()) {
             notifyPlayerEvent(new PlayerEventNotifier() {
                 @Override
                 public void notify(PlayerEventCallback cb) {
