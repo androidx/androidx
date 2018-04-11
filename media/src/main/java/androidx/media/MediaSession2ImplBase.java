@@ -60,7 +60,7 @@ import java.util.concurrent.RejectedExecutionException;
 @TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     static final String TAG = "MS2ImplBase";
-    static final boolean DEBUG = true; // TODO: Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final Object mLock = new Object();
 

@@ -30,6 +30,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -37,9 +38,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
- * @hide
- * Represents an ongoing {@link MediaSession2} or a {@link MediaSessionService2}.
- * If it's representing a session service, it may not be ongoing.
+ * Represents an ongoing {@link MediaSession2}.
  * <p>
  * This may be passed to apps by the session owner to allow them to create a
  * {@link MediaController2} to communicate with the session.
@@ -50,15 +49,31 @@ import java.util.List;
 //   - Stop implementing Parcelable for updatable support
 //   - Represent session and library service (formerly browser service) in one class.
 //     Previously MediaSession.Token was for session and ComponentName was for service.
-@RestrictTo(LIBRARY_GROUP)
 public final class SessionToken2 {
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {TYPE_SESSION, TYPE_SESSION_SERVICE, TYPE_LIBRARY_SERVICE})
     public @interface TokenType {
     }
 
+    /**
+     * Type for {@link MediaSession2}.
+     */
     public static final int TYPE_SESSION = 0;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int TYPE_SESSION_SERVICE = 1;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int TYPE_LIBRARY_SERVICE = 2;
 
     //private final SessionToken2Provider mProvider;
@@ -79,14 +94,17 @@ public final class SessionToken2 {
     private final String mServiceName;
     private final String mId;
     private final MediaSessionCompat.Token mSessionCompatToken;
+    private final ComponentName mComponentName;
 
     /**
+     * @hide
      * Constructor for the token. You can only create token for session service or library service
      * to use by {@link MediaController2} or {@link MediaBrowser2}.
      *
      * @param context The context.
      * @param serviceComponent The component name of the media browser service.
      */
+    @RestrictTo(LIBRARY_GROUP)
     public SessionToken2(@NonNull Context context, @NonNull ComponentName serviceComponent) {
         this(context, serviceComponent, UID_UNKNOWN);
     }
@@ -106,6 +124,7 @@ public final class SessionToken2 {
         if (serviceComponent == null) {
             throw new IllegalArgumentException("serviceComponent shouldn't be null");
         }
+        mComponentName = serviceComponent;
         mPackageName = serviceComponent.getPackageName();
         mServiceName = serviceComponent.getClassName();
         // Calculate uid if it's not specified.
@@ -117,11 +136,9 @@ public final class SessionToken2 {
                 throw new IllegalArgumentException("Cannot find package " + mPackageName);
             }
         }
-
         mUid = uid;
 
         // Infer id and type from package name and service name
-        // TODO(jaewan): Handle multi-user.
         String id = getSessionIdFromService(manager, MediaLibraryService2.SERVICE_INTERFACE,
                 serviceComponent);
         if (id != null) {
@@ -144,12 +161,14 @@ public final class SessionToken2 {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public SessionToken2(int uid, int type, String packageName, String serviceName,
+    SessionToken2(int uid, int type, String packageName, String serviceName,
             String id, MediaSessionCompat.Token sessionCompatToken) {
         mUid = uid;
         mType = type;
         mPackageName = packageName;
         mServiceName = serviceName;
+        mComponentName = (mType == TYPE_SESSION) ? null
+                : new ComponentName(packageName, serviceName);
         mId = id;
         mSessionCompatToken = sessionCompatToken;
     }
@@ -193,14 +212,14 @@ public final class SessionToken2 {
     /**
      * @return package name
      */
-    public String getPackageName() {
+    public @NonNull String getPackageName() {
         return mPackageName;
     }
 
     /**
-     * @return service name
+     * @return service name. Can be {@code null} for TYPE_SESSION.
      */
-    public String getServiceName() {
+    public @Nullable String getServiceName() {
         return mServiceName;
     }
 
@@ -210,8 +229,7 @@ public final class SessionToken2 {
      */
     @RestrictTo(LIBRARY_GROUP)
     public ComponentName getComponentName() {
-        // TODO: Cache the component name?
-        return mType == TYPE_SESSION ? null : new ComponentName(mPackageName, mServiceName);
+        return mComponentName;
     }
 
     /**
@@ -224,7 +242,6 @@ public final class SessionToken2 {
     /**
      * @return type of the token
      * @see #TYPE_SESSION
-     * @see #TYPE_SESSION_SERVICE
      */
     public @TokenType int getType() {
         return mType;

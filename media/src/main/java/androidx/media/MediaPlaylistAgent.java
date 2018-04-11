@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
  * MediaPlaylistAgent is the abstract class an application needs to derive from to pass an object
  * to a MediaSession2 that will override default playlist handling behaviors. It contains a set of
  * notify methods to signal MediaSession2 that playlist-related state has changed.
@@ -43,7 +42,6 @@ import java.util.concurrent.Executor;
  * Used by {@link MediaSession2} and {@link MediaController2}.
  */
 // This class only includes methods that contain {@link MediaItem2}.
-@RestrictTo(LIBRARY_GROUP)
 public abstract class MediaPlaylistAgent {
     private static final String TAG = "MediaPlaylistAgent";
 
@@ -151,7 +149,11 @@ public abstract class MediaPlaylistAgent {
     }
 
     /**
-     * TODO: add javadoc
+     * Notifies the current playlist and playlist metadata. Call this API when the playlist is
+     * changed.
+     * <p>
+     * Registered {@link PlaylistEventCallback} would receive this event through the
+     * {@link PlaylistEventCallback#onPlaylistChanged(MediaPlaylistAgent, List, MediaMetadata2)}.
      */
     public final void notifyPlaylistChanged() {
         SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
@@ -171,7 +173,10 @@ public abstract class MediaPlaylistAgent {
     }
 
     /**
-     * TODO: add javadoc
+     * Notifies the current playlist metadata. Call this API when the playlist metadata is changed.
+     * <p>
+     * Registered {@link PlaylistEventCallback} would receive this event through the
+     * {@link PlaylistEventCallback#onPlaylistMetadataChanged(MediaPlaylistAgent, MediaMetadata2)}.
      */
     public final void notifyPlaylistMetadataChanged() {
         SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
@@ -189,7 +194,10 @@ public abstract class MediaPlaylistAgent {
     }
 
     /**
-     * TODO: add javadoc
+     * Notifies the current shuffle mode. Call this API when the shuffle mode is changed.
+     * <p>
+     * Registered {@link PlaylistEventCallback} would receive this event through the
+     * {@link PlaylistEventCallback#onShuffleModeChanged(MediaPlaylistAgent, int)}.
      */
     public final void notifyShuffleModeChanged() {
         SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
@@ -207,7 +215,10 @@ public abstract class MediaPlaylistAgent {
     }
 
     /**
-     * TODO: add javadoc
+     * Notifies the current repeat mode. Call this API when the repeat mode is changed.
+     * <p>
+     * Registered {@link PlaylistEventCallback} would receive this event through the
+     * {@link PlaylistEventCallback#onRepeatModeChanged(MediaPlaylistAgent, int)}.
      */
     public final void notifyRepeatModeChanged() {
         SimpleArrayMap<PlaylistEventCallback, Executor> callbacks = getCallbacks();
@@ -232,10 +243,14 @@ public abstract class MediaPlaylistAgent {
     public abstract @Nullable List<MediaItem2> getPlaylist();
 
     /**
-     * Sets the playlist.
+     * Sets the playlist with the metadata.
+     * <p>
+     * When the playlist is changed, call {@link #notifyPlaylistChanged()} to notify changes to the
+     * registered callbacks.
      *
      * @param list playlist
      * @param metadata metadata of the playlist
+     * @see #notifyPlaylistChanged()
      */
     public abstract void setPlaylist(@NonNull List<MediaItem2> list,
             @Nullable MediaMetadata2 metadata);
@@ -248,9 +263,13 @@ public abstract class MediaPlaylistAgent {
     public abstract @Nullable MediaMetadata2 getPlaylistMetadata();
 
     /**
-     * Updates the playlist metadata
+     * Updates the playlist metadata.
+     * <p>
+     * When the playlist metadata is changed, call {@link #notifyPlaylistMetadataChanged()} to
+     * notify changes to the registered callbacks.
      *
      * @param metadata metadata of the playlist
+     * @see #notifyPlaylistMetadataChanged()
      */
     public abstract void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata);
 
@@ -261,7 +280,8 @@ public abstract class MediaPlaylistAgent {
 
     /**
      * Adds the media item to the playlist at position index. Index equals or greater than
-     * the current playlist size will add the item at the end of the playlist.
+     * the current playlist size (e.g. {@link Integer#MAX_VALUE}) will add the item at the end of
+     * the playlist.
      * <p>
      * This will not change the currently playing media item.
      * If index is less than or equal to the current index of the playlist,
@@ -317,13 +337,17 @@ public abstract class MediaPlaylistAgent {
     public abstract @RepeatMode int getRepeatMode();
 
     /**
-     * Sets the repeat mode
+     * Sets the repeat mode.
+     * <p>
+     * When the repeat mode is changed, call {@link #notifyRepeatModeChanged()} to notify changes
+     * to the registered callbacks.
      *
      * @param repeatMode repeat mode
      * @see #REPEAT_MODE_NONE
      * @see #REPEAT_MODE_ONE
      * @see #REPEAT_MODE_ALL
      * @see #REPEAT_MODE_GROUP
+     * @see #notifyRepeatModeChanged()
      */
     public abstract void setRepeatMode(@RepeatMode int repeatMode);
 
@@ -338,12 +362,16 @@ public abstract class MediaPlaylistAgent {
     public abstract @ShuffleMode int getShuffleMode();
 
     /**
-     * Sets the shuffle mode
+     * Sets the shuffle mode.
+     * <p>
+     * When the shuffle mode is changed, call {@link #notifyShuffleModeChanged()} to notify changes
+     * to the registered callbacks.
      *
      * @param shuffleMode The shuffle mode
      * @see #SHUFFLE_MODE_NONE
      * @see #SHUFFLE_MODE_ALL
      * @see #SHUFFLE_MODE_GROUP
+     * @see #notifyShuffleModeChanged()
      */
     public abstract void setShuffleMode(@ShuffleMode int shuffleMode);
 
