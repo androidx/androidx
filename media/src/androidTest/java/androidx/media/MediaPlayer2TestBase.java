@@ -32,6 +32,7 @@ import android.media.MediaTimestamp;
 import android.media.SubtitleData;
 import android.media.TimedMetaData;
 import android.net.Uri;
+import android.os.PersistableBundle;
 import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
@@ -49,6 +50,7 @@ import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -610,6 +612,42 @@ public class MediaPlayer2TestBase {
             Thread.sleep(playTime);
         }
 
+        // validate a few MediaMetrics.
+        PersistableBundle metrics = mPlayer.getMetrics();
+        if (metrics == null) {
+            fail("MediaPlayer.getMetrics() returned null metrics");
+        } else if (metrics.isEmpty()) {
+            fail("MediaPlayer.getMetrics() returned empty metrics");
+        } else {
+
+            int size = metrics.size();
+            Set<String> keys = metrics.keySet();
+
+            if (keys == null) {
+                fail("MediaMetricsSet returned no keys");
+            } else if (keys.size() != size) {
+                fail("MediaMetricsSet.keys().size() mismatch MediaMetricsSet.size()");
+            }
+
+            // we played something; so one of these should be non-null
+            String vmime = metrics.getString(MediaPlayer2.MetricsConstants.MIME_TYPE_VIDEO, null);
+            String amime = metrics.getString(MediaPlayer2.MetricsConstants.MIME_TYPE_AUDIO, null);
+            if (vmime == null && amime == null) {
+                fail("getMetrics() returned neither video nor audio mime value");
+            }
+
+            long duration = metrics.getLong(MediaPlayer2.MetricsConstants.DURATION, -2);
+            if (duration == -2) {
+                fail("getMetrics() didn't return a duration");
+            }
+            long playing = metrics.getLong(MediaPlayer2.MetricsConstants.PLAYING, -2);
+            if (playing == -2) {
+                fail("getMetrics() didn't return a playing time");
+            }
+            if (!keys.contains(MediaPlayer2.MetricsConstants.PLAYING)) {
+                fail("MediaMetricsSet.keys() missing: " + MediaPlayer2.MetricsConstants.PLAYING);
+            }
+        }
         mPlayer.reset();
     }
 
