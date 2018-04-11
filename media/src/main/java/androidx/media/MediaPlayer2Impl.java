@@ -158,6 +158,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         mHandlerThread.start();
         Looper looper = mHandlerThread.getLooper();
         mTaskHandler = new Handler(looper);
+
+        // TODO: To make sure MediaPlayer1 listeners work, the caller thread should have a looper.
+        // Fix the framework or document this behavior.
         mPlayer = new MediaPlayer();
         mPlayerState = PLAYER_STATE_IDLE;
         mBufferingState = BUFFERING_STATE_UNKNOWN;
@@ -872,10 +875,20 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @Override
     public void reset() {
         mPlayer.reset();
+
+        mBufferedPercentageCurrent.set(0);
+        mBufferedPercentageNext.set(0);
+        mVolume = 1.0f;
+
+        synchronized (mLock) {
+            mAudioAttributes = null;
+            mMp2EventCallbackRecords.clear();
+            mPlayerEventCallbackMap.clear();
+            mDrmEventCallbackRecords.clear();
+        }
         setPlayerState(PLAYER_STATE_IDLE);
         setBufferingState(BUFFERING_STATE_UNKNOWN);
         setUpListeners();
-        /* FIXME: reset other internal variables. */
     }
 
     /**
