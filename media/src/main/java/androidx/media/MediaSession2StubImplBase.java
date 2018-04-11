@@ -75,6 +75,7 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
+import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_GET_CURRENT_MEDIA_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM;
@@ -131,7 +132,7 @@ import java.util.Set;
 class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
 
     private static final String TAG = "MS2StubImplBase";
-    private static final boolean DEBUG = true; // TODO: Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static final SparseArray<SessionCommand2> sCommandsForOnCommandRequest =
             new SparseArray<>();
@@ -531,7 +532,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
     }
 
     void notifyCurrentMediaItemChanged(final MediaItem2 item) {
-        notifyAll(COMMAND_CODE_PLAYLIST_GET_LIST, new Session2Runnable() {
+        notifyAll(COMMAND_CODE_PLAYLIST_GET_CURRENT_MEDIA_ITEM, new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
@@ -622,7 +623,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
 
     void notifyPlaylistChanged(final List<MediaItem2> playlist,
             final MediaMetadata2 metadata) {
-        notifyAll(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST, new Session2Runnable() {
+        notifyAll(COMMAND_CODE_PLAYLIST_GET_LIST, new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
@@ -866,29 +867,29 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                             allowedCommands.toBundle());
                     resultData.putInt(ARGUMENT_PLAYER_STATE, mSession.getPlayerState());
                     resultData.putInt(ARGUMENT_BUFFERING_STATE, mSession.getBufferingState());
-                    synchronized (mLock) {
-                        resultData.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
-                                mSession.getPlaybackStateCompat());
-                        // TODO: Insert MediaMetadataCompat
-                    }
+                    resultData.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
+                            mSession.getPlaybackStateCompat());
                     resultData.putInt(ARGUMENT_REPEAT_MODE, mSession.getRepeatMode());
                     resultData.putInt(ARGUMENT_SHUFFLE_MODE, mSession.getShuffleMode());
                     final List<MediaItem2> playlist = allowedCommands.hasCommand(
-                            SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
-                            ? mSession.getPlaylist() : null;
+                            COMMAND_CODE_PLAYLIST_GET_LIST) ? mSession.getPlaylist() : null;
                     if (playlist != null) {
                         resultData.putParcelableArray(ARGUMENT_PLAYLIST,
                                 MediaUtils2.toMediaItem2ParcelableArray(playlist));
                     }
                     final MediaItem2 currentMediaItem =
-                            allowedCommands.hasCommand(COMMAND_CODE_PLAYLIST_GET_LIST)
+                            allowedCommands.hasCommand(COMMAND_CODE_PLAYLIST_GET_CURRENT_MEDIA_ITEM)
                                     ? mSession.getCurrentMediaItem() : null;
                     if (currentMediaItem != null) {
                         resultData.putBundle(ARGUMENT_MEDIA_ITEM, currentMediaItem.toBundle());
                     }
                     resultData.putBundle(ARGUMENT_PLAYBACK_INFO,
                             mSession.getPlaybackInfo().toBundle());
-
+                    final MediaMetadata2 playlistMetadata = mSession.getPlaylistMetadata();
+                    if (playlistMetadata != null) {
+                        resultData.putBundle(ARGUMENT_PLAYLIST_METADATA,
+                                playlistMetadata.toBundle());
+                    }
                     // Double check if session is still there, because close() can be
                     // called in another thread.
                     if (mSession.isClosed()) {
