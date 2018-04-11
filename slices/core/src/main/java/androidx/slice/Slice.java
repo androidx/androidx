@@ -455,17 +455,34 @@ public final class Slice {
     public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
         sb.append(indent);
-        sb.append("slice: ");
-        sb.append("\n");
-        indent += "   ";
+        sb.append("slice ");
+        addHints(sb, mHints);
+        sb.append("{\n");
+        String nextIndent = indent + "  ";
         for (int i = 0; i < mItems.length; i++) {
             SliceItem item = mItems[i];
-            sb.append(item.toString(indent));
-            if (!FORMAT_SLICE.equals(item.getFormat())) {
-                sb.append("\n");
-            }
+            sb.append(item.toString(nextIndent));
         }
+        sb.append(indent);
+        sb.append("}");
         return sb.toString();
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public static void addHints(StringBuilder sb, String[] hints) {
+        if (hints.length == 0) return;
+
+        sb.append("(");
+        int end = hints.length - 1;
+        for (int i = 0; i < end; i++) {
+            sb.append(hints[i]);
+            sb.append(", ");
+        }
+        sb.append(hints[end]);
+        sb.append(") ");
     }
 
     /**
