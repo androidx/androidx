@@ -28,6 +28,7 @@ import android.media.MediaPlayer;
 import android.media.MediaTimestamp;
 import android.media.PlaybackParams;
 import android.media.ResourceBusyException;
+import android.media.SubtitleData;
 import android.media.SyncParams;
 import android.media.TimedMetaData;
 import android.media.UnsupportedSchemeException;
@@ -873,6 +874,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         mPlayer.reset();
         setPlayerState(PLAYER_STATE_IDLE);
         setBufferingState(BUFFERING_STATE_UNKNOWN);
+        setUpListeners();
         /* FIXME: reset other internal variables. */
     }
 
@@ -1738,6 +1740,31 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     public void notify(MediaPlayer2EventCallback cb) {
                         cb.onInfo(MediaPlayer2Impl.this, mCurrentDSD,
                                 MEDIA_INFO_BUFFERING_UPDATE, percent);
+                    }
+                });
+            }
+        });
+        mPlayer.setOnMediaTimeDiscontinuityListener(
+                new MediaPlayer.OnMediaTimeDiscontinuityListener() {
+                    @Override
+                    public void onMediaTimeDiscontinuity(
+                            MediaPlayer mp, final MediaTimestamp timestamp) {
+                        notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                            @Override
+                            public void notify(MediaPlayer2EventCallback cb) {
+                                cb.onMediaTimeDiscontinuity(
+                                        MediaPlayer2Impl.this, mCurrentDSD, timestamp);
+                            }
+                        });
+                    }
+                });
+        mPlayer.setOnSubtitleDataListener(new MediaPlayer.OnSubtitleDataListener() {
+            @Override
+            public  void onSubtitleData(MediaPlayer mp, final SubtitleData data) {
+                notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                    @Override
+                    public void notify(MediaPlayer2EventCallback cb) {
+                        cb.onSubtitleData(MediaPlayer2Impl.this, mCurrentDSD, data);
                     }
                 });
             }

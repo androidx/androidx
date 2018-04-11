@@ -25,6 +25,7 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaTimestamp;
+import android.media.SubtitleData;
 import android.media.TimedMetaData;
 import android.net.Uri;
 import android.support.test.rule.ActivityTestRule;
@@ -65,6 +66,7 @@ public class MediaPlayer2TestBase {
     protected Monitor mOnCompletionCalled = new Monitor();
     protected Monitor mOnInfoCalled = new Monitor();
     protected Monitor mOnErrorCalled = new Monitor();
+    protected Monitor mOnMediaTimeDiscontinuityCalled = new Monitor();
     protected int mCallStatus;
 
     protected Context mContext;
@@ -344,11 +346,11 @@ public class MediaPlayer2TestBase {
             }
 
             @Override
-            public void onMediaTimeChanged(MediaPlayer2 mp, DataSourceDesc dsd,
+            public void onMediaTimeDiscontinuity(MediaPlayer2 mp, DataSourceDesc dsd,
                     MediaTimestamp timestamp) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.MediaPlayer2EventCallback ecb : ecbs) {
-                        ecb.onMediaTimeChanged(mp, dsd, timestamp);
+                        ecb.onMediaTimeDiscontinuity(mp, dsd, timestamp);
                     }
                 }
             }
@@ -358,6 +360,15 @@ public class MediaPlayer2TestBase {
                 synchronized (cbLock) {
                     for (MediaPlayer2.MediaPlayer2EventCallback ecb : ecbs) {
                         ecb.onCommandLabelReached(mp, label);
+                    }
+                }
+            }
+            @Override
+            public  void onSubtitleData(MediaPlayer2 mp, DataSourceDesc dsd,
+                    final SubtitleData data) {
+                synchronized (cbLock) {
+                    for (MediaPlayer2.MediaPlayer2EventCallback ecb : ecbs) {
+                        ecb.onSubtitleData(mp, dsd, data);
                     }
                 }
             }
