@@ -31,14 +31,12 @@ import androidx.media.MediaSession2.SessionCallback;
 import java.util.List;
 
 /**
- * @hide
  * Define a command that a {@link MediaController2} can send to a {@link MediaSession2}.
  * <p>
  * If {@link #getCommandCode()} isn't {@link #COMMAND_CODE_CUSTOM}), it's predefined command.
  * If {@link #getCommandCode()} is {@link #COMMAND_CODE_CUSTOM}), it's custom command and
  * {@link #getCustomCommand()} shouldn't be {@code null}.
  */
-@RestrictTo(LIBRARY_GROUP)
 public final class SessionCommand2 {
     /**
      * Command code for the custom command which can be defined by string action in the
@@ -194,10 +192,6 @@ public final class SessionCommand2 {
     /**
      * Command code for {@link MediaController2#getPlaylist()}. This will expose metadata
      * information to the controller.
-     * <p>
-     * Command would be sent directly to the playlist agent if the session doesn't reject the
-     * request through the
-     * {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)}.
      */
     public static final int COMMAND_CODE_PLAYLIST_GET_LIST = 18;
 
@@ -213,10 +207,6 @@ public final class SessionCommand2 {
     /**
      * Command code for {@link MediaController2#getPlaylistMetadata()}. This will expose
      * metadata information to the controller.
-     * <p>
-     * Command would be sent directly to the playlist agent if the session doesn't reject the
-     * request through the
-     * {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)}.
      */
     public static final int COMMAND_CODE_PLAYLIST_GET_LIST_METADATA = 20;
 
@@ -228,6 +218,12 @@ public final class SessionCommand2 {
      * {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)}.
      */
     public static final int COMMAND_CODE_PLAYLIST_SET_LIST_METADATA = 21;
+
+    /**
+     * Command code for {@link MediaController2#getCurrentMediaItem()}. This will expose
+     * metadata information to the controller.
+     */
+    public static final int COMMAND_CODE_PLAYLIST_GET_CURRENT_MEDIA_ITEM = 20;
 
     /**
      * Command code for {@link MediaController2#playFromMediaId(String, Bundle)}.
@@ -279,40 +275,53 @@ public final class SessionCommand2 {
      */
     public static final int COMMAND_CODE_SESSION_SELECT_ROUTE = 38;
 
-
     /**
+     * @hide
      * Command code for {@link MediaBrowser2#getChildren(String, int, int, Bundle)}.
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_GET_CHILDREN = 29;
 
     /**
+     * @hide
      * Command code for {@link MediaBrowser2#getItem(String)}.
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_GET_ITEM = 30;
 
     /**
+     * @hide
      * Command code for {@link MediaBrowser2#getLibraryRoot(Bundle)}.
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT = 31;
 
     /**
+     * @hide
      * Command code for {@link MediaBrowser2#getSearchResult(String, int, int, Bundle)}.
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT = 32;
 
     /**
+     * @hide
      * Command code for {@link MediaBrowser2#search(String, Bundle)}.
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_SEARCH = 33;
 
     /**
+     * @hide
      * Command code for {@link MediaBrowser2#subscribe(String, Bundle)}.
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_SUBSCRIBE = 34;
 
     /**
+     * @hide
      * Command code for {@link MediaBrowser2#unsubscribe(String)}.
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_UNSUBSCRIBE = 35;
 
     /**
@@ -429,7 +438,6 @@ public final class SessionCommand2 {
             return false;
         }
         SessionCommand2 other = (SessionCommand2) obj;
-        // TODO(jaewan): Compare Commands with the generated UUID, as we're doing for the MI2.
         return mCommandCode == other.mCommandCode
                 && TextUtils.equals(mCustomCommand, other.mCustomCommand);
     }
