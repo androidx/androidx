@@ -34,14 +34,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
 
 /**
- * @hide
  * Contains metadata about an item, such as the title, artist, etc.
  */
 // New version of MediaMetadata with following changes
 //   - Don't implement Parcelable for updatable support.
 //   - Also support MediaDescription features. MediaDescription is deprecated instead because
 //     it was insufficient for controller to display media contents.
-@RestrictTo(LIBRARY_GROUP)
 public final class MediaMetadata2 {
     private static final String TAG = "MediaMetadata2";
 
@@ -339,8 +337,7 @@ public final class MediaMetadata2 {
      * service providing the content. If used, this should be a persistent
      * unique key for the underlying content.  It may be used with
      * {@link MediaController2#playFromMediaId(String, Bundle)}
-     * to initiate playback when provided by a {@link MediaBrowser2} connected to
-     * the same app.
+     * to initiate playback.
      *
      * @see Builder#putText(String, CharSequence)
      * @see Builder#putString(String, String)
@@ -353,7 +350,7 @@ public final class MediaMetadata2 {
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
      * information about the Uri of the content. This value is specific to the service providing the
      * content. It may be used with {@link MediaController2#playFromUri(Uri, Bundle)}
-     * to initiate playback when provided by a {@link MediaBrowser2} connected to the same app.
+     * to initiate playback.
      *
      * @see Builder#putText(String, CharSequence)
      * @see Builder#putString(String, String)
@@ -714,7 +711,6 @@ public final class MediaMetadata2 {
         if (key == null) {
             throw new IllegalArgumentException("key shouldn't be null");
         }
-        // TODO(jaewan): Add backward compatibility
         Rating2 rating = null;
         try {
             rating = Rating2.fromBundle(mBundle.getBundle(key));
@@ -887,7 +883,6 @@ public final class MediaMetadata2 {
          * <li>{@link #METADATA_KEY_DISPLAY_ICON_URI}</li>
          * <li>{@link #METADATA_KEY_MEDIA_ID}</li>
          * <li>{@link #METADATA_KEY_MEDIA_URI}</li>
-         * <li>{@link #METADATA_KEY_RADIO_PROGRAM_NAME}</li>
          * </ul>
          *
          * @param key The key for referencing this value
@@ -932,7 +927,6 @@ public final class MediaMetadata2 {
          * <li>{@link #METADATA_KEY_DISPLAY_ICON_URI}</li>
          * <li>{@link #METADATA_KEY_MEDIA_ID}</li>
          * <li>{@link #METADATA_KEY_MEDIA_URI}</li>
-         * <li>{@link #METADATA_KEY_RADIO_PROGRAM_NAME}</li>
          * </ul>
          *
          * @param key The key for referencing this value
