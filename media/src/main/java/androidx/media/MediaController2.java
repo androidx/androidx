@@ -28,6 +28,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
+import static androidx.media.MediaConstants2.ARGUMENT_ITEM_COUNT;
 import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ID;
 import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
@@ -68,6 +69,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ROUTES_INFO_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEARCH_RESULT_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEEK_COMPLETED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
@@ -687,6 +689,18 @@ public class MediaController2 implements AutoCloseable {
                         mPlaybackStateCompat = state;
                     }
                     mCallback.onSeekCompleted(MediaController2.this, position);
+                    break;
+                }
+                case SESSION_EVENT_ON_SEARCH_RESULT_CHANGED: {
+                    String query = extras.getString(ARGUMENT_QUERY);
+                    if (query == null || !(MediaController2.this instanceof MediaBrowser2)) {
+                        return;
+                    }
+                    int itemCount = extras.getInt(ARGUMENT_ITEM_COUNT, -1);
+                    Bundle searchExtras = extras.getBundle(ARGUMENT_EXTRAS);
+                    ((MediaBrowser2.BrowserCallback) mCallback).onSearchResultChanged(
+                            (MediaBrowser2) MediaController2.this, query, itemCount, searchExtras);
+                    break;
                 }
             }
         }
