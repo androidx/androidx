@@ -29,6 +29,7 @@ import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.widget.SliceLiveData;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 
@@ -96,5 +97,10 @@ class SliceManagerCompat extends SliceManagerBase {
     @Override
     public Collection<Uri> getSliceDescendants(Uri uri) {
         return SliceProviderCompat.getSliceDescendants(mContext, uri);
+    }
+
+    @Override
+    public List<Uri> getPinnedSlices() {
+        return SliceProviderCompat.getPinnedSlices(mContext);
     }
 }

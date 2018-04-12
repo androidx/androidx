@@ -17,6 +17,7 @@
 package androidx.slice;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -44,6 +45,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
@@ -85,6 +87,28 @@ public class SliceManagerTest {
         clearInvocations(mSliceProvider);
         mManager.unpinSlice(uri);
         verify(mSliceProvider, timeout(2000)).onSliceUnpinned(eq(uri));
+    }
+
+    @Test
+    public void testPinList() {
+        Uri uri = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_CONTENT)
+                .authority(mContext.getPackageName())
+                .build();
+        Uri longerUri = uri.buildUpon().appendPath("something").build();
+        try {
+            mManager.pinSlice(uri);
+            mManager.pinSlice(longerUri);
+            verify(mSliceProvider, timeout(2000)).onSlicePinned(eq(longerUri));
+
+            List<Uri> uris = mManager.getPinnedSlices();
+            assertEquals(2, uris.size());
+            assertTrue(uris.contains(uri));
+            assertTrue(uris.contains(longerUri));
+        } finally {
+            mManager.unpinSlice(uri);
+            mManager.unpinSlice(longerUri);
+        }
     }
 
     @Test
