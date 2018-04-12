@@ -30,7 +30,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.PermissionChecker;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +43,7 @@ import java.util.Set;
 class SliceManagerWrapper extends SliceManagerBase {
 
     private final android.app.slice.SliceManager mManager;
-    private final List<SliceSpec> mSpecs;
+    private final Set<SliceSpec> mSpecs;
 
     SliceManagerWrapper(Context context) {
         this(context, context.getSystemService(android.app.slice.SliceManager.class));
@@ -53,7 +52,7 @@ class SliceManagerWrapper extends SliceManagerBase {
     SliceManagerWrapper(Context context, android.app.slice.SliceManager manager) {
         super(context);
         mManager = manager;
-        mSpecs = new ArrayList<>(unwrap(SUPPORTED_SPECS));
+        mSpecs = unwrap(SUPPORTED_SPECS);
     }
 
     @Override
