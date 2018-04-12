@@ -1524,16 +1524,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      */
     public static final int CALL_COMPLETED_PREPARE = 6;
 
-    /** The player just completed a call {@link #releaseDrm}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
-     */
-    public static final int CALL_COMPLETED_RELEASE_DRM = 12;
-
-    /** The player just completed a call {@link #restoreDrmKeys}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
-     */
-    public static final int CALL_COMPLETED_RESTORE_DRM_KEYS = 13;
-
     /** The player just completed a call {@link #seekTo}.
      * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
      */
@@ -1621,8 +1611,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
             CALL_COMPLETED_PAUSE,
             CALL_COMPLETED_PLAY,
             CALL_COMPLETED_PREPARE,
-            CALL_COMPLETED_RELEASE_DRM,
-            CALL_COMPLETED_RESTORE_DRM_KEYS,
             CALL_COMPLETED_SEEK_TO,
             CALL_COMPLETED_SELECT_TRACK,
             CALL_COMPLETED_SET_AUDIO_ATTRIBUTES,
@@ -1673,12 +1661,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      */
     public static final int CALL_STATUS_ERROR_IO = 4;
 
-    /** Status code represents that DRM operation is called before preparing a DRM scheme through
-     *  {@link #prepareDrm}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
-     */
-    public static final int CALL_STATUS_NO_DRM_SCHEME = 5;
-
     /**
      * @hide
      */
@@ -1688,8 +1670,7 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
             CALL_STATUS_INVALID_OPERATION,
             CALL_STATUS_BAD_VALUE,
             CALL_STATUS_PERMISSION_DENIED,
-            CALL_STATUS_ERROR_IO,
-            CALL_STATUS_NO_DRM_SCHEME})
+            CALL_STATUS_ERROR_IO})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP)
     public @interface CallStatus {}
