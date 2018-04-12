@@ -597,6 +597,23 @@ package androidx.core.app {
     method public androidx.core.app.Person.Builder setUri(java.lang.String);
   }
 
+  public final class RemoteActionCompat {
+    ctor public RemoteActionCompat(androidx.core.graphics.drawable.IconCompat, java.lang.CharSequence, java.lang.CharSequence, android.app.PendingIntent);
+    ctor public RemoteActionCompat(androidx.core.app.RemoteActionCompat);
+    method public static androidx.core.app.RemoteActionCompat createFromBundle(android.os.Bundle);
+    method public static androidx.core.app.RemoteActionCompat createFromRemoteAction(android.app.RemoteAction);
+    method public android.app.PendingIntent getActionIntent();
+    method public java.lang.CharSequence getContentDescription();
+    method public androidx.core.graphics.drawable.IconCompat getIcon();
+    method public java.lang.CharSequence getTitle();
+    method public boolean isEnabled();
+    method public void setEnabled(boolean);
+    method public void setShouldShowIcon(boolean);
+    method public boolean shouldShowIcon();
+    method public android.os.Bundle toBundle();
+    method public android.app.RemoteAction toRemoteAction();
+  }
+
   public final class RemoteInput {
     method public static void addDataResultToIntent(androidx.core.app.RemoteInput, android.content.Intent, java.util.Map<java.lang.String, android.net.Uri>);
     method public static void addResultsToIntent(androidx.core.app.RemoteInput[], android.content.Intent, android.os.Bundle);
