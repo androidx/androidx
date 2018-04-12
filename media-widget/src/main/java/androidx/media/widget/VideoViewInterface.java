@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.widget;
+package androidx.media.widget;
 
 import android.media.MediaPlayer;
 import android.view.View;
