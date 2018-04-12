@@ -108,6 +108,12 @@ public final class MediaSessionManager {
      * @see #isTrustedForMediaControl(RemoteUserInfo)
      */
     public static final class RemoteUserInfo {
+        /**
+         * Used by {@link #getPackageName()} when the session is connected to the legacy controller
+         * whose exact package name cannot be obtained.
+         */
+        public static String LEGACY_CONTROLLER = "android.media.session.MediaController";
+
         RemoteUserInfoImpl mImpl;
 
         public RemoteUserInfo(String packageName, int pid, int uid) {
@@ -119,7 +125,8 @@ public final class MediaSessionManager {
         }
 
         /**
-         * @return package name of the controller
+         * @return package name of the controller. Can be {@link #LEGACY_CONTROLLER} if the package
+         *         name cannot be obtained.
          */
         public String getPackageName() {
             return mImpl.getPackageName();
