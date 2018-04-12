@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="vid_status_codec_tag">Video Codec:</string>
+    <string name="vid_status_bitrate_tag">Avg. Bitrate:</string>
+    <string name="vid_status_mode_tag">Video Mode:</string>
+    <string name="vid_status_outrect_tag">Dest Rect:</string>
+    <string name="aud_status_codec_tag">Audio Codec:</string>
+    <string name="vid_status_stereo_mode_tag">Stereo Mode:</string>
+    <string name="aud_status_bitrate_tag">Bitrate:</string>
+    <string name="aud_status_mode_tag">Audio Mode:</string>
+    <string name="buf_status_fmt_string">Buffering: %d%%</string>
+    <string name="select_video_prompt">Select Video</string>
+    <string name="select_button_text">Select</string>
+    <string name="play_button_text">Play</string>
+    <string name="looping_text">Looping</string>
+    <string name="texture_view_text">Use TextureView</string>
+    <string name="advertisement_text">Advertisement</string>
+</resources>
