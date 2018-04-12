@@ -111,4 +111,9 @@ class SliceManagerWrapper extends SliceManagerBase {
     public Uri mapIntentToUri(@NonNull Intent intent) {
         return mManager.mapIntentToUri(intent);
     }
+
+    @Override
+    public List<Uri> getPinnedSlices() {
+        return mManager.getPinnedSlices();
+    }
 }

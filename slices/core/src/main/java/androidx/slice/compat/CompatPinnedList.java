@@ -28,6 +28,8 @@ import androidx.collection.ArraySet;
 import androidx.core.util.ObjectsCompat;
 import androidx.slice.SliceSpec;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -68,6 +70,22 @@ public class CompatPinnedList {
                     .commit();
         }
         return prefs;
+    }
+
+    /**
+     * Get pinned specs
+     */
+    public List<Uri> getPinnedSlices() {
+        List<Uri> pinned = new ArrayList<>();
+        for (String key : getPrefs().getAll().keySet()) {
+            if (key.startsWith(PIN_PREFIX)) {
+                Uri uri = Uri.parse(key.substring(PIN_PREFIX.length()));
+                if (!getPins(uri).isEmpty()) {
+                    pinned.add(uri);
+                }
+            }
+        }
+        return pinned;
     }
 
     private Set<String> getPins(Uri uri) {
