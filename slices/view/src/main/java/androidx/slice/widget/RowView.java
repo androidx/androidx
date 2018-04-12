@@ -25,8 +25,8 @@ import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
-import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
+import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.SMALL_IMAGE;
@@ -464,7 +464,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (FORMAT_IMAGE.equals(sliceItem.getFormat())) {
             icon = sliceItem.getIcon();
             imageMode = sliceItem.hasHint(HINT_NO_TINT) ? SMALL_IMAGE : ICON_IMAGE;
-        } else if (FORMAT_LONG.equals(sliceItem.getFormat())) {
+        } else if (FORMAT_TIMESTAMP.equals(sliceItem.getFormat())) {
             timeStamp = sliceItem;
         }
         View addedView = null;

@@ -25,9 +25,9 @@ import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
-import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
+import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
@@ -305,7 +305,7 @@ public class GridContent {
                     if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
                         mContentDescr = item;
                     } else if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
-                            || FORMAT_LONG.equals(itemFormat))) {
+                            || FORMAT_TIMESTAMP.equals(itemFormat))) {
                         mTextCount++;
                         mCellItems.add(item);
                     } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
@@ -350,7 +350,7 @@ public class GridContent {
                     || cellItem.hasAnyHints(HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED);
             return !isNonCellContent
                     && (FORMAT_TEXT.equals(format)
-                    || FORMAT_LONG.equals(format)
+                    || FORMAT_TIMESTAMP.equals(format)
                     || FORMAT_IMAGE.equals(format));
         }
 

@@ -23,6 +23,7 @@ import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
+import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.Slice.addHints;
 
@@ -58,7 +59,7 @@ import java.util.List;
  * <li>{@link android.app.slice.SliceItem#FORMAT_IMAGE}</li>
  * <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
  * <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
- * <li>{@link android.app.slice.SliceItem#FORMAT_LONG}</li>
+ * <li>{@link android.app.slice.SliceItem#FORMAT_TIMESTAMP}</li>
  * <p>
  * The hints that a {@link SliceItem} are a set of strings which annotate
  * the content. The hints that are guaranteed to be understood by the system
@@ -77,7 +78,7 @@ public class SliceItem {
      */
     @RestrictTo(Scope.LIBRARY)
     @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,
-            FORMAT_LONG, FORMAT_REMOTE_INPUT, FORMAT_LONG})
+            FORMAT_TIMESTAMP, FORMAT_REMOTE_INPUT, FORMAT_LONG})
     public @interface SliceType {
     }
 
@@ -163,7 +164,7 @@ public class SliceItem {
      * <li>{@link android.app.slice.SliceItem#FORMAT_IMAGE}</li>
      * <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
      * <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
-     * <li>{@link android.app.slice.SliceItem#FORMAT_LONG}</li>
+     * <li>{@link android.app.slice.SliceItem#FORMAT_TIMESTAMP}</li>
      * <li>{@link android.app.slice.SliceItem#FORMAT_REMOTE_INPUT}</li>
      * @see #getSubType() ()
      */
@@ -346,7 +347,7 @@ public class SliceItem {
             case FORMAT_INT:
                 dest.putInt(OBJ, (Integer) mObj);
                 break;
-            case FORMAT_LONG:
+            case FORMAT_TIMESTAMP:
                 dest.putLong(OBJ, (Long) mObj);
                 break;
         }
@@ -368,7 +369,7 @@ public class SliceItem {
                         new Slice(in.getBundle(OBJ_2)));
             case FORMAT_INT:
                 return in.getInt(OBJ);
-            case FORMAT_LONG:
+            case FORMAT_TIMESTAMP:
                 return in.getLong(OBJ);
         }
         throw new RuntimeException("Unsupported type " + type);
@@ -390,8 +391,8 @@ public class SliceItem {
                 return "Action";
             case FORMAT_INT:
                 return "Int";
-            case FORMAT_LONG:
-                return "Long";
+            case FORMAT_TIMESTAMP:
+                return "Timestamp";
             case FORMAT_REMOTE_INPUT:
                 return "RemoteInput";
         }

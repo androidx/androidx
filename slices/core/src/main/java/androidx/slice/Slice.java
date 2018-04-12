@@ -35,6 +35,7 @@ import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
+import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.SliceConvert.unwrap;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
@@ -387,7 +388,7 @@ public final class Slice {
         }
 
         /**
-         * Add a long to the slice being constructed
+         * Add a timestamp to the slice being constructed
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
          */
@@ -395,16 +396,6 @@ public final class Slice {
                 @SliceHint String... hints) {
             mItems.add(new SliceItem(time, FORMAT_LONG, subType, hints));
             return this;
-        }
-
-        /**
-         * Add a long to the slice being constructed
-         * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
-         */
-        public Slice.Builder addLong(long time, @Nullable String subType,
-                @SliceHint List<String> hints) {
-            return addLong(time, subType, hints.toArray(new String[hints.size()]));
         }
 
         /**
@@ -416,7 +407,7 @@ public final class Slice {
         @Deprecated
         public Slice.Builder addTimestamp(long time, @Nullable String subType,
                 @SliceHint String... hints) {
-            mItems.add(new SliceItem(time, FORMAT_LONG, subType, hints));
+            mItems.add(new SliceItem(time, FORMAT_TIMESTAMP, subType, hints));
             return this;
         }
 
@@ -519,6 +510,6 @@ public final class Slice {
     private static Slice callBindSlice(Context context, Uri uri,
             Set<SliceSpec> supportedSpecs) {
         return SliceConvert.wrap(context.getSystemService(SliceManager.class)
-                .bindSlice(uri, unwrap(supportedSpecs)));
+                .bindSlice(uri, new ArrayList<>(unwrap(supportedSpecs))));
     }
 }

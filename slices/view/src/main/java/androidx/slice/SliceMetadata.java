@@ -23,9 +23,9 @@ import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.SUBTYPE_MAX;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_INT;
-import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
+import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
@@ -119,11 +119,11 @@ public class SliceMetadata {
     private SliceMetadata(@NonNull Context context, @NonNull Slice slice) {
         mSlice = slice;
         mContext = context;
-        SliceItem ttlItem = SliceQuery.find(slice, FORMAT_LONG, HINT_TTL, null);
+        SliceItem ttlItem = SliceQuery.find(slice, FORMAT_TIMESTAMP, HINT_TTL, null);
         if (ttlItem != null) {
             mExpiry = ttlItem.getTimestamp();
         }
-        SliceItem updatedItem = SliceQuery.find(slice, FORMAT_LONG, HINT_LAST_UPDATED, null);
+        SliceItem updatedItem = SliceQuery.find(slice, FORMAT_TIMESTAMP, HINT_LAST_UPDATED, null);
         if (updatedItem != null) {
             mLastUpdated = updatedItem.getTimestamp();
         }
