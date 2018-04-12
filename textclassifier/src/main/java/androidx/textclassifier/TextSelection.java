@@ -16,14 +16,12 @@
 
 package androidx.textclassifier;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Bundle;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
@@ -35,20 +33,27 @@ import java.util.Map;
 /**
  * Information about where text selection should be.
  */
-public final class TextSelection implements Parcelable {
+public final class TextSelection {
+
+    private static final String EXTRA_START_INDEX = "start";
+    private static final String EXTRA_END_INDEX = "end";
+    private static final String EXTRA_ENTITY_CONFIDENCE = "entity_conf";
+    private static final String EXTRA_ID = "id";
 
     private final int mStartIndex;
     private final int mEndIndex;
     @NonNull private final EntityConfidence mEntityConfidence;
-    @NonNull private final String mSignature;
+    @Nullable private final String mId;
 
     private TextSelection(
-            int startIndex, int endIndex, @NonNull Map<String, Float> entityConfidence,
-            @NonNull String signature) {
+            int startIndex,
+            int endIndex,
+            @NonNull EntityConfidence entityConfidence,
+            @Nullable String id) {
         mStartIndex = startIndex;
         mEndIndex = endIndex;
-        mEntityConfidence = new EntityConfidence(entityConfidence);
-        mSignature = signature;
+        mEntityConfidence = entityConfidence;
+        mId = id;
     }
 
     /**
@@ -96,54 +101,49 @@ public final class TextSelection implements Parcelable {
     }
 
     /**
-     * Returns the signature for this object.
-     * The TextClassifier that generates this object may use it as a way to internally identify
-     * this object.
+     * Returns the id, if one exists, for this object.
      */
-    @NonNull
-    public String getSignature() {
-        return mSignature;
+    @Nullable
+    public String getId() {
+        return mId;
     }
 
     @Override
     public String toString() {
         return String.format(
                 Locale.US,
-                "TextSelection {startIndex=%d, endIndex=%d, entities=%s, signature=%s}",
-                mStartIndex, mEndIndex, mEntityConfidence, mSignature);
+                "TextSelection {id=%s, startIndex=%d, endIndex=%d, entities=%s}",
+                mId, mStartIndex, mEndIndex, mEntityConfidence);
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    /**
+     * Adds this selection to a Bundle that can be read back with the same parameters
+     * to {@link #createFromBundle(Bundle)}.
+     */
+    @NonNull
+    public Bundle toBundle() {
+        final Bundle bundle = new Bundle();
+        bundle.putInt(EXTRA_START_INDEX, mStartIndex);
+        bundle.putInt(EXTRA_END_INDEX, mEndIndex);
+        BundleUtils.putMap(bundle, EXTRA_ENTITY_CONFIDENCE, mEntityConfidence.getConfidenceMap());
+        bundle.putString(EXTRA_ID, mId);
+        return bundle;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(mStartIndex);
-        dest.writeInt(mEndIndex);
-        mEntityConfidence.writeToParcel(dest, flags);
-        dest.writeString(mSignature);
-    }
-
-    public static final Parcelable.Creator<TextSelection> CREATOR =
-            new Parcelable.Creator<TextSelection>() {
-                @Override
-                public TextSelection createFromParcel(Parcel in) {
-                    return new TextSelection(in);
-                }
-
-                @Override
-                public TextSelection[] newArray(int size) {
-                    return new TextSelection[size];
-                }
-            };
-
-    private TextSelection(Parcel in) {
-        mStartIndex = in.readInt();
-        mEndIndex = in.readInt();
-        mEntityConfidence = EntityConfidence.CREATOR.createFromParcel(in);
-        mSignature = in.readString();
+    /**
+     * Extracts a selection from a bundle that was added using {@link #toBundle()}.
+     */
+    @NonNull
+    public static TextSelection createFromBundle(@NonNull Bundle bundle) {
+        final Builder builder = new Builder(
+                bundle.getInt(EXTRA_START_INDEX),
+                bundle.getInt(EXTRA_END_INDEX))
+                .setId(bundle.getString(EXTRA_ID));
+        for (Map.Entry<String, Float> entityConfidence : BundleUtils.getFloatStringMapOrThrow(
+                bundle, EXTRA_ENTITY_CONFIDENCE).entrySet()) {
+            builder.setEntityType(entityConfidence.getKey(), entityConfidence.getValue());
+        }
+        return builder.build();
     }
 
     /**
@@ -154,7 +154,7 @@ public final class TextSelection implements Parcelable {
         private final int mStartIndex;
         private final int mEndIndex;
         @NonNull private final Map<String, Float> mEntityConfidence = new ArrayMap<>();
-        @NonNull private String mSignature = "";
+        @Nullable private String mId;
 
         /**
          * Creates a builder used to build {@link TextSelection} objects.
@@ -176,6 +176,7 @@ public final class TextSelection implements Parcelable {
          *      0 implies the entity does not exist for the classified text.
          *      Values greater than 1 are clamped to 1.
          */
+        @NonNull
         public Builder setEntityType(
                 @NonNull @EntityType String type,
                 @FloatRange(from = 0.0, to = 1.0) float confidenceScore) {
@@ -184,59 +185,79 @@ public final class TextSelection implements Parcelable {
         }
 
         /**
-         * Sets a signature for the TextSelection object.
-         *
-         * The TextClassifier that generates the TextSelection object may use it as a way to
-         * internally identify the TextSelection object.
+         * Sets an id for the TextSelection object.
          */
-        public Builder setSignature(@NonNull String signature) {
-            mSignature = Preconditions.checkNotNull(signature);
+        @NonNull
+        public Builder setId(@NonNull String id) {
+            mId = Preconditions.checkNotNull(id);
             return this;
         }
 
         /**
          * Builds and returns {@link TextSelection} object.
          */
+        @NonNull
         public TextSelection build() {
             return new TextSelection(
-                    mStartIndex, mEndIndex, mEntityConfidence, mSignature);
+                    mStartIndex, mEndIndex, new EntityConfidence(mEntityConfidence), mId);
         }
     }
 
     /**
-     * Optional input parameters for generating TextSelection.
+     * A request object for generating TextSelection.
      */
-    public static final class Options implements Parcelable {
+    public static final class Request {
 
-        private @Nullable LocaleListCompat mDefaultLocales;
-        private @Nullable String mCallingPackageName;
+        private static final String EXTRA_TEXT = "text";
+        private static final String EXTRA_START_INDEX = "start";
+        private static final String EXTRA_END_INDEX = "end";
+        private static final String EXTRA_DEFAULT_LOCALES = "locales";
+        private static final String EXTRA_CALLING_PACKAGE_NAME = "calling_package";
 
-        public Options() {}
+        private final CharSequence mText;
+        private final int mStartIndex;
+        private final int mEndIndex;
+        @Nullable private final LocaleListCompat mDefaultLocales;
 
-        /**
-         * @param defaultLocales ordered list of locale preferences that may be used to disambiguate
-         *      the provided text. If no locale preferences exist, set this to null or an empty
-         *      locale list.
-         */
-        public Options setDefaultLocales(@Nullable LocaleListCompat defaultLocales) {
+        private Request(
+                CharSequence text,
+                int startIndex,
+                int endIndex,
+                LocaleListCompat defaultLocales) {
+            mText = text;
+            mStartIndex = startIndex;
+            mEndIndex = endIndex;
             mDefaultLocales = defaultLocales;
-            return this;
         }
 
         /**
-         * @param packageName name of the package from which the call was made.
-         *
-         * @hide
+         * Returns the text providing context for the selected text (which is specified by the
+         * sub sequence starting at startIndex and ending at endIndex).
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public Options setCallingPackageName(@Nullable String packageName) {
-            mCallingPackageName = packageName;
-            return this;
+        @NonNull
+        public CharSequence getText() {
+            return mText;
         }
 
         /**
-         * @return ordered list of locale preferences that can be used to disambiguate
-         *      the provided text.
+         * Returns start index of the selected part of text.
+         */
+        @IntRange(from = 0)
+        public int getStartIndex() {
+            return mStartIndex;
+        }
+
+        /**
+         * Returns end index of the selected part of text.
+         */
+        @IntRange(from = 0)
+        public int getEndIndex() {
+            return mEndIndex;
+        }
+
+        /**
+         * @return ordered list of locale preferences that can be used to disambiguate the
+         * provided text.
          */
         @Nullable
         public LocaleListCompat getDefaultLocales() {
@@ -244,45 +265,84 @@ public final class TextSelection implements Parcelable {
         }
 
         /**
-         * @return name of the package from which the call was made.
+         * A builder for building TextSelection requests.
          */
-        @Nullable
-        public String getCallingPackageName() {
-            return mCallingPackageName;
-        }
+        public static final class Builder {
 
-        @Override
-        public int describeContents() {
-            return 0;
-        }
+            private final CharSequence mText;
+            private final int mStartIndex;
+            private final int mEndIndex;
 
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(mDefaultLocales != null ? 1 : 0);
-            if (mDefaultLocales != null) {
-                dest.writeString(mDefaultLocales.toLanguageTags());
+            @Nullable private LocaleListCompat mDefaultLocales;
+
+            /**
+             * @param text text providing context for the selected text (which is specified by the
+             *      sub sequence starting at selectionStartIndex and ending at selectionEndIndex)
+             * @param startIndex start index of the selected part of text
+             * @param endIndex end index of the selected part of text
+             */
+            public Builder(
+                    @NonNull CharSequence text,
+                    @IntRange(from = 0) int startIndex,
+                    @IntRange(from = 0) int endIndex) {
+                Preconditions.checkArgument(text != null);
+                Preconditions.checkArgument(startIndex >= 0);
+                Preconditions.checkArgument(endIndex <= text.length());
+                Preconditions.checkArgument(endIndex > startIndex);
+                mText = text;
+                mStartIndex = startIndex;
+                mEndIndex = endIndex;
             }
-            dest.writeString(mCallingPackageName);
+
+
+            /**
+             * @param defaultLocales ordered list of locale preferences that may be used to
+             *      disambiguate the provided text. If no locale preferences exist, set this to null
+             *      or an empty locale list.
+             *
+             * @return this builder.
+             */
+            @NonNull
+            public Builder setDefaultLocales(@Nullable LocaleListCompat defaultLocales) {
+                mDefaultLocales = defaultLocales;
+                return this;
+            }
+
+            /**
+             * Builds and returns the request object.
+             */
+            @NonNull
+            public Request build() {
+                return new Request(mText, mStartIndex, mEndIndex, mDefaultLocales);
+            }
         }
 
-        public static final Parcelable.Creator<Options> CREATOR =
-                new Parcelable.Creator<Options>() {
-                    @Override
-                    public Options createFromParcel(Parcel in) {
-                        return new Options(in);
-                    }
+        /**
+         * Adds this Request to a Bundle that can be read back with the same parameters
+         * to {@link #createFromBundle(Bundle)}.
+         */
+        @NonNull
+        public Bundle toBundle() {
+            final Bundle bundle = new Bundle();
+            bundle.putCharSequence(EXTRA_TEXT, mText);
+            bundle.putInt(EXTRA_START_INDEX, mStartIndex);
+            bundle.putInt(EXTRA_END_INDEX, mEndIndex);
+            BundleUtils.putLocaleList(bundle, EXTRA_DEFAULT_LOCALES, mDefaultLocales);
+            return bundle;
+        }
 
-                    @Override
-                    public Options[] newArray(int size) {
-                        return new Options[size];
-                    }
-                };
-
-        private Options(Parcel in) {
-            if (in.readInt() > 0) {
-                mDefaultLocales = LocaleListCompat.forLanguageTags(in.readString());
-            }
-            mCallingPackageName = in.readString();
+        /**
+         * Extracts a Request from a bundle that was added using {@link #toBundle()}.
+         */
+        @NonNull
+        public static Request createFromBundle(@NonNull Bundle bundle) {
+            final Builder builder = new Builder(
+                    bundle.getString(EXTRA_TEXT),
+                    bundle.getInt(EXTRA_START_INDEX),
+                    bundle.getInt(EXTRA_END_INDEX))
+                    .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES));
+            final Request request = builder.build();
+            return request;
         }
     }
 }
