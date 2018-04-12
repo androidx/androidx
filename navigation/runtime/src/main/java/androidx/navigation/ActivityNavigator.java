@@ -58,6 +58,11 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
     }
 
     @NonNull
+    Context getContext() {
+        return mContext;
+    }
+
+    @NonNull
     @Override
     public Destination createDestination() {
         return new Destination(this);

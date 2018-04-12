@@ -27,7 +27,7 @@ annotation class NavDestinationDsl
  */
 @NavDestinationDsl
 open class NavDestinationBuilder<out D : NavDestination>(
-        private val navigator: Navigator<D>,
+        protected val navigator: Navigator<out D>,
         @IdRes val id: Int
 ) {
     /**
