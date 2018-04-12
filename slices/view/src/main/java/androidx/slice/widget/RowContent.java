@@ -27,10 +27,10 @@ import static android.app.slice.Slice.SUBTYPE_RANGE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
@@ -157,11 +157,11 @@ public class RowContent {
             }
             // Special rules for end items: only one timestamp
             boolean hasTimestamp = mStartItem != null
-                    && FORMAT_TIMESTAMP.equals(mStartItem.getFormat());
+                    && FORMAT_LONG.equals(mStartItem.getFormat());
             for (int i = 0; i < endItems.size(); i++) {
                 final SliceItem item = endItems.get(i);
                 boolean isAction = SliceQuery.find(item, FORMAT_ACTION) != null;
-                if (FORMAT_TIMESTAMP.equals(item.getFormat())) {
+                if (FORMAT_LONG.equals(item.getFormat())) {
                     if (!hasTimestamp) {
                         hasTimestamp = true;
                         mEndItems.add(item);
@@ -382,7 +382,7 @@ public class RowContent {
         return (FORMAT_TEXT.equals(itemFormat)
                 && !SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType()))
                 || FORMAT_IMAGE.equals(itemFormat)
-                || FORMAT_TIMESTAMP.equals(itemFormat)
+                || FORMAT_LONG.equals(itemFormat)
                 || FORMAT_REMOTE_INPUT.equals(itemFormat)
                 || (FORMAT_SLICE.equals(itemFormat) && item.hasHint(HINT_TITLE)
                 && !item.hasHint(HINT_SHORTCUT))
@@ -400,7 +400,7 @@ public class RowContent {
         final String type = item.getFormat();
         return (FORMAT_ACTION.equals(type) && (SliceQuery.find(item, FORMAT_IMAGE) != null))
                     || FORMAT_IMAGE.equals(type)
-                    || (FORMAT_TIMESTAMP.equals(type)
+                    || (FORMAT_LONG.equals(type)
                 && !item.hasAnyHints(HINT_TTL, HINT_LAST_UPDATED));
     }
 }

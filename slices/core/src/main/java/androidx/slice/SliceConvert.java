@@ -19,17 +19,16 @@ package androidx.slice;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 import androidx.core.graphics.drawable.IconCompat;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -43,9 +42,8 @@ public class SliceConvert {
      */
     public static android.app.slice.Slice unwrap(androidx.slice.Slice slice) {
         android.app.slice.Slice.Builder builder = new android.app.slice.Slice.Builder(
-                slice.getUri());
+                slice.getUri(), unwrap(slice.getSpec()));
         builder.addHints(slice.getHints());
-        builder.setSpec(unwrap(slice.getSpec()));
         for (androidx.slice.SliceItem item : slice.getItems()) {
             switch (item.getFormat()) {
                 case FORMAT_SLICE:
@@ -67,8 +65,8 @@ public class SliceConvert {
                 case FORMAT_INT:
                     builder.addInt(item.getInt(), item.getSubType(), item.getHints());
                     break;
-                case FORMAT_TIMESTAMP:
-                    builder.addTimestamp(item.getTimestamp(), item.getSubType(), item.getHints());
+                case FORMAT_LONG:
+                    builder.addLong(item.getLong(), item.getSubType(), item.getHints());
                     break;
             }
         }
@@ -119,8 +117,8 @@ public class SliceConvert {
                 case FORMAT_INT:
                     builder.addInt(item.getInt(), item.getSubType(), item.getHints());
                     break;
-                case FORMAT_TIMESTAMP:
-                    builder.addTimestamp(item.getTimestamp(), item.getSubType(), item.getHints());
+                case FORMAT_LONG:
+                    builder.addLong(item.getLong(), item.getSubType(), item.getHints());
                     break;
             }
         }
@@ -137,7 +135,7 @@ public class SliceConvert {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static Set<androidx.slice.SliceSpec> wrap(
-            List<android.app.slice.SliceSpec> supportedSpecs) {
+            Set<android.app.slice.SliceSpec> supportedSpecs) {
         Set<androidx.slice.SliceSpec> ret = new ArraySet<>();
         for (android.app.slice.SliceSpec spec : supportedSpecs) {
             ret.add(wrap(spec));
