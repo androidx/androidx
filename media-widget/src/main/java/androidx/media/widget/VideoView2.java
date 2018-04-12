@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.widget;
+package androidx.media.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
@@ -47,7 +47,6 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.ImageView;
@@ -63,7 +62,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
-import androidx.media.R;
 import androidx.media.SessionToken2;
 import androidx.palette.graphics.Palette;
 
@@ -187,9 +185,9 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     private int mAudioFocusType = AudioManager.AUDIOFOCUS_GAIN; // legacy focus gain
     private boolean mAudioFocused = false;
 
-    private Pair<Executor, VideoView2.OnCustomActionListener> mCustomActionListenerRecord;
-    private VideoView2.OnViewTypeChangedListener mViewTypeChangedListener;
-    private VideoView2.OnFullScreenRequestListener mFullScreenRequestListener;
+    private Pair<Executor, OnCustomActionListener> mCustomActionListenerRecord;
+    private OnViewTypeChangedListener mViewTypeChangedListener;
+    private OnFullScreenRequestListener mFullScreenRequestListener;
 
     private VideoViewInterface mCurrentView;
     private VideoTextureView mTextureView;
@@ -472,7 +470,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
      * Returns MediaController instance which is connected with MediaSession that VideoView2 is
      * using. This method should be called when VideoView2 is attached to window, or it throws
      * IllegalStateException, since internal MediaSession instance is not available until
-     * this view is attached to window. Please check {@link android.view.View#isAttachedToWindow}
+     * this view is attached to window. Please check {@link View#isAttachedToWindow}
      * before calling this method.
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.
@@ -487,13 +485,14 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     }
 
     /**
-     * Returns {@link androidx.media.SessionToken2} so that developers create their own
+     * Returns {@link SessionToken2} so that developers create their own
      * {@link androidx.media.MediaController2} instance. This method should be called when
      * VideoView2 is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.
      * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public SessionToken2 getMediaSessionToken() {
         //return mProvider.getMediaSessionToken_impl();
         return null;
@@ -639,6 +638,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
      * @see #setMediaItem
      * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void setDataSource(@NonNull DataSourceDesc dataSource) {
         //mProvider.setDataSource_impl(dataSource);
     }
@@ -1004,6 +1004,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         }
     };
 
+    @SuppressWarnings("deprecation")
     private void requestAudioFocus(int focusType) {
         int result;
         if (android.os.Build.VERSION.SDK_INT >= 26) {
@@ -1091,6 +1092,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     /*
      * Reset the media player in any state
      */
+    @SuppressWarnings("deprecation")
     private void resetPlayer() {
         if (mMediaPlayer != null) {
             mMediaPlayer.reset();
@@ -1352,6 +1354,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void extractAudioMetadata() {
         if (!mIsMusicMediaType) {
             return;
@@ -1583,6 +1586,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
     MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
+        @SuppressWarnings("deprecation")
         public void onCompletion(MediaPlayer mp) {
             mCurrentState = STATE_PLAYBACK_COMPLETED;
             mTargetState = STATE_PLAYBACK_COMPLETED;

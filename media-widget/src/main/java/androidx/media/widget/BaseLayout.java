@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.widget;
+package androidx.media.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -22,8 +22,6 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewGroup.MarginLayoutParams;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
@@ -83,8 +81,8 @@ class BaseLayout extends ViewGroup {
         int count = getChildCount();
 
         final boolean measureMatchParentChildren =
-                View.MeasureSpec.getMode(widthMeasureSpec) != View.MeasureSpec.EXACTLY
-                        || View.MeasureSpec.getMode(heightMeasureSpec) != View.MeasureSpec.EXACTLY;
+                MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.EXACTLY
+                        || MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY;
         mMatchParentChildren.clear();
 
         int maxHeight = 0;
@@ -144,8 +142,8 @@ class BaseLayout extends ViewGroup {
                     final int width = Math.max(0, getMeasuredWidth()
                             - getPaddingLeftWithForeground() - getPaddingRightWithForeground()
                             - lp.leftMargin - lp.rightMargin);
-                    childWidthMeasureSpec = View.MeasureSpec.makeMeasureSpec(
-                            width, View.MeasureSpec.EXACTLY);
+                    childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
+                            width, MeasureSpec.EXACTLY);
                 } else {
                     childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec,
                             getPaddingLeftWithForeground() + getPaddingRightWithForeground()
@@ -157,8 +155,8 @@ class BaseLayout extends ViewGroup {
                     final int height = Math.max(0, getMeasuredHeight()
                             - getPaddingTopWithForeground() - getPaddingBottomWithForeground()
                             - lp.topMargin - lp.bottomMargin);
-                    childHeightMeasureSpec = View.MeasureSpec.makeMeasureSpec(
-                            height, View.MeasureSpec.EXACTLY);
+                    childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                            height, MeasureSpec.EXACTLY);
                 } else {
                     childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec,
                             getPaddingTopWithForeground() + getPaddingBottomWithForeground()
