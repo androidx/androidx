@@ -1020,8 +1020,11 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * Note that we cannot simply override {@link Service#attachBaseContext(Context)} and hide it
      * because lint checks considers the overriden method as the new public API that needs update
      * of current.txt.
+     *
+     * @hide
      */
-    void attachToBaseContext(Context base) {
+    @RestrictTo(LIBRARY)
+    public void attachToBaseContext(Context base) {
         attachBaseContext(base);
     }
 
