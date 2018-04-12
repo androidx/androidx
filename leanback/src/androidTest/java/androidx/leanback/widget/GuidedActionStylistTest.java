@@ -28,11 +28,14 @@ import android.text.InputType;
 import android.view.ContextThemeWrapper;
 import android.widget.FrameLayout;
 
+import androidx.core.os.BuildCompat;
 import androidx.leanback.test.R;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -120,4 +123,64 @@ public class GuidedActionStylistTest {
         assertEquals(mViewHolder.mTitleView.getMaxLines(), DEFAULT_MAX_LINES);
         assertEquals(mViewHolder.mDescriptionView.getMaxLines(), DEFAULT_MAX_LINES);
     }
+
+    @Test
+    public void testAutofillHintsOnTitle() {
+        if (!BuildCompat.isAtLeastP()) {
+            return;
+        }
+        String[] hints = new String[]{"hint1", "hint2"};
+        mGuidedAction = new GuidedAction.Builder(mContext)
+                .editable(true)
+                .autofillHints(hints)
+                .build();
+
+        assertTrue(BuildCompat.isAtLeastP());
+        // Execute onBindViewHolder method so we can monitor the internal state
+        mGuidedActionsStylist.onBindViewHolder(mViewHolder, mGuidedAction);
+
+        assertTrue(Arrays.equals(mViewHolder.mTitleView.getAutofillHints(), hints));
+
+    }
+
+    @Test
+    public void testAutofillHintsOnNonEditableViews() {
+        if (!BuildCompat.isAtLeastP()) {
+            return;
+        }
+        String[] hints = new String[]{"hint1", "hint2"};
+        mGuidedAction = new GuidedAction.Builder(mContext)
+                .editable(false)
+                .autofillHints(hints)
+                .build();
+
+        // Execute onBindViewHolder method so we can monitor the internal state
+        mGuidedActionsStylist.onBindViewHolder(mViewHolder, mGuidedAction);
+
+        String[] viewHints = mViewHolder.mTitleView.getAutofillHints();
+        assertTrue(viewHints == null || viewHints.length == 0);
+
+        viewHints = mViewHolder.mDescriptionView.getAutofillHints();
+        assertTrue(viewHints == null || viewHints.length == 0);
+    }
+
+    @Test
+    public void testAutofillHintsOnDescription() {
+        if (!BuildCompat.isAtLeastP()) {
+            return;
+        }
+        String[] hints = new String[]{"hint1", "hint2"};
+        mGuidedAction = new GuidedAction.Builder(mContext)
+                .editable(false)
+                .descriptionEditable(true)
+                .autofillHints(hints)
+                .build();
+
+        // Execute onBindViewHolder method so we can monitor the internal state
+        mGuidedActionsStylist.onBindViewHolder(mViewHolder, mGuidedAction);
+
+        assertTrue(Arrays.equals(mViewHolder.mDescriptionView.getAutofillHints(), hints));
+
+    }
+
 }
