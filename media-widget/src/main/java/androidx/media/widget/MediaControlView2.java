@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.widget;
+package androidx.media.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
@@ -50,11 +50,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.media.R;
 import androidx.media.SessionToken2;
-// import androidx.mediarouter.app.MediaRouteButton;
-// import androidx.mediarouter.media.MediaRouter;
-// import androidx.mediarouter.media.MediaRouteSelector;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -63,6 +59,10 @@ import java.util.Arrays;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
+
+// import androidx.mediarouter.app.MediaRouteButton;
+// import androidx.mediarouter.media.MediaRouter;
+// import androidx.mediarouter.media.MediaRouteSelector;
 
 /**
  * @hide
@@ -96,7 +96,9 @@ import java.util.Locale;
 @RequiresApi(21) // TODO correct minSdk API use incompatibilities and remove before release.
 @RestrictTo(LIBRARY_GROUP)
 public class MediaControlView2 extends BaseLayout {
-    /** @hide */
+    /**
+     * @hide
+     */
     @RestrictTo(LIBRARY_GROUP)
     @IntDef({
             BUTTON_PLAY_PAUSE,
@@ -710,6 +712,7 @@ public class MediaControlView2 extends BaseLayout {
         return inflater.inflate(resId, null);
     }
 
+    @SuppressWarnings("deprecation")
     private void initControllerView(ViewGroup v) {
         // Relating to Title Bar View
         mTitleBar = v.findViewById(R.id.title_bar);
@@ -819,7 +822,7 @@ public class MediaControlView2 extends BaseLayout {
         mSettingsWindowMargin = (-1) * mResources.getDimensionPixelSize(
                 R.dimen.mcv2_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
-                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                LayoutParams.WRAP_CONTENT, true);
     }
 
     /**
@@ -1033,14 +1036,14 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final View.OnClickListener mPlayPauseListener = new View.OnClickListener() {
+    private final OnClickListener mPlayPauseListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             togglePausePlayState();
         }
     };
 
-    private final View.OnClickListener mRewListener = new View.OnClickListener() {
+    private final OnClickListener mRewListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             int pos = getCurrentPosition() - REWIND_TIME_MS;
@@ -1049,7 +1052,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final View.OnClickListener mFfwdListener = new View.OnClickListener() {
+    private final OnClickListener mFfwdListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             int pos = getCurrentPosition() + FORWARD_TIME_MS;
@@ -1058,28 +1061,28 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final View.OnClickListener mNextListener = new View.OnClickListener() {
+    private final OnClickListener mNextListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mControls.skipToNext();
         }
     };
 
-    private final View.OnClickListener mPrevListener = new View.OnClickListener() {
+    private final OnClickListener mPrevListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mControls.skipToPrevious();
         }
     };
 
-    private final View.OnClickListener mBackListener = new View.OnClickListener() {
+    private final OnClickListener mBackListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             // TODO: implement
         }
     };
 
-    private final View.OnClickListener mSubtitleListener = new View.OnClickListener() {
+    private final OnClickListener mSubtitleListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mSettingsMode = SETTINGS_MODE_SUBTITLE_TRACK;
@@ -1089,7 +1092,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final View.OnClickListener mVideoQualityListener = new View.OnClickListener() {
+    private final OnClickListener mVideoQualityListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mSettingsMode = SETTINGS_MODE_VIDEO_QUALITY;
@@ -1099,7 +1102,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final View.OnClickListener mFullScreenListener = new View.OnClickListener() {
+    private final OnClickListener mFullScreenListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             final boolean isEnteringFullScreen = !mIsFullScreen;
@@ -1119,7 +1122,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final View.OnClickListener mOverflowRightListener = new View.OnClickListener() {
+    private final OnClickListener mOverflowRightListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mBasicControls.setVisibility(View.GONE);
@@ -1127,7 +1130,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final View.OnClickListener mOverflowLeftListener = new View.OnClickListener() {
+    private final OnClickListener mOverflowLeftListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mBasicControls.setVisibility(View.VISIBLE);
@@ -1135,7 +1138,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final View.OnClickListener mMuteButtonListener = new View.OnClickListener() {
+    private final OnClickListener mMuteButtonListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             if (!mIsMute) {
@@ -1156,7 +1159,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final View.OnClickListener mSettingsButtonListener = new View.OnClickListener() {
+    private final OnClickListener mSettingsButtonListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             mSettingsMode = SETTINGS_MODE_MAIN;
@@ -1389,6 +1392,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void updateLayoutForSizeChange(int sizeType) {
         mSizeType = sizeType;
         RelativeLayout.LayoutParams timeViewParams =
@@ -1671,7 +1675,7 @@ public class MediaControlView2 extends BaseLayout {
                     button.setImageResource(action.getIcon());
                     button.setTooltipText(action.getName());
                     final String actionString = action.getAction().toString();
-                    button.setOnClickListener(new View.OnClickListener() {
+                    button.setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             // TODO: Currently, we are just sending extras that came from session.

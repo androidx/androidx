@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.widget;
+package androidx.media.widget;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 
@@ -44,7 +44,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.media.AudioAttributesCompat;
-import androidx.media.test.R;
+import androidx.media.widget.test.R;
 
 import org.junit.After;
 import org.junit.Before;

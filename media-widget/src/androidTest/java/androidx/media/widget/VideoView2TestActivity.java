@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.widget;
+package androidx.media.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
 
-import androidx.media.test.R;
+import androidx.media.widget.test.R;
 
 /**
  * A minimal application for {@link VideoView2} test.
