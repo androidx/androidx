@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
-import androidx.annotation.RestrictTo;
 import android.text.InputFilter;
 import android.widget.TextView;
 
@@ -28,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import androidx.car.R;
+import androidx.annotation.RestrictTo;
 
 /**
  * Utility class that helps {@code View}s comply with {@link CarUxRestrictions}.
@@ -53,8 +52,7 @@ public class CarUxRestrictionsUtils {
      */
     public static void comply(Context context, CarUxRestrictions carUxRestrictions, TextView tv) {
         if (sStringLengthFilter == null) {
-            int lengthLimit = context.getResources().getInteger(
-                    R.integer.car_list_item_text_length_limit);
+            int lengthLimit = carUxRestrictions.getMaxRestrictedStringLength();
             sStringLengthFilter = new InputFilter.LengthFilter(lengthLimit);
         }
 
