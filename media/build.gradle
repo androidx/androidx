@@ -9,7 +9,6 @@ plugins {
 dependencies {
     api(project(":annotation"))
     api(project(":core"))
-    api(project(":palette"))
 
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
     androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
