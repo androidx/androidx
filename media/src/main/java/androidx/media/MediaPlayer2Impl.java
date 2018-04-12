@@ -1367,16 +1367,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      */
     @Override
     public void releaseDrm() throws NoDrmSchemeException {
-        addTask(new Task(CALL_COMPLETED_RELEASE_DRM, false) {
-            @Override
-            void process() throws NoDrmSchemeException {
-                try {
-                    mPlayer.releaseDrm();
-                } catch (MediaPlayer.NoDrmSchemeException e) {
-                    throw new NoDrmSchemeException(e.getMessage());
-                }
-            }
-        });
+        try {
+            mPlayer.releaseDrm();
+        } catch (MediaPlayer.NoDrmSchemeException e) {
+            throw new NoDrmSchemeException(e.getMessage());
+        }
     }
 
 
@@ -1470,16 +1465,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @Override
     public void restoreDrmKeys(@NonNull final byte[] keySetId)
             throws NoDrmSchemeException {
-        addTask(new Task(CALL_COMPLETED_RESTORE_DRM_KEYS, false) {
-            @Override
-            void process() throws NoDrmSchemeException {
-                try {
-                    mPlayer.restoreKeys(keySetId);
-                } catch (MediaPlayer.NoDrmSchemeException e) {
-                    throw new NoDrmSchemeException(e.getMessage());
-                }
-            }
-        });
+        try {
+            mPlayer.restoreKeys(keySetId);
+        } catch (MediaPlayer.NoDrmSchemeException e) {
+            throw new NoDrmSchemeException(e.getMessage());
+        }
     }
 
 
@@ -2040,8 +2030,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 status = CALL_STATUS_PERMISSION_DENIED;
             } catch (IOException e) {
                 status = CALL_STATUS_ERROR_IO;
-            } catch (NoDrmSchemeException e) {
-                status = CALL_STATUS_NO_DRM_SCHEME;
             } catch (Exception e) {
                 status = CALL_STATUS_ERROR_UNKNOWN;
             }
