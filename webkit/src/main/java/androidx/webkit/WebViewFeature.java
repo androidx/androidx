@@ -58,8 +58,11 @@ public class WebViewFeature {
             SERVICE_WORKER_CONTENT_ACCESS,
             SERVICE_WORKER_FILE_ACCESS,
             SERVICE_WORKER_BLOCK_NETWORK_LOADS,
-            SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST
-
+            SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST,
+            RECEIVE_WEB_RESOURCE_ERROR,
+            RECEIVE_HTTP_ERROR,
+            SHOULD_OVERRIDE_WITH_REDIRECTS,
+            SAFE_BROWSING_HIT
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -69,7 +72,9 @@ public class WebViewFeature {
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
      * {@link androidx.webkit.WebViewCompat#postVisualStateCallback(android.webkit.WebView, long,
-     * WebViewCompat.VisualStateCallback)}.
+     * WebViewCompat.VisualStateCallback)}, and {@link
+     * WebViewClientCompat#onPageCommitVisible(
+     * android.webkit.WebView, String)}.
      */
     public static final String VISUAL_STATE_CALLBACK = Features.VISUAL_STATE_CALLBACK;
 
@@ -169,6 +174,41 @@ public class WebViewFeature {
     public static final String SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST =
             Features.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST;
 
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebViewClientCompat#onReceivedError(android.webkit.WebView, WebResourceRequest,
+     * WebResourceErrorCompat)}.
+     */
+    public static final String RECEIVE_WEB_RESOURCE_ERROR = Features.RECEIVE_WEB_RESOURCE_ERROR;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebViewClientCompat#onReceivedHttpError(android.webkit.WebView, WebResourceRequest,
+     * WebResourceResponse)}.
+     */
+    public static final String RECEIVE_HTTP_ERROR = Features.RECEIVE_HTTP_ERROR;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebViewClientCompat#shouldOverrideUrlLoading(android.webkit.WebView,
+     * WebResourceRequest)}.
+     */
+    public static final String SHOULD_OVERRIDE_WITH_REDIRECTS =
+            Features.SHOULD_OVERRIDE_WITH_REDIRECTS;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView,
+     * WebResourceRequest, int, SafeBrowsingResponseCompat).
+     *
+     * TODO(ntfschr): turn this into a javadoc link once the method is implemented in
+     * http://ag/3858246.
+     */
+    public static final String SAFE_BROWSING_HIT = Features.SAFE_BROWSING_HIT;
 
     /**
      * Return whether a feature is supported at run-time. This depends on the Android version of the

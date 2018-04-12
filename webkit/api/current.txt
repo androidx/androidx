@@ -58,7 +58,10 @@ package androidx.webkit {
     method public static boolean isFeatureSupported(java.lang.String);
     field public static final java.lang.String DISABLED_ACTION_MODE_MENU_ITEMS = "DISABLED_ACTION_MODE_MENU_ITEMS";
     field public static final java.lang.String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
+    field public static final java.lang.String RECEIVE_HTTP_ERROR = "RECEIVE_HTTP_ERROR";
+    field public static final java.lang.String RECEIVE_WEB_RESOURCE_ERROR = "RECEIVE_WEB_RESOURCE_ERROR";
     field public static final java.lang.String SAFE_BROWSING_ENABLE = "SAFE_BROWSING_ENABLE";
+    field public static final java.lang.String SAFE_BROWSING_HIT = "SAFE_BROWSING_HIT";
     field public static final java.lang.String SAFE_BROWSING_PRIVACY_POLICY_URL = "SAFE_BROWSING_PRIVACY_POLICY_URL";
     field public static final java.lang.String SAFE_BROWSING_WHITELIST = "SAFE_BROWSING_WHITELIST";
     field public static final java.lang.String SERVICE_WORKER_BASIC_USAGE = "SERVICE_WORKER_BASIC_USAGE";
@@ -67,6 +70,7 @@ package androidx.webkit {
     field public static final java.lang.String SERVICE_WORKER_CONTENT_ACCESS = "SERVICE_WORKER_CONTENT_ACCESS";
     field public static final java.lang.String SERVICE_WORKER_FILE_ACCESS = "SERVICE_WORKER_FILE_ACCESS";
     field public static final java.lang.String SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST = "SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST";
+    field public static final java.lang.String SHOULD_OVERRIDE_WITH_REDIRECTS = "SHOULD_OVERRIDE_WITH_REDIRECTS";
     field public static final java.lang.String START_SAFE_BROWSING = "START_SAFE_BROWSING";
     field public static final java.lang.String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
   }
