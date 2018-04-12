@@ -1065,30 +1065,29 @@ public class MediaController2Test extends MediaSession2TestBase {
         };
         TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
 
-        mController = createController(TestUtils.getServiceToken(mContext, id));
+        final SessionCommand2 testCommand = new SessionCommand2("testConnectToService", null);
+        final CountDownLatch controllerLatch = new CountDownLatch(1);
+        mController = createController(TestUtils.getServiceToken(mContext, id), true,
+                new ControllerCallback() {
+                    @Override
+                    public void onCustomCommand(MediaController2 controller,
+                            SessionCommand2 command, Bundle args, ResultReceiver receiver) {
+                        if (testCommand.equals(command)) {
+                            controllerLatch.countDown();
+                        }
+                    }
+                }
+        );
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
-        // Test command from controller to session service
-        // TODO: Re enable when transport control works
-        /*
+        // Test command from controller to session service.
         mController.play();
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPlayCalled);
-        */
 
-        // Test command from session service to controller
-        // TODO(jaewan): Add equivalent tests again
-        /*
-        final CountDownLatch latch = new CountDownLatch(1);
-        mController.registerPlayerEventCallback((state) -> {
-            assertNotNull(state);
-            assertEquals(PlaybackState.STATE_REWINDING, state.getState());
-            latch.countDown();
-        }, sHandler);
-        mPlayer.notifyPlaybackState(
-                TestUtils.createPlaybackState(PlaybackState.STATE_REWINDING));
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        */
+        // Test command from session service to controller.
+        mSession.sendCustomCommand(testCommand, null);
+        assertTrue(controllerLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
