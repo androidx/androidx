@@ -22,22 +22,22 @@
     <string name="abc_slice_show_more" msgid="1567717014004692768">"Zobraziť viac"</string>
     <string name="abc_slice_updated" msgid="8155085405396453848">"Aktualizované <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
-      <item quantity="few">Pred <xliff:g id="ID_2">%d</xliff:g> min</item>
-      <item quantity="many">Pred <xliff:g id="ID_2">%d</xliff:g> min</item>
-      <item quantity="other">Pred <xliff:g id="ID_2">%d</xliff:g> min</item>
-      <item quantity="one">Pred <xliff:g id="ID_1">%d</xliff:g> min</item>
+      <item quantity="few">pred <xliff:g id="ID_2">%d</xliff:g> min</item>
+      <item quantity="many">pred <xliff:g id="ID_2">%d</xliff:g> min</item>
+      <item quantity="other">pred <xliff:g id="ID_2">%d</xliff:g> min</item>
+      <item quantity="one">pred <xliff:g id="ID_1">%d</xliff:g> min</item>
     </plurals>
     <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
-      <item quantity="few">Pred <xliff:g id="ID_2">%d</xliff:g> rokmi</item>
-      <item quantity="many">Pred <xliff:g id="ID_2">%d</xliff:g> rokom</item>
-      <item quantity="other">Pred <xliff:g id="ID_2">%d</xliff:g> rokmi</item>
-      <item quantity="one">Pred <xliff:g id="ID_1">%d</xliff:g> rokom</item>
+      <item quantity="few">pred <xliff:g id="ID_2">%d</xliff:g> rokmi</item>
+      <item quantity="many">pred <xliff:g id="ID_2">%d</xliff:g> roka</item>
+      <item quantity="other">pred <xliff:g id="ID_2">%d</xliff:g> rokmi</item>
+      <item quantity="one">pred <xliff:g id="ID_1">%d</xliff:g> rokom</item>
     </plurals>
     <plurals name="abc_slice_duration_days" formatted="false" msgid="6241698511167107334">
-      <item quantity="few">Pred <xliff:g id="ID_2">%d</xliff:g> dňami</item>
-      <item quantity="many">Pred <xliff:g id="ID_2">%d</xliff:g> dňami</item>
-      <item quantity="other">Pred <xliff:g id="ID_2">%d</xliff:g> dňami</item>
-      <item quantity="one">Pred <xliff:g id="ID_1">%d</xliff:g> dňom</item>
+      <item quantity="few">pred <xliff:g id="ID_2">%d</xliff:g> dňami</item>
+      <item quantity="many">pred <xliff:g id="ID_2">%d</xliff:g> dňa</item>
+      <item quantity="other">pred <xliff:g id="ID_2">%d</xliff:g> dňami</item>
+      <item quantity="one">pred <xliff:g id="ID_1">%d</xliff:g> dňom</item>
     </plurals>
     <string name="abc_slice_error" msgid="4188371422904147368">"Nepodarilo sa pripojiť"</string>
 </resources>
