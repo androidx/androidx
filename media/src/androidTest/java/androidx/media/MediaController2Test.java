@@ -49,7 +49,6 @@ import androidx.media.TestUtils.SyncHandler;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1096,15 +1095,11 @@ public class MediaController2Test extends MediaSession2TestBase {
         testControllerAfterSessionIsClosed(mSession.getToken().getId());
     }
 
-    // TODO(jaewan): Re-enable this test
-    @Ignore
     @Test
     public void testControllerAfterSessionIsClosed_sessionService() throws InterruptedException {
         prepareLooper();
-        /*
-        connectToService(TestUtils.getServiceToken(mContext, MockMediaSessionService2.ID));
+        testConnectToService(MockMediaSessionService2.ID);
         testControllerAfterSessionIsClosed(MockMediaSessionService2.ID);
-        */
     }
 
     @Test
@@ -1191,14 +1186,12 @@ public class MediaController2Test extends MediaSession2TestBase {
         testControllerAfterSessionIsClosed(id);
     }
 
-    @Ignore
     @Test
     public void testClose_sessionService() throws InterruptedException {
         prepareLooper();
         testCloseFromService(MockMediaSessionService2.ID);
     }
 
-    @Ignore
     @Test
     public void testClose_libraryService() throws InterruptedException {
         prepareLooper();
