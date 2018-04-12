@@ -977,8 +977,10 @@ public class NotificationCompat {
             }
 
             Resources res = mContext.getResources();
-            int maxWidth = res.getDimensionPixelSize(R.dimen.notification_icon_max_width);
-            int maxHeight = res.getDimensionPixelSize(R.dimen.notification_icon_max_height);
+            int maxWidth =
+                    res.getDimensionPixelSize(R.dimen.compat_notification_large_icon_max_width);
+            int maxHeight =
+                    res.getDimensionPixelSize(R.dimen.compat_notification_large_icon_max_height);
             if (icon.getWidth() <= maxWidth && icon.getHeight() <= maxHeight) {
                 return icon;
             }
