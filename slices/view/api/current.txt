@@ -5,6 +5,8 @@ package androidx.slice {
     method public abstract androidx.slice.Slice bindSlice(android.content.Intent);
     method public abstract int checkSlicePermission(android.net.Uri, int, int);
     method public static androidx.slice.SliceManager getInstance(android.content.Context);
+    method public abstract java.util.List<android.net.Uri> getPinnedSlices();
+    method public abstract java.util.Set<androidx.slice.SliceSpec> getPinnedSpecs(android.net.Uri);
     method public abstract java.util.Collection<android.net.Uri> getSliceDescendants(android.net.Uri);
     method public abstract void grantSlicePermission(java.lang.String, android.net.Uri);
     method public abstract android.net.Uri mapIntentToUri(android.content.Intent);
