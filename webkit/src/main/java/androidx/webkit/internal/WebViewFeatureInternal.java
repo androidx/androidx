@@ -23,6 +23,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 
 import androidx.webkit.ServiceWorkerClientCompat;
+import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 import androidx.webkit.WebViewFeature.WebViewSupportFeature;
@@ -37,7 +38,8 @@ public enum WebViewFeatureInternal {
     /**
      * This feature covers
      * {@link androidx.webkit.WebViewCompat#postVisualStateCallback(android.webkit.WebView, long,
-     * androidx.webkit.WebViewCompat.VisualStateCallback)}.
+     * androidx.webkit.WebViewCompat.VisualStateCallback)}, and
+     * {@link WebViewClientCompat#onPageCommitVisible(android.webkit.WebView, String)}.
      */
     VISUAL_STATE_CALLBACK_FEATURE(WebViewFeature.VISUAL_STATE_CALLBACK, Build.VERSION_CODES.M),
 
@@ -123,7 +125,39 @@ public enum WebViewFeatureInternal {
      * {@link ServiceWorkerClientCompat#shouldInterceptRequest(WebResourceRequest)}.
      */
     SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST,
-            Build.VERSION_CODES.N);
+            Build.VERSION_CODES.N),
+
+    /**
+     * This feature covers
+     * {@link WebViewClientCompat#onReceivedError(android.webkit.WebView, WebResourceRequest,
+     * WebResourceErrorCompat)}.
+     */
+    RECEIVE_WEB_RESOURCE_ERROR(WebViewFeature.RECEIVE_WEB_RESOURCE_ERROR, Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers
+     * {@link WebViewClientCompat#onReceivedHttpError(android.webkit.WebView, WebResourceRequest,
+     * WebResourceResponse)}.
+     */
+    RECEIVE_HTTP_ERROR(WebViewFeature.RECEIVE_HTTP_ERROR, Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers
+     * {@link WebViewClientCompat#shouldOverrideUrlLoading(android.webkit.WebView,
+     * WebResourceRequest)}.
+     */
+    SHOULD_OVERRIDE_WITH_REDIRECTS(WebViewFeature.SHOULD_OVERRIDE_WITH_REDIRECTS,
+            Build.VERSION_CODES.N),
+
+    /**
+     * This feature covers
+     * WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView,
+     * WebResourceRequest, int, SafeBrowsingResponseCompat).
+     *
+     * TODO(ntfschr): turn this into a javadoc link once the method is implemented in
+     * http://ag/3858246.
+     */
+    SAFE_BROWSING_HIT(WebViewFeature.SAFE_BROWSING_HIT, Build.VERSION_CODES.O_MR1);
 
     private final String mFeatureValue;
     private final int mOsVersion;
