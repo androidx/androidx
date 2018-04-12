@@ -344,7 +344,7 @@ public class WebViewCompat {
                 throw new RuntimeException("A WebView method was called on thread '"
                         + Thread.currentThread().getName() + "'. "
                         + "All WebView methods must be called on the same thread. "
-                        + "(Expected Looper " + webview.getLooper() + " called on "
+                        + "(Expected Looper " + webview.getWebViewLooper() + " called on "
                         + Looper.myLooper() + ", FYI main Looper is " + Looper.getMainLooper()
                         + ")");
             }

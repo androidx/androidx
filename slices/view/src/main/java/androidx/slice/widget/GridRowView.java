@@ -21,9 +21,9 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -258,7 +258,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
             SliceItem item = cellItems.get(i);
             final String itemFormat = item.getFormat();
             if (textCount < maxCellText && (FORMAT_TEXT.equals(itemFormat)
-                    || FORMAT_TIMESTAMP.equals(itemFormat))) {
+                    || FORMAT_LONG.equals(itemFormat))) {
                 if (textItems != null && !textItems.contains(item)) {
                     continue;
                 }
@@ -305,13 +305,13 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     private boolean addItem(SliceItem item, int color, ViewGroup container, boolean singleItem) {
         final String format = item.getFormat();
         View addedView = null;
-        if (FORMAT_TEXT.equals(format) || FORMAT_TIMESTAMP.equals(format)) {
+        if (FORMAT_TEXT.equals(format) || FORMAT_LONG.equals(format)) {
             boolean title = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
             TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(title
                     ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
             tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, title ? mTitleSize : mSubtitleSize);
             tv.setTextColor(title ? mTitleColor : mSubtitleColor);
-            CharSequence text = FORMAT_TIMESTAMP.equals(format)
+            CharSequence text = FORMAT_LONG.equals(format)
                     ? SliceViewUtil.getRelativeTimeString(item.getTimestamp())
                     : item.getText();
             tv.setText(text);

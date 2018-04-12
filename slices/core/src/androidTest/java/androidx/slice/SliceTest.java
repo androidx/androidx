@@ -23,9 +23,9 @@ import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 import static android.app.slice.SliceProvider.SLICE_TYPE;
 
 import static org.junit.Assert.assertEquals;
@@ -184,7 +184,7 @@ public class SliceTest {
         assertEquals(1, s.getItems().size());
 
         SliceItem item = s.getItems().get(0);
-        assertEquals(FORMAT_TIMESTAMP, item.getFormat());
+        assertEquals(FORMAT_LONG, item.getFormat());
         assertEquals(43, item.getTimestamp());
     }
 
