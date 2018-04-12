@@ -22,19 +22,19 @@
     <string name="abc_slice_show_more" msgid="1567717014004692768">"Vedeți mai multe"</string>
     <string name="abc_slice_updated" msgid="8155085405396453848">"Actualizat la <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
-      <item quantity="few">Acum <xliff:g id="ID_2">%d</xliff:g> min.</item>
-      <item quantity="other">Acum <xliff:g id="ID_2">%d</xliff:g> de min.</item>
-      <item quantity="one">Acum <xliff:g id="ID_1">%d</xliff:g> min.</item>
+      <item quantity="few">acum <xliff:g id="ID_2">%d</xliff:g> min.</item>
+      <item quantity="other">acum <xliff:g id="ID_2">%d</xliff:g> de min.</item>
+      <item quantity="one">acum <xliff:g id="ID_1">%d</xliff:g> min.</item>
     </plurals>
     <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
-      <item quantity="few">Acum <xliff:g id="ID_2">%d</xliff:g> ani</item>
-      <item quantity="other">Acum <xliff:g id="ID_2">%d</xliff:g> de ani</item>
-      <item quantity="one">Acum <xliff:g id="ID_1">%d</xliff:g> an</item>
+      <item quantity="few">acum <xliff:g id="ID_2">%d</xliff:g> ani</item>
+      <item quantity="other">acum <xliff:g id="ID_2">%d</xliff:g> de ani</item>
+      <item quantity="one">acum <xliff:g id="ID_1">%d</xliff:g> an</item>
     </plurals>
     <plurals name="abc_slice_duration_days" formatted="false" msgid="6241698511167107334">
-      <item quantity="few">Acum <xliff:g id="ID_2">%d</xliff:g> zile</item>
-      <item quantity="other">Acum <xliff:g id="ID_2">%d</xliff:g> de zile</item>
-      <item quantity="one">Acum <xliff:g id="ID_1">%d</xliff:g> zi</item>
+      <item quantity="few">acum <xliff:g id="ID_2">%d</xliff:g> zile</item>
+      <item quantity="other">acum <xliff:g id="ID_2">%d</xliff:g> de zile</item>
+      <item quantity="one">acum <xliff:g id="ID_1">%d</xliff:g> zi</item>
     </plurals>
     <string name="abc_slice_error" msgid="4188371422904147368">"Nu s-a putut conecta"</string>
 </resources>
