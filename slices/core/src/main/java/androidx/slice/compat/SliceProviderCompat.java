@@ -25,6 +25,7 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -62,6 +63,7 @@ public class SliceProviderCompat {
     private static final String TAG = "SliceProviderCompat";
     private static final String DATA_PREFIX = "slice_data_";
     private static final String PERMS_PREFIX = "slice_perms_";
+    private static final String ALL_FILES = DATA_PREFIX + "all_slice_files";
 
     private static final long SLICE_BIND_ANR = 2000;
 
@@ -97,8 +99,18 @@ public class SliceProviderCompat {
 
     public SliceProviderCompat(SliceProvider provider) {
         mProvider = provider;
-        mPinnedList = new CompatPinnedList(provider.getContext(),
-                DATA_PREFIX + getClass().getName());
+        String prefsFile = DATA_PREFIX + getClass().getName();
+        SharedPreferences allFiles = provider.getContext().getSharedPreferences(ALL_FILES, 0);
+        Set<String> files = allFiles.getStringSet(ALL_FILES, Collections.<String>emptySet());
+        if (!files.contains(prefsFile)) {
+            // Make sure this is editable.
+            files = new ArraySet<>(files);
+            files.add(prefsFile);
+            allFiles.edit()
+                    .putStringSet(ALL_FILES, files)
+                    .commit();
+        }
+        mPinnedList = new CompatPinnedList(provider.getContext(), prefsFile);
         mPermissionManager = new CompatPermissionManager(provider.getContext(),
                 PERMS_PREFIX + getClass().getName());
     }
@@ -605,5 +617,18 @@ public class SliceProviderCompat {
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to get slice descendants", e);
         }
+    }
+
+    /**
+     * Compat version of {@link android.app.slice.SliceManager#getPinnedSlices}.
+     */
+    public static List<Uri> getPinnedSlices(Context context) {
+        ArrayList<Uri> pinnedSlices = new ArrayList<>();
+        SharedPreferences prefs = context.getSharedPreferences(ALL_FILES, 0);
+        Set<String> prefSet = prefs.getStringSet(ALL_FILES, Collections.<String>emptySet());
+        for (String pref : prefSet) {
+            pinnedSlices.addAll(new CompatPinnedList(context, pref).getPinnedSlices());
+        }
+        return pinnedSlices;
     }
 }

@@ -28,6 +28,7 @@ import androidx.core.content.PermissionChecker;
 import androidx.core.os.BuildCompat;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -231,6 +232,14 @@ public abstract class SliceManager {
      * @see SliceProvider#onGetSliceDescendants(Uri)
      */
     public abstract @NonNull Collection<Uri> getSliceDescendants(@NonNull Uri uri);
+
+    /**
+     * Get the list of currently pinned slices for this app.
+     * @see SliceProvider#onSlicePinned
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public abstract @NonNull List<Uri> getPinnedSlices();
 
     /**
      * Class that listens to changes in {@link Slice}s.
