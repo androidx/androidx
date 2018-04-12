@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.widget;
+package androidx.media.widget;
 
-import static androidx.widget.VideoView2.VIEW_TYPE_TEXTUREVIEW;
+import static androidx.media.widget.VideoView2.VIEW_TYPE_TEXTUREVIEW;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
