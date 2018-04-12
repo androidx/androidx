@@ -24,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":navigation:common"))
+    api(project(":navigation:navigation-common"))
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

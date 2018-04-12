@@ -32,7 +32,7 @@ sourceSets {
 
 dependencies {
     compile build_libs.gradle
-    compile project(":navigation:safe-args-generator")
+    compile project(":navigation:navigation-safe-args-generator")
     compile gradleApi()
     compile(GSON)
     testCompile gradleTestKit()

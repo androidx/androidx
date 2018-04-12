@@ -24,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":navigation:runtime"))
+    api(project(":navigation:navigation-runtime"))
     api(SUPPORT_DESIGN)
 
     testImplementation(JUNIT)
