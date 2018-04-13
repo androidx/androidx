@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="v7_preference_on" msgid="7922757586228621900">"ВКЛ."</string>
-    <string name="v7_preference_off" msgid="2082379519172883894">"ВЫКЛ."</string>
-    <string name="expand_button_title" msgid="3265458434114353660">"Дополнительно"</string>
-    <string name="summary_collapsed_preference_list" msgid="5255557321652385027">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>, <xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>
-</resources>
