@@ -280,7 +280,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         // If we're here we can can show end items; check for top level actions first
         List<SliceItem> endItems = mRowContent.getEndItems();
         String desiredFormat = FORMAT_ACTION;
-        if (mIsHeader && mHeaderActions != null && mHeaderActions.size() > 0) {
+        if (mHeaderActions != null && mHeaderActions.size() > 0) {
             // Use these if we have them instead
             endItems = mHeaderActions;
         } else if (!endItems.isEmpty()) {
