@@ -39,6 +39,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentActivity;
 
@@ -128,8 +129,6 @@ public abstract class AppCompatDelegate {
 
     @NightMode
     private static int sDefaultNightMode = MODE_NIGHT_FOLLOW_SYSTEM;
-
-    private static boolean sCompatVectorFromResourcesEnabled = false;
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
@@ -522,7 +521,7 @@ public abstract class AppCompatDelegate {
      * <p>Please note: this only takes effect in Activities created after this call.</p>
      */
     public static void setCompatVectorFromResourcesEnabled(boolean enabled) {
-        sCompatVectorFromResourcesEnabled = enabled;
+        VectorEnabledTintResources.setCompatVectorFromResourcesEnabled(enabled);
     }
 
     /**
@@ -532,6 +531,6 @@ public abstract class AppCompatDelegate {
      * @see #setCompatVectorFromResourcesEnabled(boolean)
      */
     public static boolean isCompatVectorFromResourcesEnabled() {
-        return sCompatVectorFromResourcesEnabled;
+        return VectorEnabledTintResources.isCompatVectorFromResourcesEnabled();
     }
 }
