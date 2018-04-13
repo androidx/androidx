@@ -191,8 +191,6 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
                         null);
                 break;
         }
-        int mode = mParent != null ? mParent.getMode() : MODE_LARGE;
-        ((SliceChildView) v).setMode(mode);
         return v;
     }
 
@@ -248,6 +246,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             mSliceChildView.setOnTouchListener(this);
 
             final boolean isHeader = position == HEADER_INDEX;
+            int mode = mParent != null ? mParent.getMode() : MODE_LARGE;
+            mSliceChildView.setMode(mode);
             mSliceChildView.setTint(mColor);
             mSliceChildView.setStyle(mAttrs, mDefStyleAttr, mDefStyleRes);
             mSliceChildView.setSliceItem(item, isHeader, position, mSliceObserver);
