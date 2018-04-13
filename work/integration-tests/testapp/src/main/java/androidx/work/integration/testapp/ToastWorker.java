@@ -21,7 +21,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.work.Data;
-import androidx.work.Work;
+import androidx.work.WorkRequest;
 import androidx.work.Worker;
 
 /**
@@ -31,14 +31,14 @@ public class ToastWorker extends Worker {
     private static final String ARG_MESSAGE = "message";
 
     /**
-     * Create a {@link Work.Builder} with the given message.
+     * Create a {@link WorkRequest.Builder} with the given message.
      *
      * @param message The toast message to display
-     * @return A {@link Work.Builder}
+     * @return A {@link WorkRequest.Builder}
      */
-    public static Work.Builder create(String message) {
+    public static WorkRequest.Builder create(String message) {
         Data input = new Data.Builder().putString(ARG_MESSAGE, message).build();
-        return new Work.Builder(ToastWorker.class).withInputData(input);
+        return new WorkRequest.Builder(ToastWorker.class).withInputData(input);
     }
 
     @Override

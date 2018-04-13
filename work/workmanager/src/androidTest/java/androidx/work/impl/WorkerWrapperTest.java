@@ -44,8 +44,8 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.work.ArrayCreatingInputMerger;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
-import androidx.work.PeriodicWork;
-import androidx.work.Work;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkRequest;
 import androidx.work.Worker;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
@@ -94,7 +94,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testSuccess() throws InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -107,7 +107,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testRunAttemptCountIncremented_successfulExecution() {
-        Work work = new Work.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withSchedulers(Collections.singletonList(mMockScheduler))
@@ -121,7 +121,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testRunAttemptCountIncremented_failedExecution() {
-        Work work = new Work.Builder(FailureWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(FailureWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withSchedulers(Collections.singletonList(mMockScheduler))
@@ -146,7 +146,9 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testNotEnqueued() throws InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).withInitialState(RUNNING).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+                .withInitialState(RUNNING)
+                .build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -158,7 +160,9 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testCancelled() throws InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).withInitialState(CANCELLED).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+                .withInitialState(CANCELLED)
+                .build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -171,7 +175,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testPermanentErrorWithInvalidWorkerClass() throws InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
         getWorkSpec(work).workerClassName = "INVALID_CLASS_NAME";
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
@@ -185,7 +189,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testPermanentErrorWithInvalidInputMergerClass() throws InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
         getWorkSpec(work).inputMergerClassName = "INVALID_CLASS_NAME";
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
@@ -200,7 +204,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testFailed() throws InterruptedException {
-        Work work = new Work.Builder(FailureWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(FailureWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -213,7 +217,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @LargeTest
     public void testRunning() throws InterruptedException {
-        Work work = new Work.Builder(SleepTestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(SleepTestWorker.class).build();
         insertWork(work);
         WorkerWrapper wrapper = new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -228,8 +232,8 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testDependencies() {
-        Work prerequisiteWork = new Work.Builder(TestWorker.class).build();
-        Work work = new Work.Builder(TestWorker.class)
+        WorkRequest prerequisiteWork = new WorkRequest.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
                 .withInitialState(BLOCKED).build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
 
@@ -265,8 +269,10 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testDependencies_passesOutputs() {
-        Work prerequisiteWork = new Work.Builder(ChainedArgumentWorker.class).build();
-        Work work = new Work.Builder(TestWorker.class).withInitialState(BLOCKED).build();
+        WorkRequest prerequisiteWork = new WorkRequest.Builder(ChainedArgumentWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+                .withInitialState(BLOCKED)
+                .build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
 
         mDatabase.beginTransaction();
@@ -295,13 +301,13 @@ public class WorkerWrapperTest extends DatabaseTest {
         String value1 = "value1";
         String value2 = "value2";
 
-        Work prerequisiteWork1 = new Work.Builder(EchoingWorker.class)
+        WorkRequest prerequisiteWork1 = new WorkRequest.Builder(EchoingWorker.class)
                 .withInputData(new Data.Builder().putString(key, value1).build())
                 .build();
-        Work prerequisiteWork2 = new Work.Builder(EchoingWorker.class)
+        WorkRequest prerequisiteWork2 = new WorkRequest.Builder(EchoingWorker.class)
                 .withInputData(new Data.Builder().putString(key, value2).build())
                 .build();
-        Work work = new Work.Builder(TestWorker.class)
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
                 .withInputMerger(ArrayCreatingInputMerger.class)
                 .build();
         Dependency dependency1 = new Dependency(work.getId(), prerequisiteWork1.getId());
@@ -343,8 +349,10 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testDependencies_setsPeriodStartTimesForUnblockedWork() {
-        Work prerequisiteWork = new Work.Builder(TestWorker.class).build();
-        Work work = new Work.Builder(TestWorker.class).withInitialState(BLOCKED).build();
+        WorkRequest prerequisiteWork = new WorkRequest.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+                .withInitialState(BLOCKED)
+                .build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
 
         mDatabase.beginTransaction();
@@ -372,9 +380,13 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testDependencies_failsUncancelledDependentsOnFailure() {
-        Work prerequisiteWork = new Work.Builder(FailureWorker.class).build();
-        Work work = new Work.Builder(TestWorker.class).withInitialState(BLOCKED).build();
-        Work cancelledWork = new Work.Builder(TestWorker.class).withInitialState(CANCELLED).build();
+        WorkRequest prerequisiteWork = new WorkRequest.Builder(FailureWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+                .withInitialState(BLOCKED)
+                .build();
+        WorkRequest cancelledWork = new WorkRequest.Builder(TestWorker.class)
+                .withInitialState(CANCELLED)
+                .build();
         Dependency dependency1 = new Dependency(work.getId(), prerequisiteWork.getId());
         Dependency dependency2 = new Dependency(cancelledWork.getId(), prerequisiteWork.getId());
 
@@ -400,11 +412,11 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testRun_periodicWork_success_updatesPeriodStartTime() {
-        long intervalDuration = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
+        long intervalDuration = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS;
         long periodStartTime = System.currentTimeMillis();
         long expectedNextPeriodStartTime = periodStartTime + intervalDuration;
 
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class, intervalDuration, TimeUnit.MILLISECONDS).build();
 
         getWorkSpec(periodicWork).periodStartTime = periodStartTime;
@@ -423,11 +435,11 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testRun_periodicWork_failure_updatesPeriodStartTime() {
-        long intervalDuration = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
+        long intervalDuration = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS;
         long periodStartTime = System.currentTimeMillis();
         long expectedNextPeriodStartTime = periodStartTime + intervalDuration;
 
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 FailureWorker.class, intervalDuration, TimeUnit.MILLISECONDS).build();
 
         getWorkSpec(periodicWork).periodStartTime = periodStartTime;
@@ -446,9 +458,9 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testPeriodicWork_success() throws InterruptedException {
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
                 TimeUnit.MILLISECONDS)
                 .build();
 
@@ -468,9 +480,9 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testPeriodicWork_fail() throws InterruptedException {
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 FailureWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
                 TimeUnit.MILLISECONDS)
                 .build();
 
@@ -490,9 +502,9 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testPeriodicWork_retry() throws InterruptedException {
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 RetryWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
                 TimeUnit.MILLISECONDS)
                 .build();
 
@@ -512,7 +524,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testScheduler() throws InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
         Scheduler mockScheduler = mock(Scheduler.class);
 
@@ -527,7 +539,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testFromWorkSpec_hasAppContext() throws InterruptedException {
-        Work work = new Work.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
@@ -545,7 +557,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         String expectedValue = "VALUE";
         Data input = new Data.Builder().putString(key, expectedValue).build();
 
-        Work work = new Work.Builder(TestWorker.class).withInputData(input).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).withInputData(input).build();
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
@@ -555,7 +567,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getInputData().getString(key, null), is(expectedValue));
 
-        work = new Work.Builder(TestWorker.class).build();
+        work = new WorkRequest.Builder(TestWorker.class).build();
         worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
@@ -569,10 +581,10 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testSuccess_withPendingScheduledWork() {
-        Work work = new Work.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
 
-        Work unscheduled = new Work.Builder(TestWorker.class).build();
+        WorkRequest unscheduled = new WorkRequest.Builder(TestWorker.class).build();
         insertWork(unscheduled);
 
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
@@ -589,10 +601,10 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testFailure_withPendingScheduledWork() {
-        Work work = new Work.Builder(FailureWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(FailureWorker.class).build();
         insertWork(work);
 
-        Work unscheduled = new Work.Builder(TestWorker.class).build();
+        WorkRequest unscheduled = new WorkRequest.Builder(TestWorker.class).build();
         insertWork(unscheduled);
 
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())

@@ -39,9 +39,9 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
-import androidx.work.PeriodicWork;
-import androidx.work.Work;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManagerTest;
+import androidx.work.WorkRequest;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.IdGenerator;
@@ -56,8 +56,9 @@ import org.junit.runner.RunWith;
 public class SystemJobInfoConverterTest extends WorkManagerTest {
 
     private static final long TEST_INTERVAL_DURATION =
-            PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 1232L;
-    private static final long TEST_FLEX_DURATION = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 112L;
+            PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS + 1232L;
+    private static final long TEST_FLEX_DURATION =
+            PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS + 112L;
 
     private IdGenerator mMockIdGenerator;
     private SystemJobInfoConverter mConverter;
@@ -95,8 +96,8 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
      * Due to b/6771687, calling {@link JobInfo.Builder#build} with no constraints throws an
      * {@link IllegalArgumentException}. This is testing that {@link SystemJobInfoConverter#convert}
      * sets some dummy constraint to toggle some internal boolean flags in {@link JobInfo.Builder}
-     * to allow {@link Work} with no constraints to be converted without affecting its runtime,
-     * e.g. calling builder.setMinLatencyMillis(0L).
+     * to allow {@link WorkRequest} with no constraints to be converted without affecting its
+     * runtime, e.g. calling builder.setMinLatencyMillis(0L).
      */
     @Test
     @SmallTest
@@ -283,6 +284,8 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     }
 
     private WorkSpec getTestWorkSpecWithConstraints(Constraints constraints) {
-        return getWorkSpec(new Work.Builder(TestWorker.class).withConstraints(constraints).build());
+        return getWorkSpec(new WorkRequest.Builder(TestWorker.class)
+                .withConstraints(constraints)
+                .build());
     }
 }

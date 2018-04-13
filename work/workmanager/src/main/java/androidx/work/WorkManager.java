@@ -70,38 +70,40 @@ public abstract class WorkManager {
     /**
      * Enqueues one or more items for background processing.
      *
-     * @param baseWork One or more {@link BaseWork} to enqueue
+     * @param baseWorkRequest One or more {@link BaseWorkRequest} to enqueue
      */
-    public final void enqueue(@NonNull BaseWork... baseWork) {
-        enqueue(Arrays.asList(baseWork));
+    public final void enqueue(@NonNull BaseWorkRequest... baseWorkRequest) {
+        enqueue(Arrays.asList(baseWorkRequest));
     }
 
     /**
      * Enqueues one or more items for background processing.
      *
-     * @param baseWork One or more {@link BaseWork} to enqueue
+     * @param baseWork One or more {@link BaseWorkRequest} to enqueue
      */
-    public abstract void enqueue(@NonNull List<? extends BaseWork> baseWork);
+    public abstract void enqueue(@NonNull List<? extends BaseWorkRequest> baseWork);
 
     /**
-     * Begins a chain of {@link Work}, which can be enqueued together in the future using
+     * Begins a chain of {@link WorkRequest}, which can be enqueued together in the future using
      * {@link WorkContinuation#enqueue()}.
      *
-     * @param work One or more {@link Work} to start a chain of work
-     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
+     * @param work One or more {@link WorkRequest} to start a chain of work
+     * @return A {@link WorkContinuation} that allows for further chaining of dependent
+     *         {@link WorkRequest}
      */
-    public final WorkContinuation beginWith(@NonNull Work...work) {
+    public final WorkContinuation beginWith(@NonNull WorkRequest...work) {
         return beginWith(Arrays.asList(work));
     }
 
     /**
-     * Begins a chain of {@link Work}, which can be enqueued together in the future using
+     * Begins a chain of {@link WorkRequest}, which can be enqueued together in the future using
      * {@link WorkContinuation#enqueue()}.
      *
-     * @param work One or more {@link Work} to start a chain of work
-     * @return A {@link WorkContinuation} that allows for further chaining of dependent {@link Work}
+     * @param work One or more {@link WorkRequest} to start a chain of work
+     * @return A {@link WorkContinuation} that allows for further chaining of dependent
+     *         {@link WorkRequest}
      */
-    public abstract WorkContinuation beginWith(@NonNull List<Work> work);
+    public abstract WorkContinuation beginWith(@NonNull List<WorkRequest> work);
 
     /**
      * This method allows you to begin unique chains of work for situations where you only want one
@@ -117,7 +119,7 @@ public abstract class WorkManager {
      *
      * @param name A name which should uniquely label all the work in this chain
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}.
-     * @param work One or more {@link Work} to enqueue. {@code REPLACE} ensures that
+     * @param work One or more {@link WorkRequest} to enqueue. {@code REPLACE} ensures that
      *             if there is pending work labelled with {@code name}, it will be cancelled and the
      *             new work will run. {@code KEEP} will run the new sequence of work
      *             only if there is no pending work labelled with {@code name}.
@@ -129,7 +131,7 @@ public abstract class WorkManager {
     public final WorkContinuation beginWithName(
             @NonNull String name,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull Work... work) {
+            @NonNull WorkRequest... work) {
         return beginWithName(name, existingWorkPolicy, Arrays.asList(work));
     }
 
@@ -147,8 +149,8 @@ public abstract class WorkManager {
      *
      * @param name A name which should uniquely label all the work in this chain
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}.
-     * @param work One or more {@link Work} to enqueue. {@code REPLACE} ensures that if there is
-     *             pending work labelled with {@code name}, it will be cancelled and the new work
+     * @param work One or more {@link WorkRequest} to enqueue. {@code REPLACE} ensures that if there
+     *             is pending work labelled with {@code name}, it will be cancelled and the new work
      *             will run. {@code KEEP} will run the new sequence of work only if there is no
      *             pending work labelled with {@code name}.  {@code APPEND} will create a new
      *             sequence of work if there is no existing work with {@code name}; otherwise,
@@ -159,7 +161,7 @@ public abstract class WorkManager {
     public abstract WorkContinuation beginWithName(
             @NonNull String name,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<Work> work);
+            @NonNull List<WorkRequest> work);
 
     /**
      * Cancels work with the given id if it isn't finished.  Note that cancellation is a best-effort

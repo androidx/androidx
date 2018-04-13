@@ -20,7 +20,7 @@ import android.content.res.AssetManager;
 import android.util.Log;
 
 import androidx.work.Data;
-import androidx.work.Work;
+import androidx.work.WorkRequest;
 import androidx.work.Worker;
 
 import java.io.DataOutputStream;
@@ -41,16 +41,16 @@ public class TextMappingWorker extends Worker {
     private Map<String, Integer> mWordCount = new HashMap<>();
 
     /**
-     * Creates a {@link Work.Builder} with the necessary arguments.
+     * Creates a {@link WorkRequest.Builder} with the necessary arguments.
      *
      * @param inputFile The input file to process
-     * @return A {@link Work.Builder} with these arguments
+     * @return A {@link WorkRequest.Builder} with these arguments
      */
-    public static Work.Builder create(String inputFile) {
+    public static WorkRequest.Builder create(String inputFile) {
         Data input = new Data.Builder()
                 .putString(INPUT_FILE, inputFile)
                 .build();
-        return new Work.Builder(TextMappingWorker.class).withInputData(input);
+        return new WorkRequest.Builder(TextMappingWorker.class).withInputData(input);
     }
 
     @Override

@@ -25,9 +25,9 @@ import static org.mockito.Mockito.when;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.work.BaseWork;
+import androidx.work.BaseWorkRequest;
 import androidx.work.State;
-import androidx.work.Work;
+import androidx.work.WorkRequest;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
@@ -66,7 +66,7 @@ public class FirebaseJobServiceTest {
     @Test
     @SmallTest
     public void testOnStopJob_ResetsWorkStatus() throws InterruptedException {
-        Work work = new Work.Builder(FirebaseInfiniteTestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getId());
@@ -85,7 +85,7 @@ public class FirebaseJobServiceTest {
     @Test
     @SmallTest
     public void testOnStopJob_ReschedulesWhenNotCancelled() {
-        Work work = new Work.Builder(FirebaseInfiniteTestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getId());
@@ -96,7 +96,7 @@ public class FirebaseJobServiceTest {
     @Test
     @SmallTest
     public void testOnStopJob_DoesNotRescheduleWhenCancelled() {
-        Work work = new Work.Builder(FirebaseInfiniteTestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getId());
@@ -111,7 +111,7 @@ public class FirebaseJobServiceTest {
         return jobParameters;
     }
 
-    private void insertWork(BaseWork work) {
+    private void insertWork(BaseWorkRequest work) {
         mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
     }
 }

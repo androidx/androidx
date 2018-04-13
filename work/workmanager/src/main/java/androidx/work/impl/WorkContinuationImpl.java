@@ -25,11 +25,11 @@ import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import androidx.work.ArrayCreatingInputMerger;
-import androidx.work.BaseWork;
+import androidx.work.BaseWorkRequest;
 import androidx.work.BlockingWorkContinuation;
 import androidx.work.ExistingWorkPolicy;
-import androidx.work.Work;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
 import androidx.work.impl.logger.Logger;
 import androidx.work.impl.utils.EnqueueRunnable;
@@ -55,7 +55,7 @@ public class WorkContinuationImpl extends WorkContinuation
     private final WorkManagerImpl mWorkManagerImpl;
     private final String mName;
     private final ExistingWorkPolicy mExistingWorkPolicy;
-    private final List<? extends BaseWork> mWork;
+    private final List<? extends BaseWorkRequest> mWork;
     private final List<String> mIds;
     private final List<String> mAllIds;
     private final List<WorkContinuationImpl> mParents;
@@ -76,7 +76,7 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @NonNull
-    public List<? extends BaseWork> getWork() {
+    public List<? extends BaseWorkRequest> getWork() {
         return mWork;
     }
 
@@ -106,7 +106,7 @@ public class WorkContinuationImpl extends WorkContinuation
 
     WorkContinuationImpl(
             @NonNull WorkManagerImpl workManagerImpl,
-            @NonNull List<? extends BaseWork> work) {
+            @NonNull List<? extends BaseWorkRequest> work) {
         this(
                 workManagerImpl,
                 null,
@@ -118,14 +118,14 @@ public class WorkContinuationImpl extends WorkContinuation
     WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             String name,
             ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<? extends BaseWork> work) {
+            @NonNull List<? extends BaseWorkRequest> work) {
         this(workManagerImpl, name, existingWorkPolicy, work, null);
     }
 
     WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
             String name,
             ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<? extends BaseWork> work,
+            @NonNull List<? extends BaseWorkRequest> work,
             @Nullable List<WorkContinuationImpl> parents) {
         mWorkManagerImpl = workManagerImpl;
         mName = name;
@@ -147,7 +147,7 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Override
-    public WorkContinuation then(List<Work> work) {
+    public WorkContinuation then(List<WorkRequest> work) {
         // TODO (rahulrav@) We need to decide if we want to allow chaining of continuations after
         // an initial call to enqueue()
         return new WorkContinuationImpl(mWorkManagerImpl,
@@ -198,11 +198,11 @@ public class WorkContinuationImpl extends WorkContinuation
 
     @Override
     protected WorkContinuation joinInternal(
-            @Nullable Work work,
+            @Nullable WorkRequest work,
             @NonNull List<WorkContinuation> continuations) {
 
         if (work == null) {
-            work = new Work.Builder(JoinWorker.class)
+            work = new WorkRequest.Builder(JoinWorker.class)
                     .withInputMerger(ArrayCreatingInputMerger.class)
                     .build();
         }

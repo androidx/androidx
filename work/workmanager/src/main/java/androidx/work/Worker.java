@@ -79,7 +79,7 @@ public abstract class Worker {
     public abstract WorkerResult doWork();
 
     /**
-     * Call this method to pass an {@link Data} object to {@link Work} that is dependent on
+     * Call this method to pass an {@link Data} object to {@link WorkRequest} that is dependent on
      * this one.  Note that if there are multiple {@link Worker}s that contribute to the target, the
      * Data will be merged together, so it is up to the developer to make sure that keys are
      * unique.  New values and types will clobber old values and types, and if there are multiple
@@ -99,8 +99,8 @@ public abstract class Worker {
      * modifying the input Data for WorkerC.
      *
      * @param outputData An {@link Data} object that will be merged into the input Data of any
-     *               Work that is dependent on this one, or {@code null} if there is nothing to
-     *               contribute
+     *               WorkRequest that is dependent on this one, or {@code null} if there is nothing
+     *               to contribute
      */
     public final void setOutputData(Data outputData) {
         mOutputData = outputData;
@@ -125,9 +125,9 @@ public abstract class Worker {
     /**
      * Determines if the {@link Worker} was interrupted and should stop executing.
      * The {@link Worker} can be interrupted for the following reasons:
-     * 1. The {@link Work} or {@link PeriodicWork} was explicitly cancelled.
+     * 1. The {@link WorkRequest} or {@link PeriodicWorkRequest} was explicitly cancelled.
      *    {@link WorkManager#cancelAllWorkByTag(String)}
-     * 2. Constraints set in {@link Work} or {@link PeriodicWork} are no longer valid.
+     * 2. Constraints set in {@link WorkRequest} or {@link PeriodicWorkRequest} are no longer valid.
      * @return {@code true} if {@link Worker} is instructed to stop executing.
      */
     protected final boolean isInterrupted() {

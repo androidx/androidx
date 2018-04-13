@@ -20,7 +20,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.work.Data;
-import androidx.work.Work;
+import androidx.work.WorkRequest;
 import androidx.work.Worker;
 import androidx.work.integration.testapp.db.Image;
 import androidx.work.integration.testapp.db.TestDatabase;
@@ -49,8 +49,8 @@ public class ImageSetupWorker extends Worker {
         return WorkerResult.SUCCESS;
     }
 
-    static Work createWork(String uriString) {
+    static WorkRequest createWork(String uriString) {
         Data input = new Data.Builder().putString(URI_KEY, uriString).build();
-        return new Work.Builder(ImageSetupWorker.class).withInputData(input).build();
+        return new WorkRequest.Builder(ImageSetupWorker.class).withInputData(input).build();
     }
 }

@@ -23,7 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 
 /**
- * The constraints that can be applied to one {@link BaseWork}.
+ * The constraints that can be applied to one {@link BaseWorkRequest}.
  */
 public class Constraints {
 
@@ -174,7 +174,7 @@ public class Constraints {
         private ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
 
         /**
-         * Specify whether device should be plugged in for {@link BaseWork} to run.
+         * Specify whether device should be plugged in for {@link BaseWorkRequest} to run.
          * Default is false.
          *
          * @param requiresCharging true if device must be plugged in, false otherwise
@@ -186,7 +186,8 @@ public class Constraints {
         }
 
         /**
-         * Specify whether device should be idle for {@link BaseWork} to run. Default is false.
+         * Specify whether device should be idle for {@link BaseWorkRequest} to run. Default is
+         * false.
          *
          * @param requiresDeviceIdle true if device must be idle, false otherwise
          * @return current builder
@@ -198,8 +199,8 @@ public class Constraints {
         }
 
         /**
-         * Specify whether device should have a particular {@link NetworkType} for {@link BaseWork}
-         * to run. Default is {@link NetworkType#NOT_REQUIRED}
+         * Specify whether device should have a particular {@link NetworkType} for
+         * {@link BaseWorkRequest} to run. Default is {@link NetworkType#NOT_REQUIRED}.
          *
          * @param networkType type of network required
          * @return current builder
@@ -211,7 +212,7 @@ public class Constraints {
 
         /**
          * Specify whether device battery should not be below critical threshold for
-         * {@link BaseWork} to run. Default is false.
+         * {@link BaseWorkRequest} to run. Default is false.
          *
          * @param requiresBatteryNotLow true if battery should not be below critical threshold,
          *                              false otherwise
@@ -224,7 +225,7 @@ public class Constraints {
 
         /**
          * Specify whether device available storage should not be below critical threshold for
-         * {@link BaseWork} to run. Default is {@code false}.
+         * {@link BaseWorkRequest} to run. Default is {@code false}.
          *
          * @param requiresStorageNotLow true if available storage should not be below critical
          *                              threshold, false otherwise
@@ -236,12 +237,12 @@ public class Constraints {
         }
 
         /**
-         * Specify whether {@link BaseWork} should run when a content {@link android.net.Uri} is
-         * updated.  This method requires API 24 or higher.
+         * Specify whether {@link BaseWorkRequest} should run when a content {@link android.net.Uri}
+         * is updated.  This method requires API 24 or higher.
          *
          * @param uri {@link android.net.Uri} to observe
          * @param triggerForDescendants {@code true} if any changes in descendants cause this
-         *                              {@link BaseWork} to run
+         *                              {@link BaseWorkRequest} to run
          * @return The current {@link Builder}
          */
         @RequiresApi(24)
@@ -253,7 +254,7 @@ public class Constraints {
         /**
          * Generates the {@link Constraints} from this Builder.
          *
-         * @return new {@link Constraints} which can be attached to a {@link BaseWork}
+         * @return new {@link Constraints} which can be attached to a {@link BaseWorkRequest}
          */
         public Constraints build() {
             return new Constraints(this);

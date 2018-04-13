@@ -35,14 +35,15 @@ public class WorkSpecTest extends WorkManagerTest {
     private static final long DEFAULT_INITIAL_DELAY_TIME_MS = 5000L;
     private static final long DEFAULT_BACKOFF_DELAY_TIME_MS = 5000L;
     private static final long DEFAULT_PERIOD_START_TIME = 10000L;
-    private static final long DEFAULT_FLEX_TIME_MS = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 5000L;
+    private static final long DEFAULT_FLEX_TIME_MS =
+            PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS + 5000L;
     private static final long DEFAULT_INTERVAL_TIME_MS =
-            PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 5000L;
+            PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS + 5000L;
 
     @Test
     @SmallTest
     public void testCalculateNextRunTime_firstRunAttempt_oneOff() {
-        Work work = new Work.Builder(InfiniteTestWorker.class)
+        WorkRequest work = new WorkRequest.Builder(InfiniteTestWorker.class)
                 .withInitialDelay(DEFAULT_INITIAL_DELAY_TIME_MS, TimeUnit.MILLISECONDS)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
@@ -53,7 +54,7 @@ public class WorkSpecTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_firstRunAttempt_periodic() {
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 InfiniteTestWorker.class,
                 DEFAULT_INTERVAL_TIME_MS,
                 TimeUnit.MILLISECONDS,
@@ -68,7 +69,7 @@ public class WorkSpecTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_exponential() {
-        Work work1 = new Work.Builder(InfiniteTestWorker.class)
+        WorkRequest work1 = new WorkRequest.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BackoffPolicy.EXPONENTIAL,
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
@@ -76,7 +77,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .withInitialRunAttemptCount(1)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
-        Work work2 = new Work.Builder(InfiniteTestWorker.class)
+        WorkRequest work2 = new WorkRequest.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BackoffPolicy.EXPONENTIAL,
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
@@ -84,7 +85,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .withInitialRunAttemptCount(2)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
-        Work work3 = new Work.Builder(InfiniteTestWorker.class)
+        WorkRequest work3 = new WorkRequest.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BackoffPolicy.EXPONENTIAL,
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
@@ -107,7 +108,7 @@ public class WorkSpecTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_linear() {
-        Work work1 = new Work.Builder(InfiniteTestWorker.class)
+        WorkRequest work1 = new WorkRequest.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BackoffPolicy.LINEAR,
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
@@ -115,7 +116,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .withInitialRunAttemptCount(1)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
-        Work work2 = new Work.Builder(InfiniteTestWorker.class)
+        WorkRequest work2 = new WorkRequest.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BackoffPolicy.LINEAR,
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
@@ -123,7 +124,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .withInitialRunAttemptCount(2)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
-        Work work3 = new Work.Builder(InfiniteTestWorker.class)
+        WorkRequest work3 = new WorkRequest.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BackoffPolicy.LINEAR,
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
@@ -145,30 +146,30 @@ public class WorkSpecTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_linear_upperBound() {
-        Work work = new Work.Builder(InfiniteTestWorker.class)
+        WorkRequest work = new WorkRequest.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BackoffPolicy.LINEAR,
-                        BaseWork.MAX_BACKOFF_MILLIS + 1,
+                        BaseWorkRequest.MAX_BACKOFF_MILLIS + 1,
                         TimeUnit.MILLISECONDS)
                 .withInitialRunAttemptCount(1)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(work).calculateNextRunTime(),
-                is(DEFAULT_PERIOD_START_TIME + BaseWork.MAX_BACKOFF_MILLIS));
+                is(DEFAULT_PERIOD_START_TIME + BaseWorkRequest.MAX_BACKOFF_MILLIS));
     }
 
     @Test
     @SmallTest
     public void testCalculateNextRunTime_rerunAttempt_exponential_upperBound() {
-        Work work = new Work.Builder(InfiniteTestWorker.class)
+        WorkRequest work = new WorkRequest.Builder(InfiniteTestWorker.class)
                 .withBackoffCriteria(
                         BackoffPolicy.EXPONENTIAL,
-                        BaseWork.MAX_BACKOFF_MILLIS + 1,
+                        BaseWorkRequest.MAX_BACKOFF_MILLIS + 1,
                         TimeUnit.MILLISECONDS)
                 .withInitialRunAttemptCount(1)
                 .withPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(work).calculateNextRunTime(),
-                is(DEFAULT_PERIOD_START_TIME + BaseWork.MAX_BACKOFF_MILLIS));
+                is(DEFAULT_PERIOD_START_TIME + BaseWorkRequest.MAX_BACKOFF_MILLIS));
     }
 }

@@ -26,7 +26,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.DatabaseTest;
-import androidx.work.Work;
+import androidx.work.WorkRequest;
 import androidx.work.worker.InfiniteTestWorker;
 
 import org.junit.Before;
@@ -62,7 +62,7 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testStartWork_doesNotStartWorkTwice() {
-        Work work = new Work.Builder(InfiniteTestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(InfiniteTestWorker.class).build();
         String id = work.getId();
         insertWork(work);
         assertThat(mProcessor.startWork(id), is(true));
@@ -72,7 +72,7 @@ public class ProcessorTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testHasWork() {
-        Work work = new Work.Builder(InfiniteTestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
         assertThat(mProcessor.hasWork(), is(false));

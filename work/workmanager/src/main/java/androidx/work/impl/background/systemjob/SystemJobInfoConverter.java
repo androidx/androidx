@@ -103,8 +103,9 @@ class SystemJobInfoConverter {
                 builder.setPeriodic(workSpec.intervalDuration);
             }
         } else {
-            // Even if a Work has no constraints, setMinimumLatency(0) still needs to be called due
-            // to an issue in JobInfo.Builder#build and JobInfo with no constraints. See b/67716867.
+            // Even if a BaseWorkRequest has no constraints, setMinimumLatency(0) still needs to be
+            // called due to an issue in JobInfo.Builder#build and JobInfo with no constraints. See
+            // b/67716867.
             builder.setMinimumLatency(workSpec.initialDelay);
         }
 

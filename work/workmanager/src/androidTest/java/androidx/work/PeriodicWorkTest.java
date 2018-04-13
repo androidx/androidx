@@ -42,9 +42,9 @@ public class PeriodicWorkTest extends WorkManagerTest {
     @SdkSuppress(minSdkVersion = 23)
     public void testBuild_backoffAndIdleMode_throwsIllegalArgumentException() {
         mThrown.expect(IllegalArgumentException.class);
-        new PeriodicWork.Builder(
+        new PeriodicWorkRequest.Builder(
                 TestWorker.class,
-                PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS,
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
                 TimeUnit.MILLISECONDS)
                 .withBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20000, TimeUnit.MILLISECONDS)
                 .withConstraints(new Constraints.Builder()
@@ -56,8 +56,8 @@ public class PeriodicWorkTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testBuild_setPeriodic_onlyIntervalDuration_inRange() {
-        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        long testInterval = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 testInterval,
                 TimeUnit.MILLISECONDS)
@@ -69,24 +69,24 @@ public class PeriodicWorkTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testBuild_setPeriodic_onlyIntervalDuration_outOfRange() {
-        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS - 123L;
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        long testInterval = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS - 123L;
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 testInterval,
                 TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(periodicWork).intervalDuration,
-                is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
+                is(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS));
         assertThat(getWorkSpec(periodicWork).flexDuration,
-                is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
+                is(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS));
     }
 
     @Test
     @SmallTest
     public void testBuild_setPeriodic_intervalAndFlexDurations_inRange() {
-        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
-        long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 123L;
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        long testInterval = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
+        long testFlex = PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS + 123L;
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 testInterval,
                 TimeUnit.MILLISECONDS,
@@ -100,9 +100,9 @@ public class PeriodicWorkTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testBuild_setPeriodic_intervalAndFlexDurations_outOfRange() {
-        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS - 123L;
-        long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS - 123L;
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        long testInterval = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS - 123L;
+        long testFlex = PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS - 123L;
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 testInterval,
                 TimeUnit.MILLISECONDS,
@@ -110,17 +110,17 @@ public class PeriodicWorkTest extends WorkManagerTest {
                 TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(periodicWork).intervalDuration,
-                is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
+                is(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS));
         assertThat(getWorkSpec(periodicWork).flexDuration,
-                is(PeriodicWork.MIN_PERIODIC_FLEX_MILLIS));
+                is(PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS));
     }
 
     @Test
     @SmallTest
     public void testBuild_setPeriodic_intervalInRange_flexOutOfRange() {
-        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
-        long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS - 123L;
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        long testInterval = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS + 123L;
+        long testFlex = PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS - 123L;
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 testInterval,
                 TimeUnit.MILLISECONDS,
@@ -129,15 +129,15 @@ public class PeriodicWorkTest extends WorkManagerTest {
                 .build();
         assertThat(getWorkSpec(periodicWork).intervalDuration, is(testInterval));
         assertThat(getWorkSpec(periodicWork).flexDuration,
-                is(PeriodicWork.MIN_PERIODIC_FLEX_MILLIS));
+                is(PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS));
     }
 
     @Test
     @SmallTest
     public void testBuild_setPeriodic_intervalOutOfRange_flexInRange() {
-        long testInterval = PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS - 123L;
-        long testFlex = PeriodicWork.MIN_PERIODIC_FLEX_MILLIS + 123L;
-        PeriodicWork periodicWork = new PeriodicWork.Builder(
+        long testInterval = PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS - 123L;
+        long testFlex = PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS + 123L;
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 testInterval,
                 TimeUnit.MILLISECONDS,
@@ -145,7 +145,7 @@ public class PeriodicWorkTest extends WorkManagerTest {
                 TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(periodicWork).intervalDuration,
-                is(PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS));
+                is(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS));
         assertThat(getWorkSpec(periodicWork).flexDuration, is(testFlex));
     }
 }

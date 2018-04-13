@@ -39,8 +39,8 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.work.Work;
 import androidx.work.WorkManagerTest;
+import androidx.work.WorkRequest;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.TestWorker;
@@ -90,10 +90,10 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 23)
     public void testSystemJobScheduler_schedulesTwiceOnApi23() {
-        Work work1 = new Work.Builder(TestWorker.class).build();
+        WorkRequest work1 = new WorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec1 = getWorkSpec(work1);
 
-        Work work2 = new Work.Builder(TestWorker.class).build();
+        WorkRequest work2 = new WorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec2 = getWorkSpec(work2);
 
         mSystemJobScheduler.schedule(workSpec1, workSpec2);
@@ -106,10 +106,10 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     public void testSystemJobScheduler_schedulesOnceAtOrAboveApi24() {
-        Work work1 = new Work.Builder(TestWorker.class).build();
+        WorkRequest work1 = new WorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec1 = getWorkSpec(work1);
 
-        Work work2 = new Work.Builder(TestWorker.class).build();
+        WorkRequest work2 = new WorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec2 = getWorkSpec(work2);
 
         mSystemJobScheduler.schedule(workSpec1, workSpec2);
