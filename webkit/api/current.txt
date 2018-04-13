@@ -1,5 +1,11 @@
 package androidx.webkit {
 
+  public abstract class SafeBrowsingResponseCompat {
+    method public abstract void backToSafety(boolean);
+    method public abstract void proceed(boolean);
+    method public abstract void showInterstitial(boolean);
+  }
+
   public abstract class ServiceWorkerClientCompat {
     ctor public ServiceWorkerClientCompat();
     method public abstract android.webkit.WebResourceResponse shouldInterceptRequest(android.webkit.WebResourceRequest);
@@ -44,6 +50,8 @@ package androidx.webkit {
     ctor public WebViewClientCompat();
     method public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError);
     method public void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, androidx.webkit.WebResourceErrorCompat);
+    method public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, android.webkit.SafeBrowsingResponse);
+    method public void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, androidx.webkit.SafeBrowsingResponseCompat);
   }
 
   public class WebViewCompat {
