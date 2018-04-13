@@ -482,7 +482,7 @@ public final class Slice {
      */
     @RestrictTo(Scope.LIBRARY)
     public static void addHints(StringBuilder sb, String[] hints) {
-        if (hints.length == 0) return;
+        if (hints == null || hints.length == 0) return;
 
         sb.append("(");
         int end = hints.length - 1;
