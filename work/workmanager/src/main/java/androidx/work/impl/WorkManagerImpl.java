@@ -69,19 +69,8 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
 
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
+    private static final Object sLock = new Object();
 
-    /**
-     * Retrieves the singleton instance of {@link WorkManagerImpl}.
-     *
-     * @return The singleton instance of {@link WorkManagerImpl}
-     */
-    public static synchronized WorkManagerImpl getInstance() {
-        if (sDelegatedInstance != null) {
-            return sDelegatedInstance;
-        }
-
-        return sDefaultInstance;
-    }
 
     /**
      * @param delegate The delegate for {@link WorkManagerImpl} for testing; {@code null} to use the
@@ -90,30 +79,47 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
      */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static synchronized void setDelegate(WorkManagerImpl delegate) {
-        sDelegatedInstance = delegate;
+    public static void setDelegate(WorkManagerImpl delegate) {
+        synchronized (sLock) {
+            sDelegatedInstance = delegate;
+        }
+    }
+
+    /**
+     * Retrieves the singleton instance of {@link WorkManagerImpl}.
+     *
+     * @return The singleton instance of {@link WorkManagerImpl}
+     */
+    public static WorkManagerImpl getInstance() {
+        synchronized (sLock) {
+            if (sDelegatedInstance != null) {
+                return sDelegatedInstance;
+            }
+
+            return sDefaultInstance;
+        }
     }
 
     /**
      * Initializes the singleton instance of {@link WorkManagerImpl}.
      *
-     * @param context   Internally, this class
+     * @param context A {@link Context} object for configuration purposes. Internally, this class
      *                will call {@link Context#getApplicationContext()}, so you may safely pass in
      *                any Context without risking a memory leak.
-     * @return The singleton instance of {@link WorkManagerImpl}
+     * @param configuration The {@link Configuration} for used to set up WorkManager.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static synchronized void initialize(@NonNull Context context) {
-        if (sDelegatedInstance == null) {
-            context = context.getApplicationContext();
-            if (sDefaultInstance == null) {
-                sDefaultInstance = new WorkManagerImpl(
-                        context,
-                        new Configuration.Builder().build());
+    public static void initialize(@NonNull Context context, @NonNull Configuration configuration) {
+        synchronized (sLock) {
+            if (sDelegatedInstance == null) {
+                context = context.getApplicationContext();
+                if (sDefaultInstance == null) {
+                    sDefaultInstance = new WorkManagerImpl(context, configuration);
+                }
+                sDelegatedInstance = sDefaultInstance;
             }
-            sDelegatedInstance = sDefaultInstance;
         }
     }
 

@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
+import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
 /**
@@ -36,7 +37,7 @@ public class WorkManagerInitializer extends ContentProvider {
     @Override
     public boolean onCreate() {
         // Initialize WorkManager with the default configuration.
-        WorkManager.initialize(getContext());
+        WorkManager.initialize(getContext(), new Configuration.Builder().build());
         return true;
     }
 
