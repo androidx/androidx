@@ -195,7 +195,7 @@ public class ShortcutView extends SliceChildView {
                 if (mActionItem == null) {
                     mActionItem = new SliceItem(PendingIntent.getActivity(context, 0,
                             pm.getLaunchIntentForPackage(appInfo.packageName), 0),
-                            new Slice.Builder(slice.getUri()).build(), FORMAT_SLICE,
+                            new Slice.Builder(slice.getUri()).build(), FORMAT_ACTION,
                             null /* subtype */, null);
                 }
             }
