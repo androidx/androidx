@@ -115,44 +115,44 @@ project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "r
 //include ':room:integration-tests:kotlintestapp'
 //project(':room:integration-tests:kotlintestapp').projectDir = new File(supportRoot, "room/integration-tests/kotlintestapp")
 
-include ':navigation:common'
-project(':navigation:common').projectDir = new File(supportRoot, "navigation/common")
+include ':navigation:navigation-common'
+project(':navigation:navigation-common').projectDir = new File(supportRoot, "navigation/common")
 
-include ':navigation:common-ktx'
-project(':navigation:common-ktx').projectDir = new File(supportRoot, "navigation/common/ktx")
+include ':navigation:navigation-common-ktx'
+project(':navigation:navigation-common-ktx').projectDir = new File(supportRoot, "navigation/common/ktx")
 
-include ':navigation:runtime'
-project(':navigation:runtime').projectDir = new File(supportRoot, "navigation/runtime")
+include ':navigation:navigation-runtime'
+project(':navigation:navigation-runtime').projectDir = new File(supportRoot, "navigation/runtime")
 
-include ':navigation:runtime-ktx'
-project(':navigation:runtime-ktx').projectDir = new File(supportRoot, "navigation/runtime/ktx")
+include ':navigation:navigation-runtime-ktx'
+project(':navigation:navigation-runtime-ktx').projectDir = new File(supportRoot, "navigation/runtime/ktx")
 
-include ':navigation:testing'
-project(':navigation:testing').projectDir = new File(supportRoot, "navigation/testing")
+include ':navigation:navigation-testing'
+project(':navigation:navigation-testing').projectDir = new File(supportRoot, "navigation/testing")
 
-include ':navigation:testing-ktx'
-project(':navigation:testing-ktx').projectDir = new File(supportRoot, "navigation/testing/ktx")
+include ':navigation:navigation-testing-ktx'
+project(':navigation:navigation-testing-ktx').projectDir = new File(supportRoot, "navigation/testing/ktx")
 
-include ':navigation:fragment'
-project(':navigation:fragment').projectDir = new File(supportRoot, "navigation/fragment")
+include ':navigation:navigation-fragment'
+project(':navigation:navigation-fragment').projectDir = new File(supportRoot, "navigation/fragment")
 
-include ':navigation:fragment-ktx'
-project(':navigation:fragment-ktx').projectDir = new File(supportRoot, "navigation/fragment/ktx")
+include ':navigation:navigation-fragment-ktx'
+project(':navigation:navigation-fragment-ktx').projectDir = new File(supportRoot, "navigation/fragment/ktx")
 
-include ':navigation:ui'
-project(':navigation:ui').projectDir = new File(supportRoot, "navigation/ui")
+include ':navigation:navigation-ui'
+project(':navigation:navigation-ui').projectDir = new File(supportRoot, "navigation/ui")
 
-include ':navigation:ui-ktx'
-project(':navigation:ui-ktx').projectDir = new File(supportRoot, "navigation/ui/ktx")
+include ':navigation:navigation-ui-ktx'
+project(':navigation:navigation-ui-ktx').projectDir = new File(supportRoot, "navigation/ui/ktx")
 
-include ':navigation:integration-tests:testapp'
-project(':navigation:integration-tests:testapp').projectDir = new File(supportRoot, "navigation/integration-tests/testapp")
+include ':navigation:navigation-integration-tests:testapp'
+project(':navigation:navigation-integration-tests:testapp').projectDir = new File(supportRoot, "navigation/integration-tests/testapp")
 
-include ':navigation:safe-args-generator'
-project (':navigation:safe-args-generator').projectDir = new File(supportRoot, "navigation/safe-args-generator")
+include ':navigation:navigation-safe-args-generator'
+project (':navigation:navigation-safe-args-generator').projectDir = new File(supportRoot, "navigation/safe-args-generator")
 
-include ':navigation:safe-args-gradle-plugin'
-project (':navigation:safe-args-gradle-plugin').projectDir = new File(supportRoot, "navigation/safe-args-gradle-plugin")
+include ':navigation:navigation-safe-args-gradle-plugin'
+project (':navigation:navigation-safe-args-gradle-plugin').projectDir = new File(supportRoot, "navigation/safe-args-gradle-plugin")
 
 /////////////////////////////
 //
