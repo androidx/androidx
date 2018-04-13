@@ -31,7 +31,9 @@ import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnSubtitleDataListener;
 import android.media.PlaybackParams;
+import android.media.SubtitleData;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -63,6 +65,9 @@ import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.SessionToken2;
+import androidx.media.subtitle.ClosedCaptionRenderer;
+import androidx.media.subtitle.SubtitleController;
+import androidx.media.subtitle.SubtitleTrack;
 import androidx.palette.graphics.Palette;
 
 import java.io.IOException;
@@ -133,7 +138,7 @@ import java.util.concurrent.Executor;
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
  */
-@RequiresApi(21) // TODO correct minSdk API use incompatibilities and remove before release.
+@RequiresApi(28) // TODO correct minSdk API use incompatibilities and remove before release.
 @RestrictTo(LIBRARY_GROUP)
 public class VideoView2 extends BaseLayout implements VideoViewInterface.SurfaceListener {
     /** @hide */
@@ -230,15 +235,15 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
     private ArrayList<Integer> mVideoTrackIndices;
     private ArrayList<Integer> mAudioTrackIndices;
-    // private ArrayList<Pair<Integer, SubtitleTrack>> mSubtitleTrackIndices;
-    // private SubtitleController mSubtitleController;
+    private ArrayList<Pair<Integer, SubtitleTrack>> mSubtitleTrackIndices;
+    private SubtitleController mSubtitleController;
 
     // selected video/audio/subtitle track index as MediaPlayer returns
     private int mSelectedVideoTrackIndex;
     private int mSelectedAudioTrackIndex;
     private int mSelectedSubtitleTrackIndex;
 
-    // private SubtitleView mSubtitleView;
+    private SubtitleView mSubtitleView;
     private boolean mSubtitleEnabled;
 
     private float mSpeed;
@@ -373,10 +378,10 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         addView(mTextureView);
         addView(mSurfaceView);
 
-        // mSubtitleView = new SubtitleView(getContext());
-        // mSubtitleView.setLayoutParams(params);
-        // mSubtitleView.setBackgroundColor(0);
-        // addView(mSubtitleView);
+        mSubtitleView = new SubtitleView(getContext());
+        mSubtitleView.setLayoutParams(params);
+        mSubtitleView.setBackgroundColor(0);
+        addView(mSubtitleView);
 
         boolean enableControlView = (attrs == null) || attrs.getAttributeBooleanValue(
                 "http://schemas.android.com/apk/res/android",
@@ -1046,9 +1051,9 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
             final Context context = getContext();
             // TODO: Add timely firing logic for more accurate sync between CC and video frame
-            // mSubtitleController = new SubtitleController(context);
-            // mSubtitleController.registerRenderer(new ClosedCaptionRenderer(context));
-            // mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleView);
+            mSubtitleController = new SubtitleController(context);
+            mSubtitleController.registerRenderer(new ClosedCaptionRenderer(context));
+            mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleView);
 
             mMediaPlayer.setOnPreparedListener(mPreparedListener);
             mMediaPlayer.setOnVideoSizeChangedListener(mSizeChangedListener);
@@ -1061,7 +1066,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             mCurrentBufferPercentage = -1;
             mMediaPlayer.setDataSource(getContext(), uri, headers);
             mMediaPlayer.setAudioAttributes(mAudioAttributes);
-            // mMediaPlayer.setOnSubtitleDataListener(mSubtitleListener);
+            mMediaPlayer.setOnSubtitleDataListener(mSubtitleListener);
             // we don't set the target state here either, but preserve the
             // target state that was there before.
             mCurrentState = STATE_PREPARING;
@@ -1272,7 +1277,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         if (!isInPlaybackState()) {
             return;
         }
-    /*
         if (select) {
             if (mSubtitleTrackIndices.size() > 0) {
                 // TODO: make this selection dynamic
@@ -1288,31 +1292,25 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                 mSubtitleView.setVisibility(View.GONE);
             }
         }
-    */
     }
 
     private void extractTracks() {
         MediaPlayer.TrackInfo[] trackInfos = mMediaPlayer.getTrackInfo();
         mVideoTrackIndices = new ArrayList<>();
         mAudioTrackIndices = new ArrayList<>();
-        /*
         mSubtitleTrackIndices = new ArrayList<>();
         mSubtitleController.reset();
-        */
         for (int i = 0; i < trackInfos.length; ++i) {
             int trackType = trackInfos[i].getTrackType();
             if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
                 mVideoTrackIndices.add(i);
             } else if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
                 mAudioTrackIndices.add(i);
-                /*
-            } else if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE
-                    || trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT) {
+            } else if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                 SubtitleTrack track = mSubtitleController.addTrack(trackInfos[i].getFormat());
                 if (track != null) {
                     mSubtitleTrackIndices.add(new Pair<>(i, track));
                 }
-                */
             }
         }
         // Select first tracks as default
@@ -1329,12 +1327,10 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         Bundle data = new Bundle();
         data.putInt(MediaControlView2.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
         data.putInt(MediaControlView2.KEY_AUDIO_TRACK_COUNT, mAudioTrackIndices.size());
-        /*
         data.putInt(MediaControlView2.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTrackIndices.size());
         if (mSubtitleTrackIndices.size() > 0) {
             selectOrDeselectSubtitle(mSubtitleEnabled);
         }
-        */
         mMediaSession.sendSessionEvent(MediaControlView2.EVENT_UPDATE_TRACK_STATUS, data);
     }
 
@@ -1448,7 +1444,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         addView(mMusicView, 0);
     }
 
-    /*
     OnSubtitleDataListener mSubtitleListener =
             new OnSubtitleDataListener() {
                 @Override
@@ -1476,7 +1471,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                     }
                 }
             };
-            */
 
     MediaPlayer.OnVideoSizeChangedListener mSizeChangedListener =
             new MediaPlayer.OnVideoSizeChangedListener() {
@@ -1642,7 +1636,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             } else {
                 switch (command) {
                     case MediaControlView2.COMMAND_SHOW_SUBTITLE:
-                        /*
                         int subtitleIndex = args.getInt(
                                 MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX,
                                 INVALID_TRACK_INDEX);
@@ -1653,7 +1646,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                                 setSubtitleEnabled(true);
                             }
                         }
-                        */
                         break;
                     case MediaControlView2.COMMAND_HIDE_SUBTITLE:
                         setSubtitleEnabled(false);
