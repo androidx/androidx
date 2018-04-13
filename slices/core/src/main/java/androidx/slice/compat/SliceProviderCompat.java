@@ -129,12 +129,6 @@ public class SliceProviderCompat {
     public Bundle call(String method, String arg, Bundle extras) {
         if (method.equals(METHOD_SLICE)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
-            if (Binder.getCallingUid() != Process.myUid()) {
-                getContext().enforceUriPermission(uri, Binder.getCallingPid(),
-                        Binder.getCallingUid(),
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
-                        "Slice binding requires write access to the uri");
-            }
             Set<SliceSpec> specs = getSpecs(extras);
 
             Slice s = handleBindSlice(uri, specs, getCallingPackage());
