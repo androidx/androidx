@@ -20,6 +20,8 @@ import android.webkit.SafeBrowsingResponse;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresFeature;
+import androidx.webkit.internal.WebViewFeatureInternal;
 
 import org.chromium.support_lib_boundary.SafeBrowsingResponseBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -35,6 +37,8 @@ public abstract class SafeBrowsingResponseCompat {
      *
      * @param allowReporting {@code true} if the interstitial should show a reporting checkbox.
      */
+    @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void showInterstitial(boolean allowReporting);
 
     /**
@@ -42,6 +46,8 @@ public abstract class SafeBrowsingResponseCompat {
      *
      * @param report {@code true} to enable Safe Browsing reporting.
      */
+    @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void proceed(boolean report);
 
     /**
@@ -49,6 +55,8 @@ public abstract class SafeBrowsingResponseCompat {
      *
      * @param report {@code true} to enable Safe Browsing reporting.
      */
+    @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void backToSafety(boolean report);
 
     /**
@@ -75,16 +83,34 @@ public abstract class SafeBrowsingResponseCompat {
         return new SafeBrowsingResponseCompat() {
             @Override
             public void showInterstitial(boolean allowReporting) {
+                final WebViewFeatureInternal webViewFeature =
+                        WebViewFeatureInternal.getFeature(
+                                WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL);
+                if (!webViewFeature.isSupportedByWebView()) {
+                    throw WebViewFeatureInternal.getUnsupportedOperationException();
+                }
                 responseDelegate.showInterstitial(allowReporting);
             }
 
             @Override
             public void proceed(boolean report) {
+                final WebViewFeatureInternal webViewFeature =
+                        WebViewFeatureInternal.getFeature(
+                                WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED);
+                if (!webViewFeature.isSupportedByWebView()) {
+                    throw WebViewFeatureInternal.getUnsupportedOperationException();
+                }
                 responseDelegate.proceed(report);
             }
 
             @Override
             public void backToSafety(boolean report) {
+                final WebViewFeatureInternal webViewFeature =
+                        WebViewFeatureInternal.getFeature(
+                                WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY);
+                if (!webViewFeature.isSupportedByWebView()) {
+                    throw WebViewFeatureInternal.getUnsupportedOperationException();
+                }
                 responseDelegate.backToSafety(report);
             }
         };
@@ -100,6 +126,7 @@ public abstract class SafeBrowsingResponseCompat {
     @RequiresApi(27)
     /* package */ static SafeBrowsingResponseCompat fromSafeBrowsingResponse(
             @NonNull final SafeBrowsingResponse response) {
+        // Frameworks support is implied by the API level.
         return new SafeBrowsingResponseCompat() {
             @Override
             public void showInterstitial(boolean allowReporting) {

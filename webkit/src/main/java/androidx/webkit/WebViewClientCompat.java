@@ -28,6 +28,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.webkit.internal.WebViewFeatureInternal;
 
 import org.chromium.support_lib_boundary.WebViewClientBoundaryInterface;
 import org.chromium.support_lib_boundary.util.Features;
@@ -161,6 +162,12 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     public void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
             @NonNull WebResourceErrorCompat error) {
         if (Build.VERSION.SDK_INT < 21) return;
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE)
+                || !WebViewFeature.isFeatureSupported(
+                        WebViewFeature.WEB_RESOURCE_ERROR_GET_DESCRIPTION)) {
+            // If the WebView APK drops supports for these APIs in the future, simply do nothing.
+            return;
+        }
         if (request.isForMainFrame()) {
             onReceivedError(view,
                     error.getErrorCode(), error.getDescription().toString(),
@@ -239,7 +246,15 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      */
     public void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
             @SafeBrowsingThreat int threatType, @NonNull SafeBrowsingResponseCompat callback) {
-        callback.showInterstitial(true);
+        if (WebViewFeature.isFeatureSupported(
+                WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL)) {
+            callback.showInterstitial(true);
+        } else {
+            // This should not happen, but in case the WebView APK eventually drops support for
+            // showInterstitial(), raise a runtime exception and require the WebView APK to handle
+            // this.
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
     }
 
     /**
