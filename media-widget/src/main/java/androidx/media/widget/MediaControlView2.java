@@ -27,6 +27,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -1078,7 +1079,11 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mBackListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO: implement
+            View parent = (View) getParent();
+            if (parent != null) {
+                parent.onKeyDown(KeyEvent.KEYCODE_BACK,
+                        new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+            }
         }
     };
 

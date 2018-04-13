@@ -29,6 +29,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,6 +72,7 @@ public class VideoViewTest extends Activity {
         setContentView(R.layout.video_activity);
 
         mVideoView = findViewById(R.id.video_view);
+        mVideoView.setActivity(this);
 
         String errorString = null;
         Intent intent = getIntent();
@@ -223,6 +225,7 @@ public class VideoViewTest extends Activity {
     public static class MyVideoView extends VideoView2 {
         private float mDX;
         private float mDY;
+        private Activity mActivity;
 
         public MyVideoView(Context context) {
             super(context);
@@ -254,6 +257,18 @@ public class VideoViewTest extends Activity {
                     return true;
             }
             return super.onTouchEvent(ev);
+        }
+
+        @Override
+        public boolean onKeyDown(int keyCode, KeyEvent event)  {
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+                mActivity.finish();
+            }
+            return true;
+        }
+
+        public void setActivity(Activity activity) {
+            mActivity = activity;
         }
     }
 
