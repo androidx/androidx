@@ -456,7 +456,7 @@ public class WorkManagerImplTest {
         final String testName = "myname";
 
         WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
-        mWorkManagerImpl.beginWithName(testName, REPLACE)
+        mWorkManagerImpl.beginUniqueWork(testName, REPLACE)
                 .then(work)
                 .blocking()
                 .enqueueBlocking();
@@ -479,7 +479,7 @@ public class WorkManagerImplTest {
         WorkRequest replacementWork1 = new WorkRequest.Builder(TestWorker.class).build();
         WorkRequest replacementWork2 = new WorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithName(testName, REPLACE, replacementWork1)
+                .beginUniqueWork(testName, REPLACE, replacementWork1)
                 .then(replacementWork2)
                 .blocking()
                 .enqueueBlocking();
@@ -509,7 +509,7 @@ public class WorkManagerImplTest {
         WorkRequest replacementWork1 = new WorkRequest.Builder(TestWorker.class).build();
         WorkRequest replacementWork2 = new WorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithName(testName, KEEP, replacementWork1)
+                .beginUniqueWork(testName, KEEP, replacementWork1)
                 .then(replacementWork2)
                 .blocking()
                 .enqueueBlocking();
@@ -539,7 +539,7 @@ public class WorkManagerImplTest {
         WorkRequest replacementWork1 = new WorkRequest.Builder(TestWorker.class).build();
         WorkRequest replacementWork2 = new WorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithName(testName, KEEP, replacementWork1)
+                .beginUniqueWork(testName, KEEP, replacementWork1)
                 .then(replacementWork2)
                 .blocking()
                 .enqueueBlocking();
@@ -568,7 +568,7 @@ public class WorkManagerImplTest {
         WorkRequest appendWork1 = new WorkRequest.Builder(TestWorker.class).build();
         WorkRequest appendWork2 = new WorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithName(testName, APPEND, appendWork1)
+                .beginUniqueWork(testName, APPEND, appendWork1)
                 .then(appendWork2)
                 .blocking()
                 .enqueueBlocking();
@@ -611,7 +611,7 @@ public class WorkManagerImplTest {
         WorkRequest appendWork1 = new WorkRequest.Builder(TestWorker.class).build();
         WorkRequest appendWork2 = new WorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithName(testName, APPEND, appendWork1)
+                .beginUniqueWork(testName, APPEND, appendWork1)
                 .then(appendWork2)
                 .blocking()
                 .enqueueBlocking();
@@ -649,7 +649,7 @@ public class WorkManagerImplTest {
         WorkRequest appendWork1 = new WorkRequest.Builder(TestWorker.class).build();
         WorkRequest appendWork2 = new WorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl
-                .beginWithName(testName, APPEND, appendWork1)
+                .beginUniqueWork(testName, APPEND, appendWork1)
                 .then(appendWork2)
                 .blocking()
                 .enqueueBlocking();
@@ -890,10 +890,10 @@ public class WorkManagerImplTest {
                 Data.EMPTY,
                 Collections.<String>emptyList());
 
-        List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesByNameBlocking(testName);
+        List<WorkStatus> workStatuses = mWorkManagerImpl.getStatusesForUniqueWorkBlocking(testName);
         assertThat(workStatuses, containsInAnyOrder(workStatus0, workStatus1, workStatus2));
 
-        workStatuses = mWorkManagerImpl.getStatusesByNameBlocking("dummy");
+        workStatuses = mWorkManagerImpl.getStatusesForUniqueWorkBlocking("dummy");
         assertThat(workStatuses.size(), is(0));
     }
 
@@ -920,7 +920,7 @@ public class WorkManagerImplTest {
         Observer<List<WorkStatus>> mockObserver = mock(Observer.class);
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
-        LiveData<List<WorkStatus>> liveData = mWorkManagerImpl.getStatusesByName(testName);
+        LiveData<List<WorkStatus>> liveData = mWorkManagerImpl.getStatusesForUniqueWork(testName);
         liveData.observe(testLifecycleOwner, mockObserver);
 
         ArgumentCaptor<List<WorkStatus>> captor = ArgumentCaptor.forClass(List.class);
@@ -1092,7 +1092,7 @@ public class WorkManagerImplTest {
         WorkRequest work1 = new WorkRequest.Builder(InfiniteTestWorker.class).build();
         insertNamedWorks(testName, work0, work1);
 
-        mWorkManagerImpl.blocking().cancelAllWorkByNameBlocking(testName);
+        mWorkManagerImpl.blocking().cancelUniqueWorkBlocking(testName);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getId()), is(CANCELLED));
@@ -1110,7 +1110,7 @@ public class WorkManagerImplTest {
         WorkRequest work1 = new WorkRequest.Builder(InfiniteTestWorker.class).build();
         insertNamedWorks(testName, work0, work1);
 
-        mWorkManagerImpl.blocking().cancelAllWorkByNameBlocking(testName);
+        mWorkManagerImpl.blocking().cancelUniqueWorkBlocking(testName);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getId()), is(SUCCEEDED));

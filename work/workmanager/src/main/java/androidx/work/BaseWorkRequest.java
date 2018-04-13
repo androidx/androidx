@@ -27,7 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The base interface for units of work.
+ * The base interface for work requests.
  */
 
 public abstract class BaseWorkRequest {

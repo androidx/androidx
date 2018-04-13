@@ -21,7 +21,7 @@ import android.support.annotation.NonNull;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A class to execute a logical unit of repeating work.
+ * A class that represents a request for repeating work.
  */
 
 public class PeriodicWorkRequest extends BaseWorkRequest {

@@ -215,11 +215,11 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     }
 
     @Override
-    public WorkContinuation beginWithName(
-            @NonNull String name,
+    public WorkContinuation beginUniqueWork(
+            @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<WorkRequest> work) {
-        return new WorkContinuationImpl(this, name, existingWorkPolicy, work);
+        return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work);
     }
 
     @Override
@@ -248,15 +248,15 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     }
 
     @Override
-    public void cancelAllWorkByName(@NonNull String name) {
+    public void cancelUniqueWork(@NonNull String uniqueWorkName) {
         mTaskExecutor.executeOnBackgroundThread(
-                CancelWorkRunnable.forName(name, this));
+                CancelWorkRunnable.forName(uniqueWorkName, this));
     }
 
     @Override
-    public void cancelAllWorkByNameBlocking(@NonNull String name) {
+    public void cancelUniqueWorkBlocking(@NonNull String uniqueWorkName) {
         assertBackgroundThread("Cannot cancelAllWorkByNameBlocking on main thread!");
-        CancelWorkRunnable.forName(name, this).run();
+        CancelWorkRunnable.forName(uniqueWorkName, this).run();
     }
 
     @Override
@@ -307,18 +307,18 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     }
 
     @Override
-    public LiveData<List<WorkStatus>> getStatusesByName(@NonNull String name) {
+    public LiveData<List<WorkStatus>> getStatusesForUniqueWork(@NonNull String uniqueWorkName) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
-                workSpecDao.getWorkStatusPojoLiveDataForName(name);
+                workSpecDao.getWorkStatusPojoLiveDataForName(uniqueWorkName);
         return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData, WorkSpec.WORK_STATUS_MAPPER);
     }
 
     @Override
-    public List<WorkStatus> getStatusesByNameBlocking(@NonNull String name) {
+    public List<WorkStatus> getStatusesForUniqueWorkBlocking(@NonNull String uniqueWorkName) {
         assertBackgroundThread("Cannot call getStatusesByNameBlocking on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForName(name);
+        List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForName(uniqueWorkName);
         return WorkSpec.WORK_STATUS_MAPPER.apply(input);
     }
 

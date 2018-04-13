@@ -93,9 +93,9 @@ public abstract class WorkManager {
 
     /**
      * This method allows you to begin unique chains of work for situations where you only want one
-     * chain to be active at a given time.  For example, you may only want one sync operation to be
-     * active.  If there is one pending, you can choose to let it run or replace it with your new
-     * work.
+     * chain with a given name to be active at a time.  For example, you may only want one sync
+     * operation to be active.  If there is one pending, you can choose to let it run or replace it
+     * with your new work.
      *
      * The {@code name} uniquely identifies this set of work.
      *
@@ -103,7 +103,7 @@ public abstract class WorkManager {
      * work with {@code name} will be pruned.  If this method determines that new work should NOT be
      * run, then the entire chain will be considered a no-op.
      *
-     * @param name A name which should uniquely label all the work in this chain
+     * @param uniqueWorkName A unique name which for this chain of work
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}.
      * @param work One or more {@link WorkRequest} to enqueue. {@code REPLACE} ensures that
      *             if there is pending work labelled with {@code name}, it will be cancelled and the
@@ -114,18 +114,18 @@ public abstract class WorkManager {
      *             of all leaf nodes labelled with {@code name}.
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public final WorkContinuation beginWithName(
-            @NonNull String name,
+    public final WorkContinuation beginUniqueWork(
+            @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull WorkRequest... work) {
-        return beginWithName(name, existingWorkPolicy, Arrays.asList(work));
+        return beginUniqueWork(uniqueWorkName, existingWorkPolicy, Arrays.asList(work));
     }
 
     /**
      * This method allows you to begin unique chains of work for situations where you only want one
-     * chain to be active at a given time.  For example, you may only want one sync operation to be
-     * active.  If there is one pending, you can choose to let it run or replace it with your new
-     * work.
+     * chain with a given name to be active at a time.  For example, you may only want one sync
+     * operation to be active.  If there is one pending, you can choose to let it run or replace it
+     * with your new work.
      *
      * The {@code name} uniquely identifies this set of work.
      *
@@ -133,7 +133,7 @@ public abstract class WorkManager {
      * work with {@code name} will be pruned.  If this method determines that new work should NOT be
      * run, then the entire chain will be considered a no-op.
      *
-     * @param name A name which should uniquely label all the work in this chain
+     * @param uniqueWorkName A unique name which for this chain of work
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}.
      * @param work One or more {@link WorkRequest} to enqueue. {@code REPLACE} ensures that if there
      *             is pending work labelled with {@code name}, it will be cancelled and the new work
@@ -144,8 +144,8 @@ public abstract class WorkManager {
      *             {@code name}.
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public abstract WorkContinuation beginWithName(
-            @NonNull String name,
+    public abstract WorkContinuation beginUniqueWork(
+            @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<WorkRequest> work);
 
@@ -169,9 +169,9 @@ public abstract class WorkManager {
      * Cancels all unfinished work in the work chain with the given name.  Note that cancellation is
      * a best-effort policy and work that is already executing may continue to run.
      *
-     * @param name The name used to identify the chain of work
+     * @param uniqueWorkName The unique name used to identify the chain of work
      */
-    public abstract void cancelAllWorkByName(@NonNull String name);
+    public abstract void cancelUniqueWork(@NonNull String uniqueWorkName);
 
     /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for a given work id.
@@ -191,12 +191,14 @@ public abstract class WorkManager {
 
     /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for all work in a work chain with a given
-     * name.
+     * unique name.
      *
-     * @param name The name used to identify the chain of work
-     * @return A {@link LiveData} of the {@link WorkStatus} for work in the chain named {@code name}
+     * @param uniqueWorkName The unique name used to identify the chain of work
+     * @return A {@link LiveData} of the {@link WorkStatus} for work in the chain named
+     *         {@code uniqueWorkName}
      */
-    public abstract LiveData<List<WorkStatus>> getStatusesByName(@NonNull String name);
+    public abstract LiveData<List<WorkStatus>> getStatusesForUniqueWork(
+            @NonNull String uniqueWorkName);
 
     /**
      * Gets an object that gives access to blocking (synchronous) methods.

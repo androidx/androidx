@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A class to execute a logical unit of non-repeating work.
+ * A class that represents a request for non-repeating work.
  */
 
 public class WorkRequest extends BaseWorkRequest {

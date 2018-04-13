@@ -79,10 +79,10 @@ public interface BlockingWorkManager {
      * to find out the actual state of the work after this call.  This method is expected to be
      * called from a background thread.
      *
-     * @param name The name used to identify the chain of work
+     * @param uniqueWorkName The unique name used to identify the chain of work
      */
     @WorkerThread
-    void cancelAllWorkByNameBlocking(@NonNull String name);
+    void cancelUniqueWorkBlocking(@NonNull String uniqueWorkName);
 
     /**
      * Gets the {@link WorkStatus} of a given work id in a blocking fashion.  This method is
@@ -105,12 +105,12 @@ public interface BlockingWorkManager {
     List<WorkStatus> getStatusesByTagBlocking(@NonNull String tag);
 
     /**
-     * Gets the {@link WorkStatus} for all work for the chain of work with a given name in a
+     * Gets the {@link WorkStatus} for all work for the chain of work with a given unique name in a
      * blocking fashion.  This method is expected to be called from a background thread.
      *
-     * @param name The name used to identify the chain of work
-     * @return A list of {@link WorkStatus} for work in the chain named {@code name}
+     * @param uniqueWorkName The unique name used to identify the chain of work
+     * @return A list of {@link WorkStatus} for work in the chain named {@code uniqueWorkName}
      */
     @WorkerThread
-    List<WorkStatus> getStatusesByNameBlocking(@NonNull String name);
+    List<WorkStatus> getStatusesForUniqueWorkBlocking(@NonNull String uniqueWorkName);
 }
