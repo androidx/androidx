@@ -30,7 +30,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-@RequiresApi(21)
+@RequiresApi(28)
 class VideoSurfaceView extends SurfaceView implements VideoViewInterface, SurfaceHolder.Callback {
     private static final String TAG = "VideoSurfaceView";
     private static final boolean DEBUG = true; // STOPSHIP: Log.isLoggable(TAG, Log.DEBUG);

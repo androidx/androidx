@@ -30,7 +30,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-@RequiresApi(21)
+@RequiresApi(28)
 class VideoTextureView extends TextureView
         implements VideoViewInterface, TextureView.SurfaceTextureListener {
     private static final String TAG = "VideoTextureView";
