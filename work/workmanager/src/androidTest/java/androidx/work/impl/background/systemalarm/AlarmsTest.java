@@ -29,7 +29,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.DatabaseTest;
-import androidx.work.Work;
+import androidx.work.WorkRequest;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.AlarmInfo;
 import androidx.work.worker.TestWorker;
@@ -59,7 +59,7 @@ public class AlarmsTest extends DatabaseTest {
 
     @Test
     public void testSetAlarm_noPreExistingAlarms() {
-        Work work = new Work.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
         String workSpecId = work.getId();
 
@@ -70,7 +70,7 @@ public class AlarmsTest extends DatabaseTest {
 
     @Test
     public void testSetAlarm_withPreExistingAlarms() {
-        Work work = new Work.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
         String workSpecId = work.getId();
 
@@ -86,7 +86,7 @@ public class AlarmsTest extends DatabaseTest {
 
     @Test
     public void testCancelAlarm() {
-        Work work = new Work.Builder(TestWorker.class).build();
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
         String workSpecId = work.getId();
 

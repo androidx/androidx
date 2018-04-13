@@ -26,14 +26,14 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 
-import androidx.work.BaseWork;
+import androidx.work.BaseWorkRequest;
 import androidx.work.BlockingWorkManager;
 import androidx.work.Configuration;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.R;
-import androidx.work.Work;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.model.WorkSpec;
@@ -188,23 +188,23 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     }
 
     @Override
-    public void enqueue(@NonNull List<? extends BaseWork> baseWork) {
+    public void enqueue(@NonNull List<? extends BaseWorkRequest> baseWork) {
         new WorkContinuationImpl(this, baseWork).enqueue();
     }
 
     @Override
-    public void enqueueBlocking(@NonNull BaseWork... baseWork) {
-        enqueueBlocking(Arrays.asList(baseWork));
+    public void enqueueBlocking(@NonNull BaseWorkRequest... baseWorkRequest) {
+        enqueueBlocking(Arrays.asList(baseWorkRequest));
     }
 
     @Override
-    public void enqueueBlocking(@NonNull List<? extends BaseWork> baseWork) {
+    public void enqueueBlocking(@NonNull List<? extends BaseWorkRequest> baseWork) {
         assertBackgroundThread("Cannot enqueueBlocking on main thread!");
         new WorkContinuationImpl(this, baseWork).enqueueBlocking();
     }
 
     @Override
-    public WorkContinuation beginWith(@NonNull List<Work> work) {
+    public WorkContinuation beginWith(@NonNull List<WorkRequest> work) {
         return new WorkContinuationImpl(this, work);
     }
 
@@ -212,7 +212,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     public WorkContinuation beginWithName(
             @NonNull String name,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<Work> work) {
+            @NonNull List<WorkRequest> work) {
         return new WorkContinuationImpl(this, name, existingWorkPolicy, work);
     }
 

@@ -39,11 +39,11 @@ public abstract class DatabaseTest extends WorkManagerTest {
         mDatabase.close();
     }
 
-    protected void insertWork(Work work) {
+    protected void insertWork(WorkRequest work) {
         mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
     }
 
-    protected void insertWork(PeriodicWork periodicWork) {
+    protected void insertWork(PeriodicWorkRequest periodicWork) {
         mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(periodicWork));
     }
 }

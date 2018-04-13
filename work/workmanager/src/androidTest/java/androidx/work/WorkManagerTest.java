@@ -47,11 +47,11 @@ public abstract class WorkManagerTest {
         }
     }
 
-    protected WorkSpec getWorkSpec(BaseWork work) {
+    protected WorkSpec getWorkSpec(BaseWorkRequest work) {
         return work.getWorkSpec();
     }
 
-    protected Set<String> getTags(BaseWork work) {
+    protected Set<String> getTags(BaseWorkRequest work) {
         return work.getTags();
     }
 }

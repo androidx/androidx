@@ -24,36 +24,36 @@ import java.util.concurrent.TimeUnit;
  * A class to execute a logical unit of repeating work.
  */
 
-public class PeriodicWork extends BaseWork {
+public class PeriodicWorkRequest extends BaseWorkRequest {
 
     /**
-     * The minimum interval duration for {@link PeriodicWork}, in milliseconds.
+     * The minimum interval duration for {@link PeriodicWorkRequest}, in milliseconds.
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#110}.
      */
     public static final long MIN_PERIODIC_INTERVAL_MILLIS = 15 * 60 * 1000L; // 15 minutes.
     /**
-     * The minimum flex duration for {@link PeriodicWork}, in milliseconds.
+     * The minimum flex duration for {@link PeriodicWorkRequest}, in milliseconds.
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#113}.
      */
     public static final long MIN_PERIODIC_FLEX_MILLIS = 5 * 60 * 1000L; // 5 minutes.
 
-    PeriodicWork(Builder builder) {
+    PeriodicWorkRequest(Builder builder) {
         super(builder.mWorkSpec, builder.mTags);
     }
 
     /**
-     * Builder for {@link PeriodicWork} class.
+     * Builder for {@link PeriodicWorkRequest} class.
      */
-    public static class Builder extends BaseWork.Builder<Builder, PeriodicWork> {
+    public static class Builder extends BaseWorkRequest.Builder<Builder, PeriodicWorkRequest> {
 
         /**
-         * Creates a {@link PeriodicWork} to run periodically once every interval period. The
-         * {@link PeriodicWork} is guaranteed to run exactly one time during this interval. The
-         * {@code intervalMillis} must be greater than or equal to
-         * {@link PeriodicWork#MIN_PERIODIC_INTERVAL_MILLIS}. It may run immediately, at the end of
-         * the period, or any time in between so long as the other conditions are satisfied at the
-         * time. The run time of the {@link PeriodicWork} can be restricted to a flex period within
-         * an interval.
+         * Creates a {@link PeriodicWorkRequest} to run periodically once every interval period. The
+         * {@link PeriodicWorkRequest} is guaranteed to run exactly one time during this interval.
+         * The {@code intervalMillis} must be greater than or equal to
+         * {@link PeriodicWorkRequest#MIN_PERIODIC_INTERVAL_MILLIS}. It may run immediately, at the
+         * end of the period, or any time in between so long as the other conditions are satisfied
+         * at the time. The run time of the {@link PeriodicWorkRequest} can be restricted to a flex
+         * period within an interval.
          *
          * @param workerClass The {@link Worker} class to run with this job
          * @param repeatInterval The repeat interval in {@code repeatIntervalTimeUnit} units
@@ -68,12 +68,12 @@ public class PeriodicWork extends BaseWork {
         }
 
         /**
-         * Creates a {@link PeriodicWork} to run periodically once within the
+         * Creates a {@link PeriodicWorkRequest} to run periodically once within the
          * <strong>flex period</strong> of every interval period. See diagram below. The flex period
          * begins at {@code intervalMillis - flexMillis} to the end of the interval.
          * {@code intervalMillis} must be greater than or equal to
-         * {@link PeriodicWork#MIN_PERIODIC_INTERVAL_MILLIS} and {@code flexMillis} must
-         * be greater than or equal to {@link PeriodicWork#MIN_PERIODIC_FLEX_MILLIS}.
+         * {@link PeriodicWorkRequest#MIN_PERIODIC_INTERVAL_MILLIS} and {@code flexMillis} must
+         * be greater than or equal to {@link PeriodicWorkRequest#MIN_PERIODIC_FLEX_MILLIS}.
          *
          * <p><pre>
          * [     before flex     |     flex     ][     before flex     |     flex     ]...
@@ -102,18 +102,18 @@ public class PeriodicWork extends BaseWork {
         }
 
         @Override
-        public PeriodicWork build() {
+        public PeriodicWorkRequest build() {
             if (mBackoffCriteriaSet
                     && Build.VERSION.SDK_INT >= 23
                     && mWorkSpec.constraints.requiresDeviceIdle()) {
                 throw new IllegalArgumentException(
                         "Cannot set backoff criteria on an idle mode job");
             }
-            return new PeriodicWork(this);
+            return new PeriodicWorkRequest(this);
         }
 
         @Override
-        protected PeriodicWork.Builder getThis() {
+        protected PeriodicWorkRequest.Builder getThis() {
             return this;
         }
     }

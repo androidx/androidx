@@ -16,10 +16,10 @@
 
 package androidx.work.impl.model;
 
-import static androidx.work.BaseWork.MAX_BACKOFF_MILLIS;
-import static androidx.work.BaseWork.MIN_BACKOFF_MILLIS;
-import static androidx.work.PeriodicWork.MIN_PERIODIC_FLEX_MILLIS;
-import static androidx.work.PeriodicWork.MIN_PERIODIC_INTERVAL_MILLIS;
+import static androidx.work.BaseWorkRequest.MAX_BACKOFF_MILLIS;
+import static androidx.work.BaseWorkRequest.MIN_BACKOFF_MILLIS;
+import static androidx.work.PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS;
+import static androidx.work.PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS;
 import static androidx.work.State.ENQUEUED;
 
 import android.arch.core.util.Function;
@@ -33,7 +33,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import androidx.work.BackoffPolicy;
-import androidx.work.BaseWork;
+import androidx.work.BaseWorkRequest;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.State;
@@ -101,7 +101,7 @@ public class WorkSpec {
     public BackoffPolicy backoffPolicy = BackoffPolicy.EXPONENTIAL;
 
     @ColumnInfo(name = "backoff_delay_duration")
-    public long backoffDelayDuration = BaseWork.DEFAULT_BACKOFF_DELAY_MILLIS;
+    public long backoffDelayDuration = BaseWorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS;
 
     /**
      * For one-off work, this is the time that the work was unblocked by prerequisites.
@@ -191,11 +191,11 @@ public class WorkSpec {
      *
      * If Backoff Policy is set to {@link BackoffPolicy#EXPONENTIAL}, then delay
      * increases at an exponential rate with respect to the run attempt count and is capped at
-     * {@link BaseWork#MAX_BACKOFF_MILLIS}.
+     * {@link BaseWorkRequest#MAX_BACKOFF_MILLIS}.
      *
      * If Backoff Policy is set to {@link BackoffPolicy#LINEAR}, then delay
      * increases at an linear rate with respect to the run attempt count and is capped at
-     * {@link BaseWork#MAX_BACKOFF_MILLIS}.
+     * {@link BaseWorkRequest#MAX_BACKOFF_MILLIS}.
      *
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/job/JobSchedulerService.java#1125}
      *
@@ -215,7 +215,7 @@ public class WorkSpec {
             boolean isLinearBackoff = (backoffPolicy == BackoffPolicy.LINEAR);
             long delay = isLinearBackoff ? (backoffDelayDuration * runAttemptCount)
                     : (long) Math.scalb(backoffDelayDuration, runAttemptCount - 1);
-            return periodStartTime + Math.min(BaseWork.MAX_BACKOFF_MILLIS, delay);
+            return periodStartTime + Math.min(BaseWorkRequest.MAX_BACKOFF_MILLIS, delay);
         } else if (isPeriodic()) {
             return periodStartTime + intervalDuration - flexDuration;
         } else {

@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * The base interface for units of work.
  */
 
-public abstract class BaseWork {
+public abstract class BaseWorkRequest {
 
     /**
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#77}
@@ -51,7 +51,7 @@ public abstract class BaseWork {
     private WorkSpec mWorkSpec;
     private Set<String> mTags;
 
-    protected BaseWork(@NonNull WorkSpec workSpec, @NonNull Set<String> tags) {
+    protected BaseWorkRequest(@NonNull WorkSpec workSpec, @NonNull Set<String> tags) {
         mWorkSpec = workSpec;
         mTags = tags;
     }
@@ -89,12 +89,12 @@ public abstract class BaseWork {
     }
 
     /**
-     * A builder for {@link BaseWork}.
+     * A builder for {@link BaseWorkRequest}.
      *
      * @param <B> The concrete implementation of of this Builder
      * @param <W> The type of work object built by this Builder
      */
-    public abstract static class Builder<B extends Builder, W extends BaseWork> {
+    public abstract static class Builder<B extends Builder, W extends BaseWorkRequest> {
 
         protected boolean mBackoffCriteriaSet = false;
         protected WorkSpec mWorkSpec;
@@ -106,8 +106,9 @@ public abstract class BaseWork {
 
         /**
          * Change backoff policy and delay for the work.  The default is
-         * {@link BackoffPolicy#EXPONENTIAL} and {@value BaseWork#DEFAULT_BACKOFF_DELAY_MILLIS}.
-         * The maximum backoff delay duration is {@value BaseWork#MAX_BACKOFF_MILLIS}.
+         * {@link BackoffPolicy#EXPONENTIAL} and
+         * {@value BaseWorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}.  The maximum backoff delay
+         * duration is {@value BaseWorkRequest#MAX_BACKOFF_MILLIS}.
          *
          * @param backoffPolicy The {@link BackoffPolicy} to use for work
          * @param backoffDelay Time to wait before restarting {@link Worker} in {@code timeUnit}
@@ -126,7 +127,7 @@ public abstract class BaseWork {
         }
 
         /**
-         * Add constraints to the {@link Work}.
+         * Add constraints to the {@link WorkRequest}.
          *
          * @param constraints The constraints for the work
          * @return The current {@link Builder}

@@ -46,16 +46,16 @@ public class WorkSpecDaoTest extends DatabaseTest {
     @SmallTest
     public void testEligibleWorkSpecsForScheduling() {
         long startTime = System.currentTimeMillis();
-        Work work = new Work.Builder(TestWorker.class)
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(
                         startTime + TimeUnit.HOURS.toMillis(1),
                         TimeUnit.MILLISECONDS)
                 .build();
-        Work succeeded = new Work.Builder(TestWorker.class)
+        WorkRequest succeeded = new WorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .withInitialState(SUCCEEDED)
                 .build();
-        Work enqueued = new Work.Builder(TestWorker.class)
+        WorkRequest enqueued = new WorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
 
@@ -76,16 +76,16 @@ public class WorkSpecDaoTest extends DatabaseTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         long startTime = System.currentTimeMillis();
-        Work enqueued = new Work.Builder(TestWorker.class)
+        WorkRequest enqueued = new WorkRequest.Builder(TestWorker.class)
                 .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
                 .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
-        Work succeeded = new Work.Builder(TestWorker.class)
+        WorkRequest succeeded = new WorkRequest.Builder(TestWorker.class)
                 .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
                 .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .withInitialState(SUCCEEDED)
                 .build();
-        Work failed = new Work.Builder(TestWorker.class)
+        WorkRequest failed = new WorkRequest.Builder(TestWorker.class)
                 .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
                 .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .withInitialState(FAILED)
@@ -109,21 +109,21 @@ public class WorkSpecDaoTest extends DatabaseTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         long startTime = System.currentTimeMillis();
-        Work enqueued = new Work.Builder(TestWorker.class)
+        WorkRequest enqueued = new WorkRequest.Builder(TestWorker.class)
                 .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
                 .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .build();
-        Work succeeded = new Work.Builder(TestWorker.class)
+        WorkRequest succeeded = new WorkRequest.Builder(TestWorker.class)
                 .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
                 .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .withInitialState(SUCCEEDED)
                 .build();
-        Work blocked = new Work.Builder(TestWorker.class)
+        WorkRequest blocked = new WorkRequest.Builder(TestWorker.class)
                 .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
                 .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .withInitialState(BLOCKED)
                 .build();
-        Work failed = new Work.Builder(TestWorker.class)
+        WorkRequest failed = new WorkRequest.Builder(TestWorker.class)
                 .withScheduleRequestedAt(startTime, TimeUnit.MILLISECONDS)
                 .withPeriodStartTime(startTime, TimeUnit.MILLISECONDS)
                 .withInitialState(FAILED)

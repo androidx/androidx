@@ -39,7 +39,7 @@ public class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> 
      * Add a Content {@link Uri} to observe
      * @param uri {@link Uri} to observe
      * @param triggerForDescendants {@code true} if any changes in descendants cause this
-     *                              {@link BaseWork} to run
+     *                              {@link BaseWorkRequest} to run
      */
     public void add(Uri uri, boolean triggerForDescendants) {
         Trigger trigger = new Trigger(uri, triggerForDescendants);
@@ -154,7 +154,7 @@ public class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> 
     }
 
     /**
-     * Defines a content {@link Uri} trigger for a {@link BaseWork}
+     * Defines a content {@link Uri} trigger for a {@link BaseWorkRequest}
      */
 
     public static class Trigger {
