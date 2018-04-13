@@ -78,7 +78,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-// TODO: Replace MediaSession wtih MediaSession2 once MediaSession2 is submitted.
 /**
  * @hide
  * Displays a video file.  VideoView2 class is a View class which is wrapping {@link MediaPlayer}
@@ -181,7 +180,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
     private static final int SIZE_TYPE_EMBEDDED = 0;
     private static final int SIZE_TYPE_FULL = 1;
-    // TODO: add support for Minimal size type.
     private static final int SIZE_TYPE_MINIMAL = 2;
 
     private AccessibilityManager mAccessibilityManager;
@@ -209,7 +207,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     private Bundle mMediaTypeData;
     private String mTitle;
 
-    // TODO: move music view inside SurfaceView/TextureView or implement VideoViewInterface.
     private WindowManager mManager;
     private Resources mResources;
     private View mMusicView;
@@ -247,89 +244,11 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     private boolean mSubtitleEnabled;
 
     private float mSpeed;
-    // TODO: Remove mFallbackSpeed when integration with MediaPlayer's new setPlaybackParams().
-    // Refer: https://docs.google.com/document/d/1nzAfns6i2hJ3RkaUre3QMT6wsDedJ5ONLiA_OOBFFX8/edit
     private float mFallbackSpeed;  // keep the original speed before 'pause' is called.
     private float mVolumeLevelFloat;
     private int mVolumeLevel;
 
     private long mShowControllerIntervalMs;
-
-    // private MediaRouter mMediaRouter;
-    // private MediaRouteSelector mRouteSelector;
-    // private MediaRouter.RouteInfo mRoute;
-    // private RoutePlayer mRoutePlayer;
-
-    // TODO (b/77158231)
-    /*
-    private final MediaRouter.Callback mRouterCallback = new MediaRouter.Callback() {
-        @Override
-        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
-            if (route.supportsControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)) {
-                // Stop local playback (if necessary)
-                resetPlayer();
-                mRoute = route;
-                mRoutePlayer = new RoutePlayer(getContext(), route);
-                mRoutePlayer.setPlayerEventCallback(new RoutePlayer.PlayerEventCallback() {
-                    @Override
-                    public void onPlayerStateChanged(MediaItemStatus itemStatus) {
-                        PlaybackStateCompat.Builder psBuilder = new PlaybackStateCompat.Builder();
-                        psBuilder.setActions(RoutePlayer.PLAYBACK_ACTIONS);
-                        long position = itemStatus.getContentPosition();
-                        switch (itemStatus.getPlaybackState()) {
-                            case MediaItemStatus.PLAYBACK_STATE_PENDING:
-                                psBuilder.setState(PlaybackStateCompat.STATE_NONE, position, 0);
-                                mCurrentState = STATE_IDLE;
-                                break;
-                            case MediaItemStatus.PLAYBACK_STATE_PLAYING:
-                                psBuilder.setState(PlaybackStateCompat.STATE_PLAYING, position, 1);
-                                mCurrentState = STATE_PLAYING;
-                                break;
-                            case MediaItemStatus.PLAYBACK_STATE_PAUSED:
-                                psBuilder.setState(PlaybackStateCompat.STATE_PAUSED, position, 0);
-                                mCurrentState = STATE_PAUSED;
-                                break;
-                            case MediaItemStatus.PLAYBACK_STATE_BUFFERING:
-                                psBuilder.setState(
-                                        PlaybackStateCompat.STATE_BUFFERING, position, 0);
-                                mCurrentState = STATE_PAUSED;
-                                break;
-                            case MediaItemStatus.PLAYBACK_STATE_FINISHED:
-                                psBuilder.setState(PlaybackStateCompat.STATE_STOPPED, position, 0);
-                                mCurrentState = STATE_PLAYBACK_COMPLETED;
-                                break;
-                        }
-
-                        PlaybackStateCompat pbState = psBuilder.build();
-                        mMediaSession.setPlaybackState(pbState);
-
-                        MediaMetadataCompat.Builder mmBuilder = new MediaMetadataCompat.Builder();
-                        mmBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
-                                itemStatus.getContentDuration());
-                        mMediaSession.setMetadata(mmBuilder.build());
-                    }
-                });
-                // Start remote playback (if necessary)
-                mRoutePlayer.openVideo(mDsd);
-            }
-        }
-
-        @Override
-        public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route, int reason) {
-            if (mRoute != null && mRoutePlayer != null) {
-                mRoutePlayer.release();
-                mRoutePlayer = null;
-            }
-            if (mRoute == route) {
-                mRoute = null;
-            }
-            if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
-                // TODO: Resume local playback  (if necessary)
-                openVideo(mDsd);
-            }
-        }
-    };
-    */
 
     public VideoView2(@NonNull Context context) {
         this(context, null);
@@ -352,7 +271,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         mSpeed = 1.0f;
         mFallbackSpeed = mSpeed;
         mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
-        // TODO: add attributes to get this value.
         mShowControllerIntervalMs = DEFAULT_SHOW_CONTROLLER_INTERVAL_MS;
 
         mAccessibilityManager = (AccessibilityManager) context.getSystemService(
@@ -365,7 +283,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         setFocusableInTouchMode(true);
         requestFocus();
 
-        // TODO: try to keep a single child at a time rather than always having both.
         mTextureView = new VideoTextureView(getContext());
         mSurfaceView = new VideoSurfaceView(getContext());
         LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,
@@ -394,7 +311,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                 "http://schemas.android.com/apk/res/android",
                 "enableSubtitle", false);
 
-        // TODO: Choose TextureView when SurfaceView cannot be created.
         // Choose surface view by default
         int viewType = (attrs == null) ? VideoView2.VIEW_TYPE_SURFACEVIEW
                 : attrs.getAttributeIntValue(
@@ -411,15 +327,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             mSurfaceView.setVisibility(View.GONE);
             mCurrentView = mTextureView;
         }
-
-        // TODO (b/77158231)
-        /*
-        MediaRouteSelector.Builder builder = new MediaRouteSelector.Builder();
-        builder.addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
-        builder.addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
-        builder.addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
-        mRouteSelector = builder.build();
-        */
     }
 
     /**
@@ -432,10 +339,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     public void setMediaControlView2(MediaControlView2 mediaControlView, long intervalMs) {
         mMediaControlView = mediaControlView;
         mShowControllerIntervalMs = intervalMs;
-        // TODO: Call MediaControlView2.setRouteSelector only when cast availalbe.
-        // TODO (b/77158231)
-        // mMediaControlView.setRouteSelector(mRouteSelector);
-
         if (isAttachedToWindow()) {
             attachMediaControlView();
         }
@@ -534,7 +437,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
      * be reset to the normal speed 1.0f.
      * @param speed the playback speed. It should be positive.
      */
-    // TODO: Support this via MediaController2.
     public void setSpeed(float speed) {
         if (speed <= 0.0f) {
             Log.e(TAG, "Unsupported speed (" + speed + ") is ignored.");
@@ -738,12 +640,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         mMediaSession.setCallback(new MediaSessionCallback());
         mMediaSession.setActive(true);
         mMediaController = mMediaSession.getController();
-        // TODO (b/77158231)
-        // mMediaRouter = MediaRouter.getInstance(getContext());
-        // mMediaRouter.setMediaSession(mMediaSession);
-        // mMediaRouter.addCallback(mRouteSelector, mRouterCallback);
         attachMediaControlView();
-        // TODO: remove this after moving MediaSession creating code inside initializing VideoView2
         if (mCurrentState == STATE_PREPARED) {
             extractTracks();
             extractMetadata();
@@ -799,7 +696,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        // TODO: Test touch event handling logic thoroughly and simplify the logic.
         return super.dispatchTouchEvent(ev);
     }
 
@@ -921,7 +817,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
     @Override
     public void onSurfaceChanged(View view, int width, int height) {
-        // TODO: Do we need to call requestLayout here?
         if (DEBUG) {
             Log.d(TAG, "onSurfaceChanged(). width/height: " + width + "/" + height
                     + ", " + view.toString());
@@ -956,8 +851,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     }
 
     private boolean isInPlaybackState() {
-        // TODO (b/77158231)
-        // return (mMediaPlayer != null || mRoutePlayer != null)
         return (mMediaPlayer != null)
                 && mCurrentState != STATE_ERROR
                 && mCurrentState != STATE_IDLE
@@ -965,8 +858,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     }
 
     private boolean needToStart() {
-        // TODO (b/77158231)
-        // return (mMediaPlayer != null || mRoutePlayer != null)
         return (mMediaPlayer != null)
                 && isAudioGranted()
                 && isWaitingPlayback();
@@ -994,11 +885,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                 case AudioManager.AUDIOFOCUS_LOSS:
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                    // There is no way to distinguish pause() by transient
-                    // audio focus loss and by other explicit actions.
-                    // TODO: If we can distinguish those cases, change the code to resume when it
-                    // gains audio focus again for AUDIOFOCUS_LOSS_TRANSIENT and
-                    // AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
                     mAudioFocused = false;
                     if (isInPlaybackState() && mMediaPlayer.isPlaying()) {
                         mMediaController.getTransportControls().pause();
@@ -1037,8 +923,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     private void openVideo(Uri uri, Map<String, String> headers) {
         resetPlayer();
         if (isRemotePlayback()) {
-            // TODO (b/77158231)
-            // mRoutePlayer.openVideo(dsd);
             return;
         }
 
@@ -1050,7 +934,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer);
 
             final Context context = getContext();
-            // TODO: Add timely firing logic for more accurate sync between CC and video frame
             mSubtitleController = new SubtitleController(context);
             mSubtitleController.registerRenderer(new ClosedCaptionRenderer(context));
             mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleView);
@@ -1117,38 +1000,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
     private void updatePlaybackState() {
         if (mStateBuilder == null) {
-            /*
-            // Get the capabilities of the player for this stream
-            mMetadata = mMediaPlayer.getMetadata(MediaPlayer.METADATA_ALL,
-                    MediaPlayer.BYPASS_METADATA_FILTER);
-
-            // Add Play action as default
-            long playbackActions = PlaybackStateCompat.ACTION_PLAY;
-            if (mMetadata != null) {
-                if (!mMetadata.has(Metadata.PAUSE_AVAILABLE)
-                        || mMetadata.getBoolean(Metadata.PAUSE_AVAILABLE)) {
-                    playbackActions |= PlaybackStateCompat.ACTION_PAUSE;
-                }
-                if (!mMetadata.has(Metadata.SEEK_BACKWARD_AVAILABLE)
-                        || mMetadata.getBoolean(Metadata.SEEK_BACKWARD_AVAILABLE)) {
-                    playbackActions |= PlaybackStateCompat.ACTION_REWIND;
-                }
-                if (!mMetadata.has(Metadata.SEEK_FORWARD_AVAILABLE)
-                        || mMetadata.getBoolean(Metadata.SEEK_FORWARD_AVAILABLE)) {
-                    playbackActions |= PlaybackStateCompat.ACTION_FAST_FORWARD;
-                }
-                if (!mMetadata.has(Metadata.SEEK_AVAILABLE)
-                        || mMetadata.getBoolean(Metadata.SEEK_AVAILABLE)) {
-                    playbackActions |= PlaybackStateCompat.ACTION_SEEK_TO;
-                }
-            } else {
-                playbackActions |= (PlaybackStateCompat.ACTION_PAUSE
-                        | PlaybackStateCompat.ACTION_REWIND
-                        | PlaybackStateCompat.ACTION_FAST_FORWARD
-                        | PlaybackStateCompat.ACTION_SEEK_TO);
-            }
-            */
-            // TODO determine the actionable list based the metadata info.
             long playbackActions = PlaybackStateCompat.ACTION_PLAY
                     | PlaybackStateCompat.ACTION_PAUSE
                     | PlaybackStateCompat.ACTION_REWIND | PlaybackStateCompat.ACTION_FAST_FORWARD
@@ -1167,8 +1018,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         if (mCurrentState != STATE_ERROR
                 && mCurrentState != STATE_IDLE
                 && mCurrentState != STATE_PREPARING) {
-            // TODO: this should be replaced with MediaPlayer2.getBufferedPosition() once it is
-            // implemented.
             if (mCurrentBufferPercentage == -1) {
                 mStateBuilder.setBufferedPosition(-1);
             } else {
@@ -1215,7 +1064,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     };
 
     private void showController() {
-        // TODO: Decide what to show when the state is not in playback state
         if (mMediaControlView == null || !isInPlaybackState()
                 || (mIsMusicMediaType && mSizeType == SIZE_TYPE_FULL)) {
             return;
@@ -1239,7 +1087,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
     private void applySpeed() {
         if (android.os.Build.VERSION.SDK_INT < 23) {
-            // TODO: MediaPlayer2 will cover this, or implement with SoundPool.
             return;
         }
         PlaybackParams params = mMediaPlayer.getPlaybackParams().allowDefaults();
@@ -1250,11 +1097,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                 mFallbackSpeed = mSpeed;
             } catch (IllegalArgumentException e) {
                 Log.e(TAG, "PlaybackParams has unsupported value: " + e);
-                // TODO: should revise this part after integrating with MP2.
-                // If mSpeed had an illegal value for speed rate, system will determine best
-                // handling (see PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT).
-                // Note: The pre-MP2 returns 0.0f when it is paused. In this case, VideoView2 will
-                // use mFallbackSpeed instead.
                 float fallbackSpeed = mMediaPlayer.getPlaybackParams().allowDefaults().getSpeed();
                 if (fallbackSpeed > 0.0f) {
                     mFallbackSpeed = fallbackSpeed;
@@ -1279,7 +1121,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         }
         if (select) {
             if (mSubtitleTrackIndices.size() > 0) {
-                // TODO: make this selection dynamic
                 mSelectedSubtitleTrackIndex = mSubtitleTrackIndices.get(0).first;
                 mSubtitleController.selectTrack(mSubtitleTrackIndices.get(0).second);
                 mMediaPlayer.selectTrack(mSelectedSubtitleTrackIndex);
@@ -1365,12 +1206,10 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             Bitmap bitmap = BitmapFactory.decodeByteArray(album, 0, album.length);
             mMusicAlbumDrawable = new BitmapDrawable(bitmap);
 
-            // TODO: replace with visualizer
             Palette.Builder builder = Palette.from(bitmap);
             builder.generate(new Palette.PaletteAsyncListener() {
                 @Override
                 public void onGenerated(Palette palette) {
-                    // TODO: add dominant color for default album image.
                     mDominantColor = palette.getDominantColor(0);
                     if (mMusicView != null) {
                         mMusicView.setBackgroundColor(mDominantColor);
@@ -1502,8 +1341,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             // Create and set playback state for MediaControlView2
             updatePlaybackState();
 
-            // TODO: change this to send TrackInfos to MediaControlView2
-            // TODO: create MediaSession when initializing VideoView2
             if (mMediaSession != null) {
                 extractTracks();
             }
@@ -1547,20 +1384,12 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
             // Get and set duration and title values as MediaMetadata for MediaControlView2
             MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
 
-            // TODO: Get title via other public APIs.
-            /*
-            if (mMetadata != null && mMetadata.has(Metadata.TITLE)) {
-                mTitle = mMetadata.getString(Metadata.TITLE);
-            }
-            */
             builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, mTitle);
             builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mMediaPlayer.getDuration());
 
             if (mMediaSession != null) {
                 mMediaSession.setMetadata(builder.build());
 
-                // TODO: merge this code with the above code when integrating with
-                // MediaSession2.
                 if (mNeedUpdateMediaType) {
                     mMediaSession.sendSessionEvent(
                             MediaControlView2.EVENT_UPDATE_MEDIA_TYPE_STATUS, mMediaTypeData);
@@ -1631,8 +1460,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         @Override
         public void onCommand(String command, Bundle args, ResultReceiver receiver) {
             if (isRemotePlayback()) {
-                // TODO (b/77158231)
-                // mRoutePlayer.onCommand(command, args, receiver);
             } else {
                 switch (command) {
                     case MediaControlView2.COMMAND_SHOW_SUBTITLE:
@@ -1707,8 +1534,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
             if ((isInPlaybackState() && mCurrentView.hasAvailableSurface()) || mIsMusicMediaType) {
                 if (isRemotePlayback()) {
-                    // TODO (b/77158231)
-                    // mRoutePlayer.onPlay();
                 } else {
                     applySpeed();
                     mMediaPlayer.start();
@@ -1729,8 +1554,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         public void onPause() {
             if (isInPlaybackState()) {
                 if (isRemotePlayback()) {
-                    // TODO (b/77158231)
-                    // mRoutePlayer.onPause();
                     mCurrentState = STATE_PAUSED;
                 } else if (mMediaPlayer.isPlaying()) {
                     mMediaPlayer.pause();
@@ -1750,10 +1573,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         public void onSeekTo(long pos) {
             if (isInPlaybackState()) {
                 if (isRemotePlayback()) {
-                    // TODO (b/77158231)
-                    // mRoutePlayer.onSeekTo(pos);
                 } else {
-                    // TODO Refactor VideoView2 with FooImplBase and FooImplApiXX.
                     if (android.os.Build.VERSION.SDK_INT < 26) {
                         mMediaPlayer.seekTo((int) pos);
                     } else {
@@ -1770,8 +1590,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         @Override
         public void onStop() {
             if (isRemotePlayback()) {
-                // TODO (b/77158231)
-                // mRoutePlayer.onStop();
             } else {
                 resetPlayer();
             }
