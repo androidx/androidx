@@ -58,7 +58,7 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_CUSTOM_COMMAN
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHAGNED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
@@ -68,6 +68,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ROUTES_INFO_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEEK_COMPLETED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
@@ -130,6 +131,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.media.MediaPlaylistAgent.RepeatMode;
 import androidx.media.MediaPlaylistAgent.ShuffleMode;
 import androidx.media.MediaSession2.CommandButton;
@@ -542,8 +544,14 @@ public class MediaController2 implements AutoCloseable {
                 }
                 case SESSION_EVENT_ON_PLAYER_STATE_CHANGED: {
                     int playerState = extras.getInt(ARGUMENT_PLAYER_STATE);
+                    PlaybackStateCompat state =
+                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
+                    if (state == null) {
+                        return;
+                    }
                     synchronized (mLock) {
                         mPlayerState = playerState;
+                        mPlaybackStateCompat = state;
                     }
                     mCallback.onPlayerStateChanged(MediaController2.this, playerState);
                     break;
@@ -653,17 +661,32 @@ public class MediaController2 implements AutoCloseable {
                             MediaController2.this, state.getPlaybackSpeed());
                     break;
                 }
-                case SESSION_EVENT_ON_BUFFERING_STATE_CHAGNED: {
+                case SESSION_EVENT_ON_BUFFERING_STATE_CHANGED: {
                     MediaItem2 item = MediaItem2.fromBundle(extras.getBundle(ARGUMENT_MEDIA_ITEM));
                     int bufferingState = extras.getInt(ARGUMENT_BUFFERING_STATE);
-                    if (item == null) {
+                    PlaybackStateCompat state =
+                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
+                    if (item == null || state == null) {
                         return;
                     }
                     synchronized (mLock) {
                         mBufferingState = bufferingState;
+                        mPlaybackStateCompat = state;
                     }
                     mCallback.onBufferingStateChanged(MediaController2.this, item, bufferingState);
                     break;
+                }
+                case SESSION_EVENT_ON_SEEK_COMPLETED: {
+                    long position = extras.getLong(ARGUMENT_SEEK_POSITION);
+                    PlaybackStateCompat state =
+                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
+                    if (state == null) {
+                        return;
+                    }
+                    synchronized (mLock) {
+                        mPlaybackStateCompat = state;
+                    }
+                    mCallback.onSeekCompleted(MediaController2.this, position);
                 }
             }
         }
@@ -722,6 +745,9 @@ public class MediaController2 implements AutoCloseable {
     private PlaybackStateCompat mPlaybackStateCompat;
     @GuardedBy("mLock")
     private MediaMetadataCompat mMediaMetadataCompat;
+
+    // For testing.
+    private Long mTimeDiff;
 
     // Assignment should be used with the lock hold, but should be used without a lock to prevent
     // potential deadlock.
@@ -1197,7 +1223,7 @@ public class MediaController2 implements AutoCloseable {
                 return UNKNOWN_TIME;
             }
             if (mPlaybackStateCompat != null) {
-                long timeDiff = SystemClock.elapsedRealtime()
+                long timeDiff = (mTimeDiff != null) ? mTimeDiff : SystemClock.elapsedRealtime()
                         - mPlaybackStateCompat.getLastPositionUpdateTime();
                 long expectedPosition = mPlaybackStateCompat.getPosition()
                         + (long) (mPlaybackStateCompat.getPlaybackSpeed() * timeDiff);
@@ -1205,6 +1231,15 @@ public class MediaController2 implements AutoCloseable {
             }
             return UNKNOWN_TIME;
         }
+    }
+
+    /**
+     * Sets the time diff forcefully when calculating current position.
+     * @param timeDiff {@code null} for reset.
+     */
+    @VisibleForTesting
+    void setTimeDiff(Long timeDiff) {
+        mTimeDiff = timeDiff;
     }
 
     /**

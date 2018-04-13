@@ -211,6 +211,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         final long position = 150000;
         final long bufferedPosition = 900000;
         final float speed = 0.5f;
+        final long timeDiff = 102;
         final MediaItem2 currentMediaItem = TestUtils.createMediaItemWithMetadata();
 
         mPlayer.mLastPlayerState = state;
@@ -220,18 +221,12 @@ public class MediaController2Test extends MediaSession2TestBase {
         mPlayer.mPlaybackSpeed = speed;
         mMockAgent.mCurrentMediaItem = currentMediaItem;
 
-        long time1 = System.currentTimeMillis();
         MediaController2 controller = createController(mSession.getToken());
-        long time2 = System.currentTimeMillis();
+        controller.setTimeDiff(timeDiff);
         assertEquals(state, controller.getPlayerState());
         assertEquals(bufferedPosition, controller.getBufferedPosition());
         assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
-        long positionLowerBound = (long) (position + speed * (System.currentTimeMillis() - time2));
-        long currentPosition = controller.getCurrentPosition();
-        long positionUpperBound = (long) (position + speed * (System.currentTimeMillis() - time1));
-        assertTrue("curPos=" + currentPosition + ", lowerBound=" + positionLowerBound
-                        + ", upperBound=" + positionUpperBound,
-                positionLowerBound <= currentPosition && currentPosition <= positionUpperBound);
+        assertEquals(position + (long) (speed * timeDiff), controller.getCurrentPosition());
         assertEquals(currentMediaItem, controller.getCurrentMediaItem());
     }
 
@@ -417,6 +412,77 @@ public class MediaController2Test extends MediaSession2TestBase {
             agent.notifyPlaylistMetadataChanged();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
+    }
+
+
+    @Test
+    public void testControllerCallback_onSeekCompleted() throws InterruptedException {
+        prepareLooper();
+        final long testSeekPosition = 400;
+        final long testPosition = 500;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onSeekCompleted(MediaController2 controller, long position) {
+                controller.setTimeDiff(Long.valueOf(0));
+                assertEquals(testSeekPosition, position);
+                assertEquals(testPosition, controller.getCurrentPosition());
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller = createController(mSession.getToken(), true, callback);
+        mPlayer.mCurrentPosition = testPosition;
+        mPlayer.notifySeekCompleted(testSeekPosition);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testControllerCallback_onBufferingStateChanged() throws InterruptedException {
+        prepareLooper();
+        final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
+        final MediaItem2 testItem = testPlaylist.get(0);
+        final int testBufferingState = MediaPlayerBase.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
+        final long testBufferingPosition = 500;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onBufferingStateChanged(MediaController2 controller, MediaItem2 item,
+                    int state) {
+                controller.setTimeDiff(Long.valueOf(0));
+                assertEquals(testItem, item);
+                assertEquals(testBufferingState, state);
+                assertEquals(testBufferingState, controller.getBufferingState());
+                assertEquals(testBufferingPosition, controller.getBufferedPosition());
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller = createController(mSession.getToken(), true, callback);
+        mSession.setPlaylist(testPlaylist, null);
+        mPlayer.mBufferedPosition = testBufferingPosition;
+        mPlayer.notifyBufferingStateChanged(testItem.getDataSourceDesc(), testBufferingState);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testControllerCallback_onPlayerStateChanged() throws InterruptedException {
+        prepareLooper();
+        final int testPlayerState = MediaPlayerBase.PLAYER_STATE_PLAYING;
+        final long testPosition = 500;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onPlayerStateChanged(MediaController2 controller, int state) {
+                controller.setTimeDiff(Long.valueOf(0));
+                assertEquals(testPlayerState, state);
+                assertEquals(testPlayerState, controller.getPlayerState());
+                assertEquals(testPosition, controller.getCurrentPosition());
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller = createController(mSession.getToken(), true, callback);
+        mPlayer.mCurrentPosition = testPosition;
+        mPlayer.notifyPlaybackState(testPlayerState);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
