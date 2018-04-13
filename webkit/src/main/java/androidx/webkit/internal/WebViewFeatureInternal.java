@@ -152,11 +152,8 @@ public enum WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView,
-     * WebResourceRequest, int, SafeBrowsingResponseCompat).
-     *
-     * TODO(ntfschr): turn this into a javadoc link once the method is implemented in
-     * http://ag/3858246.
+     * {@link WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView,
+     * WebResourceRequest, int, SafeBrowsingResponseCompat)}.
      */
     SAFE_BROWSING_HIT(WebViewFeature.SAFE_BROWSING_HIT, Build.VERSION_CODES.O_MR1),
 
