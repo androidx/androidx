@@ -62,7 +62,6 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * @hide
  * A View that contains the controls for {@link android.media.MediaPlayer}.
  * It provides a wide range of buttons that serve the following functions: play/pause,
  * rewind/fast-forward, skip to next/previous, select subtitle track, enter/exit full screen mode,
@@ -70,14 +69,13 @@ import java.util.Locale;
  *
  * <p>
  * <em> MediaControlView2 can be initialized in two different ways: </em>
- * 1) When initializing {@link VideoView2}, setting the enableControlView attribute to false will
- *    create a default MediaControlView2.
+ * 1) When initializing {@link VideoView2} a default MediaControlView2 is created.
  * 2) Initialize MediaControlView2 programmatically and add it to a {@link ViewGroup} instance.
  *
  * In the first option, VideoView2 automatically connects MediaControlView2 to MediaController,
  * which is necessary to communicate with MediaSession. In the second option, however, the
  * developer needs to manually retrieve a MediaController instance from MediaSession and set it to
- * MediaControlView2 by calling {@link #setController(MediaControllerCompat)}.
+ * MediaControlView2.
  *
  * <p>
  * There is no separate method that handles the show/hide behavior for MediaControlView2. Instead,
@@ -91,7 +89,6 @@ import java.util.Locale;
  *
  */
 @RequiresApi(21) // TODO correct minSdk API use incompatibilities and remove before release.
-@RestrictTo(LIBRARY_GROUP)
 public class MediaControlView2 extends BaseLayout {
     /**
      * @hide
@@ -358,17 +355,19 @@ public class MediaControlView2 extends BaseLayout {
 
     /**
      * Sets MediaSession2 token to control corresponding MediaSession2.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void setMediaSessionToken(SessionToken2 token) {
-        //mProvider.setMediaSessionToken_impl(token);
     }
 
     /**
      * Registers a callback to be invoked when the fullscreen mode should be changed.
      * @param l The callback that will be run
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void setOnFullScreenListener(OnFullScreenListener l) {
-        //mProvider.setOnFullScreenListener_impl(l);
     }
 
     /**
@@ -483,7 +482,9 @@ public class MediaControlView2 extends BaseLayout {
     /**
      * Interface definition of a callback to be invoked to inform the fullscreen mode is changed.
      * Application should handle the fullscreen mode accordingly.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public interface OnFullScreenListener {
         /**
          * Called to indicate a fullscreen mode change.

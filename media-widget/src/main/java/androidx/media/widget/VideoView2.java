@@ -79,9 +79,8 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
- * Displays a video file.  VideoView2 class is a View class which is wrapping {@link MediaPlayer}
- * so that developers can easily implement a video rendering application.
+ * Displays a video file.  VideoView2 class is a ViewGroup class which is wrapping
+ * {@link MediaPlayer} so that developers can easily implement a video rendering application.
  *
  * <p>
  * <em> Data sources that VideoView2 supports : </em>
@@ -102,20 +101,12 @@ import java.util.concurrent.Executor;
  * VideoView2 covers and inherits the most of
  * VideoView's functionalities. The main differences are
  * <ul>
- * <li> VideoView2 inherits FrameLayout and renders videos using SurfaceView and TextureView
+ * <li> VideoView2 inherits ViewGroup and renders videos using SurfaceView and TextureView
  * selectively while VideoView inherits SurfaceView class.
  * <li> VideoView2 is integrated with MediaControlView2 and a default MediaControlView2 instance is
- * attached to VideoView2 by default. If a developer does not want to use the default
- * MediaControlView2, needs to set enableControlView attribute to false. For instance,
- * <pre>
- * &lt;VideoView2
- *     android:id="@+id/video_view"
- *     xmlns:widget="http://schemas.android.com/apk/com.android.media.update"
- *     widget:enableControlView="false" /&gt;
- * </pre>
- * If a developer wants to attach a customed MediaControlView2, then set enableControlView attribute
- * to false and assign the customed media control widget using {@link #setMediaControlView2}.
- * <li> VideoView2 is integrated with MediaPlayer while VideoView is integrated with MediaPlayer.
+ * attached to VideoView2 by default.
+ * <li> If a developer wants to attach a customed MediaControlView2,
+ * assign the customed media control widget using {@link #setMediaControlView2}.
  * <li> VideoView2 is integrated with MediaSession and so it responses with media key events.
  * A VideoView2 keeps a MediaSession instance internally and connects it to a corresponding
  * MediaControlView2 instance.
@@ -138,7 +129,6 @@ import java.util.concurrent.Executor;
  * {@link android.app.Activity#onRestoreInstanceState}.
  */
 @RequiresApi(28) // TODO correct minSdk API use incompatibilities and remove before release.
-@RestrictTo(LIBRARY_GROUP)
 public class VideoView2 extends BaseLayout implements VideoViewInterface.SurfaceListener {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
@@ -164,7 +154,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     public static final int VIEW_TYPE_TEXTUREVIEW = 1;
 
     private static final String TAG = "VideoView2";
-    private static final boolean DEBUG = true; // STOPSHIP: Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private static final long DEFAULT_SHOW_CONTROLLER_INTERVAL_MS = 2000;
 
     private static final int STATE_ERROR = -1;
@@ -450,6 +440,16 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     }
 
     /**
+     * Returns playback speed.
+     *
+     * It returns the same value that has been set by {@link #setSpeed}, if it was available value.
+     * If {@link #setSpeed} has not been called before, then the normal speed 1.0f will be returned.
+     */
+    public float getSpeed() {
+        return mSpeed;
+    }
+
+    /**
      * Sets which type of audio focus will be requested during the playback, or configures playback
      * to not request audio focus. Valid values for focus requests are
      * {@link AudioManager#AUDIOFOCUS_GAIN}, {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT},
@@ -492,7 +492,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
      *
      * @param path the path of the video.
      *
-     * @hide TODO remove
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setVideoPath(String path) {
@@ -504,7 +504,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
      *
      * @param uri the URI of the video.
      *
-     * @hide TODO remove
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setVideoUri(Uri uri) {
@@ -520,11 +520,8 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
      *                changed with key/value pairs through the headers parameter with
      *                "android-allow-cross-domain-redirect" as the key and "0" or "1" as the value
      *                to disallow or allow cross domain redirection.
-     *
-     * @hide TODO remove
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setVideoUri(Uri uri, Map<String, String> headers) {
+    public void setVideoUri(Uri uri, @Nullable Map<String, String> headers) {
         mSeekWhenPrepared = 0;
         openVideo(uri, headers);
     }
@@ -534,9 +531,11 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
      * object to VideoView2 is {@link #setDataSource}.
      * @param mediaItem the MediaItem2 to play
      * @see #setDataSource
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void setMediaItem(@NonNull MediaItem2 mediaItem) {
-        //mProvider.setMediaItem_impl(mediaItem);
     }
 
     /**
@@ -547,7 +546,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setDataSource(@NonNull DataSourceDesc dataSource) {
-        //mProvider.setDataSource_impl(dataSource);
     }
 
     /**
@@ -596,7 +594,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
      *                   buttons in {@link MediaControlView2}.
      * @param executor executor to run callbacks on.
      * @param listener A listener to be called when a custom button is clicked.
-     * @hide  TODO remove
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setCustomActions(List<PlaybackStateCompat.CustomAction> actionList,
@@ -624,7 +622,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     /**
      * Registers a callback to be invoked when the fullscreen mode should be changed.
      * @param l The callback that will be run
-     * @hide  TODO remove
+     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setFullScreenRequestListener(OnFullScreenRequestListener l) {
@@ -795,7 +793,11 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     // Implements VideoViewInterface.SurfaceListener
     ///////////////////////////////////////////////////
 
+    /**
+     * @hide
+     */
     @Override
+    @RestrictTo(LIBRARY_GROUP)
     public void onSurfaceCreated(View view, int width, int height) {
         if (DEBUG) {
             Log.d(TAG, "onSurfaceCreated(). mCurrentState=" + mCurrentState
@@ -807,7 +809,11 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         }
     }
 
+    /**
+     * @hide
+     */
     @Override
+    @RestrictTo(LIBRARY_GROUP)
     public void onSurfaceDestroyed(View view) {
         if (DEBUG) {
             Log.d(TAG, "onSurfaceDestroyed(). mCurrentState=" + mCurrentState
@@ -815,7 +821,11 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         }
     }
 
+    /**
+     * @hide
+     */
     @Override
+    @RestrictTo(LIBRARY_GROUP)
     public void onSurfaceChanged(View view, int width, int height) {
         if (DEBUG) {
             Log.d(TAG, "onSurfaceChanged(). width/height: " + width + "/" + height
@@ -823,7 +833,11 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         }
     }
 
+    /**
+     * @hide
+     */
     @Override
+    @RestrictTo(LIBRARY_GROUP)
     public void onSurfaceTakeOverDone(VideoViewInterface view) {
         if (DEBUG) {
             Log.d(TAG, "onSurfaceTakeOverDone(). Now current view is: " + view);
