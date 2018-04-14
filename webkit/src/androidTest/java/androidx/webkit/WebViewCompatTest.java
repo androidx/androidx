@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -30,11 +31,9 @@ import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.webkit.SafeBrowsingResponse;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import androidx.core.os.BuildCompat;
 
@@ -194,6 +193,8 @@ public class WebViewCompatTest {
         // TODO(gsennton) activate this test for pre-P devices when we can pre-install a WebView APK
         // containing support for the WebView Support Library, see b/73454652.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) return;
+        // This test relies on the onSafeBrowsingHit callback to verify correctness.
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_HIT));
 
         List whitelist = new ArrayList<String>();
         whitelist.add("safe-browsing");
@@ -208,7 +209,7 @@ public class WebViewCompatTest {
         assertTrue(resultLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
 
         final CountDownLatch resultLatch2 = new CountDownLatch(1);
-        mWebViewOnUiThread.setWebViewClient(new WebViewClient() {
+        mWebViewOnUiThread.setWebViewClient(new WebViewClientCompat() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 resultLatch2.countDown();
@@ -216,7 +217,7 @@ public class WebViewCompatTest {
 
             @Override
             public void onSafeBrowsingHit(WebView view, WebResourceRequest request, int threatType,
-                    SafeBrowsingResponse callback) {
+                    SafeBrowsingResponseCompat callback) {
                 Assert.fail("Should not invoke onSafeBrowsingHit");
             }
         });
