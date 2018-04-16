@@ -23,4 +23,8 @@
     <dimen name="search_view_max_width">160dp</dimen>
     <dimen name="search_view_max_width2">200dp</dimen>
     <dimen name="search_view_suggestion_row_height">48dp</dimen>
+
+    <dimen name="textview_firstBaselineToTopHeight">100dp</dimen>
+    <dimen name="textview_lastBaselineToBottomHeight">30dp</dimen>
+    <dimen name="textview_lineHeight">60dp</dimen>
 </resources>
