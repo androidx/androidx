@@ -861,6 +861,15 @@
         <attr name="autoSizeMaxTextSize" format="dimension" />
         <!-- The attribute for the font family. -->
         <attr name="fontFamily" format="string" />
+        <!-- Explicit height between lines of text. If set, this will override the values set
+             for lineSpacingExtra and lineSpacingMultiplier. -->
+        <attr name="lineHeight" format="dimension" />
+        <!-- Distance from the top of the TextView to the first text baseline. If set, this
+             overrides the value set for paddingTop. -->
+        <attr name="firstBaselineToTopHeight" format="dimension" />
+        <!-- Distance from the bottom of the TextView to the last text baseline. If set, this
+             overrides the value set for paddingBottom. -->
+        <attr name="lastBaselineToBottomHeight" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="LinearLayoutCompat">
