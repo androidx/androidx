@@ -997,22 +997,27 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         public void onCurrentDataSourceChanged(final MediaPlayerBase mpb,
                 final DataSourceDesc dsd) {
             final MediaSession2ImplBase session = getSession();
-            // TODO: handle properly when dsd == null
-            if (session == null || dsd == null) {
+            if (session == null) {
                 return;
             }
             session.getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
-                    MediaItem2 item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
-                    if (item == null) {
-                        return;
+                    MediaItem2 item;
+                    if (dsd == null) {
+                        // This is OK because onCurrentDataSourceChanged() can be called with the
+                        // null dsd, so onCurrentMediaItemChanged() can be as well.
+                        item = null;
+                    } else {
+                        item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
+                        if (item == null) {
+                            Log.w(TAG, "Cannot obtain media item from the dsd=" + dsd);
+                            return;
+                        }
                     }
                     session.getCallback().onCurrentMediaItemChanged(session.getInstance(), mpb,
                             item);
-                    if (item.equals(session.getCurrentMediaItem())) {
-                        session.getSession2Stub().notifyCurrentMediaItemChanged(item);
-                    }
+                    session.getSession2Stub().notifyCurrentMediaItemChanged(item);
                 }
             });
         }

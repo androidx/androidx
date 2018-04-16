@@ -239,9 +239,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         mMockAgent.setPlaylist(list, null);
 
         final MediaItem2 currentItem = list.get(3);
-        mMockAgent.mCurrentMediaItem = currentItem;
-
-        final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
+        final CountDownLatch latchForSessionCallback = new CountDownLatch(2);
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
                 .setPlayer(mPlayer)
                 .setPlaylistAgent(mMockAgent)
@@ -249,27 +247,44 @@ public class MediaSession2Test extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
                     public void onCurrentMediaItemChanged(MediaSession2 session,
-                            MediaPlayerBase player, MediaItem2 itemOut) {
-                        assertSame(currentItem, itemOut);
+                            MediaPlayerBase player, MediaItem2 item) {
+                        switch ((int) latchForSessionCallback.getCount()) {
+                            case 2:
+                                assertEquals(currentItem, item);
+                                break;
+                            case 1:
+                                assertNull(item);
+                        }
                         latchForSessionCallback.countDown();
                     }
                 }).build()) {
 
-            final CountDownLatch latchForControllerCallback = new CountDownLatch(1);
+            final CountDownLatch latchForControllerCallback = new CountDownLatch(2);
             final MediaController2 controller =
                     createController(mSession.getToken(), true, new ControllerCallback() {
                         @Override
                         public void onCurrentMediaItemChanged(MediaController2 controller,
                                 MediaItem2 item) {
-                            assertEquals(currentItem, item);
+                            switch ((int) latchForControllerCallback.getCount()) {
+                                case 2:
+                                    assertEquals(currentItem, item);
+                                    break;
+                                case 1:
+                                    assertNull(item);
+                            }
                             latchForControllerCallback.countDown();
                         }
                     });
 
+            // Player notifies with the unknown dsd. Should be ignored.
+            mPlayer.notifyCurrentDataSourceChanged(TestUtils.createMediaItemWithMetadata()
+                    .getDataSourceDesc());
+            // Known DSD should be notified through the onCurrentMediaItemChanged.
             mPlayer.notifyCurrentDataSourceChanged(currentItem.getDataSourceDesc());
+            // Null DSD becomes null MediaItem2.
+            mPlayer.notifyCurrentDataSourceChanged(null);
             assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
             assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-            assertEquals(currentItem, controller.getCurrentMediaItem());
         }
     }
 

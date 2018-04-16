@@ -467,7 +467,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @param item new item
          */
         public void onCurrentMediaItemChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerBase player, @NonNull MediaItem2 item) { }
+                @NonNull MediaPlayerBase player, @Nullable MediaItem2 item) { }
 
         /**
          * Called when the player is <i>prepared</i>, i.e. it is ready to play the content

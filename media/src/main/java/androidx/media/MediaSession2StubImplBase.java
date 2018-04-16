@@ -539,7 +539,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
-                bundle.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
+                bundle.putBundle(ARGUMENT_MEDIA_ITEM, (item == null) ? null : item.toBundle());
                 controller.getControllerBinder().onEvent(
                         SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED, bundle);
             }
