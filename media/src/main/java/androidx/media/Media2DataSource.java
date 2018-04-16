@@ -17,15 +17,10 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
-import androidx.annotation.RestrictTo;
-
 import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * @hide
  * For supplying media data to the framework. Implement this if your app has
  * special requirements for the way media data is obtained.
  *
@@ -36,7 +31,6 @@ import java.io.IOException;
  * Media2DataSource from another thread while it's being used by the framework.</p>
  *
  */
-@RestrictTo(LIBRARY_GROUP)
 public abstract class Media2DataSource implements Closeable {
     /**
      * Called to request data from the given position.

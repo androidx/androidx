@@ -49,7 +49,6 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
  * MediaPlayer2 class can be used to control playback of audio/video files and streams.
  *
  * <p>Topics covered here are:
@@ -221,7 +220,6 @@ import java.util.concurrent.Executor;
  *
  */
 @TargetApi(Build.VERSION_CODES.P)
-@RestrictTo(LIBRARY_GROUP)
 public abstract class MediaPlayer2 extends MediaPlayerBase {
     /**
      * Create a MediaPlayer2 object.
