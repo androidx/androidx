@@ -123,18 +123,6 @@ public abstract class Worker {
     }
 
     /**
-     * Determines if the {@link Worker} was interrupted and should stop executing.
-     * The {@link Worker} can be interrupted for the following reasons:
-     * 1. The {@link WorkRequest} or {@link PeriodicWorkRequest} was explicitly cancelled.
-     *    {@link WorkManager#cancelAllWorkByTag(String)}
-     * 2. Constraints set in {@link WorkRequest} or {@link PeriodicWorkRequest} are no longer valid.
-     * @return {@code true} if {@link Worker} is instructed to stop executing.
-     */
-    protected final boolean isInterrupted() {
-        return Thread.currentThread().isInterrupted();
-    }
-
-    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

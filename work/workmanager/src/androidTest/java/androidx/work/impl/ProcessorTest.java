@@ -55,8 +55,7 @@ public class ProcessorTest extends DatabaseTest {
     @SmallTest
     public void testStopWork_invalidWorkId() {
         String id = "INVALID_WORK_ID";
-        assertThat(mProcessor.stopWork(id, true), is(false));
-        assertThat(mProcessor.stopWork(id, false), is(false));
+        assertThat(mProcessor.stopWork(id), is(false));
     }
 
     @Test

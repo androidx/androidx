@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 /**
  * A Processor can intelligently schedule and execute work on demand.
@@ -41,7 +40,7 @@ public class Processor implements ExecutionListener {
     private Context mAppContext;
     private WorkDatabase mWorkDatabase;
 
-    private Map<String, Future<?>> mEnqueuedWorkMap;
+    private Map<String, WorkerWrapper> mEnqueuedWorkMap;
     private List<Scheduler> mSchedulers;
     private ExecutorService mExecutorService;
 
@@ -93,7 +92,8 @@ public class Processor implements ExecutionListener {
                 .withSchedulers(mSchedulers)
                 .withRuntimeExtras(runtimeExtras)
                 .build();
-        mEnqueuedWorkMap.put(id, mExecutorService.submit(workWrapper));
+        mEnqueuedWorkMap.put(id, workWrapper);
+        mExecutorService.submit(workWrapper);
         Log.d(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));
         return true;
     }
@@ -102,36 +102,23 @@ public class Processor implements ExecutionListener {
      * Tries to stop a unit of work.
      *
      * @param id The work id to stop
-     * @param mayInterruptIfRunning If {@code true}, we try to interrupt the {@link Future} if it's
-     *                              running
      * @return {@code true} if the work was stopped successfully
      */
-    public synchronized boolean stopWork(String id, boolean mayInterruptIfRunning) {
-        Log.d(TAG,
-                String.format("%s canceling %s; mayInterruptIfRunning = %s",
-                getClass().getSimpleName(),
-                id,
-                mayInterruptIfRunning));
-        Future<?> future = mEnqueuedWorkMap.get(id);
-        if (future != null) {
-            boolean cancelled = future.cancel(mayInterruptIfRunning);
-            if (cancelled) {
-                mEnqueuedWorkMap.remove(id);
-                Log.d(TAG, String.format("Future successfully canceled for %s", id));
-            } else {
-                Log.d(TAG, String.format("Future could not be canceled for %s", id));
-            }
-            return cancelled;
-        } else {
-            Log.d(TAG, String.format("%s future could not be found for %s",
-                    getClass().getSimpleName(), id));
+    public synchronized boolean stopWork(String id) {
+        Log.d(TAG, String.format("Processor cancelling %s", id));
+        WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
+        if (wrapper != null) {
+            wrapper.interrupt();
+            Log.d(TAG, String.format("WorkerWrapper interrupted for %s", id));
+            return true;
         }
+        Log.d(TAG, String.format("WorkerWrapper could not be found for %s", id));
         return false;
     }
 
     /**
      * Sets the given {@code id} as cancelled.  This does not actually stop any processing; call
-     * {@link #stopWork(String, boolean)} to do that.
+     * {@link #stopWork(String)} to do that.
      *
      * @param id  The work id to mark as cancelled
      */

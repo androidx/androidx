@@ -140,10 +140,6 @@ public class WorkManagerImplTest {
 
     @After
     public void tearDown() {
-        List<String> ids = mDatabase.workSpecDao().getAllWorkSpecIds();
-        for (String id : ids) {
-            mWorkManagerImpl.blocking().cancelWorkByIdBlocking(id);
-        }
         WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
     }

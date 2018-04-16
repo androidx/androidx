@@ -65,6 +65,8 @@ public class WorkerWrapper implements Runnable {
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
 
+    private volatile boolean mInterrupted;
+
     private WorkerWrapper(Builder builder) {
         mAppContext = builder.mAppContext;
         mWorkSpecId = builder.mWorkSpecId;
@@ -81,6 +83,10 @@ public class WorkerWrapper implements Runnable {
     @WorkerThread
     @Override
     public void run() {
+        if (tryCheckForInterruptionAndNotify()) {
+            return;
+        }
+
         mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
         if (mWorkSpec == null) {
             Log.e(TAG,  String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
@@ -129,20 +135,37 @@ public class WorkerWrapper implements Runnable {
         // Try to set the work to the running state.  Note that this may fail because another thread
         // may have modified the DB since we checked last at the top of this function.
         if (trySetRunning()) {
+            if (tryCheckForInterruptionAndNotify()) {
+                return;
+            }
+
+            Worker.WorkerResult result = mWorker.doWork();
+
             try {
-                checkForInterruption();
-                Worker.WorkerResult result = mWorker.doWork();
-                if (mWorkSpecDao.getState(mWorkSpecId) != CANCELLED) {
-                    checkForInterruption();
-                    handleResult(result);
+                mWorkDatabase.beginTransaction();
+                if (!tryCheckForInterruptionAndNotify()) {
+                    State state = mWorkSpecDao.getState(mWorkSpecId);
+                    if (state == RUNNING) {
+                        handleResult(result);
+                    } else if (!state.isFinished()) {
+                        rescheduleAndNotify();
+                    }
+                    mWorkDatabase.setTransactionSuccessful();
                 }
-            } catch (InterruptedException e) {
-                Log.d(TAG, String.format("Work interrupted for %s", mWorkSpecId));
-                rescheduleAndNotify(false);
+            } finally {
+                mWorkDatabase.endTransaction();
             }
         } else {
             notifyIncorrectStatus();
         }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void interrupt() {
+        mInterrupted = true;
     }
 
     private void notifyIncorrectStatus() {
@@ -158,10 +181,14 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    private void checkForInterruption() throws InterruptedException {
-        if (Thread.currentThread().isInterrupted()) {
-            throw new InterruptedException();
+    private boolean tryCheckForInterruptionAndNotify() {
+        if (mInterrupted) {
+            Log.d(TAG, String.format("Work interrupted for %s", mWorkSpecId));
+            State currentState = mWorkSpecDao.getState(mWorkSpecId);
+            notifyListener(currentState == SUCCEEDED, !currentState.isFinished());
+            return true;
         }
+        return false;
     }
 
     private void notifyListener(final boolean isSuccessful, final boolean needsReschedule) {
@@ -190,7 +217,7 @@ public class WorkerWrapper implements Runnable {
 
             case RETRY: {
                 Log.d(TAG, String.format("Worker result RETRY for %s", mWorkSpecId));
-                rescheduleAndNotify(false /* treating current attempt as a false*/);
+                rescheduleAndNotify();
                 break;
             }
 
@@ -257,7 +284,7 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    private void rescheduleAndNotify(boolean isSuccessful) {
+    private void rescheduleAndNotify() {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
@@ -266,7 +293,7 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
-            notifyListener(isSuccessful, true);
+            notifyListener(false, true);
         }
     }
 

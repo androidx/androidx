@@ -17,7 +17,6 @@
 package androidx.work.worker;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import androidx.work.Worker;
 
@@ -26,15 +25,10 @@ import androidx.work.Worker;
  */
 
 public class InfiniteTestWorker extends Worker {
-    private static final String TAG = "InfiniteTestWorker";
 
     @Override
     public @NonNull WorkerResult doWork() {
         while (true) {
-            if (isInterrupted()) {
-                Log.e(TAG, "Interrupted");
-                return WorkerResult.RETRY;
-            }
         }
     }
 }

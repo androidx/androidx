@@ -631,4 +631,20 @@ public class WorkerWrapperTest extends DatabaseTest {
         verify(mMockListener).onExecuted(work.getId(), false, false);
         assertThat(mWorkSpecDao.getState(work.getId()), is(FAILED));
     }
+
+    @Test
+    @SmallTest
+    public void testInterruption() throws InterruptedException {
+        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
+        insertWork(work);
+
+        WorkerWrapper workerWrapper = new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
+                .withListener(mMockListener)
+                .build();
+        Executors.newSingleThreadExecutor().submit(workerWrapper);
+        workerWrapper.interrupt();
+        Thread.sleep(6000L);
+        verify(mMockListener).onExecuted(work.getId(), false, true);
+    }
 }

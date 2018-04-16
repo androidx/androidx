@@ -16,20 +16,17 @@
 
 package androidx.work.worker;
 
-import android.support.annotation.NonNull;
-
 import androidx.work.Worker;
 
-/**
- * Test Worker that loops until Thread is interrupted.
- */
-
-public class FirebaseInfiniteTestWorker extends Worker {
-    private static final String TAG = "FBInfiniteTestWorker";
+public class LongRunningWorker extends Worker {
 
     @Override
-    public @NonNull WorkerResult doWork() {
-        while (true) {
+    public WorkerResult doWork() {
+        try {
+            Thread.sleep(5000L);
+        } catch (InterruptedException e) {
+            // Do nothing.
         }
+        return WorkerResult.SUCCESS;
     }
 }
