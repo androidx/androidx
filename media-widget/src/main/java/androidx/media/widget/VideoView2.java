@@ -249,13 +249,17 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
     }
 
     public VideoView2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
+        super(context, attrs, defStyleAttr);
+        initialize(context, attrs);
     }
 
     public VideoView2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        initialize(context, attrs);
+    }
 
+    void initialize(Context context, AttributeSet attrs) {
         mVideoWidth = 0;
         mVideoHeight = 0;
         mSpeed = 1.0f;
@@ -273,8 +277,8 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         setFocusableInTouchMode(true);
         requestFocus();
 
-        mTextureView = new VideoTextureView(getContext());
-        mSurfaceView = new VideoSurfaceView(getContext());
+        mTextureView = new VideoTextureView(context);
+        mSurfaceView = new VideoSurfaceView(context);
         LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT);
         mTextureView.setLayoutParams(params);
@@ -285,7 +289,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         addView(mTextureView);
         addView(mSurfaceView);
 
-        mSubtitleView = new SubtitleView(getContext());
+        mSubtitleView = new SubtitleView(context);
         mSubtitleView.setLayoutParams(params);
         mSubtitleView.setBackgroundColor(0);
         addView(mSubtitleView);
@@ -294,7 +298,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                 "http://schemas.android.com/apk/res/android",
                 "enableControlView", true);
         if (enableControlView) {
-            mMediaControlView = new MediaControlView2(getContext());
+            mMediaControlView = new MediaControlView2(context);
         }
 
         mSubtitleEnabled = (attrs == null) || attrs.getAttributeBooleanValue(

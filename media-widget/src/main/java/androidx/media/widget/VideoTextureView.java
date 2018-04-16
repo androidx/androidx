@@ -21,7 +21,6 @@ import static androidx.media.widget.VideoView2.VIEW_TYPE_TEXTUREVIEW;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
@@ -44,20 +43,7 @@ class VideoTextureView extends TextureView
     private VideoViewInterface mOldView;
 
     VideoTextureView(Context context) {
-        this(context, null);
-    }
-
-    VideoTextureView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    VideoTextureView(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
-    }
-
-    VideoTextureView(
-            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, null);
         setSurfaceTextureListener(this);
     }
 

@@ -21,7 +21,6 @@ import static androidx.media.widget.VideoView2.VIEW_TYPE_SURFACEVIEW;
 import android.content.Context;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -41,24 +40,8 @@ class VideoSurfaceView extends SurfaceView implements VideoViewInterface, Surfac
     private boolean mIsTakingOverOldView;
     private VideoViewInterface mOldView;
 
-
     VideoSurfaceView(Context context) {
-        this(context, null);
-    }
-
-    VideoSurfaceView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    VideoSurfaceView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        getHolder().addCallback(this);
-    }
-
-    @RequiresApi(21)
-    VideoSurfaceView(Context context, AttributeSet attrs, int defStyleAttr,
-                            int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, null);
         getHolder().addCallback(this);
     }
 
