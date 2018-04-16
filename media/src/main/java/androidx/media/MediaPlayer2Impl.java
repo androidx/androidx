@@ -71,10 +71,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     private static final String TAG = "MediaPlayer2Impl";
 
-    private static final int NEXT_SOURCE_STATE_ERROR = -1;
-    private static final int NEXT_SOURCE_STATE_INIT = 0;
-    private static final int NEXT_SOURCE_STATE_PREPARING = 1;
-    private static final int NEXT_SOURCE_STATE_PREPARED = 2;
+    private static final int SOURCE_STATE_ERROR = -1;
+    private static final int SOURCE_STATE_INIT = 0;
+    private static final int SOURCE_STATE_PREPARING = 1;
+    private static final int SOURCE_STATE_PREPARED = 2;
 
     private static ArrayMap<Integer, Integer> sInfoEventMap;
     private static ArrayMap<Integer, Integer> sErrorEventMap;
@@ -109,6 +109,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_UNSUPPORTED, MEDIA_ERROR_UNSUPPORTED);
         sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_TIMED_OUT, MEDIA_ERROR_TIMED_OUT);
 
+        sPrepareDrmStatusMap = new ArrayMap<>();
         sPrepareDrmStatusMap.put(
                 MediaPlayer.PREPARE_DRM_STATUS_SUCCESS, PREPARE_DRM_STATUS_SUCCESS);
         sPrepareDrmStatusMap.put(
@@ -122,22 +123,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR);
     }
 
-    private MediaPlayer mPlayer;  // MediaPlayer is thread-safe.
-
-    private final Object mSrcLock = new Object();
-    //--- guarded by |mSrcLock| start
-    private long mSrcIdGenerator = 0;
-    private DataSourceDesc mCurrentDSD;
-    private long mCurrentSrcId = mSrcIdGenerator++;
-    private List<DataSourceDesc> mNextDSDs;
-    private long mNextSrcId = mSrcIdGenerator++;
-    private int mNextSourceState = NEXT_SOURCE_STATE_INIT;
-    private boolean mNextSourcePlayPending = false;
-    //--- guarded by |mSrcLock| end
-
-    private AtomicInteger mBufferedPercentageCurrent = new AtomicInteger(0);
-    private AtomicInteger mBufferedPercentageNext = new AtomicInteger(0);
-    private volatile float mVolume = 1.0f;
+    private MediaPlayerSourceQueue mPlayer;
 
     private HandlerThread mHandlerThread;
     private final Handler mTaskHandler;
@@ -149,8 +135,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     private final Object mLock = new Object();
     //--- guarded by |mLock| start
-    @PlayerState private int mPlayerState;
-    @BuffState private int mBufferingState;
     private AudioAttributesCompat mAudioAttributes;
     private ArrayList<Pair<Executor, MediaPlayer2EventCallback>> mMp2EventCallbackRecords =
             new ArrayList<>();
@@ -159,6 +143,18 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     private ArrayList<Pair<Executor, DrmEventCallback>> mDrmEventCallbackRecords =
             new ArrayList<>();
     //--- guarded by |mLock| end
+
+    private void handleDataSourceError(final DataSourceError err) {
+        if (err == null) {
+            return;
+        }
+        notifyMediaPlayer2Event(new Mp2EventNotifier() {
+            @Override
+            public void notify(MediaPlayer2EventCallback callback) {
+                callback.onError(MediaPlayer2Impl.this, err.mDSD, err.mWhat, err.mExtra);
+            }
+        });
+    }
 
     /**
      * Default constructor.
@@ -174,10 +170,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         // TODO: To make sure MediaPlayer1 listeners work, the caller thread should have a looper.
         // Fix the framework or document this behavior.
-        mPlayer = new MediaPlayer();
-        mPlayerState = PLAYER_STATE_IDLE;
-        mBufferingState = BUFFERING_STATE_UNKNOWN;
-        setUpListeners();
+        mPlayer = new MediaPlayerSourceQueue();
     }
 
     /**
@@ -221,8 +214,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         addTask(new Task(CALL_COMPLETED_PLAY, false) {
             @Override
             void process() {
-                mPlayer.start();
-                setPlayerState(PLAYER_STATE_PLAYING);
+                mPlayer.play();
             }
         });
     }
@@ -243,7 +235,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             @Override
             void process() throws IOException {
                 mPlayer.prepareAsync();
-                setBufferingState(BUFFERING_STATE_BUFFERING_AND_STARVED);
             }
         });
     }
@@ -259,7 +250,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             @Override
             void process() {
                 mPlayer.pause();
-                setPlayerState(PLAYER_STATE_PAUSED);
             }
         });
     }
@@ -312,14 +302,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @Override
     public long getBufferedPosition() {
         // Use cached buffered percent for now.
-        return getDuration() * mBufferedPercentageCurrent.get() / 100;
+        return mPlayer.getBufferedPosition();
     }
 
     @Override
     public @PlayerState int getPlayerState() {
-        synchronized (mLock) {
-            return mPlayerState;
-        }
+        return mPlayer.getPlayerState();
     }
 
     /**
@@ -329,9 +317,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      */
     @Override
     public @BuffState int getBufferingState() {
-        synchronized (mLock) {
-            return mBufferingState;
-        }
+        return  mPlayer.getBufferingState();
     }
 
     /**
@@ -378,13 +364,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             void process() {
                 Preconditions.checkNotNull(dsd, "the DataSourceDesc cannot be null");
                 // TODO: setDataSource could update exist data source
-                synchronized (mSrcLock) {
-                    mCurrentDSD = dsd;
-                    mCurrentSrcId = mSrcIdGenerator++;
-                    try {
-                        handleDataSource(true /* isCurrent */, dsd, mCurrentSrcId);
-                    } catch (IOException e) {
-                    }
+                try {
+                    mPlayer.setFirst(dsd);
+                } catch (IOException e) {
+                    Log.e(TAG, "process: setDataSource", e);
                 }
             }
         });
@@ -404,21 +387,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             @Override
             void process() {
                 Preconditions.checkNotNull(dsd, "the DataSourceDesc cannot be null");
-                synchronized (mSrcLock) {
-                    mNextDSDs = new ArrayList<DataSourceDesc>(1);
-                    mNextDSDs.add(dsd);
-                    mNextSrcId = mSrcIdGenerator++;
-                    mNextSourceState = NEXT_SOURCE_STATE_INIT;
-                    mNextSourcePlayPending = false;
-                }
-                /* FIXME : define and handle state.
-                int state = getMediaPlayer2State();
-                if (state != MEDIAPLAYER2_STATE_IDLE) {
-                    synchronized (mSrcLock) {
-                        prepareNextDataSource_l();
-                    }
-                }
-                */
+                handleDataSourceError(mPlayer.setNext(dsd));
             }
         });
     }
@@ -444,30 +413,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                                 "DataSourceDesc in the source list cannot be null.");
                     }
                 }
-
-                synchronized (mSrcLock) {
-                    mNextDSDs = new ArrayList(dsds);
-                    mNextSrcId = mSrcIdGenerator++;
-                    mNextSourceState = NEXT_SOURCE_STATE_INIT;
-                    mNextSourcePlayPending = false;
-                }
-                /* FIXME : define and handle state.
-                int state = getMediaPlayer2State();
-                if (state != MEDIAPLAYER2_STATE_IDLE) {
-                    synchronized (mSrcLock) {
-                        prepareNextDataSource_l();
-                    }
-                }
-                */
+                handleDataSourceError(mPlayer.setNextMultiple(dsds));
             }
         });
     }
 
     @Override
     public @NonNull DataSourceDesc getCurrentDataSource() {
-        synchronized (mSrcLock) {
-            return mCurrentDSD;
-        }
+        return mPlayer.getFirst().getDSD();
     }
 
     /**
@@ -538,8 +491,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         addTask(new Task(CALL_COMPLETED_SET_PLAYER_VOLUME, false) {
             @Override
             void process() {
-                mVolume = volume;
-                mPlayer.setVolume(volume, volume);
+                mPlayer.setVolume(volume);
             }
         });
     }
@@ -551,7 +503,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      */
     @Override
     public float getPlayerVolume() {
-        return mVolume;
+        return mPlayer.getVolume();
     }
 
     /**
@@ -667,14 +619,15 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    private void handleDataSource(boolean isCurrent, @NonNull final DataSourceDesc dsd, long srcId)
+    private static void handleDataSource(MediaPlayerSource src)
             throws IOException {
+        final DataSourceDesc dsd = src.getDSD();
         Preconditions.checkNotNull(dsd, "the DataSourceDesc cannot be null");
 
-        // TODO: handle the case isCurrent is false.
+        MediaPlayer player = src.mPlayer;
         switch (dsd.getType()) {
             case DataSourceDesc.TYPE_CALLBACK:
-                mPlayer.setDataSource(new MediaDataSource() {
+                player.setDataSource(new MediaDataSource() {
                     Media2DataSource mDataSource = dsd.getMedia2DataSource();
                     @Override
                     public int readAt(long position, byte[] buffer, int offset, int size)
@@ -695,14 +648,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 break;
 
             case DataSourceDesc.TYPE_FD:
-                mPlayer.setDataSource(
+                player.setDataSource(
                         dsd.getFileDescriptor(),
                         dsd.getFileDescriptorOffset(),
                         dsd.getFileDescriptorLength());
                 break;
 
             case DataSourceDesc.TYPE_URI:
-                mPlayer.setDataSource(
+                player.setDataSource(
                         dsd.getUriContext(),
                         dsd.getUri(),
                         dsd.getUriHeaders(),
@@ -888,20 +841,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @Override
     public void reset() {
         mPlayer.reset();
-
-        mBufferedPercentageCurrent.set(0);
-        mBufferedPercentageNext.set(0);
-        mVolume = 1.0f;
-
         synchronized (mLock) {
             mAudioAttributes = null;
             mMp2EventCallbackRecords.clear();
             mPlayerEventCallbackMap.clear();
             mDrmEventCallbackRecords.clear();
         }
-        setPlayerState(PLAYER_STATE_IDLE);
-        setBufferingState(BUFFERING_STATE_UNKNOWN);
-        setUpListeners();
     }
 
     /**
@@ -1258,7 +1203,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         mPlayer.setOnDrmConfigHelper(new MediaPlayer.OnDrmConfigHelper() {
             @Override
             public void onDrmConfig(MediaPlayer mp) {
-                listener.onDrmConfig(MediaPlayer2Impl.this, mCurrentDSD);
+                MediaPlayerSource src = mPlayer.getSourceForPlayer(mp);
+                DataSourceDesc dsd = src == null ? null : src.getDSD();
+                listener.onDrmConfig(MediaPlayer2Impl.this, dsd);
             }
         });
     }
@@ -1531,36 +1478,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    private void setPlayerState(@PlayerState final int state) {
-        synchronized (mLock) {
-            if (mPlayerState == state) {
-                return;
-            }
-            mPlayerState = state;
-        }
-        notifyPlayerEvent(new PlayerEventNotifier() {
-            @Override
-            public void notify(PlayerEventCallback cb) {
-                cb.onPlayerStateChanged(MediaPlayer2Impl.this, state);
-            }
-        });
-    }
-
-    private void setBufferingState(@BuffState final int state) {
-        synchronized (mLock) {
-            if (mBufferingState == state) {
-                return;
-            }
-            mBufferingState = state;
-        }
-        notifyPlayerEvent(new PlayerEventNotifier() {
-            @Override
-            public void notify(PlayerEventCallback cb) {
-                cb.onBufferingStateChanged(MediaPlayer2Impl.this, mCurrentDSD, state);
-            }
-        });
-    }
-
     private void notifyMediaPlayer2Event(final Mp2EventNotifier notifier) {
         List<Pair<Executor, MediaPlayer2EventCallback>> records;
         synchronized (mLock) {
@@ -1621,28 +1538,30 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         void notify(DrmEventCallback callback);
     }
 
-    private void setUpListeners() {
-        mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+    private void setUpListeners(final MediaPlayerSource src) {
+        MediaPlayer p = src.mPlayer;
+        p.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                setPlayerState(PLAYER_STATE_PAUSED);
-                setBufferingState(BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
+                handleDataSourceError(mPlayer.onPrepared(mp));
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(MediaPlayer2EventCallback callback) {
-                        callback.onInfo(MediaPlayer2Impl.this, mCurrentDSD, MEDIA_INFO_PREPARED, 0);
+                        MediaPlayer2Impl mp2 = MediaPlayer2Impl.this;
+                        DataSourceDesc dsd = src.getDSD();
+                        callback.onInfo(mp2, dsd, MEDIA_INFO_PREPARED, 0);
                     }
                 });
                 notifyPlayerEvent(new PlayerEventNotifier() {
                     @Override
                     public void notify(PlayerEventCallback cb) {
-                        cb.onMediaPrepared(MediaPlayer2Impl.this, mCurrentDSD);
+                        cb.onMediaPrepared(MediaPlayer2Impl.this, src.getDSD());
                     }
                 });
                 synchronized (mTaskLock) {
                     if (mCurrentTask != null
                             && mCurrentTask.mMediaCallType == CALL_COMPLETED_PREPARE
-                            && mCurrentTask.mDSD == mCurrentDSD
+                            && mCurrentTask.mDSD == src.getDSD()
                             && mCurrentTask.mNeedToWaitForEventToComplete) {
                         mCurrentTask.sendCompleteNotification(CALL_STATUS_NO_ERROR);
                         mCurrentTask = null;
@@ -1651,18 +1570,18 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 }
             }
         });
-        mPlayer.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
+        p.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
             @Override
             public void onVideoSizeChanged(MediaPlayer mp, final int width, final int height) {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(MediaPlayer2EventCallback cb) {
-                        cb.onVideoSizeChanged(MediaPlayer2Impl.this, mCurrentDSD, width, height);
+                        cb.onVideoSizeChanged(MediaPlayer2Impl.this, src.getDSD(), width, height);
                     }
                 });
             }
         });
-        mPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+        p.setOnInfoListener(new MediaPlayer.OnInfoListener() {
             @Override
             public boolean onInfo(MediaPlayer mp, int what, int extra) {
                 switch (what) {
@@ -1670,50 +1589,50 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         notifyMediaPlayer2Event(new Mp2EventNotifier() {
                             @Override
                             public void notify(MediaPlayer2EventCallback cb) {
-                                cb.onInfo(MediaPlayer2Impl.this, mCurrentDSD,
+                                cb.onInfo(MediaPlayer2Impl.this, src.getDSD(),
                                         MEDIA_INFO_VIDEO_RENDERING_START, 0);
                             }
                         });
                         break;
                     case MediaPlayer.MEDIA_INFO_BUFFERING_START:
-                        setBufferingState(BUFFERING_STATE_BUFFERING_AND_STARVED);
+                        mPlayer.setBufferingState(mp, BUFFERING_STATE_BUFFERING_AND_STARVED);
                         break;
                     case MediaPlayer.MEDIA_INFO_BUFFERING_END:
-                        setBufferingState(BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
+                        mPlayer.setBufferingState(mp, BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
                         break;
                 }
                 return false;
             }
         });
-        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        p.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                setPlayerState(PLAYER_STATE_PAUSED);
+                handleDataSourceError(mPlayer.onCompletion(mp));
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(MediaPlayer2EventCallback cb) {
-                        cb.onInfo(MediaPlayer2Impl.this, mCurrentDSD, MEDIA_INFO_PLAYBACK_COMPLETE,
-                                0);
+                        MediaPlayer2Impl mp2 = MediaPlayer2Impl.this;
+                        DataSourceDesc dsd = src.getDSD();
+                        cb.onInfo(mp2, dsd, MEDIA_INFO_PLAYBACK_COMPLETE, 0);
                     }
                 });
             }
         });
-        mPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+        p.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, final int what, final int extra) {
-                setPlayerState(PLAYER_STATE_ERROR);
-                setBufferingState(BUFFERING_STATE_UNKNOWN);
+                mPlayer.onError(mp);
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(MediaPlayer2EventCallback cb) {
                         int w = sErrorEventMap.getOrDefault(what, MEDIA_ERROR_UNKNOWN);
-                        cb.onError(MediaPlayer2Impl.this, mCurrentDSD, w, extra);
+                        cb.onError(MediaPlayer2Impl.this, src.getDSD(), w, extra);
                     }
                 });
                 return true;
             }
         });
-        mPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+        p.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
             @Override
             public void onSeekComplete(MediaPlayer mp) {
                 synchronized (mTaskLock) {
@@ -1736,7 +1655,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 });
             }
         });
-        mPlayer.setOnTimedMetaDataAvailableListener(
+        p.setOnTimedMetaDataAvailableListener(
                 new MediaPlayer.OnTimedMetaDataAvailableListener() {
                     @Override
                     public void onTimedMetaDataAvailable(MediaPlayer mp, final TimedMetaData data) {
@@ -1744,41 +1663,41 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                             @Override
                             public void notify(MediaPlayer2EventCallback cb) {
                                 cb.onTimedMetaDataAvailable(
-                                        MediaPlayer2Impl.this, mCurrentDSD, data);
+                                        MediaPlayer2Impl.this, src.getDSD(), data);
                             }
                         });
                     }
                 });
-        mPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+        p.setOnInfoListener(new MediaPlayer.OnInfoListener() {
             @Override
             public boolean onInfo(MediaPlayer mp, final int what, final int extra) {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(MediaPlayer2EventCallback cb) {
                         int w = sInfoEventMap.getOrDefault(what, MEDIA_INFO_UNKNOWN);
-                        cb.onInfo(MediaPlayer2Impl.this, mCurrentDSD, w, extra);
+                        cb.onInfo(MediaPlayer2Impl.this, src.getDSD(), w, extra);
                     }
                 });
                 return true;
             }
         });
-        mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+        p.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mp, final int percent) {
                 if (percent >= 100) {
-                    setBufferingState(BUFFERING_STATE_BUFFERING_COMPLETE);
+                    mPlayer.setBufferingState(mp, BUFFERING_STATE_BUFFERING_COMPLETE);
                 }
-                mBufferedPercentageCurrent.set(percent);
+                src.mBufferedPercentage.set(percent);
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(MediaPlayer2EventCallback cb) {
-                        cb.onInfo(MediaPlayer2Impl.this, mCurrentDSD,
+                        cb.onInfo(MediaPlayer2Impl.this, src.getDSD(),
                                 MEDIA_INFO_BUFFERING_UPDATE, percent);
                     }
                 });
             }
         });
-        mPlayer.setOnMediaTimeDiscontinuityListener(
+        p.setOnMediaTimeDiscontinuityListener(
                 new MediaPlayer.OnMediaTimeDiscontinuityListener() {
                     @Override
                     public void onMediaTimeDiscontinuity(
@@ -1787,35 +1706,35 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                             @Override
                             public void notify(MediaPlayer2EventCallback cb) {
                                 cb.onMediaTimeDiscontinuity(
-                                        MediaPlayer2Impl.this, mCurrentDSD, timestamp);
+                                        MediaPlayer2Impl.this, src.getDSD(), timestamp);
                             }
                         });
                     }
                 });
-        mPlayer.setOnSubtitleDataListener(new MediaPlayer.OnSubtitleDataListener() {
+        p.setOnSubtitleDataListener(new MediaPlayer.OnSubtitleDataListener() {
             @Override
             public  void onSubtitleData(MediaPlayer mp, final SubtitleData data) {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(MediaPlayer2EventCallback cb) {
-                        cb.onSubtitleData(MediaPlayer2Impl.this, mCurrentDSD, data);
+                        cb.onSubtitleData(MediaPlayer2Impl.this, src.getDSD(), data);
                     }
                 });
             }
         });
-        mPlayer.setOnDrmInfoListener(new MediaPlayer.OnDrmInfoListener() {
+        p.setOnDrmInfoListener(new MediaPlayer.OnDrmInfoListener() {
             @Override
             public void onDrmInfo(MediaPlayer mp, final MediaPlayer.DrmInfo drmInfo) {
                 notifyDrmEvent(new DrmEventNotifier() {
                     @Override
                     public void notify(DrmEventCallback cb) {
-                        cb.onDrmInfo(MediaPlayer2Impl.this, mCurrentDSD,
+                        cb.onDrmInfo(MediaPlayer2Impl.this, src.getDSD(),
                                 new DrmInfoImpl(drmInfo.getPssh(), drmInfo.getSupportedSchemes()));
                     }
                 });
             }
         });
-        mPlayer.setOnDrmPreparedListener(new MediaPlayer.OnDrmPreparedListener() {
+        p.setOnDrmPreparedListener(new MediaPlayer.OnDrmPreparedListener() {
             @Override
             public void onDrmPrepared(MediaPlayer mp, final int status) {
                 notifyDrmEvent(new DrmEventNotifier() {
@@ -1823,7 +1742,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     public void notify(DrmEventCallback cb) {
                         int s = sPrepareDrmStatusMap.getOrDefault(
                                 status, PREPARE_DRM_STATUS_PREPARATION_ERROR);
-                        cb.onDrmPrepared(MediaPlayer2Impl.this, mCurrentDSD, s);
+                        cb.onDrmPrepared(MediaPlayer2Impl.this, src.getDSD(), s);
                     }
                 });
             }
@@ -2033,9 +1952,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             } catch (Exception e) {
                 status = CALL_STATUS_ERROR_UNKNOWN;
             }
-            synchronized (mSrcLock) {
-                mDSD = mCurrentDSD;
-            }
+            mDSD = getCurrentDataSource();
 
             if (!mNeedToWaitForEventToComplete || status != CALL_STATUS_NO_ERROR) {
 
@@ -2063,4 +1980,427 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             });
         }
     };
+
+    private static class DataSourceError {
+        final DataSourceDesc mDSD;
+        final int mWhat;
+
+        final int mExtra;
+        DataSourceError(DataSourceDesc dsd, int what, int extra) {
+            mDSD = dsd;
+            mWhat = what;
+            mExtra = extra;
+        }
+
+    }
+
+    private class MediaPlayerSource {
+
+        volatile DataSourceDesc mDSD;
+        final MediaPlayer mPlayer = new MediaPlayer();
+        final AtomicInteger mBufferedPercentage = new AtomicInteger(0);
+        int mSourceState = SOURCE_STATE_INIT;
+        @BuffState int mBufferingState = BUFFERING_STATE_UNKNOWN;
+        @PlayerState int mPlayerState = PLAYER_STATE_IDLE;
+        boolean mPlayPending;
+
+        MediaPlayerSource(final DataSourceDesc dsd) {
+            mDSD = dsd;
+            setUpListeners(this);
+        }
+
+        DataSourceDesc getDSD() {
+            return mDSD;
+        }
+
+    }
+
+    private class MediaPlayerSourceQueue {
+
+        List<MediaPlayerSource> mQueue = new ArrayList<>();
+        float mVolume = 1.0f;
+        Surface mSurface;
+
+        MediaPlayerSourceQueue() {
+            mQueue.add(new MediaPlayerSource(null));
+        }
+
+        synchronized MediaPlayer getCurrentPlayer() {
+            return mQueue.get(0).mPlayer;
+        }
+
+        synchronized MediaPlayerSource getFirst() {
+            return mQueue.get(0);
+        }
+
+        synchronized void setFirst(DataSourceDesc dsd) throws IOException {
+            if (mQueue.isEmpty()) {
+                mQueue.add(0, new MediaPlayerSource(dsd));
+            } else {
+                mQueue.get(0).mDSD = dsd;
+                setUpListeners(mQueue.get(0));
+            }
+            handleDataSource(mQueue.get(0));
+        }
+
+        synchronized DataSourceError setNext(DataSourceDesc dsd) {
+            MediaPlayerSource src = new MediaPlayerSource(dsd);
+            if (mQueue.isEmpty()) {
+                mQueue.add(src);
+                return prepareMediaPlayerSource(0);
+            } else {
+                mQueue.add(1, src);
+                return prepareMediaPlayerSource(1);
+            }
+        }
+
+        synchronized DataSourceError setNextMultiple(List<DataSourceDesc> descs) {
+            List<MediaPlayerSource> sources = new ArrayList<>();
+            for (DataSourceDesc dsd: descs) {
+                sources.add(new MediaPlayerSource(dsd));
+            }
+            if (mQueue.isEmpty()) {
+                mQueue.addAll(sources);
+                return prepareMediaPlayerSource(0);
+            } else {
+                mQueue.addAll(1, sources);
+                return prepareMediaPlayerSource(1);
+            }
+        }
+
+        synchronized void play() {
+            MediaPlayerSource src = mQueue.get(0);
+            if (src.mSourceState == SOURCE_STATE_PREPARED) {
+                src.mPlayer.start();
+                setPlayerState(src.mPlayer, PLAYER_STATE_PLAYING);
+            }
+        }
+
+        synchronized void prepare() {
+            getCurrentPlayer().prepareAsync();
+        }
+
+        synchronized void release() {
+            getCurrentPlayer().release();
+        }
+
+        synchronized void prepareAsync() {
+            MediaPlayer mp = getCurrentPlayer();
+            mp.prepareAsync();
+            setBufferingState(mp, BUFFERING_STATE_BUFFERING_AND_STARVED);
+        }
+
+        synchronized void pause() {
+            MediaPlayer mp = getCurrentPlayer();
+            mp.pause();
+            setPlayerState(mp, PLAYER_STATE_PAUSED);
+        }
+
+        synchronized long getCurrentPosition() {
+            return getCurrentPlayer().getCurrentPosition();
+        }
+
+        synchronized long getDuration() {
+            return getCurrentPlayer().getDuration();
+        }
+
+        synchronized long getBufferedPosition() {
+            MediaPlayerSource src = mQueue.get(0);
+            return (long) src.mPlayer.getDuration() * src.mBufferedPercentage.get() / 100;
+        }
+
+        synchronized void setAudioAttributes(AudioAttributes attributes) {
+            getCurrentPlayer().setAudioAttributes(attributes);
+        }
+
+        synchronized DataSourceError onPrepared(MediaPlayer mp) {
+            for (int i = 0; i < mQueue.size(); i++) {
+                MediaPlayerSource src = mQueue.get(i);
+                if (mp == src.mPlayer) {
+                    if (i == 0) {
+                        if (src.mPlayPending) {
+                            src.mPlayPending = false;
+                            src.mPlayer.start();
+                            setPlayerState(src.mPlayer, PLAYER_STATE_PLAYING);
+                        } else {
+                            setPlayerState(src.mPlayer, PLAYER_STATE_PAUSED);
+                        }
+                    }
+                    src.mSourceState = SOURCE_STATE_PREPARED;
+                    setBufferingState(src.mPlayer, BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
+                    return prepareMediaPlayerSource(i + 1);
+                }
+            }
+            return null;
+        }
+
+        synchronized DataSourceError onCompletion(MediaPlayer mp) {
+            if (!mQueue.isEmpty() && mp == getCurrentPlayer()) {
+                if (mQueue.size() == 1) {
+                    setPlayerState(mp, PLAYER_STATE_PAUSED);
+                    return null;
+                }
+                mp.release();
+                final MediaPlayerSource src1 = mQueue.remove(0);
+                final MediaPlayerSource src2 = mQueue.get(0);
+                if (src1.mPlayerState != src2.mPlayerState) {
+                    notifyPlayerEvent(new PlayerEventNotifier() {
+                        @Override
+                        public void notify(PlayerEventCallback cb) {
+                            cb.onPlayerStateChanged(MediaPlayer2Impl.this, src2.mPlayerState);
+                        }
+                    });
+                }
+
+            }
+
+            DataSourceError err = null;
+            final MediaPlayerSource src = mQueue.get(0);
+            src.mPlayer.setSurface(mSurface);
+            src.mPlayer.setVolume(mVolume, mVolume);
+            if (src.mSourceState == SOURCE_STATE_PREPARED) {
+                // start next source only when it's in prepared state.
+                src.mPlayer.start();
+                notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                    @Override
+                    public void notify(MediaPlayer2EventCallback callback) {
+                        callback.onInfo(MediaPlayer2Impl.this, src.getDSD(),
+                                MEDIA_INFO_STARTED_AS_NEXT, 0);
+                    }
+                });
+
+            } else {
+                if (src.mSourceState == SOURCE_STATE_INIT) {
+                    err = prepareMediaPlayerSource(0);
+                }
+                src.mPlayPending = true;
+            }
+            return err;
+        }
+
+        synchronized void onError(MediaPlayer mp) {
+            setPlayerState(mp, PLAYER_STATE_ERROR);
+            setBufferingState(mp, BUFFERING_STATE_UNKNOWN);
+        }
+
+        synchronized DataSourceError prepareMediaPlayerSource(int n) {
+            if (n >= mQueue.size()
+                    || mQueue.get(n).mSourceState != SOURCE_STATE_INIT
+                    || getPlayerState() == PLAYER_STATE_IDLE) {
+                // There is no next source or it's in preparing or prepared state.
+                return null;
+            }
+
+            MediaPlayerSource src = mQueue.get(n);
+            try {
+                src.mSourceState = SOURCE_STATE_PREPARING;
+                handleDataSource(src);
+                src.mPlayer.prepareAsync();
+                return null;
+            } catch (Exception e) {
+                DataSourceDesc dsd = src.getDSD();
+                setPlayerState(src.mPlayer, PLAYER_STATE_ERROR);
+                return new DataSourceError(dsd, MEDIA_ERROR_UNKNOWN, MEDIA_ERROR_UNSUPPORTED);
+            }
+
+        }
+
+        synchronized void setLooping(boolean loop) {
+            getCurrentPlayer().setLooping(loop);
+        }
+
+        synchronized void setPlaybackParams(PlaybackParams playbackParams) {
+            getCurrentPlayer().setPlaybackParams(playbackParams);
+        }
+
+        synchronized float getVolume() {
+            return mVolume;
+        }
+
+        synchronized void setVolume(float volume) {
+            mVolume = volume;
+            getCurrentPlayer().setVolume(volume, volume);
+        }
+
+        synchronized void setSurface(Surface surface) {
+            mSurface = surface;
+            getCurrentPlayer().setSurface(surface);
+        }
+
+        synchronized int getVideoWidth() {
+            return getCurrentPlayer().getVideoWidth();
+        }
+
+        synchronized int getVideoHeight() {
+            return getCurrentPlayer().getVideoHeight();
+        }
+
+        synchronized PersistableBundle getMetrics() {
+            return getCurrentPlayer().getMetrics();
+        }
+
+        synchronized PlaybackParams getPlaybackParams() {
+            return getCurrentPlayer().getPlaybackParams();
+        }
+
+        synchronized void setSyncParams(SyncParams params) {
+            getCurrentPlayer().setSyncParams(params);
+        }
+
+        synchronized SyncParams getSyncParams() {
+            return getCurrentPlayer().getSyncParams();
+        }
+
+        synchronized void seekTo(long msec, int mode) {
+            getCurrentPlayer().seekTo(msec, mode);
+        }
+
+        synchronized void reset() {
+            MediaPlayerSource src = mQueue.get(0);
+            src.mPlayer.reset();
+            src.mBufferedPercentage.set(0);
+            mVolume = 1.0f;
+            setPlayerState(src.mPlayer, PLAYER_STATE_IDLE);
+            setBufferingState(src.mPlayer, BUFFERING_STATE_UNKNOWN);
+        }
+
+        synchronized MediaTimestamp getTimestamp() {
+            return getCurrentPlayer().getTimestamp();
+        }
+
+        synchronized void setAudioSessionId(int sessionId) {
+            getCurrentPlayer().setAudioSessionId(sessionId);
+        }
+
+        synchronized int getAudioSessionId() {
+            return getCurrentPlayer().getAudioSessionId();
+        }
+
+        synchronized void attachAuxEffect(int effectId) {
+            getCurrentPlayer().attachAuxEffect(effectId);
+        }
+
+        synchronized void setAuxEffectSendLevel(float level) {
+            getCurrentPlayer().setAuxEffectSendLevel(level);
+        }
+
+        synchronized MediaPlayer.TrackInfo[] getTrackInfo() {
+            return getCurrentPlayer().getTrackInfo();
+        }
+
+        synchronized int getSelectedTrack(int trackType) {
+            return getCurrentPlayer().getSelectedTrack(trackType);
+        }
+
+        synchronized void selectTrack(int index) {
+            getCurrentPlayer().selectTrack(index);
+        }
+
+        synchronized void deselectTrack(int index) {
+            getCurrentPlayer().deselectTrack(index);
+        }
+
+        synchronized MediaPlayer.DrmInfo getDrmInfo() {
+            return getCurrentPlayer().getDrmInfo();
+        }
+
+        synchronized void prepareDrm(UUID uuid)
+                throws ResourceBusyException, MediaPlayer.ProvisioningServerErrorException,
+                MediaPlayer.ProvisioningNetworkErrorException, UnsupportedSchemeException {
+            getCurrentPlayer().prepareDrm(uuid);
+        }
+
+        synchronized void releaseDrm() throws MediaPlayer.NoDrmSchemeException {
+            getCurrentPlayer().releaseDrm();
+        }
+
+        synchronized byte[] provideKeyResponse(byte[] keySetId, byte[] response)
+                throws DeniedByServerException, MediaPlayer.NoDrmSchemeException {
+            return getCurrentPlayer().provideKeyResponse(keySetId, response);
+        }
+
+        synchronized void restoreKeys(byte[] keySetId) throws MediaPlayer.NoDrmSchemeException {
+            getCurrentPlayer().restoreKeys(keySetId);
+        }
+
+        synchronized String getDrmPropertyString(String propertyName)
+                throws MediaPlayer.NoDrmSchemeException {
+            return getCurrentPlayer().getDrmPropertyString(propertyName);
+        }
+
+        synchronized void setDrmPropertyString(String propertyName, String value)
+                throws MediaPlayer.NoDrmSchemeException {
+            getCurrentPlayer().setDrmPropertyString(propertyName, value);
+        }
+
+        synchronized void setOnDrmConfigHelper(MediaPlayer.OnDrmConfigHelper onDrmConfigHelper) {
+            getCurrentPlayer().setOnDrmConfigHelper(onDrmConfigHelper);
+        }
+
+        synchronized MediaDrm.KeyRequest getKeyRequest(byte[] keySetId, byte[] initData,
+                String mimeType,
+                int keyType, Map<String, String> optionalParameters)
+                throws MediaPlayer.NoDrmSchemeException {
+            return getCurrentPlayer().getKeyRequest(keySetId, initData, mimeType, keyType,
+                    optionalParameters);
+        }
+
+        synchronized void setPlayerState(MediaPlayer mp, @PlayerState final int state) {
+            for (final MediaPlayerSource src: mQueue) {
+                if (src.mPlayer != mp) {
+                    continue;
+                }
+                if (src.mPlayerState == state) {
+                    return;
+                }
+                src.mPlayerState = state;
+                notifyPlayerEvent(new PlayerEventNotifier() {
+                    @Override
+                    public void notify(PlayerEventCallback cb) {
+                        cb.onPlayerStateChanged(MediaPlayer2Impl.this, state);
+                    }
+                });
+                return;
+            }
+        }
+
+        synchronized void setBufferingState(MediaPlayer mp, @BuffState final int state) {
+            for (final MediaPlayerSource src: mQueue) {
+                if (src.mPlayer != mp) {
+                    continue;
+                }
+                if (src.mBufferingState == state) {
+                    return;
+                }
+                src.mBufferingState = state;
+                notifyPlayerEvent(new PlayerEventNotifier() {
+                    @Override
+                    public void notify(PlayerEventCallback cb) {
+                        MediaPlayer2Impl mp2 = MediaPlayer2Impl.this;
+                        DataSourceDesc dsd = src.getDSD();
+                        cb.onBufferingStateChanged(mp2, dsd, state);
+                    }
+                });
+                return;
+            }
+        }
+
+        synchronized @BuffState int getBufferingState() {
+            return mQueue.get(0).mBufferingState;
+        }
+
+        synchronized @PlayerState int getPlayerState() {
+            return mQueue.get(0).mPlayerState;
+        }
+
+        synchronized MediaPlayerSource getSourceForPlayer(MediaPlayer mp) {
+            for (MediaPlayerSource src: mQueue) {
+                if (src.mPlayer == mp) {
+                    return src;
+                }
+            }
+            return null;
+        }
+    }
+
 }
