@@ -89,11 +89,15 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
+        // Do a quick check to make sure we don't need to bail out in case this work is already
+        // running, finished, or is blocked.
         if (mWorkSpec.state != ENQUEUED) {
             notifyIncorrectStatus();
             return;
         }
 
+        // Merge inputs.  This can be potentially expensive code, so this should not be done inside
+        // a database transaction.
         Data input;
         if (mWorkSpec.isPeriodic()) {
             input = mWorkSpec.input;
@@ -123,24 +127,27 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
-        setRunning();
-
-        try {
-            checkForInterruption();
-            Worker.WorkerResult result = mWorker.doWork();
-            if (mWorkSpecDao.getState(mWorkSpecId) != CANCELLED) {
+        // Try to set the work to the running state.  Note that this may fail because another thread
+        // may have modified the DB since we checked last at the top of this function.
+        if (trySetRunning()) {
+            try {
                 checkForInterruption();
-                handleResult(result);
+                Worker.WorkerResult result = mWorker.doWork();
+                if (mWorkSpecDao.getState(mWorkSpecId) != CANCELLED) {
+                    checkForInterruption();
+                    handleResult(result);
+                }
+            } catch (InterruptedException e) {
+                Logger.debug(TAG, "Work interrupted for %s", mWorkSpecId);
+                rescheduleAndNotify(false);
             }
-        } catch (InterruptedException e) {
-            Logger.debug(TAG, "Work interrupted for %s", mWorkSpecId);
-            rescheduleAndNotify(false);
+        } else {
+            notifyIncorrectStatus();
         }
     }
 
     private void notifyIncorrectStatus() {
-        // incorrect status is treated as a false-y attempt at execution
-        State status = mWorkSpec.state;
+        State status = mWorkSpecDao.getState(mWorkSpecId);
         if (status == RUNNING) {
             Logger.debug(TAG, "Status for %s is RUNNING;"
                     + "not doing any work and rescheduling for later execution", mWorkSpecId);
@@ -199,15 +206,21 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    private void setRunning() {
+    private boolean trySetRunning() {
+        boolean setToRunning = false;
         mWorkDatabase.beginTransaction();
         try {
-            mWorkSpecDao.setState(RUNNING, mWorkSpecId);
-            mWorkSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
-            mWorkDatabase.setTransactionSuccessful();
+            State currentState = mWorkSpecDao.getState(mWorkSpecId);
+            if (currentState == ENQUEUED) {
+                mWorkSpecDao.setState(RUNNING, mWorkSpecId);
+                mWorkSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
+                mWorkDatabase.setTransactionSuccessful();
+                setToRunning = true;
+            }
         } finally {
             mWorkDatabase.endTransaction();
         }
+        return setToRunning;
     }
 
     private void setFailedAndNotify() {
