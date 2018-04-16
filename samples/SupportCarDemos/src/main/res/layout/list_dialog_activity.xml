@@ -26,6 +26,14 @@
     android:paddingStart="@dimen/car_margin"
     android:paddingEnd="@dimen/car_margin" >
 
+    <CheckBox
+        android:id="@+id/has_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/car_padding_4"
+        android:checked="true"
+        android:text="@string/list_dialog_checkbox_title" />
+
     <android.support.design.widget.TextInputLayout
         android:id="@+id/num_of_items"
         android:layout_width="match_parent"

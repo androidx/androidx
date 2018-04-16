@@ -34,18 +34,34 @@ limitations under the License.
         app:cardBackgroundColor="?attr/dialogBackgroundColor"
         app:cardCornerRadius="@dimen/car_radius_3">
 
-        <!-- Hide the scrollbar for this PagedListView because it will be implemented by
-             @id/scrollbar. -->
-        <androidx.car.widget.PagedListView
-            android:id="@+id/list"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="?attr/dialogListTheme"
-            app:gutter="none"
-            app:dividerStartMargin="@dimen/car_keyline_1"
-            app:dividerEndMargin="@dimen/car_keyline_1"
-            app:showPagedListViewDivider="true"
-            app:scrollBarEnabled="false" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/car_dialog_header_height"
+                android:layout_marginStart="@dimen/car_keyline_1"
+                android:layout_marginEnd="@dimen/car_keyline_1"
+                android:gravity="center_vertical|start"
+                android:visibility="gone"
+                style="?attr/dialogTitleStyle" />
+
+            <!-- Hide the scrollbar for this PagedListView because it will be implemented by
+                 @id/scrollbar. -->
+            <androidx.car.widget.PagedListView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="?attr/dialogListTheme"
+                app:gutter="none"
+                app:dividerStartMargin="@dimen/car_keyline_1"
+                app:dividerEndMargin="@dimen/car_keyline_1"
+                app:showPagedListViewDivider="true"
+                app:scrollBarEnabled="false" />
+        </LinearLayout>
     </androidx.car.widget.ColumnCardView>
 
     <!-- Putting this as the last child for highest z-index. It is also clickable to reduce
