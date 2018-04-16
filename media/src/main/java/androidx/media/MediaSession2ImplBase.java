@@ -90,8 +90,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @GuardedBy("mLock")
     private OnDataSourceMissingHelper mDsmHelper;
     @GuardedBy("mLock")
-    private PlaybackStateCompat mPlaybackStateCompat;
-    @GuardedBy("mLock")
     private PlaybackInfo mPlaybackInfo;
 
     MediaSession2ImplBase(Context context, MediaSessionCompat sessionCompat, String id,
@@ -1043,6 +1041,21 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                 public void run() {
                     session.getCallback().onPlaybackSpeedChanged(session.getInstance(), mpb, speed);
                     session.getSession2Stub().notifyPlaybackSpeedChanged(speed);
+                }
+            });
+        }
+
+        @Override
+        public void onSeekCompleted(final MediaPlayerBase mpb, final long position) {
+            final MediaSession2ImplBase session = getSession();
+            if (session == null) {
+                return;
+            }
+            session.getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    session.getCallback().onSeekCompleted(session.getInstance(), mpb, position);
+                    session.getSession2Stub().notifySeekCompleted(position);
                 }
             });
         }

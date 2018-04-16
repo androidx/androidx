@@ -97,7 +97,6 @@ import java.util.List;
  * <p>
  * After the binding, session's
  * {@link MediaSession2.SessionCallback#onConnect(MediaSession2, ControllerInfo)}
- *
  * will be called to accept or reject connection request from a controller. If the connection is
  * rejected, the controller will unbind. If it's accepted, the controller will be available to use
  * and keep binding.
@@ -106,6 +105,9 @@ import java.util.List;
  * is called and service would become a foreground service. It's needed to keep playback after the
  * controller is destroyed. The session service becomes background service when the playback is
  * stopped.
+ * <p>
+ * The service is destroyed when the session is closed, or no media controller is bounded to the
+ * session while the service is not running as a foreground service.
  * <a name="Permissions"></a>
  * <h3>Permissions</h3>
  * <p>
