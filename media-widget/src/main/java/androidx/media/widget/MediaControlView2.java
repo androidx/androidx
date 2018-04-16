@@ -179,8 +179,6 @@ public class MediaControlView2 extends BaseLayout {
 
     private static final String TAG = "MediaControlView2";
 
-    static final String ARGUMENT_KEY_FULLSCREEN = "fullScreen";
-
     static final String KEY_VIDEO_TRACK_COUNT = "VideoTrackCount";
     static final String KEY_AUDIO_TRACK_COUNT = "AudioTrackCount";
     static final String KEY_SUBTITLE_TRACK_COUNT = "SubtitleTrackCount";
@@ -195,8 +193,6 @@ public class MediaControlView2 extends BaseLayout {
     static final String COMMAND_SHOW_SUBTITLE = "showSubtitle";
     // String for sending command to hide subtitle to MediaSession.
     static final String COMMAND_HIDE_SUBTITLE = "hideSubtitle";
-    // String for sending command to set fullscreen to MediaSession.
-    static final String COMMAND_SET_FULLSCREEN = "setFullscreen";
     // String for sending command to select audio track to MediaSession.
     static final String COMMAND_SELECT_AUDIO_TRACK = "SelectTrack";
     // String for sending command to set playback speed to MediaSession.
@@ -235,6 +231,7 @@ public class MediaControlView2 extends BaseLayout {
     private MediaControllerCompat.TransportControls mControls;
     private PlaybackStateCompat mPlaybackState;
     private MediaMetadataCompat mMetadata;
+    private OnFullScreenRequestListener mFullScreenRequestListener;
     private int mDuration;
     private int mPrevState;
     private int mPrevWidth;
@@ -368,10 +365,11 @@ public class MediaControlView2 extends BaseLayout {
     /**
      * Registers a callback to be invoked when the fullscreen mode should be changed.
      * @param l The callback that will be run
-     * @hide
+     * @hide TODO unhide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void setOnFullScreenListener(OnFullScreenListener l) {
+    public void setFullScreenRequestListener(OnFullScreenRequestListener l) {
+        mFullScreenRequestListener = l;
     }
 
     /**
@@ -486,14 +484,14 @@ public class MediaControlView2 extends BaseLayout {
     /**
      * Interface definition of a callback to be invoked to inform the fullscreen mode is changed.
      * Application should handle the fullscreen mode accordingly.
-     * @hide
+     * @hide  TODO unhide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public interface OnFullScreenListener {
+    public interface OnFullScreenRequestListener {
         /**
          * Called to indicate a fullscreen mode change.
          */
-        void onFullScreen(View view, boolean fullScreen);
+        void onFullScreenRequest(View view, boolean fullScreen);
     }
 
     @Override
@@ -1067,6 +1065,10 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mFullScreenListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (mFullScreenRequestListener == null) {
+                return;
+            }
+
             final boolean isEnteringFullScreen = !mIsFullScreen;
             if (isEnteringFullScreen) {
                 mFullScreenButton.setImageDrawable(
@@ -1075,11 +1077,9 @@ public class MediaControlView2 extends BaseLayout {
                 mFullScreenButton.setImageDrawable(
                         mResources.getDrawable(R.drawable.ic_fullscreen, null));
             }
-            Bundle args = new Bundle();
-            args.putBoolean(ARGUMENT_KEY_FULLSCREEN, isEnteringFullScreen);
-            mController.sendCommand(COMMAND_SET_FULLSCREEN, args, null);
-
             mIsFullScreen = isEnteringFullScreen;
+            mFullScreenRequestListener.onFullScreenRequest(MediaControlView2.this,
+                    mIsFullScreen);
         }
     };
 

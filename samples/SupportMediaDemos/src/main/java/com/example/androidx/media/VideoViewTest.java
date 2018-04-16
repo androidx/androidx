@@ -84,12 +84,11 @@ public class VideoViewTest extends Activity {
             if (mUseTextureView) {
                 mVideoView.setViewType(VideoView2.VIEW_TYPE_TEXTUREVIEW);
             }
-
-            mVideoView.setFullScreenRequestListener(new FullScreenRequestListener());
             mVideoView.setVideoUri(contentUri);
 
             mMediaControlView = new MediaControlView2(this);
             mVideoView.setMediaControlView2(mMediaControlView, 2000);
+            mMediaControlView.setFullScreenRequestListener(new FullScreenRequestListener());
         }
         if (errorString != null) {
             showErrorDialog(errorString);
@@ -181,7 +180,8 @@ public class VideoViewTest extends Activity {
         }
     };
 
-    private class FullScreenRequestListener implements VideoView2.OnFullScreenRequestListener {
+    private class FullScreenRequestListener
+            implements MediaControlView2.OnFullScreenRequestListener {
         @Override
         public void onFullScreenRequest(View view, boolean fullScreen) {
             // TODO: Remove bottom controls after adding back button functionality.
