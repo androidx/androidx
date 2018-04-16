@@ -1801,6 +1801,7 @@ package androidx.leanback.widget {
 
   public class GuidedAction extends androidx.leanback.widget.Action {
     ctor protected GuidedAction();
+    method public java.lang.String[] getAutofillHints();
     method public int getCheckSetId();
     method public java.lang.CharSequence getDescription();
     method public int getDescriptionEditInputType();
@@ -1859,6 +1860,7 @@ package androidx.leanback.widget {
     ctor public GuidedAction.BuilderBase(android.content.Context);
     method protected final void applyValues(androidx.leanback.widget.GuidedAction);
     method public B autoSaveRestoreEnabled(boolean);
+    method public B autofillHints(java.lang.String...);
     method public B checkSetId(int);
     method public B checked(boolean);
     method public B clickAction(long);
@@ -1891,6 +1893,14 @@ package androidx.leanback.widget {
     method public B title(int);
   }
 
+  public abstract interface GuidedActionAutofillSupport {
+    method public abstract void setOnAutofillListener(androidx.leanback.widget.GuidedActionAutofillSupport.OnAutofillListener);
+  }
+
+  public static abstract interface GuidedActionAutofillSupport.OnAutofillListener {
+    method public abstract void onAutofill(android.view.View);
+  }
+
   public class GuidedActionDiffCallback extends androidx.leanback.widget.DiffCallback {
     ctor public GuidedActionDiffCallback();
     method public boolean areContentsTheSame(androidx.leanback.widget.GuidedAction, androidx.leanback.widget.GuidedAction);
@@ -1898,11 +1908,12 @@ package androidx.leanback.widget {
     method public static androidx.leanback.widget.GuidedActionDiffCallback getInstance();
   }
 
-  public class GuidedActionEditText extends android.widget.EditText implements androidx.leanback.widget.ImeKeyMonitor {
+  public class GuidedActionEditText extends android.widget.EditText implements androidx.leanback.widget.GuidedActionAutofillSupport androidx.leanback.widget.ImeKeyMonitor {
     ctor public GuidedActionEditText(android.content.Context);
     ctor public GuidedActionEditText(android.content.Context, android.util.AttributeSet);
     ctor public GuidedActionEditText(android.content.Context, android.util.AttributeSet, int);
     method public void setImeKeyListener(androidx.leanback.widget.ImeKeyMonitor.ImeKeyListener);
+    method public void setOnAutofillListener(androidx.leanback.widget.GuidedActionAutofillSupport.OnAutofillListener);
   }
 
   public class GuidedActionsStylist implements androidx.leanback.widget.FragmentAnimationProvider {
