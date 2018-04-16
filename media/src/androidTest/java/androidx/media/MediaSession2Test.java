@@ -522,6 +522,47 @@ public class MediaSession2Test extends MediaSession2TestBase {
     }
 
     @Test
+    public void testGetDuration() throws Exception {
+        prepareLooper();
+        final long testDuration = 9999;
+        mPlayer.mDuration = testDuration;
+        assertEquals(testDuration, mSession.getDuration());
+    }
+
+    @Test
+    public void testSessionCallback_onMediaPrepared() throws Exception {
+        prepareLooper();
+        final long testDuration = 9999;
+        final List<MediaItem2> list = TestUtils.createPlaylist(2);
+        final MediaItem2 testItem = list.get(1);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        mPlayer.mDuration = testDuration;
+        mMockAgent.setPlaylist(list, null);
+        mMockAgent.mCurrentMediaItem = testItem;
+
+        final SessionCallback sessionCallback = new SessionCallback() {
+            @Override
+            public void onMediaPrepared(MediaSession2 session, MediaPlayerBase player,
+                    MediaItem2 item) {
+                assertEquals(testItem, item);
+                assertEquals(testDuration,
+                        item.getMetadata().getLong(MediaMetadata2.METADATA_KEY_DURATION));
+                latch.countDown();
+            }
+        };
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+                .setPlayer(mPlayer)
+                .setPlaylistAgent(mMockAgent)
+                .setId("testSessionCallback")
+                .setSessionCallback(sHandlerExecutor, sessionCallback)
+                .build()) {
+            mPlayer.notifyMediaPrepared(testItem.getDataSourceDesc());
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
     public void testSetPlaybackSpeed() throws Exception {
         prepareLooper();
         final float speed = 1.5f;

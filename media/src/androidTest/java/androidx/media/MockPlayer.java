@@ -42,6 +42,7 @@ public class MockPlayer extends MediaPlayerBase {
     public float mPlaybackSpeed = 1.0f;
     public @PlayerState int mLastPlayerState;
     public @BuffState int mLastBufferingState;
+    public long mDuration;
 
     public ArrayMap<PlayerEventCallback, Executor> mCallbacks = new ArrayMap<>();
 
@@ -125,6 +126,11 @@ public class MockPlayer extends MediaPlayerBase {
     @Override
     public int getBufferingState() {
         return mLastBufferingState;
+    }
+
+    @Override
+    public long getDuration() {
+        return mDuration;
     }
 
     @Override

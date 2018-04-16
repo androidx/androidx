@@ -451,8 +451,18 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public long getDuration() {
-        // TODO: implement
-        return 0;
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            // Note: This should be the same as
+            // getCurrentMediaItem().getMetadata().getLong(METADATA_KEY_DURATION)
+            return player.getDuration();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
+        return MediaPlayerBase.UNKNOWN_TIME;
     }
 
     @Override
@@ -1035,8 +1045,47 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     if (item == null) {
                         return;
                     }
+                    if (item.equals(session.getCurrentMediaItem())) {
+                        long duration = session.getDuration();
+                        if (duration < 0) {
+                            return;
+                        }
+                        MediaMetadata2 metadata = item.getMetadata();
+                        if (metadata != null) {
+                            if (!metadata.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
+                                metadata = new MediaMetadata2.Builder(metadata).putLong(
+                                        MediaMetadata2.METADATA_KEY_DURATION, duration).build();
+                            } else {
+                                long durationFromMetadata =
+                                        metadata.getLong(MediaMetadata2.METADATA_KEY_DURATION);
+                                if (duration != durationFromMetadata) {
+                                    // Warns developers about the mismatch. Don't log media item
+                                    // here to keep metadata secure.
+                                    Log.w(TAG, "duration mismatch for an item."
+                                            + " duration from player=" + duration
+                                            + " duration from metadata=" + durationFromMetadata
+                                            + ". May be a timing issue?");
+                                }
+                                // Trust duration in the metadata set by developer.
+                                // In theory, duration may differ if the current item has been
+                                // changed before the getDuration(). So it's better not touch
+                                // duration set by developer.
+                                metadata = null;
+                            }
+                        } else {
+                            metadata = new MediaMetadata2.Builder()
+                                    .putLong(MediaMetadata2.METADATA_KEY_DURATION, duration)
+                                    .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
+                                            item.getMediaId())
+                                    .build();
+                        }
+                        if (metadata != null) {
+                            item.setMetadata(metadata);
+                            session.getSession2Stub().notifyPlaylistChanged(session.getPlaylist(),
+                                    session.getPlaylistMetadata());
+                        }
+                    }
                     session.getCallback().onMediaPrepared(session.getInstance(), mpb, item);
-                    // TODO (jaewan): Notify controllers through appropriate callback. (b/74505936)
                 }
             });
         }

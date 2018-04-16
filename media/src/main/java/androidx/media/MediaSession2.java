@@ -1380,6 +1380,11 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         return mImpl.getCurrentPosition();
     }
 
+    /**
+     * Gets the duration of the currently playing media item.
+     *
+     * @return the duration of the current item from {@link MediaPlayerBase#getDuration()}.
+     */
     @Override
     public long getDuration() {
         return mImpl.getDuration();
@@ -1499,6 +1504,11 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      * {@link MediaPlaylistAgent} has responsibility to dynamically query {link DataSourceDesc}
      * when such media item is ready for preparation or play. Default implementation needs
      * {@link OnDataSourceMissingHelper} for such case.
+     * <p>
+     * It's recommended to fill {@link MediaMetadata2} in each {@link MediaItem2} especially for the
+     * duration information with the key {@link MediaMetadata2#METADATA_KEY_DURATION}. Without the
+     * duration information in the metadata, session will do extra work to get the duration and send
+     * it to the controller.
      *
      * @param list A list of {@link MediaItem2} objects to set as a play list.
      * @throws IllegalArgumentException if given list is {@code null}, or has duplicated media
