@@ -250,16 +250,7 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
     public VideoView2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initialize(context, attrs);
-    }
 
-    public VideoView2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        initialize(context, attrs);
-    }
-
-    void initialize(Context context, AttributeSet attrs) {
         mVideoWidth = 0;
         mVideoHeight = 0;
         mSpeed = 1.0f;
