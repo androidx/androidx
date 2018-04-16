@@ -155,21 +155,6 @@ public class MockPlayer extends MediaPlayerBase {
         }
     }
 
-    public void notifyBufferingState(final MediaItem2 item, final int bufferingState) {
-        mLastBufferingState = bufferingState;
-        for (int i = 0; i < mCallbacks.size(); i++) {
-            final PlayerEventCallback callback = mCallbacks.keyAt(i);
-            final Executor executor = mCallbacks.valueAt(i);
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    callback.onBufferingStateChanged(
-                            MockPlayer.this, item.getDataSourceDesc(), bufferingState);
-                }
-            });
-        }
-    }
-
     public void notifyCurrentDataSourceChanged(final DataSourceDesc dsd) {
         for (int i = 0; i < mCallbacks.size(); i++) {
             final PlayerEventCallback callback = mCallbacks.keyAt(i);
@@ -218,6 +203,19 @@ public class MockPlayer extends MediaPlayerBase {
                 @Override
                 public void run() {
                     callback.onPlaybackSpeedChanged(MockPlayer.this, speed);
+                }
+            });
+        }
+    }
+
+    public void notifySeekCompleted(final long position) {
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            final PlayerEventCallback callback = mCallbacks.keyAt(i);
+            final Executor executor = mCallbacks.valueAt(i);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onSeekCompleted(MockPlayer.this, position);
                 }
             });
         }

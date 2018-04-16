@@ -29,9 +29,11 @@ import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertNotEquals;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.ResultReceiver;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -65,17 +67,15 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link MediaController2} works cleanly.
  */
 // TODO(jaewan): Implement host-side test so browser and service can run in different processes.
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@Ignore
 public class MediaBrowser2Test extends MediaController2Test {
     private static final String TAG = "MediaBrowser2Test";
 
     @Override
     TestControllerInterface onCreateController(final @NonNull SessionToken2 token,
-            @Nullable ControllerCallback callback) throws InterruptedException {
-        final BrowserCallback browserCallback =
-                callback != null ? (BrowserCallback) callback : new BrowserCallback() {};
+            final @Nullable ControllerCallback callback) throws InterruptedException {
         final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -84,7 +84,7 @@ public class MediaBrowser2Test extends MediaController2Test {
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
                 controller.set(new TestMediaBrowser(
-                        mContext, token, new TestBrowserCallback(browserCallback)));
+                        mContext, token, new TestBrowserCallback(callback)));
             }
         });
         return controller.get();
@@ -120,7 +120,9 @@ public class MediaBrowser2Test extends MediaController2Test {
                     Bundle rootHints, String rootMediaId, Bundle rootExtra) {
                 assertTrue(TestUtils.equals(param, rootHints));
                 assertEquals(ROOT_ID, rootMediaId);
-                assertTrue(TestUtils.equals(EXTRAS, rootExtra));
+                // Note that TestUtils#equals() cannot be used for this because
+                // MediaBrowserServiceCompat adds extra_client_version to the rootHints.
+                assertTrue(TestUtils.contains(rootExtra, EXTRAS));
                 latch.countDown();
             }
         };
@@ -316,6 +318,7 @@ public class MediaBrowser2Test extends MediaController2Test {
         assertTrue(latchForGetSearchResult.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
+    @Ignore
     @Test
     public void testSearchTakesTime() throws InterruptedException {
         prepareLooper();
@@ -342,6 +345,7 @@ public class MediaBrowser2Test extends MediaController2Test {
                 MockMediaLibraryService2.SEARCH_TIME_IN_MS + WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
+    @Ignore
     @Test
     public void testSearchEmptyResult() throws InterruptedException {
         prepareLooper();
@@ -504,7 +508,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
         TestBrowserCallback(ControllerCallback callbackProxy) {
             if (callbackProxy == null) {
-                throw new IllegalArgumentException("Callback proxy shouldn't be null. Test bug");
+                callbackProxy = new BrowserCallback() {};
             }
             mCallbackProxy = callbackProxy;
         }
@@ -690,9 +694,9 @@ public class MediaBrowser2Test extends MediaController2Test {
         private final BrowserCallback mCallback;
 
         public TestMediaBrowser(@NonNull Context context, @NonNull SessionToken2 token,
-                @NonNull ControllerCallback callback) {
-            super(context, token, sHandlerExecutor, (BrowserCallback) callback);
-            mCallback = (BrowserCallback) callback;
+                @NonNull BrowserCallback callback) {
+            super(context, token, sHandlerExecutor, callback);
+            mCallback = callback;
         }
 
         @Override

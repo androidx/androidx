@@ -33,8 +33,10 @@ class MediaConstants2 {
             "androidx.media.session.event.ON_PLAYBACK_INFO_CHANGED";
     static final String SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED =
             "androidx.media.session.event.ON_PLAYBACK_SPEED_CHANGED";
-    static final String SESSION_EVENT_ON_BUFFERING_STATE_CHAGNED =
+    static final String SESSION_EVENT_ON_BUFFERING_STATE_CHANGED =
             "androidx.media.session.event.ON_BUFFERING_STATE_CHANGED";
+    static final String SESSION_EVENT_ON_SEEK_COMPLETED =
+            "androidx.media.session.event.ON_SEEK_COMPLETED";
     static final String SESSION_EVENT_ON_REPEAT_MODE_CHANGED =
             "androidx.media.session.event.ON_REPEAT_MODE_CHANGED";
     static final String SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED =

@@ -68,17 +68,28 @@ public final class TestUtils {
      *     incorrect if any bundle contains a bundle.
      */
     public static boolean equals(Bundle a, Bundle b) {
+        return contains(a, b) && contains(b, a);
+    }
+
+    /**
+     * Checks whether a Bundle contains another bundle.
+     *
+     * @param a a bundle
+     * @param b another bundle
+     * @return {@code true} if a contains b. {@code false} otherwise. This may be incorrect if any
+     *      bundle contains a bundle.
+     */
+    public static boolean contains(Bundle a, Bundle b) {
         if (a == b) {
             return true;
         }
         if (a == null || b == null) {
+            return b == null;
+        }
+        if (!a.keySet().containsAll(b.keySet())) {
             return false;
         }
-        if (!a.keySet().containsAll(b.keySet())
-                || !b.keySet().containsAll(a.keySet())) {
-            return false;
-        }
-        for (String key : a.keySet()) {
+        for (String key : b.keySet()) {
             if (!Objects.equals(a.get(key), b.get(key))) {
                 return false;
             }

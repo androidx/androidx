@@ -55,7 +55,7 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_CUSTOM_COMMAN
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHAGNED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
@@ -65,6 +65,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ROUTES_INFO_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEEK_COMPLETED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
@@ -561,6 +562,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
                 bundle.putInt(ARGUMENT_PLAYER_STATE, state);
+                bundle.putParcelable(
+                        ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
                 controller.getControllerBinder().onEvent(
                         SESSION_EVENT_ON_PLAYER_STATE_CHANGED, bundle);
             }
@@ -587,8 +590,23 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 Bundle bundle = new Bundle();
                 bundle.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
                 bundle.putInt(ARGUMENT_BUFFERING_STATE, bufferingState);
+                bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
+                        mSession.getPlaybackStateCompat());
                 controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_BUFFERING_STATE_CHAGNED, bundle);
+                        SESSION_EVENT_ON_BUFFERING_STATE_CHANGED, bundle);
+            }
+        });
+    }
+
+    void notifySeekCompleted(final long position) {
+        notifyAll(new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putLong(ARGUMENT_SEEK_POSITION, position);
+                bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
+                        mSession.getPlaybackStateCompat());
+                controller.getControllerBinder().onEvent(SESSION_EVENT_ON_SEEK_COMPLETED, bundle);
             }
         });
     }

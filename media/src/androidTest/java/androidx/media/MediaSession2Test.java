@@ -200,10 +200,35 @@ public class MediaSession2Test extends MediaSession2TestBase {
                     }
                 });
 
-        mPlayer.notifyBufferingState(targetItem, targetBufferingState);
+        mPlayer.notifyBufferingStateChanged(targetItem.getDataSourceDesc(), targetBufferingState);
         assertTrue(latchForSessionCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertEquals(targetBufferingState, controller.getBufferingState());
+    }
+
+    @Test
+    public void testSeekCompleted() throws Exception {
+        prepareLooper();
+        final long testPosition = 1001;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionCallback callback = new SessionCallback() {
+            @Override
+            public void onSeekCompleted(MediaSession2 session, MediaPlayerBase mpb, long position) {
+                assertEquals(mPlayer, mpb);
+                assertEquals(testPosition, position);
+                latch.countDown();
+            }
+        };
+
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+                .setPlayer(mPlayer)
+                .setPlaylistAgent(mMockAgent)
+                .setId("testSeekCompleted")
+                .setSessionCallback(sHandlerExecutor, callback).build()) {
+            mPlayer.mCurrentPosition = testPosition;
+            mPlayer.notifySeekCompleted(testPosition);
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
     }
 
     @Test
