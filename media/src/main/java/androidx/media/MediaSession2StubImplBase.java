@@ -69,6 +69,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEEK_COMPLETED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
+import static androidx.media.SessionCommand2.COMMAND_CODE_CUSTOM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
@@ -507,7 +508,6 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         notifyInternal(controller, new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                // TODO: Send this event through MediaSessionCompat.XXX()
                 Bundle bundle = new Bundle();
                 bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
                 bundle.putBundle(ARGUMENT_ARGUMENTS, args);
@@ -727,7 +727,6 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         }
     }
 
-    // TODO: Add a way to check permission from here.
     private void notifyInternal(@NonNull ControllerInfo controller,
             @NonNull Session2Runnable runnable) {
         if (controller == null || controller.getControllerBinder() == null) {
@@ -768,11 +767,16 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
 
     private void onCommand2(@NonNull IBinder caller, final int commandCode,
             @NonNull final Session2Runnable runnable) {
-        // TODO: Prevent instantiation of SessionCommand2
-        onCommand2(caller, new SessionCommand2(commandCode), runnable);
+        onCommand2Internal(caller, null, commandCode, runnable);
     }
 
     private void onCommand2(@NonNull IBinder caller, @NonNull final SessionCommand2 sessionCommand,
+            @NonNull final Session2Runnable runnable) {
+        onCommand2Internal(caller, sessionCommand, COMMAND_CODE_CUSTOM, runnable);
+    }
+
+    private void onCommand2Internal(@NonNull IBinder caller,
+            @Nullable final SessionCommand2 sessionCommand, final int commandCode,
             @NonNull final Session2Runnable runnable) {
         final ControllerInfo controller;
         synchronized (mLock) {
@@ -784,18 +788,25 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         mSession.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                if (!isAllowedCommand(controller, sessionCommand)) {
-                    return;
+                SessionCommand2 command;
+                if (sessionCommand != null) {
+                    if (!isAllowedCommand(controller, sessionCommand)) {
+                        return;
+                    }
+                    command = sCommandsForOnCommandRequest.get(sessionCommand.getCommandCode());
+                } else {
+                    if (!isAllowedCommand(controller, commandCode)) {
+                        return;
+                    }
+                    command = sCommandsForOnCommandRequest.get(commandCode);
                 }
-                int commandCode = sessionCommand.getCommandCode();
-                SessionCommand2 command = sCommandsForOnCommandRequest.get(commandCode);
                 if (command != null) {
                     boolean accepted = mSession.getCallback().onCommandRequest(
                             mSession.getInstance(), controller, command);
                     if (!accepted) {
                         // Don't run rejected command.
                         if (DEBUG) {
-                            Log.d(TAG, "Command (code=" + commandCode + ") from "
+                            Log.d(TAG, "Command (" + command + ") from "
                                     + controller + " was rejected by " + mSession);
                         }
                         return;
