@@ -597,7 +597,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      */
     @Override
     public void clearPendingCommands() {
-        // TODO: implement this.
+        synchronized (mTaskLock) {
+            mPendingTasks.clear();
+        }
     }
 
     private void addTask(Task task) {
