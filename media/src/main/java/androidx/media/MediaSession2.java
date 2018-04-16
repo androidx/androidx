@@ -783,8 +783,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public ControllerInfo(@NonNull Context context, int uid, int pid,
-                @NonNull String packageName, @NonNull IMediaControllerCallback callback) {
+        public ControllerInfo(@NonNull String packageName, int pid, int uid,
+                @NonNull IMediaControllerCallback callback) {
             mUid = uid;
             mPackageName = packageName;
             mIControllerCallback = callback;
@@ -855,8 +855,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @return Bundle
          */
         @RestrictTo(LIBRARY_GROUP)
-        public static @NonNull ControllerInfo fromBundle(@NonNull Context context, Bundle bundle) {
-            return new ControllerInfo(context, -1, -1, "TODO", null);
+        public static @NonNull ControllerInfo fromBundle(Bundle bundle) {
+            return new ControllerInfo("TODO", -1, -1, null);
         }
 
         IMediaControllerCallback getControllerBinder() {
@@ -1083,6 +1083,10 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         abstract void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
                 @Nullable List<Bundle> routes);
 
+        // LibrarySession methods
+        abstract void notifySearchResultChanged(@NonNull ControllerInfo controller,
+                @NonNull String query, int itemCount, @Nullable Bundle extras);
+
         // Internally used methods
         abstract void setInstance(MediaSession2 session);
         abstract MediaSession2 getInstance();
@@ -1101,6 +1105,10 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     MediaSession2(SupportLibraryImpl impl) {
         mImpl = impl;
         mImpl.setInstance(this);
+    }
+
+    SupportLibraryImpl getImpl() {
+        return mImpl;
     }
 
     /**

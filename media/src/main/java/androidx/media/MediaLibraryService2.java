@@ -20,13 +20,14 @@ import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE_SIZE;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media.MediaConstants2.ARGUMENT_PAGE;
+import static androidx.media.MediaConstants2.ARGUMENT_PAGE_SIZE;
 
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Process;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import androidx.annotation.NonNull;
@@ -323,8 +324,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          * @param extras extra bundle
          */
         public void notifySearchResultChanged(@NonNull ControllerInfo controller,
-                @NonNull String query, int itemCount, @NonNull Bundle extras) {
-            // TODO: Implement
+                @NonNull String query, int itemCount, @Nullable Bundle extras) {
+            getImpl().notifySearchResultChanged(controller, query, itemCount, extras);
         }
 
         private MediaLibraryService2 getService() {
@@ -496,8 +497,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                 return sDefaultBrowserRoot;
             }
             // TODO: Revisit this when we support caller information.
-            final ControllerInfo info = new ControllerInfo(MediaLibraryService2.this, clientUid, -1,
-                    clientPackageName, null);
+            final ControllerInfo info = new ControllerInfo(clientPackageName, -1, clientUid,
+                    null);
             MediaLibrarySession session = getLibrarySession();
             // Call onGetLibraryRoot() directly instead of execute on the executor. Here's the
             // reason.
@@ -583,8 +584,40 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         }
 
         @Override
-        public void onSearch(String query, Bundle extras, Result<List<MediaItem>> result) {
-            // TODO: Implement
+        public void onSearch(final String query, final Bundle extras,
+                final Result<List<MediaItem>> result) {
+            result.detach();
+            final ControllerInfo controller = getController();
+            extras.setClassLoader(MediaLibraryService2.this.getClassLoader());
+            try {
+                final int page = extras.getInt(ARGUMENT_PAGE);
+                final int pageSize = extras.getInt(ARGUMENT_PAGE_SIZE);
+                if (!(page > 0 && pageSize > 0)) {
+                    getLibrarySession().getCallbackExecutor().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            getLibrarySession().getCallback().onSearch(
+                                    getLibrarySession(), controller, query, extras);
+                        }
+                    });
+                } else {
+                    getLibrarySession().getCallbackExecutor().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            List<MediaItem2> searchResult = getLibrarySession().getCallback()
+                                    .onGetSearchResult(getLibrarySession(), controller, query,
+                                            page, pageSize, extras);
+                            if (searchResult == null) {
+                                result.sendResult(null);
+                                return;
+                            }
+                            result.sendResult(MediaUtils2.fromMediaItem2List(searchResult));
+                        }
+                    });
+                }
+            } catch (BadParcelableException e) {
+                // Do nothing.
+            }
         }
 
         @Override
@@ -593,9 +626,24 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         }
 
         private ControllerInfo getController() {
-            // TODO: Implement, by using getBrowserRootHints() / getCurrentBrowserInfo() / ...
-            return new ControllerInfo(MediaLibraryService2.this, Process.myUid(), Process.myPid(),
-                    getPackageName(), null);
+            MediaLibrarySession session = getLibrarySession();
+            List<ControllerInfo> controllers = session.getConnectedControllers();
+
+            MediaSessionManager.RemoteUserInfo info = getCurrentBrowserInfo();
+            if (info == null) {
+                return null;
+            }
+
+            for (int i = 0; i < controllers.size(); i++) {
+                // TODO: This cannot pick the right controller between two controllers in
+                // same process.
+                ControllerInfo controller = controllers.get(i);
+                if (controller.getPackageName().equals(info.getPackageName())
+                        && controller.getUid() == info.getUid()) {
+                    return controller;
+                }
+            }
+            return null;
         }
     }
 }

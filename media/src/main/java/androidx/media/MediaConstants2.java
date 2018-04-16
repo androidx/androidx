@@ -47,6 +47,8 @@ class MediaConstants2 {
             "androidx.media.session.event.ON_PLAYLIST_METADATA_CHANGED";
     static final String SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED =
             "androidx.media.session.event.ON_ALLOWED_COMMANDS_CHANGED";
+    static final String SESSION_EVENT_ON_SEARCH_RESULT_CHANGED =
+            "androidx.media.session.event.ON_SEARCH_RESULT_CHANGED";
     static final String SESSION_EVENT_SEND_CUSTOM_COMMAND =
             "androidx.media.session.event.SEND_CUSTOM_COMMAND";
     static final String SESSION_EVENT_SET_CUSTOM_LAYOUT =
@@ -91,6 +93,9 @@ class MediaConstants2 {
     static final String ARGUMENT_COMMAND_BUTTONS = "androidx.media.argument.COMMAND_BUTTONS";
     static final String ARGUMENT_ROUTE_BUNDLE = "androidx.media.argument.ROUTE_BUNDLE";
     static final String ARGUMENT_PLAYBACK_INFO = "androidx.media.argument.PLAYBACK_INFO";
+    static final String ARGUMENT_ITEM_COUNT = "androidx.media.argument.ITEM_COUNT";
+    static final String ARGUMENT_PAGE = "androidx.media.argument.PAGE";
+    static final String ARGUMENT_PAGE_SIZE = "androidx.media.argument.PAGE_SIZE";
 
     static final String ARGUMENT_ICONTROLLER_CALLBACK =
             "androidx.media.argument.ICONTROLLER_CALLBACK";

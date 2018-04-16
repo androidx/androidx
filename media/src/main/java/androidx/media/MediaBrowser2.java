@@ -17,6 +17,8 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media.MediaConstants2.ARGUMENT_PAGE;
+import static androidx.media.MediaConstants2.ARGUMENT_PAGE_SIZE;
 
 import android.content.Context;
 import android.os.BadParcelableException;
@@ -25,6 +27,7 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.ItemCallback;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
+import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -44,6 +47,9 @@ import java.util.concurrent.Executor;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class MediaBrowser2 extends MediaController2 {
+    static final String TAG = "MediaBrowser2";
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+
     /**
      * @hide
      */
@@ -358,7 +364,28 @@ public class MediaBrowser2 extends MediaController2 {
      * @param extras extra bundle
      */
     public void search(@NonNull String query, @Nullable Bundle extras) {
-        // TODO: Implement
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
+        }
+        browser.search(query, extras, new MediaBrowserCompat.SearchCallback() {
+            @Override
+            public void onSearchResult(final String query, final Bundle extras,
+                    final List<MediaItem> items) {
+                getCallbackExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        getCallback().onSearchResultChanged(
+                                MediaBrowser2.this, query, items.size(), extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final String query, final Bundle extras) {
+                // Currently no way to tell failures in MediaBrowser2#search().
+            }
+        });
     }
 
     /**
@@ -371,9 +398,40 @@ public class MediaBrowser2 extends MediaController2 {
      * @param pageSize page size. Should be greater or equal to {@code 1}
      * @param extras extra bundle
      */
-    public void getSearchResult(@NonNull String query, int page, int pageSize,
-            @Nullable Bundle extras) {
-        // TODO: Implement
+    public void getSearchResult(final @NonNull String query, final int page, final int pageSize,
+            final @Nullable Bundle extras) {
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
+        }
+        Bundle options = MediaUtils2.createBundle(extras);
+        options.putInt(ARGUMENT_PAGE, page);
+        options.putInt(ARGUMENT_PAGE_SIZE, pageSize);
+        browser.search(query, options, new MediaBrowserCompat.SearchCallback() {
+            @Override
+            public void onSearchResult(final String query, final Bundle extrasSent,
+                    final List<MediaItem> items) {
+                getCallbackExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<MediaItem2> item2List = MediaUtils2.toMediaItem2List(items);
+                        getCallback().onGetSearchResultDone(
+                                MediaBrowser2.this, query, page, pageSize, item2List, extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final String query, final Bundle extrasSent) {
+                getCallbackExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        getCallback().onGetSearchResultDone(
+                                MediaBrowser2.this, query, page, pageSize, null, extras);
+                    }
+                });
+            }
+        });
     }
 
     @Override

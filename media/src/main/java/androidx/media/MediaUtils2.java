@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 class MediaUtils2 {
+    static final String TAG = "MediaUtils2";
+
     static final String AUDIO_ATTRIBUTES_USAGE = "androidx.media.audio_attrs.USAGE";
     static final String AUDIO_ATTRIBUTES_CONTENT_TYPE = "androidx.media.audio_attrs.CONTENT_TYPE";
     static final String AUDIO_ATTRIBUTES_FLAGS = "androidx.media.audio_attrs.FLAGS";
@@ -114,6 +116,28 @@ class MediaUtils2 {
                 .setMediaId(item.getMediaId())
                 .setMetadata(metadata2)
                 .build();
+    }
+
+    static List<MediaItem> fromMediaItem2List(List<MediaItem2> items) {
+        if (items == null) {
+            return null;
+        }
+        List<MediaItem> result = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            result.add(createMediaItem(items.get(i)));
+        }
+        return result;
+    }
+
+    static List<MediaItem2> toMediaItem2List(List<MediaItem> items) {
+        if (items == null) {
+            return null;
+        }
+        List<MediaItem2> result = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            result.add(createMediaItem2(items.get(i)));
+        }
+        return result;
     }
 
     /**
