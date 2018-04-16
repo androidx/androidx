@@ -113,9 +113,13 @@ public class ListContent {
         }
         int height = 0;
         boolean hasRealHeader = false;
+        SliceItem maybeHeader = null;
         if (!listItems.isEmpty()) {
-            SliceItem maybeHeader = listItems.get(0);
+            maybeHeader = listItems.get(0);
             hasRealHeader = !maybeHeader.hasAnyHints(HINT_LIST_ITEM, HINT_HORIZONTAL);
+        }
+        if (listItems.size() == 1 && !maybeHeader.hasHint(HINT_HORIZONTAL)) {
+            return getHeight(context, maybeHeader, true);
         }
         for (int i = 0; i < listItems.size(); i++) {
             height += getHeight(context, listItems.get(i), i == 0 && hasRealHeader /* isHeader */);
