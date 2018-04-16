@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2017 The Android Open Source Project
+  ~ Copyright (C) 2018 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,22 +16,16 @@
   -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_gravity="center_vertical"
+    <androidx.car.widget.PagedListView
+        android:id="@+id/paged_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <!-- Putting this as the last child so that it can intercept any touch events on the
-         scroll buttons. -->
-    <androidx.car.widget.PagedScrollBarView
-        android:id="@+id/paged_scroll_view"
-        android:layout_width="@dimen/car_margin"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/car_padding_4"
-        android:paddingTop="@dimen/car_padding_4"
-        android:visibility="invisible" />
+        app:showPagedListViewDivider="true"
+        app:dayNightStyle="force_night"
+        app:verticallyCenterListContent="true"
+        app:gutter="both"/>
 </FrameLayout>
+
