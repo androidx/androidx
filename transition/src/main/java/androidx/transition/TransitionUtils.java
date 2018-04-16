@@ -22,7 +22,9 @@ import android.animation.TypeEvaluator;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Picture;
 import android.graphics.RectF;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -30,6 +32,12 @@ import android.widget.ImageView;
 class TransitionUtils {
 
     private static final int MAX_IMAGE_SIZE = 1024 * 1024;
+    private static final boolean HAS_IS_ATTACHED_TO_WINDOW =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+    private static final boolean HAS_OVERLAY =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
+    private static final boolean HAS_PICTURE_BITMAP =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
 
     /**
      * Creates a View using the bitmap copy of <code>view</code>. If <code>view</code> is large,
@@ -53,7 +61,7 @@ class TransitionUtils {
 
         ImageView copy = new ImageView(view.getContext());
         copy.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Bitmap bitmap = createViewBitmap(view, matrix, bounds);
+        Bitmap bitmap = createViewBitmap(view, matrix, bounds, sceneRoot);
         if (bitmap != null) {
             copy.setImageBitmap(bitmap);
         }
@@ -78,20 +86,56 @@ class TransitionUtils {
      *               view should be presented. Typically, this is matrix.mapRect(viewBounds);
      * @return A bitmap of the given view or null if bounds has no width or height.
      */
-    private static Bitmap createViewBitmap(View view, Matrix matrix, RectF bounds) {
+    private static Bitmap createViewBitmap(View view, Matrix matrix, RectF bounds,
+            ViewGroup sceneRoot) {
+        final boolean addToOverlay;
+        final boolean sceneRootIsAttached;
+        if (HAS_IS_ATTACHED_TO_WINDOW) {
+            addToOverlay = !view.isAttachedToWindow();
+            sceneRootIsAttached = sceneRoot == null ? false : sceneRoot.isAttachedToWindow();
+        } else {
+            addToOverlay = false;
+            sceneRootIsAttached = false;
+        }
+        ViewGroup parent = null;
+        int indexInParent = 0;
+        if (HAS_OVERLAY && addToOverlay) {
+            if (!sceneRootIsAttached) {
+                return null;
+            }
+            parent = (ViewGroup) view.getParent();
+            indexInParent = parent.indexOfChild(view);
+            sceneRoot.getOverlay().add(view);
+        }
         Bitmap bitmap = null;
         int bitmapWidth = Math.round(bounds.width());
         int bitmapHeight = Math.round(bounds.height());
         if (bitmapWidth > 0 && bitmapHeight > 0) {
             float scale = Math.min(1f, ((float) MAX_IMAGE_SIZE) / (bitmapWidth * bitmapHeight));
-            bitmapWidth = (int) (bitmapWidth * scale);
-            bitmapHeight = (int) (bitmapHeight * scale);
+            bitmapWidth = Math.round(bitmapWidth * scale);
+            bitmapHeight = Math.round(bitmapHeight * scale);
             matrix.postTranslate(-bounds.left, -bounds.top);
             matrix.postScale(scale, scale);
-            bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            canvas.concat(matrix);
-            view.draw(canvas);
+
+            if (HAS_PICTURE_BITMAP) {
+                // Hardware rendering
+                final Picture picture = new Picture();
+                final Canvas canvas = picture.beginRecording(bitmapWidth, bitmapHeight);
+                canvas.concat(matrix);
+                view.draw(canvas);
+                picture.endRecording();
+                bitmap = Bitmap.createBitmap(picture);
+            } else {
+                // Software rendering
+                bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
+                canvas.concat(matrix);
+                view.draw(canvas);
+            }
+        }
+        if (HAS_OVERLAY && addToOverlay) {
+            sceneRoot.getOverlay().remove(view);
+            parent.addView(view, indexInParent);
         }
         return bitmap;
     }
