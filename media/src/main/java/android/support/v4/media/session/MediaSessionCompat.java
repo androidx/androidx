@@ -817,7 +817,6 @@ public class MediaSessionCompat {
     }
 
     /**
-     * @hide
      * Gets the controller information who sent the current request.
      * <p>
      * Note: This is only valid while in a request callback, such as {@link Callback#onPlay}.
@@ -825,7 +824,6 @@ public class MediaSessionCompat {
      * @throws IllegalStateException If this method is called outside of {@link Callback} methods.
      * @see MediaSessionManager#isTrustedForMediaControl(RemoteUserInfo)
      */
-    @RestrictTo(LIBRARY_GROUP)
     public final @NonNull RemoteUserInfo getCurrentControllerInfo() {
         return mImpl.getCurrentControllerInfo();
     }

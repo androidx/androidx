@@ -17,7 +17,6 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNECT;
@@ -1301,15 +1300,13 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     /**
-     * @hide
      * Gets the browser information who sent the current request.
      *
      * @throws IllegalStateException If this method is called outside of {@link #onGetRoot} or
      *             {@link #onLoadChildren} or {@link #onLoadItem}.
      * @see MediaSessionManager#isTrustedForMediaControl(RemoteUserInfo)
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public final RemoteUserInfo getCurrentBrowserInfo() {
+    public final @NonNull RemoteUserInfo getCurrentBrowserInfo() {
         if (mCurConnection == null) {
             throw new IllegalStateException("This should be called inside of onGetRoot or"
                     + " onLoadChildren or onLoadItem methods");
