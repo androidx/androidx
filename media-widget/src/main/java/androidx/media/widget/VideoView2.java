@@ -180,7 +180,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
 
     private Pair<Executor, OnCustomActionListener> mCustomActionListenerRecord;
     private OnViewTypeChangedListener mViewTypeChangedListener;
-    private OnFullScreenRequestListener mFullScreenRequestListener;
 
     private VideoViewInterface mCurrentView;
     private VideoTextureView mTextureView;
@@ -623,16 +622,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
         mViewTypeChangedListener = l;
     }
 
-    /**
-     * Registers a callback to be invoked when the fullscreen mode should be changed.
-     * @param l The callback that will be run
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setFullScreenRequestListener(OnFullScreenRequestListener l) {
-        mFullScreenRequestListener = l;
-    }
-
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -762,19 +751,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
          * </ul>
          */
         void onViewTypeChanged(View view, @ViewType int viewType);
-    }
-
-    /**
-     * Interface definition of a callback to be invoked to inform the fullscreen mode is changed.
-     * Application should handle the fullscreen mode accordingly.
-     * @hide  TODO remove
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public interface OnFullScreenRequestListener {
-        /**
-         * Called to indicate a fullscreen mode change.
-         */
-        void onFullScreenRequest(View view, boolean fullScreen);
     }
 
     /**
@@ -1494,13 +1470,6 @@ public class VideoView2 extends BaseLayout implements VideoViewInterface.Surface
                         break;
                     case MediaControlView2.COMMAND_HIDE_SUBTITLE:
                         setSubtitleEnabled(false);
-                        break;
-                    case MediaControlView2.COMMAND_SET_FULLSCREEN:
-                        if (mFullScreenRequestListener != null) {
-                            mFullScreenRequestListener.onFullScreenRequest(
-                                    VideoView2.this,
-                                    args.getBoolean(MediaControlView2.ARGUMENT_KEY_FULLSCREEN));
-                        }
                         break;
                     case MediaControlView2.COMMAND_SELECT_AUDIO_TRACK:
                         int audioIndex = args.getInt(MediaControlView2.KEY_SELECTED_AUDIO_INDEX,
