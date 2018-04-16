@@ -115,6 +115,7 @@ public class GuidedAction extends Action {
         private CharSequence mEditTitle;
         private CharSequence mDescription;
         private CharSequence mEditDescription;
+        private String[] mAutofillHints;
         private Drawable mIcon;
         /**
          * The mActionFlags holds various action states such as whether title or description are
@@ -173,6 +174,7 @@ public class GuidedAction extends Action {
             action.mEditable = mEditable;
             action.mInputType = mInputType;
             action.mDescriptionInputType = mDescriptionInputType;
+            action.mAutofillHints = mAutofillHints;
             action.mEditInputType = mEditInputType;
             action.mDescriptionEditInputType = mDescriptionEditInputType;
             action.mActionFlags = mActionFlags;
@@ -542,6 +544,15 @@ public class GuidedAction extends Action {
             return (B) this;
         }
 
+        /**
+         * Sets autofill hints. See {@link android.view.View#setAutofillHints}
+         * @param hints List of hints for autofill.
+         * @return The same BuilderBase object.
+         */
+        public B autofillHints(String... hints) {
+            mAutofillHints = hints;
+            return (B) this;
+        }
     }
 
     /**
@@ -593,6 +604,7 @@ public class GuidedAction extends Action {
     int mDescriptionInputType;
     int mEditInputType;
     int mDescriptionEditInputType;
+    String[] mAutofillHints;
 
     int mCheckSetId;
 
@@ -833,6 +845,13 @@ public class GuidedAction extends Action {
      */
     public void setFocusable(boolean focusable) {
         setFlags(focusable ? PF_FOCUSABLE : 0, PF_FOCUSABLE);
+    }
+
+    /**
+     * Returns autofill hints, see {@link android.view.View#setAutofillHints(String...)}.
+     */
+    public String[] getAutofillHints() {
+        return mAutofillHints;
     }
 
     /**
