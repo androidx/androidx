@@ -29,6 +29,7 @@ public class MediaBrowserProtocol {
 
     public static final String DATA_CALLBACK_TOKEN = "data_callback_token";
     public static final String DATA_CALLING_UID = "data_calling_uid";
+    public static final String DATA_CALLING_PID = "data_calling_pid";
     public static final String DATA_MEDIA_ITEM_ID = "data_media_item_id";
     public static final String DATA_MEDIA_ITEM_LIST = "data_media_item_list";
     public static final String DATA_MEDIA_SESSION_TOKEN = "data_media_session_token";

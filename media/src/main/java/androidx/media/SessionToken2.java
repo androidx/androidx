@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.media.session.MediaSessionManager;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
@@ -43,7 +42,7 @@ import java.util.List;
  * This may be passed to apps by the session owner to allow them to create a
  * {@link MediaController2} to communicate with the session.
  * <p>
- * It can be also obtained by {@link MediaSessionManager}.
+ * It can be also obtained by MediaSessionManager.
  */
 // New version of MediaSession.Token for following reasons
 //   - Stop implementing Parcelable for updatable support
