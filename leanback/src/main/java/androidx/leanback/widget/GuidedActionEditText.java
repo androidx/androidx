@@ -22,13 +22,15 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.autofill.AutofillValue;
 import android.widget.EditText;
 import android.widget.TextView;
 
 /**
  * A custom EditText that satisfies the IME key monitoring requirements of GuidedStepFragment.
  */
-public class GuidedActionEditText extends EditText implements ImeKeyMonitor {
+public class GuidedActionEditText extends EditText implements ImeKeyMonitor,
+        GuidedActionAutofillSupport {
 
     /**
      * Workaround for b/26990627 forcing recompute the padding for the View when we turn on/off
@@ -60,6 +62,7 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor {
     }
 
     private ImeKeyListener mKeyListener;
+    private OnAutofillListener mAutofillListener;
     private final Drawable mSavedBackground;
     private final Drawable mNoPaddingDrawable;
 
@@ -113,6 +116,26 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor {
         // before editing started. see also GuidedActionAdapterGroup where setFocusable(true).
         if (!focused) {
             setFocusable(false);
+        }
+    }
+
+    @Override
+    public int getAutofillType() {
+        // make it always autofillable as Guided fragment switches InputType when user clicks
+        // on the field.
+        return AUTOFILL_TYPE_TEXT;
+    }
+
+    @Override
+    public void setOnAutofillListener(OnAutofillListener autofillListener) {
+        mAutofillListener = autofillListener;
+    }
+
+    @Override
+    public void autofill(AutofillValue values) {
+        super.autofill(values);
+        if (mAutofillListener != null) {
+            mAutofillListener.onAutofill(this);
         }
     }
 }
