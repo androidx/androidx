@@ -335,7 +335,12 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                                 int value = extras.getInt(ARGUMENT_VOLUME);
                                 int flags = extras.getInt(ARGUMENT_VOLUME_FLAGS);
                                 VolumeProviderCompat vp = mSession.getVolumeProvider();
-                                if (vp != null) {
+                                if (vp == null) {
+                                    MediaSessionCompat sessionCompat = mSession.getSessionCompat();
+                                    if (sessionCompat != null) {
+                                        sessionCompat.getController().setVolumeTo(value, flags);
+                                    }
+                                } else {
                                     vp.onSetVolumeTo(value);
                                 }
                                 break;
@@ -344,7 +349,13 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                                 int direction = extras.getInt(ARGUMENT_VOLUME_DIRECTION);
                                 int flags = extras.getInt(ARGUMENT_VOLUME_FLAGS);
                                 VolumeProviderCompat vp = mSession.getVolumeProvider();
-                                if (vp != null) {
+                                if (vp == null) {
+                                    MediaSessionCompat sessionCompat = mSession.getSessionCompat();
+                                    if (sessionCompat != null) {
+                                        sessionCompat.getController().adjustVolume(
+                                                direction, flags);
+                                    }
+                                } else {
                                     vp.onAdjustVolume(direction);
                                 }
                                 break;
