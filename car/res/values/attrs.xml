@@ -85,6 +85,9 @@ limitations under the License.
         <!-- The amount of space before the first item in the list view. This space is
              scrollable with the contents of the list. -->
         <attr name="listContentTopOffset" format="reference" />
+        <!-- Vertically center the list contents when the number of items in the list does not take
+             up the full height of the PagedListView. This value is "false" by default. -->
+        <attr name="verticallyCenterListContent" format="boolean" />
         <!-- Specifies how the PagedListView should respond to day/night mode events. The values
              here should match the DayNightStyle @interface. See that class for more
              information. -->
