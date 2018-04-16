@@ -560,6 +560,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         notifyAll(new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
+                // Note: current position should be also sent to the controller here for controller
+                // to calculate the position more correctly.
                 Bundle bundle = new Bundle();
                 bundle.putInt(ARGUMENT_PLAYER_STATE, state);
                 bundle.putParcelable(
@@ -574,6 +576,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         notifyAll(new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
+                // Note: current position should be also sent to the controller here for controller
+                // to calculate the position more correctly.
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(
                         ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
@@ -587,6 +591,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         notifyAll(new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
+                // Note: buffered position should be also sent to the controller here. It's to
+                // follow the behavior of MediaPlayerBase.PlayerEventCallback.
                 Bundle bundle = new Bundle();
                 bundle.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
                 bundle.putInt(ARGUMENT_BUFFERING_STATE, bufferingState);
@@ -602,6 +608,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         notifyAll(new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
+                // Note: current position should be also sent to the controller here because the
+                // position here may refer to the parameter of the previous seek() API calls.
                 Bundle bundle = new Bundle();
                 bundle.putLong(ARGUMENT_SEEK_POSITION, position);
                 bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,

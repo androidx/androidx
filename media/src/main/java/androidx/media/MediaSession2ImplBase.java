@@ -47,6 +47,7 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaPlayerBase.PlayerEventCallback;
 import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
@@ -111,7 +112,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         mCallbackExecutor = callbackExecutor;
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-        // TODO: Set callback values properly
         mPlayerEventCallback = new MyPlayerEventCallback(this);
         mPlaylistEventCallback = new MyPlaylistEventCallback(this);
 
@@ -141,10 +141,16 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         if (player == null) {
             throw new IllegalArgumentException("player shouldn't be null");
         }
+        final boolean hasPlayerChanged;
+        final boolean hasAgentChanged;
+        final boolean hasPlaybackInfoChanged;
         final MediaPlayerBase oldPlayer;
         final MediaPlaylistAgent oldAgent;
         final PlaybackInfo info = createPlaybackInfo(volumeProvider, player.getAudioAttributes());
         synchronized (mLock) {
+            hasPlayerChanged = (mPlayer != player);
+            hasAgentChanged = (mPlaylistAgent != playlistAgent);
+            hasPlaybackInfoChanged = (mPlaybackInfo != info);
             oldPlayer = mPlayer;
             oldAgent = mPlaylistAgent;
             mPlayer = player;
@@ -169,16 +175,28 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         if (playlistAgent != oldAgent) {
             playlistAgent.registerPlaylistEventCallback(mCallbackExecutor, mPlaylistEventCallback);
             if (oldAgent != null) {
-                // Warning: Poorly implement player may ignore this
+                // Warning: Poorly implement agent may ignore this
                 oldAgent.unregisterPlaylistEventCallback(mPlaylistEventCallback);
             }
         }
 
         if (oldPlayer != null) {
-            mSession2Stub.notifyPlaybackInfoChanged(info);
-            notifyPlayerUpdatedNotLocked(oldPlayer);
+            // If it's not the first updatePlayer(), tell changes in the player, agent, and playback
+            // info.
+            if (hasAgentChanged) {
+                // Update agent first. Otherwise current position may be changed off the current
+                // media item's duration, and controller may consider it as a bug.
+                notifyAgentUpdatedNotLocked(oldAgent);
+            }
+            if (hasPlayerChanged) {
+                notifyPlayerUpdatedNotLocked(oldPlayer);
+            }
+            if (hasPlaybackInfoChanged) {
+                // Currently hasPlaybackInfo is always true, but check this in case that we're
+                // adding PlaybackInfo#equals().
+                mSession2Stub.notifyPlaybackInfoChanged(info);
+            }
         }
-        // TODO(jaewan): Repeat the same thing for the playlist agent.
     }
 
     private PlaybackInfo createPlaybackInfo(VolumeProviderCompat volumeProvider,
@@ -844,40 +862,48 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         return serviceName;
     }
 
+    private void notifyAgentUpdatedNotLocked(MediaPlaylistAgent oldAgent) {
+        // Tells the playlist change first, to current item can change be notified with an item
+        // within the playlist.
+        List<MediaItem2> oldPlaylist = oldAgent.getPlaylist();
+        List<MediaItem2> newPlaylist = getPlaylist();
+        if (!ObjectsCompat.equals(oldPlaylist, newPlaylist)) {
+            mSession2Stub.notifyPlaylistChanged(newPlaylist, getPlaylistMetadata());
+        } else {
+            MediaMetadata2 oldMetadata = oldAgent.getPlaylistMetadata();
+            MediaMetadata2 newMetadata = getPlaylistMetadata();
+            if (!ObjectsCompat.equals(oldMetadata, newMetadata)) {
+                mSession2Stub.notifyPlaylistMetadataChanged(newMetadata);
+            }
+        }
+        MediaItem2 oldCurrentItem = oldAgent.getCurrentMediaItem();
+        MediaItem2 newCurrentItem = getCurrentMediaItem();
+        if (!ObjectsCompat.equals(oldCurrentItem, newCurrentItem)) {
+            mSession2Stub.notifyCurrentMediaItemChanged(newCurrentItem);
+        }
+        int repeatMode = getRepeatMode();
+        if (oldAgent.getRepeatMode() != repeatMode) {
+            mSession2Stub.notifyRepeatModeChanged(repeatMode);
+        }
+        int shuffleMode = getShuffleMode();
+        if (oldAgent.getShuffleMode() != shuffleMode) {
+            mSession2Stub.notifyShuffleModeChanged(shuffleMode);
+        }
+    }
+
     private void notifyPlayerUpdatedNotLocked(MediaPlayerBase oldPlayer) {
-        MediaPlayerBase player;
-        synchronized (mLock) {
-            player = mPlayer;
+        // Always forcefully send the player state and buffered state to send the current position
+        // and buffered position.
+        mSession2Stub.notifyPlayerStateChanged(getPlayerState());
+        MediaItem2 item = getCurrentMediaItem();
+        if (item != null) {
+            mSession2Stub.notifyBufferingStateChanged(item, getBufferingState());
         }
-        // TODO(jaewan): (Can be post-P) Find better way for player.getPlayerState() //
-        //               In theory, Session.getXXX() may not be the same as Player.getXXX()
-        //               and we should notify information of the session.getXXX() instead of
-        //               player.getXXX()
-        // Notify to controllers as well.
-        final int state = player.getPlayerState();
-        if (state != oldPlayer.getPlayerState()) {
-            // TODO: implement
-            mSession2Stub.notifyPlayerStateChanged(state);
-        }
-
-        final long currentTimeMs = System.currentTimeMillis();
-        final long position = player.getCurrentPosition();
-        if (position != oldPlayer.getCurrentPosition()) {
-            // TODO: implement
-            //mSession2Stub.notifyPositionChangedNotLocked(currentTimeMs, position);
-        }
-
-        final float speed = player.getPlaybackSpeed();
+        final float speed = getPlaybackSpeed();
         if (speed != oldPlayer.getPlaybackSpeed()) {
-            // TODO: implement
-            //mSession2Stub.notifyPlaybackSpeedChangedNotLocked(speed);
+            mSession2Stub.notifyPlaybackSpeedChanged(speed);
         }
-
-        final long bufferedPosition = player.getBufferedPosition();
-        if (bufferedPosition != oldPlayer.getBufferedPosition()) {
-            // TODO: implement
-            //mSession2Stub.notifyBufferedPositionChangedNotLocked(bufferedPosition);
-        }
+        // Note: AudioInfo is updated outside of this API.
     }
 
     private void notifyPlaylistChangedOnExecutor(MediaPlaylistAgent playlistAgent,
