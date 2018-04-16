@@ -51,7 +51,7 @@ init.setupRelease()
 
 apply from: 'buildSrc/jetify.gradle'
 
-init.enableDoclavaAndJDiff(this, new DacOptions("android/support", "SUPPORT_DATA"))
+init.enableDoclavaAndJDiff(this, new DacOptions("androidx", "ANDROIDX_DATA"))
 
 ///// FLATFOOT START
 
