@@ -300,6 +300,7 @@ package android.support.v4.media.session {
     method public void addOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener);
     method public static android.support.v4.media.session.MediaSessionCompat fromMediaSession(android.content.Context, java.lang.Object);
     method public android.support.v4.media.session.MediaControllerCompat getController();
+    method public final androidx.media.MediaSessionManager.RemoteUserInfo getCurrentControllerInfo();
     method public java.lang.Object getMediaSession();
     method public java.lang.Object getRemoteControlClient();
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
@@ -604,6 +605,7 @@ package androidx.media {
     ctor public MediaBrowserServiceCompat();
     method public void dump(java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public final android.os.Bundle getBrowserRootHints();
+    method public final androidx.media.MediaSessionManager.RemoteUserInfo getCurrentBrowserInfo();
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
     method public void notifyChildrenChanged(java.lang.String);
     method public void notifyChildrenChanged(java.lang.String, android.os.Bundle);
@@ -1025,6 +1027,19 @@ package androidx.media {
     method public void onShuffleModeChanged(androidx.media.MediaSession2, androidx.media.MediaPlaylistAgent, int);
     method public void onSubscribeRoutesInfo(androidx.media.MediaSession2, androidx.media.MediaSession2.ControllerInfo);
     method public void onUnsubscribeRoutesInfo(androidx.media.MediaSession2, androidx.media.MediaSession2.ControllerInfo);
+  }
+
+  public final class MediaSessionManager {
+    method public static androidx.media.MediaSessionManager getSessionManager(android.content.Context);
+    method public boolean isTrustedForMediaControl(androidx.media.MediaSessionManager.RemoteUserInfo);
+  }
+
+  public static final class MediaSessionManager.RemoteUserInfo {
+    ctor public MediaSessionManager.RemoteUserInfo(java.lang.String, int, int);
+    method public java.lang.String getPackageName();
+    method public int getPid();
+    method public int getUid();
+    field public static java.lang.String LEGACY_CONTROLLER;
   }
 
   public final class Rating2 {
