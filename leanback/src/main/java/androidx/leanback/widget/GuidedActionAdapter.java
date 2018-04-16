@@ -102,6 +102,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
     private final ActionOnKeyListener mActionOnKeyListener;
     private final ActionOnFocusListener mActionOnFocusListener;
     private final ActionEditListener mActionEditListener;
+    private final ActionAutofillListener mActionAutofillListener;
     private final List<GuidedAction> mActions;
     private ClickListener mClickListener;
     final GuidedActionsStylist mStylist;
@@ -148,6 +149,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
         mActionOnKeyListener = new ActionOnKeyListener();
         mActionOnFocusListener = new ActionOnFocusListener(focusListener);
         mActionEditListener = new ActionEditListener();
+        mActionAutofillListener = new ActionAutofillListener();
         mIsSubAdapter = isSubAdapter;
         if (!isSubAdapter) {
             mDiffCallback = GuidedActionDiffCallback.getInstance();
@@ -317,6 +319,9 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
             if (edit instanceof ImeKeyMonitor) {
                 ImeKeyMonitor monitor = (ImeKeyMonitor)edit;
                 monitor.setImeKeyListener(mActionEditListener);
+            }
+            if (edit instanceof GuidedActionAutofillSupport) {
+                ((GuidedActionAutofillSupport) edit).setOnAutofillListener(mActionAutofillListener);
             }
         }
     }
@@ -552,7 +557,12 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
             }
             return false;
         }
-
     }
 
+    private class ActionAutofillListener implements GuidedActionAutofillSupport.OnAutofillListener {
+        @Override
+        public void onAutofill(View view) {
+            mGroup.fillAndGoNext(GuidedActionAdapter.this, (EditText) view);
+        }
+    }
 }

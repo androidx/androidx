@@ -49,6 +49,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
+import androidx.core.os.BuildCompat;
 import androidx.leanback.R;
 import androidx.leanback.transition.TransitionEpicenterCallback;
 import androidx.leanback.transition.TransitionHelper;
@@ -110,7 +111,7 @@ import java.util.List;
  * <p>
  * In order to support editable actions, the view associated with guidedactions_item_title should
  * be a subclass of {@link android.widget.EditText}, and should satisfy the {@link
- * ImeKeyMonitor} interface.
+ * ImeKeyMonitor} interface and {@link GuidedActionAutofillSupport} interface.
  *
  * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeAppearingAnimation
  * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeDisappearingAnimation
@@ -597,7 +598,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * the substituted layout should contain matching IDs for any views that should be managed by
      * the base class; this can be achieved by starting with a copy of the base layout file. Note
      * that in order for the item to support editing, the title view should both subclass {@link
-     * android.widget.EditText} and implement {@link ImeKeyMonitor}; see {@link
+     * android.widget.EditText} and implement {@link ImeKeyMonitor},
+     * {@link GuidedActionAutofillSupport}; see {@link
      * GuidedActionEditText}.  To support different types of Layouts, override {@link
      * #onProvideItemLayoutId(int)}.
      * @return The resource ID of the layout to be inflated to define the view to display an
@@ -684,6 +686,16 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mTitleView.setFocusable(false);
             vh.mTitleView.setClickable(false);
             vh.mTitleView.setLongClickable(false);
+            if (BuildCompat.isAtLeastP()) {
+                if (action.isEditable()) {
+                    vh.mTitleView.setAutofillHints(action.getAutofillHints());
+                } else {
+                    vh.mTitleView.setAutofillHints((String[]) null);
+                }
+            } else if (VERSION.SDK_INT >= 26) {
+                // disable autofill below P as dpad/keyboard is not supported
+                vh.mTitleView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
+            }
         }
         if (vh.mDescriptionView != null) {
             vh.mDescriptionView.setInputType(action.getDescriptionInputType());
@@ -695,6 +707,16 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mDescriptionView.setFocusable(false);
             vh.mDescriptionView.setClickable(false);
             vh.mDescriptionView.setLongClickable(false);
+            if (BuildCompat.isAtLeastP()) {
+                if (action.isDescriptionEditable()) {
+                    vh.mDescriptionView.setAutofillHints(action.getAutofillHints());
+                } else {
+                    vh.mDescriptionView.setAutofillHints((String[]) null);
+                }
+            } else if (VERSION.SDK_INT >= 26) {
+                // disable autofill below P as dpad/keyboard is not supported
+                vh.mTitleView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
+            }
         }
         // Clients might want the check mark view to be gone entirely, in which case, ignore it.
         if (vh.mCheckmarkView != null) {
