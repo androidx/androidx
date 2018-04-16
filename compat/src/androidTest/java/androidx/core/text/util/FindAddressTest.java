@@ -138,6 +138,15 @@ public class FindAddressTest {
     public void testFullAddressWithoutZipCode() {
         assertIsAddress("1600 Amphitheatre Parkway Mountain View, CA");
         assertIsAddress("201 S. Division St. Suite 500 Ann Arbor, MI");
+
+        // Check that addresses without a zip code are only accepted at the end of the string.
+        // This isn't implied by the documentation but was the case in the old implementation
+        // and fixing this bug creates a lot of false positives while fixing relatively few
+        // false negatives. In these examples, "one point" is parsed as a street and "as" is a
+        // state abbreviation (this is taken from a false positive reported in a bug).
+        Assert.assertTrue(containsAddress("one point I was as"));
+        Assert.assertTrue(containsAddress("At one point I was as ignorant as"));
+        Assert.assertFalse(containsAddress("At one point I was as ignorant as them"));
     }
 
     @Test
