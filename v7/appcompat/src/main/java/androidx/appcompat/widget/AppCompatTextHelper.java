@@ -204,6 +204,25 @@ class AppCompatTextHelper {
                 }
             }
         }
+
+        // Read line and baseline heights attributes.
+        a = TintTypedArray.obtainStyledAttributes(context, attrs, R.styleable.AppCompatTextView);
+        final int firstBaselineToTopHeight = a.getDimensionPixelSize(
+                R.styleable.AppCompatTextView_firstBaselineToTopHeight, -1);
+        final int lastBaselineToBottomHeight = a.getDimensionPixelSize(
+                R.styleable.AppCompatTextView_lastBaselineToBottomHeight, -1);
+        final int lineHeight = a.getDimensionPixelSize(
+                R.styleable.AppCompatTextView_lineHeight, -1);
+        a.recycle();
+        if (firstBaselineToTopHeight != -1) {
+            TextViewCompat.setFirstBaselineToTopHeight(mView, firstBaselineToTopHeight);
+        }
+        if (lastBaselineToBottomHeight != -1) {
+            TextViewCompat.setLastBaselineToBottomHeight(mView, lastBaselineToBottomHeight);
+        }
+        if (lineHeight != -1) {
+            TextViewCompat.setLineHeight(mView, lineHeight);
+        }
     }
 
     private void updateTypefaceAndStyle(Context context, TintTypedArray a) {

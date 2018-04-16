@@ -256,6 +256,19 @@
             android:fontFamily="serif"
             app:fontFamily="monospace"/>
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_baseline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            android:textSize="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            app:firstBaselineToTopHeight="@dimen/textview_firstBaselineToTopHeight"
+            app:lastBaselineToBottomHeight="@dimen/textview_lastBaselineToBottomHeight"
+            android:lineSpacingExtra="1dp"
+            android:lineSpacingMultiplier="0.5"
+            app:lineHeight="@dimen/textview_lineHeight" />
     </LinearLayout>
 
 </ScrollView>
