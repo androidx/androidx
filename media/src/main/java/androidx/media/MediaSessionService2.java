@@ -16,8 +16,6 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -31,7 +29,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.SessionToken2.TokenType;
@@ -39,7 +36,6 @@ import androidx.media.SessionToken2.TokenType;
 import java.util.List;
 
 /**
- * @hide
  * Base class for media session services, which is the service version of the {@link MediaSession2}.
  * <p>
  * It's highly recommended for an app to use this instead of {@link MediaSession2} if it wants
@@ -115,7 +111,6 @@ import java.util.List;
  * the session service accepted the connection request through
  * {@link MediaSession2.SessionCallback#onConnect(MediaSession2, ControllerInfo)}.
  */
-@RestrictTo(LIBRARY_GROUP)
 public abstract class MediaSessionService2 extends Service {
     //private final MediaSessionService2Provider mProvider;
 
