@@ -16,8 +16,6 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.os.Build;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -25,23 +23,22 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.annotation.Nullable;
 import androidx.core.os.BuildCompat;
 
 /**
- * @hide
  * Provides support for interacting with {@link MediaSessionCompat media sessions} that
  * applications have published to express their ongoing media playback state.
  *
  * @see MediaSessionCompat
  * @see MediaControllerCompat
  */
-@RestrictTo(LIBRARY_GROUP)
 public final class MediaSessionManager {
     static final String TAG = "MediaSessionManager";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    private static MediaSessionManager sSessionManager;
+    private static final Object sLock = new Object();
+    private static volatile MediaSessionManager sSessionManager;
 
     MediaSessionManagerImpl mImpl;
 
@@ -50,11 +47,18 @@ public final class MediaSessionManager {
      *
      * @return The MediaSessionManager instance for this context.
      */
-    public static synchronized MediaSessionManager getSessionManager(Context context) {
-        if (sSessionManager == null) {
-            sSessionManager = new MediaSessionManager(context.getApplicationContext());
+    public static @NonNull MediaSessionManager getSessionManager(@NonNull Context context) {
+        MediaSessionManager manager = sSessionManager;
+        if (manager == null) {
+            synchronized (sLock) {
+                manager = sSessionManager;
+                if (manager == null) {
+                    sSessionManager = new MediaSessionManager(context.getApplicationContext());
+                    manager = sSessionManager;
+                }
+            }
         }
-        return sSessionManager;
+        return manager;
     }
 
     private MediaSessionManager(Context context) {
@@ -117,7 +121,7 @@ public final class MediaSessionManager {
 
         RemoteUserInfoImpl mImpl;
 
-        public RemoteUserInfo(String packageName, int pid, int uid) {
+        public RemoteUserInfo(@NonNull String packageName, int pid, int uid) {
             if (BuildCompat.isAtLeastP()) {
                 mImpl = new MediaSessionManagerImplApi28.RemoteUserInfo(packageName, pid, uid);
             } else {
@@ -129,7 +133,7 @@ public final class MediaSessionManager {
          * @return package name of the controller. Can be {@link #LEGACY_CONTROLLER} if the package
          *         name cannot be obtained.
          */
-        public String getPackageName() {
+        public @NonNull String getPackageName() {
             return mImpl.getPackageName();
         }
 
@@ -148,7 +152,7 @@ public final class MediaSessionManager {
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(@Nullable Object obj) {
             return mImpl.equals(obj);
         }
 

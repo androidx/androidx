@@ -42,7 +42,7 @@ import java.util.List;
  * This may be passed to apps by the session owner to allow them to create a
  * {@link MediaController2} to communicate with the session.
  * <p>
- * It can be also obtained by MediaSessionManager.
+ * It can be also obtained by {@link MediaSessionManager}.
  */
 // New version of MediaSession.Token for following reasons
 //   - Stop implementing Parcelable for updatable support
