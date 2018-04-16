@@ -102,6 +102,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private SliceActionImpl mRowAction;
     private boolean mIsHeader;
     private List<SliceItem> mHeaderActions;
+    private boolean mIsSingleItem;
 
     private int mImageSize;
     private int mIconSize;
@@ -128,6 +129,12 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 R.dimen.abc_slice_row_range_height);
     }
 
+    /**
+     * Set whether this is the only row in the view, in which case our height is different.
+     */
+    public void setSingleItem(boolean isSingleItem) {
+        mIsSingleItem = isSingleItem;
+    }
 
     @Override
     public int getSmallHeight() {
@@ -137,13 +144,18 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     public int getActualHeight() {
+        if (mIsSingleItem) {
+            return getSmallHeight();
+        }
         return mRowContent != null && mRowContent.isValid() ? mRowContent.getActualHeight() : 0;
     }
     /**
      * @return height row content (i.e. title, subtitle) without the height of the range element.
      */
     private int getRowContentHeight() {
-        int rowHeight = getMode() == MODE_SMALL ? getSmallHeight() : getActualHeight();
+        int rowHeight = (getMode() == MODE_SMALL || mIsSingleItem)
+                ? getSmallHeight()
+                : getActualHeight();
         if (mRangeBar != null) {
             rowHeight -= mRangeHeight;
         }
