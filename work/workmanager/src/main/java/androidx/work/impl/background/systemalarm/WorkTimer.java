@@ -19,9 +19,9 @@ package androidx.work.impl.background.systemalarm;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import androidx.work.BaseWorkRequest;
-import androidx.work.impl.logger.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +59,7 @@ class WorkTimer {
             @NonNull TimeLimitExceededListener listener) {
 
         synchronized (mLock) {
-            Logger.debug(TAG, "Starting timer for %s", workSpecId);
+            Log.d(TAG, String.format("Starting timer for %s", workSpecId));
             // clear existing timer's first
             stopTimer(workSpecId);
             WorkTimerRunnable runnable = new WorkTimerRunnable(this, workSpecId);
@@ -72,7 +72,7 @@ class WorkTimer {
     void stopTimer(@NonNull final String workSpecId) {
         synchronized (mLock) {
             if (mTimerMap.containsKey(workSpecId)) {
-                Logger.debug(TAG, "Stopping timer for %s", workSpecId);
+                Log.d(TAG, String.format("Stopping timer for %s", workSpecId));
                 mTimerMap.remove(workSpecId);
                 mListeners.remove(workSpecId);
             }
@@ -114,7 +114,8 @@ class WorkTimer {
                         listener.onTimeLimitExceeded(mWorkSpecId);
                     }
                 } else {
-                    Logger.debug(TAG, "Timer with %s is already marked as complete.", mWorkSpecId);
+                    Log.d(TAG, String.format(
+                            "Timer with %s is already marked as complete.", mWorkSpecId));
                 }
             }
         }

@@ -25,10 +25,10 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.util.Log;
 
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.AlarmInfo;
 import androidx.work.impl.model.AlarmInfoDao;
 import androidx.work.impl.utils.IdGenerator;
@@ -89,7 +89,7 @@ class Alarms {
         AlarmInfo alarmInfo = alarmInfoDao.getAlarmInfo(workSpecId);
         if (alarmInfo != null) {
             cancelExactAlarm(context, workSpecId, alarmInfo.alarmId);
-            Logger.debug(TAG, "Removing AlarmInfo for workSpecId (%s)", workSpecId);
+            Log.d(TAG, String.format("Removing AlarmInfo for workSpecId (%s)", workSpecId));
             alarmInfoDao.removeAlarmInfo(workSpecId);
         }
     }
@@ -104,8 +104,10 @@ class Alarms {
         PendingIntent pendingIntent = PendingIntent.getService(
                 context, alarmId, delayMet, PendingIntent.FLAG_NO_CREATE);
         if (pendingIntent != null && alarmManager != null) {
-            Logger.debug(TAG, "Cancelling existing alarm with (workSpecId, alarmId) (%s, %s)",
-                    workSpecId, alarmId);
+            Log.d(TAG, String.format(
+                    "Cancelling existing alarm with (workSpecId, alarmId) (%s, %s)",
+                    workSpecId,
+                    alarmId));
             alarmManager.cancel(pendingIntent);
         }
     }

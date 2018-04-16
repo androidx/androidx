@@ -27,11 +27,11 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.logger.Logger;
 import androidx.work.impl.utils.WakeLocks;
 
 import java.util.ArrayList;
@@ -97,8 +97,6 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             @NonNull String workSpecId,
             boolean isSuccessful,
             boolean needsReschedule) {
-
-        Logger.debug(TAG, "onExecuted (%s, %s, %s)", workSpecId, isSuccessful, needsReschedule);
         mCommandHandler.onExecuted(workSpecId, isSuccessful, needsReschedule);
         // check if we need to stop service
         postOnMainThread(new CheckForCompletionRunnable(this));
@@ -116,7 +114,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         assertMainThread();
         String action = intent.getAction();
         if (TextUtils.isEmpty(action)) {
-            Logger.warn(TAG, "Unknown command. Ignoring");
+            Log.w(TAG, "Unknown command. Ignoring");
             return false;
         }
 
@@ -125,12 +123,10 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         // it kicks off an update for constraint proxies.
         if (CommandHandler.ACTION_CONSTRAINTS_CHANGED.equals(action)
                 && hasIntentWithAction(CommandHandler.ACTION_CONSTRAINTS_CHANGED)) {
-            Logger.debug(TAG, "Ignoring an add for %s", CommandHandler.ACTION_CONSTRAINTS_CHANGED);
             return false;
         }
 
         intent.putExtra(KEY_START_ID, startId);
-        Logger.debug(TAG, "Adding intent to the queue %s, %s", intent, startId);
         mIntents.add(intent);
         processCommand();
         return true;
@@ -159,11 +155,10 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     @MainThread
     private void checkForCommandsCompleted() {
         assertMainThread();
-        Logger.debug(TAG, "Checking if we are done executing all commands");
         // if there are no more intents to process, and the command handler
         // has no more pending commands, stop the service.
         if (!mCommandHandler.hasPendingCommands() && mIntents.isEmpty()) {
-            Logger.debug(TAG, "No more commands & intents.");
+            Log.d(TAG, "No more commands & intents.");
             if (mCompletedListener != null) {
                 mCompletedListener.onAllCommandsCompleted();
             }
@@ -187,13 +182,16 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                     if (intent != null) {
                         final String action = intent.getAction();
                         final int startId = intent.getIntExtra(KEY_START_ID, 0);
-                        Logger.debug(TAG, "Processing command %s, %s", intent, startId);
+                        Log.d(TAG, String.format("Processing command %s, %s", intent, startId));
                         final PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(
                                 mContext,
                                 String.format("%s (%s)", action, startId));
                         try {
-                            Logger.debug(TAG, "Acquiring operation wake lock (%s) %s", action,
-                                    wakeLock);
+                            Log.d(TAG, String.format(
+                                    "Acquiring operation wake lock (%s) %s",
+                                    action,
+                                    wakeLock));
+
                             wakeLock.acquire();
                             mCommandHandler.onHandleIntent(intent, startId,
                                     SystemAlarmDispatcher.this);
@@ -219,8 +217,11 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                                 mIntents.remove(0);
                             }
 
-                            Logger.debug(TAG, "Releasing operation wake lock (%s) %s", action,
-                                    wakeLock);
+                            Log.d(TAG, String.format(
+                                    "Releasing operation wake lock (%s) %s",
+                                    action,
+                                    wakeLock));
+
                             wakeLock.release();
                             // Check if we have processed all commands
                             postOnMainThread(

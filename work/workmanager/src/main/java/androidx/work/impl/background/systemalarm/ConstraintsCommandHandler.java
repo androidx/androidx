@@ -21,9 +21,9 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
+import android.util.Log;
 
 import androidx.work.impl.constraints.WorkConstraintsTracker;
-import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
 
 import java.util.ArrayList;
@@ -90,7 +90,8 @@ class ConstraintsCommandHandler {
         for (WorkSpec workSpec : mEligibleWorkSpecs) {
             String workSpecId = workSpec.id;
             Intent intent = CommandHandler.createDelayMetIntent(mContext, workSpecId);
-            Logger.debug(TAG, "Creating a delay_met command for workSpec with id (%s)", workSpecId);
+            Log.d(TAG, String.format(
+                    "Creating a delay_met command for workSpec with id (%s)", workSpecId));
             mDispatcher.postOnMainThread(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, mStartId));
         }

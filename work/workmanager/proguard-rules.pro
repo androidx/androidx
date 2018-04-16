@@ -1,4 +1,4 @@
--assumenosideeffects class androidx.work.impl.logger.Logger {
+-assumenosideeffects class androidx.work.impl.logger.InternalLogger {
  public void verbose(...);
  public void debug(...);
  public void info(...);

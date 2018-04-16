@@ -71,7 +71,7 @@ import androidx.work.TestLifecycleOwner;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
-import androidx.work.impl.logger.Logger;
+import androidx.work.impl.logger.InternalLogger;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkName;
@@ -101,7 +101,7 @@ import java.util.concurrent.TimeUnit;
 public class WorkManagerImplTest {
 
     static {
-        Logger.LOG_LEVEL = Log.DEBUG;
+        InternalLogger.LOG_LEVEL = Log.DEBUG;
     }
 
     private WorkDatabase mDatabase;

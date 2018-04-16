@@ -20,9 +20,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.util.Log;
 
 import androidx.work.impl.Scheduler;
-import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
 
 /**
@@ -59,7 +59,7 @@ public class SystemAlarmScheduler implements Scheduler {
      * times to drift to guarantee that the interval duration always elapses between alarms.
      */
     private void scheduleWorkSpec(@NonNull WorkSpec workSpec) {
-        Logger.debug(TAG, "Scheduling work with workSpecId %s", workSpec.id);
+        Log.d(TAG, String.format("Scheduling work with workSpecId %s", workSpec.id));
         Intent scheduleIntent = CommandHandler.createScheduleWorkIntent(mContext, workSpec.id);
         mContext.startService(scheduleIntent);
     }

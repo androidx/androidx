@@ -20,10 +20,8 @@ import android.app.job.JobScheduler;
 import android.content.Context;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
-import android.util.Log;
 
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
 
 import org.junit.After;
@@ -31,11 +29,6 @@ import org.junit.After;
 import java.util.Set;
 
 public abstract class WorkManagerTest {
-
-    // set log level to verbose for tests
-    static {
-        Logger.LOG_LEVEL = Log.VERBOSE;
-    }
 
     @After
     public void clearJobs() {

@@ -21,8 +21,7 @@ import android.arch.lifecycle.LifecycleService;
 import android.content.Intent;
 import android.support.annotation.MainThread;
 import android.support.annotation.RestrictTo;
-
-import androidx.work.impl.logger.Logger;
+import android.util.Log;
 
 /**
  * Service invoked by {@link android.app.AlarmManager} to run work tasks.
@@ -61,7 +60,7 @@ public class SystemAlarmService extends LifecycleService
     @MainThread
     @Override
     public void onAllCommandsCompleted() {
-        Logger.debug(TAG, "All commands completed in dispatcher");
+        Log.d(TAG, "All commands completed in dispatcher");
         stopSelf();
     }
 }

@@ -29,7 +29,6 @@ import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
-import androidx.work.impl.logger.Logger;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 
@@ -44,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Logger.LOG_LEVEL = Log.VERBOSE;
 
         findViewById(R.id.enqueue_infinite_work_charging).setOnClickListener(
                 new View.OnClickListener() {

@@ -26,7 +26,7 @@ import android.util.Log;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Logger {
+public class InternalLogger {
 
     /** The default log level. */
     private static final int DEFAULT_LOG_LEVEL = Log.WARN;
@@ -117,9 +117,9 @@ public class Logger {
     }
 
     /**
-     * Creates an instance of the {@link Logger}.
+     * Creates an instance of the {@link InternalLogger}.
      */
-    private Logger() {
+    private InternalLogger() {
 
     }
 

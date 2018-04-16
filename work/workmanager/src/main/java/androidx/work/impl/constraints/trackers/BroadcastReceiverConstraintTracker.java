@@ -22,8 +22,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-
-import androidx.work.impl.logger.Logger;
+import android.util.Log;
 
 /**
  * A {@link ConstraintTracker} with a {@link BroadcastReceiver} for monitoring constraint changes.
@@ -64,13 +63,13 @@ public abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTr
 
     @Override
     public void startTracking() {
-        Logger.debug(TAG, "%s: registering receiver", getClass().getSimpleName());
+        Log.d(TAG, String.format("%s: registering receiver", getClass().getSimpleName()));
         mAppContext.registerReceiver(mBroadcastReceiver, getIntentFilter());
     }
 
     @Override
     public void stopTracking() {
-        Logger.debug(TAG, "%s: unregistering receiver", getClass().getSimpleName());
+        Log.d(TAG, String.format("%s: unregistering receiver", getClass().getSimpleName()));
         mAppContext.unregisterReceiver(mBroadcastReceiver);
     }
 }

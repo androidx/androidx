@@ -17,11 +17,11 @@
 package androidx.work.impl.utils;
 
 import android.support.annotation.RestrictTo;
+import android.util.Log;
 
 import androidx.work.State;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpecDao;
 
 /**
@@ -52,8 +52,8 @@ public class StopWorkRunnable implements Runnable {
                 workSpecDao.setState(State.ENQUEUED, mWorkSpecId);
             }
             boolean isStopped = mWorkManagerImpl.getProcessor().stopWork(mWorkSpecId, true);
-            Logger.debug(TAG,
-                    "StopWorkRunnable for %s; Processor.stopWork = %s", mWorkSpecId, isStopped);
+            Log.d(TAG, String.format(
+                    "StopWorkRunnable for %s; Processor.stopWork = %s", mWorkSpecId, isStopped));
             workDatabase.setTransactionSuccessful();
         } finally {
             workDatabase.endTransaction();

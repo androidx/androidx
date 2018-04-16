@@ -18,8 +18,7 @@ package androidx.work.impl.utils;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
-
-import androidx.work.impl.logger.Logger;
+import android.util.Log;
 
 /**
  * Helper class for common {@link PackageManager} functions
@@ -55,10 +54,10 @@ public class PackageManagerHelper {
                             : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     PackageManager.DONT_KILL_APP);
 
-            Logger.debug(TAG, "%s %s", className, (enabled ? "enabled" : "disabled"));
+            Log.d(TAG, String.format("%s %s", className, (enabled ? "enabled" : "disabled")));
         } catch (Exception exception) {
-            Logger.debug(TAG, "%s could not be %s", exception, className,
-                    (enabled ? "enabled" : "disabled"));
+            Log.d(TAG, String.format("%s could not be %s", className,
+                    (enabled ? "enabled" : "disabled")), exception);
         }
     }
 

@@ -32,50 +32,50 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class LoggerTest {
+public class InternalLoggerTest {
 
-    private static final String TAG = "LoggerTest";
+    private static final String TAG = "InternalLoggerTest";
 
     @Rule
     public ExpectedException mThrown = ExpectedException.none();
 
     @Before
     public void setUp() {
-        Logger.LOG_LEVEL = Log.VERBOSE;
+        InternalLogger.LOG_LEVEL = Log.VERBOSE;
     }
 
     @Test
     public void testLog_verbose() {
-        assertThat(Logger.isLoggable(Log.VERBOSE), is(true));
-        Logger.LOG_LEVEL = Log.DEBUG;
-        assertThat(Logger.isLoggable(Log.VERBOSE), is(false));
+        assertThat(InternalLogger.isLoggable(Log.VERBOSE), is(true));
+        InternalLogger.LOG_LEVEL = Log.DEBUG;
+        assertThat(InternalLogger.isLoggable(Log.VERBOSE), is(false));
     }
 
     @Test
     public void testLog_debug() {
-        assertThat(Logger.isLoggable(Log.DEBUG), is(true));
-        Logger.LOG_LEVEL = Log.INFO;
-        assertThat(Logger.isLoggable(Log.DEBUG), is(false));
+        assertThat(InternalLogger.isLoggable(Log.DEBUG), is(true));
+        InternalLogger.LOG_LEVEL = Log.INFO;
+        assertThat(InternalLogger.isLoggable(Log.DEBUG), is(false));
     }
 
     @Test
     public void testLog_info() {
-        assertThat(Logger.isLoggable(Log.INFO), is(true));
-        Logger.LOG_LEVEL = Log.WARN;
-        assertThat(Logger.isLoggable(Log.INFO), is(false));
+        assertThat(InternalLogger.isLoggable(Log.INFO), is(true));
+        InternalLogger.LOG_LEVEL = Log.WARN;
+        assertThat(InternalLogger.isLoggable(Log.INFO), is(false));
     }
 
     @Test
     public void testLog_warn() {
-        assertThat(Logger.isLoggable(Log.WARN), is(true));
-        Logger.LOG_LEVEL = Log.ERROR;
-        assertThat(Logger.isLoggable(Log.WARN), is(false));
+        assertThat(InternalLogger.isLoggable(Log.WARN), is(true));
+        InternalLogger.LOG_LEVEL = Log.ERROR;
+        assertThat(InternalLogger.isLoggable(Log.WARN), is(false));
     }
 
     @Test
     public void testLog_error() {
-        assertThat(Logger.isLoggable(Log.ERROR), is(true));
-        Logger.LOG_LEVEL = Log.ASSERT;
-        assertThat(Logger.isLoggable(Log.ERROR), is(false));
+        assertThat(InternalLogger.isLoggable(Log.ERROR), is(true));
+        InternalLogger.LOG_LEVEL = Log.ASSERT;
+        assertThat(InternalLogger.isLoggable(Log.ERROR), is(false));
     }
 }

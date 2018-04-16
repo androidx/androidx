@@ -19,8 +19,7 @@ package androidx.work;
 import android.arch.persistence.room.TypeConverter;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
-
-import androidx.work.impl.logger.Logger;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -603,7 +602,7 @@ public final class Data {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 if (value == null) {
-                    Logger.warn(TAG, "Ignoring null value for key %s", key);
+                    Log.w(TAG, String.format("Ignoring null value for key %s", key));
                     continue;
                 }
                 Class valueType = value.getClass();
@@ -630,7 +629,8 @@ public final class Data {
                 } else if (valueType == double[].class) {
                     mValues.put(key, convertPrimitiveDoubleArray((double[]) value));
                 } else {
-                    Logger.warn(TAG, "Ignoring key %s because of invalid type %s", key, valueType);
+                    Log.w(TAG, String.format(
+                            "Ignoring key %s because of invalid type %s", key, valueType));
                 }
             }
         }
