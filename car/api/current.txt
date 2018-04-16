@@ -30,6 +30,8 @@ package androidx.car.app {
     method public androidx.car.app.CarListDialog.Builder setItems(java.lang.String[], android.content.DialogInterface.OnClickListener);
     method public androidx.car.app.CarListDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
     method public androidx.car.app.CarListDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener);
+    method public androidx.car.app.CarListDialog.Builder setTitle(int);
+    method public androidx.car.app.CarListDialog.Builder setTitle(java.lang.CharSequence);
   }
 
 }
