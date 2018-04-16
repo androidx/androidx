@@ -250,8 +250,7 @@ public class MediaControlView2 extends BaseLayout {
     private int mSelectedSpeedIndex;
     private int mEmbeddedSettingsItemWidth;
     private int mFullSettingsItemWidth;
-    private int mEmbeddedSettingsItemHeight;
-    private int mFullSettingsItemHeight;
+    private int mSettingsItemHeight;
     private int mSettingsWindowMargin;
     private int mMediaType;
     private int mSizeType;
@@ -530,16 +529,13 @@ public class MediaControlView2 extends BaseLayout {
             manager.getDefaultDisplay().getSize(screenSize);
             int screenWidth = screenSize.x;
             int screenHeight = screenSize.y;
-            int fullIconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_full_icon_size);
-            int embeddedIconSize = mResources.getDimensionPixelSize(
-                    R.dimen.mcv2_embedded_icon_size);
-            int marginSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_margin);
+            int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_size);
 
             if (mMediaType == MEDIA_TYPE_DEFAULT) {
                 // Max number of icons inside BottomBarRightView for Music mode is 4.
                 int maxIconCount = 4;
-                updateLayout(maxIconCount, fullIconSize, embeddedIconSize, marginSize, currWidth,
-                        currHeight, screenWidth, screenHeight);
+                updateLayout(maxIconCount, iconSize, currWidth, currHeight, screenWidth,
+                        screenHeight);
 
             } else if (mMediaType == MEDIA_TYPE_MUSIC) {
                 if (mNeedUXUpdate) {
@@ -558,8 +554,8 @@ public class MediaControlView2 extends BaseLayout {
 
                 // Max number of icons inside BottomBarRightView for Music mode is 3.
                 int maxIconCount = 3;
-                updateLayout(maxIconCount, fullIconSize, embeddedIconSize, marginSize, currWidth,
-                        currHeight, screenWidth, screenHeight);
+                updateLayout(maxIconCount, iconSize, currWidth, currHeight, screenWidth,
+                        screenHeight);
             }
             mPrevWidth = currWidth;
             mPrevHeight = currHeight;
@@ -697,7 +693,7 @@ public class MediaControlView2 extends BaseLayout {
         mMinimalExtraView = (LinearLayout) v.findViewById(R.id.minimal_extra_view);
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) mMinimalExtraView.getLayoutParams();
-        int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_embedded_icon_size);
+        int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_size);
         int marginSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_margin);
         params.setMargins(0, (iconSize + marginSize * 2) * (-1), 0, 0);
         mMinimalExtraView.setLayoutParams(params);
@@ -776,10 +772,8 @@ public class MediaControlView2 extends BaseLayout {
         mEmbeddedSettingsItemWidth = mResources.getDimensionPixelSize(
                 R.dimen.mcv2_embedded_settings_width);
         mFullSettingsItemWidth = mResources.getDimensionPixelSize(R.dimen.mcv2_full_settings_width);
-        mEmbeddedSettingsItemHeight = mResources.getDimensionPixelSize(
-                R.dimen.mcv2_embedded_settings_height);
-        mFullSettingsItemHeight = mResources.getDimensionPixelSize(
-                R.dimen.mcv2_full_settings_height);
+        mSettingsItemHeight = mResources.getDimensionPixelSize(
+                R.dimen.mcv2_settings_height);
         mSettingsWindowMargin = (-1) * mResources.getDimensionPixelSize(
                 R.dimen.mcv2_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
@@ -1304,15 +1298,12 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    private void updateLayout(int maxIconCount, int fullIconSize, int embeddedIconSize,
-             int marginSize, int currWidth, int currHeight, int screenWidth, int screenHeight) {
-        int fullBottomBarRightWidthMax = fullIconSize * maxIconCount
-                + marginSize * (maxIconCount * 2);
-        int embeddedBottomBarRightWidthMax = embeddedIconSize * maxIconCount
-                + marginSize * (maxIconCount * 2);
+    private void updateLayout(int maxIconCount, int iconSize, int currWidth,
+             int currHeight, int screenWidth, int screenHeight) {
+        int bottomBarRightWidthMax = iconSize * maxIconCount;
         int fullWidth = mTransportControls.getWidth() + mTimeView.getWidth()
-                + fullBottomBarRightWidthMax;
-        int embeddedWidth = mTimeView.getWidth() + embeddedBottomBarRightWidthMax;
+                + bottomBarRightWidthMax;
+        int embeddedWidth = mTimeView.getWidth() + bottomBarRightWidthMax;
         int screenMaxLength = Math.max(screenWidth, screenHeight);
 
         boolean isFullSize = (mMediaType == MEDIA_TYPE_DEFAULT) ? (currWidth == screenMaxLength) :
@@ -1353,6 +1344,11 @@ public class MediaControlView2 extends BaseLayout {
                 // Relating to Title Bar
                 mTitleBar.setVisibility(View.VISIBLE);
                 mBackButton.setVisibility(View.GONE);
+                mTitleView.setPadding(
+                        mResources.getDimensionPixelSize(R.dimen.mcv2_embedded_icon_padding),
+                        mTitleView.getPaddingTop(),
+                        mTitleView.getPaddingRight(),
+                        mTitleView.getPaddingBottom());
 
                 // Relating to Full Screen Button
                 mMinimalExtraView.setVisibility(View.GONE);
@@ -1381,6 +1377,11 @@ public class MediaControlView2 extends BaseLayout {
                 // Relating to Title Bar
                 mTitleBar.setVisibility(View.VISIBLE);
                 mBackButton.setVisibility(View.VISIBLE);
+                mTitleView.setPadding(
+                        0,
+                        mTitleView.getPaddingTop(),
+                        mTitleView.getPaddingRight(),
+                        mTitleView.getPaddingBottom());
 
                 // Relating to Full Screen Button
                 mMinimalExtraView.setVisibility(View.GONE);
@@ -1539,9 +1540,7 @@ public class MediaControlView2 extends BaseLayout {
         mSettingsWindow.setWidth(itemWidth);
 
         // Calculate height of window and show
-        int itemHeight = (mSizeType == SIZE_TYPE_EMBEDDED)
-                ? mEmbeddedSettingsItemHeight : mFullSettingsItemHeight;
-        int totalHeight = adapter.getCount() * itemHeight;
+        int totalHeight = adapter.getCount() * mSettingsItemHeight;
         mSettingsWindow.dismiss();
         mSettingsWindow.showAsDropDown(this, mSettingsWindowMargin,
                 mSettingsWindowMargin - totalHeight, Gravity.BOTTOM | Gravity.RIGHT);
