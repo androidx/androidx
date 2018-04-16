@@ -4,7 +4,6 @@ package androidx.media.widget {
     ctor public MediaControlView2(android.content.Context);
     ctor public MediaControlView2(android.content.Context, android.util.AttributeSet);
     ctor public MediaControlView2(android.content.Context, android.util.AttributeSet, int);
-    ctor public MediaControlView2(android.content.Context, android.util.AttributeSet, int, int);
     method public void onMeasure(int, int);
     method public void requestPlayButtonFocus();
   }
@@ -13,7 +12,6 @@ package androidx.media.widget {
     ctor public VideoView2(android.content.Context);
     ctor public VideoView2(android.content.Context, android.util.AttributeSet);
     ctor public VideoView2(android.content.Context, android.util.AttributeSet, int);
-    ctor public VideoView2(android.content.Context, android.util.AttributeSet, int, int);
     method public androidx.media.widget.MediaControlView2 getMediaControlView2();
     method public float getSpeed();
     method public int getViewType();
