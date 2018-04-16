@@ -17,6 +17,7 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNECT;
@@ -27,6 +28,7 @@ import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_SEARCH;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_SEND_CUSTOM_ACTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static androidx.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
+import static androidx.media.MediaBrowserProtocol.DATA_CALLING_PID;
 import static androidx.media.MediaBrowserProtocol.DATA_CALLING_UID;
 import static androidx.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION;
 import static androidx.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION_EXTRAS;
@@ -61,6 +63,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.service.media.MediaBrowserService;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.IMediaSession;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -76,6 +79,7 @@ import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.app.BundleCompat;
 import androidx.core.util.Pair;
+import androidx.media.MediaSessionManager.RemoteUserInfo;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -167,9 +171,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
     /** @hide */
     @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(flag=true, value = { RESULT_FLAG_OPTION_NOT_HANDLED,
-            RESULT_FLAG_ON_LOAD_ITEM_NOT_IMPLEMENTED, RESULT_FLAG_ON_SEARCH_NOT_IMPLEMENTED })
-    private @interface ResultFlags { }
+    @IntDef(flag = true, value = {RESULT_FLAG_OPTION_NOT_HANDLED,
+            RESULT_FLAG_ON_LOAD_ITEM_NOT_IMPLEMENTED, RESULT_FLAG_ON_SEARCH_NOT_IMPLEMENTED})
+    private @interface ResultFlags {
+    }
 
     final ArrayMap<IBinder, ConnectionRecord> mConnections = new ArrayMap<>();
     ConnectionRecord mCurConnection;
@@ -182,6 +187,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         void setSessionToken(MediaSessionCompat.Token token);
         void notifyChildrenChanged(final String parentId, final Bundle options);
         Bundle getBrowserRootHints();
+        RemoteUserInfo getCurrentBrowserInfo();
     }
 
     class MediaBrowserServiceImplBase implements MediaBrowserServiceImpl {
@@ -206,7 +212,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 @Override
                 public void run() {
                     Iterator<ConnectionRecord> iter = mConnections.values().iterator();
-                    while (iter.hasNext()){
+                    while (iter.hasNext()) {
                         ConnectionRecord connection = iter.next();
                         try {
                             connection.callbacks.onConnect(connection.root.getRootId(), token,
@@ -246,9 +252,18 @@ public abstract class MediaBrowserServiceCompat extends Service {
         public Bundle getBrowserRootHints() {
             if (mCurConnection == null) {
                 throw new IllegalStateException("This should be called inside of onLoadChildren,"
-                        + " onLoadItem or onSearch methods");
+                        + " onLoadItem, onSearch, or onCustomAction methods");
             }
             return mCurConnection.rootHints == null ? null : new Bundle(mCurConnection.rootHints);
+        }
+
+        @Override
+        public RemoteUserInfo getCurrentBrowserInfo() {
+            if (mCurConnection == null) {
+                throw new IllegalStateException("This should be called inside of onLoadChildren,"
+                        + " onLoadItem, onSearch, or onCustomAction methods");
+            }
+            return mCurConnection.browserInfo;
         }
     }
 
@@ -295,19 +310,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
         public void notifyChildrenChanged(final String parentId, final Bundle options) {
             notifyChildrenChangedForFramework(parentId, options);
             notifyChildrenChangedForCompat(parentId, options);
-        }
-
-        @Override
-        public Bundle getBrowserRootHints() {
-            if (mMessenger == null) {
-                // TODO: Handle getBrowserRootHints when connected with framework MediaBrowser.
-                return null;
-            }
-            if (mCurConnection == null) {
-                throw new IllegalStateException("This should be called inside of onLoadChildren,"
-                        + " onLoadItem or onSearch methods");
-            }
-            return mCurConnection.rootHints == null ? null : new Bundle(mCurConnection.rootHints);
         }
 
         @Override
@@ -392,6 +394,28 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     }
                 }
             });
+        }
+
+        @Override
+        public Bundle getBrowserRootHints() {
+            if (mMessenger == null) {
+                // TODO: Handle getBrowserRootHints when connected with framework MediaBrowser.
+                return null;
+            }
+            if (mCurConnection == null) {
+                throw new IllegalStateException("This should be called inside of onLoadChildren,"
+                        + " onLoadItem, onSearch, or onCustomAction methods");
+            }
+            return mCurConnection.rootHints == null ? null : new Bundle(mCurConnection.rootHints);
+        }
+
+        @Override
+        public RemoteUserInfo getCurrentBrowserInfo() {
+            if (mCurConnection == null) {
+                throw new IllegalStateException("This should be called inside of onLoadChildren,"
+                        + " onLoadItem, onSearch, or onCustomAction methods");
+            }
+            return mCurConnection.browserInfo;
         }
     }
 
@@ -488,6 +512,17 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
+    @RequiresApi(28)
+    class MediaBrowserServiceImplApi28 extends MediaBrowserServiceImplApi26 {
+        @Override
+        public RemoteUserInfo getCurrentBrowserInfo() {
+            android.media.session.MediaSessionManager.RemoteUserInfo userInfoObj =
+                    ((MediaBrowserService) mServiceObj).getCurrentBrowserInfo();
+            return new RemoteUserInfo(
+                    userInfoObj.getPackageName(), userInfoObj.getPid(), userInfoObj.getUid());
+        }
+    }
+
     private final class ServiceHandler extends Handler {
         private final ServiceBinderImpl mServiceBinderImpl = new ServiceBinderImpl();
 
@@ -500,7 +535,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
             switch (msg.what) {
                 case CLIENT_MSG_CONNECT:
                     mServiceBinderImpl.connect(data.getString(DATA_PACKAGE_NAME),
-                            data.getInt(DATA_CALLING_UID), data.getBundle(DATA_ROOT_HINTS),
+                            data.getInt(DATA_CALLING_PID), data.getInt(DATA_CALLING_UID),
+                            data.getBundle(DATA_ROOT_HINTS),
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
                 case CLIENT_MSG_DISCONNECT:
@@ -524,7 +560,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     break;
                 case CLIENT_MSG_REGISTER_CALLBACK_MESSENGER:
                     mServiceBinderImpl.registerCallbacks(new ServiceCallbacksCompat(msg.replyTo),
-                            data.getBundle(DATA_ROOT_HINTS));
+                            data.getString(DATA_PACKAGE_NAME), data.getInt(DATA_CALLING_PID),
+                            data.getInt(DATA_CALLING_UID), data.getBundle(DATA_ROOT_HINTS));
                     break;
                 case CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER:
                     mServiceBinderImpl.unregisterCallbacks(new ServiceCallbacksCompat(msg.replyTo));
@@ -555,6 +592,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             Bundle data = msg.getData();
             data.setClassLoader(MediaBrowserCompat.class.getClassLoader());
             data.putInt(DATA_CALLING_UID, Binder.getCallingUid());
+            data.putInt(DATA_CALLING_PID, Binder.getCallingPid());
             return super.sendMessageAtTime(msg, uptimeMillis);
         }
 
@@ -571,13 +609,23 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * All the info about a connection.
      */
     private class ConnectionRecord implements IBinder.DeathRecipient {
-        String pkg;
-        Bundle rootHints;
-        ServiceCallbacks callbacks;
-        BrowserRoot root;
-        HashMap<String, List<Pair<IBinder, Bundle>>> subscriptions = new HashMap<>();
+        public final String pkg;
+        public final int pid;
+        public final int uid;
+        public final RemoteUserInfo browserInfo;
+        public final Bundle rootHints;
+        public final ServiceCallbacks callbacks;
+        public final HashMap<String, List<Pair<IBinder, Bundle>>> subscriptions = new HashMap<>();
+        public BrowserRoot root;
 
-        ConnectionRecord() {
+        ConnectionRecord(String pkg, int pid, int uid, Bundle rootHints,
+                ServiceCallbacks callback) {
+            this.pkg = pkg;
+            this.pid = pid;
+            this.uid = uid;
+            this.browserInfo = new RemoteUserInfo(pkg, pid, uid);
+            this.rootHints = rootHints;
+            this.callbacks = callback;
         }
 
         @Override
@@ -740,7 +788,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         ServiceBinderImpl() {
         }
 
-        public void connect(final String pkg, final int uid, final Bundle rootHints,
+        public void connect(final String pkg, final int pid, final int uid, final Bundle rootHints,
                 final ServiceCallbacks callbacks) {
 
             if (!isValidPackage(pkg, uid)) {
@@ -756,13 +804,11 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     // Clear out the old subscriptions. We are getting new ones.
                     mConnections.remove(b);
 
-                    final ConnectionRecord connection = new ConnectionRecord();
-                    connection.pkg = pkg;
-                    connection.rootHints = rootHints;
-                    connection.callbacks = callbacks;
-
-                    connection.root =
-                            MediaBrowserServiceCompat.this.onGetRoot(pkg, uid, rootHints);
+                    final ConnectionRecord connection = new ConnectionRecord(pkg, pid, uid,
+                            rootHints, callbacks);
+                    mCurConnection = connection;
+                    connection.root = MediaBrowserServiceCompat.this.onGetRoot(pkg, uid, rootHints);
+                    mCurConnection = null;
 
                     // If they didn't return something, don't allow this client.
                     if (connection.root == null) {
@@ -872,7 +918,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
 
         // Used when {@link MediaBrowserProtocol#EXTRA_MESSENGER_BINDER} is used.
-        public void registerCallbacks(final ServiceCallbacks callbacks, final Bundle rootHints) {
+        public void registerCallbacks(final ServiceCallbacks callbacks, final String pkg,
+                final int pid, final int uid, final Bundle rootHints) {
             mHandler.postOrRun(new Runnable() {
                 @Override
                 public void run() {
@@ -880,9 +927,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     // Clear out the old subscriptions. We are getting new ones.
                     mConnections.remove(b);
 
-                    final ConnectionRecord connection = new ConnectionRecord();
-                    connection.callbacks = callbacks;
-                    connection.rootHints = rootHints;
+                    final ConnectionRecord connection = new ConnectionRecord(pkg, pid, uid,
+                            rootHints, callbacks);
                     mConnections.put(b, connection);
                     try {
                         b.linkToDeath(connection, 0);
@@ -1031,7 +1077,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Build.VERSION.SDK_INT >= 26) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            mImpl = new MediaBrowserServiceImplApi28();
+        } else if (Build.VERSION.SDK_INT >= 26) {
             mImpl = new MediaBrowserServiceImplApi26();
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserServiceImplApi23();
@@ -1250,6 +1298,23 @@ public abstract class MediaBrowserServiceCompat extends Service {
      */
     public final Bundle getBrowserRootHints() {
         return mImpl.getBrowserRootHints();
+    }
+
+    /**
+     * @hide
+     * Gets the browser information who sent the current request.
+     *
+     * @throws IllegalStateException If this method is called outside of {@link #onGetRoot} or
+     *             {@link #onLoadChildren} or {@link #onLoadItem}.
+     * @see MediaSessionManager#isTrustedForMediaControl(RemoteUserInfo)
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public final RemoteUserInfo getCurrentBrowserInfo() {
+        if (mCurConnection == null) {
+            throw new IllegalStateException("This should be called inside of onGetRoot or"
+                    + " onLoadChildren or onLoadItem methods");
+        }
+        return mImpl.getCurrentBrowserInfo();
     }
 
     /**
