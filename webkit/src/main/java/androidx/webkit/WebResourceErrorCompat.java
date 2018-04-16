@@ -22,7 +22,9 @@ import android.webkit.WebViewClient;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.webkit.internal.WebViewFeatureInternal;
 
 import org.chromium.support_lib_boundary.WebResourceErrorBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -64,6 +66,8 @@ public abstract class WebResourceErrorCompat {
      *
      * @return The error code of the error
      */
+    @RequiresFeature(name = WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract @NetErrorCode int getErrorCode();
 
     /**
@@ -73,6 +77,8 @@ public abstract class WebResourceErrorCompat {
      * @return The description of the error
      */
     @NonNull
+    @RequiresFeature(name = WebViewFeature.WEB_RESOURCE_ERROR_GET_DESCRIPTION,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract CharSequence getDescription();
 
     /**
@@ -99,12 +105,24 @@ public abstract class WebResourceErrorCompat {
         return new WebResourceErrorCompat() {
             @Override
             public @NetErrorCode int getErrorCode() {
+                final WebViewFeatureInternal webViewFeature =
+                        WebViewFeatureInternal.getFeature(
+                                WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE);
+                if (!webViewFeature.isSupportedByWebView()) {
+                    throw WebViewFeatureInternal.getUnsupportedOperationException();
+                }
                 return errorDelegate.getErrorCode();
             }
 
             @Override
             @NonNull
             public CharSequence getDescription() {
+                final WebViewFeatureInternal webViewFeature =
+                        WebViewFeatureInternal.getFeature(
+                                WebViewFeature.WEB_RESOURCE_ERROR_GET_DESCRIPTION);
+                if (!webViewFeature.isSupportedByWebView()) {
+                    throw WebViewFeatureInternal.getUnsupportedOperationException();
+                }
                 return errorDelegate.getDescription();
             }
         };
@@ -119,6 +137,7 @@ public abstract class WebResourceErrorCompat {
     @RequiresApi(23)
     /* package */ static WebResourceErrorCompat fromWebResourceError(
             @NonNull final WebResourceError error) {
+        // Frameworks support is implied by the API level.
         return new WebResourceErrorCompat() {
             @Override
             public @NetErrorCode int getErrorCode() {

@@ -75,6 +75,9 @@ package androidx.webkit {
     field public static final java.lang.String SAFE_BROWSING_ENABLE = "SAFE_BROWSING_ENABLE";
     field public static final java.lang.String SAFE_BROWSING_HIT = "SAFE_BROWSING_HIT";
     field public static final java.lang.String SAFE_BROWSING_PRIVACY_POLICY_URL = "SAFE_BROWSING_PRIVACY_POLICY_URL";
+    field public static final java.lang.String SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY = "SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY";
+    field public static final java.lang.String SAFE_BROWSING_RESPONSE_PROCEED = "SAFE_BROWSING_RESPONSE_PROCEED";
+    field public static final java.lang.String SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL = "SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL";
     field public static final java.lang.String SAFE_BROWSING_WHITELIST = "SAFE_BROWSING_WHITELIST";
     field public static final java.lang.String SERVICE_WORKER_BASIC_USAGE = "SERVICE_WORKER_BASIC_USAGE";
     field public static final java.lang.String SERVICE_WORKER_BLOCK_NETWORK_LOADS = "SERVICE_WORKER_BLOCK_NETWORK_LOADS";
@@ -85,6 +88,8 @@ package androidx.webkit {
     field public static final java.lang.String SHOULD_OVERRIDE_WITH_REDIRECTS = "SHOULD_OVERRIDE_WITH_REDIRECTS";
     field public static final java.lang.String START_SAFE_BROWSING = "START_SAFE_BROWSING";
     field public static final java.lang.String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
+    field public static final java.lang.String WEB_RESOURCE_ERROR_GET_CODE = "WEB_RESOURCE_ERROR_GET_CODE";
+    field public static final java.lang.String WEB_RESOURCE_ERROR_GET_DESCRIPTION = "WEB_RESOURCE_ERROR_GET_DESCRIPTION";
     field public static final java.lang.String WEB_RESOURCE_REQUEST_IS_REDIRECT = "WEB_RESOURCE_REQUEST_IS_REDIRECT";
   }
 
