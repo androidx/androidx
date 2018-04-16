@@ -39,6 +39,7 @@ import android.os.Environment;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
@@ -51,8 +52,10 @@ import org.junit.runner.RunWith;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -2280,5 +2283,79 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         dataSource.returnFromReadAt(-2);
         mPlayer.play();
         assertTrue(mOnErrorCalled.waitForSignal());
+    }
+
+    @Test
+    @SmallTest
+    public void testClearPendingCommands() throws Exception {
+        final Monitor readAllowed = new Monitor();
+        Media2DataSource dataSource = new Media2DataSource() {
+            @Override
+            public int readAt(long position, byte[] buffer, int offset, int size)
+                    throws IOException {
+                try {
+                    readAllowed.waitForSignal();
+                } catch (InterruptedException e) {
+                    fail();
+                }
+                return -1;
+            }
+
+            @Override
+            public long getSize() throws IOException {
+                return -1;  // Unknown size
+            }
+
+            @Override
+            public void close() throws IOException {}
+        };
+        final ArrayDeque<Integer> commandsCompleted = new ArrayDeque<>();
+        setOnErrorListener();
+        MediaPlayer2.MediaPlayer2EventCallback ecb = new MediaPlayer2.MediaPlayer2EventCallback() {
+            @Override
+            public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
+                    mOnPrepareCalled.signal();
+                }
+            }
+
+            @Override
+            public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
+                commandsCompleted.add(what);
+            }
+
+            @Override
+            public void onError(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                mOnErrorCalled.signal();
+            }
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
+
+        mOnPrepareCalled.reset();
+        mOnErrorCalled.reset();
+
+        mPlayer.setDataSource(new DataSourceDesc.Builder()
+                .setDataSource(dataSource)
+                .build());
+
+        // prepare() will be pending until readAllowed is signaled.
+        mPlayer.prepare();
+
+        mPlayer.play();
+        mPlayer.pause();
+        mPlayer.play();
+        mPlayer.pause();
+        mPlayer.play();
+        mPlayer.seekTo(1000);
+
+        // Cause a failure on the pending prepare operation.
+        readAllowed.signal();
+        mOnErrorCalled.waitForSignal();
+        assertEquals(0, mOnPrepareCalled.getNumSignal());
+        assertEquals(1, commandsCompleted.size());
+        assertEquals(MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE,
+                (int) commandsCompleted.peekFirst());
     }
 }
