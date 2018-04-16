@@ -30,20 +30,31 @@ import java.util.HashMap;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SimpleNavigatorProvider implements NavigatorProvider {
+    private static final HashMap<Class, String> sAnnotationNames = new HashMap<>();
+
     private final HashMap<String, Navigator<? extends NavDestination>> mNavigators =
             new HashMap<>();
+
+    @NonNull
+    private String getNameForNavigator(@NonNull Class<? extends Navigator> navigatorClass) {
+        String name = sAnnotationNames.get(navigatorClass);
+        if (name == null) {
+            Navigator.Name annotation = navigatorClass.getAnnotation(Navigator.Name.class);
+            name = annotation != null ? annotation.value() : null;
+            if (!validateName(name)) {
+                throw new IllegalArgumentException("No @Navigator.Name annotation found for "
+                        + navigatorClass.getSimpleName());
+            }
+            sAnnotationNames.put(navigatorClass, name);
+        }
+        return name;
+    }
 
     @NonNull
     @Override
     public <D extends NavDestination, T extends Navigator<? extends D>> T getNavigator(
             @NonNull Class<T> navigatorClass) {
-        Navigator.Name annotation = navigatorClass.getAnnotation(Navigator.Name.class);
-        String name = annotation != null ? annotation.value() : null;
-        if (!validateName(name)) {
-            throw new IllegalArgumentException("No @Navigator.Name annotation found for "
-                    + navigatorClass.getSimpleName());
-        }
-
+        String name = getNameForNavigator(navigatorClass);
         return getNavigator(name);
     }
 
@@ -68,12 +79,7 @@ public class SimpleNavigatorProvider implements NavigatorProvider {
     @Override
     public Navigator<? extends NavDestination> addNavigator(
             @NonNull Navigator<? extends NavDestination> navigator) {
-        Navigator.Name annotation = navigator.getClass().getAnnotation(Navigator.Name.class);
-        String name = annotation != null ? annotation.value() : null;
-        if (!validateName(name)) {
-            throw new IllegalArgumentException("No @Navigator.Name annotation found for "
-                    + navigator.getClass().getSimpleName());
-        }
+        String name = getNameForNavigator(navigator.getClass());
 
         return addNavigator(name, navigator);
     }
