@@ -1,4 +1,4 @@
-import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.dependencies.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
@@ -11,24 +11,21 @@ dependencies {
     api(project(":core"))
     api(project(":customview"))
 
-    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
-    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
-    androidTestImplementation(ESPRESSO_CONTRIB_TMP, libs.exclude_for_espresso)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(':internal-testutils'), {
-        exclude group: 'androidx.coordinatorlayout', module: 'coordinatorlayout'
+    androidTestImplementation(TEST_RUNNER_TMP, ESPRESSO_EXCLUDE)
+    androidTestImplementation(ESPRESSO_CORE_TMP, ESPRESSO_EXCLUDE)
+    androidTestImplementation(ESPRESSO_CONTRIB_TMP, ESPRESSO_EXCLUDE)
+    androidTestImplementation(MOCKITO_CORE, BYTEBUDDY_EXCLUDE)
+    androidTestImplementation(DEXMAKER_MOCKITO, BYTEBUDDY_EXCLUDE)
+    androidTestImplementation(project(":internal-testutils")) {
+        exclude(group = "androidx.coordinatorlayout", module = "coordinatorlayout")
     }
 }
 
 android {
-    sourceSets {
-        main.res.srcDirs = [
-                'src/main/res',
-                'src/main/res-public'
-        ]
-    }
+    sourceSets.getByName("main").res.srcDirs("src/main/res", "src/main/res-public")
+
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFile("proguard-rules.pro")
     }
 }
 
