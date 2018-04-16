@@ -25,6 +25,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
+import static androidx.media.MediaConstants2.ARGUMENT_ITEM_COUNT;
 import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ID;
 import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
@@ -65,6 +66,7 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ROUTES_INFO_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEARCH_RESULT_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEEK_COMPLETED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
@@ -692,6 +694,21 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         });
     }
 
+    void notifySearchResultChanged(ControllerInfo controller, final String query,
+            final int itemCount, final Bundle extras) {
+        notifyInternal(controller, new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putString(ARGUMENT_QUERY, query);
+                bundle.putInt(ARGUMENT_ITEM_COUNT, itemCount);
+                bundle.putBundle(ARGUMENT_EXTRAS, extras);
+                controller.getControllerBinder().onEvent(
+                        SESSION_EVENT_ON_SEARCH_RESULT_CHANGED, bundle);
+            }
+        });
+    }
+
     private List<ControllerInfo> getControllers() {
         ArrayList<ControllerInfo> controllers = new ArrayList<>();
         synchronized (mLock) {
@@ -835,7 +852,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         int pid = extras.getInt(ARGUMENT_PID);
         // TODO: sanity check for packageName, uid, and pid.
 
-        return new ControllerInfo(mContext, uid, pid, packageName, callback);
+        return new ControllerInfo(packageName, pid, uid, callback);
     }
 
     private void connect(Bundle extras, final ResultReceiver cb) {

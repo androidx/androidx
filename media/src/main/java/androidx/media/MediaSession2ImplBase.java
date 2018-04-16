@@ -738,6 +738,22 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     ///////////////////////////////////////////////////
+    // LibrarySession Methods
+    ///////////////////////////////////////////////////
+
+    @Override
+    void notifySearchResultChanged(ControllerInfo controller, String query, int itemCount,
+            Bundle extras) {
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
+        if (TextUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("query shouldn't be empty");
+        }
+        getSession2Stub().notifySearchResultChanged(controller, query, itemCount, extras);
+    }
+
+    ///////////////////////////////////////////////////
     // package private and private methods
     ///////////////////////////////////////////////////
 

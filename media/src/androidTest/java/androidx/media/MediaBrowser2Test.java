@@ -33,6 +33,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.ResultReceiver;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -261,7 +262,6 @@ public class MediaBrowser2Test extends MediaController2Test {
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Ignore
     @Test
     public void testSearch() throws InterruptedException {
         prepareLooper();
@@ -318,8 +318,8 @@ public class MediaBrowser2Test extends MediaController2Test {
         assertTrue(latchForGetSearchResult.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Ignore
     @Test
+    @LargeTest
     public void testSearchTakesTime() throws InterruptedException {
         prepareLooper();
         final String query = MockMediaLibraryService2.SEARCH_QUERY_TAKES_TIME;
@@ -345,7 +345,6 @@ public class MediaBrowser2Test extends MediaController2Test {
                 MockMediaLibraryService2.SEARCH_TIME_IN_MS + WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Ignore
     @Test
     public void testSearchEmptyResult() throws InterruptedException {
         prepareLooper();
