@@ -27,7 +27,6 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import java.util.concurrent.Callable;
 
@@ -74,7 +73,7 @@ class WebViewOnUiThread {
         });
     }
 
-    public void setWebViewClient(final WebViewClient webviewClient) {
+    public void setWebViewClient(final WebViewClientCompat webviewClient) {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -351,7 +350,7 @@ class WebViewOnUiThread {
      * needs the waitForCompletion capability then it should derive from
      * WaitForLoadedClient or call WebViewOnUiThread.onPageFinished.
      */
-    public static class WaitForLoadedClient extends WebViewClient {
+    public static class WaitForLoadedClient extends WebViewClientCompat {
         private WebViewOnUiThread mOnUiThread;
 
         WaitForLoadedClient(WebViewOnUiThread onUiThread) {
