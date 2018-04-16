@@ -63,7 +63,12 @@ public class WebViewFeature {
             RECEIVE_HTTP_ERROR,
             SHOULD_OVERRIDE_WITH_REDIRECTS,
             SAFE_BROWSING_HIT,
-            WEB_RESOURCE_REQUEST_IS_REDIRECT
+            WEB_RESOURCE_REQUEST_IS_REDIRECT,
+            WEB_RESOURCE_ERROR_GET_DESCRIPTION,
+            WEB_RESOURCE_ERROR_GET_CODE,
+            SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY,
+            SAFE_BROWSING_RESPONSE_PROCEED,
+            SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -215,6 +220,46 @@ public class WebViewFeature {
      */
     public static final String WEB_RESOURCE_REQUEST_IS_REDIRECT =
             Features.WEB_RESOURCE_REQUEST_IS_REDIRECT;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebResourceErrorCompat#getDescription()}.
+     */
+    public static final String WEB_RESOURCE_ERROR_GET_DESCRIPTION =
+            Features.WEB_RESOURCE_ERROR_GET_DESCRIPTION;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebResourceErrorCompat#getErrorCode()}.
+     */
+    public static final String WEB_RESOURCE_ERROR_GET_CODE =
+            Features.WEB_RESOURCE_ERROR_GET_CODE;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link SafeBrowsingResponseCompat#backToSafety(boolean)}.
+     */
+    public static final String SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY =
+            Features.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link SafeBrowsingResponseCompat#proceed(boolean)}.
+     */
+    public static final String SAFE_BROWSING_RESPONSE_PROCEED =
+            Features.SAFE_BROWSING_RESPONSE_PROCEED;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link SafeBrowsingResponseCompat#showInterstitial(boolean)}.
+     */
+    public static final String SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL =
+            Features.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL;
 
     /**
      * Return whether a feature is supported at run-time. This depends on the Android version of the

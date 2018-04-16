@@ -162,7 +162,43 @@ public enum WebViewFeatureInternal {
      * {@link WebResourceRequestCompat#isRedirect(WebResourceRequest)}.
      */
     WEB_RESOURCE_REQUEST_IS_REDIRECT(WebViewFeature.WEB_RESOURCE_REQUEST_IS_REDIRECT,
-            Build.VERSION_CODES.N);
+            Build.VERSION_CODES.N),
+
+    /**
+     * This feature covers
+     * {@link WebResourceErrorCompat#getDescription()}.
+     */
+    WEB_RESOURCE_ERROR_GET_DESCRIPTION(WebViewFeature.WEB_RESOURCE_ERROR_GET_DESCRIPTION,
+            Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers
+     * {@link WebResourceErrorCompat#getErrorCode()}.
+     */
+    WEB_RESOURCE_ERROR_GET_CODE(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE,
+            Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers
+     * {@link SafeBrowsingResponseCompat#backToSafety(boolean)}.
+     */
+    SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY(WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY,
+            Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers
+     * {@link SafeBrowsingResponseCompat#proceed(boolean)}.
+     */
+    SAFE_BROWSING_RESPONSE_PROCEED(WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED,
+            Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers
+     * {@link SafeBrowsingResponseCompat#showInterstitial(boolean)}.
+     */
+    SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL(
+            WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL,
+            Build.VERSION_CODES.O_MR1);
 
     private final String mFeatureValue;
     private final int mOsVersion;
