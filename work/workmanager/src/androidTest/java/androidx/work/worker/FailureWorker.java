@@ -16,6 +16,7 @@
 
 package androidx.work.worker;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Worker;
@@ -26,7 +27,7 @@ import androidx.work.Worker;
 
 public class FailureWorker extends Worker {
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         Log.d("FailureWorker", "Returning FAILURE");
         return WorkerResult.FAILURE;
     }

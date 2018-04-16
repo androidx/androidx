@@ -16,6 +16,7 @@
 
 package androidx.work.worker;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Worker;
@@ -28,7 +29,7 @@ public class SleepTestWorker extends Worker {
     public static final long SLEEP_DURATION = 5000;
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         try {
             Log.d("SleepTestWorker", "Sleeping : " + SLEEP_DURATION);
             Thread.sleep(SLEEP_DURATION);

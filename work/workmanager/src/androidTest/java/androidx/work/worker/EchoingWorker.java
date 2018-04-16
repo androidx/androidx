@@ -16,12 +16,14 @@
 
 package androidx.work.worker;
 
+import android.support.annotation.NonNull;
+
 import androidx.work.Worker;
 
 public class EchoingWorker extends Worker {
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         setOutputData(getInputData());
         return WorkerResult.SUCCESS;
     }

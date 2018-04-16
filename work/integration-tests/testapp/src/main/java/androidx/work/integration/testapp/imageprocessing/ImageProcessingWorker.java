@@ -19,6 +19,7 @@ package androidx.work.integration.testapp.imageprocessing;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -43,7 +44,7 @@ public class ImageProcessingWorker extends Worker {
     private static final String TAG = "ImageProcessingWorker";
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         Log.d(TAG, "Started");
 
         String uriString = getInputData().getString(URI_KEY, null);

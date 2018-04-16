@@ -16,6 +16,7 @@
 
 package androidx.work.worker;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Worker;
@@ -27,7 +28,7 @@ import androidx.work.Worker;
 public class TestWorker extends Worker {
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         Log.d("TestWorker", "TestWorker Ran!");
         return WorkerResult.SUCCESS;
     }

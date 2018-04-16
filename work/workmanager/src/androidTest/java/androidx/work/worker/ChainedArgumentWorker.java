@@ -16,6 +16,8 @@
 
 package androidx.work.worker;
 
+import android.support.annotation.NonNull;
+
 import androidx.work.Data;
 import androidx.work.Worker;
 
@@ -29,7 +31,7 @@ public class ChainedArgumentWorker extends Worker {
     public static final String ARGUMENT_VALUE = "value";
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         setOutputData(getChainedArguments());
         return WorkerResult.SUCCESS;
     }

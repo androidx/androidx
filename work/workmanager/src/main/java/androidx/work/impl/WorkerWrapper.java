@@ -233,9 +233,7 @@ public class WorkerWrapper implements Runnable {
             if (mWorker != null) {
                 // Update Data as necessary.
                 Data output = mWorker.getOutputData();
-                if (output != null) {
-                    mWorkSpecDao.setOutput(mWorkSpecId, output);
-                }
+                mWorkSpecDao.setOutput(mWorkSpecId, output);
             }
 
             mWorkDatabase.setTransactionSuccessful();
@@ -294,9 +292,7 @@ public class WorkerWrapper implements Runnable {
 
             // Update Data as necessary.
             Data output = mWorker.getOutputData();
-            if (output != null) {
-                mWorkSpecDao.setOutput(mWorkSpecId, output);
-            }
+            mWorkSpecDao.setOutput(mWorkSpecId, output);
 
             // Unblock Dependencies and set Period Start Time
             long currentTimeMillis = System.currentTimeMillis();

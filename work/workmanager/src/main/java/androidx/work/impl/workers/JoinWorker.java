@@ -16,6 +16,7 @@
 
 package androidx.work.impl.workers;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import androidx.work.Worker;
@@ -29,7 +30,7 @@ import androidx.work.Worker;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class JoinWorker extends Worker {
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         setOutputData(getInputData());
         return WorkerResult.SUCCESS;
     }

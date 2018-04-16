@@ -15,6 +15,8 @@
  */
 package androidx.work.integration.testapp;
 
+import android.support.annotation.NonNull;
+
 import androidx.work.Worker;
 
 /**
@@ -22,7 +24,7 @@ import androidx.work.Worker;
  */
 public class TestWorker extends Worker {
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         int x = 0;
         x++;
         return WorkerResult.SUCCESS;

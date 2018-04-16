@@ -15,6 +15,7 @@
  */
 package androidx.work.integration.testapp.sherlockholmes;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Data;
@@ -41,7 +42,7 @@ public class TextReducingWorker extends Worker {
     private Map<String, Integer> mWordCount = new HashMap<>();
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         Data input = getInputData();
         String[] inputFiles = input.getStringArray(INPUT_FILE);
         if (inputFiles == null) {

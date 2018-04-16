@@ -17,6 +17,7 @@ package androidx.work.integration.testapp;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -42,7 +43,7 @@ public class ToastWorker extends Worker {
     }
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         Data input = getInputData();
         final String message = input.getString(ARG_MESSAGE, "completed!");
         new Handler(Looper.getMainLooper()).post(new Runnable() {

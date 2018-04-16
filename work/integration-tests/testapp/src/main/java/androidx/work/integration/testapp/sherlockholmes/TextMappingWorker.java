@@ -17,6 +17,7 @@ package androidx.work.integration.testapp.sherlockholmes;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Data;
@@ -54,7 +55,7 @@ public class TextMappingWorker extends Worker {
     }
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         Data input = getInputData();
         String inputFileName = input.getString(INPUT_FILE, null);
         String outputFileName = "out_" + inputFileName;

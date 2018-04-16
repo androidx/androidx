@@ -16,6 +16,7 @@
 
 package androidx.work.integration.testapp.imageprocessing;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -33,7 +34,7 @@ public class ImageCleanupWorker extends Worker {
     private static final String TAG = "ImageProcessingWorker";
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         Log.d(TAG, "Started");
         List<Image> images = TestDatabase.getInstance(getAppContext()).getImageDao().getImages();
         for (Image image : images) {

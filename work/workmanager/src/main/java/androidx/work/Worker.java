@@ -38,13 +38,13 @@ public abstract class Worker {
         RETRY
     }
 
-    private Context mAppContext;
+    private @NonNull Context mAppContext;
     private @NonNull String mId;
     private @NonNull Data mInputData;
-    private Data mOutputData;
-    private RuntimeExtras mRuntimeExtras;
+    private @NonNull Data mOutputData = Data.EMPTY;
+    private @Nullable RuntimeExtras mRuntimeExtras;
 
-    public final Context getAppContext() {
+    public final @NonNull Context getAppContext() {
         return mAppContext;
     }
 
@@ -76,7 +76,7 @@ public abstract class Worker {
      * {@link Worker.WorkerResult#FAILURE}.
      */
     @WorkerThread
-    public abstract WorkerResult doWork();
+    public abstract @NonNull WorkerResult doWork();
 
     /**
      * Call this method to pass an {@link Data} object to {@link WorkRequest} that is dependent on
@@ -102,17 +102,17 @@ public abstract class Worker {
      *               WorkRequest that is dependent on this one, or {@code null} if there is nothing
      *               to contribute
      */
-    public final void setOutputData(Data outputData) {
+    public final void setOutputData(@NonNull Data outputData) {
         mOutputData = outputData;
     }
 
-    public final Data getOutputData() {
+    public final @NonNull Data getOutputData() {
         return mOutputData;
     }
 
     @Keep
     private void internalInit(
-            Context appContext,
+            @NonNull Context appContext,
             @NonNull String id,
             @NonNull Data inputData,
             @Nullable RuntimeExtras runtimeExtras) {
@@ -138,7 +138,7 @@ public abstract class Worker {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public RuntimeExtras getRuntimeExtras() {
+    public @Nullable RuntimeExtras getRuntimeExtras() {
         return mRuntimeExtras;
     }
 }

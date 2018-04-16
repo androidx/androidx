@@ -15,6 +15,7 @@
  */
 package androidx.work.integration.testapp.sherlockholmes;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Worker;
@@ -26,7 +27,7 @@ import androidx.work.integration.testapp.db.TestDatabase;
 public class TextStartupWorker extends Worker {
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         TestDatabase db = TestDatabase.getInstance(getAppContext());
         db.getWordCountDao().clear();
         Log.d("Startup", "Database cleared");
