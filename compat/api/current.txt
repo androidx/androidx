@@ -81,6 +81,20 @@ package androidx.core.app {
     method public static void setExactAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
   }
 
+  public class AppComponentFactory extends android.app.AppComponentFactory {
+    ctor public AppComponentFactory();
+    method public final android.app.Activity instantiateActivity(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public android.app.Activity instantiateActivityCompat(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.app.Application instantiateApplication(java.lang.ClassLoader, java.lang.String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public android.app.Application instantiateApplicationCompat(java.lang.ClassLoader, java.lang.String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.content.ContentProvider instantiateProvider(java.lang.ClassLoader, java.lang.String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public android.content.ContentProvider instantiateProviderCompat(java.lang.ClassLoader, java.lang.String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.content.BroadcastReceiver instantiateReceiver(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public android.content.BroadcastReceiver instantiateReceiverCompat(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.app.Service instantiateService(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public android.app.Service instantiateServiceCompat(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+  }
+
   public class AppLaunchChecker {
     ctor public deprecated AppLaunchChecker();
     method public static boolean hasStartedFromLauncher(android.content.Context);
