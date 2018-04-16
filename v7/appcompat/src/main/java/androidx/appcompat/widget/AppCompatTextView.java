@@ -28,10 +28,13 @@ import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.AutoSizeableTextView;
 import androidx.core.widget.TextViewCompat;
@@ -369,5 +372,40 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         return AppCompatHintHelper.onCreateInputConnection(super.onCreateInputConnection(outAttrs),
                 outAttrs, this);
+    }
+
+    @Override
+    public void setFirstBaselineToTopHeight(@Px @IntRange(from = 0) int firstBaselineToTopHeight) {
+        if (BuildCompat.isAtLeastP()) {
+            super.setFirstBaselineToTopHeight(firstBaselineToTopHeight);
+        } else {
+            TextViewCompat.setFirstBaselineToTopHeight(this, firstBaselineToTopHeight);
+        }
+    }
+
+    @Override
+    public void setLastBaselineToBottomHeight(
+            @Px @IntRange(from = 0) int lastBaselineToBottomHeight) {
+        if (BuildCompat.isAtLeastP()) {
+            super.setLastBaselineToBottomHeight(lastBaselineToBottomHeight);
+        } else {
+            TextViewCompat.setLastBaselineToBottomHeight(this,
+                    lastBaselineToBottomHeight);
+        }
+    }
+
+    @Override
+    public int getFirstBaselineToTopHeight() {
+        return TextViewCompat.getFirstBaselineToTopHeight(this);
+    }
+
+    @Override
+    public int getLastBaselineToBottomHeight() {
+        return TextViewCompat.getLastBaselineToBottomHeight(this);
+    }
+
+    @Override
+    public void setLineHeight(@Px @IntRange(from = 0) int lineHeight) {
+        TextViewCompat.setLineHeight(this, lineHeight);
     }
 }

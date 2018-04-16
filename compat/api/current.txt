@@ -2640,6 +2640,8 @@ package androidx.core.widget {
     method public static int[] getAutoSizeTextAvailableSizes(android.widget.TextView);
     method public static int getAutoSizeTextType(android.widget.TextView);
     method public static android.graphics.drawable.Drawable[] getCompoundDrawablesRelative(android.widget.TextView);
+    method public static int getFirstBaselineToTopHeight(android.widget.TextView);
+    method public static int getLastBaselineToBottomHeight(android.widget.TextView);
     method public static int getMaxLines(android.widget.TextView);
     method public static int getMinLines(android.widget.TextView);
     method public static void setAutoSizeTextTypeUniformWithConfiguration(android.widget.TextView, int, int, int, int) throws java.lang.IllegalArgumentException;
@@ -2649,6 +2651,9 @@ package androidx.core.widget {
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, int, int, int, int);
     method public static void setCustomSelectionActionModeCallback(android.widget.TextView, android.view.ActionMode.Callback);
+    method public static void setFirstBaselineToTopHeight(android.widget.TextView, int);
+    method public static void setLastBaselineToBottomHeight(android.widget.TextView, int);
+    method public static void setLineHeight(android.widget.TextView, int);
     method public static void setTextAppearance(android.widget.TextView, int);
     field public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0; // 0x0
     field public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1; // 0x1
