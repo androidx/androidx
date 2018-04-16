@@ -276,52 +276,38 @@ public final class SessionCommand2 {
     public static final int COMMAND_CODE_SESSION_SELECT_ROUTE = 38;
 
     /**
-     * @hide
      * Command code for {@link MediaBrowser2#getChildren(String, int, int, Bundle)}.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_GET_CHILDREN = 29;
 
     /**
-     * @hide
      * Command code for {@link MediaBrowser2#getItem(String)}.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_GET_ITEM = 30;
 
     /**
-     * @hide
      * Command code for {@link MediaBrowser2#getLibraryRoot(Bundle)}.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT = 31;
 
     /**
-     * @hide
      * Command code for {@link MediaBrowser2#getSearchResult(String, int, int, Bundle)}.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT = 32;
 
     /**
-     * @hide
      * Command code for {@link MediaBrowser2#search(String, Bundle)}.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_SEARCH = 33;
 
     /**
-     * @hide
      * Command code for {@link MediaBrowser2#subscribe(String, Bundle)}.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_SUBSCRIBE = 34;
 
     /**
-     * @hide
      * Command code for {@link MediaBrowser2#unsubscribe(String)}.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_LIBRARY_UNSUBSCRIBE = 35;
 
     /**
