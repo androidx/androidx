@@ -17,12 +17,21 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- The main theme for all activities within the Car Demo. -->
     <style name="CarTheme" parent="Theme.Car.Light.NoActionBar">
+        <item name="android:checkboxStyle">@style/CheckBoxStyle</item>
     </style>
 
     <!-- A theme for activities within the Car Demo that have a drawer. -->
     <style name="CarDrawerTheme" parent="Theme.Car.Light.NoActionBar.Drawer">
+        <item name="android:checkboxStyle">@style/CheckBoxStyle</item>
         <item name="android:colorPrimary">@color/car_grey_200</item>
         <item name="android:colorPrimaryDark">@color/car_grey_400</item>
         <item name="drawerClosedHeaderColor">@color/car_title2_dark</item>
+    </style>
+
+    <!-- A style for checkboxes. This style assumes the checkbox is on a light-colored
+         background. -->
+    <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:textColor">@color/car_body1</item>
+        <item name="android:textSize">@dimen/car_body1_size</item>
     </style>
 </resources>

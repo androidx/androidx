@@ -19,6 +19,7 @@ package com.example.androidx.car;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -56,7 +57,9 @@ public class CarListDialogDemo extends FragmentActivity {
                     : Integer.parseInt(initialPositionText.toString());
 
             ListDialogFragment alertDialog = ListDialogFragment.newInstance(
-                    numOfItems, initialPosition);
+                    ((CheckBox) findViewById(R.id.has_title)).isChecked(),
+                    numOfItems,
+                    initialPosition);
 
             alertDialog.show(getSupportFragmentManager(), DIALOG_TAG);
         });
@@ -64,11 +67,14 @@ public class CarListDialogDemo extends FragmentActivity {
 
     /** A {@link DialogFragment} that will inflate a {@link CarListDialog}. */
     public static class ListDialogFragment extends DialogFragment {
+        private static final String HAS_TITLE_KEY = "has_title_key";
         private static final String NUM_OF_ITEMS_KEY = "num_of_items_key";
         private static final String INITIAL_POSITION_KEY = "initial_position_key";
 
-        static ListDialogFragment newInstance(int numOfItems, int initialPosition) {
+        static ListDialogFragment newInstance(boolean hasTitle,
+                int numOfItems, int initialPosition) {
             Bundle args = new Bundle();
+            args.putBoolean(HAS_TITLE_KEY, hasTitle);
             args.putInt(NUM_OF_ITEMS_KEY, numOfItems);
             args.putInt(INITIAL_POSITION_KEY, initialPosition);
 
@@ -80,10 +86,15 @@ public class CarListDialogDemo extends FragmentActivity {
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return new CarListDialog.Builder(getContext())
+            CarListDialog.Builder builder = new CarListDialog.Builder(getContext())
                     .setItems(getItems(), /* onClickListener= */ null)
-                    .setInitialPosition(getArguments().getInt(INITIAL_POSITION_KEY))
-                    .create();
+                    .setInitialPosition(getArguments().getInt(INITIAL_POSITION_KEY));
+
+            if (getArguments().getBoolean(HAS_TITLE_KEY)) {
+                builder.setTitle(getContext().getString(R.string.list_dialog_title));
+            }
+
+            return builder.create();
         }
 
         private String[] getItems() {
