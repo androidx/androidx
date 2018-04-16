@@ -6,6 +6,11 @@ package androidx.media.widget {
     ctor public MediaControlView2(android.content.Context, android.util.AttributeSet, int);
     method public void onMeasure(int, int);
     method public void requestPlayButtonFocus();
+    method public void setOnFullScreenListener(androidx.media.widget.MediaControlView2.OnFullScreenListener);
+  }
+
+  public static abstract interface MediaControlView2.OnFullScreenListener {
+    method public abstract void onFullScreen(android.view.View, boolean);
   }
 
   public class VideoView2 extends android.view.ViewGroup {
