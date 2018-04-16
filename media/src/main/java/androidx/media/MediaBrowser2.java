@@ -42,10 +42,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
  * Browses media content offered by a {@link MediaLibraryService2}.
  */
-@RestrictTo(LIBRARY_GROUP)
 public class MediaBrowser2 extends MediaController2 {
     static final String TAG = "MediaBrowser2";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);

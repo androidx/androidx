@@ -19,7 +19,6 @@ package androidx.media;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE_SIZE;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaConstants2.ARGUMENT_PAGE;
 import static androidx.media.MediaConstants2.ARGUMENT_PAGE_SIZE;
 
@@ -32,7 +31,6 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.Builder;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media.MediaSession2.ControllerInfo;
@@ -42,7 +40,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
  * Base class for media library services.
  * <p>
  * Media library services enable applications to browse media content provided by an application
@@ -64,7 +61,6 @@ import java.util.concurrent.Executor;
  *
  * @see MediaSessionService2
  */
-@RestrictTo(LIBRARY_GROUP)
 public abstract class MediaLibraryService2 extends MediaSessionService2 {
     /**
      * This is the interface name that a service implementing a session service should say that it
@@ -219,6 +215,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          */
         // Override all methods just to show them with the type instead of generics in Javadoc.
         // This workarounds javadoc issue described in the MediaSession2.BuilderBase.
+        // Note: Don't override #setSessionCallback() because the callback can be set by the
+        // constructor.
         public static final class Builder extends MediaSession2.BuilderBase<MediaLibrarySession,
                 Builder, MediaLibrarySessionCallback> {
             private MediaLibrarySessionImplBase.Builder mImpl;
@@ -260,12 +258,6 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             @Override
             public @NonNull Builder setId(@NonNull String id) {
                 return super.setId(id);
-            }
-
-            @Override
-            public @NonNull Builder setSessionCallback(@NonNull Executor executor,
-                    @NonNull MediaLibrarySessionCallback callback) {
-                return super.setSessionCallback(executor, callback);
             }
 
             @Override
