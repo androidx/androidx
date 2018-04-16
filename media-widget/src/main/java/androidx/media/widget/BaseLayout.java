@@ -39,7 +39,7 @@ class BaseLayout extends ViewGroup {
     }
 
     BaseLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
     }
 
     BaseLayout(@NonNull Context context, @Nullable AttributeSet attrs,

@@ -340,14 +340,18 @@ public class MediaControlView2 extends BaseLayout {
 
     public MediaControlView2(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
+        super(context, attrs, defStyleAttr);
+        initialize(context);
     }
 
     public MediaControlView2(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        initialize(context);
+    }
 
-        mResources = getContext().getResources();
+    void initialize(Context context) {
+        mResources = context.getResources();
         // Inflate MediaControlView2 from XML
         mRoot = makeControllerView();
         addView(mRoot);
