@@ -56,6 +56,8 @@ package androidx.fragment.app {
     method public final java.lang.CharSequence getText(int);
     method public boolean getUserVisibleHint();
     method public android.view.View getView();
+    method public androidx.lifecycle.LifecycleOwner getViewLifecycleOwner();
+    method public androidx.lifecycle.LiveData<androidx.lifecycle.LifecycleOwner> getViewLifecycleOwnerLiveData();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method public final int hashCode();
     method public static androidx.fragment.app.Fragment instantiate(android.content.Context, java.lang.String);
