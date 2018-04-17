@@ -207,6 +207,7 @@ class LoaderManagerImpl extends LoaderManager {
             return sb.toString();
         }
 
+        @SuppressWarnings("deprecation")
         public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
             writer.print(prefix); writer.print("mId="); writer.print(mId);
             writer.print(" mArgs="); writer.println(mArgs);
@@ -491,6 +492,7 @@ class LoaderManagerImpl extends LoaderManager {
         return sb.toString();
     }
 
+    @Deprecated
     @Override
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         mLoaderViewModel.dump(prefix, fd, writer, args);
