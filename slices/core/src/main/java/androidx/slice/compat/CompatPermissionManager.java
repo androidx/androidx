@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 
 import java.util.Collections;
@@ -33,17 +34,23 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-class CompatPermissionManager {
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class CompatPermissionManager {
 
     private static final String TAG = "CompatPermissionManager";
     public static final String ALL_SUFFIX = "_all";
 
     private final Context mContext;
     private final String mPrefsName;
+    private final int mMyUid;
 
-    CompatPermissionManager(Context context, String prefsName) {
+    public CompatPermissionManager(Context context, String prefsName, int myUid) {
         mContext = context;
         mPrefsName = prefsName;
+        mMyUid = myUid;
     }
 
     private SharedPreferences getPrefs() {
@@ -51,6 +58,9 @@ class CompatPermissionManager {
     }
 
     public int checkSlicePermission(Uri uri, int pid, int uid) {
+        if (uid == mMyUid) {
+            return PERMISSION_GRANTED;
+        }
         for (String pkg : mContext.getPackageManager().getPackagesForUid(uid)) {
             if (checkSlicePermission(uri, pkg) == PERMISSION_GRANTED) {
                 return PERMISSION_GRANTED;

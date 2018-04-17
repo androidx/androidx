@@ -16,6 +16,8 @@
 
 package androidx.slice;
 
+import static androidx.slice.compat.SliceProviderCompat.PERMS_PREFIX;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
@@ -37,6 +39,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
 import androidx.core.os.BuildCompat;
+import androidx.slice.compat.CompatPermissionManager;
 import androidx.slice.render.SliceRenderActivity;
 
 import org.junit.Before;
@@ -234,6 +237,11 @@ public class SliceManagerTest {
             if (sSliceProviderReceiver != null) {
                 sSliceProviderReceiver.onSliceUnpinned(sliceUri);
             }
+        }
+
+        protected CompatPermissionManager onCreatePermissionManager() {
+            return new CompatPermissionManager(getContext(), PERMS_PREFIX + getClass().getName(),
+                    -1 /* Different uid to run permissions */);
         }
 
         @Override
