@@ -27,11 +27,11 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.background.systemalarm.SystemAlarmService;
 import androidx.work.impl.background.systemjob.SystemJobService;
-import androidx.work.impl.logger.Logger;
 
 import java.util.concurrent.TimeUnit;
 
@@ -62,7 +62,7 @@ public class ForceStopRunnable implements Runnable {
     @Override
     public void run() {
         if (isForceStopped()) {
-            Logger.debug(TAG, "Application was force-stopped, rescheduling.");
+            Log.d(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
         }
     }

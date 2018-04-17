@@ -23,10 +23,10 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.WorkSpec;
 
 import java.util.List;
@@ -81,7 +81,7 @@ public class SystemJobScheduler implements Scheduler {
     @VisibleForTesting
     public void scheduleInternal(WorkSpec workSpec) {
         JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec);
-        Logger.debug(TAG, "Scheduling work ID %s Job ID %s", workSpec.id, jobInfo.getId());
+        Log.d(TAG, String.format("Scheduling work ID %s Job ID %s", workSpec.id, jobInfo.getId()));
         mJobScheduler.schedule(jobInfo);
     }
 

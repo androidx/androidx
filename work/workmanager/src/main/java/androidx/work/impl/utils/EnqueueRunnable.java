@@ -31,6 +31,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.work.BaseWorkRequest;
 import androidx.work.Constraints;
@@ -41,7 +42,6 @@ import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.logger.Logger;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkName;
@@ -119,8 +119,8 @@ public class EnqueueRunnable implements Runnable {
                 if (!parent.isEnqueued()) {
                     needsScheduling |= processContinuation(parent);
                 } else {
-                    Logger.warn(TAG, "Already enqueued work ids (%s).",
-                            TextUtils.join(", ", parent.getIds()));
+                    Log.w(TAG, String.format("Already enqueued work ids (%s).",
+                            TextUtils.join(", ", parent.getIds())));
                 }
             }
         }
@@ -169,7 +169,7 @@ public class EnqueueRunnable implements Runnable {
             for (String id : prerequisiteIds) {
                 WorkSpec prerequisiteWorkSpec = workDatabase.workSpecDao().getWorkSpec(id);
                 if (prerequisiteWorkSpec == null) {
-                    Logger.error(TAG, "Prerequisite %s doesn't exist; not enqueuing", id);
+                    Log.e(TAG, String.format("Prerequisite %s doesn't exist; not enqueuing", id));
                     return false;
                 }
 

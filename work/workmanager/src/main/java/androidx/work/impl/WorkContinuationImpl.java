@@ -23,6 +23,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.work.ArrayCreatingInputMerger;
 import androidx.work.BaseWorkRequest;
@@ -31,7 +32,6 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
-import androidx.work.impl.logger.Logger;
 import androidx.work.impl.utils.EnqueueRunnable;
 import androidx.work.impl.workers.JoinWorker;
 
@@ -171,7 +171,7 @@ public class WorkContinuationImpl extends WorkContinuation
             mWorkManagerImpl.getTaskExecutor()
                     .executeOnBackgroundThread(new EnqueueRunnable(this));
         } else {
-            Logger.warn(TAG, "Already enqueued work ids (%s)", TextUtils.join(", ", mIds));
+            Log.w(TAG, String.format("Already enqueued work ids (%s)", TextUtils.join(", ", mIds)));
         }
     }
 
@@ -187,7 +187,7 @@ public class WorkContinuationImpl extends WorkContinuation
             // and marks them enqueued using the markEnqueued() method, parent first.
             new EnqueueRunnable(this).run();
         } else {
-            Logger.warn(TAG, "Already enqueued work ids (%s)", TextUtils.join(", ", mIds));
+            Log.w(TAG, String.format("Already enqueued work ids (%s)", TextUtils.join(", ", mIds)));
         }
     }
 
