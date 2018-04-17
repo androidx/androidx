@@ -45,6 +45,7 @@ import android.view.animation.Animation;
 import android.widget.AdapterView;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -56,6 +57,8 @@ import androidx.core.view.LayoutInflaterCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
@@ -244,9 +247,71 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
 
+    // These are initialized in performCreateView and unavailable outside of the
+    // onCreateView/onDestroyView lifecycle
+    private LifecycleRegistry mViewLifecycleRegistry;
+    LifecycleOwner mViewLifecycleOwner;
+    MutableLiveData<LifecycleOwner> mViewLifecycleOwnerLiveData = new MutableLiveData<>();
+
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycleRegistry;
+    }
+
+    /**
+     * Get a {@link LifecycleOwner} that represents the {@link #getView() Fragment's View}
+     * lifecycle. In most cases, this mirrors the lifecycle of the Fragment itself, but in cases
+     * of {@link FragmentTransaction#detach(Fragment) detached} Fragments, the lifecycle of the
+     * Fragment can be considerably longer than the lifecycle of the View itself.
+     * <p>
+     * Namely, the lifecycle of the Fragment's View is:
+     * <ol>
+     * <li>{@link Lifecycle.Event#ON_CREATE created} in {@link #onViewStateRestored(Bundle)}</li>
+     * <li>{@link Lifecycle.Event#ON_START started} in {@link #onStart()}</li>
+     * <li>{@link Lifecycle.Event#ON_RESUME resumed} in {@link #onResume()}</li>
+     * <li>{@link Lifecycle.Event#ON_PAUSE paused} in {@link #onPause()}</li>
+     * <li>{@link Lifecycle.Event#ON_STOP stopped} in {@link #onStop()}</li>
+     * <li>{@link Lifecycle.Event#ON_DESTROY destroyed} in {@link #onDestroyView()}</li>
+     * </ol>
+     *
+     * The first method where it is safe to access the view lifecycle is
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} under the condition that you must
+     * return a non-null view (an IllegalStateException will be thrown if you access the view
+     * lifecycle but don't return a non-null view).
+     * <p>The view lifecycle remains valid through the call to {@link #onDestroyView()}, after which
+     * {@link #getView()} will return null, the view lifecycle will be destroyed, and this method
+     * will throw an IllegalStateException. Consider using
+     * {@link #getViewLifecycleOwnerLiveData()} or {@link FragmentTransaction#runOnCommit(Runnable)}
+     * to receive a callback for when the Fragment's view lifecycle is available.
+     * <p>
+     * This should only be called on the main thread.
+     *
+     * @return A {@link LifecycleOwner} that represents the {@link #getView() Fragment's View}
+     * lifecycle.
+     * @throws IllegalStateException if the {@link #getView() Fragment's View is null}.
+     */
+    @MainThread
+    @NonNull
+    public LifecycleOwner getViewLifecycleOwner() {
+        if (mViewLifecycleOwner == null) {
+            throw new IllegalStateException("Can't access the Fragment View's LifecycleOwner when "
+                    + "getView() is null i.e., before onCreateView() or after onDestroyView()");
+        }
+        return mViewLifecycleOwner;
+    }
+
+    /**
+     * Retrieve a {@link LiveData} which allows you to observe the
+     * {@link #getViewLifecycleOwner() lifecycle of the Fragment's View}.
+     * <p>
+     * This will be set to the new {@link LifecycleOwner} after {@link #onCreateView} returns a
+     * non-null View and will set to null after {@link #onDestroyView()}.
+     *
+     * @return A LiveData that changes in sync with {@link #getViewLifecycleOwner()}.
+     */
+    @NonNull
+    public LiveData<LifecycleOwner> getViewLifecycleOwnerLiveData() {
+        return mViewLifecycleOwnerLiveData;
     }
 
     @NonNull
@@ -1529,6 +1594,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         mCalled = true;
+        if (mView != null) {
+            mViewLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+        }
     }
 
     /**
@@ -1637,6 +1705,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onDestroyView() {
         mCalled = true;
+        if (mView != null) {
+            mViewLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+        }
     }
 
     /**
@@ -2336,13 +2407,35 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
     }
 
-    View performCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+    void performCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         if (mChildFragmentManager != null) {
             mChildFragmentManager.noteStateNotSaved();
         }
         mPerformedCreateView = true;
-        return onCreateView(inflater, container, savedInstanceState);
+        mViewLifecycleOwner = new LifecycleOwner() {
+            @Override
+            public Lifecycle getLifecycle() {
+                if (mViewLifecycleRegistry == null) {
+                    mViewLifecycleRegistry = new LifecycleRegistry(mViewLifecycleOwner);
+                }
+                return mViewLifecycleRegistry;
+            }
+        };
+        mViewLifecycleRegistry = null;
+        mView = onCreateView(inflater, container, savedInstanceState);
+        if (mView != null) {
+            // Initialize the LifecycleRegistry if needed
+            mViewLifecycleOwner.getLifecycle();
+            // Then inform any Observers of the new LifecycleOwner
+            mViewLifecycleOwnerLiveData.setValue(mViewLifecycleOwner);
+        } else {
+            if (mViewLifecycleRegistry != null) {
+                throw new IllegalStateException("Called getViewLifecycleOwner() but "
+                        + "onCreateView() returned null");
+            }
+            mViewLifecycleOwner = null;
+        }
     }
 
     void performActivityCreated(Bundle savedInstanceState) {
@@ -2377,6 +2470,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mChildFragmentManager.dispatchStart();
         }
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        if (mView != null) {
+            mViewLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        }
     }
 
     void performResume() {
@@ -2396,6 +2492,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mChildFragmentManager.execPendingActions();
         }
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
+        if (mView != null) {
+            mViewLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
+        }
     }
 
     void noteStateNotSaved() {
@@ -2521,6 +2620,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performPause() {
+        if (mView != null) {
+            mViewLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
+        }
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
         if (mChildFragmentManager != null) {
             mChildFragmentManager.dispatchPause();
