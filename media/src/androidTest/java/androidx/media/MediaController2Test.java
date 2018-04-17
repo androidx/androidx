@@ -41,6 +41,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
 import androidx.media.MediaController2.ControllerCallback;
+import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.MediaSession2.SessionCallback;
@@ -228,6 +229,50 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
         assertEquals(position + (long) (speed * timeDiff), controller.getCurrentPosition());
         assertEquals(currentMediaItem, controller.getCurrentMediaItem());
+    }
+
+    @Test
+    public void testUpdatePlayer() throws InterruptedException {
+        prepareLooper();
+        final int testState = MediaPlayerBase.PLAYER_STATE_PLAYING;
+        final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
+        final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(AudioManager.STREAM_RING).build();
+        final CountDownLatch latch = new CountDownLatch(3);
+        mController = createController(mSession.getToken(), true, new ControllerCallback() {
+            @Override
+            public void onPlayerStateChanged(MediaController2 controller, int state) {
+                assertEquals(mController, controller);
+                assertEquals(testState, state);
+                latch.countDown();
+            }
+
+            @Override
+            public void onPlaylistChanged(MediaController2 controller, List<MediaItem2> list,
+                    MediaMetadata2 metadata) {
+                assertEquals(mController, controller);
+                assertEquals(testPlaylist, list);
+                assertNull(metadata);
+                latch.countDown();
+            }
+
+            @Override
+            public void onPlaybackInfoChanged(MediaController2 controller, PlaybackInfo info) {
+                assertEquals(mController, controller);
+                assertEquals(testAudioAttributes, info.getAudioAttributes());
+                latch.countDown();
+            }
+        });
+
+        MockPlayer player = new MockPlayer(0);
+        player.mLastPlayerState = testState;
+        player.setAudioAttributes(testAudioAttributes);
+
+        MockPlaylistAgent agent = new MockPlaylistAgent();
+        agent.mPlaylist = testPlaylist;
+
+        mSession.updatePlayer(player, agent, null);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test

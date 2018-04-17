@@ -413,7 +413,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     }
 
     @Test
-    public void testSetPlayer_playbackInfo() throws Exception {
+    public void testUpdatePlayer_playbackInfo() throws Exception {
         prepareLooper();
         MockPlayer player = new MockPlayer(0);
         final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
