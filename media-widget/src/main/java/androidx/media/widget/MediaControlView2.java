@@ -231,7 +231,7 @@ public class MediaControlView2 extends BaseLayout {
     private MediaControllerCompat.TransportControls mControls;
     private PlaybackStateCompat mPlaybackState;
     private MediaMetadataCompat mMetadata;
-    private OnFullScreenRequestListener mFullScreenRequestListener;
+    private OnFullScreenListener mOnFullScreenListener;
     private int mDuration;
     private int mPrevState;
     private int mPrevWidth;
@@ -356,11 +356,9 @@ public class MediaControlView2 extends BaseLayout {
     /**
      * Registers a callback to be invoked when the fullscreen mode should be changed.
      * @param l The callback that will be run
-     * @hide TODO unhide
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setFullScreenRequestListener(OnFullScreenRequestListener l) {
-        mFullScreenRequestListener = l;
+    public void setOnFullScreenListener(OnFullScreenListener l) {
+        mOnFullScreenListener = l;
     }
 
     /**
@@ -475,14 +473,12 @@ public class MediaControlView2 extends BaseLayout {
     /**
      * Interface definition of a callback to be invoked to inform the fullscreen mode is changed.
      * Application should handle the fullscreen mode accordingly.
-     * @hide  TODO unhide
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public interface OnFullScreenRequestListener {
+    public interface OnFullScreenListener {
         /**
          * Called to indicate a fullscreen mode change.
          */
-        void onFullScreenRequest(View view, boolean fullScreen);
+        void onFullScreen(View view, boolean fullScreen);
     }
 
     @Override
@@ -1056,7 +1052,7 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mFullScreenListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mFullScreenRequestListener == null) {
+            if (mOnFullScreenListener == null) {
                 return;
             }
 
@@ -1069,7 +1065,7 @@ public class MediaControlView2 extends BaseLayout {
                         mResources.getDrawable(R.drawable.ic_fullscreen, null));
             }
             mIsFullScreen = isEnteringFullScreen;
-            mFullScreenRequestListener.onFullScreenRequest(MediaControlView2.this,
+            mOnFullScreenListener.onFullScreen(MediaControlView2.this,
                     mIsFullScreen);
         }
     };
