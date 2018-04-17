@@ -351,6 +351,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     }
 
     @Override
+    @Deprecated
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         super.dump(prefix, fd, writer, args);
         if (mTask != null) {
