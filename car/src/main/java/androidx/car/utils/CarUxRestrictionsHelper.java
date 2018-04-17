@@ -84,13 +84,21 @@ public class CarUxRestrictionsHelper {
      * time of this adapter being discarded.
      */
     public void stop() {
+        if (mCarUxRestrictionsManager != null) {
+            try {
+                mCarUxRestrictionsManager.unregisterListener();
+            } catch (CarNotConnectedException e) {
+                // Do nothing.
+                Log.w(TAG, "stop(); cannot unregister listener.");
+            }
+        }
         try {
             if (mCar != null && mCar.isConnected()) {
                 mCar.disconnect();
             }
         } catch (IllegalStateException e) {
             // Do nothing.
-            Log.w(TAG, "stop(); cannot disconnect from Car");
+            Log.w(TAG, "stop(); cannot disconnect from Car.");
         }
     }
 
@@ -111,12 +119,7 @@ public class CarUxRestrictionsHelper {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            try {
-                mCarUxRestrictionsManager.unregisterListener();
-                mCarUxRestrictionsManager = null;
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
+            mCarUxRestrictionsManager = null;
         }
     };
 }
