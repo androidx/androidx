@@ -112,8 +112,6 @@ import java.util.List;
  * {@link MediaSession2.SessionCallback#onConnect(MediaSession2, ControllerInfo)}.
  */
 public abstract class MediaSessionService2 extends Service {
-    //private final MediaSessionService2Provider mProvider;
-
     /**
      * This is the interface name that a service implementing a session service should say that it
      * support -- that is, this is the action it uses for its intent filter.
@@ -313,8 +311,6 @@ public abstract class MediaSessionService2 extends Service {
             //   2. MediaSessionService2 is defined as the simplified version of the library
             //      service with no browsing feature, so shouldn't allow MediaBrowserServiceCompat
             //      specific operations.
-            // TODO: Revisit here API not to return stub root here. The fake media ID here may be
-            //       used by the browser service for real.
             return sDefaultBrowserRoot;
         }
 
