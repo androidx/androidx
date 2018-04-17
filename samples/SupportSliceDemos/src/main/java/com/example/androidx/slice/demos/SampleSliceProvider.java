@@ -431,7 +431,7 @@ public class SampleSliceProvider extends SliceProvider {
 
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "get ride"),
                 IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
-        return new ListBuilder(getContext(), sliceUri, -TimeUnit.MINUTES.toMillis(2))
+        return new ListBuilder(getContext(), sliceUri, TimeUnit.SECONDS.toMillis(10))
                 .setColor(0xff0F9D58)
                 .setHeader(b -> b
                         .setTitle("Get ride")
