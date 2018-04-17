@@ -847,24 +847,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             return "ControllerInfo {pkg=" + mPackageName + ", uid=" + mUid + "})";
         }
 
-        /**
-         * @hide
-         * @return Bundle
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public @NonNull Bundle toBundle() {
-            return new Bundle();
-        }
-
-        /**
-         * @hide
-         * @return Bundle
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public static @NonNull ControllerInfo fromBundle(Bundle bundle) {
-            return new ControllerInfo("TODO", -1, -1, null);
-        }
-
         IMediaControllerCallback getControllerBinder() {
             return mIControllerCallback;
         }
