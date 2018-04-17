@@ -1151,6 +1151,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     boolean dispatchKeyEvent(KeyEvent event) {
+        View root = mWindow.getDecorView();
+        if (ViewCompat.dispatchUnhandledKeyEventPre(root, event)) {
+            return true;
+        }
+
         if (event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
             // If this is a MENU event, let the Activity have a go.
             if (mOriginalWindowCallback.dispatchKeyEvent(event)) {
@@ -1162,7 +1167,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         final int action = event.getAction();
         final boolean isDown = action == KeyEvent.ACTION_DOWN;
 
-        return isDown ? onKeyDown(keyCode, event) : onKeyUp(keyCode, event);
+        if (isDown ? onKeyDown(keyCode, event) : onKeyUp(keyCode, event)) {
+            return true;
+        }
+        // This whole dispatchKeyEvent occurs before the callback
+        return ViewCompat.dispatchUnhandledKeyEventPost(root, event);
     }
 
     boolean onKeyUp(int keyCode, KeyEvent event) {
