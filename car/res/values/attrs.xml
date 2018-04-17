@@ -48,6 +48,10 @@ limitations under the License.
         <attr name="gutterSize" format="dimension" />
         <!-- Whether to display the scrollbar or not. Defaults to true. -->
         <attr name="scrollBarEnabled" format="boolean" />
+        <!-- Sets the color of the scroll bar. This color only affects the thumb of the scroll bar;
+             the up/down buttons are unaffected. To set these, use upButtonIcon and downButtonIcon
+             respectively. -->
+        <attr name="scrollBarColor" format="color" />
         <!-- The top margin before the scroll bar is drawn. -->
         <attr name="scrollBarTopMargin" format="dimension" />
         <!-- The width of the container that will hold the scrollbar. The scrollbar is centered
