@@ -361,6 +361,12 @@ public class PagedListView extends FrameLayout {
             setDownButtonIcon(downButtonIcon);
         }
 
+        // Using getResourceId() over getColor() because setScrollbarColor() expects a color resId.
+        int scrollBarColor = a.getResourceId(R.styleable.PagedListView_scrollBarColor, -1);
+        if (scrollBarColor != -1) {
+            setScrollbarColor(scrollBarColor);
+        }
+
         mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
 
         if (mScrollBarEnabled) {
