@@ -37,7 +37,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.os.PersistableBundle;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -972,43 +971,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             return null;
         }
 
-        TrackInfoImpl(Parcel in) {
-            mTrackType = in.readInt();
-            // TODO: parcel in the full MediaFormat; currently we are using createSubtitleFormat
-            // even for audio/video tracks, meaning we only set the mime and language.
-            String mime = in.readString();
-            String language = in.readString();
-            mFormat = MediaFormat.createSubtitleFormat(mime, language);
-
-            if (mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
-                mFormat.setInteger(MediaFormat.KEY_IS_AUTOSELECT, in.readInt());
-                mFormat.setInteger(MediaFormat.KEY_IS_DEFAULT, in.readInt());
-                mFormat.setInteger(MediaFormat.KEY_IS_FORCED_SUBTITLE, in.readInt());
-            }
-        }
-
         TrackInfoImpl(int type, MediaFormat format) {
             mTrackType = type;
             mFormat = format;
-        }
-
-        /**
-         * Flatten this object in to a Parcel.
-         *
-         * @param dest The Parcel in which the object should be written.
-         * @param flags Additional flags about how the object should be written.
-         * May be 0 or {@link android.os.Parcelable#PARCELABLE_WRITE_RETURN_VALUE}.
-         */
-        /* package private */ void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(mTrackType);
-            dest.writeString(getLanguage());
-
-            if (mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
-                dest.writeString(mFormat.getString(MediaFormat.KEY_MIME));
-                dest.writeInt(mFormat.getInteger(MediaFormat.KEY_IS_AUTOSELECT));
-                dest.writeInt(mFormat.getInteger(MediaFormat.KEY_IS_DEFAULT));
-                dest.writeInt(mFormat.getInteger(MediaFormat.KEY_IS_FORCED_SUBTITLE));
-            }
         }
 
         @Override
@@ -1037,23 +1002,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             out.append("}");
             return out.toString();
         }
-
-        /**
-         * Used to read a TrackInfoImpl from a Parcel.
-         */
-        /* package private */ static final Parcelable.Creator<TrackInfoImpl> CREATOR =
-                new Parcelable.Creator<TrackInfoImpl>() {
-                    @Override
-                    public TrackInfoImpl createFromParcel(Parcel in) {
-                        return new TrackInfoImpl(in);
-                    }
-
-                    @Override
-                    public TrackInfoImpl[] newArray(int size) {
-                        return new TrackInfoImpl[size];
-                    }
-                };
-
     };
 
     /**
