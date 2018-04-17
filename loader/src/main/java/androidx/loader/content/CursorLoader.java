@@ -234,6 +234,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
     }
 
     @Override
+    @Deprecated
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         super.dump(prefix, fd, writer, args);
         writer.print(prefix); writer.print("mUri="); writer.println(mUri);

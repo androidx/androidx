@@ -3,7 +3,7 @@ package androidx.loader.app {
   public abstract class LoaderManager {
     ctor public LoaderManager();
     method public abstract void destroyLoader(int);
-    method public abstract void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
+    method public abstract deprecated void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public static void enableDebugLogging(boolean);
     method public static <T extends androidx.lifecycle.LifecycleOwner & androidx.lifecycle.ViewModelStoreOwner> androidx.loader.app.LoaderManager getInstance(T);
     method public abstract <D> androidx.loader.content.Loader<D> getLoader(int);
@@ -59,7 +59,7 @@ package androidx.loader.content {
     method public java.lang.String dataToString(D);
     method public void deliverCancellation();
     method public void deliverResult(D);
-    method public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
+    method public deprecated void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
     method public void forceLoad();
     method public android.content.Context getContext();
     method public int getId();

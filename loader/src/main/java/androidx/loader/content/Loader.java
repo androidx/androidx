@@ -547,7 +547,10 @@ public class Loader<D> {
      * @param fd The raw file descriptor that the dump is being sent to.
      * @param writer A PrintWriter to which the dump is to be set.
      * @param args Additional arguments to the dump request.
+     * @deprecated Consider using {@link LoaderManager#enableDebugLogging(boolean)} to understand
+     * the series of operations performed by LoaderManager.
      */
+    @Deprecated
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.print(prefix); writer.print("mId="); writer.print(mId);
                 writer.print(" mListener="); writer.println(mListener);
