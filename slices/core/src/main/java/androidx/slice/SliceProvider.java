@@ -22,6 +22,7 @@ import static android.app.slice.SliceProvider.SLICE_TYPE;
 import static androidx.slice.compat.SliceProviderCompat.EXTRA_BIND_URI;
 import static androidx.slice.compat.SliceProviderCompat.EXTRA_PKG;
 import static androidx.slice.compat.SliceProviderCompat.EXTRA_PROVIDER_PKG;
+import static androidx.slice.compat.SliceProviderCompat.PERMS_PREFIX;
 import static androidx.slice.core.SliceHints.HINT_PERMISSION_REQUEST;
 
 import android.app.PendingIntent;
@@ -38,14 +39,17 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.os.Process;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.app.CoreComponentFactory;
 import androidx.core.os.BuildCompat;
+import androidx.slice.compat.CompatPermissionManager;
 import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.compat.SliceProviderWrapperContainer;
 import androidx.slice.core.R;
@@ -132,9 +136,19 @@ public abstract class SliceProvider extends ContentProvider implements
     @Override
     public final boolean onCreate() {
         if (!BuildCompat.isAtLeastP()) {
-            mCompat = new SliceProviderCompat(this);
+            mCompat = new SliceProviderCompat(this, onCreatePermissionManager(), getContext());
         }
         return onCreateSliceProvider();
+    }
+
+    /**
+     * @hide
+     */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    protected CompatPermissionManager onCreatePermissionManager() {
+        return new CompatPermissionManager(getContext(), PERMS_PREFIX + getClass().getName(),
+                Process.myUid());
     }
 
     @Override

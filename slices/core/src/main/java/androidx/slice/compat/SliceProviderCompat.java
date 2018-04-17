@@ -20,6 +20,7 @@ import static android.app.slice.SliceManager.SLICE_METADATA_KEY;
 import static android.app.slice.SliceProvider.SLICE_TYPE;
 
 import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
+import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -60,9 +61,9 @@ import java.util.Set;
  */
 @RestrictTo(Scope.LIBRARY)
 public class SliceProviderCompat {
+    public static final String PERMS_PREFIX = "slice_perms_";
     private static final String TAG = "SliceProviderCompat";
     private static final String DATA_PREFIX = "slice_data_";
-    private static final String PERMS_PREFIX = "slice_perms_";
     private static final String ALL_FILES = DATA_PREFIX + "all_slice_files";
 
     private static final long SLICE_BIND_ANR = 2000;
@@ -91,16 +92,19 @@ public class SliceProviderCompat {
     public static final String EXTRA_RESULT = "result";
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Context mContext;
 
     private String mCallback;
     private final SliceProvider mProvider;
     private CompatPinnedList mPinnedList;
     private CompatPermissionManager mPermissionManager;
 
-    public SliceProviderCompat(SliceProvider provider) {
+    public SliceProviderCompat(SliceProvider provider, CompatPermissionManager permissionManager,
+            Context context) {
         mProvider = provider;
+        mContext = context;
         String prefsFile = DATA_PREFIX + getClass().getName();
-        SharedPreferences allFiles = provider.getContext().getSharedPreferences(ALL_FILES, 0);
+        SharedPreferences allFiles = mContext.getSharedPreferences(ALL_FILES, 0);
         Set<String> files = allFiles.getStringSet(ALL_FILES, Collections.<String>emptySet());
         if (!files.contains(prefsFile)) {
             // Make sure this is editable.
@@ -110,13 +114,12 @@ public class SliceProviderCompat {
                     .putStringSet(ALL_FILES, files)
                     .commit();
         }
-        mPinnedList = new CompatPinnedList(provider.getContext(), prefsFile);
-        mPermissionManager = new CompatPermissionManager(provider.getContext(),
-                PERMS_PREFIX + getClass().getName());
+        mPinnedList = new CompatPinnedList(mContext, prefsFile);
+        mPermissionManager = permissionManager;
     }
 
     private Context getContext() {
-        return mProvider.getContext();
+        return mContext;
     }
 
     private String getCallingPackage() {
@@ -241,15 +244,9 @@ public class SliceProviderCompat {
         // SliceManager#bindSlice.
         String pkg = callingPkg != null ? callingPkg
                 : getContext().getPackageManager().getNameForUid(Binder.getCallingUid());
-        if (Binder.getCallingUid() != Process.myUid()) {
-            try {
-                getContext().enforceUriPermission(sliceUri,
-                        Binder.getCallingPid(), Binder.getCallingUid(),
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
-                        "Slice binding requires write access to Uri");
-            } catch (SecurityException e) {
-                return mProvider.createPermissionSlice(getContext(), sliceUri, pkg);
-            }
+        if (mPermissionManager.checkSlicePermission(sliceUri, Binder.getCallingPid(),
+                Binder.getCallingUid()) != PERMISSION_GRANTED) {
+            return mProvider.createPermissionSlice(getContext(), sliceUri, pkg);
         }
         return onBindSliceStrict(sliceUri, specs);
     }
