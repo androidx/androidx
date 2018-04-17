@@ -20,6 +20,7 @@ import static android.os.Build.VERSION.SDK_INT;
 
 import android.graphics.Rect;
 import android.view.WindowInsets;
+import androidx.annotation.Nullable;
 
 /**
  * Describes a set of insets for window content.
@@ -338,6 +339,34 @@ public class WindowInsetsCompat {
     public WindowInsetsCompat consumeStableInsets() {
         if (SDK_INT >= 21) {
             return new WindowInsetsCompat(((WindowInsets) mInsets).consumeStableInsets());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the display cutout if there is one.
+     *
+     * @return the display cutout or null if there is none
+     * @see DisplayCutoutCompat
+     */
+    @Nullable
+    public DisplayCutoutCompat getDisplayCutout() {
+        if (SDK_INT >= 28) {
+            return DisplayCutoutCompat.wrap(((WindowInsets) mInsets).getDisplayCutout());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns a copy of this WindowInsets with the cutout fully consumed.
+     *
+     * @return A modified copy of this WindowInsets
+     */
+    public WindowInsetsCompat consumeDisplayCutout() {
+        if (SDK_INT >= 28) {
+            return new WindowInsetsCompat(((WindowInsets) mInsets).consumeDisplayCutout());
         } else {
             return null;
         }
