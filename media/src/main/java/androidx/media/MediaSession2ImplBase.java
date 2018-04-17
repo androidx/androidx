@@ -286,8 +286,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void setAudioFocusRequest(@Nullable AudioFocusRequest afr) {
-        // TODO(jaewan): implement this (b/72529899)
-        // mProvider.setAudioFocusRequest_impl(focusGain);
     }
 
     @Override
@@ -821,12 +819,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         synchronized (mLock) {
             int state = MediaUtils2.createPlaybackStateCompatState(getPlayerState(),
                     getBufferingState());
-            // TODO: Consider following missing stuff
-            //       - setCustomAction(): Fill custom layout
-            //       - setErrorMessage(): Fill error message when notifyError() is called.
-            //       - setActiveQueueItemId(): Fill here with the current media item...
-            //       - setExtra(): No idea at this moment.
-            // TODO: generate actions from the allowed commands.
             long allActions = PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_PAUSE
                     | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_REWIND
                     | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS

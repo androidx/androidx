@@ -335,9 +335,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                                 int value = extras.getInt(ARGUMENT_VOLUME);
                                 int flags = extras.getInt(ARGUMENT_VOLUME_FLAGS);
                                 VolumeProviderCompat vp = mSession.getVolumeProvider();
-                                if (vp == null) {
-                                    // TODO: Revisit
-                                } else {
+                                if (vp != null) {
                                     vp.onSetVolumeTo(value);
                                 }
                                 break;
@@ -346,9 +344,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                                 int direction = extras.getInt(ARGUMENT_VOLUME_DIRECTION);
                                 int flags = extras.getInt(ARGUMENT_VOLUME_FLAGS);
                                 VolumeProviderCompat vp = mSession.getVolumeProvider();
-                                if (vp == null) {
-                                    // TODO: Revisit
-                                } else {
+                                if (vp != null) {
                                     vp.onAdjustVolume(direction);
                                 }
                                 break;
@@ -869,8 +865,6 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         String packageName = extras.getString(ARGUMENT_PACKAGE_NAME);
         int uid = extras.getInt(ARGUMENT_UID);
         int pid = extras.getInt(ARGUMENT_PID);
-        // TODO: sanity check for packageName, uid, and pid.
-
         return new ControllerInfo(packageName, pid, uid, callback);
     }
 
