@@ -264,7 +264,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         addTask(new Task(CALL_COMPLETED_SKIP_TO_NEXT, false) {
             @Override
             void process() {
-                // TODO: switch to next data source and play
+                mPlayer.skipToNext();
             }
         });
     }
@@ -2049,10 +2049,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             MediaPlayerSource src = new MediaPlayerSource(dsd);
             if (mQueue.isEmpty()) {
                 mQueue.add(src);
-                return prepareMediaPlayerSource(0);
+                return prepareAt(0);
             } else {
                 mQueue.add(1, src);
-                return prepareMediaPlayerSource(1);
+                return prepareAt(1);
             }
         }
 
@@ -2063,10 +2063,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             }
             if (mQueue.isEmpty()) {
                 mQueue.addAll(sources);
-                return prepareMediaPlayerSource(0);
+                return prepareAt(0);
             } else {
                 mQueue.addAll(1, sources);
-                return prepareMediaPlayerSource(1);
+                return prepareAt(1);
             }
         }
 
@@ -2130,7 +2130,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     }
                     src.mSourceState = SOURCE_STATE_PREPARED;
                     setBufferingState(src.mPlayer, BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
-                    return prepareMediaPlayerSource(i + 1);
+                    return prepareAt(i + 1);
                 }
             }
             return null;
@@ -2142,20 +2142,29 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     setPlayerState(mp, PLAYER_STATE_PAUSED);
                     return null;
                 }
-                mp.release();
-                final MediaPlayerSource src1 = mQueue.remove(0);
-                final MediaPlayerSource src2 = mQueue.get(0);
-                if (src1.mPlayerState != src2.mPlayerState) {
-                    notifyPlayerEvent(new PlayerEventNotifier() {
-                        @Override
-                        public void notify(PlayerEventCallback cb) {
-                            cb.onPlayerStateChanged(MediaPlayer2Impl.this, src2.mPlayerState);
-                        }
-                    });
-                }
-
+                moveToNext();
             }
+            return playCurrent();
+        }
 
+        synchronized void moveToNext() {
+            final MediaPlayerSource src1 = mQueue.remove(0);
+            src1.mPlayer.release();
+            if (mQueue.isEmpty()) {
+                throw new IllegalStateException("player/source queue emptied");
+            }
+            final MediaPlayerSource src2 = mQueue.get(0);
+            if (src1.mPlayerState != src2.mPlayerState) {
+                notifyPlayerEvent(new PlayerEventNotifier() {
+                    @Override
+                    public void notify(PlayerEventCallback cb) {
+                        cb.onPlayerStateChanged(MediaPlayer2Impl.this, src2.mPlayerState);
+                    }
+                });
+            }
+        }
+
+        synchronized DataSourceError playCurrent() {
             DataSourceError err = null;
             final MediaPlayerSource src = mQueue.get(0);
             src.mPlayer.setSurface(mSurface);
@@ -2173,7 +2182,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
             } else {
                 if (src.mSourceState == SOURCE_STATE_INIT) {
-                    err = prepareMediaPlayerSource(0);
+                    err = prepareAt(0);
                 }
                 src.mPlayPending = true;
             }
@@ -2185,7 +2194,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             setBufferingState(mp, BUFFERING_STATE_UNKNOWN);
         }
 
-        synchronized DataSourceError prepareMediaPlayerSource(int n) {
+        synchronized DataSourceError prepareAt(int n) {
             if (n >= mQueue.size()
                     || mQueue.get(n).mSourceState != SOURCE_STATE_INIT
                     || getPlayerState() == PLAYER_STATE_IDLE) {
@@ -2205,6 +2214,17 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 return new DataSourceError(dsd, MEDIA_ERROR_UNKNOWN, MEDIA_ERROR_UNSUPPORTED);
             }
 
+        }
+
+        synchronized void skipToNext() {
+            if (mQueue.size() <= 1) {
+                throw new IllegalStateException("No next source available");
+            }
+            final MediaPlayerSource src = mQueue.get(0);
+            moveToNext();
+            if (src.mPlayerState == PLAYER_STATE_PLAYING) {
+                playCurrent();
+            }
         }
 
         synchronized void setLooping(boolean loop) {
