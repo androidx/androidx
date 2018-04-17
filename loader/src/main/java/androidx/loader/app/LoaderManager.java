@@ -220,7 +220,10 @@ public abstract class LoaderManager {
      * @param fd The raw file descriptor that the dump is being sent to.
      * @param writer A PrintWriter to which the dump is to be set.
      * @param args Additional arguments to the dump request.
+     * @deprecated Use {@link #enableDebugLogging(boolean)} to understand the series of operations
+     * performed by LoaderManager.
      */
+    @Deprecated
     public abstract void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args);
 
     /**
