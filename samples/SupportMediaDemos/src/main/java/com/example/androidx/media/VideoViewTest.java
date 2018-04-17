@@ -37,6 +37,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.media.widget.MediaControlView2;
 import androidx.media.widget.VideoView2;
 
@@ -44,7 +45,7 @@ import androidx.media.widget.VideoView2;
  * Test application for VideoView2/MediaControlView2
  */
 @SuppressLint("NewApi")
-public class VideoViewTest extends Activity {
+public class VideoViewTest extends FragmentActivity {
     public static final String LOOPING_EXTRA_NAME =
             "com.example.androidx.media.VideoViewTest.IsLooping";
     public static final String USE_TEXTURE_VIEW_EXTRA_NAME =
