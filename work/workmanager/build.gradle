@@ -32,15 +32,14 @@ android {
 }
 
 dependencies {
-    api(project(":lifecycle:extensions"))
-    api(project(":room:runtime"))
-    annotationProcessor(project(":room:compiler"))
-
-    androidTestImplementation(project(":arch:core-testing"))
+    api "android.arch.lifecycle:extensions:1.1.0"
+    implementation "android.arch.persistence.room:runtime:1.0.0"
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
+    androidTestImplementation "android.arch.core:core-testing:1.1.0"
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
 
     testImplementation(JUNIT)
 }

@@ -26,16 +26,12 @@ plugins {
 }
 
 dependencies {
-    compile project(':arch:runtime')
-    compile project(':arch:common')
-    compile project(':work:work-runtime')
-    compile project(':lifecycle:extensions')
-    compile project(':lifecycle:runtime')
-    compile project(':lifecycle:common')
-    compile project(':room:runtime')
-    annotationProcessor project(":room:compiler")
+    implementation project(':work:work-runtime')
+    implementation "android.arch.lifecycle:livedata-core:1.1.0"
+    implementation "android.arch.persistence.room:runtime:1.0.0"
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
 
-    androidTestImplementation(project(":arch:core-testing"))
+    androidTestImplementation "android.arch.core:core-testing:1.1.0"
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker

@@ -33,15 +33,11 @@ android {
 
 dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile project(':arch:runtime')
-    compile project(':arch:common')
-    compile project(':work:work-runtime')
-    compile project(':work:work-firebase')
-    compile project(':lifecycle:extensions')
-    compile project(':lifecycle:runtime')
-    compile project(':lifecycle:common')
-    compile project(':room:runtime')
-    annotationProcessor project(":room:compiler")
+    implementation project(':work:work-runtime')
+    implementation project(':work:work-firebase')
+    implementation "android.arch.lifecycle:extensions:1.1.0"
+    implementation "android.arch.persistence.room:runtime:1.0.0"
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
     compile(MULTIDEX)
     compile(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
     compile(SUPPORT_APPCOMPAT, libs.support_exclude_config)
