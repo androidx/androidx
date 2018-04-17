@@ -150,7 +150,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
                 context,
                 mWorkDatabase,
                 mSchedulers,
-                configuration.getExecutorService());
+                configuration.getExecutor());
 
         // Checks for app force stops.
         mTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));

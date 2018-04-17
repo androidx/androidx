@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * A Processor can intelligently schedule and execute work on demand.
@@ -42,7 +42,7 @@ public class Processor implements ExecutionListener {
 
     private Map<String, WorkerWrapper> mEnqueuedWorkMap;
     private List<Scheduler> mSchedulers;
-    private ExecutorService mExecutorService;
+    private Executor mExecutor;
 
     private Set<String> mCancelledIds;
 
@@ -52,12 +52,12 @@ public class Processor implements ExecutionListener {
             Context appContext,
             WorkDatabase workDatabase,
             List<Scheduler> schedulers,
-            ExecutorService executorService) {
+            Executor executor) {
         mAppContext = appContext;
         mWorkDatabase = workDatabase;
         mEnqueuedWorkMap = new HashMap<>();
         mSchedulers = schedulers;
-        mExecutorService = executorService;
+        mExecutor = executor;
         mCancelledIds = new HashSet<>();
         mOuterListeners = new ArrayList<>();
     }
@@ -93,7 +93,7 @@ public class Processor implements ExecutionListener {
                 .withRuntimeExtras(runtimeExtras)
                 .build();
         mEnqueuedWorkMap.put(id, workWrapper);
-        mExecutorService.submit(workWrapper);
+        mExecutor.execute(workWrapper);
         Log.d(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));
         return true;
     }

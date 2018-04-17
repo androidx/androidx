@@ -87,6 +87,9 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
 
         // We need to know what the real constraints are for the delegate.
         WorkSpec workSpec = workDatabase.workSpecDao().getWorkSpec(getId());
+        if (workSpec == null) {
+            return WorkerResult.FAILURE;
+        }
         WorkConstraintsTracker workConstraintsTracker =
                 new WorkConstraintsTracker(getAppContext(), this);
 

@@ -131,7 +131,7 @@ public class WorkManagerImplTest {
 
         Context context = InstrumentationRegistry.getTargetContext();
         Configuration configuration = new Configuration.Builder()
-                .withExecutorService(Executors.newSingleThreadExecutor())
+                .withExecutor(Executors.newSingleThreadExecutor())
                 .build();
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         WorkManagerImpl.setDelegate(mWorkManagerImpl);

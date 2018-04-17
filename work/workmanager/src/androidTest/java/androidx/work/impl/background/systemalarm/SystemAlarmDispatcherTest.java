@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -79,6 +80,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     private Context mContext;
     private Scheduler mScheduler;
     private WorkManagerImpl mWorkManager;
+    private ExecutorService mExecutorService;
     private Processor mProcessor;
     private Processor mSpyProcessor;
     private CommandInterceptingSystemDispatcher mDispatcher;
@@ -106,12 +108,13 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         };
 
         when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
+        mExecutorService = Executors.newSingleThreadExecutor();
         mProcessor = new Processor(
                 mContext,
                 mDatabase,
                 Collections.singletonList(mScheduler),
                 // simulate real world use-case
-                Executors.newSingleThreadExecutor());
+                mExecutorService);
         mSpyProcessor = spy(mProcessor);
 
         mDispatcher =
@@ -137,6 +140,12 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @After
     public void tearDown() {
+        mExecutorService.shutdownNow();
+        try {
+            mExecutorService.awaitTermination(1, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            // Do nothing.
+        }
         mSpyDispatcher.onDestroy();
     }
 

@@ -18,7 +18,7 @@ package androidx.work;
 
 import android.support.annotation.NonNull;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
@@ -26,21 +26,21 @@ import java.util.concurrent.Executors;
  */
 public class Configuration {
 
-    private final ExecutorService mExecutorService;
+    private final Executor mExecutor;
 
     private Configuration(@NonNull Configuration.Builder builder) {
-        if (builder.mExecutorService == null) {
-            mExecutorService = createDefaultExecutorService();
+        if (builder.mExecutor == null) {
+            mExecutor = createDefaultExecutor();
         } else {
-            mExecutorService = builder.mExecutorService;
+            mExecutor = builder.mExecutor;
         }
     }
 
-    public @NonNull ExecutorService getExecutorService() {
-        return mExecutorService;
+    public @NonNull Executor getExecutor() {
+        return mExecutor;
     }
 
-    private ExecutorService createDefaultExecutorService() {
+    private Executor createDefaultExecutor() {
         return Executors.newFixedThreadPool(
                 // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
                 Math.max(2, Math.min(Runtime.getRuntime().availableProcessors() - 1, 4)));
@@ -51,17 +51,16 @@ public class Configuration {
      */
     public static class Builder {
 
-        ExecutorService mExecutorService;
+        Executor mExecutor;
 
         /**
-         * Specifies a custom {@link ExecutorService} for WorkManager.
+         * Specifies a custom {@link Executor} for WorkManager.
          *
-         * @param executorService An {@link ExecutorService} for processing work.  Exercise care
-         *                        when using this API, as it may lead to performance problems.
+         * @param executor An {@link Executor} for processing work
          * @return This {@link Builder} instance
          */
-        public Builder withExecutorService(@NonNull ExecutorService executorService) {
-            mExecutorService = executorService;
+        public Builder withExecutor(@NonNull Executor executor) {
+            mExecutor = executor;
             return this;
         }
 
