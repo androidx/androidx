@@ -23,7 +23,6 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 
 import androidx.work.BaseWorkRequest;
@@ -46,7 +45,6 @@ import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -77,7 +75,6 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
      *                 default instance
      * @hide
      */
-    @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void setDelegate(WorkManagerImpl delegate) {
         synchronized (sLock) {
@@ -125,25 +122,46 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
 
     /**
      * Create an instance of {@link WorkManagerImpl}.
-     * @param context The application {@link Context}
-     * @param configuration The {@link Configuration} configuration.
      *
+     * @param context       The application {@link Context}
+     * @param configuration The {@link Configuration} configuration.
      * @hide
      */
-    @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkManagerImpl(
             @NonNull Context context,
             @NonNull Configuration configuration) {
+        this(context,
+                configuration,
+                context.getResources().getBoolean(R.bool.workmanager_test_configuration),
+                null);
+    }
+
+    /**
+     * Create an instance of {@link WorkManagerImpl}.
+     *
+     * @param context         The application {@link Context}
+     * @param configuration   The {@link Configuration} configuration.
+     * @param useTestDatabase {@code true} If using an in-memory test database.
+     * @param schedulers      List of {@link Scheduler}s to use.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WorkManagerImpl(
+            @NonNull Context context,
+            @NonNull Configuration configuration,
+            boolean useTestDatabase,
+            @Nullable List<Scheduler> schedulers) {
+
+        if (schedulers == null) {
+            schedulers = Arrays.asList(
+                    Schedulers.createBestAvailableBackgroundScheduler(context),
+                    new GreedyScheduler(context, this));
+        }
+
         context = context.getApplicationContext();
-
-        boolean useTestDatabase =
-                context.getResources().getBoolean(R.bool.workmanager_test_configuration);
         mWorkDatabase = WorkDatabase.create(context, useTestDatabase);
-
-        mSchedulers = new ArrayList<>();
-        mSchedulers.add(Schedulers.createBestAvailableBackgroundScheduler(context));
-        mSchedulers.add(new GreedyScheduler(context, this));
+        mSchedulers = schedulers;
 
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
         mProcessor = new Processor(
@@ -154,6 +172,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
 
         // Checks for app force stops.
         mTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
+
     }
 
     /**

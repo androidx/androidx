@@ -120,6 +120,9 @@ project(':work:work-runtime').projectDir = new File(supportRoot, "work/workmanag
 include ':work:work-firebase'
 project(':work:work-firebase').projectDir = new File(supportRoot, "work/workmanager-firebase")
 
+include ':work:work-testing'
+project(':work:work-testing').projectDir = new File(supportRoot, "work/workmanager-test")
+
 include ':work:integration-tests:testapp'
 project(':work:integration-tests:testapp').projectDir = new File(supportRoot, "work/integration-tests/testapp")
 
