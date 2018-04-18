@@ -60,6 +60,7 @@ includeProject(":lifecycle:lifecycle-livedata-core", new File(supportRoot, "life
 includeProject(":lifecycle:lifecycle-livedata", new File(supportRoot, "lifecycle/livedata"))
 includeProject(":lifecycle:lifecycle-reactivestreams", new File(supportRoot, "lifecycle/reactivestreams"))
 includeProject(":lifecycle:lifecycle-runtime", new File(supportRoot, "lifecycle/runtime"))
+includeProject(":lifecycle:lifecycle-service", new File(supportRoot, "lifecycle/service"))
 includeProject(":lifecycle:lifecycle-viewmodel", new File(supportRoot, "lifecycle/viewmodel"))
 includeProject(":paging:integration-tests:testapp", new File(supportRoot, "paging/integration-tests/testapp"))
 includeProject(":paging:paging-common", new File(supportRoot, "paging/common"))
