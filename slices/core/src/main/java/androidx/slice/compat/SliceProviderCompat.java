@@ -285,16 +285,15 @@ public class SliceProviderCompat {
      */
     public static Slice bindSlice(Context context, Uri uri,
             Set<SliceSpec> supportedSpecs) {
-        ContentProviderClient provider = context.getContentResolver()
-                .acquireContentProviderClient(uri);
-        if (provider == null) {
+        ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
+        if (holder.mProvider == null) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
         try {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
             addSpecs(extras, supportedSpecs);
-            final Bundle res = provider.call(METHOD_SLICE, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_SLICE, null, extras);
             if (res == null) {
                 return null;
             }
@@ -304,15 +303,9 @@ public class SliceProviderCompat {
             }
             return new Slice((Bundle) bundle);
         } catch (RemoteException e) {
-            // Arbitrary and not worth documenting, as Activity
-            // Manager will kill this process shortly anyway.
+            Log.e(TAG, "Unable to bind slice", e);
             return null;
         } finally {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                provider.close();
-            } else {
-                provider.release();
-            }
         }
     }
 
@@ -382,15 +375,15 @@ public class SliceProviderCompat {
         String authority = providers.get(0).providerInfo.authority;
         Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(authority).build();
-        ContentProviderClient provider = resolver.acquireContentProviderClient(uri);
-        if (provider == null) {
+        ProviderHolder holder = acquireClient(resolver, uri);
+        if (holder.mProvider == null) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
         try {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_INTENT, intent);
             addSpecs(extras, supportedSpecs);
-            final Bundle res = provider.call(METHOD_MAP_INTENT, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_MAP_INTENT, null, extras);
             if (res == null) {
                 return null;
             }
@@ -400,11 +393,8 @@ public class SliceProviderCompat {
             }
             return new Slice((Bundle) bundle);
         } catch (RemoteException e) {
-            // Arbitrary and not worth documenting, as Activity
-            // Manager will kill this process shortly anyway.
+            Log.e(TAG, "Unable to bind slice", e);
             return null;
-        } finally {
-            provider.close();
         }
     }
 
@@ -413,9 +403,8 @@ public class SliceProviderCompat {
      */
     public static void pinSlice(Context context, Uri uri,
             Set<SliceSpec> supportedSpecs) {
-        ContentProviderClient provider = context.getContentResolver()
-                .acquireContentProviderClient(uri);
-        if (provider == null) {
+        ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
+        if (holder.mProvider == null) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
         try {
@@ -423,12 +412,9 @@ public class SliceProviderCompat {
             extras.putParcelable(EXTRA_BIND_URI, uri);
             extras.putString(EXTRA_PKG, context.getPackageName());
             addSpecs(extras, supportedSpecs);
-            provider.call(METHOD_PIN, null, extras);
+            holder.mProvider.call(METHOD_PIN, null, extras);
         } catch (RemoteException e) {
-            // Arbitrary and not worth documenting, as Activity
-            // Manager will kill this process shortly anyway.
-        } finally {
-            provider.close();
+            Log.e(TAG, "Unable to pin slice", e);
         }
     }
 
@@ -437,9 +423,8 @@ public class SliceProviderCompat {
      */
     public static void unpinSlice(Context context, Uri uri,
             Set<SliceSpec> supportedSpecs) {
-        ContentProviderClient provider = context.getContentResolver()
-                .acquireContentProviderClient(uri);
-        if (provider == null) {
+        ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
+        if (holder.mProvider == null) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
         try {
@@ -447,12 +432,9 @@ public class SliceProviderCompat {
             extras.putParcelable(EXTRA_BIND_URI, uri);
             extras.putString(EXTRA_PKG, context.getPackageName());
             addSpecs(extras, supportedSpecs);
-            provider.call(METHOD_UNPIN, null, extras);
+            holder.mProvider.call(METHOD_UNPIN, null, extras);
         } catch (RemoteException e) {
-            // Arbitrary and not worth documenting, as Activity
-            // Manager will kill this process shortly anyway.
-        } finally {
-            provider.close();
+            Log.e(TAG, "Unable to unpin slice", e);
         }
     }
 
@@ -460,25 +442,21 @@ public class SliceProviderCompat {
      * Compat version of {@link android.app.slice.SliceManager#getPinnedSpecs(Uri)}.
      */
     public static Set<SliceSpec> getPinnedSpecs(Context context, Uri uri) {
-        ContentProviderClient provider = context.getContentResolver()
-                .acquireContentProviderClient(uri);
-        if (provider == null) {
+        ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
+        if (holder.mProvider == null) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
         try {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
-            final Bundle res = provider.call(METHOD_GET_PINNED_SPECS, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_GET_PINNED_SPECS, null, extras);
             if (res == null) {
                 return null;
             }
             return getSpecs(res);
         } catch (RemoteException e) {
-            // Arbitrary and not worth documenting, as Activity
-            // Manager will kill this process shortly anyway.
+            Log.e(TAG, "Unable to get pinned specs", e);
             return null;
-        } finally {
-            provider.close();
         }
     }
 
@@ -519,20 +497,19 @@ public class SliceProviderCompat {
         String authority = providers.get(0).providerInfo.authority;
         Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(authority).build();
-        try (ContentProviderClient provider = resolver.acquireContentProviderClient(uri)) {
-            if (provider == null) {
+        try (ProviderHolder holder = acquireClient(resolver, uri)) {
+            if (holder.mProvider == null) {
                 throw new IllegalArgumentException("Unknown URI " + uri);
             }
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_INTENT, intent);
-            final Bundle res = provider.call(METHOD_MAP_ONLY_INTENT, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_MAP_ONLY_INTENT, null, extras);
             if (res == null) {
                 return null;
             }
             return res.getParcelable(EXTRA_SLICE);
         } catch (RemoteException e) {
-            // Arbitrary and not worth documenting, as Activity
-            // Manager will kill this process shortly anyway.
+            Log.e(TAG, "Unable to map slice", e);
             return null;
         }
     }
@@ -542,10 +519,10 @@ public class SliceProviderCompat {
      */
     public static @NonNull Collection<Uri> getSliceDescendants(Context context, @NonNull Uri uri) {
         ContentResolver resolver = context.getContentResolver();
-        try (ContentProviderClient provider = resolver.acquireContentProviderClient(uri)) {
+        try (ProviderHolder holder = acquireClient(resolver, uri)) {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
-            final Bundle res = provider.call(METHOD_GET_DESCENDANTS, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_GET_DESCENDANTS, null, extras);
             return res.getParcelableArrayList(EXTRA_SLICE_DESCENDANTS);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to get slice descendants", e);
@@ -559,14 +536,14 @@ public class SliceProviderCompat {
     public static int checkSlicePermission(Context context, String packageName, Uri uri, int pid,
             int uid) {
         ContentResolver resolver = context.getContentResolver();
-        try (ContentProviderClient provider = resolver.acquireContentProviderClient(uri)) {
+        try (ProviderHolder holder = acquireClient(resolver, uri)) {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
             extras.putString(EXTRA_PKG, packageName);
             extras.putInt(EXTRA_PID, pid);
             extras.putInt(EXTRA_UID, uid);
 
-            final Bundle res = provider.call(METHOD_CHECK_PERMISSION, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_CHECK_PERMISSION, null, extras);
             return res.getInt(EXTRA_RESULT);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to check slice permission", e);
@@ -580,13 +557,13 @@ public class SliceProviderCompat {
     public static void grantSlicePermission(Context context, String packageName, String toPackage,
             Uri uri) {
         ContentResolver resolver = context.getContentResolver();
-        try (ContentProviderClient provider = resolver.acquireContentProviderClient(uri)) {
+        try (ProviderHolder holder = acquireClient(resolver, uri)) {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
             extras.putString(EXTRA_PROVIDER_PKG, packageName);
             extras.putString(EXTRA_PKG, toPackage);
 
-            provider.call(METHOD_GRANT_PERMISSION, null, extras);
+            holder.mProvider.call(METHOD_GRANT_PERMISSION, null, extras);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to get slice descendants", e);
         }
@@ -598,13 +575,13 @@ public class SliceProviderCompat {
     public static void revokeSlicePermission(Context context, String packageName, String toPackage,
             Uri uri) {
         ContentResolver resolver = context.getContentResolver();
-        try (ContentProviderClient provider = resolver.acquireContentProviderClient(uri)) {
+        try (ProviderHolder holder = acquireClient(resolver, uri)) {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
             extras.putString(EXTRA_PROVIDER_PKG, packageName);
             extras.putString(EXTRA_PKG, toPackage);
 
-            provider.call(METHOD_REVOKE_PERMISSION, null, extras);
+            holder.mProvider.call(METHOD_REVOKE_PERMISSION, null, extras);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to get slice descendants", e);
         }
@@ -621,5 +598,27 @@ public class SliceProviderCompat {
             pinnedSlices.addAll(new CompatPinnedList(context, pref).getPinnedSlices());
         }
         return pinnedSlices;
+    }
+
+    private static ProviderHolder acquireClient(ContentResolver resolver, Uri uri) {
+        return new ProviderHolder(resolver.acquireContentProviderClient(uri));
+    }
+
+    private static class ProviderHolder implements AutoCloseable {
+        private final ContentProviderClient mProvider;
+
+        ProviderHolder(ContentProviderClient provider) {
+            this.mProvider = provider;
+        }
+
+        @Override
+        public void close() {
+            if (mProvider == null) return;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mProvider.close();
+            } else {
+                mProvider.release();
+            }
+        }
     }
 }
