@@ -86,7 +86,7 @@ function getPreRenamedSupportLib() {
 
 	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/support-lib.zip" -d "$SUPPORT_LIBS_UNPACKED"
 	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/arch.zip" -d "$SUPPORT_LIBS_UNPACKED"
-	find "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/" -type f -name "*design-*28.0.0*.aar" -exec cp '{}' -t "$SUPPORT_LIBS_UNPACKED" \;
+	#find "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/" -type f -name "*design-*28.0.0*.aar" -exec cp '{}' -t "$SUPPORT_LIBS_UNPACKED" \;
 	cp "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/multidex/1.0.3/multidex-1.0.3.aar" "$SUPPORT_LIBS_UNPACKED/multidex.aar"
 	cp "$CHECKOUT_DIR/prebuilts/maven_repo/android/com/android/support/multidex-instrumentation/1.0.3/multidex-instrumentation-1.0.3.aar" "$SUPPORT_LIBS_UNPACKED/multidex-instrumentation.aar"
 	find "$SUPPORT_LIBS_UNPACKED" -type f -name "jetifier*" -exec rm -f {} \;
@@ -99,10 +99,18 @@ function pullDataBinding() {
 	curl "https://dl.google.com/dl/android/maven2/com/android/databinding/$NAME/$DATA_BINDING_VERSION/$NAME-$DATA_BINDING_VERSION.$TYPE" -o "$SUPPORT_LIBS_UNPACKED/databinding-$NAME.$TYPE"
 }
 
+function pullConstraint() {
+	NAME=$1
+	TYPE=$2
+	curl "https://dl.google.com/dl/android/maven2/com/android/support/constraint/$NAME/1.1.0/$NAME-1.1.0.$TYPE" -o "$SUPPORT_LIBS_UNPACKED/$NAME.$TYPE"
+}
+
 getPreRenamedSupportLib
 pullDataBinding "baseLibrary" "jar"
 pullDataBinding "adapters" "aar"
 pullDataBinding "library" "aar"
+pullConstraint "constraint-layout" "aar"
+pullConstraint "constraint-layout-solver" "jar"
 
 printSectionStart "Preparing Jetifier"
 buildProjectUsingGradle $JETIFIER_DIR/../..
