@@ -1,7 +1,0 @@
-plugins {
-    id("SupportAndroidTestAppPlugin")
-}
-
-dependencies {
-    implementation(project(":support-dynamic-animation"))
-}

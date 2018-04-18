@@ -1,0 +1,57 @@
+package androidx.slice {
+
+  public final class Slice {
+    method public java.util.List<java.lang.String> getHints();
+    method public java.util.List<androidx.slice.SliceItem> getItems();
+    method public android.net.Uri getUri();
+  }
+
+  public class SliceConvert {
+    method public static android.app.slice.Slice unwrap(androidx.slice.Slice);
+    method public static androidx.slice.Slice wrap(android.app.slice.Slice);
+  }
+
+  public class SliceItem {
+    method public android.app.PendingIntent getAction();
+    method public java.lang.String getFormat();
+    method public java.util.List<java.lang.String> getHints();
+    method public androidx.core.graphics.drawable.IconCompat getIcon();
+    method public int getInt();
+    method public androidx.slice.Slice getSlice();
+    method public java.lang.String getSubType();
+    method public java.lang.CharSequence getText();
+    method public long getTimestamp();
+    method public boolean hasHint(java.lang.String);
+  }
+
+  public abstract class SliceProvider extends android.content.ContentProvider {
+    ctor public SliceProvider();
+    method public abstract androidx.slice.Slice onBindSlice(android.net.Uri);
+    method public abstract boolean onCreateSliceProvider();
+    method public java.util.Collection<android.net.Uri> onGetSliceDescendants(android.net.Uri);
+    method public android.net.Uri onMapIntentToUri(android.content.Intent);
+    method public void onSlicePinned(android.net.Uri);
+    method public void onSliceUnpinned(android.net.Uri);
+  }
+
+}
+
+package androidx.slice.core {
+
+  public abstract interface SliceAction {
+    method public abstract android.app.PendingIntent getAction();
+    method public abstract java.lang.CharSequence getContentDescription();
+    method public abstract androidx.core.graphics.drawable.IconCompat getIcon();
+    method public abstract int getImageMode();
+    method public abstract int getPriority();
+    method public abstract java.lang.CharSequence getTitle();
+    method public abstract boolean isChecked();
+    method public abstract boolean isDefaultToggle();
+    method public abstract boolean isToggle();
+    method public abstract androidx.slice.core.SliceAction setChecked(boolean);
+    method public abstract androidx.slice.core.SliceAction setContentDescription(java.lang.CharSequence);
+    method public abstract androidx.slice.core.SliceAction setPriority(int);
+  }
+
+}
+

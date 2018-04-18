@@ -22,5 +22,5 @@
     <fragment android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:id="@+id/inflated_fragment"
-              android:name="android.support.v4.app.StrictViewFragment"/>
+              android:name="androidx.fragment.app.StrictViewFragment"/>
 </LinearLayout>

@@ -1,0 +1,10 @@
+package android.support.v4.content {
+
+  public abstract deprecated class WakefulBroadcastReceiver extends android.content.BroadcastReceiver {
+    ctor public WakefulBroadcastReceiver();
+    method public static boolean completeWakefulIntent(android.content.Intent);
+    method public static android.content.ComponentName startWakefulService(android.content.Context, android.content.Intent);
+  }
+
+}
+

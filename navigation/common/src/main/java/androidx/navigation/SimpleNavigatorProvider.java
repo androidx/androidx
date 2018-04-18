@@ -16,6 +16,7 @@
 
 package androidx.navigation;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -28,6 +29,7 @@ import java.util.HashMap;
  *
  * @hide
  */
+@SuppressLint("TypeParameterUnusedInFormals")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SimpleNavigatorProvider implements NavigatorProvider {
     private static final HashMap<Class, String> sAnnotationNames = new HashMap<>();

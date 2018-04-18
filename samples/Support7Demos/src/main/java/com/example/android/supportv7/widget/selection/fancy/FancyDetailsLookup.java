@@ -16,13 +16,13 @@
 package com.example.android.supportv7.widget.selection.fancy;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.widget.recyclerview.selection.ItemDetailsLookup;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.selection.ItemDetailsLookup;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 /**
  * Access to details of an item associated with a {@link MotionEvent} instance.

@@ -29,4 +29,7 @@ limitations under the License.
     <dimen name="car_keyline_4_neg">-168dp</dimen>
     <!-- The diff between keyline 1 and keyline 3. -->
     <dimen name="car_keyline_1_keyline_3_diff">96dp</dimen>
+
+    <!-- Grid Spacing -->
+    <dimen name="car_grid_spacing_minimum">32dp</dimen>
 </resources>

@@ -18,12 +18,13 @@ package com.example.android.support.transition.widget;
 
 import android.graphics.Matrix;
 import android.os.Bundle;
-import android.support.transition.ChangeImageTransform;
-import android.support.transition.Transition;
-import android.support.transition.TransitionManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import androidx.transition.ChangeImageTransform;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 
 import com.example.android.support.transition.R;
 

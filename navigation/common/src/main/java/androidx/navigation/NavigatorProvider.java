@@ -16,6 +16,7 @@
 
 package androidx.navigation;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -23,6 +24,7 @@ import android.support.annotation.Nullable;
  * A NavigationProvider stores a set of {@link Navigator}s that are valid ways to navigate
  * to a destination.
  */
+@SuppressLint("TypeParameterUnusedInFormals")
 public interface NavigatorProvider {
     /**
      * Retrieves a registered {@link Navigator} using the name provided by the

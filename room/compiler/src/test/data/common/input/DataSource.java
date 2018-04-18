@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.paging;
+package androidx.paging;
 
 abstract public class DataSource<K, T> {
     public interface Factory<Key, Value> {

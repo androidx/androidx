@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Format string indicating the number of extra items that aren't being displayed.
+         [CHAR LIMIT=none] -->
+    <string name="abc_slice_more_content">+ <xliff:g id="number" example="5">%1$d</xliff:g></string>
+    <!-- Text indicating there is more content available that is not displayed. [CHAR LIMIT=10] -->
+    <string name="abc_slice_more">More</string>
+    <!-- String to indicate there is more content to display in a list [CHAR LIMIT=none] -->
+    <string name="abc_slice_show_more">Show more</string>
+
+    <!-- Format string indicating how old the content in the template is. [CHAR LIMIT=150]-->
+    <string name="abc_slice_updated">Updated <xliff:g id="time" example="5 min ago">%1$s</xliff:g></string>
+
+    <!-- Text describing a time in the past in minutes, ideally this string should use an
+         abbreviated format of the word "minute", if available. [CHAR LIMIT=15]-->
+    <plurals name="abc_slice_duration_min">
+        <item quantity="one"><xliff:g example="1">%d</xliff:g> min ago</item>
+        <item quantity="other"><xliff:g example="2">%d</xliff:g> min ago</item>
+    </plurals>
+    <!-- Text describing a time in the past in years, ideally this string should use an
+         abbreviated format of the word "year", if available. [CHAR LIMIT=15]-->
+    <plurals name="abc_slice_duration_years">
+        <item quantity="one"><xliff:g example="1">%d</xliff:g> yr ago</item>
+        <item quantity="other"><xliff:g example="2">%d</xliff:g> yr ago</item>
+    </plurals>
+    <!-- Text describing a time in the past in days, ideally this string should use an
+         abbreviated format of the word "day", if available. [CHAR LIMIT=15]-->
+    <plurals name="abc_slice_duration_days">
+        <item quantity="one"><xliff:g example="1">%d</xliff:g> day ago</item>
+        <item quantity="other"><xliff:g example="2">%d</xliff:g> days ago</item>
+    </plurals>
+
+    <!-- Text indicating that there was a failure connecting to the app providing the slice
+         [CHAR LIMIT=none]-->
+    <string name="abc_slice_error">Couldn\'t connect</string>
+</resources>

@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.IsCloseTo.closeTo;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -40,7 +41,6 @@ import android.support.test.espresso.ViewAction;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v7.widget.LinearLayoutManager;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
@@ -61,6 +61,7 @@ import java.util.Locale;
 
 import androidx.car.test.R;
 import androidx.car.utils.CarUxRestrictionsTestUtils;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 /**
 * Tests the layout configuration in {@link TextListItem}.
@@ -208,6 +209,18 @@ public class TextListItemTest {
         assertThat(viewHolder.getAction1Divider().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getAction2().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getAction2Divider().getVisibility(), is(equalTo(View.VISIBLE)));
+    }
+
+    @Test
+    public void testSetSupplementalActionWithDrawable() {
+        Drawable drawable = mActivity.getDrawable(android.R.drawable.sym_def_app_icon);
+        TextListItem item = new TextListItem(mActivity);
+        item.setSupplementalIcon(drawable, true);
+
+        setupPagedListView(Arrays.asList(item));
+
+        assertThat(getViewHolderAtPosition(0).getSupplementalIcon().getDrawable(),
+                is(equalTo(drawable)));
     }
 
     @Test
@@ -803,7 +816,7 @@ public class TextListItemTest {
         refreshUi();
         assertTrue(Arrays.asList(viewHolder.getBody().getFilters()).contains(filter));
 
-        viewHolder.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getUnrestricted());
+        viewHolder.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getBaseline());
         refreshUi();
         assertTrue(Arrays.asList(viewHolder.getBody().getFilters()).contains(filter));
     }

@@ -21,10 +21,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.text.TextUtils;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.TouchDelegate;
 import android.view.View;
@@ -33,6 +32,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.car.R;
 
 /**
@@ -90,17 +91,24 @@ public class CarAlertDialog extends Dialog {
 
     private void setTitleInternal(CharSequence title) {
         boolean hasTitle = !TextUtils.isEmpty(title);
+        boolean hasBody = mBodyView.getVisibility() == View.VISIBLE;
+        boolean hasButton = mButtonPanel.getVisibility() == View.VISIBLE;
 
         mTitleView.setText(title);
         mTitleView.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
 
+        // Center title if there is no button.
+        mTitleView.setGravity(hasButton ? Gravity.CENTER_VERTICAL | Gravity.START : Gravity.CENTER);
+
         // If there's a title, then remove the padding at the top of the content view.
         int topPadding = hasTitle ? 0 : mTopPadding;
+        // If there is only title, also remove the padding at the bottom so title is centered.
+        int bottomPadding = !hasButton && !hasBody ? 0 : mContentView.getPaddingBottom();
         mContentView.setPaddingRelative(
                 mContentView.getPaddingStart(),
                 topPadding,
                 mContentView.getPaddingEnd(),
-                mContentView.getPaddingBottom());
+                bottomPadding);
     }
 
     private void setBody(CharSequence body) {
@@ -226,10 +234,12 @@ public class CarAlertDialog extends Dialog {
      * contents based on what data is present.
      */
     private void initializeDialogWithData() {
-        setTitleInternal(mData.mTitle);
         setBody(mData.mBody);
         setPositiveButton(mData.mPositiveButtonText);
         setNegativeButton(mData.mNegativeButtonText);
+        // setTitleInternal() should be called last because we want to center title and adjust
+        // padding depending on body/button configuration.
+        setTitleInternal(mData.mTitle);
     }
 
     /**
@@ -338,7 +348,7 @@ public class CarAlertDialog extends Dialog {
      * Builder class that can be used to create a {@link CarAlertDialog} by configuring the options
      * for what shows up in the resulting dialog.
      */
-    public static class Builder {
+    public static final class Builder {
         private final Context mContext;
         private final DialogData mDialogData;
 
@@ -409,8 +419,8 @@ public class CarAlertDialog extends Dialog {
          * an "OK" action).
          *
          * @param textId The resource id of the string to be used for the positive button text.
-         * @param listener A {@link OnClickListener} to be invoked when the button is clicked. Can
-         *                 be {@code null} to represent no listener.
+         * @param listener A {@link android.content.DialogInterface.OnClickListener} to be invoked
+         *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         public Builder setPositiveButton(@StringRes int textId,
@@ -429,8 +439,8 @@ public class CarAlertDialog extends Dialog {
          * an "OK" action).
          *
          * @param text The string to be used for the positive button text.
-         * @param listener A {@link OnClickListener} to be invoked when the button is clicked. Can
-         *                 be {@code null} to represent no listener.
+         * @param listener A {@link android.content.DialogInterface.OnClickListener} to be invoked
+         *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         public Builder setPositiveButton(CharSequence text, @Nullable OnClickListener listener) {
@@ -447,8 +457,8 @@ public class CarAlertDialog extends Dialog {
          * <p>The negative button should be used to cancel any actions the dialog represents.
          *
          * @param textId The resource id of the string to be used for the negative button text.
-         * @param listener A {@link OnClickListener} to be invoked when the button is clicked. Can
-         *                 be {@code null} to represent no listener.
+         * @param listener A {@link android.content.DialogInterface.OnClickListener} to be invoked
+         *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         public Builder setNegativeButton(@StringRes int textId,
@@ -466,8 +476,8 @@ public class CarAlertDialog extends Dialog {
          * <p>The negative button should be used to cancel any actions the dialog represents.
          *
          * @param text The string to be used for the negative button text.
-         * @param listener A {@link OnClickListener} to be invoked when the button is clicked. Can
-         *                 be {@code null} to represent no listener.
+         * @param listener A {@link android.content.DialogInterface.OnClickListener} to be invoked
+         *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         public Builder setNegativeButton(CharSequence text, @Nullable OnClickListener listener) {
@@ -518,8 +528,8 @@ public class CarAlertDialog extends Dialog {
         /**
          * Creates an {@link CarAlertDialog} with the arguments supplied to this {@code Builder}.
          *
-         * <p>Calling this method does not display the dialog. If no additional processing is
-         * needed, {@link #show()} may be called instead to both create and display the dialog.
+         * <p>Calling this method does not display the dialog. Utilize this dialog within a
+         * {@link androidx.fragment.app.DialogFragment} to show the dialog.
          */
         public CarAlertDialog create() {
             CarAlertDialog dialog = new CarAlertDialog(mContext, mDialogData);
@@ -529,22 +539,6 @@ public class CarAlertDialog extends Dialog {
             dialog.setOnCancelListener(mOnCancelListener);
             dialog.setOnDismissListener(mOnDismissListener);
 
-            return dialog;
-        }
-
-        /**
-         * Creates an {@link CarAlertDialog} with the arguments supplied to this {@code Builder}
-         * and immediately displays the dialog.
-         *
-         * <p>Calling this method is functionally identical to:
-         * <pre>
-         *     CarAlertDialog dialog = new CarAlertDialog.Builder().create();
-         *     dialog.show();
-         * </pre>
-         */
-        public CarAlertDialog show() {
-            CarAlertDialog dialog = create();
-            dialog.show();
             return dialog;
         }
     }

@@ -16,12 +16,13 @@
  */
 package com.example.android.leanback;
 
-import android.support.v4.app.FragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v17.leanback.app.SearchSupportFragment;
-import android.support.v17.leanback.widget.SpeechRecognitionCallback;
 import android.util.Log;
+
+import androidx.fragment.app.FragmentActivity;
+import androidx.leanback.app.SearchSupportFragment;
+import androidx.leanback.widget.SpeechRecognitionCallback;
 
 public class SearchSupportActivity extends FragmentActivity
 {

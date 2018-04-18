@@ -16,11 +16,11 @@
 
 package com.example.android.supportv4.widget;
 
-import com.example.android.supportv4.R;
-
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.example.android.supportv4.R;
 
 
 public class SwipeRefreshLayoutActivityList extends BaseSwipeRefreshLayoutActivity {

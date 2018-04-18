@@ -26,10 +26,26 @@
         android:id="@+id/page_up"
         android:layout_width="@dimen/car_scroll_bar_button_size"
         android:layout_height="@dimen/car_scroll_bar_button_size"
+        android:background="@drawable/car_button_ripple_background"
+        android:focusable="false"
+        android:hapticFeedbackEnabled="false"
+        android:src="@drawable/ic_up"
+        android:scaleType="centerInside" />
+
+    <!-- TODO(deanh): Replace this with a proper asset when we have done. -->
+    <TextView
+        android:textAppearance="@style/TextAppearance.Car.Title"
+        android:id="@+id/alpha_jump"
+        android:layout_width="@dimen/car_scroll_bar_button_size"
+        android:layout_height="@dimen/car_scroll_bar_button_size"
         android:background="@drawable/car_card_ripple_background"
         android:focusable="false"
         android:hapticFeedbackEnabled="false"
-        android:src="@drawable/ic_up" />
+        android:gravity="center"
+        android:layout_marginBottom="@dimen/car_padding_3"
+        android:layout_marginTop="@dimen/car_padding_3"
+        android:visibility="gone"
+        android:text="A" />
 
     <FrameLayout
         android:id="@+id/filler"
@@ -51,8 +67,9 @@
         android:id="@+id/page_down"
         android:layout_width="@dimen/car_scroll_bar_button_size"
         android:layout_height="@dimen/car_scroll_bar_button_size"
-        android:background="@drawable/car_card_ripple_background"
+        android:background="@drawable/car_button_ripple_background"
         android:focusable="false"
         android:hapticFeedbackEnabled="false"
-        android:src="@drawable/ic_down" />
+        android:src="@drawable/ic_down"
+        android:scaleType="centerInside" />
 </LinearLayout>

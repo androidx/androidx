@@ -18,7 +18,7 @@ package androidx.navigation.safeargs.gradle
 
 import androidx.navigation.safe.args.generator.generateSafeArgs
 import com.android.build.gradle.internal.tasks.IncrementalTask
-import com.android.ide.common.res2.FileStatus
+import com.android.ide.common.resources.FileStatus
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.gradle.api.GradleException

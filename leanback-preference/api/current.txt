@@ -1,0 +1,62 @@
+package androidx.leanback.preference {
+
+  public abstract class BaseLeanbackPreferenceFragment extends androidx.preference.PreferenceFragment {
+    ctor public BaseLeanbackPreferenceFragment();
+  }
+
+  public class LeanbackListPreferenceDialogFragment extends androidx.leanback.preference.LeanbackPreferenceDialogFragment {
+    ctor public LeanbackListPreferenceDialogFragment();
+    method public static androidx.leanback.preference.LeanbackListPreferenceDialogFragment newInstanceMulti(java.lang.String);
+    method public static androidx.leanback.preference.LeanbackListPreferenceDialogFragment newInstanceSingle(java.lang.String);
+    method public androidx.recyclerview.widget.RecyclerView.Adapter onCreateAdapter();
+  }
+
+  public class LeanbackListPreferenceDialogFragment.AdapterMulti extends androidx.recyclerview.widget.RecyclerView.Adapter implements androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
+    ctor public LeanbackListPreferenceDialogFragment.AdapterMulti(java.lang.CharSequence[], java.lang.CharSequence[], java.util.Set<java.lang.String>);
+    method public int getItemCount();
+    method public void onBindViewHolder(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder, int);
+    method public androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+    method public void onItemClick(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder);
+  }
+
+  public class LeanbackListPreferenceDialogFragment.AdapterSingle extends androidx.recyclerview.widget.RecyclerView.Adapter implements androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
+    ctor public LeanbackListPreferenceDialogFragment.AdapterSingle(java.lang.CharSequence[], java.lang.CharSequence[], java.lang.CharSequence);
+    method public int getItemCount();
+    method public void onBindViewHolder(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder, int);
+    method public androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+    method public void onItemClick(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder);
+  }
+
+  public static class LeanbackListPreferenceDialogFragment.ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements android.view.View.OnClickListener {
+    ctor public LeanbackListPreferenceDialogFragment.ViewHolder(android.view.View, androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener);
+    method public android.view.ViewGroup getContainer();
+    method public android.widget.TextView getTitleView();
+    method public android.widget.Checkable getWidgetView();
+    method public void onClick(android.view.View);
+  }
+
+  public static abstract interface LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
+    method public abstract void onItemClick(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder);
+  }
+
+  public class LeanbackPreferenceDialogFragment extends android.app.Fragment {
+    ctor public LeanbackPreferenceDialogFragment();
+    method public androidx.preference.DialogPreference getPreference();
+    field public static final java.lang.String ARG_KEY = "key";
+  }
+
+  public abstract class LeanbackPreferenceFragment extends androidx.leanback.preference.BaseLeanbackPreferenceFragment {
+    ctor public LeanbackPreferenceFragment();
+    method public void setTitle(java.lang.CharSequence);
+  }
+
+  public abstract class LeanbackSettingsFragment extends android.app.Fragment implements androidx.preference.PreferenceFragment.OnPreferenceDisplayDialogCallback androidx.preference.PreferenceFragment.OnPreferenceStartFragmentCallback androidx.preference.PreferenceFragment.OnPreferenceStartScreenCallback {
+    ctor public LeanbackSettingsFragment();
+    method public boolean onPreferenceDisplayDialog(androidx.preference.PreferenceFragment, androidx.preference.Preference);
+    method public abstract void onPreferenceStartInitialScreen();
+    method public void startImmersiveFragment(android.app.Fragment);
+    method public void startPreferenceFragment(android.app.Fragment);
+  }
+
+}
+

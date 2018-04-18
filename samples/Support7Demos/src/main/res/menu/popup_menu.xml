@@ -19,12 +19,15 @@
           android:title="@string/popup_menu_highlight"
           app:contentDescription="@string/popup_menu_highlight_description"
           app:tooltipText="@string/popup_menu_highlight_tooltip" />
-    <item android:id="@+id/action_edit"
-          android:title="@string/popup_menu_edit" />
-    <item android:id="@+id/action_delete"
-          android:title="@string/popup_menu_delete" />
+    <group android:id="@+id/group1">
+        <item android:id="@+id/action_edit"
+              android:title="@string/popup_menu_edit" />
+        <item android:id="@+id/action_delete"
+              android:title="@string/popup_menu_delete" />
+    </group>
     <item android:id="@+id/action_ignore"
-          android:title="@string/popup_menu_ignore" />
+          android:title="@string/popup_menu_ignore"
+          android:checkable="true" />
     <item android:id="@+id/action_share"
           android:title="@string/popup_menu_share">
         <menu>

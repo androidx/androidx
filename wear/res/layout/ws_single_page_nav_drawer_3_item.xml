@@ -30,7 +30,7 @@
         app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_3_items_end"
         style="@style/WsVerticalGuideStyle" />
 
-    <android.support.wear.widget.CircledImageView
+    <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_0"
         app:layout_constraintStart_toStartOf="@id/ws_nav_drawer_guide_start"
         app:layout_constraintTop_toTopOf="parent"
@@ -38,7 +38,7 @@
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
-    <android.support.wear.widget.CircledImageView
+    <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -47,7 +47,7 @@
         tools:ignore="ContentDescription"
         style="@style/WsSinglePageNavDrawerIconStyle" />
 
-    <android.support.wear.widget.CircledImageView
+    <androidx.wear.widget.CircledImageView
         android:id="@+id/ws_nav_drawer_icon_2"
         app:layout_constraintEnd_toEndOf="@id/ws_nav_drawer_guide_end"
         app:layout_constraintTop_toTopOf="parent"

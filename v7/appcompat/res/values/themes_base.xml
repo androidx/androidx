@@ -151,7 +151,7 @@
 
     <!-- Base platform-dependent theme providing an action bar in a dark-themed activity. -->
     <style name="Base.V7.Theme.AppCompat" parent="Platform.AppCompat">
-        <item name="viewInflaterClass">android.support.v7.app.AppCompatViewInflater</item>
+        <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>
         <item name="windowNoTitle">false</item>
         <item name="windowActionBar">true</item>
         <item name="windowActionBarOverlay">false</item>
@@ -297,6 +297,7 @@
         <!-- Dialog attributes -->
         <item name="dialogTheme">@style/ThemeOverlay.AppCompat.Dialog</item>
         <item name="dialogPreferredPadding">@dimen/abc_dialog_padding_material</item>
+        <item name="dialogCornerRadius">@dimen/abc_dialog_corner_radius_material</item>
 
         <item name="alertDialogTheme">@style/ThemeOverlay.AppCompat.Dialog.Alert</item>
         <item name="alertDialogStyle">@style/AlertDialog.AppCompat</item>
@@ -315,12 +316,12 @@
         <item name="tooltipFrameBackground">@drawable/tooltip_frame_light</item>
         <item name="tooltipForegroundColor">@color/foreground_material_light</item>
 
-        <item name="colorError">@color/error_color_material</item>
+        <item name="colorError">@color/error_color_material_dark</item>
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
     <style name="Base.V7.Theme.AppCompat.Light" parent="Platform.AppCompat.Light">
-        <item name="viewInflaterClass">android.support.v7.app.AppCompatViewInflater</item>
+        <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>
 
         <item name="windowNoTitle">false</item>
         <item name="windowActionBar">true</item>
@@ -467,6 +468,7 @@
         <!-- Dialog attributes -->
         <item name="dialogTheme">@style/ThemeOverlay.AppCompat.Dialog</item>
         <item name="dialogPreferredPadding">@dimen/abc_dialog_padding_material</item>
+        <item name="dialogCornerRadius">@dimen/abc_dialog_corner_radius_material</item>
 
         <item name="alertDialogTheme">@style/ThemeOverlay.AppCompat.Dialog.Alert</item>
         <item name="alertDialogStyle">@style/AlertDialog.AppCompat.Light</item>
@@ -485,7 +487,7 @@
         <item name="tooltipFrameBackground">@drawable/tooltip_frame_dark</item>
         <item name="tooltipForegroundColor">@color/foreground_material_dark</item>
 
-        <item name="colorError">@color/error_color_material</item>
+        <item name="colorError">@color/error_color_material_light</item>
     </style>
 
     <style name="Base.Theme.AppCompat" parent="Base.V7.Theme.AppCompat">

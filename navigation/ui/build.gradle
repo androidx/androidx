@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryGroups
-import android.support.LibraryVersions
-import android.support.SupportLibraryExtension
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.SupportLibraryExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -25,7 +25,7 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-runtime"))
-    api(SUPPORT_DESIGN)
+    api(NAV_SUPPORT_DESIGN)
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

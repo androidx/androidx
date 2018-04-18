@@ -23,15 +23,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.ResourceCursorAdapter;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.graphics.Palette;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -39,11 +30,21 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.cursoradapter.widget.ResourceCursorAdapter;
+import androidx.fragment.app.ListFragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.palette.graphics.Palette;
+
 import com.example.android.supportv7.R;
 
 /**
  * Activity which displays the images from the device's {@link MediaStore}, alongside the generated
- * {@link android.support.v7.graphics.Palette} results.
+ * {@link androidx.palette.graphics.Palette} results.
  *
  * Allows the customization of the number of colors used in the palette generation, to demonstrate
  * the difference in results for different types of images.
@@ -61,7 +62,7 @@ public class PaletteActivity extends AppCompatActivity {
     }
 
     /**
-     * The {@link android.support.v4.app.ListFragment} which does all of the hard work.
+     * The {@link androidx.fragment.app.ListFragment} which does all of the hard work.
      */
     public static class PaletteMediaStoreListFragment extends ListFragment
             implements LoaderManager.LoaderCallbacks<Cursor> {

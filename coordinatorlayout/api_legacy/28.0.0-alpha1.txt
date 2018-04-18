@@ -1,0 +1,97 @@
+package android.support.design.widget {
+
+  public class CoordinatorLayout extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingParent2 {
+    ctor public CoordinatorLayout(android.content.Context);
+    ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet);
+    ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet, int);
+    method public void dispatchDependentViewsChanged(android.view.View);
+    method public boolean doViewsOverlap(android.view.View, android.view.View);
+    method protected android.support.design.widget.CoordinatorLayout.LayoutParams generateDefaultLayoutParams();
+    method public android.support.design.widget.CoordinatorLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
+    method protected android.support.design.widget.CoordinatorLayout.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
+    method public java.util.List<android.view.View> getDependencies(android.view.View);
+    method public java.util.List<android.view.View> getDependents(android.view.View);
+    method public android.graphics.drawable.Drawable getStatusBarBackground();
+    method public boolean isPointInChildBounds(android.view.View, int, int);
+    method public void onAttachedToWindow();
+    method public void onDetachedFromWindow();
+    method public void onDraw(android.graphics.Canvas);
+    method public void onLayoutChild(android.view.View, int);
+    method public void onMeasureChild(android.view.View, int, int, int, int);
+    method public void onNestedPreScroll(android.view.View, int, int, int[], int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int);
+    method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
+    method public void onStopNestedScroll(android.view.View, int);
+    method public void setStatusBarBackground(android.graphics.drawable.Drawable);
+    method public void setStatusBarBackgroundColor(int);
+    method public void setStatusBarBackgroundResource(int);
+  }
+
+  public static abstract interface CoordinatorLayout.AttachedBehavior {
+    method public abstract android.support.design.widget.CoordinatorLayout.Behavior getBehavior();
+  }
+
+  public static abstract class CoordinatorLayout.Behavior<V extends android.view.View> {
+    ctor public CoordinatorLayout.Behavior();
+    ctor public CoordinatorLayout.Behavior(android.content.Context, android.util.AttributeSet);
+    method public boolean blocksInteractionBelow(android.support.design.widget.CoordinatorLayout, V);
+    method public boolean getInsetDodgeRect(android.support.design.widget.CoordinatorLayout, V, android.graphics.Rect);
+    method public int getScrimColor(android.support.design.widget.CoordinatorLayout, V);
+    method public float getScrimOpacity(android.support.design.widget.CoordinatorLayout, V);
+    method public static java.lang.Object getTag(android.view.View);
+    method public boolean layoutDependsOn(android.support.design.widget.CoordinatorLayout, V, android.view.View);
+    method public android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.support.design.widget.CoordinatorLayout, V, android.support.v4.view.WindowInsetsCompat);
+    method public void onAttachedToLayoutParams(android.support.design.widget.CoordinatorLayout.LayoutParams);
+    method public boolean onDependentViewChanged(android.support.design.widget.CoordinatorLayout, V, android.view.View);
+    method public void onDependentViewRemoved(android.support.design.widget.CoordinatorLayout, V, android.view.View);
+    method public void onDetachedFromLayoutParams();
+    method public boolean onInterceptTouchEvent(android.support.design.widget.CoordinatorLayout, V, android.view.MotionEvent);
+    method public boolean onLayoutChild(android.support.design.widget.CoordinatorLayout, V, int);
+    method public boolean onMeasureChild(android.support.design.widget.CoordinatorLayout, V, int, int, int, int);
+    method public boolean onNestedFling(android.support.design.widget.CoordinatorLayout, V, android.view.View, float, float, boolean);
+    method public boolean onNestedPreFling(android.support.design.widget.CoordinatorLayout, V, android.view.View, float, float);
+    method public deprecated void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int[]);
+    method public void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int[], int);
+    method public deprecated void onNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int, int);
+    method public void onNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int, int, int);
+    method public deprecated void onNestedScrollAccepted(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
+    method public void onNestedScrollAccepted(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int, int);
+    method public boolean onRequestChildRectangleOnScreen(android.support.design.widget.CoordinatorLayout, V, android.graphics.Rect, boolean);
+    method public void onRestoreInstanceState(android.support.design.widget.CoordinatorLayout, V, android.os.Parcelable);
+    method public android.os.Parcelable onSaveInstanceState(android.support.design.widget.CoordinatorLayout, V);
+    method public deprecated boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
+    method public boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int, int);
+    method public deprecated void onStopNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View);
+    method public void onStopNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int);
+    method public boolean onTouchEvent(android.support.design.widget.CoordinatorLayout, V, android.view.MotionEvent);
+    method public static void setTag(android.view.View, java.lang.Object);
+  }
+
+  public static abstract deprecated class CoordinatorLayout.DefaultBehavior implements java.lang.annotation.Annotation {
+  }
+
+  public static class CoordinatorLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+    ctor public CoordinatorLayout.LayoutParams(int, int);
+    ctor public CoordinatorLayout.LayoutParams(android.support.design.widget.CoordinatorLayout.LayoutParams);
+    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
+    method public int getAnchorId();
+    method public android.support.design.widget.CoordinatorLayout.Behavior getBehavior();
+    method public void setAnchorId(int);
+    method public void setBehavior(android.support.design.widget.CoordinatorLayout.Behavior);
+    field public int anchorGravity;
+    field public int dodgeInsetEdges;
+    field public int gravity;
+    field public int insetEdge;
+    field public int keyline;
+  }
+
+  protected static class CoordinatorLayout.SavedState extends android.support.v4.view.AbsSavedState {
+    ctor public CoordinatorLayout.SavedState(android.os.Parcel, java.lang.ClassLoader);
+    ctor public CoordinatorLayout.SavedState(android.os.Parcelable);
+    field public static final android.os.Parcelable.Creator<android.support.design.widget.CoordinatorLayout.SavedState> CREATOR;
+  }
+
+}
+

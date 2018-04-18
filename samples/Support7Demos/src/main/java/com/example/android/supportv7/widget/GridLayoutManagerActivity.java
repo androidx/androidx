@@ -15,17 +15,18 @@
  */
 package com.example.android.supportv7.widget;
 
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
 import com.example.android.supportv7.widget.adapter.SimpleStringAdapter;
 import com.example.android.supportv7.widget.util.ConfigToggle;
-
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * A sample Activity to demonstrate capabilities of {@link GridLayoutManager}.

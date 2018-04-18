@@ -247,4 +247,5 @@
     <string name="text_link_disabled">With <a href="http://www.google.com">link</a> disabled</string>
 
     <string name="menu_item_icon_tinting">AppCompat/Menu Item Icons</string>
+    <string name="popup_group_dividers">Display group dividers</string>
 </resources>

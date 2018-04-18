@@ -18,12 +18,12 @@ package com.example.androidx.car;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.ImageButton;
 
+import androidx.annotation.DrawableRes;
 import androidx.car.widget.ActionBar;
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * Demo activity for ActionBar

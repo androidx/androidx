@@ -20,9 +20,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -30,10 +28,11 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.car.R;
 import androidx.car.widget.DayNightStyle;
 import androidx.car.widget.ListItem;
@@ -42,13 +41,17 @@ import androidx.car.widget.ListItemProvider;
 import androidx.car.widget.PagedListView;
 import androidx.car.widget.PagedScrollBarView;
 import androidx.car.widget.TextListItem;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A subclass of {@link Dialog} that is tailored for the car environment. This dialog can display a
  * fixed list of items. There is no affordance for setting titles or any other text.
  *
  * <p>Its functionality is similar to if a list has been set on
- * {@link android.support.v7.app.AlertDialog}, but is styled so that it is more appropriate for
+ * {@link androidx.appcompat.app.AlertDialog}, but is styled so that it is more appropriate for
  * displaying in vehicles.
  *
  * <p>Note that this dialog cannot be created with an empty list.
@@ -56,10 +59,15 @@ import androidx.car.widget.TextListItem;
 public class CarListDialog extends Dialog {
     private static final String TAG = "CarListDialog";
 
+    @Nullable
+    private final CharSequence mTitle;
+
     private ListItemAdapter mAdapter;
     private final int mInitialPosition;
     private PagedListView mList;
     private PagedScrollBarView mScrollBarView;
+
+    @Nullable
     private final DialogInterface.OnClickListener mOnClickListener;
 
     /** Flag for if a touch on the scrim of the dialog will dismiss it. */
@@ -76,20 +84,20 @@ public class CarListDialog extends Dialog {
                 }
             };
 
-    private CarListDialog(Context context, String[] items, int initialPosition,
-            OnClickListener listener) {
+    private CarListDialog(Context context, DialogData dialogData) {
         super(context, getDialogTheme(context));
-        mInitialPosition = initialPosition;
-        mOnClickListener = listener;
-        initializeAdapter(items);
+        mInitialPosition = dialogData.mInitialPosition;
+        mOnClickListener = dialogData.mOnClickListener;
+        mTitle = dialogData.mTitle;
+        initializeAdapter(dialogData.mItems);
     }
 
     @Override
     public void setTitle(CharSequence title) {
-        // Ideally this method should not exist; the list dialog does not support a title.
-        // Unfortunately, this method is defined with the Dialog itself and is public. So, throw
-        // an error if this method is ever called.
-        throw new UnsupportedOperationException("Title is not supported in the CarListDialog");
+        // Ideally this method should be private; the dialog should only be modifiable through the
+        // Builder. Unfortunately, this method is defined with the Dialog itself and is public.
+        // So, throw an error if this method is ever called.
+        throw new UnsupportedOperationException("Title should only be set from the Builder");
     }
 
     /**
@@ -120,8 +128,15 @@ public class CarListDialog extends Dialog {
         // listen for clicks and dismiss the dialog when necessary.
         window.findViewById(R.id.container).setOnClickListener(v -> handleTouchOutside());
 
+        initializeTitle();
         initializeList();
         initializeScrollbar();
+    }
+
+    private void initializeTitle() {
+        TextView titleView = getWindow().findViewById(R.id.title);
+        titleView.setText(mTitle);
+        titleView.setVisibility(!TextUtils.isEmpty(mTitle) ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -167,16 +182,23 @@ public class CarListDialog extends Dialog {
         mScrollBarView = getWindow().findViewById(R.id.scrollbar);
         mScrollBarView.setDayNightStyle(DayNightStyle.FORCE_NIGHT);
 
-        mScrollBarView.setPaginationListener(direction -> {
-            switch (direction) {
-                case PagedScrollBarView.PaginationListener.PAGE_UP:
-                    mList.pageUp();
-                    break;
-                case PagedScrollBarView.PaginationListener.PAGE_DOWN:
-                    mList.pageDown();
-                    break;
-                default:
-                    Log.e(TAG, "Unknown pagination direction (" + direction + ")");
+        mScrollBarView.setPaginationListener(new PagedScrollBarView.PaginationListener() {
+            @Override
+            public void onPaginate(int direction) {
+                switch (direction) {
+                    case PagedScrollBarView.PaginationListener.PAGE_UP:
+                        mList.pageUp();
+                        break;
+                    case PagedScrollBarView.PaginationListener.PAGE_DOWN:
+                        mList.pageDown();
+                        break;
+                    default:
+                        Log.e(TAG, "Unknown pagination direction (" + direction + ")");
+                }
+            }
+
+            @Override
+            public void onAlphaJump() {
             }
         });
     }
@@ -273,14 +295,23 @@ public class CarListDialog extends Dialog {
     }
 
     /**
-     * Builder class that can be used to create a {@link CarListDialog} by configuring the
-     * options for the list and behavior of the dialog.
+     * A class that holds the data that is settable by the {@link Builder} and should be displayed
+     * in the {@link CarListDialog}.
      */
-    public static class Builder {
-        private final Context mContext;
+    private static class DialogData {
+        private CharSequence mTitle;
         private int mInitialPosition;
         private String[] mItems;
         private DialogInterface.OnClickListener mOnClickListener;
+    }
+
+    /**
+     * Builder class that can be used to create a {@link CarListDialog} by configuring the
+     * options for the list and behavior of the dialog.
+     */
+    public static final class Builder {
+        private final Context mContext;
+        private final DialogData mDialogData = new DialogData();
 
         private boolean mCancelable = true;
         private OnCancelListener mOnCancelListener;
@@ -293,6 +324,28 @@ public class CarListDialog extends Dialog {
          */
         public Builder(Context context) {
             mContext = context;
+        }
+
+        /**
+         * Sets the title of the dialog to be the given string resource.
+         *
+         * @param titleId The resource id of the string to be used as the title.
+         * @return This {@code Builder} object to allow for chaining of calls.
+         */
+        public Builder setTitle(@StringRes int titleId) {
+            mDialogData.mTitle = mContext.getString(titleId);
+            return this;
+        }
+
+        /**
+         * Sets the title of the dialog for be the given string.
+         *
+         * @param title The string to be used as the title.
+         * @return This {@code Builder} object to allow for chaining of calls.
+         */
+        public Builder setTitle(CharSequence title) {
+            mDialogData.mTitle = title;
+            return this;
         }
 
         /**
@@ -318,8 +371,8 @@ public class CarListDialog extends Dialog {
                 throw new IllegalArgumentException("Provided list of items cannot be empty.");
             }
 
-            mItems = items;
-            mOnClickListener = onClickListener;
+            mDialogData.mItems = items;
+            mDialogData.mOnClickListener = onClickListener;
             return this;
         }
 
@@ -334,7 +387,7 @@ public class CarListDialog extends Dialog {
             if (initialPosition < 0) {
                 throw new IllegalArgumentException("Initial position cannot be negative.");
             }
-            mInitialPosition = initialPosition;
+            mDialogData.mInitialPosition = initialPosition;
             return this;
         }
 
@@ -383,47 +436,27 @@ public class CarListDialog extends Dialog {
          * <p>If {@link #setItems(String[],DialogInterface.OnClickListener)} is never called, then
          * calling this method will throw an exception.
          *
-         * <p>Calling this method does not display the dialog. If no additional processing is
-         * needed, {@link #show()} may be called instead to both create and display the dialog.
+         * <p>Calling this method does not display the dialog. Utilize this dialog within a
+         * {@link androidx.fragment.app.DialogFragment} to show the dialog.
          */
         public CarListDialog create() {
-            if (mItems == null || mItems.length == 0) {
+            if (mDialogData.mItems == null || mDialogData.mItems.length == 0) {
                 throw new IllegalStateException(
                         "CarListDialog must be created with a non-empty list.");
             }
 
-            if (mInitialPosition >= mItems.length) {
+            if (mDialogData.mInitialPosition >= mDialogData.mItems.length) {
                 throw new IllegalStateException("Initial position is greater than the number of "
                         + "items in the list.");
             }
 
-            CarListDialog dialog = new CarListDialog(
-                    mContext,
-                    mItems,
-                    mInitialPosition,
-                    mOnClickListener);
+            CarListDialog dialog = new CarListDialog(mContext, mDialogData);
 
             dialog.setCancelable(mCancelable);
             dialog.setCanceledOnTouchOutside(mCancelable);
             dialog.setOnCancelListener(mOnCancelListener);
             dialog.setOnDismissListener(mOnDismissListener);
 
-            return dialog;
-        }
-
-        /**
-         * Creates an {@link CarAlertDialog} with the arguments supplied to this {@code Builder}
-         * and immediately displays the dialog.
-         *
-         * <p>Calling this method is functionally identical to:
-         * <pre>{@code
-         * CarAlertDialog dialog = new CarAlertDialog.Builder().create();
-         * dialog.show();
-         * }</pre>
-         */
-        public CarListDialog show() {
-            CarListDialog dialog = create();
-            dialog.show();
             return dialog;
         }
     }

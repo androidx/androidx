@@ -16,16 +16,10 @@
 
 package androidx.car.widget;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.IntDef;
-import android.support.annotation.StyleRes;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,8 +34,15 @@ import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.IntDef;
+import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
+import androidx.recyclerview.widget.RecyclerView;
+
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
  * Class to build a list item of text.
@@ -108,7 +109,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private View.OnClickListener mOnClickListener;
 
     @PrimaryActionType private int mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
-    private int mPrimaryActionIconResId;
     private Drawable mPrimaryActionIconDrawable;
 
     private String mTitle;
@@ -116,7 +116,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private boolean mIsBodyPrimary;
 
     @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_NO_ACTION;
-    private int mSupplementalIconResId;
+    private Drawable mSupplementalIconDrawable;
     private View.OnClickListener mSupplementalIconOnClickListener;
     private boolean mShowSupplementalIconDivider;
 
@@ -242,6 +242,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         setTextVerticalMargin();
         // Only set start margin because text end is relative to the start of supplemental actions.
         setTextStartMargin();
+        setTextEndLayout();
     }
 
     private void setOnClickListener() {
@@ -255,11 +256,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                 mBinders.add(vh -> {
                     vh.getPrimaryIcon().setVisibility(View.VISIBLE);
 
-                    if (mPrimaryActionIconDrawable != null) {
-                        vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
-                    } else if (mPrimaryActionIconResId != 0) {
-                        vh.getPrimaryIcon().setImageResource(mPrimaryActionIconResId);
-                    }
+                    vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
                 });
                 break;
             case PRIMARY_ACTION_TYPE_EMPTY_ICON:
@@ -267,7 +264,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                 // Do nothing.
                 break;
             default:
-                throw new IllegalStateException("Unrecognizable primary action type.");
+                throw new IllegalStateException("Unknown primary action type.");
         }
     }
 
@@ -336,7 +333,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                 // Do nothing.
                 break;
             default:
-                throw new IllegalStateException("Unrecognizable primary action type.");
+                throw new IllegalStateException("Unknown primary action type.");
         }
     }
 
@@ -386,7 +383,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                 startMarginResId = R.dimen.car_keyline_4;
                 break;
             default:
-                throw new IllegalStateException("Unrecognizable primary action type.");
+                throw new IllegalStateException("Unknown primary action type.");
         }
         int startMargin = mContext.getResources().getDimensionPixelSize(startMarginResId);
         mBinders.add(vh -> {
@@ -455,6 +452,82 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     }
 
     /**
+     * Returns the id of the leading (left most in LTR) view of supplemental actions.
+     * The view could be one of the supplemental actions (icon, button, switch), or their divider.
+     * Returns 0 if none is enabled.
+     */
+    @IdRes
+    private int getSupplementalActionLeadingView() {
+        int leadingViewId;
+        switch (mSupplementalActionType) {
+            case SUPPLEMENTAL_ACTION_NO_ACTION:
+                leadingViewId = 0;
+                break;
+            case SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON:
+                leadingViewId = mShowSupplementalIconDivider
+                        ? R.id.supplemental_icon_divider : R.id.supplemental_icon;
+                break;
+            case SUPPLEMENTAL_ACTION_ONE_ACTION:
+                leadingViewId = mShowAction1Divider ? R.id.action1_divider : R.id.action1;
+                break;
+            case SUPPLEMENTAL_ACTION_TWO_ACTIONS:
+                leadingViewId = mShowAction2Divider ? R.id.action2_divider : R.id.action2;
+                break;
+            case SUPPLEMENTAL_ACTION_SWITCH:
+                leadingViewId = mShowSwitchDivider ? R.id.switch_divider : R.id.switch_widget;
+                break;
+            default:
+                throw new IllegalStateException("Unknown supplemental action type.");
+        }
+        return leadingViewId;
+    }
+
+    private void setTextEndLayout() {
+        // Figure out which view the text should align to.
+        @IdRes int leadingViewId = getSupplementalActionLeadingView();
+
+        if (leadingViewId == 0) {
+            // There is no supplemental action. Text should align to parent end with KL1 padding.
+            mBinders.add(vh -> {
+                Resources resources = mContext.getResources();
+                int padding = resources.getDimensionPixelSize(R.dimen.car_keyline_1);
+
+                RelativeLayout.LayoutParams titleLayoutParams =
+                        (RelativeLayout.LayoutParams) vh.getTitle().getLayoutParams();
+                titleLayoutParams.setMarginEnd(padding);
+                titleLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                titleLayoutParams.removeRule(RelativeLayout.START_OF);
+
+                RelativeLayout.LayoutParams bodyLayoutParams =
+                        (RelativeLayout.LayoutParams) vh.getBody().getLayoutParams();
+                bodyLayoutParams.setMarginEnd(padding);
+                bodyLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                bodyLayoutParams.removeRule(RelativeLayout.START_OF);
+            });
+        } else {
+            // Text align to start of leading supplemental view with padding.
+            mBinders.add(vh -> {
+                Resources resources = mContext.getResources();
+                int padding = resources.getDimensionPixelSize(R.dimen.car_padding_4);
+
+                RelativeLayout.LayoutParams titleLayoutParams =
+                        (RelativeLayout.LayoutParams) vh.getTitle().getLayoutParams();
+                titleLayoutParams.setMarginEnd(padding);
+                titleLayoutParams.removeRule(RelativeLayout.ALIGN_PARENT_END);
+                titleLayoutParams.addRule(RelativeLayout.START_OF, leadingViewId);
+                vh.getTitle().requestLayout();
+
+                RelativeLayout.LayoutParams bodyLayoutParams =
+                        (RelativeLayout.LayoutParams) vh.getBody().getLayoutParams();
+                bodyLayoutParams.setMarginEnd(padding);
+                bodyLayoutParams.removeRule(RelativeLayout.ALIGN_PARENT_END);
+                bodyLayoutParams.addRule(RelativeLayout.START_OF, leadingViewId);
+                vh.getBody().requestLayout();
+            });
+        }
+    }
+
+    /**
      * Sets up view(s) for supplemental action.
      */
     private void setSupplementalActions() {
@@ -466,7 +539,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                         vh.getSupplementalIconDivider().setVisibility(View.VISIBLE);
                     }
 
-                    vh.getSupplementalIcon().setImageResource(mSupplementalIconResId);
+                    vh.getSupplementalIcon().setImageDrawable(mSupplementalIconDrawable);
                     vh.getSupplementalIcon().setOnClickListener(
                             mSupplementalIconOnClickListener);
                     vh.getSupplementalIcon().setClickable(
@@ -509,7 +582,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                 });
                 break;
             default:
-                throw new IllegalArgumentException("Unrecognized supplemental action type.");
+                throw new IllegalStateException("Unknown supplemental action type.");
         }
     }
 
@@ -528,7 +601,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param useLargeIcon the size of primary icon. Large Icon is a square as tall as an item.
      */
     public void setPrimaryActionIcon(@DrawableRes int iconResId, boolean useLargeIcon) {
-        setPrimaryActionIcon(null, iconResId, useLargeIcon);
+        setPrimaryActionIcon(mContext.getDrawable(iconResId), useLargeIcon);
     }
 
     /**
@@ -538,15 +611,9 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param useLargeIcon the size of primary icon. Large Icon is a square as tall as an item.
      */
     public void setPrimaryActionIcon(Drawable drawable, boolean useLargeIcon) {
-        setPrimaryActionIcon(drawable, 0, useLargeIcon);
-    }
-
-    private void setPrimaryActionIcon(Drawable drawable, @DrawableRes int iconResId,
-            boolean useLargeIcon) {
         mPrimaryActionType = useLargeIcon
                 ? PRIMARY_ACTION_TYPE_LARGE_ICON
                 : PRIMARY_ACTION_TYPE_SMALL_ICON;
-        mPrimaryActionIconResId = iconResId;
         mPrimaryActionIconDrawable = drawable;
 
         markDirty();
@@ -618,7 +685,18 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      *                    {@code Supplemental Icon}.
      */
     public void setSupplementalIcon(int iconResId, boolean showDivider) {
-        setSupplementalIcon(iconResId, showDivider, null);
+        setSupplementalIcon(mContext.getDrawable(iconResId), showDivider, null);
+    }
+
+    /**
+     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
+     *
+     * @param drawable the Drawable to set, or null to clear the content.
+     * @param showDivider whether to display a vertical bar that separates {@code text} and
+     *                    {@code Supplemental Icon}.
+     */
+    public void setSupplementalIcon(Drawable drawable, boolean showDivider) {
+        setSupplementalIcon(drawable, showDivider, null);
     }
 
     /**
@@ -631,9 +709,22 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      */
     public void setSupplementalIcon(int iconResId, boolean showDivider,
             View.OnClickListener listener) {
+        setSupplementalIcon(mContext.getDrawable(iconResId), showDivider, listener);
+    }
+
+    /**
+     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
+     *
+     * @param drawable the Drawable to set, or null to clear the content.
+     * @param showDivider whether to display a vertical bar that separates {@code text} and
+     *                    {@code Supplemental Icon}.
+     * @param listener the callback that will run when icon is clicked.
+     */
+    public void setSupplementalIcon(Drawable drawable, boolean showDivider,
+                                    View.OnClickListener listener) {
         mSupplementalActionType = SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON;
 
-        mSupplementalIconResId = iconResId;
+        mSupplementalIconDrawable = drawable;
         mSupplementalIconOnClickListener = listener;
         mShowSupplementalIconDivider = showDivider;
         markDirty();

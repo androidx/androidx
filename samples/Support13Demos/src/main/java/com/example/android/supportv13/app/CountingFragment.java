@@ -15,14 +15,14 @@
  */
 package com.example.android.supportv13.app;
 
-import com.example.android.supportv13.R;
-
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.example.android.supportv13.R;
 
 public class CountingFragment extends Fragment {
     int mNum;

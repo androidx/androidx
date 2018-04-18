@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import static android.support.dependencies.DependenciesKt.*
-import android.support.LibraryGroups
-import android.support.LibraryVersions
-import android.support.SupportLibraryExtension
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.SupportLibraryExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api(project(":room:common"))
-    api(project(":room:runtime"))
-    api(project(":persistence:db"))
-    api(project(":persistence:db-framework"))
-    api(project(":room:migration"))
-    api(project(":arch:runtime"))
+    api(project(":room:room-common"))
+    api(project(":room:room-runtime"))
+    api(project(":sqlite:sqlite"))
+    api(project(":sqlite:sqlite-framework"))
+    api(project(":room:room-migration"))
+    api(project(":arch:core-runtime"))
     api(SUPPORT_CORE_UTILS, libs.support_exclude_config)
     api(JUNIT)
 }

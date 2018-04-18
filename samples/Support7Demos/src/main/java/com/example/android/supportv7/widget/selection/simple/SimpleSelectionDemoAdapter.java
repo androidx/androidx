@@ -16,21 +16,21 @@
 
 package com.example.android.supportv7.widget.selection.simple;
 
-import static android.support.v4.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkArgument;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
-
-import androidx.widget.recyclerview.selection.ItemKeyProvider;
-import androidx.widget.recyclerview.selection.SelectionTracker;
 
 final class SimpleSelectionDemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
