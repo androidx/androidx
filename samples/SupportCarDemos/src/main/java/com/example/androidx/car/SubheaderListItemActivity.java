@@ -20,15 +20,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.car.widget.ListItem;
 import androidx.car.widget.ListItemAdapter;
 import androidx.car.widget.ListItemProvider;
 import androidx.car.widget.PagedListView;
 import androidx.car.widget.SubheaderListItem;
 import androidx.car.widget.TextListItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Demo activity for {@link SubheaderListItem}.
@@ -40,12 +40,12 @@ public class SubheaderListItemActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_paged_list_view);
+        setContentView(R.layout.activity_paged_list_view_no_divider);
 
         mPagedListView = findViewById(R.id.paged_list_view);
 
         ListItemAdapter adapter = new ListItemAdapter(this,
-                new SampleProvider(this), ListItemAdapter.BackgroundStyle.NONE);
+                new SampleProvider(this), ListItemAdapter.BackgroundStyle.CARD);
         mPagedListView.setAdapter(adapter);
         mPagedListView.setMaxPages(PagedListView.UNLIMITED_PAGES);
         mPagedListView.setDividerVisibilityManager(adapter);

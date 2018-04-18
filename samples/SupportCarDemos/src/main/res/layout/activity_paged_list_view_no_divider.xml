@@ -23,10 +23,8 @@
         android:id="@+id/paged_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:showPagedListViewDivider="true"
+        app:showPagedListViewDivider="false"
         app:dayNightStyle="force_night"
-        app:dividerStartMargin="@dimen/car_keyline_1"
-        app:dividerEndMargin="@dimen/car_keyline_1"
         app:gutter="both"/>
 </FrameLayout>
 
