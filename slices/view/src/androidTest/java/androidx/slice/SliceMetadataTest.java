@@ -36,7 +36,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -92,7 +91,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction action1 = new SliceAction(pi, icon, "action1");
         SliceAction action2 = new SliceAction(pi, icon, "action2");
@@ -123,7 +122,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction primaryAction = new SliceAction(pi, icon, "action");
 
@@ -146,7 +145,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction primaryAction = new SliceAction(pi, icon, "action");
         SliceAction endAction = new SliceAction(pi, "toogle action", false);
@@ -169,7 +168,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction primaryAction = new SliceAction(pi, icon, "action");
         SliceAction sliceAction = new SliceAction(pi, "another action", true);
@@ -192,7 +191,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction endAction1 = new SliceAction(pi, icon, "action");
         SliceAction endAction2 = new SliceAction(pi, "toogle action", false);
@@ -305,22 +304,22 @@ public class SliceMetadataTest {
         Uri uri = Uri.parse("content://pkg/slice");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        Icon icon = Icon.createWithBitmap(b);
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
         GridRowBuilder grb = new GridRowBuilder(lb);
         grb.addCell(new GridRowBuilder.CellBuilder(grb)
                 .addText("some text")
                 .addText("more text")
-                .addImage(IconCompat.createFromIcon(icon), ICON_IMAGE));
+                .addImage(icon, ICON_IMAGE));
         grb.addCell(new GridRowBuilder.CellBuilder(grb)
                 .addText("some text")
                 .addText("more text")
-                .addImage(IconCompat.createFromIcon(icon), ICON_IMAGE));
+                .addImage(icon, ICON_IMAGE));
         grb.addCell(new GridRowBuilder.CellBuilder(grb)
                 .addText("some text")
                 .addText("more text")
-                .addImage(IconCompat.createFromIcon(icon), ICON_IMAGE));
+                .addImage(icon, ICON_IMAGE));
         lb.addGridRow(grb);
 
         Slice gridSlice = lb.build();
@@ -407,7 +406,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction toggleAction = new SliceAction(pi, icon, "toggle", false /* isChecked */);
         SliceAction toggleAction2 = new SliceAction(pi, icon, "toggle2", true /* isChecked */);

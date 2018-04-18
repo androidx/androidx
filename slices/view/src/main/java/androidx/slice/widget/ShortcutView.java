@@ -26,7 +26,6 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
@@ -43,6 +42,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
@@ -72,7 +72,6 @@ public class ShortcutView extends SliceChildView {
         mLargeIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_shortcut_size);
     }
 
-    @SuppressLint("NewApi") // mIcon can only be non-null on API 23+
     @Override
     public void setSlice(Slice slice) {
         resetView();
@@ -85,8 +84,8 @@ public class ShortcutView extends SliceChildView {
         final int color = colorItem != null
                 ? colorItem.getInt()
                 : SliceViewUtil.getColorAccent(getContext());
-        ShapeDrawable circle = new ShapeDrawable(new OvalShape());
-        circle.setTint(color);
+        Drawable circle = DrawableCompat.wrap(new ShapeDrawable(new OvalShape()));
+        DrawableCompat.setTint(circle, color);
         ImageView iv = new ImageView(getContext());
         if (mIcon != null && !mIcon.hasHint(HINT_NO_TINT)) {
             // Only set the background if we're tintable

@@ -30,6 +30,7 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.Build;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -181,6 +182,10 @@ class SliceXml {
                         break;
                     case android.app.slice.SliceItem.FORMAT_TEXT:
                         v = parser.getText();
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            // 19-21 don't allow special characters in XML, so we base64 encode it.
+                            v = new String(Base64.decode(v, Base64.NO_WRAP));
+                        }
                         b.addText(Html.fromHtml(v), subtype, hints);
                         break;
                     case android.app.slice.SliceItem.FORMAT_LONG:
@@ -298,9 +303,19 @@ class SliceXml {
                 break;
             case android.app.slice.SliceItem.FORMAT_TEXT:
                 if (item.getText() instanceof Spanned) {
-                    serializer.text(Html.toHtml((Spanned) item.getText()));
+                    String text = Html.toHtml((Spanned) item.getText());
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        // 19-21 don't allow special characters in XML, so we base64 encode it.
+                        text = Base64.encodeToString(text.getBytes(), Base64.NO_WRAP);
+                    }
+                    serializer.text(text);
                 } else {
-                    serializer.text(String.valueOf(item.getText()));
+                    String text = String.valueOf(item.getText());
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        // 19-21 don't allow special characters in XML, so we base64 encode it.
+                        text = Base64.encodeToString(text.getBytes(), Base64.NO_WRAP);
+                    }
+                    serializer.text(text);
                 }
                 break;
             case android.app.slice.SliceItem.FORMAT_LONG:
