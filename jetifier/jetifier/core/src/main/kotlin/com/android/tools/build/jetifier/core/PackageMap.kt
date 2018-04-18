@@ -203,7 +203,7 @@ class PackageMap(private val rules: List<PackageRule>) {
             ),
             PackageRule(
                 from = "android/support/design",
-                to = "androidx/design"
+                to = "com/google/android/material"
             ),
             PackageRule(
                 from = "android/support/text/emoji/appcompat",

@@ -17,6 +17,7 @@
 package com.android.tools.build.jetifier.core.type
 
 import com.android.tools.build.jetifier.core.utils.Log
+import java.util.SortedMap
 
 /**
  * Contains all the mappings needed to rewrite java types.
@@ -43,7 +44,7 @@ data class TypesMap(private val types: Map<JavaType, JavaType>) {
 
     /** Returns JSON data model of this class */
     fun toJson(): JsonData {
-        return JsonData(types.map { it.key.fullName to it.value.fullName }.toMap())
+        return JsonData(types.map { it.key.fullName to it.value.fullName }.toMap().toSortedMap())
     }
 
     /**
@@ -95,7 +96,7 @@ data class TypesMap(private val types: Map<JavaType, JavaType>) {
     /**
      * JSON data model for [TypesMap].
      */
-    data class JsonData(val types: Map<String, String>) {
+    data class JsonData(val types: SortedMap<String, String>) {
 
         /** Creates instance of [TypesMap] */
         fun toMappings(): TypesMap {
