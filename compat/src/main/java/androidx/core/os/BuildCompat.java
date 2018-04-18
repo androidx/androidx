@@ -97,6 +97,8 @@ public class BuildCompat {
      * @return {@code true} if Q APIs are available for use, {@code false} otherwise
      */
     public static boolean isAtLeastQ() {
-        return VERSION.CODENAME.equals("Q");
+        return VERSION.CODENAME.length() == 1
+            && VERSION.CODENAME.charAt(0) >= 'Q'
+            && VERSION.CODENAME.charAt(0) <= 'Z';
     }
 }
