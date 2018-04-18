@@ -217,11 +217,12 @@ public class LargeTemplateView extends SliceChildView {
             mDisplayedItems = mListContent.getRowItems();
         }
         mDisplayedItemsHeight = ListContent.getListHeight(getContext(), mDisplayedItems);
-        if (getMode() == SliceView.MODE_LARGE) {
-            mAdapter.setSliceItems(mDisplayedItems, mTintColor);
-        } else if (getMode() == SliceView.MODE_SMALL) {
+        int mode = getMode();
+        if (mode == SliceView.MODE_LARGE) {
+            mAdapter.setSliceItems(mDisplayedItems, mTintColor, mode);
+        } else if (mode == SliceView.MODE_SMALL) {
             mAdapter.setSliceItems(
-                    Collections.singletonList(mDisplayedItems.get(0)), mTintColor);
+                    Collections.singletonList(mDisplayedItems.get(0)), mTintColor, mode);
         }
     }
 
@@ -230,7 +231,7 @@ public class LargeTemplateView extends SliceChildView {
         mSlice = null;
         mDisplayedItemsHeight = 0;
         mDisplayedItems.clear();
-        mAdapter.setSliceItems(null, -1);
+        mAdapter.setSliceItems(null, -1, getMode());
         mListContent = null;
     }
 }

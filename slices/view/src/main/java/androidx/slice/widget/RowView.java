@@ -341,7 +341,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     private void addSubtitle(final SliceItem subtitleItem) {
         CharSequence subtitleTimeString = null;
-        if (mShowLastUpdated) {
+        if (mShowLastUpdated && mLastUpdated != -1) {
             subtitleTimeString = getResources().getString(R.string.abc_slice_updated,
                     SliceViewUtil.getRelativeTimeString(mLastUpdated));
         }
@@ -557,16 +557,18 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     public void resetView() {
-        mRootView.setVisibility(View.VISIBLE);
+        mRootView.setVisibility(VISIBLE);
         setViewClickable(mRootView, false);
         setViewClickable(mContent, false);
         mStartContainer.removeAllViews();
         mEndContainer.removeAllViews();
         mPrimaryText.setText(null);
         mSecondaryText.setText(null);
+        mLastUpdatedText.setText(null);
+        mLastUpdatedText.setVisibility(GONE);
         mToggles.clear();
         mRowAction = null;
-        mDivider.setVisibility(View.GONE);
+        mDivider.setVisibility(GONE);
         if (mRangeBar != null) {
             removeView(mRangeBar);
         }
