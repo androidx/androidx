@@ -105,8 +105,30 @@ public abstract class SliceProvider extends ContentProvider implements
     private static final String TAG = "SliceProvider";
 
     private static final boolean DEBUG = false;
+    private final String[] mAutoGrantPermissions;
 
     private SliceProviderCompat mCompat;
+
+
+    /**
+     * A version of constructing a SliceProvider that allows autogranting slice permissions
+     * to apps that hold specific platform permissions.
+     * <p>
+     * When an app tries to bind a slice from this provider that it does not have access to,
+     * This provider will check if the caller holds permissions to any of the autoGrantPermissions
+     * specified, if they do they will be granted persisted uri access to all slices of this
+     * provider.
+     *
+     * @param autoGrantPermissions List of permissions that holders are auto-granted access
+     *                             to slices.
+     */
+    public SliceProvider(@NonNull String... autoGrantPermissions) {
+        mAutoGrantPermissions = autoGrantPermissions;
+    }
+
+    public SliceProvider() {
+        mAutoGrantPermissions = new String[0];
+    }
 
     /**
      * Implement this to initialize your slice provider on startup.
@@ -128,7 +150,8 @@ public abstract class SliceProvider extends ContentProvider implements
     @Override
     public Object getWrapper() {
         if (BuildCompat.isAtLeastP()) {
-            return new SliceProviderWrapperContainer.SliceProviderWrapper(this);
+            return new SliceProviderWrapperContainer.SliceProviderWrapper(this,
+                    mAutoGrantPermissions);
         }
         return null;
     }
@@ -136,19 +159,22 @@ public abstract class SliceProvider extends ContentProvider implements
     @Override
     public final boolean onCreate() {
         if (!BuildCompat.isAtLeastP()) {
-            mCompat = new SliceProviderCompat(this, onCreatePermissionManager(), getContext());
+            mCompat = new SliceProviderCompat(this,
+                    onCreatePermissionManager(mAutoGrantPermissions), getContext());
         }
         return onCreateSliceProvider();
     }
 
     /**
      * @hide
+     * @param autoGrantPermissions
      */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected CompatPermissionManager onCreatePermissionManager() {
+    protected CompatPermissionManager onCreatePermissionManager(
+            String[] autoGrantPermissions) {
         return new CompatPermissionManager(getContext(), PERMS_PREFIX + getClass().getName(),
-                Process.myUid());
+                Process.myUid(), autoGrantPermissions);
     }
 
     @Override

@@ -239,9 +239,10 @@ public class SliceManagerTest {
             }
         }
 
-        protected CompatPermissionManager onCreatePermissionManager() {
+        protected CompatPermissionManager onCreatePermissionManager(
+                String[] autoGrantPermissions) {
             return new CompatPermissionManager(getContext(), PERMS_PREFIX + getClass().getName(),
-                    -1 /* Different uid to run permissions */);
+                    -1 /* Different uid to run permissions */, autoGrantPermissions);
         }
 
         @Override

@@ -71,7 +71,12 @@ public class SliceProviderCompatTest {
 
         when(provider.onBindSlice(eq(uri))).thenReturn(s);
         SliceProviderCompat compat = new SliceProviderCompat(provider, permissions,
-                mContext);
+                mContext) {
+            @Override
+            public String getCallingPackage() {
+                return mContext.getPackageName();
+            }
+        };
 
         Bundle b = new Bundle();
         b.putParcelable(EXTRA_BIND_URI, uri);
@@ -99,7 +104,12 @@ public class SliceProviderCompatTest {
 
         when(provider.onBindSlice(eq(uri))).thenReturn(s);
         SliceProviderCompat compat = new SliceProviderCompat(provider, permissions,
-                mContext);
+                mContext) {
+            @Override
+            public String getCallingPackage() {
+                return mContext.getPackageName();
+            }
+        };
 
         Bundle b = new Bundle();
         b.putParcelable(EXTRA_BIND_URI, uri);

@@ -46,11 +46,14 @@ public class CompatPermissionManager {
     private final Context mContext;
     private final String mPrefsName;
     private final int mMyUid;
+    private final String[] mAutoGrantPermissions;
 
-    public CompatPermissionManager(Context context, String prefsName, int myUid) {
+    public CompatPermissionManager(Context context, String prefsName, int myUid,
+            String[] autoGrantPermissions) {
         mContext = context;
         mPrefsName = prefsName;
         mMyUid = myUid;
+        mAutoGrantPermissions = autoGrantPermissions;
     }
 
     private SharedPreferences getPrefs() {
@@ -61,8 +64,17 @@ public class CompatPermissionManager {
         if (uid == mMyUid) {
             return PERMISSION_GRANTED;
         }
-        for (String pkg : mContext.getPackageManager().getPackagesForUid(uid)) {
+        String[] pkgs = mContext.getPackageManager().getPackagesForUid(uid);
+        for (String pkg : pkgs) {
             if (checkSlicePermission(uri, pkg) == PERMISSION_GRANTED) {
+                return PERMISSION_GRANTED;
+            }
+        }
+        for (String autoGrantPermission : mAutoGrantPermissions) {
+            if (mContext.checkPermission(autoGrantPermission, pid, uid) == PERMISSION_GRANTED) {
+                for (String pkg : pkgs) {
+                    grantSlicePermission(uri, pkg);
+                }
                 return PERMISSION_GRANTED;
             }
         }
