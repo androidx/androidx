@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+~ Copyright 2018 The Android Open Source Project
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~      http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="abc_slices_permission_request" msgid="3604847235923472451">"<xliff:g id="APP_0">%1$s</xliff:g> හට කොටස් <xliff:g id="APP_2">%2$s</xliff:g>ක් පෙන්වීමට අවශ්‍යයි"</string>
+    <string name="abc_slice_permission_title" msgid="4175332421259324948">"<xliff:g id="APP_0">%1$s</xliff:g> හට කොටස් <xliff:g id="APP_2">%2$s</xliff:g>ක් පෙන්වීමට ඉඩ දෙන්නද?"</string>
+    <string name="abc_slice_permission_text_1" msgid="4525743640399572811">"- එයට <xliff:g id="APP">%1$s</xliff:g> වෙතින් තොරතුරු කියවිය හැකිය"</string>
+    <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- එයට <xliff:g id="APP">%1$s</xliff:g> ඇතුළත ක්‍රියාමාර්ග ගත හැකිය"</string>
+    <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"ඕනෑම යෙදුමකින් කොටස් පෙන්වීමට <xliff:g id="APP">%1$s</xliff:g> හට ඉඩ දෙන්න"</string>
+    <string name="abc_slice_permission_allow" msgid="5024599872061409708">"ඉඩ දෙන්න"</string>
+    <string name="abc_slice_permission_deny" msgid="3819478292430407705">"ප්‍රතික්ෂේප කර."</string>
+</resources>

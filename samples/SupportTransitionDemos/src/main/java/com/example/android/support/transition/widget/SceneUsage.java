@@ -16,11 +16,12 @@
 
 package com.example.android.support.transition.widget;
 
-import com.example.android.support.transition.R;
-
-import android.support.transition.Scene;
-import android.support.transition.TransitionManager;
 import android.view.ViewGroup;
+
+import androidx.transition.Scene;
+import androidx.transition.TransitionManager;
+
+import com.example.android.support.transition.R;
 
 /**
  * This demonstrates basic usage of the Transition Scene.

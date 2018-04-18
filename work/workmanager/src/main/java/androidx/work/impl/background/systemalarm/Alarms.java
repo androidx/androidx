@@ -130,4 +130,7 @@ class Alarms {
             }
         }
     }
+
+    private Alarms() {
+    }
 }

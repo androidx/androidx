@@ -25,6 +25,8 @@
     <item name="ws_action_drawer_item_last_item_bottom_padding" type="fraction">15%</item>
     <item name="ws_action_drawer_item_left_padding" type="fraction">15%</item>
     <item name="ws_action_drawer_item_right_padding" type="fraction">10%</item>
+    <item name="ws_action_drawer_title_start" format="float" type="dimen">.15</item>
+    <item name="ws_action_drawer_title_end" format="float" type="dimen">.85</item>
     <dimen name="ws_action_drawer_item_top_padding">8dp</dimen>
     <dimen name="ws_action_drawer_item_bottom_padding">8dp</dimen>
     <dimen name="ws_action_drawer_item_icon_right_margin">8dp</dimen>
@@ -77,4 +79,11 @@
 
     <!-- Default stroke width for CircularProgressLayout -->
     <dimen name="circular_progress_layout_stroke_width">4dp</dimen>
-</resources>
+
+    <!-- ConfirmationOverlay sizes which have corresponding entries in:
+        values-round, values-sw180dp-notround, values-sw210dp-round. -->
+    <dimen name="confirmation_overlay_image_size">64dp</dimen>
+    <item name="confirmation_overlay_margin_side" type="fraction">4.167%</item>
+    <item name="confirmation_overlay_margin_above_text" type="fraction">5%</item>
+    <dimen name="confirmation_overlay_text_size">14sp</dimen>
+  </resources>

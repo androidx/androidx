@@ -1,0 +1,12 @@
+package androidx.localbroadcastmanager.content {
+
+  public final class LocalBroadcastManager {
+    method public static androidx.localbroadcastmanager.content.LocalBroadcastManager getInstance(android.content.Context);
+    method public void registerReceiver(android.content.BroadcastReceiver, android.content.IntentFilter);
+    method public boolean sendBroadcast(android.content.Intent);
+    method public void sendBroadcastSync(android.content.Intent);
+    method public void unregisterReceiver(android.content.BroadcastReceiver);
+  }
+
+}
+

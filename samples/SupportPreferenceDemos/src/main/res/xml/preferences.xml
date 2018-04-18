@@ -31,6 +31,12 @@
         android:title="@string/title_stylish_preference"
         android:summary="@string/summary_stylish_preference" />
 
+    <Preference
+        android:key="preference_with_icon"
+        android:title="Preference with icon"
+        android:summary="This preference has an icon"
+        android:icon="@android:drawable/ic_menu_camera" />
+
     <PreferenceCategory
         android:title="@string/inline_preferences">
 
@@ -38,6 +44,11 @@
             android:key="checkbox_preference"
             android:title="@string/title_checkbox_preference"
             android:summary="@string/summary_checkbox_preference" />
+
+        <SwitchPreference
+            android:key="switch_preference"
+            android:title="Switch preference"
+            android:summary="This is a switch" />
 
         <DropDownPreference
             android:key="dropdown_preference"

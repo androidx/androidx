@@ -19,24 +19,24 @@ package com.example.android.supportv7.widget.selection.fancy;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
-import com.example.android.supportv7.R;
+import androidx.annotation.CallSuper;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.selection.SelectionPredicates;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
+import androidx.recyclerview.selection.StorageStrategy;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import androidx.widget.recyclerview.selection.ItemDetailsLookup.ItemDetails;
-import androidx.widget.recyclerview.selection.ItemKeyProvider;
-import androidx.widget.recyclerview.selection.SelectionPredicates;
-import androidx.widget.recyclerview.selection.SelectionTracker;
-import androidx.widget.recyclerview.selection.SelectionTracker.SelectionObserver;
-import androidx.widget.recyclerview.selection.StorageStrategy;
+import com.example.android.supportv7.R;
 
 /**
  * ContentPager demo activity.
@@ -178,7 +178,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     }
 
     private static final class FocusDelegate extends
-            androidx.widget.recyclerview.selection.FocusDelegate<Uri> {
+            androidx.recyclerview.selection.FocusDelegate<Uri> {
 
         private final Context mContext;
 
@@ -208,7 +208,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     }
 
     private static final class OnItemActivatedListener implements
-            androidx.widget.recyclerview.selection.OnItemActivatedListener<Uri> {
+            androidx.recyclerview.selection.OnItemActivatedListener<Uri> {
 
         private final Context mContext;
 
@@ -224,7 +224,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     }
 
     private static final class OnContextClickListener implements
-            androidx.widget.recyclerview.selection.OnContextClickListener {
+            androidx.recyclerview.selection.OnContextClickListener {
 
         private final Context mContext;
 
@@ -240,7 +240,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     };
 
     private static final class OnDragInitiatedListener implements
-            androidx.widget.recyclerview.selection.OnDragInitiatedListener {
+            androidx.recyclerview.selection.OnDragInitiatedListener {
 
         private final Context mContext;
 

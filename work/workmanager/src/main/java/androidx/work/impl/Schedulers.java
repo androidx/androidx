@@ -136,4 +136,7 @@ public class Schedulers {
                 .getConstructor(Context.class)
                 .newInstance(context);
     }
+
+    private Schedulers() {
+    }
 }

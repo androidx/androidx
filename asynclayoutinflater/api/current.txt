@@ -1,0 +1,13 @@
+package androidx.asynclayoutinflater.view {
+
+  public final class AsyncLayoutInflater {
+    ctor public AsyncLayoutInflater(android.content.Context);
+    method public void inflate(int, android.view.ViewGroup, androidx.asynclayoutinflater.view.AsyncLayoutInflater.OnInflateFinishedListener);
+  }
+
+  public static abstract interface AsyncLayoutInflater.OnInflateFinishedListener {
+    method public abstract void onInflateFinished(android.view.View, int, android.view.ViewGroup);
+  }
+
+}
+

@@ -44,12 +44,12 @@
                 android:onClick="onScrollClicked"/>
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
             android:layout_width="fill_parent"
             android:layout_height="60dp"
             android:scrollbars="horizontal"
             android:id="@+id/config_recycler_view"/>
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
             android:background="#ff0099cc"
             android:scrollbarStyle="insideOverlay"
             android:scrollbars="horizontal|vertical"

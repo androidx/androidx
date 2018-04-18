@@ -14,14 +14,22 @@
  * limitations under the License
  */
 
-version '1.0'
+plugins {
+    id("SupportKotlinLibraryPlugin")
+    id("application")
+}
 
-apply plugin: "application"
-
-mainClassName = "android.support.tools.jetifier.standalone.MainKt"
+mainClassName = "com.android.tools.build.jetifier.standalone.Main"
 
 dependencies {
-    compile project(':core')
+    compile project(':jetifier-processor')
     compile group: 'commons-cli', name: 'commons-cli', version: '1.3.1'
 }
+
+task dist(type: Copy) {
+  from project.tasks.findByPath("distZip") // defined by application plugin
+
+  destinationDir rootProject.distDir // defined by support library plugin
+}
+rootProject.tasks["createArchive"].dependsOn(dist)
 

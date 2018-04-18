@@ -17,25 +17,12 @@
 package androidx.car.widget;
 
 import android.app.Activity;
-import android.car.Car;
-import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictions;
-import android.car.drivingstate.CarUxRestrictionsManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.support.annotation.IntDef;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
-import android.support.annotation.StyleRes;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,8 +32,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.function.Function;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.IntDef;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.StyleRes;
 import androidx.car.R;
+import androidx.car.utils.CarUxRestrictionsHelper;
 import androidx.car.utils.ListItemBackgroundResolver;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Adapter for {@link PagedListView} to display {@link ListItem}.
@@ -73,41 +67,49 @@ public class ListItemAdapter extends
 
         /**
          * Sets the background color of each item.
+         * Background can be configured by {@link R.styleable#ListItem_listItemBackgroundColor}.
          */
-        public static final int NONE = 0;
+        public static final int SOLID = 0;
+        /**
+         * Sets the background color of each item to none (transparent).
+         */
+        public static final int NONE = 1;
         /**
          * Sets each item in {@link CardView} with a rounded corner background and shadow.
          */
-        public static final int CARD = 1;
+        public static final int CARD = 2;
         /**
          * Sets background of each item so the combined list looks like one elongated card, namely
          * top and bottom item will have rounded corner at only top/bottom side respectively. If
          * only one item exists, it will have both top and bottom rounded corner.
          */
-        public static final int PANEL = 2;
+        public static final int PANEL = 3;
     }
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
+        BackgroundStyle.SOLID,
         BackgroundStyle.NONE,
         BackgroundStyle.CARD,
-        BackgroundStyle.PANEL })
+        BackgroundStyle.PANEL
+    })
     private @interface ListBackgroundStyle {}
 
     static final int LIST_ITEM_TYPE_TEXT = 1;
     static final int LIST_ITEM_TYPE_SEEKBAR = 2;
+    static final int LIST_ITEM_TYPE_SUBHEADER = 3;
 
     private final SparseIntArray mViewHolderLayoutResIds = new SparseIntArray();
     private final SparseArray<Function<View, ListItem.ViewHolder>> mViewHolderCreator =
             new SparseArray<>();
 
     @ListBackgroundStyle private int mBackgroundStyle;
-    @StyleRes private int mListItemStyle;
+
+    @ColorInt private int mListItemBackgroundColor;
     @StyleRes private int mListItemTitleTextAppearance;
     @StyleRes private int mListItemBodyTextAppearance;
 
-    private final Car mCar;
-    @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
+    private final CarUxRestrictionsHelper mUxRestrictionsHelper;
     private CarUxRestrictions mCurrentUxRestrictions;
 
     private Context mContext;
@@ -115,8 +117,11 @@ public class ListItemAdapter extends
 
     private int mMaxItems = PagedListView.ItemCap.UNLIMITED;
 
+    /**
+     * Defaults {@link BackgroundStyle} to {@link BackgroundStyle#SOLID}.
+     */
     public ListItemAdapter(Context context, ListItemProvider itemProvider) {
-        this(context, itemProvider, BackgroundStyle.NONE);
+        this(context, itemProvider, BackgroundStyle.SOLID);
     }
 
     public ListItemAdapter(Context context, ListItemProvider itemProvider,
@@ -129,8 +134,14 @@ public class ListItemAdapter extends
                 R.layout.car_list_item_text_content, TextListItem::createViewHolder);
         registerListItemViewType(LIST_ITEM_TYPE_SEEKBAR,
                 R.layout.car_list_item_seekbar_content, SeekbarListItem::createViewHolder);
+        registerListItemViewType(LIST_ITEM_TYPE_SUBHEADER,
+                R.layout.car_list_item_subheader_content, SubheaderListItem::createViewHolder);
 
-        mCar = Car.createCar(context, mServiceConnection);
+        mUxRestrictionsHelper =
+                new CarUxRestrictionsHelper(context, carUxRestrictions -> {
+                    mCurrentUxRestrictions = carUxRestrictions;
+                    notifyDataSetChanged();
+                });
     }
 
     /**
@@ -142,9 +153,7 @@ public class ListItemAdapter extends
      * <p>This method must be accompanied with a matching {@link #stop()} to avoid leak.
      */
     public void start() {
-        if (!mCar.isConnected()) {
-            mCar.connect();
-        }
+        mUxRestrictionsHelper.start();
     }
 
     /**
@@ -154,11 +163,11 @@ public class ListItemAdapter extends
      * time of this adapter being discarded.
      */
     public void stop() {
-        mCar.disconnect();
+        mUxRestrictionsHelper.stop();
     }
 
     /**
-     * Registers a function that returns {@link android.support.v7.widget.RecyclerView.ViewHolder}
+     * Registers a function that returns {@link RecyclerView.ViewHolder}
      * for its matching view type returned by {@link ListItem#getViewType()}.
      *
      * <p>The function will receive a view as {@link RecyclerView.ViewHolder#itemView}. This view
@@ -185,9 +194,11 @@ public class ListItemAdapter extends
         // When attached to the RecyclerView, update the Context so that this ListItemAdapter can
         // retrieve theme information off that view.
         mContext = recyclerView.getContext();
-        mListItemStyle = getListItemStyle(mContext);
 
-        TypedArray a = mContext.obtainStyledAttributes(mListItemStyle, R.styleable.ListItem);
+        TypedArray a = mContext.getTheme().obtainStyledAttributes(R.styleable.ListItem);
+
+        mListItemBackgroundColor = a.getColor(R.styleable.ListItem_listItemBackgroundColor,
+                mContext.getColor(R.color.car_card));
         mListItemTitleTextAppearance = a.getResourceId(
                 R.styleable.ListItem_listItemTitleTextAppearance,
                 R.style.TextAppearance_Car_Body1);
@@ -216,41 +227,29 @@ public class ListItemAdapter extends
      * Creates a view with background set by {@link BackgroundStyle}.
      */
     private ViewGroup createListItemContainer() {
-        TypedArray a = mContext.obtainStyledAttributes(mListItemStyle, R.styleable.ListItem);
-
         ViewGroup container;
-        switch (mBackgroundStyle) {
-            case BackgroundStyle.NONE:
-            case BackgroundStyle.PANEL:
-                FrameLayout frameLayout = new FrameLayout(mContext);
-                frameLayout.setLayoutParams(new RecyclerView.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                frameLayout.setBackgroundColor(a.getColor(
-                        R.styleable.ListItem_listItemBackgroundColor,
-                        R.color.car_card));
+        if (mBackgroundStyle == BackgroundStyle.CARD) {
+            CardView card = new CardView(mContext);
+            RecyclerView.LayoutParams cardLayoutParams = new RecyclerView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            cardLayoutParams.bottomMargin = mContext.getResources().getDimensionPixelSize(
+                    R.dimen.car_padding_3);
+            card.setLayoutParams(cardLayoutParams);
+            card.setRadius(mContext.getResources().getDimensionPixelSize(R.dimen.car_radius_1));
+            card.setCardBackgroundColor(mListItemBackgroundColor);
 
-                container = frameLayout;
-                break;
-            case BackgroundStyle.CARD:
-                CardView card = new CardView(mContext);
-                RecyclerView.LayoutParams cardLayoutParams = new RecyclerView.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                cardLayoutParams.bottomMargin = mContext.getResources().getDimensionPixelSize(
-                        R.dimen.car_padding_3);
-                card.setLayoutParams(cardLayoutParams);
-                card.setRadius(mContext.getResources().getDimensionPixelSize(R.dimen.car_radius_1));
-                card.setCardBackgroundColor(a.getColor(
-                        R.styleable.ListItem_listItemBackgroundColor,
-                        R.color.car_card));
+            container = card;
+        } else {
+            FrameLayout frameLayout = new FrameLayout(mContext);
+            frameLayout.setLayoutParams(new RecyclerView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            // Skip setting background color for NONE.
+            if (mBackgroundStyle != BackgroundStyle.NONE) {
+                frameLayout.setBackgroundColor(mListItemBackgroundColor);
+            }
 
-                container = card;
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown background style. "
-                    + "Expected constants in class ListItemAdapter.BackgroundStyle.");
+            container = frameLayout;
         }
-
-        a.recycle();
         return container;
     }
 
@@ -297,51 +296,5 @@ public class ListItemAdapter extends
         // Check if position is within range, and then check the item flag.
         return position >= 0 && position < getItemCount()
                 && mItemProvider.get(position).shouldHideDivider();
-    }
-
-    // Keep onUxRestrictionsChangedListener an internal var to avoid exposing APIs from android.car.
-    // Otherwise car sample apk will fail at compile time due to not having access to the stubs.
-    private CarUxRestrictionsManager.onUxRestrictionsChangedListener mUxrChangeListener =
-            new CarUxRestrictionsManager.onUxRestrictionsChangedListener() {
-            @Override
-            public void onUxRestrictionsChanged(CarUxRestrictions carUxRestrictions) {
-                mCurrentUxRestrictions = carUxRestrictions;
-                notifyDataSetChanged();
-            }
-        };
-
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                mCarUxRestrictionsManager = (CarUxRestrictionsManager)
-                        mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
-                mCarUxRestrictionsManager.registerListener(mUxrChangeListener);
-                mUxrChangeListener.onUxRestrictionsChanged(
-                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            try {
-                mCarUxRestrictionsManager.unregisterListener();
-                mCarUxRestrictionsManager = null;
-            } catch (CarNotConnectedException e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
-    /**
-     * Returns the style that has been assigned to {@code listItemStyle} in the
-     * current theme that is inflating this {@code ListItemAdapter}.
-     */
-    private static int getListItemStyle(Context context) {
-        TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.listItemStyle, outValue, true);
-        return outValue.resourceId;
     }
 }

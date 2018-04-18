@@ -16,9 +16,10 @@ package com.example.android.leanback;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v17.leanback.app.SearchFragment;
-import android.support.v17.leanback.widget.SpeechRecognitionCallback;
 import android.util.Log;
+
+import androidx.leanback.app.SearchFragment;
+import androidx.leanback.widget.SpeechRecognitionCallback;
 
 public class SearchActivity extends Activity
 {

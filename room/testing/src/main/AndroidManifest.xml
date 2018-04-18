@@ -15,5 +15,5 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.arch.persistence.room.testing">
+          package="androidx.room.testing">
 </manifest>

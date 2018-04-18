@@ -16,8 +16,9 @@
  */
 package com.example.android.leanback;
 
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+
+import androidx.fragment.app.FragmentActivity;
 
 public class VerticalGridSupportActivity extends FragmentActivity
 {

@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/TextStyleAllCapsOn"
+            android:id="@+id/text_view_caps1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/TextStyleAllCapsOff"
+            android:id="@+id/text_view_caps2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_view_app_allcaps_false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            app:textAllCaps="false"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_tinted_no_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            app:backgroundTint="@color/color_state_list_lilac"
+            app:backgroundTintMode="src_in" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_tinted_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            android:background="@drawable/test_drawable"
+            app:backgroundTint="@color/color_state_list_lilac"
+            app:backgroundTintMode="src_in" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_untinted_no_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_untinted_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            android:background="@drawable/test_background_green" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_untinted_deferred"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            android:background="@drawable/black_rect" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_text_color_hex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            android:textColor="#FF0000" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_text_color_csl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            android:textColor="@color/color_state_list_ocean" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_text_color_primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_text_color_secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text2"
+            android:textColor="?android:attr/textColorSecondary" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_text_link_enabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_link_enabled"
+            android:textColor="?android:attr/textColorSecondary" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/view_text_link_disabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="@string/text_link_disabled" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontresource_fontfamily_string_direct"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            app:fontFamily="sans-serif" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontresource_fontfamily_string_resource"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            app:fontFamily="@string/font_sans_serif" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontresource_fontfamily"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fontFamily="@font/samplefont" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontxmlresource_fontfamily"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fontFamily="@font/samplexmlfont" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontxmlresource_fontfamily_textstyle"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            app:fontFamily="@font/samplexmlfont" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontxmlresource_fontfamily_textstyle2"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:fontFamily="@font/samplexmlfont" />
+
+        <!-- This is here to test that the TextView constructor ignores references to
+         non Font resource types in the fontFamily attribute.-->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontxmlresource_nonFontReference"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fontFamily="@style/TextView_FontResource" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontresource_style"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TextView_FontResource" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontxmlresource_style"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TextView_FontXmlResource" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontresource_textAppearance"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextView_FontResource" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontxmlresource_textAppearance"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextView_FontXmlResource" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_textStyleOverride"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TextView_TextStyleOverride" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_textStyleDirect"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_simple"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_typeface_serif"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TextView_Typeface_Serif" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_typeface_monospace"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TextView_Typeface_Monospace" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_typeface_and_fontfamily"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextView_FontResource"
+            android:typeface="serif" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_app_and_android_fontfamily"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            app:fontFamily="monospace"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_baseline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            android:textSize="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            app:firstBaselineToTopHeight="@dimen/textview_firstBaselineToTopHeight"
+            app:lastBaselineToBottomHeight="@dimen/textview_lastBaselineToBottomHeight"
+            android:lineSpacingExtra="1dp"
+            android:lineSpacingMultiplier="0.5"
+            app:lineHeight="@dimen/textview_lineHeight" />
+    </LinearLayout>
+
+</ScrollView>

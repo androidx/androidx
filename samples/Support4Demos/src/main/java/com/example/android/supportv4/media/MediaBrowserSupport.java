@@ -17,9 +17,10 @@
 package com.example.android.supportv4.media;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.example.android.supportv4.R;
 

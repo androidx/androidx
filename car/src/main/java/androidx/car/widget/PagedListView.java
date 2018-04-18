@@ -16,7 +16,7 @@
 
 package androidx.car.widget;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -28,18 +28,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.support.annotation.ColorRes;
-import android.support.annotation.IdRes;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.UiThread;
-import android.support.annotation.VisibleForTesting;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.OrientationHelper;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -48,10 +36,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.car.R;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.OrientationHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * View that wraps a {@link android.support.v7.widget.RecyclerView} and a scroll bar that has
+ * View that wraps a {@link RecyclerView} and a scroll bar that has
  * page up and down arrows. Interaction with this view is similar to a {@code RecyclerView} as it
  * takes the same adapter.
  *
@@ -87,7 +87,6 @@ public class PagedListView extends FrameLayout {
      */
     private static final int PAGINATION_HOLD_DELAY_MS = 400;
 
-
     /**
      * When doing a snap, offset the snap by this number of position and then do a smooth scroll to
      * the final position.
@@ -103,6 +102,13 @@ public class PagedListView extends FrameLayout {
     private boolean mScrollBarEnabled;
     @VisibleForTesting
     PagedScrollBarView mScrollBarView;
+
+    /**
+     * AlphaJumpOverlayView that will be null until the first time you tap the alpha jump button, at
+     * which point we'll construct it and add it to the view hierarchy as a child of this frame
+     * layout.
+     */
+    @Nullable private AlphaJumpOverlayView mAlphaJumpView;
 
     private int mRowsPerPage = -1;
     private RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mAdapter;
@@ -127,11 +133,11 @@ public class PagedListView extends FrameLayout {
     private int mGutterSize;
 
     /**
-     * Interface for a {@link android.support.v7.widget.RecyclerView.Adapter} to cap the number of
+     * Interface for a {@link RecyclerView.Adapter} to cap the number of
      * items.
      *
      * <p>NOTE: it is still up to the adapter to use maxItems in {@link
-     * android.support.v7.widget.RecyclerView.Adapter#getItemCount()}.
+     * RecyclerView.Adapter#getItemCount()}.
      *
      * <p>the recommended way would be with:
      *
@@ -205,7 +211,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Interface for a {@link android.support.v7.widget.RecyclerView.Adapter} to set the position
+     * Interface for a {@link RecyclerView.Adapter} to set the position
      * offset for the adapter to load the data.
      *
      * <p>For example in the adapter, if the positionOffset is 20, then for position 0 it will show
@@ -254,8 +260,13 @@ public class PagedListView extends FrameLayout {
         mSnapHelper = new PagedSnapHelper(context);
         mSnapHelper.attachToRecyclerView(mRecyclerView);
 
-        mRecyclerView.setOnScrollListener(mRecyclerViewOnScrollListener);
+        mRecyclerView.addOnScrollListener(mRecyclerViewOnScrollListener);
         mRecyclerView.getRecycledViewPool().setMaxRecycledViews(0, 12);
+
+        if (a.getBoolean(R.styleable.PagedListView_verticallyCenterListContent, false)) {
+            // Setting the height of wrap_content allows the RecyclerView to center itself.
+            mRecyclerView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        }
 
         int defaultGutterSize = getResources().getDimensionPixelSize(R.dimen.car_margin);
         mGutterSize = a.getDimensionPixelSize(R.styleable.PagedListView_gutterSize,
@@ -307,23 +318,31 @@ public class PagedListView extends FrameLayout {
         setFocusable(false);
 
         mScrollBarEnabled = a.getBoolean(R.styleable.PagedListView_scrollBarEnabled, true);
-        mScrollBarView = (PagedScrollBarView) findViewById(R.id.paged_scroll_view);
-        mScrollBarView.setPaginationListener(direction -> {
-            switch (direction) {
-                case PagedScrollBarView.PaginationListener.PAGE_UP:
-                    pageUp();
-                    if (mOnScrollListener != null) {
-                        mOnScrollListener.onScrollUpButtonClicked();
-                    }
-                    break;
-                case PagedScrollBarView.PaginationListener.PAGE_DOWN:
-                    pageDown();
-                    if (mOnScrollListener != null) {
-                        mOnScrollListener.onScrollDownButtonClicked();
-                    }
-                    break;
-                default:
-                    Log.e(TAG, "Unknown pagination direction (" + direction + ")");
+        mScrollBarView = findViewById(R.id.paged_scroll_view);
+        mScrollBarView.setPaginationListener(new PagedScrollBarView.PaginationListener() {
+            @Override
+            public void onPaginate(int direction) {
+                switch (direction) {
+                    case PagedScrollBarView.PaginationListener.PAGE_UP:
+                        pageUp();
+                        if (mOnScrollListener != null) {
+                            mOnScrollListener.onScrollUpButtonClicked();
+                        }
+                        break;
+                    case PagedScrollBarView.PaginationListener.PAGE_DOWN:
+                        pageDown();
+                        if (mOnScrollListener != null) {
+                            mOnScrollListener.onScrollDownButtonClicked();
+                        }
+                        break;
+                    default:
+                        Log.e(TAG, "Unknown pagination direction (" + direction + ")");
+                }
+            }
+
+            @Override
+            public void onAlphaJump() {
+                showAlphaJump();
             }
         });
 
@@ -335,6 +354,12 @@ public class PagedListView extends FrameLayout {
         Drawable downButtonIcon = a.getDrawable(R.styleable.PagedListView_downButtonIcon);
         if (downButtonIcon != null) {
             setDownButtonIcon(downButtonIcon);
+        }
+
+        // Using getResourceId() over getColor() because setScrollbarColor() expects a color resId.
+        int scrollBarColor = a.getResourceId(R.styleable.PagedListView_scrollBarColor, -1);
+        if (scrollBarColor != -1) {
+            setScrollbarColor(scrollBarColor);
         }
 
         mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
@@ -525,7 +550,6 @@ public class PagedListView extends FrameLayout {
         if ((layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
             PointF vector = ((RecyclerView.SmoothScroller.ScrollVectorProvider) layoutManager)
                     .computeScrollVectorForPosition(position);
-
             // A positive value in the vector means scrolling down, so should offset by scrolling to
             // an item previous in the list.
             int offsetDirection = (vector == null || vector.y > 0) ? -1 : 1;
@@ -576,6 +600,7 @@ public class PagedListView extends FrameLayout {
         mRecyclerView.setAdapter(adapter);
 
         updateMaxItems();
+        updateAlphaJump();
     }
 
     /**
@@ -645,7 +670,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Adds an {@link android.support.v7.widget.RecyclerView.ItemDecoration} to this PagedListView.
+     * Adds an {@link RecyclerView.ItemDecoration} to this PagedListView.
      *
      * @param decor The decoration to add.
      * @see RecyclerView#addItemDecoration(RecyclerView.ItemDecoration)
@@ -655,7 +680,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Removes the given {@link android.support.v7.widget.RecyclerView.ItemDecoration} from this
+     * Removes the given {@link RecyclerView.ItemDecoration} from this
      * PagedListView.
      *
      * <p>The decoration will function the same as the item decoration for a {@link RecyclerView}.
@@ -713,7 +738,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Adds an {@link android.support.v7.widget.RecyclerView.OnItemTouchListener} to this
+     * Adds an {@link RecyclerView.OnItemTouchListener} to this
      * PagedListView.
      *
      * <p>The listener will function the same as the listener for a regular {@link RecyclerView}.
@@ -726,7 +751,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Removes the given {@link android.support.v7.widget.RecyclerView.OnItemTouchListener} from
+     * Removes the given {@link RecyclerView.OnItemTouchListener} from
      * the PagedListView.
      *
      * @param touchListener The touch listener to remove.
@@ -835,6 +860,13 @@ public class PagedListView extends FrameLayout {
                 getOrientationHelper(mRecyclerView.getLayoutManager());
         int screenSize = mRecyclerView.getHeight();
         int scrollDistance = screenSize;
+
+        // If the last item is partially visible, page down should bring it to the top.
+        View lastChild = mRecyclerView.getChildAt(mRecyclerView.getChildCount() - 1);
+        if (mRecyclerView.getLayoutManager().isViewPartiallyVisible(lastChild,
+                /* completelyVisible= */ false, /* acceptEndPointInclusion= */ false)) {
+            scrollDistance = orientationHelper.getDecoratedStart(lastChild);
+        }
 
         // The iteration order matters. In case where there are 2 items longer than screen size, we
         // want to focus on upcoming view (the one at the bottom of screen).
@@ -1109,6 +1141,21 @@ public class PagedListView extends FrameLayout {
         dispatchThawSelfOnly(container);
     }
 
+    private void updateAlphaJump() {
+        boolean supportsAlphaJump = (mAdapter instanceof IAlphaJumpAdapter);
+        mScrollBarView.setShowAlphaJump(supportsAlphaJump);
+    }
+
+    private void showAlphaJump() {
+        if (mAlphaJumpView == null && mAdapter instanceof IAlphaJumpAdapter) {
+            mAlphaJumpView = new AlphaJumpOverlayView(getContext());
+            mAlphaJumpView.init(this, (IAlphaJumpAdapter) mAdapter);
+            addView(mAlphaJumpView);
+        }
+
+        mAlphaJumpView.setVisibility(View.VISIBLE);
+    }
+
     private final RecyclerView.OnScrollListener mRecyclerViewOnScrollListener =
             new RecyclerView.OnScrollListener() {
                 @Override
@@ -1162,6 +1209,12 @@ public class PagedListView extends FrameLayout {
         public void onScrollUpButtonClicked() {}
         /** Called when scroll down button is clicked */
         public void onScrollDownButtonClicked() {}
+        /** Called when the alpha jump button is clicked. */
+        public void onAlphaJumpButtonClicked() {}
+        /** Called when scrolling to the previous page via up gesture */
+        public void onGestureUp() {}
+        /** Called when scrolling to the next page via down gesture */
+        public void onGestureDown() {}
 
         /**
          * Called when RecyclerView.OnScrollListener#onScrolled is called. See
@@ -1174,7 +1227,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * A {@link android.support.v7.widget.RecyclerView.ItemDecoration} that will add spacing
+     * A {@link RecyclerView.ItemDecoration} that will add spacing
      * between each item in the RecyclerView that it is added to.
      */
     private static class ItemSpacingDecoration extends RecyclerView.ItemDecoration {
@@ -1208,7 +1261,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * A {@link android.support.v7.widget.RecyclerView.ItemDecoration} that will draw a dividing
+     * A {@link RecyclerView.ItemDecoration} that will draw a dividing
      * line between each item in the RecyclerView that it is added to.
      */
     private static class DividerDecoration extends RecyclerView.ItemDecoration {
@@ -1347,7 +1400,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * A {@link android.support.v7.widget.RecyclerView.ItemDecoration} that will add a top offset
+     * A {@link RecyclerView.ItemDecoration} that will add a top offset
      * to the first item in the RecyclerView it is added to.
      */
     private static class TopOffsetDecoration extends RecyclerView.ItemDecoration {

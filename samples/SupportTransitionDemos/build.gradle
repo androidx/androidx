@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     implementation(project(":transition"))
-    implementation(project(":appcompat-v7"))
+    implementation(project(":appcompat"))
 }
 
 android {

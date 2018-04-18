@@ -14,11 +14,12 @@
 package com.example.android.leanback;
 
 import android.content.Context;
-import android.support.v17.leanback.widget.Presenter;
-import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.core.content.res.ResourcesCompat;
+import androidx.leanback.widget.Presenter;
 
 public class StringPresenter extends Presenter {
     private static final String TAG = "StringPresenter";

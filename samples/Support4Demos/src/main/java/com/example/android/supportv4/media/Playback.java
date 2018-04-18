@@ -16,6 +16,12 @@
 
 package com.example.android.supportv4.media;
 
+import static android.media.MediaPlayer.OnCompletionListener;
+import static android.media.MediaPlayer.OnErrorListener;
+import static android.media.MediaPlayer.OnPreparedListener;
+import static android.media.MediaPlayer.OnSeekCompleteListener;
+import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,12 +39,6 @@ import com.example.android.supportv4.media.model.MusicProvider;
 import com.example.android.supportv4.media.utils.MediaIDHelper;
 
 import java.io.IOException;
-
-import static android.media.MediaPlayer.OnCompletionListener;
-import static android.media.MediaPlayer.OnErrorListener;
-import static android.media.MediaPlayer.OnPreparedListener;
-import static android.media.MediaPlayer.OnSeekCompleteListener;
-import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
 
 /**
  * A class that implements local media playback using {@link android.media.MediaPlayer}

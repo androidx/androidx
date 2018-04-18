@@ -1,0 +1,157 @@
+package androidx.recyclerview.selection {
+
+  public abstract class BandPredicate {
+    ctor public BandPredicate();
+    method public abstract boolean canInitiate(android.view.MotionEvent);
+  }
+
+  public static final class BandPredicate.EmptyArea extends androidx.recyclerview.selection.BandPredicate {
+    ctor public BandPredicate.EmptyArea(androidx.recyclerview.widget.RecyclerView);
+    method public boolean canInitiate(android.view.MotionEvent);
+  }
+
+  public static final class BandPredicate.NonDraggableArea extends androidx.recyclerview.selection.BandPredicate {
+    ctor public BandPredicate.NonDraggableArea(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.selection.ItemDetailsLookup);
+    method public boolean canInitiate(android.view.MotionEvent);
+  }
+
+  public abstract class FocusDelegate<K> {
+    ctor public FocusDelegate();
+    method public abstract void clearFocus();
+    method public abstract void focusItem(androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails<K>);
+    method public abstract int getFocusedPosition();
+    method public abstract boolean hasFocusedItem();
+  }
+
+  public abstract class ItemDetailsLookup<K> {
+    ctor public ItemDetailsLookup();
+    method public abstract androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails<K> getItemDetails(android.view.MotionEvent);
+  }
+
+  public static abstract class ItemDetailsLookup.ItemDetails<K> {
+    ctor public ItemDetailsLookup.ItemDetails();
+    method public abstract int getPosition();
+    method public abstract K getSelectionKey();
+    method public boolean hasSelectionKey();
+    method public boolean inDragRegion(android.view.MotionEvent);
+    method public boolean inSelectionHotspot(android.view.MotionEvent);
+  }
+
+  public abstract class ItemKeyProvider<K> {
+    ctor protected ItemKeyProvider(int);
+    method public abstract K getKey(int);
+    method public abstract int getPosition(K);
+    field public static final int SCOPE_CACHED = 1; // 0x1
+    field public static final int SCOPE_MAPPED = 0; // 0x0
+  }
+
+  public static abstract class ItemKeyProvider.Scope implements java.lang.annotation.Annotation {
+  }
+
+  public final class MutableSelection<K> extends androidx.recyclerview.selection.Selection {
+    ctor public MutableSelection();
+    method public boolean add(K);
+    method public void clear();
+    method public void copyFrom(androidx.recyclerview.selection.Selection<K>);
+    method public boolean remove(K);
+  }
+
+  public abstract interface OnContextClickListener {
+    method public abstract boolean onContextClick(android.view.MotionEvent);
+  }
+
+  public abstract interface OnDragInitiatedListener {
+    method public abstract boolean onDragInitiated(android.view.MotionEvent);
+  }
+
+  public abstract interface OnItemActivatedListener<K> {
+    method public abstract boolean onItemActivated(androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails<K>, android.view.MotionEvent);
+  }
+
+  public final class OperationMonitor {
+    ctor public OperationMonitor();
+    method public void addListener(androidx.recyclerview.selection.OperationMonitor.OnChangeListener);
+    method public synchronized boolean isStarted();
+    method public void removeListener(androidx.recyclerview.selection.OperationMonitor.OnChangeListener);
+  }
+
+  public static abstract interface OperationMonitor.OnChangeListener {
+    method public abstract void onChanged();
+  }
+
+  public class Selection<K> implements java.lang.Iterable {
+    method public boolean contains(K);
+    method public boolean isEmpty();
+    method public java.util.Iterator<K> iterator();
+    method public int size();
+  }
+
+  public final class SelectionPredicates {
+    method public static <K> androidx.recyclerview.selection.SelectionTracker.SelectionPredicate<K> createSelectAnything();
+    method public static <K> androidx.recyclerview.selection.SelectionTracker.SelectionPredicate<K> createSelectSingleAnything();
+  }
+
+  public abstract class SelectionTracker<K> {
+    ctor public SelectionTracker();
+    method public abstract void addObserver(androidx.recyclerview.selection.SelectionTracker.SelectionObserver);
+    method public abstract boolean clearSelection();
+    method public abstract void copySelection(androidx.recyclerview.selection.MutableSelection<K>);
+    method public abstract boolean deselect(K);
+    method public abstract androidx.recyclerview.selection.Selection<K> getSelection();
+    method public abstract boolean hasSelection();
+    method public abstract boolean isSelected(K);
+    method public abstract void onRestoreInstanceState(android.os.Bundle);
+    method public abstract void onSaveInstanceState(android.os.Bundle);
+    method protected abstract void restoreSelection(androidx.recyclerview.selection.Selection<K>);
+    method public abstract boolean select(K);
+    method public abstract boolean setItemsSelected(java.lang.Iterable<K>, boolean);
+    field public static final java.lang.String SELECTION_CHANGED_MARKER = "Selection-Changed";
+  }
+
+  public static final class SelectionTracker.Builder<K> {
+    ctor public SelectionTracker.Builder(java.lang.String, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.selection.ItemKeyProvider<K>, androidx.recyclerview.selection.ItemDetailsLookup<K>, androidx.recyclerview.selection.StorageStrategy<K>);
+    method public androidx.recyclerview.selection.SelectionTracker<K> build();
+    method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withBandOverlay(int);
+    method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withBandPredicate(androidx.recyclerview.selection.BandPredicate);
+    method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withFocusDelegate(androidx.recyclerview.selection.FocusDelegate<K>);
+    method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withGestureTooltypes(int...);
+    method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withOnContextClickListener(androidx.recyclerview.selection.OnContextClickListener);
+    method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withOnDragInitiatedListener(androidx.recyclerview.selection.OnDragInitiatedListener);
+    method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withOnItemActivatedListener(androidx.recyclerview.selection.OnItemActivatedListener<K>);
+    method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withOperationMonitor(androidx.recyclerview.selection.OperationMonitor);
+    method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withPointerTooltypes(int...);
+    method public androidx.recyclerview.selection.SelectionTracker.Builder<K> withSelectionPredicate(androidx.recyclerview.selection.SelectionTracker.SelectionPredicate<K>);
+  }
+
+  public static abstract class SelectionTracker.SelectionObserver<K> {
+    ctor public SelectionTracker.SelectionObserver();
+    method public void onItemStateChanged(K, boolean);
+    method public void onSelectionChanged();
+    method public void onSelectionRefresh();
+    method public void onSelectionRestored();
+  }
+
+  public static abstract class SelectionTracker.SelectionPredicate<K> {
+    ctor public SelectionTracker.SelectionPredicate();
+    method public abstract boolean canSelectMultiple();
+    method public abstract boolean canSetStateAtPosition(int, boolean);
+    method public abstract boolean canSetStateForKey(K, boolean);
+  }
+
+  public final class StableIdKeyProvider extends androidx.recyclerview.selection.ItemKeyProvider {
+    ctor public StableIdKeyProvider(androidx.recyclerview.widget.RecyclerView);
+    method public java.lang.Long getKey(int);
+    method public int getPosition(java.lang.Long);
+  }
+
+  public abstract class StorageStrategy<K> {
+    ctor public StorageStrategy(java.lang.Class<K>);
+    method public abstract android.os.Bundle asBundle(androidx.recyclerview.selection.Selection<K>);
+    method public abstract androidx.recyclerview.selection.Selection<K> asSelection(android.os.Bundle);
+    method public static androidx.recyclerview.selection.StorageStrategy<java.lang.Long> createLongStorage();
+    method public static <K extends android.os.Parcelable> androidx.recyclerview.selection.StorageStrategy<K> createParcelableStorage(java.lang.Class<K>);
+    method public static androidx.recyclerview.selection.StorageStrategy<java.lang.String> createStringStorage();
+  }
+
+}
+

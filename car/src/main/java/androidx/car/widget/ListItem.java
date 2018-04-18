@@ -1,17 +1,17 @@
 package androidx.car.widget;
 
 import android.car.drivingstate.CarUxRestrictions;
-import android.support.annotation.CallSuper;
-import android.support.annotation.Nullable;
-import android.support.annotation.StyleRes;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
 import androidx.car.R;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Definition of items that can be inserted into {@link ListItemAdapter}.
@@ -41,7 +41,7 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
      *
      * @return type of this ListItem.
      */
-    abstract int getViewType();
+    public abstract int getViewType();
 
     /**
      * Called when ListItem is bound to its ViewHolder.
@@ -134,7 +134,6 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
         return mHideDivider;
     };
 
-
     /**
      * Does the work that moves the ListItem from dirty state to clean state, i.e. the work required
      * the first time this ListItem {@code bind}s to {@link ListItem.ViewHolder}.
@@ -181,8 +180,8 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
      * }
      * </pre>
      *
-     * @params binder to interact with subviews in {@code ViewHolder}.
-     * @params cleanUp view binder to revert the effect of {@code binder}. cleanUp binders will be
+     * @param binder to interact with subviews in {@code ViewHolder}.
+     * @param cleanUp view binder to revert the effect of {@code binder}. cleanUp binders will be
      *                 stored in {@link ListItem.ViewHolder} and should be invoked via
      *                 {@link ViewHolder#cleanUp()} before {@code ViewHolder} is recycled.
      *                 This is to avoid changed made to ViewHolder lingers around when ViewHolder is

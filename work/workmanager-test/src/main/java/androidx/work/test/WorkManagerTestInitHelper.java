@@ -66,4 +66,7 @@ public class WorkManagerTestInitHelper {
 
         WorkManagerImpl.setDelegate(workManager);
     }
+
+    private WorkManagerTestInitHelper() {
+    }
 }

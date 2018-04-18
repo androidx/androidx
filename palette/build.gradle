@@ -1,0 +1,25 @@
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+dependencies {
+    api(project(":core"))
+    api(project(":legacy-support-core-utils"))
+
+    annotationProcessor(NULLAWAY)
+
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+}
+
+supportLibrary {
+    name = "Android Support Palette v7"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.PALETTE
+    inceptionYear = "2014"
+    description = "Android Support Palette v7"
+}

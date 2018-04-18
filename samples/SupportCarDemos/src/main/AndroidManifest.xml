@@ -20,7 +20,7 @@
     <application android:label="@string/activity_sample_code"
             android:supportsRtl="true"
             android:icon="@drawable/app_sample_code"
-            android:theme="@style/Theme.Car.Light.NoActionBar">
+            android:theme="@style/CarTheme">
 
         <activity android:name=".SupportCarDemoActivity">
             <intent-filter>
@@ -31,6 +31,17 @@
 
         <activity android:name=".PagedListViewActivity"
                   android:label="PagedListView"
+                  android:parentActivityName=".SupportCarDemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".SupportCarDemoActivity" />
+        </activity>
+
+        <activity android:name=".VerticallyCenteredListDemo"
+                  android:label="VerticallyCenteredListDemo"
                   android:parentActivityName=".SupportCarDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -70,9 +81,64 @@
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
             <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".SupportCarDemoActivity" />
+                       android:value=".SupportCarDemoActivity" />
         </activity>
 
+        <activity android:name=".AlphaJumpActivity"
+                  android:label="Alpha Jump"
+                  android:parentActivityName=".SupportCarDemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".SupportCarDemoActivity" />
+        </activity>
+
+        <activity android:name=".DrawerDemoActivity"
+                  android:label="@string/drawer_demo_activity_title"
+                  android:theme="@style/CarDrawerTheme"
+                  android:parentActivityName=".SupportCarDemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".SupportCarDemoActivity" />
+        </activity>
+
+        <activity android:name=".SubheaderListItemActivity"
+                  android:label="SubheaderListItem"
+                  android:parentActivityName=".SupportCarDemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".SupportCarDemoActivity" />
+        </activity>
+
+        <activity android:name=".CarAlertDialogDemo"
+                  android:label="CarAlertDialogDemo"
+                  android:parentActivityName=".SupportCarDemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".SupportCarDemoActivity" />
+        </activity>
+
+        <activity android:name=".CarListDialogDemo"
+                  android:label="CarListDialogDemo"
+                  android:parentActivityName=".SupportCarDemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".SupportCarDemoActivity" />
+        </activity>
     </application>
 </manifest>
 
