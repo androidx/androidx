@@ -111,11 +111,7 @@ public final class TestUtils {
         for (int i = 0; i < size; i++) {
             list.add(new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
                     .setMediaId(caller + "_item_" + (size + 1))
-                    .setDataSourceDesc(
-                            new DataSourceDesc.Builder()
-                                    .setDataSource(new FileDescriptor())
-                                    .build())
-                    .build());
+                    .setDataSourceDesc(createDSD()).build());
         }
         return list;
     }
@@ -128,7 +124,7 @@ public final class TestUtils {
      */
     public static MediaItem2 createMediaItemWithMetadata() {
         return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                .setMetadata(createMetadata()).build();
+                .setMetadata(createMetadata()).setDataSourceDesc(createDSD()).build();
     }
 
     /**
@@ -142,6 +138,10 @@ public final class TestUtils {
         String mediaId = Thread.currentThread().getStackTrace()[1].getMethodName();
         return new MediaMetadata2.Builder()
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId).build();
+    }
+
+    private static DataSourceDesc createDSD() {
+        return new DataSourceDesc.Builder().setDataSource(new FileDescriptor()).build();
     }
 
     /**

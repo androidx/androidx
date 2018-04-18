@@ -316,7 +316,7 @@ public class MediaController2 implements AutoCloseable {
          * @see #onBufferingStateChanged(MediaController2, MediaItem2, int)
          */
         public void onCurrentMediaItemChanged(@NonNull MediaController2 controller,
-                @NonNull MediaItem2 item) { }
+                @Nullable MediaItem2 item) { }
 
         /**
          * Called when a playlist is changed.
@@ -568,9 +568,6 @@ public class MediaController2 implements AutoCloseable {
                 }
                 case SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED: {
                     MediaItem2 item = MediaItem2.fromBundle(extras.getBundle(ARGUMENT_MEDIA_ITEM));
-                    if (item == null) {
-                        return;
-                    }
                     synchronized (mLock) {
                         mCurrentMediaItem = item;
                     }

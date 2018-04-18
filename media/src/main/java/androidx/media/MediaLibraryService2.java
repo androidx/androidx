@@ -287,7 +287,6 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                 @NonNull String parentId, int itemCount, @Nullable Bundle extras) {
             Bundle options = MediaUtils2.createBundle(extras);
             options.putInt(MediaBrowser2.EXTRA_ITEM_COUNT, itemCount);
-            options.putBundle(MediaBrowser2.EXTRA_TARGET, controller.toBundle());
         }
 
         /**
