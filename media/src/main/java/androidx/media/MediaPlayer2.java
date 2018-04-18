@@ -138,9 +138,9 @@ import java.util.concurrent.Executor;
  *         to pause the ongoing playback. Note that {@link #pause()} is asynchronous. Once
  *         {@link #pause()} is processed successfully by the internal media engine,
  *         <strong>Paused</strong> state will be notified with
- *         {@link MediaPlayerBase.PlayerEventCallback#onPlayerStateChanged} callback.
- *         In addition to the callback, {@link #getPlayerState()} can also be used to test whether
- *         the MediaPlayer2 object is in the <strong>Paused</strong> state.
+ *         {@link MediaPlayerInterface.PlayerEventCallback#onPlayerStateChanged} callback.
+ *         In addition to the callback, {@link #getMediaPlayer2State()} can also be used to test
+ *         whether the MediaPlayer2 object is in the <strong>Paused</strong> state.
  *         </li>
  *         <li>While in the <em>Paused</em> state, properties such as audio/sound volume, looping
  *         can be adjusted by invoking the corresponding set methods.</li>
@@ -148,9 +148,10 @@ import java.util.concurrent.Executor;
  *         </li>
  *     <li>To start the playback, {@link #play()} must be called. Once {@link #play()} is processed
  *         successfully by the internal media engine, <strong>Playing</strong> state will be
- *         notified with {@link MediaPlayerBase.PlayerEventCallback#onPlayerStateChanged} callback.
- *         In addition to the callback, {@link #getPlayerState()} can be called to test whether the
- *         MediaPlayer2 object is in the <strong>Started</strong> state.
+ *         notified with {@link MediaPlayerInterface.PlayerEventCallback#onPlayerStateChanged}
+ *         callback.
+ *         In addition to the callback, {@link #getMediaPlayer2State()} can be called to test
+ *         whether the MediaPlayer2 object is in the <strong>Started</strong> state.
  *         <ul>
  *         <li>While in the <strong>Playing</strong> state, the internal player engine calls
  *         a user supplied callback method MediaPlayer2EventCallback.onInfo() with
@@ -220,7 +221,7 @@ import java.util.concurrent.Executor;
  *
  */
 @TargetApi(Build.VERSION_CODES.P)
-public abstract class MediaPlayer2 extends MediaPlayerBase {
+public abstract class MediaPlayer2 {
     /**
      * Create a MediaPlayer2 object.
      *
@@ -235,6 +236,12 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      */
     @RestrictTo(LIBRARY_GROUP)
     public MediaPlayer2() { }
+
+    /**
+     * Returns a {@link MediaPlayerInterface} implementation which runs based on
+     * this MediaPlayer2 instance.
+     */
+    public abstract MediaPlayerInterface getMediaPlayerInterface();
 
     /**
      * Releases the resources held by this {@code MediaPlayer2} object.
@@ -256,7 +263,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * at the same time.
      */
     // This is a synchronous call.
-    @Override
     public abstract void close();
 
     /**
@@ -268,7 +274,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      *
      */
     // This is an asynchronous call.
-    @Override
     public abstract void play();
 
     /**
@@ -279,21 +284,18 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      *
      */
     // This is an asynchronous call.
-    @Override
     public abstract void prepare();
 
     /**
      * Pauses playback. Call play() to resume.
      */
     // This is an asynchronous call.
-    @Override
     public abstract void pause();
 
     /**
      * Tries to play next data source if applicable.
      */
     // This is an asynchronous call.
-    @Override
     public abstract void skipToNext();
 
     /**
@@ -303,7 +305,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * @param msec the offset in milliseconds from the start to seek to
      */
     // This is an asynchronous call.
-    @Override
     public void seekTo(long msec) {
         seekTo(msec, SEEK_PREVIOUS_SYNC /* mode */);
     }
@@ -313,7 +314,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      *
      * @return the current position in milliseconds
      */
-    @Override
     public abstract long getCurrentPosition();
 
     /**
@@ -322,7 +322,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * @return the duration in milliseconds, if no duration is available
      *         (for example, if streaming live content), -1 is returned.
      */
-    @Override
     public abstract long getDuration();
 
     /**
@@ -334,25 +333,14 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      *
      * @return the current buffered media source position in milliseconds
      */
-    @Override
     public abstract long getBufferedPosition();
 
     /**
-     * Gets the current player state.
+     * Gets the current MediaPlayer2 state.
      *
-     * @return the current player state.
+     * @return the current MediaPlayer2 state.
      */
-    @Override
-    public abstract @PlayerState int getPlayerState();
-
-    /**
-     * Gets the current buffering state of the player.
-     * During buffering, see {@link #getBufferedPosition()} for the quantifying the amount already
-     * buffered.
-     * @return the buffering state, one of the following:
-     */
-    @Override
-    public abstract @BuffState int getBufferingState();
+    public abstract @MediaPlayer2State int getMediaPlayer2State();
 
     /**
      * Sets the audio attributes for this MediaPlayer2.
@@ -362,14 +350,12 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * @param attributes a non-null set of audio attributes
      */
     // This is an asynchronous call.
-    @Override
     public abstract void setAudioAttributes(@NonNull AudioAttributesCompat attributes);
 
     /**
      * Gets the audio attributes for this MediaPlayer2.
      * @return attributes a set of audio attributes
      */
-    @Override
     public abstract @Nullable AudioAttributesCompat getAudioAttributes();
 
     /**
@@ -378,7 +364,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * @param dsd the descriptor of data source you want to play
      */
     // This is an asynchronous call.
-    @Override
     public abstract void setDataSource(@NonNull DataSourceDesc dsd);
 
     /**
@@ -388,7 +373,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * @param dsd the descriptor of data source you want to play after current one
      */
     // This is an asynchronous call.
-    @Override
     public abstract void setNextDataSource(@NonNull DataSourceDesc dsd);
 
     /**
@@ -397,7 +381,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * @param dsds the list of data sources you want to play after current one
      */
     // This is an asynchronous call.
-    @Override
     public abstract void setNextDataSources(@NonNull List<DataSourceDesc> dsds);
 
     /**
@@ -405,7 +388,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      *
      * @return the current DataSourceDesc
      */
-    @Override
     public abstract @NonNull DataSourceDesc getCurrentDataSource();
 
     /**
@@ -413,7 +395,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * @param loop true if the current data source is meant to loop.
      */
     // This is an asynchronous call.
-    @Override
     public abstract void loopCurrent(boolean loop);
 
     /**
@@ -426,7 +407,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * @param speed the desired playback speed
      */
     // This is an asynchronous call.
-    @Override
     public abstract void setPlaybackSpeed(float speed);
 
     /**
@@ -434,7 +414,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * Note that it may differ from the speed set in {@link #setPlaybackSpeed(float)}.
      * @return the actual playback speed
      */
-    @Override
     public float getPlaybackSpeed() {
         return 1.0f;
     }
@@ -445,7 +424,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * {@link #setPlaybackSpeed(float)}.
      * @return true if reverse playback is supported.
      */
-    @Override
     public boolean isReversePlaybackSupported() {
         return false;
     }
@@ -460,7 +438,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * @param volume a value between 0.0f and {@link #getMaxPlayerVolume()}.
      */
     // This is an asynchronous call.
-    @Override
     public abstract void setPlayerVolume(float volume);
 
     /**
@@ -468,34 +445,14 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * Note that it does not take into account the associated stream volume.
      * @return the player volume.
      */
-    @Override
     public abstract float getPlayerVolume();
 
     /**
      * @return the maximum volume that can be used in {@link #setPlayerVolume(float)}.
      */
-    @Override
     public float getMaxPlayerVolume() {
         return 1.0f;
     }
-
-    /**
-     * Adds a callback to be notified of events for this player.
-     * @param e the {@link Executor} to be used for the events.
-     * @param cb the callback to receive the events.
-     */
-    // This is a synchronous call.
-    @Override
-    public abstract void registerPlayerEventCallback(@NonNull Executor e,
-                                                     @NonNull PlayerEventCallback cb);
-
-    /**
-     * Removes a previously registered callback for player events
-     * @param cb the callback to remove
-     */
-    // This is a synchronous call.
-    @Override
-    public abstract void unregisterPlayerEventCallback(@NonNull PlayerEventCallback cb);
 
     /**
      * Insert a task in the command queue to help the client to identify whether a batch
@@ -727,7 +684,6 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      * data source and calling prepare().
      */
     // This is a synchronous call.
-    @Override
     public abstract void reset();
 
     /**
@@ -1035,6 +991,46 @@ public abstract class MediaPlayer2 extends MediaPlayerBase {
      */
     // This is a synchronous call.
     public abstract void clearMediaPlayer2EventCallback();
+
+    /**
+     * MediaPlayer2 has not been prepared or just has been reset.
+     * In this state, MediaPlayer2 doesn't fetch data.
+     */
+    public static final int MEDIAPLAYER2_STATE_IDLE = 1001;
+
+    /**
+     * MediaPlayer2 has been just prepared.
+     * In this state, MediaPlayer2 just fetches data from media source,
+     * but doesn't actively render data.
+     */
+    public static final int MEDIAPLAYER2_STATE_PREPARED = 1002;
+
+    /**
+     * MediaPlayer2 is paused.
+     * In this state, MediaPlayer2 doesn't actively render data.
+     */
+    public static final int MEDIAPLAYER2_STATE_PAUSED = 1003;
+
+    /**
+     * MediaPlayer2 is actively playing back data.
+     */
+    public static final int MEDIAPLAYER2_STATE_PLAYING = 1004;
+
+    /**
+     * MediaPlayer2 has hit some fatal error and cannot continue playback.
+     */
+    public static final int MEDIAPLAYER2_STATE_ERROR = 1005;
+
+    /** @hide */
+    @IntDef(flag = false, value = {
+            MEDIAPLAYER2_STATE_IDLE,
+            MEDIAPLAYER2_STATE_PREPARED,
+            MEDIAPLAYER2_STATE_PAUSED,
+            MEDIAPLAYER2_STATE_PLAYING,
+            MEDIAPLAYER2_STATE_ERROR })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface MediaPlayer2State {}
 
     /* Do not change these values without updating their counterparts
      * in include/media/mediaplayer2.h!

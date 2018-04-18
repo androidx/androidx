@@ -125,7 +125,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testPlayerStateChange() throws Exception {
         prepareLooper();
-        final int targetState = MediaPlayerBase.PLAYER_STATE_PLAYING;
+        final int targetState = MediaPlayerInterface.PLAYER_STATE_PLAYING;
         final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -136,7 +136,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                         .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                             @Override
                             public void onPlayerStateChanged(MediaSession2 session,
-                                    MediaPlayerBase player, int state) {
+                                    MediaPlayerInterface player, int state) {
                                 assertEquals(targetState, state);
                                 latchForSessionCallback.countDown();
                             }
@@ -166,7 +166,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final List<MediaItem2> playlist = TestUtils.createPlaylist(5);
 
         final MediaItem2 targetItem = playlist.get(3);
-        final int targetBufferingState = MediaPlayerBase.BUFFERING_STATE_BUFFERING_COMPLETE;
+        final int targetBufferingState = MediaPlayerInterface.BUFFERING_STATE_BUFFERING_COMPLETE;
         final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -179,7 +179,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                         .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                             @Override
                             public void onBufferingStateChanged(MediaSession2 session,
-                                    MediaPlayerBase player, MediaItem2 item, int state) {
+                                    MediaPlayerInterface player, MediaItem2 item, int state) {
                                 assertEquals(targetItem, item);
                                 assertEquals(targetBufferingState, state);
                                 latchForSessionCallback.countDown();
@@ -213,7 +213,8 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public void onSeekCompleted(MediaSession2 session, MediaPlayerBase mpb, long position) {
+            public void onSeekCompleted(
+                    MediaSession2 session, MediaPlayerInterface mpb, long position) {
                 assertEquals(mPlayer, mpb);
                 assertEquals(testPosition, position);
                 latch.countDown();
@@ -247,7 +248,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
                     public void onCurrentMediaItemChanged(MediaSession2 session,
-                            MediaPlayerBase player, MediaItem2 item) {
+                            MediaPlayerInterface player, MediaItem2 item) {
                         switch ((int) latchForSessionCallback.getCount()) {
                             case 2:
                                 assertEquals(currentItem, item);
@@ -304,7 +305,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                 .setId("testMediaPrepared")
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
-                    public void onMediaPrepared(MediaSession2 session, MediaPlayerBase player,
+                    public void onMediaPrepared(MediaSession2 session, MediaPlayerInterface player,
                             MediaItem2 itemOut) {
                         assertSame(currentItem, itemOut);
                         latchForSessionCallback.countDown();
@@ -325,7 +326,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         mMockAgent.setPlaylist(list, null);
 
         final MediaItem2 currentItem = list.get(3);
-        final int buffState = MediaPlayerBase.BUFFERING_STATE_BUFFERING_COMPLETE;
+        final int buffState = MediaPlayerInterface.BUFFERING_STATE_BUFFERING_COMPLETE;
 
         final CountDownLatch latchForSessionCallback = new CountDownLatch(1);
         try (MediaSession2 session = new MediaSession2.Builder(mContext)
@@ -335,7 +336,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
                     public void onBufferingStateChanged(MediaSession2 session,
-                            MediaPlayerBase player, MediaItem2 itemOut, int stateOut) {
+                            MediaPlayerInterface player, MediaItem2 itemOut, int stateOut) {
                         assertSame(currentItem, itemOut);
                         assertEquals(buffState, stateOut);
                         latchForSessionCallback.countDown();
@@ -365,7 +366,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
                     public void onPlaybackSpeedChanged(MediaSession2 session,
-                            MediaPlayerBase player, float speedOut) {
+                            MediaPlayerInterface player, float speedOut) {
                         assertEquals(speed, speedOut, 0.0f);
                         latchForSessionCallback.countDown();
                     }
@@ -392,7 +393,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testUpdatePlayer() throws Exception {
         prepareLooper();
-        final int targetState = MediaPlayerBase.PLAYER_STATE_PLAYING;
+        final int targetState = MediaPlayerInterface.PLAYER_STATE_PLAYING;
         final CountDownLatch latch = new CountDownLatch(1);
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -402,7 +403,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                         .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                             @Override
                             public void onPlayerStateChanged(MediaSession2 session,
-                                    MediaPlayerBase player, int state) {
+                                    MediaPlayerInterface player, int state) {
                                 assertEquals(targetState, state);
                                 latch.countDown();
                             }
@@ -423,7 +424,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertNotNull(mSession.getPlaylistAgent());
         assertNotEquals(agent, mSession.getPlaylistAgent());
 
-        player.notifyPlaybackState(MediaPlayerBase.PLAYER_STATE_PLAYING);
+        player.notifyPlaybackState(MediaPlayerInterface.PLAYER_STATE_PLAYING);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -543,7 +544,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
 
         final SessionCallback sessionCallback = new SessionCallback() {
             @Override
-            public void onMediaPrepared(MediaSession2 session, MediaPlayerBase player,
+            public void onMediaPrepared(MediaSession2 session, MediaPlayerInterface player,
                     MediaItem2 item) {
                 assertEquals(testItem, item);
                 assertEquals(testDuration,
@@ -613,7 +614,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testGetPlayerState() {
         prepareLooper();
-        final int state = MediaPlayerBase.PLAYER_STATE_PLAYING;
+        final int state = MediaPlayerInterface.PLAYER_STATE_PLAYING;
         mPlayer.mLastPlayerState = state;
         assertEquals(state, mSession.getPlayerState());
     }
@@ -621,7 +622,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testGetBufferingState() {
         prepareLooper();
-        final int bufferingState = MediaPlayerBase.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
+        final int bufferingState = MediaPlayerInterface.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         mPlayer.mLastBufferingState = bufferingState;
         assertEquals(bufferingState, mSession.getBufferingState());
     }
@@ -825,7 +826,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
 
         mSession.updatePlayer(player, null, null);
         mSession.updatePlayer(mPlayer, null, null);
-        player.notifyPlaybackState(MediaPlayerBase.PLAYER_STATE_PAUSED);
+        player.notifyPlaybackState(MediaPlayerInterface.PLAYER_STATE_PAUSED);
         assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -838,7 +839,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
 
         @Override
         public void unregisterPlayerEventCallback(
-                @NonNull MediaPlayerBase.PlayerEventCallback listener) {
+                @NonNull MediaPlayerInterface.PlayerEventCallback listener) {
             // No-op.
         }
     }
