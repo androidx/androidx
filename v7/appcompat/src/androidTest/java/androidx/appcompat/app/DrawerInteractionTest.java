@@ -21,11 +21,9 @@ import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFro
 
 import static androidx.appcompat.testutils.DrawerLayoutActions.openDrawer;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
 import android.content.Context;
@@ -46,7 +44,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -59,8 +56,8 @@ public class DrawerInteractionTest {
             new ActivityTestRule<>(DrawerInteractionActivity.class);
 
     private TestDrawerLayout mDrawerLayout;
-    private View mStartDrawer;
-    private View mContentView;
+    private MockView mStartDrawer;
+    private MockView mContentView;
 
     @Before
     public void setUp() throws Throwable {
@@ -68,8 +65,8 @@ public class DrawerInteractionTest {
 
         Context context = InstrumentationRegistry.getContext();
         mDrawerLayout = new TestDrawerLayout(InstrumentationRegistry.getContext());
-        mContentView = Mockito.spy(new View(context));
-        mStartDrawer = Mockito.spy(new View(context));
+        mContentView = new MockView(context);
+        mStartDrawer = new MockView(context);
 
         mDrawerLayout.setLayoutParams(new ViewGroup.LayoutParams(100, 100));
         DrawerLayout.LayoutParams contentViewLayoutParams = new DrawerLayout.LayoutParams(100, 100);
@@ -109,8 +106,8 @@ public class DrawerInteractionTest {
 
         mDrawerLayout.dispatchGenericMotionEvent(motionEvent);
 
-        verify(mStartDrawer).dispatchGenericMotionEvent(motionEvent);
-
+        assertThat(mStartDrawer.mMotionEventPassedToDispatchGenericMotionEvent,
+                is(equalTo(motionEvent)));
     }
 
     @Test
@@ -123,7 +120,7 @@ public class DrawerInteractionTest {
 
         mDrawerLayout.dispatchGenericMotionEvent(motionEvent);
 
-        verify(mContentView, never()).dispatchGenericMotionEvent(any(MotionEvent.class));
+        assertThat(mContentView.mDispatchGenericMotionEventCalled, is(false));
     }
 
     @Test
@@ -136,7 +133,7 @@ public class DrawerInteractionTest {
 
         mDrawerLayout.dispatchGenericMotionEvent(motionEvent);
 
-        verify(mContentView, never()).dispatchGenericMotionEvent(any(MotionEvent.class));
+        assertThat(mContentView.mDispatchGenericMotionEventCalled, is(false));
     }
 
     @Test
@@ -147,7 +144,8 @@ public class DrawerInteractionTest {
 
         mDrawerLayout.dispatchGenericMotionEvent(motionEvent);
 
-        verify(mContentView).dispatchGenericMotionEvent(motionEvent);
+        assertThat(mContentView.mMotionEventPassedToDispatchGenericMotionEvent,
+                is(equalTo(motionEvent)));
     }
 
     private class TestDrawerLayout extends DrawerLayout {
@@ -176,6 +174,23 @@ public class DrawerInteractionTest {
             }
         }
 
+    }
+
+    private class MockView extends View {
+
+        MotionEvent mMotionEventPassedToDispatchGenericMotionEvent;
+        boolean mDispatchGenericMotionEventCalled = false;
+
+        MockView(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean dispatchGenericMotionEvent(MotionEvent event) {
+            mMotionEventPassedToDispatchGenericMotionEvent = event;
+            mDispatchGenericMotionEventCalled = true;
+            return super.dispatchGenericMotionEvent(event);
+        }
     }
 
 
