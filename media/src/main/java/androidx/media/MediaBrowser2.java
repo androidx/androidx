@@ -54,13 +54,6 @@ public class MediaBrowser2 extends MediaController2 {
     @RestrictTo(LIBRARY_GROUP)
     public static final String EXTRA_ITEM_COUNT = "android.media.browse.extra.ITEM_COUNT";
 
-    /**
-     * Key for Bundle version of {@link MediaSession2.ControllerInfo}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static final String EXTRA_TARGET = "android.media.browse.extra.TARGET";
-
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final HashMap<Bundle, MediaBrowserCompat> mBrowserCompats = new HashMap<>();

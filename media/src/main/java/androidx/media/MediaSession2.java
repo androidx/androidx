@@ -467,7 +467,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @param item new item
          */
         public void onCurrentMediaItemChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerBase player, @NonNull MediaItem2 item) { }
+                @NonNull MediaPlayerBase player, @Nullable MediaItem2 item) { }
 
         /**
          * Called when the player is <i>prepared</i>, i.e. it is ready to play the content
@@ -845,24 +845,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         @Override
         public String toString() {
             return "ControllerInfo {pkg=" + mPackageName + ", uid=" + mUid + "})";
-        }
-
-        /**
-         * @hide
-         * @return Bundle
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public @NonNull Bundle toBundle() {
-            return new Bundle();
-        }
-
-        /**
-         * @hide
-         * @return Bundle
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public static @NonNull ControllerInfo fromBundle(Bundle bundle) {
-            return new ControllerInfo("TODO", -1, -1, null);
         }
 
         IMediaControllerCallback getControllerBinder() {
@@ -1380,6 +1362,11 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         return mImpl.getCurrentPosition();
     }
 
+    /**
+     * Gets the duration of the currently playing media item.
+     *
+     * @return the duration of the current item from {@link MediaPlayerBase#getDuration()}.
+     */
     @Override
     public long getDuration() {
         return mImpl.getDuration();
@@ -1499,6 +1486,11 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      * {@link MediaPlaylistAgent} has responsibility to dynamically query {link DataSourceDesc}
      * when such media item is ready for preparation or play. Default implementation needs
      * {@link OnDataSourceMissingHelper} for such case.
+     * <p>
+     * It's recommended to fill {@link MediaMetadata2} in each {@link MediaItem2} especially for the
+     * duration information with the key {@link MediaMetadata2#METADATA_KEY_DURATION}. Without the
+     * duration information in the metadata, session will do extra work to get the duration and send
+     * it to the controller.
      *
      * @param list A list of {@link MediaItem2} objects to set as a play list.
      * @throws IllegalArgumentException if given list is {@code null}, or has duplicated media

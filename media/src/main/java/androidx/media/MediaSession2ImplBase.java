@@ -286,8 +286,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void setAudioFocusRequest(@Nullable AudioFocusRequest afr) {
-        // TODO(jaewan): implement this (b/72529899)
-        // mProvider.setAudioFocusRequest_impl(focusGain);
     }
 
     @Override
@@ -451,8 +449,18 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public long getDuration() {
-        // TODO: implement
-        return 0;
+        MediaPlayerBase player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            // Note: This should be the same as
+            // getCurrentMediaItem().getMetadata().getLong(METADATA_KEY_DURATION)
+            return player.getDuration();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
+        return MediaPlayerBase.UNKNOWN_TIME;
     }
 
     @Override
@@ -811,12 +819,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         synchronized (mLock) {
             int state = MediaUtils2.createPlaybackStateCompatState(getPlayerState(),
                     getBufferingState());
-            // TODO: Consider following missing stuff
-            //       - setCustomAction(): Fill custom layout
-            //       - setErrorMessage(): Fill error message when notifyError() is called.
-            //       - setActiveQueueItemId(): Fill here with the current media item...
-            //       - setExtra(): No idea at this moment.
-            // TODO: generate actions from the allowed commands.
             long allActions = PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_PAUSE
                     | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_REWIND
                     | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
@@ -997,22 +999,27 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         public void onCurrentDataSourceChanged(final MediaPlayerBase mpb,
                 final DataSourceDesc dsd) {
             final MediaSession2ImplBase session = getSession();
-            // TODO: handle properly when dsd == null
-            if (session == null || dsd == null) {
+            if (session == null) {
                 return;
             }
             session.getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
-                    MediaItem2 item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
-                    if (item == null) {
-                        return;
+                    MediaItem2 item;
+                    if (dsd == null) {
+                        // This is OK because onCurrentDataSourceChanged() can be called with the
+                        // null dsd, so onCurrentMediaItemChanged() can be as well.
+                        item = null;
+                    } else {
+                        item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
+                        if (item == null) {
+                            Log.w(TAG, "Cannot obtain media item from the dsd=" + dsd);
+                            return;
+                        }
                     }
                     session.getCallback().onCurrentMediaItemChanged(session.getInstance(), mpb,
                             item);
-                    if (item.equals(session.getCurrentMediaItem())) {
-                        session.getSession2Stub().notifyCurrentMediaItemChanged(item);
-                    }
+                    session.getSession2Stub().notifyCurrentMediaItemChanged(item);
                 }
             });
         }
@@ -1030,8 +1037,47 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     if (item == null) {
                         return;
                     }
+                    if (item.equals(session.getCurrentMediaItem())) {
+                        long duration = session.getDuration();
+                        if (duration < 0) {
+                            return;
+                        }
+                        MediaMetadata2 metadata = item.getMetadata();
+                        if (metadata != null) {
+                            if (!metadata.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
+                                metadata = new MediaMetadata2.Builder(metadata).putLong(
+                                        MediaMetadata2.METADATA_KEY_DURATION, duration).build();
+                            } else {
+                                long durationFromMetadata =
+                                        metadata.getLong(MediaMetadata2.METADATA_KEY_DURATION);
+                                if (duration != durationFromMetadata) {
+                                    // Warns developers about the mismatch. Don't log media item
+                                    // here to keep metadata secure.
+                                    Log.w(TAG, "duration mismatch for an item."
+                                            + " duration from player=" + duration
+                                            + " duration from metadata=" + durationFromMetadata
+                                            + ". May be a timing issue?");
+                                }
+                                // Trust duration in the metadata set by developer.
+                                // In theory, duration may differ if the current item has been
+                                // changed before the getDuration(). So it's better not touch
+                                // duration set by developer.
+                                metadata = null;
+                            }
+                        } else {
+                            metadata = new MediaMetadata2.Builder()
+                                    .putLong(MediaMetadata2.METADATA_KEY_DURATION, duration)
+                                    .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
+                                            item.getMediaId())
+                                    .build();
+                        }
+                        if (metadata != null) {
+                            item.setMetadata(metadata);
+                            session.getSession2Stub().notifyPlaylistChanged(session.getPlaylist(),
+                                    session.getPlaylistMetadata());
+                        }
+                    }
                     session.getCallback().onMediaPrepared(session.getInstance(), mpb, item);
-                    // TODO (jaewan): Notify controllers through appropriate callback. (b/74505936)
                 }
             });
         }
