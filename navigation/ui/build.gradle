@@ -37,7 +37,7 @@ dependencies {
 
 supportLibrary {
     name = "Android Navigation UI"
-    publish = true
+    publish = false
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
