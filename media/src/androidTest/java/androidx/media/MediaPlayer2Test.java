@@ -829,7 +829,17 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
+    public void testSkipToNext() throws Exception {
+        testPlaylist(true);
+    }
+
+    @Test
+    @LargeTest
     public void testPlaylist() throws Exception {
+        testPlaylist(false);
+    }
+
+    private void testPlaylist(boolean skip) throws Exception {
         if (!checkLoadResource(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz)) {
             return; // skip
@@ -877,9 +887,18 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         mPlayer.play();
 
-        mOnCompletionCalled.waitForSignal();
-        onCompletion2Called.waitForSignal();
+        if (skip) {
+            mPlayer.skipToNext();
+            mPlayer.skipToNext();
+        } else {
+            mOnCompletionCalled.waitForSignal();
+            onCompletion2Called.waitForSignal();
+        }
         onCompletion1Called.waitForSignal();
+        if (skip) {
+            assertFalse("first dsd completed", mOnCompletionCalled.isSignalled());
+            assertFalse("second dsd completed", onCompletion2Called.isSignalled());
+        }
 
         mPlayer.reset();
     }
