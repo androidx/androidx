@@ -18,6 +18,7 @@ package android.support.v4.media.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -388,7 +389,6 @@ public class MediaSessionCompat {
     // Maximum size of the bitmap in dp.
     private static final int MAX_BITMAP_SIZE_IN_DP = 320;
 
-    private static final String LEGACY_CONTROLLER = "android.media.session.MediaController";
     private static final String DATA_CALLING_PACKAGE = "data_calling_pkg";
     private static final String DATA_CALLING_PID = "data_calling_pid";
     private static final String DATA_CALLING_UID = "data_calling_uid";
@@ -1954,7 +1954,7 @@ public class MediaSessionCompat {
                     data.putString(DATA_CALLING_PACKAGE, LEGACY_CONTROLLER);
                     data.putInt(DATA_CALLING_PID, Binder.getCallingPid());
                     data.putInt(DATA_CALLING_UID, Binder.getCallingUid());
-                    if (extras == null) {
+                    if (extras != null) {
                         data.putBundle(DATA_EXTRAS, extras);
                     }
                     msg.setData(data);
