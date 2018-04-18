@@ -58,6 +58,10 @@
     <dimen name="abc_slice_grid_small_image_text_height">120dp</dimen>
     <!-- Gutter between cells in a grid row-->
     <dimen name="abc_slice_grid_gutter">4dp</dimen>
+    <!-- Space between image and text items in grid row -->
+    <dimen name="abc_slice_grid_text_padding">10dp</dimen>
+    <!-- Space between text and text items in grid row -->
+    <dimen name="abc_slice_grid_text_inner_padding">2dp</dimen>
 
     <!-- Big picture -->
     <!-- Min height of row showing a single large image -->
