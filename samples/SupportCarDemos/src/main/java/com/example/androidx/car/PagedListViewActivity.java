@@ -43,8 +43,6 @@ public class PagedListViewActivity extends Activity {
 
         PagedListView pagedListView = findViewById(R.id.paged_list_view);
         pagedListView.setAdapter(new DemoAdapter(ITEM_COUNT));
-
-        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     /**
