@@ -83,6 +83,20 @@ includeProject(":jetifier-gradle-plugin", new File(supportRoot, "jetifier/jetifi
 includeProject(":jetifier-standalone", new File(supportRoot, "jetifier/jetifier/standalone"))
 includeProject(":jetifier-preprocessor", new File(supportRoot, "jetifier/jetifier/preprocessor"))
 
+includeProject(":navigation:navigation-common", new File(supportRoot, "navigation/common"))
+includeProject(":navigation:navigation-common-ktx", new File(supportRoot, "navigation/common/ktx"))
+includeProject(":navigation:navigation-runtime", new File(supportRoot, "navigation/runtime/"))
+includeProject(":navigation:navigation-runtime-ktx", new File(supportRoot, "navigation/runtime/ktx"))
+includeProject(":navigation:navigation-testing", new File(supportRoot, "navigation/testing"))
+includeProject(":navigation:navigation-testing-ktx", new File(supportRoot, "navigation/testing/ktx"))
+includeProject(":navigation:navigation-fragment", new File(supportRoot, "navigation/fragment"))
+includeProject(":navigation:navigation-fragment-ktx", new File(supportRoot, "navigation/fragment/ktx"))
+includeProject(":navigation:navigation-ui", new File(supportRoot, "navigation/ui"))
+includeProject(":navigation:navigation-ui-ktx", new File(supportRoot, "navigation/ui/ktx"))
+includeProject(":navigation:navigation-integration-tests:testapp", new File(supportRoot, "navigation/integration-tests/testapp"))
+includeProject(":navigation:navigation-safe-args-generator", new File(supportRoot, "navigation/safe-args-generator"))
+includeProject(":navigation:navigation-safe-args-gradle-plugin", new File(supportRoot, "navigation/safe-args-gradle-plugin"))
+
 /////////////////////////////
 //
 // External
