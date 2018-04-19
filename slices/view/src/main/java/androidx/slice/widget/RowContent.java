@@ -202,6 +202,22 @@ public class RowContent {
     }
 
     /**
+     * @return the {@link SliceItem} for the icon to use for the input range thumb drawable.
+     */
+    @Nullable
+    public SliceItem getInputRangeThumb() {
+        if (mRange != null) {
+            List<SliceItem> items = mRange.getSlice().getItems();
+            for (int i = 0; i < items.size(); i++) {
+                if (FORMAT_IMAGE.equals(items.get(i).getFormat())) {
+                    return items.get(i);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return the {@link SliceItem} used for the main intent for this row; can be null.
      */
     @Nullable

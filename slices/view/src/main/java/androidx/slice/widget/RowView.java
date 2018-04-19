@@ -403,7 +403,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         addView(progressBar);
         mRangeBar = progressBar;
         if (isSeekBar) {
-            SliceItem thumb = SliceQuery.find(range, FORMAT_IMAGE);
+            SliceItem thumb = mRowContent.getInputRangeThumb();
             SeekBar seekBar = (SeekBar) mRangeBar;
             if (thumb != null) {
                 seekBar.setThumb(thumb.getIcon().loadDrawable(getContext()));

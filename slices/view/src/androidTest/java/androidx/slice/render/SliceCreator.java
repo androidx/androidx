@@ -59,7 +59,7 @@ public class SliceCreator {
 
     public static final String[] URI_PATHS = {"message", "wifi", "wifi2", "note", "ride",
             "ride-ttl", "toggle", "toggle2", "contact", "gallery", "subscription", "subscription2",
-            "weather", "reservation", "inputrange", "range", "permission"};
+            "weather", "reservation", "inputrange", "inputrange2", "range", "permission"};
 
     private final Context mContext;
 
@@ -115,6 +115,8 @@ public class SliceCreator {
                 return createReservationSlice(sliceUri);
             case "/inputrange":
                 return createStarRatingInputRange(sliceUri);
+            case "/inputrange2":
+                return createBasicInputRange(sliceUri);
             case "/range":
                 return createDownloadProgressRange(sliceUri);
             case "/permission":
@@ -472,6 +474,23 @@ public class SliceCreator {
                         "Contact host"))
                 .addGridRow(gb1)
                 .addGridRow(gb2)
+                .build();
+    }
+
+    private Slice createBasicInputRange(Uri sliceUri) {
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        SliceAction primaryAction =
+                new SliceAction(getBroadcastIntent(ACTION_TOAST, "open star rating"),
+                        icon, "Rate");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        return lb.setColor(0xff4285f4)
+                .addInputRange(new ListBuilder.InputRangeBuilder(lb)
+                        .setTitle("Alarm volume")
+                        .setSubtitle("Adjust your volume")
+                        .setInputAction(getBroadcastIntent(ACTION_TOAST, "volume changed"))
+                        .setValue(80)
+                        .setPrimaryAction(primaryAction)
+                        .setContentDescription("Slider for alarm volume"))
                 .build();
     }
 
