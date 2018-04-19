@@ -58,7 +58,8 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
      */
     private val patterns = listOf(
         Pattern.compile("</?([a-zA-Z0-9.]+)"),
-        Pattern.compile("<view[^>]*class=\"([a-zA-Z0-9.\$_]+)\"[^>]*>")
+        Pattern.compile("<view[^>]*class=\"([a-zA-Z0-9.\$_]+)\"[^>]*>"),
+        Pattern.compile("<application[^>]*android:appComponentFactory=\"([a-zA-Z0-9.\$_]+)\"[^>]*>")
     )
 
     /**
