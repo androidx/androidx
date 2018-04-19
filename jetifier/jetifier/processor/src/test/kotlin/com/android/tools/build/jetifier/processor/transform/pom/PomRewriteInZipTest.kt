@@ -39,7 +39,7 @@ class PomRewriteInZipTest {
         private val TEST_CONFIG = Config(
             restrictToPackagePrefixes = setOf("com/sample"),
             rulesMap = RewriteRulesMap.EMPTY,
-            slRules = setOf(),
+            slRules = listOf(),
             pomRewriteRules = setOf(
                 PomRewriteRule(
                     from = PomDependency(

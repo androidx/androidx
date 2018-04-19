@@ -401,7 +401,7 @@ class PomDocumentTest {
             restrictToPackagePrefixes = emptySet(),
             rulesMap = RewriteRulesMap.EMPTY,
             typesMap = TypesMap.EMPTY,
-            slRules = emptySet(),
+            slRules = emptyList(),
             pomRewriteRules = rules,
             proGuardMap = ProGuardTypesMap.EMPTY,
             packageMap = PackageMap.EMPTY)
