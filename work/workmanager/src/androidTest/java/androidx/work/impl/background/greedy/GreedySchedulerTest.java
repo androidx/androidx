@@ -24,9 +24,9 @@ import static org.mockito.Mockito.when;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManagerTest;
-import androidx.work.WorkRequest;
 import androidx.work.impl.Processor;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
@@ -63,7 +63,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testGreedyScheduler_startsUnconstrainedWork() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec = getWorkSpec(work);
         mGreedyScheduler.schedule(workSpec);
         verify(mWorkManagerImpl).startWork(workSpec.id);
@@ -82,7 +82,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testGreedyScheduler_ignoresInitialDelayWork() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialDelay(1000L, TimeUnit.MILLISECONDS)
                 .build();
         mGreedyScheduler.schedule(getWorkSpec(work));

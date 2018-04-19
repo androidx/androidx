@@ -28,24 +28,24 @@ import java.util.List;
 public interface BlockingWorkManager {
 
     /**
-     * Enqueues one or more {@link BaseWorkRequest} in a blocking fashion. This method is
+     * Enqueues one or more {@link WorkRequest} in a blocking fashion. This method is
      * expected to be called from a background thread and, upon successful execution, you can rely
      * on that the work has been enqueued.
      *
-     * @param baseWorkRequest The Array of {@link BaseWorkRequest}
+     * @param workRequest The Array of {@link WorkRequest}
      */
     @WorkerThread
-    void enqueueBlocking(@NonNull BaseWorkRequest... baseWorkRequest);
+    void enqueueBlocking(@NonNull WorkRequest... workRequest);
 
     /**
-     * Enqueues the List of {@link BaseWorkRequest} in a blocking fashion. This method is
+     * Enqueues the List of {@link WorkRequest} in a blocking fashion. This method is
      * expected to be called from a background thread and, upon successful execution, you can rely
      * on that the work has been enqueued.
      *
-     * @param baseWork The List of {@link BaseWorkRequest}
+     * @param workRequest The List of {@link WorkRequest}
      */
     @WorkerThread
-    void enqueueBlocking(@NonNull List<? extends BaseWorkRequest> baseWork);
+    void enqueueBlocking(@NonNull List<? extends WorkRequest> workRequest);
 
     /**
      * Cancels work with the given id in a blocking fashion if it isn't finished.  Note that

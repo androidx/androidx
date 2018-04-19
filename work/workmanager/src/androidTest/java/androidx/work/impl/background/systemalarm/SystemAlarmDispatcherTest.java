@@ -35,8 +35,8 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.Constraints;
 import androidx.work.DatabaseTest;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
-import androidx.work.WorkRequest;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
@@ -151,7 +151,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testSchedule() throws InterruptedException {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .withInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS).build();
 
@@ -165,7 +165,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testDelayMet_success() throws InterruptedException {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
@@ -182,7 +182,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testDelayMet_withStop() throws InterruptedException {
         // SleepTestWorker sleeps for 5 seconds
-        WorkRequest work = new WorkRequest.Builder(SleepTestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(SleepTestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .withInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS)
                 .build();
@@ -208,7 +208,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testDelayMet_withStopWhenCancelled() throws InterruptedException {
-        WorkRequest work = new WorkRequest.Builder(SleepTestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(SleepTestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
@@ -234,7 +234,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testSchedule_withConstraints() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(
                         System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1),
                         TimeUnit.MILLISECONDS)
@@ -259,7 +259,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testConstraintsChanged_withNoConstraints() throws InterruptedException {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withScheduleRequestedAt(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
@@ -279,7 +279,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testConstraintsChangedMarkedNotScheduled_withNoConstraints()
             throws InterruptedException {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
@@ -297,7 +297,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testConstraintsChanged_withConstraint() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .withConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
@@ -315,7 +315,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testDelayMet_withUnMetConstraint() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(false);
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .withConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
@@ -348,7 +348,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testDelayMet_withMetConstraint() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .withConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
@@ -384,21 +384,21 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         doCallRealMethod().when(mWorkManager).rescheduleEligibleWork();
         when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(scheduler));
 
-        WorkRequest failed = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest failed = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .withInitialState(State.FAILED)
                 .build();
 
-        WorkRequest succeeded = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest succeeded = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .withInitialState(State.SUCCEEDED)
                 .build();
 
-        WorkRequest noConstraints = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest noConstraints = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
-        WorkRequest workWithConstraints = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest workWithConstraints = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .withConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)

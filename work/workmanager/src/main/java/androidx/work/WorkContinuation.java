@@ -24,31 +24,31 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * An opaque class that allows you to chain together {@link WorkRequest}.
+ * An opaque class that allows you to chain together {@link OneTimeWorkRequest}.
  */
 public abstract class WorkContinuation {
 
     /**
-     * Adds new {@link WorkRequest} items that depend on the successful completion of all previously
-     * added {@link WorkRequest}.
+     * Adds new {@link OneTimeWorkRequest} items that depend on the successful completion of
+     * all previously added {@link OneTimeWorkRequest}.
      *
-     * @param work One or more {@link WorkRequest} to add to the {@link WorkContinuation}
+     * @param work One or more {@link OneTimeWorkRequest} to add to the {@link WorkContinuation}
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
-     *         {@link WorkRequest}
+     *         {@link OneTimeWorkRequest}
      */
-    public final WorkContinuation then(@NonNull WorkRequest... work) {
+    public final WorkContinuation then(@NonNull OneTimeWorkRequest... work) {
         return then(Arrays.asList(work));
     }
 
     /**
-     * Adds new {@link WorkRequest} items that depend on the successful completion of all previously
-     * added {@link WorkRequest}.
+     * Adds new {@link OneTimeWorkRequest} items that depend on the successful completion
+     * of all previously added {@link OneTimeWorkRequest}.
      *
-     * @param work One or more {@link WorkRequest} to add to the {@link WorkContinuation}
+     * @param work One or more {@link OneTimeWorkRequest} to add to the {@link WorkContinuation}
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
-     *         {@link WorkRequest}
+     *         {@link OneTimeWorkRequest}
      */
-    public abstract WorkContinuation then(@NonNull List<WorkRequest> work);
+    public abstract WorkContinuation then(@NonNull List<OneTimeWorkRequest> work);
 
     /**
      * Returns a {@link LiveData} list of {@link WorkStatus} that provides information about work,
@@ -101,32 +101,32 @@ public abstract class WorkContinuation {
 
     /**
      * Joins multiple {@link WorkContinuation}s to allow for complex chaining using the
-     * {@link WorkRequest} provided.
+     * {@link OneTimeWorkRequest} provided.
      *
-     * @param work The {@link WorkRequest} which depends on the successful completion of the
+     * @param work The {@link OneTimeWorkRequest} which depends on the successful completion of the
      *             provided {@link WorkContinuation}s
      * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
-     *                      {@link WorkRequest} provided.
+     *                      {@link OneTimeWorkRequest} provided.
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public static WorkContinuation join(
-            @NonNull WorkRequest work,
+            @NonNull OneTimeWorkRequest work,
             @NonNull WorkContinuation... continuations) {
         return join(work, Arrays.asList(continuations));
     }
 
     /**
      * Joins multiple {@link WorkContinuation}s to allow for complex chaining using the
-     * {@link WorkRequest} provided.
+     * {@link OneTimeWorkRequest} provided.
      *
-     * @param work The {@link WorkRequest} which depends on the successful completion of the
+     * @param work The {@link OneTimeWorkRequest} which depends on the successful completion of the
      *             provided {@link WorkContinuation}s
      * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
-     *                      {@link WorkRequest} provided.
+     *                      {@link OneTimeWorkRequest} provided.
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public static WorkContinuation join(
-            @NonNull WorkRequest work,
+            @NonNull OneTimeWorkRequest work,
             @NonNull List<WorkContinuation> continuations) {
         return continuations.get(0).joinInternal(work, continuations);
     }
@@ -136,6 +136,6 @@ public abstract class WorkContinuation {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected abstract WorkContinuation joinInternal(
-            @Nullable WorkRequest work,
+            @Nullable OneTimeWorkRequest work,
             @NonNull List<WorkContinuation> continuations);
 }

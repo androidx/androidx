@@ -39,11 +39,11 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.Configuration;
 import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
 import androidx.work.TestLifecycleOwner;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManagerTest;
-import androidx.work.WorkRequest;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
@@ -121,7 +121,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
     @Test
     public void testContinuation_noParent() {
-        WorkRequest testWork = createTestWorker();
+        OneTimeWorkRequest testWork = createTestWorker();
         WorkContinuationImpl continuation =
                 new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(testWork));
 
@@ -133,8 +133,8 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
     @Test
     public void testContinuation_singleChain() {
-        WorkRequest testWork = createTestWorker();
-        WorkRequest dependentWork = createTestWorker();
+        OneTimeWorkRequest testWork = createTestWorker();
+        OneTimeWorkRequest dependentWork = createTestWorker();
         WorkContinuationImpl continuation =
                 new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(testWork));
         WorkContinuationImpl dependent = (WorkContinuationImpl) (continuation.then(
@@ -204,7 +204,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
                 createTestWorkerList());
 
-        WorkRequest work = createTestWorker();
+        OneTimeWorkRequest work = createTestWorker();
 
         WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(work, first,
                 second);
@@ -263,10 +263,10 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         final String intTag = "myint";
         final String stringTag = "mystring";
 
-        WorkRequest firstWork = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest firstWork = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialState(State.SUCCEEDED)
                 .build();
-        WorkRequest secondWork = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest secondWork = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialState(State.SUCCEEDED)
                 .build();
 
@@ -325,9 +325,9 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testContinuation_hasCycles() throws InterruptedException {
-        WorkRequest aWork = createTestWorker(); // A
-        WorkRequest bWork = createTestWorker(); // B
-        WorkRequest cWork = createTestWorker(); // C
+        OneTimeWorkRequest aWork = createTestWorker(); // A
+        OneTimeWorkRequest bWork = createTestWorker(); // B
+        OneTimeWorkRequest cWork = createTestWorker(); // C
 
         WorkContinuation continuationA = new WorkContinuationImpl(
                 mWorkManagerImpl, Collections.singletonList(aWork));
@@ -349,7 +349,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testContinuation_hasCycles2() throws InterruptedException {
-        WorkRequest aWork = createTestWorker(); // A
+        OneTimeWorkRequest aWork = createTestWorker(); // A
         WorkContinuation continuationA = new WorkContinuationImpl(
                 mWorkManagerImpl, Collections.singletonList(aWork));
 
@@ -361,7 +361,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testContinuation_hasCycles3() throws InterruptedException {
-        WorkRequest aWork = createTestWorker(); // A
+        OneTimeWorkRequest aWork = createTestWorker(); // A
         WorkContinuation continuationA = new WorkContinuationImpl(
                 mWorkManagerImpl, Collections.singletonList(aWork));
 
@@ -379,8 +379,8 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testContinuation_hasCycles4() throws InterruptedException {
-        WorkRequest aWork = createTestWorker(); // A
-        WorkRequest cWork = createTestWorker(); // C
+        OneTimeWorkRequest aWork = createTestWorker(); // A
+        OneTimeWorkRequest cWork = createTestWorker(); // C
 
         WorkContinuation continuationA = new WorkContinuationImpl(
                 mWorkManagerImpl, Collections.singletonList(aWork));
@@ -403,9 +403,9 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testContinuation_hasNoCycles() throws InterruptedException {
-        WorkRequest aWork = createTestWorker(); // A
-        WorkRequest bWork = createTestWorker(); // B
-        WorkRequest cWork = createTestWorker(); // C
+        OneTimeWorkRequest aWork = createTestWorker(); // A
+        OneTimeWorkRequest bWork = createTestWorker(); // B
+        OneTimeWorkRequest cWork = createTestWorker(); // C
 
         WorkContinuation continuationAB = new WorkContinuationImpl(
                 mWorkManagerImpl, Arrays.asList(aWork, bWork));
@@ -422,9 +422,9 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testContinuation_hasNoCycles2() throws InterruptedException {
-        WorkRequest aWork = createTestWorker(); // A
-        WorkRequest bWork = createTestWorker(); // B
-        WorkRequest cWork = createTestWorker(); // C
+        OneTimeWorkRequest aWork = createTestWorker(); // A
+        OneTimeWorkRequest bWork = createTestWorker(); // B
+        OneTimeWorkRequest cWork = createTestWorker(); // C
 
         WorkContinuation continuationA = new WorkContinuationImpl(
                 mWorkManagerImpl, Collections.singletonList(aWork));
@@ -453,9 +453,9 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testContinuation_hasNoCycles3() throws InterruptedException {
-        WorkRequest aWork = createTestWorker(); // A
-        WorkRequest bWork = createTestWorker(); // B
-        WorkRequest cWork = createTestWorker(); // C
+        OneTimeWorkRequest aWork = createTestWorker(); // A
+        OneTimeWorkRequest bWork = createTestWorker(); // B
+        OneTimeWorkRequest cWork = createTestWorker(); // C
 
         WorkContinuation continuationA = new WorkContinuationImpl(
                 mWorkManagerImpl, Collections.singletonList(aWork));
@@ -503,11 +503,11 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         }
     }
 
-    private static WorkRequest createTestWorker() {
-        return new WorkRequest.Builder(TestWorker.class).build();
+    private static OneTimeWorkRequest createTestWorker() {
+        return new OneTimeWorkRequest.Builder(TestWorker.class).build();
     }
 
-    private static List<WorkRequest> createTestWorkerList() {
+    private static List<OneTimeWorkRequest> createTestWorkerList() {
         return Collections.singletonList(createTestWorker());
     }
 }

@@ -21,7 +21,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import androidx.work.Data;
-import androidx.work.WorkRequest;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.Worker;
 
 import java.io.DataOutputStream;
@@ -42,16 +42,16 @@ public class TextMappingWorker extends Worker {
     private Map<String, Integer> mWordCount = new HashMap<>();
 
     /**
-     * Creates a {@link WorkRequest.Builder} with the necessary arguments.
+     * Creates a {@link OneTimeWorkRequest.Builder} with the necessary arguments.
      *
      * @param inputFile The input file to process
-     * @return A {@link WorkRequest.Builder} with these arguments
+     * @return A {@link OneTimeWorkRequest.Builder} with these arguments
      */
-    public static WorkRequest.Builder create(String inputFile) {
+    public static OneTimeWorkRequest.Builder create(String inputFile) {
         Data input = new Data.Builder()
                 .putString(INPUT_FILE, inputFile)
                 .build();
-        return new WorkRequest.Builder(TextMappingWorker.class).withInputData(input);
+        return new OneTimeWorkRequest.Builder(TextMappingWorker.class).withInputData(input);
     }
 
     @Override

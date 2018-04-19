@@ -27,8 +27,8 @@ import android.widget.EditText;
 
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         WorkManager.getInstance().enqueue(
-                                new WorkRequest.Builder(InfiniteWorker.class)
+                                new OneTimeWorkRequest.Builder(InfiniteWorker.class)
                                         .withConstraints(new Constraints.Builder()
                                                 .setRequiresCharging(true)
                                                 .build())
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         WorkManager.getInstance().enqueue(
-                                new WorkRequest.Builder(InfiniteWorker.class)
+                                new OneTimeWorkRequest.Builder(InfiniteWorker.class)
                                         .withConstraints(new Constraints.Builder()
                                                 .setRequiredNetworkType(NetworkType.CONNECTED)
                                                 .build())

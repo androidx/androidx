@@ -24,7 +24,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.work.Data;
-import androidx.work.WorkRequest;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.Worker;
 import androidx.work.integration.testapp.db.Image;
 import androidx.work.integration.testapp.db.TestDatabase;
@@ -142,8 +142,9 @@ public class ImageProcessingWorker extends Worker {
         }
     }
 
-    static WorkRequest createWork(String uriString) {
+    static OneTimeWorkRequest createWork(String uriString) {
         Data input = new Data.Builder().putString(URI_KEY, uriString).build();
-        return new WorkRequest.Builder(ImageProcessingWorker.class).withInputData(input).build();
+        return new OneTimeWorkRequest.Builder(ImageProcessingWorker.class)
+                .withInputData(input).build();
     }
 }

@@ -33,11 +33,11 @@ import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.work.BaseWorkRequest;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.State;
+import androidx.work.WorkRequest;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
@@ -149,7 +149,7 @@ public class EnqueueRunnable implements Runnable {
      */
     private static boolean enqueueWorkWithPrerequisites(
             WorkManagerImpl workManagerImpl,
-            @NonNull List<? extends BaseWorkRequest> workList,
+            @NonNull List<? extends WorkRequest> workList,
             String[] prerequisiteIds,
             String name,
             ExistingWorkPolicy existingWorkPolicy) {
@@ -234,7 +234,7 @@ public class EnqueueRunnable implements Runnable {
         }
 
         boolean needsScheduling = false;
-        for (BaseWorkRequest work : workList) {
+        for (WorkRequest work : workList) {
             WorkSpec workSpec = work.getWorkSpec();
 
             if (hasPrerequisite && !hasCompletedAllPrerequisites) {

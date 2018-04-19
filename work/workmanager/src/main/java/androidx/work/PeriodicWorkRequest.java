@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  * A class that represents a request for repeating work.
  */
 
-public class PeriodicWorkRequest extends BaseWorkRequest {
+public class PeriodicWorkRequest extends WorkRequest {
 
     /**
      * The minimum interval duration for {@link PeriodicWorkRequest}, in milliseconds.
@@ -44,7 +44,7 @@ public class PeriodicWorkRequest extends BaseWorkRequest {
     /**
      * Builder for {@link PeriodicWorkRequest} class.
      */
-    public static class Builder extends BaseWorkRequest.Builder<Builder, PeriodicWorkRequest> {
+    public static class Builder extends WorkRequest.Builder<Builder, PeriodicWorkRequest> {
 
         /**
          * Creates a {@link PeriodicWorkRequest} to run periodically once every interval period. The

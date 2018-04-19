@@ -21,7 +21,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
-import androidx.work.BaseWorkRequest;
+import androidx.work.WorkRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Manages timers to enforce a time limit for processing {@link BaseWorkRequest}.
+ * Manages timers to enforce a time limit for processing {@link WorkRequest}.
  * Notifies a {@link TimeLimitExceededListener} when the time limit
  * is exceeded.
  *

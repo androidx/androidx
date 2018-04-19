@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.work.BaseWorkRequest;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkDatabase;
@@ -66,7 +66,8 @@ public class FirebaseJobServiceTest {
     @Test
     @SmallTest
     public void testOnStopJob_ResetsWorkStatus() throws InterruptedException {
-        WorkRequest work = new WorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getId());
@@ -85,7 +86,8 @@ public class FirebaseJobServiceTest {
     @Test
     @SmallTest
     public void testOnStopJob_ReschedulesWhenNotCancelled() {
-        WorkRequest work = new WorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getId());
@@ -96,7 +98,8 @@ public class FirebaseJobServiceTest {
     @Test
     @SmallTest
     public void testOnStopJob_DoesNotRescheduleWhenCancelled() {
-        WorkRequest work = new WorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getId());
@@ -111,7 +114,7 @@ public class FirebaseJobServiceTest {
         return jobParameters;
     }
 
-    private void insertWork(BaseWorkRequest work) {
+    private void insertWork(WorkRequest work) {
         mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
     }
 }

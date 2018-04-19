@@ -21,9 +21,9 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import androidx.work.BackoffPolicy;
-import androidx.work.BaseWorkRequest;
 import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
+import androidx.work.WorkRequest;
 import androidx.work.impl.model.WorkSpec;
 
 import com.firebase.jobdispatcher.Constraint;
@@ -107,7 +107,7 @@ class FirebaseJobConverter {
         int initialBackoff = (int) TimeUnit.SECONDS
                 .convert(workSpec.backoffDelayDuration, TimeUnit.MILLISECONDS);
         int maxBackoff = (int) TimeUnit.SECONDS
-                .convert(BaseWorkRequest.MAX_BACKOFF_MILLIS, TimeUnit.MILLISECONDS);
+                .convert(WorkRequest.MAX_BACKOFF_MILLIS, TimeUnit.MILLISECONDS);
         return mDispatcher.newRetryStrategy(policy, initialBackoff, maxBackoff);
     }
 

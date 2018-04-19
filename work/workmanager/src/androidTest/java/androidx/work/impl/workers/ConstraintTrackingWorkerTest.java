@@ -34,8 +34,8 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
-import androidx.work.WorkRequest;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
@@ -129,10 +129,11 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 .putBoolean(TEST_ARGUMENT_NAME, true)
                 .build();
 
-        final WorkRequest work = new WorkRequest.Builder(ConstraintTrackingWorker.class)
-                .withInputData(input)
-                .withConstraints(constraints)
-                .build();
+        final OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
+                    .withInputData(input)
+                    .withConstraints(constraints)
+                    .build();
 
         insertWork(work);
         String workSpecId = work.getId();
@@ -175,9 +176,10 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
                 .build();
 
-        final WorkRequest work = new WorkRequest.Builder(ConstraintTrackingWorker.class)
-                .withConstraints(constraints)
-                .build();
+        final OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
+                    .withConstraints(constraints)
+                    .build();
 
         insertWork(work);
         String workSpecId = work.getId();
@@ -218,9 +220,10 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
                 .build();
 
-        final WorkRequest work = new WorkRequest.Builder(ConstraintTrackingWorker.class)
-                .withConstraints(constraints)
-                .build();
+        final OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
+                    .withConstraints(constraints)
+                    .build();
 
         insertWork(work);
 
@@ -270,9 +273,10 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME, delegateName)
                 .build();
 
-        final WorkRequest work = new WorkRequest.Builder(ConstraintTrackingWorker.class)
-                .withConstraints(constraints)
-                .build();
+        final OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
+                    .withConstraints(constraints)
+                    .build();
 
         insertWork(work);
 

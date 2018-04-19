@@ -27,8 +27,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 import androidx.work.integration.testapp.R;
 import androidx.work.integration.testapp.db.Image;
 import androidx.work.integration.testapp.db.TestDatabase;
@@ -81,7 +81,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 WorkManager.getInstance()
-                        .enqueue(WorkRequest.from(ImageCleanupWorker.class));
+                        .enqueue(OneTimeWorkRequest.from(ImageCleanupWorker.class));
             }
         });
     }
@@ -92,8 +92,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
                 && Build.VERSION.SDK_INT >= 16 && data.getClipData() != null) {
             Log.d(TAG, "Image Selection Complete");
             int count = data.getClipData().getItemCount();
-            WorkRequest[] processingWork = new WorkRequest[count];
-            WorkRequest[] setupWork = new WorkRequest[count];
+            OneTimeWorkRequest[] processingWork = new OneTimeWorkRequest[count];
+            OneTimeWorkRequest[] setupWork = new OneTimeWorkRequest[count];
             for (int i = 0; i < count; i++) {
                 String uriString = data.getClipData().getItemAt(i).getUri().toString();
                 setupWork[i] = ImageSetupWorker.createWork(uriString);
@@ -107,8 +107,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
                 && data.getData() != null) {
             Log.d(TAG, "Image Selection Complete");
             String uriString = data.getData().toString();
-            WorkRequest setupWork = ImageSetupWorker.createWork(uriString);
-            WorkRequest processingWork = ImageProcessingWorker.createWork(uriString);
+            OneTimeWorkRequest setupWork = ImageSetupWorker.createWork(uriString);
+            OneTimeWorkRequest processingWork = ImageProcessingWorker.createWork(uriString);
             WorkManager.getInstance()
                     .beginWith(setupWork)
                     .then(processingWork)

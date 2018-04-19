@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A simple class with the id of a {@link BaseWorkRequest}, its current {@link State}, output, and
+ * A simple class with the id of a {@link WorkRequest}, its current {@link State}, output, and
  * tags.  Note that output is only available for terminal states ({@link State#SUCCEEDED} and
  * {@link State#FAILED}).
  */

@@ -36,17 +36,17 @@ public class WorkTest extends WorkManagerTest {
     @Rule
     public ExpectedException mThrown = ExpectedException.none();
 
-    private WorkRequest.Builder mBuilder;
+    private OneTimeWorkRequest.Builder mBuilder;
 
     @Before
     public void setUp() {
-        mBuilder = new WorkRequest.Builder(TestWorker.class);
+        mBuilder = new OneTimeWorkRequest.Builder(TestWorker.class);
     }
 
     @Test
     public void testBuild_withInitialDelay() {
         final long expectedInitialDelay = 123L;
-        WorkRequest work = mBuilder
+        OneTimeWorkRequest work = mBuilder
                 .withInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(work).initialDelay, is(expectedInitialDelay));
@@ -54,26 +54,26 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_setBackoffCriteria_exceedMaxBackoffDuration() {
-        final long backoffDuration = BaseWorkRequest.MAX_BACKOFF_MILLIS + 123L;
-        WorkRequest work = mBuilder
+        final long backoffDuration = WorkRequest.MAX_BACKOFF_MILLIS + 123L;
+        OneTimeWorkRequest work = mBuilder
                 .withBackoffCriteria(
                         BackoffPolicy.EXPONENTIAL,
                         backoffDuration,
                         TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(work).backoffDelayDuration, is(BaseWorkRequest.MAX_BACKOFF_MILLIS));
+        assertThat(getWorkSpec(work).backoffDelayDuration, is(WorkRequest.MAX_BACKOFF_MILLIS));
     }
 
     @Test
     public void testBuild_setBackoffCriteria_lessThanMinBackoffDuration() {
-        final long backoffDuration = BaseWorkRequest.MIN_BACKOFF_MILLIS - 123L;
-        WorkRequest work = mBuilder
+        final long backoffDuration = WorkRequest.MIN_BACKOFF_MILLIS - 123L;
+        OneTimeWorkRequest work = mBuilder
                 .withBackoffCriteria(
                         BackoffPolicy.EXPONENTIAL,
                         backoffDuration,
                         TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(work).backoffDelayDuration, is(BaseWorkRequest.MIN_BACKOFF_MILLIS));
+        assertThat(getWorkSpec(work).backoffDelayDuration, is(WorkRequest.MIN_BACKOFF_MILLIS));
     }
 
     @Test

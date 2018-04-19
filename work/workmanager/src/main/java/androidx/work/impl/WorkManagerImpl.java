@@ -25,10 +25,10 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
-import androidx.work.BaseWorkRequest;
 import androidx.work.BlockingWorkManager;
 import androidx.work.Configuration;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.R;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
@@ -213,23 +213,23 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     }
 
     @Override
-    public void enqueue(@NonNull List<? extends BaseWorkRequest> baseWork) {
+    public void enqueue(@NonNull List<? extends WorkRequest> baseWork) {
         new WorkContinuationImpl(this, baseWork).enqueue();
     }
 
     @Override
-    public void enqueueBlocking(@NonNull BaseWorkRequest... baseWorkRequest) {
-        enqueueBlocking(Arrays.asList(baseWorkRequest));
+    public void enqueueBlocking(@NonNull WorkRequest... workRequest) {
+        enqueueBlocking(Arrays.asList(workRequest));
     }
 
     @Override
-    public void enqueueBlocking(@NonNull List<? extends BaseWorkRequest> baseWork) {
+    public void enqueueBlocking(@NonNull List<? extends WorkRequest> workRequest) {
         assertBackgroundThread("Cannot enqueueBlocking on main thread!");
-        new WorkContinuationImpl(this, baseWork).enqueueBlocking();
+        new WorkContinuationImpl(this, workRequest).enqueueBlocking();
     }
 
     @Override
-    public WorkContinuation beginWith(@NonNull List<WorkRequest> work) {
+    public WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work) {
         return new WorkContinuationImpl(this, work);
     }
 
@@ -237,7 +237,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     public WorkContinuation beginUniqueWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<WorkRequest> work) {
+            @NonNull List<OneTimeWorkRequest> work) {
         return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work);
     }
 

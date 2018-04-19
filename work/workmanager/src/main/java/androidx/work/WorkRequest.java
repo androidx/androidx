@@ -13,108 +13,240 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.work;
 
-import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import androidx.work.impl.model.WorkSpec;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A class that represents a request for non-repeating work.
+ * The base interface for work requests.
  */
 
-public class WorkRequest extends BaseWorkRequest {
+public abstract class WorkRequest {
 
     /**
-     * Creates an array of {@link WorkRequest} with defaults from an array of {@link Worker} class
-     * names.
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#77}
+     */
+    public static final long DEFAULT_BACKOFF_DELAY_MILLIS = 30000L;
+
+    /**
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#82}
+     */
+    public static final long MAX_BACKOFF_MILLIS = 5 * 60 * 60 * 1000; // 5 hours.
+
+    /**
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#119}
+     */
+    public static final long MIN_BACKOFF_MILLIS = 10 * 1000; // 10 seconds.
+
+
+    private WorkSpec mWorkSpec;
+    private Set<String> mTags;
+
+    protected WorkRequest(@NonNull WorkSpec workSpec, @NonNull Set<String> tags) {
+        mWorkSpec = workSpec;
+        mTags = tags;
+    }
+
+    /**
+     * Gets the unique identifier associated with this unit of work.
      *
-     * @param workerClasses An array of {@link Worker} class names
-     * @return A list of {@link WorkRequest} constructed by using defaults in the {@link Builder}
+     * @return The identifier for this unit of work
      */
-    @SafeVarargs public static @NonNull List<WorkRequest> from(
-            @NonNull Class<? extends Worker>... workerClasses) {
-        return from(Arrays.asList(workerClasses));
+    public String getId() {
+        return mWorkSpec.id;
     }
 
     /**
-     * Creates a list of {@link WorkRequest} with defaults from an array of {@link Worker} class
-     * names.
+     * Gets the {@link WorkSpec} associated with this unit of work.
      *
-     * @param workerClasses A list of {@link Worker} class names
-     * @return A list of {@link WorkRequest} constructed by using defaults in the {@link Builder}
+     * @return The {@link WorkSpec} for this unit of work
+     * @hide
      */
-    public static @NonNull List<WorkRequest> from(
-            @NonNull List<Class<? extends Worker>> workerClasses) {
-        List<WorkRequest> workList = new ArrayList<>(workerClasses.size());
-        for (Class<? extends Worker> workerClass : workerClasses) {
-            workList.add(new WorkRequest.Builder(workerClass).build());
-        }
-        return workList;
-    }
-
-
-    WorkRequest(Builder builder) {
-        super(builder.mWorkSpec, builder.mTags);
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WorkSpec getWorkSpec() {
+        return mWorkSpec;
     }
 
     /**
-     * Builder for {@link WorkRequest} class.
+     * Gets the tags associated with this unit of work.
+     *
+     * @return The tags for this unit of work
+     * @hide
      */
-    public static class Builder extends BaseWorkRequest.Builder<Builder, WorkRequest> {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public Set<String> getTags() {
+        return mTags;
+    }
+
+    /**
+     * A builder for {@link WorkRequest}.
+     *
+     * @param <B> The concrete implementation of of this Builder
+     * @param <W> The type of work object built by this Builder
+     */
+    public abstract static class Builder<B extends Builder, W extends WorkRequest> {
+
+        protected boolean mBackoffCriteriaSet = false;
+        protected WorkSpec mWorkSpec;
+        protected Set<String> mTags = new HashSet<>();
 
         public Builder(@NonNull Class<? extends Worker> workerClass) {
-            super(workerClass);
-            mWorkSpec.inputMergerClassName = OverwritingInputMerger.class.getName();
+            mWorkSpec = new WorkSpec(UUID.randomUUID().toString(), workerClass.getName());
         }
 
         /**
-         * Add an initial delay to the {@link WorkRequest}.
+         * Change backoff policy and delay for the work.  The default is
+         * {@link BackoffPolicy#EXPONENTIAL} and
+         * {@value WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}.  The maximum backoff delay
+         * duration is {@value WorkRequest#MAX_BACKOFF_MILLIS}.
          *
-         * @param duration The length of the delay in {@code timeUnit} units
-         * @param timeUnit The units of time for {@code duration}
+         * @param backoffPolicy The {@link BackoffPolicy} to use for work
+         * @param backoffDelay Time to wait before restarting {@link Worker} in {@code timeUnit}
+         *                     units
+         * @param timeUnit The {@link TimeUnit} for {@code backoffDelay}
          * @return The current {@link Builder}
          */
-        public Builder withInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
-            mWorkSpec.initialDelay = timeUnit.toMillis(duration);
-            return this;
+        public B withBackoffCriteria(
+                @NonNull BackoffPolicy backoffPolicy,
+                long backoffDelay,
+                @NonNull TimeUnit timeUnit) {
+            mBackoffCriteriaSet = true;
+            mWorkSpec.backoffPolicy = backoffPolicy;
+            mWorkSpec.setBackoffDelayDuration(timeUnit.toMillis(backoffDelay));
+            return getThis();
         }
 
         /**
-         * Specify the {@link InputMerger} class name for this {@link WorkRequest}.  An InputMerger
-         * takes one or more {@link Data} inputs to a {@link Worker} and converts them to a single
-         * merged {@link Data} to be used as its input.  The default InputMerger is
-         * {@link OverwritingInputMerger}.
+         * Add constraints to the {@link OneTimeWorkRequest}.
          *
-         * @param inputMerger The class name of the {@link InputMerger} for this
-         *                    {@link WorkRequest}
+         * @param constraints The constraints for the work
          * @return The current {@link Builder}
          */
-        public Builder withInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
-            mWorkSpec.inputMergerClassName = inputMerger.getName();
-            return this;
+        public B withConstraints(@NonNull Constraints constraints) {
+            mWorkSpec.constraints = constraints;
+            return getThis();
         }
 
-
-        @Override
-        public WorkRequest build() {
-            if (mBackoffCriteriaSet
-                    && Build.VERSION.SDK_INT >= 23
-                    && mWorkSpec.constraints.requiresDeviceIdle()) {
-                throw new IllegalArgumentException(
-                        "Cannot set backoff criteria on an idle mode job");
-            }
-            return new WorkRequest(this);
+        /**
+         * Add input {@link Data} to the work.
+         *
+         * @param inputData key/value pairs that will be provided to the {@link Worker} class
+         * @return The current {@link Builder}
+         */
+        public B withInputData(@NonNull Data inputData) {
+            mWorkSpec.input = inputData;
+            return getThis();
         }
 
-        @Override
-        protected Builder getThis() {
-            return this;
+        /**
+         * Add an optional tag for the work.  This is particularly useful for modules or
+         * libraries who want to query for or cancel all of their own work.
+         *
+         * @param tag A tag for identifying the work in queries.
+         * @return The current {@link Builder}
+         */
+        public B addTag(@NonNull String tag) {
+            mTags.add(tag);
+            return getThis();
+        }
+
+        /**
+         * Specifies that the results of this work should be kept for at least the specified amount
+         * of time.  After this time has elapsed, the results may be pruned at the discretion of
+         * WorkManager when there are no pending dependent jobs.
+         *
+         * When the results of a work are pruned, it becomes impossible to query for its
+         * {@link WorkStatus}.
+         *
+         * Specifying a long duration here may adversely affect performance in terms of app storage
+         * and database query time.
+         *
+         * @param duration The minimum duration of time (in {@code timeUnit} units) to keep the
+         *                 results of this work
+         * @param timeUnit The unit of time for {@code duration}
+         * @return The current {@link Builder}
+         */
+        public B keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
+            mWorkSpec.minimumRetentionDuration = timeUnit.toMillis(duration);
+            return getThis();
+        }
+
+        /**
+         * Builds this work object.
+         *
+         * @return The concrete implementation of the work associated with this builder
+         */
+        public abstract W build();
+
+        protected abstract B getThis();
+
+        /**
+         * Set the initial state for this work.  Used in testing only.
+         *
+         * @param state The {@link State} to set
+         * @return The current {@link Builder}
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @VisibleForTesting
+        public B withInitialState(@NonNull State state) {
+            mWorkSpec.state = state;
+            return getThis();
+        }
+
+        /**
+         * Set the initial run attempt count for this work.  Used in testing only.
+         *
+         * @param runAttemptCount The initial run attempt count
+         * @return The current {@link Builder}
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @VisibleForTesting
+        public B withInitialRunAttemptCount(int runAttemptCount) {
+            mWorkSpec.runAttemptCount = runAttemptCount;
+            return getThis();
+        }
+
+        /**
+         * Set the period start time for this work. Used in testing only.
+         *
+         * @param periodStartTime the period start time in {@code timeUnit} units
+         * @param timeUnit The {@link TimeUnit} for {@code periodStartTime}
+         * @return The current {@link Builder}
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @VisibleForTesting
+        public B withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
+            mWorkSpec.periodStartTime = timeUnit.toMillis(periodStartTime);
+            return getThis();
+        }
+
+        /**
+         * Set when the scheduler actually schedules the worker.
+         *
+         * @param scheduleRequestedAt The time at which the scheduler scheduled a worker.
+         * @param timeUnit            The {@link TimeUnit} for {@code scheduleRequestedAt}
+         * @return The current {@link Builder}
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @VisibleForTesting
+        public B withScheduleRequestedAt(
+                long scheduleRequestedAt,
+                @NonNull TimeUnit timeUnit) {
+            mWorkSpec.scheduleRequestedAt = timeUnit.toMillis(scheduleRequestedAt);
+            return getThis();
         }
     }
 }

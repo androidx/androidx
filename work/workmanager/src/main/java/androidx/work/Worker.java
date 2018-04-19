@@ -79,8 +79,10 @@ public abstract class Worker {
     public abstract @NonNull WorkerResult doWork();
 
     /**
-     * Call this method to pass an {@link Data} object to {@link WorkRequest} that is dependent on
-     * this one.  Note that if there are multiple {@link Worker}s that contribute to the target, the
+     * Call this method to pass an {@link Data} object to {@link Worker} that is
+     * dependent on this one.
+     *
+     * Note that if there are multiple {@link Worker}s that contribute to the target, the
      * Data will be merged together, so it is up to the developer to make sure that keys are
      * unique.  New values and types will clobber old values and types, and if there are multiple
      * parent Workers of a child Worker, the order of clobbering may not be deterministic.
@@ -91,16 +93,16 @@ public abstract class Worker {
      * For example, if you had this structure:
      *
      * {@code WorkManager.getInstance(context)
-     *            .enqueueWithDefaults(WorkerA.class, WorkerB.class)
-     *            .then(WorkerC.class)
-     *            .enqueue()}
+     *             .enqueueWithDefaults(WorkerA.class, WorkerB.class)
+     *             .then(WorkerC.class)
+     *             .enqueue()}
      *
      * This method would be called for both WorkerA and WorkerB after their successful completion,
      * modifying the input Data for WorkerC.
      *
      * @param outputData An {@link Data} object that will be merged into the input Data of any
-     *               WorkRequest that is dependent on this one, or {@code null} if there is nothing
-     *               to contribute
+     *                   OneTimeWorkRequest that is dependent on this one, or {@code null} if there
+     *                   is nothing to contribute
      */
     public final void setOutputData(@NonNull Data outputData) {
         mOutputData = outputData;

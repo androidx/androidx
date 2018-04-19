@@ -56,40 +56,40 @@ public abstract class WorkManager {
     /**
      * Enqueues one or more items for background processing.
      *
-     * @param baseWorkRequest One or more {@link BaseWorkRequest} to enqueue
+     * @param workRequest One or more {@link WorkRequest} to enqueue
      */
-    public final void enqueue(@NonNull BaseWorkRequest... baseWorkRequest) {
-        enqueue(Arrays.asList(baseWorkRequest));
+    public final void enqueue(@NonNull WorkRequest... workRequest) {
+        enqueue(Arrays.asList(workRequest));
     }
 
     /**
      * Enqueues one or more items for background processing.
      *
-     * @param baseWork One or more {@link BaseWorkRequest} to enqueue
+     * @param baseWork One or more {@link WorkRequest} to enqueue
      */
-    public abstract void enqueue(@NonNull List<? extends BaseWorkRequest> baseWork);
+    public abstract void enqueue(@NonNull List<? extends WorkRequest> baseWork);
 
     /**
-     * Begins a chain of {@link WorkRequest}, which can be enqueued together in the future using
-     * {@link WorkContinuation#enqueue()}.
+     * Begins a chain of {@link OneTimeWorkRequest}, which can be enqueued together in the future
+     * using {@link WorkContinuation#enqueue()}.
      *
-     * @param work One or more {@link WorkRequest} to start a chain of work
+     * @param work One or more {@link OneTimeWorkRequest} to start a chain of work
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
-     *         {@link WorkRequest}
+     *         {@link OneTimeWorkRequest}
      */
-    public final WorkContinuation beginWith(@NonNull WorkRequest...work) {
+    public final WorkContinuation beginWith(@NonNull OneTimeWorkRequest...work) {
         return beginWith(Arrays.asList(work));
     }
 
     /**
-     * Begins a chain of {@link WorkRequest}, which can be enqueued together in the future using
-     * {@link WorkContinuation#enqueue()}.
+     * Begins a chain of {@link OneTimeWorkRequest}, which can be enqueued together in the future
+     * using {@link WorkContinuation#enqueue()}.
      *
-     * @param work One or more {@link WorkRequest} to start a chain of work
+     * @param work One or more {@link OneTimeWorkRequest} to start a chain of work
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
-     *         {@link WorkRequest}
+     *         {@link OneTimeWorkRequest}
      */
-    public abstract WorkContinuation beginWith(@NonNull List<WorkRequest> work);
+    public abstract WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work);
 
     /**
      * This method allows you to begin unique chains of work for situations where you only want one
@@ -100,24 +100,24 @@ public abstract class WorkManager {
      * The {@code name} uniquely identifies this set of work.
      *
      * If this method determines that new work should be enqueued and run, all records of previous
-     * work with {@code name} will be pruned.  If this method determines that new work should NOT be
-     * run, then the entire chain will be considered a no-op.
+     * work with {@code name} will be pruned.  If this method determines that new work should NOT
+     * be run, then the entire chain will be considered a no-op.
      *
      * @param uniqueWorkName A unique name which for this chain of work
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}.
-     * @param work One or more {@link WorkRequest} to enqueue. {@code REPLACE} ensures that
+     * @param work One or more {@link OneTimeWorkRequest} to enqueue. {@code REPLACE} ensures that
      *             if there is pending work labelled with {@code name}, it will be cancelled and the
      *             new work will run. {@code KEEP} will run the new sequence of work
      *             only if there is no pending work labelled with {@code name}.
      *             {@code APPEND} will create a new sequence of work if there is no
-     *             existing work with {@code name}; otherwise, {@code work} will be added as a child
-     *             of all leaf nodes labelled with {@code name}.
+     *             existing work with {@code name}; otherwise, {@code work} will be added as a
+     *             child of all leaf nodes labelled with {@code name}.
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public final WorkContinuation beginUniqueWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull WorkRequest... work) {
+            @NonNull OneTimeWorkRequest... work) {
         return beginUniqueWork(uniqueWorkName, existingWorkPolicy, Arrays.asList(work));
     }
 
@@ -135,19 +135,20 @@ public abstract class WorkManager {
      *
      * @param uniqueWorkName A unique name which for this chain of work
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}.
-     * @param work One or more {@link WorkRequest} to enqueue. {@code REPLACE} ensures that if there
-     *             is pending work labelled with {@code name}, it will be cancelled and the new work
-     *             will run. {@code KEEP} will run the new sequence of work only if there is no
-     *             pending work labelled with {@code name}.  {@code APPEND} will create a new
-     *             sequence of work if there is no existing work with {@code name}; otherwise,
-     *             {@code work} will be added as a child of all leaf nodes labelled with
-     *             {@code name}.
+     * @param work One or more {@link OneTimeWorkRequest} to enqueue. {@code REPLACE} ensures
+     *             that if there is pending work labelled with {@code name}, it will be cancelled
+     *             and the new work will run.
+     *             {@code KEEP} will run the new sequence of work only if there is no
+     *             pending work labelled with {@code name}.
+     *             {@code APPEND} will create a new sequence of work if there is no existing work
+     *             with {@code name}; otherwise, {@code work} will be added as a child of all
+     *             leaf nodes labelled with {@code name}.
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public abstract WorkContinuation beginUniqueWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<WorkRequest> work);
+            @NonNull List<OneTimeWorkRequest> work);
 
     /**
      * Cancels work with the given id if it isn't finished.  Note that cancellation is a best-effort

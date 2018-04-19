@@ -33,7 +33,7 @@ public abstract class InputMerger {
     /**
      * Merges a list of {@link Data} and outputs a single Data object.
      *
-     * @param inputs A list of {@link Data} from previous Workers or the BaseWorkRequest.Builder
+     * @param inputs A list of {@link Data} from previous Workers or the WorkRequest.Builder
      * @return The merged output
      */
     public abstract @NonNull Data merge(@NonNull List<Data> inputs);

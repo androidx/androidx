@@ -38,8 +38,8 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.work.BaseWorkRequest;
 import androidx.work.Configuration;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
 import androidx.work.WorkManagerTest;
 import androidx.work.WorkRequest;
@@ -110,7 +110,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testOnStopJob_ResetsWorkStatus() throws InterruptedException {
-        WorkRequest work = new WorkRequest.Builder(InfiniteTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getId());
@@ -131,7 +131,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testOnStopJob_ReschedulesWhenNotCancelled() {
-        WorkRequest work = new WorkRequest.Builder(InfiniteTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getId());
@@ -142,7 +142,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testOnStopJob_DoesNotRescheduleWhenCancelled() {
-        WorkRequest work = new WorkRequest.Builder(InfiniteTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getId());
@@ -155,7 +155,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testStartJob_ReturnsFalseWithDuplicateJob() {
-        WorkRequest work = new WorkRequest.Builder(InfiniteTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
         JobParameters mockParams = createMockJobParameters(work.getId());
@@ -167,7 +167,8 @@ public class SystemJobServiceTest extends WorkManagerTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     public void testStartJob_PassesContentUriTriggers() throws InterruptedException {
-        WorkRequest work = new WorkRequest.Builder(ContentUriTriggerLoggingWorker.class).build();
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(ContentUriTriggerLoggingWorker.class).build();
         insertWork(work);
 
         final String[] testContentAuthorities = new String[] {
@@ -205,7 +206,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         return jobParameters;
     }
 
-    private void insertWork(BaseWorkRequest work) {
+    private void insertWork(WorkRequest work) {
         mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
     }
 

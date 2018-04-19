@@ -44,8 +44,8 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.work.ArrayCreatingInputMerger;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkRequest;
 import androidx.work.Worker;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
@@ -94,7 +94,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testSuccess() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -107,7 +107,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testRunAttemptCountIncremented_successfulExecution() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withSchedulers(Collections.singletonList(mMockScheduler))
@@ -121,7 +121,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testRunAttemptCountIncremented_failedExecution() {
-        WorkRequest work = new WorkRequest.Builder(FailureWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(FailureWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withSchedulers(Collections.singletonList(mMockScheduler))
@@ -146,7 +146,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testNotEnqueued() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialState(RUNNING)
                 .build();
         insertWork(work);
@@ -160,7 +160,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testCancelled() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialState(CANCELLED)
                 .build();
         insertWork(work);
@@ -175,7 +175,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testPermanentErrorWithInvalidWorkerClass() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         getWorkSpec(work).workerClassName = "INVALID_CLASS_NAME";
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
@@ -189,7 +189,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testPermanentErrorWithInvalidInputMergerClass() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         getWorkSpec(work).inputMergerClassName = "INVALID_CLASS_NAME";
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
@@ -204,7 +204,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testFailed() {
-        WorkRequest work = new WorkRequest.Builder(FailureWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(FailureWorker.class).build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -217,7 +217,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @LargeTest
     public void testRunning() throws InterruptedException {
-        WorkRequest work = new WorkRequest.Builder(SleepTestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(SleepTestWorker.class).build();
         insertWork(work);
         WorkerWrapper wrapper = new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
                 .withListener(mMockListener)
@@ -232,7 +232,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testRunning_onlyWhenEnqueued() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialState(RUNNING)
                 .build();
         insertWork(work);
@@ -246,8 +246,9 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testDependencies() {
-        WorkRequest prerequisiteWork = new WorkRequest.Builder(TestWorker.class).build();
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest prerequisiteWork =
+                new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialState(BLOCKED).build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
 
@@ -283,8 +284,9 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testDependencies_passesOutputs() {
-        WorkRequest prerequisiteWork = new WorkRequest.Builder(ChainedArgumentWorker.class).build();
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest prerequisiteWork =
+                new OneTimeWorkRequest.Builder(ChainedArgumentWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialState(BLOCKED)
                 .build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
@@ -315,13 +317,13 @@ public class WorkerWrapperTest extends DatabaseTest {
         String value1 = "value1";
         String value2 = "value2";
 
-        WorkRequest prerequisiteWork1 = new WorkRequest.Builder(EchoingWorker.class)
+        OneTimeWorkRequest prerequisiteWork1 = new OneTimeWorkRequest.Builder(EchoingWorker.class)
                 .withInputData(new Data.Builder().putString(key, value1).build())
                 .build();
-        WorkRequest prerequisiteWork2 = new WorkRequest.Builder(EchoingWorker.class)
+        OneTimeWorkRequest prerequisiteWork2 = new OneTimeWorkRequest.Builder(EchoingWorker.class)
                 .withInputData(new Data.Builder().putString(key, value2).build())
                 .build();
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInputMerger(ArrayCreatingInputMerger.class)
                 .build();
         Dependency dependency1 = new Dependency(work.getId(), prerequisiteWork1.getId());
@@ -363,8 +365,9 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testDependencies_setsPeriodStartTimesForUnblockedWork() {
-        WorkRequest prerequisiteWork = new WorkRequest.Builder(TestWorker.class).build();
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest prerequisiteWork =
+                new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialState(BLOCKED)
                 .build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
@@ -394,11 +397,12 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testDependencies_failsUncancelledDependentsOnFailure() {
-        WorkRequest prerequisiteWork = new WorkRequest.Builder(FailureWorker.class).build();
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest prerequisiteWork =
+                new OneTimeWorkRequest.Builder(FailureWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialState(BLOCKED)
                 .build();
-        WorkRequest cancelledWork = new WorkRequest.Builder(TestWorker.class)
+        OneTimeWorkRequest cancelledWork = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withInitialState(CANCELLED)
                 .build();
         Dependency dependency1 = new Dependency(work.getId(), prerequisiteWork.getId());
@@ -538,7 +542,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testScheduler() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
         Scheduler mockScheduler = mock(Scheduler.class);
 
@@ -553,7 +557,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testFromWorkSpec_hasAppContext() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
@@ -571,7 +575,8 @@ public class WorkerWrapperTest extends DatabaseTest {
         String expectedValue = "VALUE";
         Data input = new Data.Builder().putString(key, expectedValue).build();
 
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class).withInputData(input).build();
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(TestWorker.class).withInputData(input).build();
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
@@ -581,7 +586,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getInputData().getString(key, null), is(expectedValue));
 
-        work = new WorkRequest.Builder(TestWorker.class).build();
+        work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
@@ -595,10 +600,10 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testSuccess_withPendingScheduledWork() {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
 
-        WorkRequest unscheduled = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest unscheduled = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(unscheduled);
 
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
@@ -615,10 +620,10 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testFailure_withPendingScheduledWork() {
-        WorkRequest work = new WorkRequest.Builder(FailureWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(FailureWorker.class).build();
         insertWork(work);
 
-        WorkRequest unscheduled = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest unscheduled = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(unscheduled);
 
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
@@ -635,7 +640,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testInterruption() throws InterruptedException {
-        WorkRequest work = new WorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
 
         WorkerWrapper workerWrapper = new WorkerWrapper.Builder(mContext, mDatabase, work.getId())

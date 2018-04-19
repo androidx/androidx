@@ -27,8 +27,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.work.ArrayCreatingInputMerger;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 import androidx.work.integration.testapp.R;
 import androidx.work.integration.testapp.db.TestDatabase;
 import androidx.work.integration.testapp.db.WordCount;
@@ -71,11 +71,14 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
     private void enqueueWork() {
         WorkManager workManager = WorkManager.getInstance();
 
-        WorkRequest textReducingWork = new WorkRequest.Builder(TextReducingWorker.class)
-                .withInputMerger(ArrayCreatingInputMerger.class)
-                .build();
+        OneTimeWorkRequest textReducingWork =
+                new OneTimeWorkRequest.Builder(TextReducingWorker.class)
+                    .withInputMerger(ArrayCreatingInputMerger.class)
+                    .build();
 
-        WorkRequest startupWork = new WorkRequest.Builder(TextStartupWorker.class).build();
+        OneTimeWorkRequest startupWork =
+                new OneTimeWorkRequest.Builder(TextStartupWorker.class).build();
+
         workManager
                 .beginWith(startupWork)
                 .then(TextMappingWorker.create("advs.txt").build(),

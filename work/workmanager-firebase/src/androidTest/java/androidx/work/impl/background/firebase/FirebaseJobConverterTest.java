@@ -35,8 +35,8 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkRequest;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.PackageManagerHelper;
 import androidx.work.worker.FirebaseTestWorker;
@@ -119,7 +119,7 @@ public class FirebaseJobConverterTest {
         final Uri expectedUri = Uri.parse("TEST_URI");
         final ObservedUri expectedObservedUri =
                 new ObservedUri(expectedUri, ObservedUri.Flags.FLAG_NOTIFY_FOR_DESCENDANTS);
-        WorkSpec workSpec = new WorkRequest.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = new OneTimeWorkRequest.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .addContentUriTrigger(expectedUri, true)
                         .build())
@@ -135,7 +135,7 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresCharging() {
-        WorkSpec workSpec = new WorkRequest.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = new OneTimeWorkRequest.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
                         .build())
@@ -170,7 +170,7 @@ public class FirebaseJobConverterTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 23)
     public void testConvert_requiresDeviceIdle() {
-        WorkSpec workSpec = new WorkRequest.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = new OneTimeWorkRequest.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiresDeviceIdle(true)
                         .build())
@@ -183,7 +183,7 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresNetworkAny() {
-        WorkSpec workSpec = new WorkRequest.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = new OneTimeWorkRequest.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiredNetworkType(CONNECTED)
                         .build())
@@ -196,7 +196,7 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresNetworkMetered_unsupported() {
-        WorkSpec workSpec = new WorkRequest.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = new OneTimeWorkRequest.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiredNetworkType(METERED)
                         .build())
@@ -209,7 +209,7 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresNetworkNotRoaming_unsupported() {
-        WorkSpec workSpec = new WorkRequest.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = new OneTimeWorkRequest.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiredNetworkType(NOT_ROAMING)
                         .build())
@@ -222,7 +222,7 @@ public class FirebaseJobConverterTest {
     @Test
     @SmallTest
     public void testConvert_requiresNetworkUnmetered() {
-        WorkSpec workSpec = new WorkRequest.Builder(FirebaseTestWorker.class)
+        WorkSpec workSpec = new OneTimeWorkRequest.Builder(FirebaseTestWorker.class)
                 .withConstraints(new Constraints.Builder()
                         .setRequiredNetworkType(UNMETERED)
                         .build())

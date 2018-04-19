@@ -30,8 +30,8 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.Constraints;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManagerTest;
-import androidx.work.WorkRequest;
 import androidx.work.impl.constraints.trackers.ConstraintTracker;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.TestWorker;
@@ -57,7 +57,7 @@ public class ConstraintControllerTest extends WorkManagerTest {
     }
 
     private WorkSpec createTestWorkSpec(Constraints constraints) {
-        return getWorkSpec(new WorkRequest.Builder(TestWorker.class)
+        return getWorkSpec(new OneTimeWorkRequest.Builder(TestWorker.class)
                 .withConstraints(constraints)
                 .build());
     }
