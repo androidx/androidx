@@ -1953,9 +1953,13 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         if (!checkLoadResource(R.raw.testvideo)) {
             return; // skip;
         }
+        final DataSourceDesc dsd2 = createDataSourceDesc(
+                R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
+        mPlayer.setNextDataSource(dsd2);
 
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
+        final Monitor onDsdChangedCalled = new Monitor();
         final Monitor onPrepareCalled = new Monitor();
         final Monitor onSeekCompleteCalled = new Monitor();
         final Monitor onPlayerStateChangedCalled = new Monitor();
@@ -1966,7 +1970,11 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final AtomicReference<Float> playbackSpeed = new AtomicReference<>();
 
         MediaPlayerBase.PlayerEventCallback callback = new MediaPlayerBase.PlayerEventCallback() {
-            // TODO: implement and add test case for onCurrentDataSourceChanged() callback.
+            @Override
+            public void onCurrentDataSourceChanged(MediaPlayerBase mpb, DataSourceDesc dsd) {
+                onDsdChangedCalled.signal();
+            }
+
             @Override
             public void onMediaPrepared(MediaPlayerBase mpb, DataSourceDesc dsd) {
                 onPrepareCalled.signal();
@@ -2024,6 +2032,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         do {
             assertTrue(onPlaybackSpeedChanged.waitForSignal(1000));
         } while (Math.abs(playbackSpeed.get() - 0.5f) > FLOAT_TOLERANCE);
+
+        mPlayer.skipToNext();
+        assertTrue(onDsdChangedCalled.waitForSignal(1000));
 
         mPlayer.reset();
 

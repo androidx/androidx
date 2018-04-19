@@ -2110,6 +2110,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     }
                 });
             }
+            notifyPlayerEvent(new PlayerEventNotifier() {
+                @Override
+                public void notify(PlayerEventCallback cb) {
+                    cb.onCurrentDataSourceChanged(MediaPlayer2Impl.this, src2.mDSD);
+                }
+            });
         }
 
         synchronized DataSourceError playCurrent() {
