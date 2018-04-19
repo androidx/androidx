@@ -18,7 +18,6 @@ package androidx.lifecycle;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,9 +27,6 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,21 +40,6 @@ public class DispatcherActivityCallbackTest {
                 new LifecycleDispatcher.DispatcherActivityCallback();
         Activity activity = mock(Activity.class);
         checkReportFragment(callback, activity);
-    }
-
-    @Test
-    public void onCreateFragmentActivity() {
-        LifecycleDispatcher.DispatcherActivityCallback callback =
-                new LifecycleDispatcher.DispatcherActivityCallback();
-        FragmentActivity activity = mock(FragmentActivity.class);
-        FragmentManager fragmentManager = mock(FragmentManager.class);
-        when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
-
-        checkReportFragment(callback, activity);
-
-        verify(activity).getSupportFragmentManager();
-        verify(fragmentManager).registerFragmentLifecycleCallbacks(
-                any(FragmentManager.FragmentLifecycleCallbacks.class), eq(true));
     }
 
     @SuppressLint("CommitTransaction")
