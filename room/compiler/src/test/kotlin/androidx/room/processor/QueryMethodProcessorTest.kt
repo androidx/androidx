@@ -22,6 +22,8 @@ import androidx.room.Dao
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Relation
+import androidx.room.Transaction
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
@@ -30,6 +32,7 @@ import androidx.room.ext.typeName
 import androidx.room.parser.Table
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
+import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
@@ -576,6 +579,36 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
+    fun relationWithExtendsBounds() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod(
+            """
+                static class Merged extends User {
+                   @Relation(parentColumn = "name", entityColumn = "lastName",
+                             entity = User.class)
+                   java.util.List<? extends User> users;
+                }
+                @Transaction
+                @Query("select * from user")
+                abstract java.util.List<Merged> loadUsers();
+            """) { method, _ ->
+            assertThat(method.queryResultBinder.adapter,
+                instanceOf(ListQueryResultAdapter::class.java))
+            val listAdapter = method.queryResultBinder.adapter as ListQueryResultAdapter
+            assertThat(listAdapter.rowAdapter, instanceOf(PojoRowAdapter::class.java))
+            val pojoRowAdapter = listAdapter.rowAdapter as PojoRowAdapter
+            assertThat(pojoRowAdapter.relationCollectors.size, `is`(1))
+            assertThat(pojoRowAdapter.relationCollectors[0].collectionTypeName, `is`(
+                ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
+                    COMMON.USER_TYPE_NAME)
+            ))
+        }.compilesWithoutError()
+            .withWarningCount(0)
+    }
+
+    @Test
     fun pojo_renamedColumn() {
         pojoTest("""
                 String name;
@@ -776,42 +809,52 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         }
     }
 
-    fun singleQueryMethod(vararg input: String,
-                          handler: (QueryMethod, TestInvocation) -> Unit):
-            CompileTester {
+    private fun singleQueryMethod(
+        vararg input: String,
+        handler: (QueryMethod, TestInvocation) -> Unit
+    ): CompileTester {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
+            .that(
+                listOf(
+                    JavaFileObjects.forSourceString(
+                        "foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK))
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(Query::class, Dao::class, ColumnInfo::class,
-                                Entity::class, PrimaryKey::class)
-                        .nextRunHandler { invocation ->
-                            val (owner, methods) = invocation.roundEnv
-                                    .getElementsAnnotatedWith(Dao::class.java)
-                                    .map {
-                                        Pair(it,
-                                                invocation.processingEnv.elementUtils
-                                                        .getAllMembers(MoreElements.asType(it))
-                                                        .filter {
-                                                            it.hasAnnotation(Query::class)
-                                                        }
-                                        )
-                                    }.filter { it.second.isNotEmpty() }.first()
-                            val verifier = if (enableVerification) {
-                                createVerifierFromEntities(invocation)
-                            } else {
-                                null
-                            }
-                            val parser = QueryMethodProcessor(
-                                    baseContext = invocation.context,
-                                    containing = MoreTypes.asDeclared(owner.asType()),
-                                    executableElement = MoreElements.asExecutable(methods.first()),
-                                    dbVerifier = verifier)
-                            val parsedQuery = parser.process()
-                            handler(parsedQuery, invocation)
-                            true
-                        }
-                        .build())
+                    ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK
+                )
+            )
+            .processedWith(TestProcessor.builder()
+                .forAnnotations(
+                    Query::class, Dao::class, ColumnInfo::class,
+                    Entity::class, PrimaryKey::class, Relation::class,
+                    Transaction::class
+                )
+                .nextRunHandler { invocation ->
+                    val (owner, methods) = invocation.roundEnv
+                        .getElementsAnnotatedWith(Dao::class.java)
+                        .map {
+                            Pair(it,
+                                invocation.processingEnv.elementUtils
+                                    .getAllMembers(MoreElements.asType(it))
+                                    .filter {
+                                        it.hasAnnotation(Query::class)
+                                    }
+                            )
+                        }.filter { it.second.isNotEmpty() }.first()
+                    val verifier = if (enableVerification) {
+                        createVerifierFromEntities(invocation)
+                    } else {
+                        null
+                    }
+                    val parser = QueryMethodProcessor(
+                        baseContext = invocation.context,
+                        containing = MoreTypes.asDeclared(owner.asType()),
+                        executableElement = MoreElements.asExecutable(methods.first()),
+                        dbVerifier = verifier
+                    )
+                    val parsedQuery = parser.process()
+                    handler(parsedQuery, invocation)
+                    true
+                }
+                .build())
     }
 }
