@@ -31,6 +31,7 @@ import androidx.room.integration.kotlintestapp.vo.Lang
 import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
+import androidx.room.integration.kotlintestapp.vo.BookWithJavaEntity
 import com.google.common.base.Optional
 import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Flowable
@@ -127,6 +128,10 @@ interface BooksDao {
     @Query("SELECT * FROM book WHERE languages & :langs != 0 ORDER BY bookId ASC")
     @TypeConverters(Lang::class)
     fun findByLanguages(langs: Set<Lang>): List<Book>
+
+    // see: b/78199923 just a compilation test to ensure we can generate proper code.
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
+    fun getWithJavaEntities(bookId: String): BookWithJavaEntity
 
     @Transaction
     fun deleteAndAddPublisher(oldPublisher: Publisher, newPublisher: Publisher,

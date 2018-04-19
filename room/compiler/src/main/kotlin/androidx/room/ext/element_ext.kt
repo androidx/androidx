@@ -214,6 +214,14 @@ fun TypeMirror.extendsBound(): TypeMirror? {
 }
 
 /**
+ * If the type mirror is in form of ? extends Foo, it returns Foo; otherwise, returns the TypeMirror
+ * itself.
+ */
+fun TypeMirror.extendsBoundOrSelf(): TypeMirror {
+    return extendsBound() ?: this
+}
+
+/**
  * Finds the default implementation method corresponding to this Kotlin interface method.
  */
 fun Element.findKotlinDefaultImpl(typeUtils: Types): Element? {
