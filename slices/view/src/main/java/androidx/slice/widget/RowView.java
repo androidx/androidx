@@ -246,9 +246,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (contentDescr != null) {
             mContent.setContentDescription(contentDescr);
         }
-        boolean showStart = false;
         final SliceItem startItem = mRowContent.getStartItem();
-        if (startItem != null) {
+        boolean showStart = startItem != null && mRowIndex > 0;
+        if (showStart) {
             showStart = addItem(startItem, mTintColor, true /* isStart */);
         }
         mStartContainer.setVisibility(showStart ? View.VISIBLE : View.GONE);
