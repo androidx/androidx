@@ -25,11 +25,16 @@ import android.arch.persistence.room.integration.kotlintestapp.vo.Author
 import android.arch.persistence.room.integration.kotlintestapp.vo.Book
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookAuthor
 import android.arch.persistence.room.integration.kotlintestapp.vo.DataClassFromDependency
+import android.arch.persistence.room.integration.kotlintestapp.vo.JavaEntity
 import android.arch.persistence.room.integration.kotlintestapp.vo.NoArgClass
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
 
-@Database(entities = [Book::class, Author::class, Publisher::class, BookAuthor::class,
-    NoArgClass::class, DataClassFromDependency::class], version = 1)
+@Database(
+    entities = [Book::class, Author::class, Publisher::class, BookAuthor::class,
+        NoArgClass::class, DataClassFromDependency::class, JavaEntity::class],
+    version = 1,
+    exportSchema = false
+)
 abstract class TestDatabase : RoomDatabase() {
 
     abstract fun booksDao(): BooksDao

@@ -517,6 +517,21 @@ class PojoProcessorTest {
     }
 
     @Test
+    fun relation_extendsBounds() {
+        singleRun(
+            """
+                int id;
+                @Relation(parentColumn = "id", entityColumn = "uid")
+                public List<? extends User> user;
+                """, COMMON.USER
+        ) { pojo ->
+            assertThat(pojo.relations.size, `is`(1))
+            assertThat(pojo.relations.first().entityField.name, `is`("uid"))
+            assertThat(pojo.relations.first().parentField.name, `is`("id"))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
     fun cache() {
         val pojo = """
             $HEADER
