@@ -29,6 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -73,16 +74,23 @@ public class SupportCarDemoActivity extends ListActivity {
             samples.add(sample);
         }
 
+        Collections.sort(samples);
+
         return samples;
     }
 
-    static class SampleInfo {
+    static class SampleInfo implements Comparable<SampleInfo> {
         String mName;
         Intent mIntent;
 
         SampleInfo(String name, Intent intent) {
             this.mName = name;
             this.mIntent = intent;
+        }
+
+        @Override
+        public int compareTo(SampleInfo o) {
+            return this.mName.compareTo(o.mName);
         }
     }
 
