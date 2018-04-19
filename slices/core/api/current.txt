@@ -26,6 +26,7 @@ package androidx.slice {
   }
 
   public abstract class SliceProvider extends android.content.ContentProvider implements androidx.core.app.CoreComponentFactory.CompatWrapped {
+    ctor public SliceProvider(java.lang.String...);
     ctor public SliceProvider();
     method public final int bulkInsert(android.net.Uri, android.content.ContentValues[]);
     method public final android.net.Uri canonicalize(android.net.Uri);
