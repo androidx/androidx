@@ -16,6 +16,7 @@
 
 package androidx.webkit.internal;
 
+import android.os.Build;
 import android.webkit.WebView;
 
 import androidx.core.os.BuildCompat;
@@ -67,6 +68,10 @@ public class WebViewGlueCommunicator {
     }
 
     private static WebViewProviderFactory createGlueProviderFactory() {
+        // We do not support pre-L devices since their WebView APKs cannot be updated.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return new IncompatibleApkWebViewProviderFactory();
+        }
         InvocationHandler invocationHandler;
         try {
             invocationHandler = fetchGlueProviderFactoryImpl();
