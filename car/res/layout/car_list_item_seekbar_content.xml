@@ -39,11 +39,14 @@
         <TextView
             android:id="@+id/text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/car_seekbar_text_overlap"/>
         <SeekBar
             android:id="@+id/seek_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="@dimen/car_seekbar_padding"
+            android:paddingBottom="@dimen/car_seekbar_padding"
             android:splitTrack="false"
             style="@style/Widget.Car.SeekBar"/>
     </LinearLayout>

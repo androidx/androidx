@@ -30,15 +30,15 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.lang.annotation.Retention;
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
+
+import java.lang.annotation.Retention;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class to build a list item with {@link SeekBar}.
@@ -229,7 +229,19 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
                     // Start margin.
                     layoutParams.addRule(RelativeLayout.ALIGN_PARENT_START);
                     layoutParams.setMarginStart(startMargin);
-                    layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+
+                    if (!TextUtils.isEmpty(mText)) {
+                        // Set icon top margin so that the icon remains in the same position it
+                        // would've been in for non-long-text item, namely so that the center
+                        // line of icon matches that of line item.
+                        int itemHeight = mContext.getResources().getDimensionPixelSize(
+                                R.dimen.car_double_line_list_item_height);
+                        layoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
+                        layoutParams.topMargin = (itemHeight - iconSize) / 2;
+                    } else {
+                        layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+                        layoutParams.topMargin = 0;
+                    }
 
                     vh.getPrimaryIcon().requestLayout();
                 });
