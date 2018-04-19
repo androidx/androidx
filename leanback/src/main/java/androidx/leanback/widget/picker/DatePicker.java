@@ -14,15 +14,13 @@
 
 package androidx.leanback.widget.picker;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.leanback.R;
 
 import java.text.DateFormat;
@@ -44,32 +42,30 @@ import java.util.TimeZone;
  * @attr ref R.styleable#lbDatePicker_android_maxDate
  * @attr ref R.styleable#lbDatePicker_android_minDate
  * @attr ref R.styleable#lbDatePicker_datePickerFormat
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
 public class DatePicker extends Picker {
 
-    static final String LOG_TAG = "DatePicker";
+    private static final String LOG_TAG = "DatePicker";
 
     private String mDatePickerFormat;
-    PickerColumn mMonthColumn;
-    PickerColumn mDayColumn;
-    PickerColumn mYearColumn;
-    int mColMonthIndex;
-    int mColDayIndex;
-    int mColYearIndex;
+    private PickerColumn mMonthColumn;
+    private PickerColumn mDayColumn;
+    private PickerColumn mYearColumn;
+    private int mColMonthIndex;
+    private int mColDayIndex;
+    private int mColYearIndex;
 
-    final static String DATE_FORMAT = "MM/dd/yyyy";
-    final DateFormat mDateFormat = new SimpleDateFormat(DATE_FORMAT);
-    PickerUtility.DateConstant mConstant;
+    private static final String DATE_FORMAT = "MM/dd/yyyy";
+    private final DateFormat mDateFormat = new SimpleDateFormat(DATE_FORMAT);
+    private PickerUtility.DateConstant mConstant;
 
-    Calendar mMinDate;
-    Calendar mMaxDate;
-    Calendar mCurrentDate;
-    Calendar mTempDate;
+    private Calendar mMinDate;
+    private Calendar mMaxDate;
+    private Calendar mCurrentDate;
+    private Calendar mTempDate;
 
     public DatePicker(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.attr.datePickerStyle);
     }
 
     public DatePicker(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -79,8 +75,17 @@ public class DatePicker extends Picker {
 
         final TypedArray attributesArray = context.obtainStyledAttributes(attrs,
                 R.styleable.lbDatePicker);
-        String minDate = attributesArray.getString(R.styleable.lbDatePicker_android_minDate);
-        String maxDate = attributesArray.getString(R.styleable.lbDatePicker_android_maxDate);
+        String minDate;
+        String maxDate;
+        String datePickerFormat;
+        try {
+            minDate = attributesArray.getString(R.styleable.lbDatePicker_android_minDate);
+            maxDate = attributesArray.getString(R.styleable.lbDatePicker_android_maxDate);
+            datePickerFormat = attributesArray
+                    .getString(R.styleable.lbDatePicker_datePickerFormat);
+        } finally {
+            attributesArray.recycle();
+        }
         mTempDate.clear();
         if (!TextUtils.isEmpty(minDate)) {
             if (!parseDate(minDate, mTempDate)) {
@@ -101,8 +106,6 @@ public class DatePicker extends Picker {
         }
         mMaxDate.setTimeInMillis(mTempDate.getTimeInMillis());
 
-        String datePickerFormat = attributesArray
-                .getString(R.styleable.lbDatePicker_datePickerFormat);
         if (TextUtils.isEmpty(datePickerFormat)) {
             datePickerFormat = new String(
                     android.text.format.DateFormat.getDateFormatOrder(context));
@@ -129,6 +132,7 @@ public class DatePicker extends Picker {
      *
      * @return The best localized representation of the date for the given date format
      */
+    @VisibleForTesting
     String getBestYearMonthDayPattern(String datePickerFormat) {
         final String yearPattern;
         if (PickerUtility.SUPPORTS_BEST_DATE_TIME_PATTERN) {
@@ -161,6 +165,7 @@ public class DatePicker extends Picker {
      * @return The ArrayList of separators to populate between the actual date fields in the
      * DatePicker.
      */
+    @VisibleForTesting
     List<CharSequence> extractSeparators() {
         // Obtain the time format string per the current locale (e.g. h:mm a)
         String hmaPattern = getBestYearMonthDayPattern(mDatePickerFormat);
@@ -234,7 +239,7 @@ public class DatePicker extends Picker {
         mYearColumn = mMonthColumn = mDayColumn = null;
         mColYearIndex = mColDayIndex = mColMonthIndex = -1;
         String dateFieldsPattern = datePickerFormat.toUpperCase();
-        ArrayList<PickerColumn> columns = new ArrayList<PickerColumn>(3);
+        ArrayList<PickerColumn> columns = new ArrayList<>(3);
         for (int i = 0; i < dateFieldsPattern.length(); i++) {
             switch (dateFieldsPattern.charAt(i)) {
             case 'Y':
@@ -308,7 +313,6 @@ public class DatePicker extends Picker {
         }
         setDate(mTempDate.get(Calendar.YEAR), mTempDate.get(Calendar.MONTH),
                 mTempDate.get(Calendar.DAY_OF_MONTH));
-        updateSpinners(false);
     }
 
 
@@ -391,13 +395,16 @@ public class DatePicker extends Picker {
         return mCurrentDate.getTimeInMillis();
     }
 
+    /**
+     * Update the current date. Equivalent to calling {@link #setDate(int, int, int, boolean)} with
+     * year, month, dayOfMonth, false.
+     *
+     * @param year The year.
+     * @param month The month which is <strong>starting from zero</strong>.
+     * @param dayOfMonth The day of the month.
+     */
     private void setDate(int year, int month, int dayOfMonth) {
-        mCurrentDate.set(year, month, dayOfMonth);
-        if (mCurrentDate.before(mMinDate)) {
-            mCurrentDate.setTimeInMillis(mMinDate.getTimeInMillis());
-        } else if (mCurrentDate.after(mMaxDate)) {
-            mCurrentDate.setTimeInMillis(mMaxDate.getTimeInMillis());
-        }
+        setDate(year, month, dayOfMonth, false);
     }
 
     /**
@@ -408,11 +415,16 @@ public class DatePicker extends Picker {
      * @param dayOfMonth The day of the month.
      * @param animation True to run animation to scroll the column.
      */
-    public void updateDate(int year, int month, int dayOfMonth, boolean animation) {
+    public void setDate(int year, int month, int dayOfMonth, boolean animation) {
         if (!isNewDate(year, month, dayOfMonth)) {
             return;
         }
-        setDate(year, month, dayOfMonth);
+        mCurrentDate.set(year, month, dayOfMonth);
+        if (mCurrentDate.before(mMinDate)) {
+            mCurrentDate.setTimeInMillis(mMinDate.getTimeInMillis());
+        } else if (mCurrentDate.after(mMaxDate)) {
+            mCurrentDate.setTimeInMillis(mMaxDate.getTimeInMillis());
+        }
         updateSpinners(animation);
     }
 
@@ -445,7 +457,7 @@ public class DatePicker extends Picker {
     // scrolling vertically and thus fixes the animation jumps that used to happen when we reached
     // the endpoint date field values since the adapter values do not change while scrolling up
     // & down across a single field.
-    void updateSpinnersImpl(boolean animation) {
+    private void updateSpinnersImpl(boolean animation) {
         // set the spinner ranges respecting the min and max dates
         int dateFieldIndices[] = {mColDayIndex, mColMonthIndex, mColYearIndex};
 

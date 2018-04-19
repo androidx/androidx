@@ -44,14 +44,11 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class TimePickerTest {
 
-    private static final String TAG = "TimePickerTest";
     private static final long TRANSITION_LENGTH = 1000;
     private static final long UPDATE_LENGTH = 1000;
 
-    View mViewAbove;
-    TimePicker mTimePicker12HourView;
-    TimePicker mTimePicker24HourView;
-    View mViewBelow;
+    private TimePicker mTimePicker12HourView;
+    private TimePicker mTimePicker24HourView;
 
     @Rule
     public ActivityTestRule<TimePickerActivity> mActivityTestRule =
@@ -67,7 +64,7 @@ public class TimePickerTest {
     public void initActivity(Intent intent) throws Throwable {
         mActivity = mActivityTestRule.launchActivity(intent);
         mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        mTimePicker12HourView = (TimePicker) mActivity.findViewById(R.id.time_picker12);
+        mTimePicker12HourView = mActivity.findViewById(R.id.time_picker12);
         mTimePicker12HourView.setActivatedVisibleItemCount(3);
         mTimePicker12HourView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,9 +75,7 @@ public class TimePickerTest {
 
         if (intent.getIntExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets) == R.layout.timepicker_with_other_widgets) {
-            mViewAbove = mActivity.findViewById(R.id.above_picker);
-            mViewBelow = mActivity.findViewById(R.id.below_picker);
-            mTimePicker24HourView = (TimePicker) mActivity.findViewById(R.id.time_picker24);
+            mTimePicker24HourView = mActivity.findViewById(R.id.time_picker24);
             mTimePicker24HourView.setActivatedVisibleItemCount(3);
             mTimePicker24HourView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -456,7 +451,7 @@ public class TimePickerTest {
         });
         Thread.sleep(UPDATE_LENGTH);
 
-        ViewGroup mTimePickerInnerView = (ViewGroup) mTimePicker12HourView.findViewById(
+        ViewGroup mTimePickerInnerView = mTimePicker12HourView.findViewById(
                 R.id.picker);
 
         assertThat("The first column of TimePicker should initially hold focus",
@@ -501,7 +496,7 @@ public class TimePickerTest {
             }
         };
         List<CharSequence> actualSeparators = timePicker.extractSeparators();
-        List<String> expectedSeparators = Arrays.asList(new String[] {"", ":", "", ""});
+        List<String> expectedSeparators = Arrays.asList("", ":", "", "");
         assertEquals(expectedSeparators, actualSeparators);
 
         // time pattern for ja_JP in 12 hour format
@@ -517,7 +512,7 @@ public class TimePickerTest {
             }
         };
         actualSeparators = timePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[] {"", "", ":", ""});
+        expectedSeparators = Arrays.asList("", "", ":", "");
         assertEquals(expectedSeparators, actualSeparators);
 
         // time pattern for fr_CA in 24 hour format
@@ -533,7 +528,7 @@ public class TimePickerTest {
             }
         };
         actualSeparators = timePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[] {"", "h", ""});
+        expectedSeparators = Arrays.asList("", "h", "");
         assertEquals(expectedSeparators, actualSeparators);
 
         // time pattern for hsb_DE in 24 hour format
@@ -549,7 +544,7 @@ public class TimePickerTest {
             }
         };
         actualSeparators = timePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[] {"", ":", "hodz"});
+        expectedSeparators = Arrays.asList("", ":", "hodz");
         assertEquals(expectedSeparators, actualSeparators);
 
         // time pattern for ko_KR in 12 hour format
@@ -565,7 +560,7 @@ public class TimePickerTest {
             }
         };
         actualSeparators = timePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[] {"", "", ":", ""});
+        expectedSeparators = Arrays.asList("", "", ":", "");
         assertEquals(expectedSeparators, actualSeparators);
 
         // time pattern for fa_IR in 24 hour format
@@ -581,7 +576,7 @@ public class TimePickerTest {
             }
         };
         actualSeparators = timePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[] {"", ":", ""});
+        expectedSeparators = Arrays.asList("", ":", "");
         assertEquals(expectedSeparators, actualSeparators);
     }
 

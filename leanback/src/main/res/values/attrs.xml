@@ -343,6 +343,12 @@
         <attr name="overlayDimActiveLevel" format="fraction" />
         <!-- Default level of dimming for dimmed views. -->
         <attr name="overlayDimDimmedLevel" format="fraction" />
+
+        <!-- Picker styles -->
+        <attr name="pickerStyle" format="reference" />
+        <attr name="datePickerStyle" format="reference" />
+        <attr name="timePickerStyle" format="reference" />
+        <attr name="pinPickerStyle" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="LeanbackGuidedStepTheme">
@@ -522,12 +528,23 @@
         <attr name="guidedActionContentWidthNoIcon" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="lbPicker">
+        <!-- attr pointing to the layout for the picker items -->
+        <attr name="pickerItemLayout" format="reference" />
+        <!-- resource id for the TextView within the picker item layout -->
+        <attr name="pickerItemTextViewId" format="reference" />
+    </declare-styleable>
+
     <declare-styleable name="lbTimePicker">
         <!-- attr indicating whether time is in 24 hour format (true) or AM/PM format (false). -->
         <attr name="is24HourFormat" format="boolean" />
         <!-- attr indicating whether time fields should be initially set to the current time.
          By default, it's true i.e. TimePicker initializes fields with the current time. -->
         <attr name="useCurrentTime" format="boolean" />
+        <!-- attr pointing to the layout for the picker items -->
+        <attr name="pickerItemLayout" />
+        <!-- resource id for the TextView within the picker item layout -->
+        <attr name="pickerItemTextViewId" />
     </declare-styleable>
 
     <declare-styleable name="lbDatePicker">
@@ -535,6 +552,19 @@
         <attr name="android:maxDate" />
         <!-- e.g. "MDY", "MY" -->
         <attr name="datePickerFormat" format="string"/>
+        <!-- attr pointing to the layout for the picker items -->
+        <attr name="pickerItemLayout" />
+        <!-- resource id for the TextView within the picker item layout -->
+        <attr name="pickerItemTextViewId" />
+    </declare-styleable>
+
+    <declare-styleable name="lbPinPicker">
+        <!-- attr for number of columns to show -->
+        <attr name="columnCount" format="integer" />
+        <!-- attr pointing to the layout for the picker items -->
+        <attr name="pickerItemLayout" />
+        <!-- resource id for the TextView within the picker item layout -->
+        <attr name="pickerItemTextViewId" />
     </declare-styleable>
 
     <declare-styleable name="LeanbackOnboardingTheme">

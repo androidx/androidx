@@ -49,11 +49,11 @@ public class DatePickerTest {
     private static final String TAG = "DatePickerTest";
     private static final long TRANSITION_LENGTH = 1000;
 
-    Context mContext;
-    View mViewAbove;
-    DatePicker mDatePickerView;
-    ViewGroup mDatePickerInnerView;
-    View mViewBelow;
+    private Context mContext;
+    private View mViewAbove;
+    private DatePicker mDatePickerView;
+    private ViewGroup mDatePickerInnerView;
+    private View mViewBelow;
 
     @Rule
     public ActivityTestRule<DatePickerActivity> mActivityTestRule =
@@ -67,8 +67,8 @@ public class DatePickerTest {
 
     public void initActivity(Intent intent) throws Throwable {
         mActivity = mActivityTestRule.launchActivity(intent);
-        mDatePickerView = (DatePicker) mActivity.findViewById(R.id.date_picker);
-        mDatePickerInnerView = (ViewGroup) mDatePickerView.findViewById(R.id.picker);
+        mDatePickerView = mActivity.findViewById(R.id.date_picker);
+        mDatePickerInnerView = mDatePickerView.findViewById(R.id.picker);
         mDatePickerView.setActivatedVisibleItemCount(3);
         mDatePickerView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -334,7 +334,7 @@ public class DatePickerTest {
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mDatePickerView.updateDate(2017, 2, 21, false);
+                mDatePickerView.setDate(2017, 2, 21, false);
             }
         });
 
@@ -342,7 +342,7 @@ public class DatePickerTest {
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mDatePickerView.updateDate(2017, 2, 20, false);
+                mDatePickerView.setDate(2017, 2, 20, false);
             }
         });
         Thread.sleep(TRANSITION_LENGTH);
@@ -394,7 +394,7 @@ public class DatePickerTest {
             }
         };
         List<CharSequence> actualSeparators = datePicker.extractSeparators();
-        List<String> expectedSeparators = Arrays.asList(new String[]{"", "/", "/", ""});
+        List<String> expectedSeparators = Arrays.asList("", "/", "/", "");
         assertEquals(expectedSeparators, actualSeparators);
 
         // date pattern for fa_IR (Farsi)
@@ -405,7 +405,7 @@ public class DatePickerTest {
             }
         };
         actualSeparators = datePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[]{"", "/", "/", ""});
+        expectedSeparators = Arrays.asList("", "/", "/", "");
         assertEquals(expectedSeparators, actualSeparators);
 
         // date pattern for ar_EG (Arabic)
@@ -416,7 +416,7 @@ public class DatePickerTest {
             }
         };
         actualSeparators = datePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[]{"", "/", "/", ""});
+        expectedSeparators = Arrays.asList("", "/", "/", "");
         assertEquals(expectedSeparators, actualSeparators);
 
         // date pattern for cs_CZ (Czech)
@@ -427,7 +427,7 @@ public class DatePickerTest {
             }
         };
         actualSeparators = datePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[]{"", ".", ".", ""});
+        expectedSeparators = Arrays.asList("", ".", ".", "");
         assertEquals(expectedSeparators, actualSeparators);
 
         // date pattern for hr_HR (Croatian)
@@ -438,7 +438,7 @@ public class DatePickerTest {
             }
         };
         actualSeparators = datePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[]{"", ".", ".", "."});
+        expectedSeparators = Arrays.asList("", ".", ".", ".");
         assertEquals(expectedSeparators, actualSeparators);
 
         // date pattern for hr_HR (Bulgarian)
@@ -449,7 +449,7 @@ public class DatePickerTest {
             }
         };
         actualSeparators = datePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[]{"", ".", ".", "r."});
+        expectedSeparators = Arrays.asList("", ".", ".", "r.");
         assertEquals(expectedSeparators, actualSeparators);
 
         // date pattern for en_XA (English pseudo-locale)
@@ -460,7 +460,7 @@ public class DatePickerTest {
             }
         };
         actualSeparators = datePicker.extractSeparators();
-        expectedSeparators = Arrays.asList(new String[]{"[", "/", "/", "]"});
+        expectedSeparators = Arrays.asList("[", "/", "/", "]");
         assertEquals(expectedSeparators, actualSeparators);
     }
 

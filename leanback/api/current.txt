@@ -3056,7 +3056,22 @@ package androidx.leanback.widget {
 
 package androidx.leanback.widget.picker {
 
+  public class DatePicker extends androidx.leanback.widget.picker.Picker {
+    ctor public DatePicker(android.content.Context, android.util.AttributeSet);
+    ctor public DatePicker(android.content.Context, android.util.AttributeSet, int);
+    method public long getDate();
+    method public java.lang.String getDatePickerFormat();
+    method public long getMaxDate();
+    method public long getMinDate();
+    method public final void onColumnValueChanged(int, int);
+    method public void setDate(int, int, int, boolean);
+    method public void setDatePickerFormat(java.lang.String);
+    method public void setMaxDate(long);
+    method public void setMinDate(long);
+  }
+
   public class Picker extends android.widget.FrameLayout {
+    ctor public Picker(android.content.Context, android.util.AttributeSet);
     ctor public Picker(android.content.Context, android.util.AttributeSet, int);
     method public void addOnValueChangedListener(androidx.leanback.widget.picker.Picker.PickerValueListener);
     method public float getActivatedVisibleItemCount();
@@ -3075,6 +3090,7 @@ package androidx.leanback.widget.picker {
     method public void setColumnAt(int, androidx.leanback.widget.picker.PickerColumn);
     method public void setColumnValue(int, int, boolean);
     method public void setColumns(java.util.List<androidx.leanback.widget.picker.PickerColumn>);
+    method public final void setPickerItemLayoutId(int);
     method public final void setPickerItemTextViewId(int);
     method public void setSelectedColumn(int);
     method public final void setSeparator(java.lang.CharSequence);
@@ -3100,6 +3116,14 @@ package androidx.leanback.widget.picker {
     method public void setMaxValue(int);
     method public void setMinValue(int);
     method public void setStaticLabels(java.lang.CharSequence[]);
+  }
+
+  public class PinPicker extends androidx.leanback.widget.picker.Picker {
+    ctor public PinPicker(android.content.Context, android.util.AttributeSet);
+    ctor public PinPicker(android.content.Context, android.util.AttributeSet, int);
+    method public java.lang.String getPin();
+    method public void resetPin();
+    method public void setNumberOfColumns(int);
   }
 
   public class TimePicker extends androidx.leanback.widget.picker.Picker {

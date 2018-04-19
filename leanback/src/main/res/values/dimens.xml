@@ -325,6 +325,8 @@
     <dimen name="picker_column_horizontal_padding">8dp</dimen>
     <!-- picker separator horizontal padding -->
     <dimen name="picker_separator_horizontal_padding">4dp</dimen>
+    <dimen name="pinpicker_text_size">24sp</dimen>
+
 
     <!-- Onboarding screen -->
     <dimen name="lb_onboarding_content_width">536dp</dimen>
