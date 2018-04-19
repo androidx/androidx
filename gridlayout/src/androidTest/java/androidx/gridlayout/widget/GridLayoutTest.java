@@ -28,6 +28,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -51,19 +52,26 @@ public class GridLayoutTest {
     }
 
     private void setContentView(final int layoutId) throws Throwable {
-        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        final TestContentView testContentView =
+                new TestContentView(mActivityTestRule.getActivity());
+        testContentView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        testContentView.expectLayouts(1);
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 final Activity activity = mActivityTestRule.getActivity();
-                activity.setContentView(layoutId);
+                LayoutInflater layoutInflater = LayoutInflater.from(activity);
+                layoutInflater.inflate(layoutId, testContentView, true);
+                activity.setContentView(testContentView);
                 // Now that we've set the content view, find the views we'll be testing
                 mLeftView = activity.findViewById(R.id.leftView);
                 mRightView = activity.findViewById(R.id.rightView);
                 mGridView = activity.findViewById(R.id.gridView);
             }
         });
-        instrumentation.waitForIdleSync();
+        testContentView.awaitLayouts(2);
     }
 
     @Test
