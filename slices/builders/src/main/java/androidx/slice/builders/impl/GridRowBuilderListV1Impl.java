@@ -184,8 +184,8 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
         @Override
         public void addTitleText(@Nullable CharSequence text, boolean isLoading) {
             @Slice.SliceHint String[] hints = isLoading
-                    ? new String[] {HINT_PARTIAL, HINT_LARGE}
-                    : new String[] {HINT_LARGE};
+                    ? new String[] {HINT_PARTIAL, HINT_TITLE}
+                    : new String[] {HINT_TITLE};
             getBuilder().addText(text, null, hints);
         }
 
