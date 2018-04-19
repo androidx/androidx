@@ -17,25 +17,19 @@
 
 <resources>
     <dimen name="mcv2_embedded_settings_width">150dp</dimen>
-    <dimen name="mcv2_embedded_settings_height">36dp</dimen>
-    <dimen name="mcv2_embedded_settings_icon_size">20dp</dimen>
-    <dimen name="mcv2_embedded_settings_text_height">18dp</dimen>
-    <dimen name="mcv2_embedded_settings_main_text_size">12sp</dimen>
-    <dimen name="mcv2_embedded_settings_sub_text_size">10sp</dimen>
     <dimen name="mcv2_full_settings_width">225dp</dimen>
-    <dimen name="mcv2_full_settings_height">54dp</dimen>
-    <dimen name="mcv2_full_settings_icon_size">30dp</dimen>
-    <dimen name="mcv2_full_settings_text_height">27dp</dimen>
-    <dimen name="mcv2_full_settings_main_text_size">16sp</dimen>
-    <dimen name="mcv2_full_settings_sub_text_size">13sp</dimen>
+    <dimen name="mcv2_settings_height">48dp</dimen>
+    <dimen name="mcv2_settings_icon_size">24dp</dimen>
+    <dimen name="mcv2_settings_text_height">24dp</dimen>
+    <dimen name="mcv2_settings_main_text_size">14sp</dimen>
+    <dimen name="mcv2_settings_sub_text_size">12sp</dimen>
     <dimen name="mcv2_settings_offset">8dp</dimen>
 
-    <dimen name="mcv2_transport_controls_padding">4dp</dimen>
-    <dimen name="mcv2_pause_icon_size">36dp</dimen>
-    <dimen name="mcv2_full_icon_size">28dp</dimen>
-    <dimen name="mcv2_embedded_icon_size">24dp</dimen>
-    <dimen name="mcv2_minimal_icon_size">24dp</dimen>
+    <dimen name="mcv2_icon_size">48dp</dimen>
     <dimen name="mcv2_icon_margin">10dp</dimen>
+    <dimen name="mcv2_pause_icon_padding">6dp</dimen>
+    <dimen name="mcv2_full_icon_padding">10dp</dimen>
+    <dimen name="mcv2_embedded_icon_padding">12dp</dimen>
 
     <dimen name="mcv2_full_album_image_portrait_size">232dp</dimen>
     <dimen name="mcv2_full_album_image_landscape_size">176dp</dimen>
@@ -43,4 +37,7 @@
     <dimen name="mcv2_custom_progress_max_size">2dp</dimen>
     <dimen name="mcv2_custom_progress_thumb_size">12dp</dimen>
     <dimen name="mcv2_buffer_view_height">5dp</dimen>
+
+    <dimen name="mcv2_title_bar_height">54dp</dimen>
+    <dimen name="mcv2_bottom_bar_height">58dp</dimen>
 </resources>
