@@ -47,7 +47,9 @@ public class SliceProviderWrapperContainer {
 
         private androidx.slice.SliceProvider mSliceProvider;
 
-        public SliceProviderWrapper(androidx.slice.SliceProvider provider) {
+        public SliceProviderWrapper(androidx.slice.SliceProvider provider,
+                String[] autoGrantPermissions) {
+            super(autoGrantPermissions);
             mSliceProvider = provider;
         }
 

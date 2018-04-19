@@ -122,7 +122,7 @@ public class SliceProviderCompat {
         return mContext;
     }
 
-    private String getCallingPackage() {
+    public String getCallingPackage() {
         return mProvider.getCallingPackage();
     }
 
