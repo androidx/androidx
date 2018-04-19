@@ -21,6 +21,7 @@ import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.Relation
 import android.arch.persistence.room.ext.KotlinMetadataProcessor
+import android.arch.persistence.room.ext.extendsBoundOrSelf
 import android.arch.persistence.room.ext.getAllFieldsIncludingPrivateSupers
 import android.arch.persistence.room.ext.getAnnotationValue
 import android.arch.persistence.room.ext.getAsString
@@ -436,7 +437,7 @@ class PojoProcessor(
             context.logger.e(relationElement, ProcessorErrors.RELATION_NOT_COLLECTION)
             return null
         }
-        val typeArg = declared.typeArguments.first()
+        val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
         if (typeArg.kind == TypeKind.ERROR) {
             context.logger.e(MoreTypes.asTypeElement(typeArg), CANNOT_FIND_TYPE)
             return null
