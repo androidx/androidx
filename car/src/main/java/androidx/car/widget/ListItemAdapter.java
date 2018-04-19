@@ -28,10 +28,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.function.Function;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
@@ -41,6 +37,10 @@ import androidx.car.utils.CarUxRestrictionsHelper;
 import androidx.car.utils.ListItemBackgroundResolver;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.function.Function;
 
 /**
  * Adapter for {@link PagedListView} to display {@link ListItem}.
@@ -233,7 +233,7 @@ public class ListItemAdapter extends
             RecyclerView.LayoutParams cardLayoutParams = new RecyclerView.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             cardLayoutParams.bottomMargin = mContext.getResources().getDimensionPixelSize(
-                    R.dimen.car_padding_3);
+                    R.dimen.car_padding_1);
             card.setLayoutParams(cardLayoutParams);
             card.setRadius(mContext.getResources().getDimensionPixelSize(R.dimen.car_radius_1));
             card.setCardBackgroundColor(mListItemBackgroundColor);
