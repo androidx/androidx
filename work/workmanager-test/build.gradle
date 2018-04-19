@@ -42,7 +42,7 @@ dependencies {
 
 supportLibrary {
     name = "Android Support Library WorkManager Testing"
-    publish = true
+    publish = false
     mavenVersion = LibraryVersions.WORKMANAGER
     mavenGroup = LibraryGroups.WORKMANAGER
     inceptionYear = "2017"

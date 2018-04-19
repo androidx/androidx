@@ -63,7 +63,7 @@ dependencies {
 
 supportLibrary {
     name = "Android WorkManager Firebase"
-    publish = true
+    publish = false
     mavenVersion = LibraryVersions.WORKMANAGER
     mavenGroup = LibraryGroups.WORKMANAGER
     inceptionYear = "2017"
