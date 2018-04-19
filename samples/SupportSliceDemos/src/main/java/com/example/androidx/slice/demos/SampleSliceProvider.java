@@ -66,8 +66,8 @@ public class SampleSliceProvider extends SliceProvider {
             "com.example.androidx.slice.action.TOAST_RANGE_VALUE";
 
     public static final String[] URI_PATHS = {"message", "wifi", "note", "ride", "toggle",
-            "toggle2", "contact", "gallery", "weather", "reservation", "loadlist", "loadgrid",
-            "inputrange", "range", "contact2", "subscription"};
+            "toggle2", "toggletester", "contact", "gallery", "weather", "reservation", "loadlist",
+            "loadgrid", "inputrange", "range", "contact2", "subscription", "singleitems"};
 
     /**
      * @return Uri with the provided path
@@ -116,6 +116,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createCustomToggleSlice(sliceUri);
             case "/toggle2":
                 return createTwoCustomToggleSlices(sliceUri);
+            case "/toggletester":
+                return createdToggleTesterSlice(sliceUri);
             case "/contact":
                 return createContact(sliceUri);
             case "/contact2":
@@ -136,6 +138,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createDownloadProgressRange(sliceUri);
             case "/subscription":
                 return createCatSlice(sliceUri, false /* customSeeMore */);
+            case "/singleitems":
+                return createSingleSlice(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -597,6 +601,116 @@ public class SampleSliceProvider extends SliceProvider {
                         .setMax(100)
                         .setValue(75)
                         .setPrimaryAction(primaryAction))
+                .build();
+    }
+
+    private Slice createdToggleTesterSlice(Uri uri) {
+        IconCompat star = IconCompat.createWithResource(getContext(), R.drawable.toggle_star);
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+
+        SliceAction primaryAction = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "primary action"), icon, "Primary action");
+        SliceAction toggleAction = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "star note"), star, "Star note", false);
+        SliceAction toggleAction2 = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "star note 2"), star, "Star note 2", true);
+        SliceAction toggleAction3 = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "star note 3"), star, "Star note 3", false);
+
+        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+
+        // Primary action toggle
+        ListBuilder.RowBuilder primaryToggle = new ListBuilder.RowBuilder(lb);
+        primaryToggle.setTitle("Primary action is a toggle")
+                .setPrimaryAction(toggleAction);
+
+        // End toggle + normal primary action
+        ListBuilder.RowBuilder endToggle = new ListBuilder.RowBuilder(lb);
+        endToggle.setTitle("Only end toggles")
+                .setSubtitle("Normal primary action")
+                .setPrimaryAction(primaryAction)
+                .addEndItem(toggleAction)
+                .addEndItem(toggleAction2);
+
+        // Start toggle + normal primary
+        ListBuilder.RowBuilder startToggle = new ListBuilder.RowBuilder(lb);
+        startToggle.setTitle("One start toggle")
+                .setTitleItem(toggleAction)
+                .setSubtitle("Normal primary action")
+                .setPrimaryAction(primaryAction);
+
+        // Start + end toggles + normal primary action
+        ListBuilder.RowBuilder someToggles = new ListBuilder.RowBuilder(lb);
+        someToggles.setTitleItem(toggleAction)
+                .setPrimaryAction(primaryAction)
+                .setTitle("Start & end toggles")
+                .setSubtitle("Normal primary action")
+                .addEndItem(toggleAction2)
+                .addEndItem(toggleAction3);
+
+        // Start toggle ONLY
+        ListBuilder.RowBuilder startToggleOnly = new ListBuilder.RowBuilder(lb);
+        startToggleOnly.setTitle("Start action is a toggle")
+                .setSubtitle("No other actions")
+                .setTitleItem(toggleAction);
+
+        // End toggle ONLY
+        ListBuilder.RowBuilder endToggleOnly = new ListBuilder.RowBuilder(lb);
+        endToggleOnly.setTitle("End action is a toggle")
+                .setSubtitle("No other actions")
+                .addEndItem(toggleAction);
+
+        // All toggles: end item should be ignored / replaced with primary action
+        ListBuilder.RowBuilder muchToggles = new ListBuilder.RowBuilder(lb);
+        muchToggles.setTitleItem(toggleAction)
+                .setTitle("All toggles")
+                .setSubtitle("Even the primary action")
+                .setPrimaryAction(toggleAction2)
+                .addEndItem(toggleAction3);
+
+        lb.addRow(primaryToggle);
+        lb.addRow(endToggleOnly);
+        lb.addRow(endToggle);
+        lb.addRow(startToggleOnly);
+        lb.addRow(startToggle);
+        lb.addRow(someToggles);
+        lb.addRow(muchToggles);
+        return lb.build();
+    }
+
+    private Slice createSingleSlice(Uri uri) {
+        IconCompat ic2 = IconCompat.createWithResource(getContext(), R.drawable.ic_create);
+        IconCompat image = IconCompat.createWithResource(getContext(), R.drawable.cat_3);
+        IconCompat toggle = IconCompat.createWithResource(getContext(), R.drawable.toggle_star);
+        SliceAction toggleAction = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "toggle action"), toggle, "toggle", false);
+        SliceAction simpleAction = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "icon action"), ic2, "icon");
+        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+        return lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle("Single title"))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setSubtitle("Single subtitle"))
+                 //Time stamps
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitleItem(System.currentTimeMillis()))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .addEndItem(System.currentTimeMillis()))
+                // Toggle actions
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitleItem(toggleAction))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .addEndItem(toggleAction))
+                // Icon actions
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitleItem(simpleAction))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .addEndItem(simpleAction))
+                // Images
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitleItem(image, SMALL_IMAGE))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .addEndItem(image, SMALL_IMAGE))
                 .build();
     }
 
