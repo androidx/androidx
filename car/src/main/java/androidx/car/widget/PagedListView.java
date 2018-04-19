@@ -1378,7 +1378,11 @@ public class PagedListView extends FrameLayout {
                     + (startRect.left - containerRect.left);
             int right = container.getRight()  - mDividerEndMargin
                     - (endRect.right - containerRect.right);
-            int bottom = container.getBottom() + spacing / 2 + mDividerHeight / 2;
+            // "(spacing + divider height) / 2" aligns the center of divider to that of spacing
+            // between two items.
+            // When spacing is an odd value (e.g. created by other decoration), space under divider
+            // is greater by 1dp.
+            int bottom = container.getBottom() + (spacing + mDividerHeight) / 2;
             int top = bottom - mDividerHeight;
 
             c.drawRect(left, top, right, bottom, mPaint);
