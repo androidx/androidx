@@ -1454,6 +1454,15 @@ package androidx.core.view {
     method public abstract void onActionProviderVisibilityChanged(boolean);
   }
 
+  public final class DisplayCutoutCompat {
+    ctor public DisplayCutoutCompat(android.graphics.Rect, java.util.List<android.graphics.Rect>);
+    method public java.util.List<android.graphics.Rect> getBoundingRects();
+    method public int getSafeInsetBottom();
+    method public int getSafeInsetLeft();
+    method public int getSafeInsetRight();
+    method public int getSafeInsetTop();
+  }
+
   public final class DragAndDropPermissionsCompat {
     method public void release();
   }
@@ -2059,8 +2068,10 @@ package androidx.core.view {
 
   public class WindowInsetsCompat {
     ctor public WindowInsetsCompat(androidx.core.view.WindowInsetsCompat);
+    method public androidx.core.view.WindowInsetsCompat consumeDisplayCutout();
     method public androidx.core.view.WindowInsetsCompat consumeStableInsets();
     method public androidx.core.view.WindowInsetsCompat consumeSystemWindowInsets();
+    method public androidx.core.view.DisplayCutoutCompat getDisplayCutout();
     method public int getStableInsetBottom();
     method public int getStableInsetLeft();
     method public int getStableInsetRight();
