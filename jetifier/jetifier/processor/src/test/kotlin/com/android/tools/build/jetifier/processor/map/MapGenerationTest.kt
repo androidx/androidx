@@ -139,13 +139,13 @@ class MapGenerationTest {
 
     object ScanTester {
 
-        fun testThatRules(vararg rules: RewriteRule) = Step1(rules.toSet())
+        fun testThatRules(vararg rules: RewriteRule) = Step1(rules.toList())
 
-        class Step1(private val rules: Set<RewriteRule>) {
+        class Step1(private val rules: List<RewriteRule>) {
 
             fun withAllowedPrefixes(vararg prefixes: String) = Step2(rules, prefixes.toSet())
 
-            class Step2(private val rules: Set<RewriteRule>, private val prefixes: Set<String>) {
+            class Step2(private val rules: List<RewriteRule>, private val prefixes: Set<String>) {
 
                 private val allTypes: MutableList<JavaType> = mutableListOf()
                 private var wasMapIncomplete = false
@@ -159,7 +159,7 @@ class MapGenerationTest {
                     val config = Config(
                         restrictToPackagePrefixes = prefixes,
                         rulesMap = RewriteRulesMap(rules),
-                        slRules = emptySet(),
+                        slRules = emptyList(),
                         pomRewriteRules = emptySet(),
                         typesMap = TypesMap.EMPTY,
                         proGuardMap = ProGuardTypesMap.EMPTY)
