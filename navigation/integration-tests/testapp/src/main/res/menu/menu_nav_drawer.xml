@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/primary">
+        <item
+            android:id="@id/launcher_home"
+            android:icon="@drawable/ic_home"
+            android:title="@string/home" />
+        <item
+            android:id="@id/android"
+            android:icon="@drawable/ic_android"
+            android:title="@string/android" />
+    </group>
+    <item
+        android:id="@id/settings_activity"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/settings" />
+    <item
+        android:id="@id/help_activity"
+        android:icon="@drawable/ic_help"
+        android:title="@string/help" />
+</menu>
