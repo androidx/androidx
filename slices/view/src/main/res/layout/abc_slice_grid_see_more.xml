@@ -33,5 +33,6 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:gravity="center_horizontal"
+              android:paddingTop="@dimen/abc_slice_grid_text_padding"
               android:text="@string/abc_slice_more"/>
 </LinearLayout>
