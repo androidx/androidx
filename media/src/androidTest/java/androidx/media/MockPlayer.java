@@ -16,9 +16,8 @@
 
 package androidx.media;
 
-import android.util.ArrayMap;
-
 import androidx.annotation.NonNull;
+import androidx.collection.ArrayMap;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;

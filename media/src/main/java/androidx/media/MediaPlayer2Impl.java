@@ -38,7 +38,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.PersistableBundle;
-import android.util.ArrayMap;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Surface;
@@ -47,6 +46,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
 
 import java.io.IOException;

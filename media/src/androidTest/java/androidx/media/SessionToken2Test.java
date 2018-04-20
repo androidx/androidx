@@ -20,8 +20,10 @@ import static junit.framework.Assert.assertEquals;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.Build;
 import android.os.Process;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -32,6 +34,7 @@ import org.junit.runner.RunWith;
 /**
  * Tests {@link SessionToken2}.
  */
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class SessionToken2Test {

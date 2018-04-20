@@ -25,10 +25,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.core.util.ObjectsCompat;
+
 import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -90,7 +91,7 @@ public final class TestUtils {
             return false;
         }
         for (String key : b.keySet()) {
-            if (!Objects.equals(a.get(key), b.get(key))) {
+            if (!ObjectsCompat.equals(a.get(key), b.get(key))) {
                 return false;
             }
         }
@@ -102,7 +103,7 @@ public final class TestUtils {
      * <p>
      * Caller's method name will be used for prefix of each media item's media id.
      *
-     * @param size lits size
+     * @param size list size
      * @return the newly created playlist
      */
     public static List<MediaItem2> createPlaylist(int size) {

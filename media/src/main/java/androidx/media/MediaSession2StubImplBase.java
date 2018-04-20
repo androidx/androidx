@@ -116,13 +116,14 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.IMediaControllerCallback;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
+import androidx.core.app.BundleCompat;
 import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaSession2.CommandButton;
 import androidx.media.MediaSession2.ControllerInfo;
@@ -246,8 +247,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 break;
             case CONTROLLER_COMMAND_BY_COMMAND_CODE: {
                 final int commandCode = extras.getInt(ARGUMENT_COMMAND_CODE);
-                IMediaControllerCallback caller =
-                        (IMediaControllerCallback) extras.getBinder(ARGUMENT_ICONTROLLER_CALLBACK);
+                IMediaControllerCallback caller = (IMediaControllerCallback)
+                        BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK);
                 if (caller == null) {
                     return;
                 }
@@ -438,8 +439,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             case CONTROLLER_COMMAND_BY_CUSTOM_COMMAND: {
                 final SessionCommand2 customCommand =
                         SessionCommand2.fromBundle(extras.getBundle(ARGUMENT_CUSTOM_COMMAND));
-                IMediaControllerCallback caller =
-                        (IMediaControllerCallback) extras.getBinder(ARGUMENT_ICONTROLLER_CALLBACK);
+                IMediaControllerCallback caller = (IMediaControllerCallback)
+                        BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK);
                 if (caller == null || customCommand == null) {
                     return;
                 }
@@ -861,7 +862,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
 
     private ControllerInfo createControllerInfo(Bundle extras) {
         IMediaControllerCallback callback = IMediaControllerCallback.Stub.asInterface(
-                extras.getBinder(ARGUMENT_ICONTROLLER_CALLBACK));
+                BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK));
         String packageName = extras.getString(ARGUMENT_PACKAGE_NAME);
         int uid = extras.getInt(ARGUMENT_UID);
         int pid = extras.getInt(ARGUMENT_PID);
