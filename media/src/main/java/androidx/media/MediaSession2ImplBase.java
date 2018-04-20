@@ -248,7 +248,11 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             mSessionCompat.release();
             mHandler.removeCallbacksAndMessages(null);
             if (mHandlerThread.isAlive()) {
-                mHandlerThread.quitSafely();
+                if (Build.VERSION.SDK_INT >= 18) {
+                    mHandlerThread.quitSafely();
+                } else {
+                    mHandlerThread.quit();
+                }
             }
         }
     }

@@ -65,7 +65,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaSession2}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MediaSession2Test extends MediaSession2TestBase {

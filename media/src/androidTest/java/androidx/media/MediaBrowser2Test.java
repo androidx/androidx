@@ -68,7 +68,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link MediaController2} works cleanly.
  */
 // TODO(jaewan): Implement host-side test so browser and service can run in different processes.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MediaBrowser2Test extends MediaController2Test {
