@@ -47,8 +47,7 @@
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/car_seekbar_padding"
             android:paddingBottom="@dimen/car_seekbar_padding"
-            android:splitTrack="false"
-            style="@style/Widget.Car.SeekBar"/>
+            android:splitTrack="false"/>
     </LinearLayout>
 
     <!-- Supplemental action. -->
