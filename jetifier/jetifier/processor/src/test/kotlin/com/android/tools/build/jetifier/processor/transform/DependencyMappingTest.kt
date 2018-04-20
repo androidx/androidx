@@ -88,7 +88,7 @@ class DependencyMappingTest {
             val config = Config(
                 restrictToPackagePrefixes = emptySet(),
                 rulesMap = RewriteRulesMap.EMPTY,
-                slRules = emptySet(),
+                slRules = emptyList(),
                 pomRewriteRules = rules,
                 typesMap = TypesMap.EMPTY,
                 proGuardMap = ProGuardTypesMap.EMPTY,

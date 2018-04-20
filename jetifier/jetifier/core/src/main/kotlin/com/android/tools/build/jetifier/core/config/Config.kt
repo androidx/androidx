@@ -39,7 +39,7 @@ import com.google.gson.annotations.SerializedName
 data class Config(
     val restrictToPackagePrefixes: Set<String>,
     val rulesMap: RewriteRulesMap,
-    val slRules: Set<RewriteRule>,
+    val slRules: List<RewriteRule>,
     val pomRewriteRules: Set<PomRewriteRule>,
     val typesMap: TypesMap,
     val proGuardMap: ProGuardTypesMap,
@@ -67,7 +67,7 @@ data class Config(
         val EMPTY = Config(
             restrictToPackagePrefixes = emptySet(),
             rulesMap = RewriteRulesMap.EMPTY,
-            slRules = emptySet(),
+            slRules = emptyList(),
             pomRewriteRules = emptySet(),
             typesMap = TypesMap.EMPTY,
             proGuardMap = ProGuardTypesMap.EMPTY,
@@ -120,8 +120,8 @@ data class Config(
             return Config(
                 restrictToPackagePrefixes = restrictToPackages.filterNotNull().toSet(),
                 rulesMap = RewriteRulesMap(
-                    rules?.filterNotNull()?.map { it.toRule() }?.toSet() ?: emptySet()),
-                slRules = slRules?.filterNotNull()?.map { it.toRule() }?.toSet() ?: emptySet(),
+                    rules?.filterNotNull()?.map { it.toRule() }?.toList() ?: emptyList()),
+                slRules = slRules?.filterNotNull()?.map { it.toRule() }?.toList() ?: emptyList(),
                 pomRewriteRules = pomRules.filterNotNull().map { it.toRule() }.toSet(),
                 typesMap = mappings?.toMappings() ?: TypesMap.EMPTY,
                 proGuardMap = proGuardMap?.toMappings() ?: ProGuardTypesMap.EMPTY
