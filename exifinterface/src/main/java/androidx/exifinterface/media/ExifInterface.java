@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -3680,6 +3681,7 @@ public class ExifInterface {
     private int mMimeType;
     @SuppressWarnings("unchecked")
     private final HashMap<String, ExifAttribute>[] mAttributes = new HashMap[EXIF_TAGS.length];
+    private Set<Integer> mAttributesOffsets = new HashSet<>(EXIF_TAGS.length);
     private ByteOrder mExifByteOrder = ByteOrder.BIG_ENDIAN;
     private boolean mHasThumbnail;
     // The following values used for indicating a thumbnail position.
@@ -5317,6 +5319,9 @@ public class ExifInterface {
     // Reads image file directory, which is a tag group in EXIF.
     private void readImageFileDirectory(ByteOrderedDataInputStream dataInputStream,
             @IfdType int ifdType) throws IOException {
+        // Save offset of current IFD to prevent reading an IFD that is already read.
+        mAttributesOffsets.add(dataInputStream.mPosition);
+
         if (dataInputStream.mPosition + 2 > dataInputStream.mLength) {
             // Return if there is no data from the offset.
             return;
@@ -5326,8 +5331,9 @@ public class ExifInterface {
         if (DEBUG) {
             Log.d(TAG, "numberOfDirectoryEntry: " + numberOfDirectoryEntry);
         }
-        if (dataInputStream.mPosition + 12 * numberOfDirectoryEntry > dataInputStream.mLength) {
-            // Return if the size of entries is too big.
+        if (dataInputStream.mPosition + 12 * numberOfDirectoryEntry > dataInputStream.mLength
+                || numberOfDirectoryEntry <= 0) {
+            // Return if the size of entries is either too big or negative.
             return;
         }
 
@@ -5454,9 +5460,18 @@ public class ExifInterface {
                 if (DEBUG) {
                     Log.d(TAG, String.format("Offset: %d, tagName: %s", offset, tag.name));
                 }
+
+                // Check if the next IFD offset
+                // 1. Exists within the boundaries of the input stream
+                // 2. Does not point to a previously read IFD.
                 if (offset > 0L && offset < dataInputStream.mLength) {
-                    dataInputStream.seek(offset);
-                    readImageFileDirectory(dataInputStream, nextIfdType);
+                    if (!mAttributesOffsets.contains((int) offset)) {
+                        dataInputStream.seek(offset);
+                        readImageFileDirectory(dataInputStream, nextIfdType);
+                    } else {
+                        Log.w(TAG, "Skip jump into the IFD since it has already been read: "
+                                + "IfdType " + nextIfdType + " (at " + offset + ")");
+                    }
                 } else {
                     Log.w(TAG, "Skip jump into the IFD since its offset is invalid: " + offset);
                 }
@@ -5498,16 +5513,25 @@ public class ExifInterface {
             if (DEBUG) {
                 Log.d(TAG, String.format("nextIfdOffset: %d", nextIfdOffset));
             }
-            // The next IFD offset needs to be bigger than 8
-            // since the first IFD offset is at least 8.
-            if (nextIfdOffset > 8 && nextIfdOffset < dataInputStream.mLength) {
-                dataInputStream.seek(nextIfdOffset);
-                if (mAttributes[IFD_TYPE_THUMBNAIL].isEmpty()) {
-                    // Do not overwrite thumbnail IFD data if it alreay exists.
-                    readImageFileDirectory(dataInputStream, IFD_TYPE_THUMBNAIL);
-                } else if (mAttributes[IFD_TYPE_PREVIEW].isEmpty()) {
-                    readImageFileDirectory(dataInputStream, IFD_TYPE_PREVIEW);
+            // Check if the next IFD offset
+            // 1. Exists within the boundaries of the input stream
+            // 2. Does not point to a previously read IFD.
+            if (nextIfdOffset > 0L && nextIfdOffset < dataInputStream.mLength) {
+                if (!mAttributesOffsets.contains(nextIfdOffset)) {
+                    dataInputStream.seek(nextIfdOffset);
+                    if (mAttributes[IFD_TYPE_THUMBNAIL].isEmpty()) {
+                        // Do not overwrite thumbnail IFD data if it alreay exists.
+                        readImageFileDirectory(dataInputStream, IFD_TYPE_THUMBNAIL);
+                    } else if (mAttributes[IFD_TYPE_PREVIEW].isEmpty()) {
+                        readImageFileDirectory(dataInputStream, IFD_TYPE_PREVIEW);
+                    }
+                } else {
+                    Log.w(TAG, "Stop reading file since re-reading an IFD may cause an "
+                            + "infinite loop: " + nextIfdOffset);
                 }
+            } else {
+                Log.w(TAG, "Stop reading file since a wrong offset may cause an infinite loop: "
+                        + nextIfdOffset);
             }
         }
     }
