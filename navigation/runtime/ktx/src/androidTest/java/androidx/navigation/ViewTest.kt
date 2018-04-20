@@ -20,8 +20,6 @@ import android.support.test.InstrumentationRegistry
 import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import android.view.View
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -31,39 +29,24 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ViewTest {
 
-    @Test fun navController() {
-        val view = View(InstrumentationRegistry.getTargetContext())
-        val navController = NavController(InstrumentationRegistry.getTargetContext())
-        view.navController = navController
-        assertTrue("View should have NavController set",
-                view.navController == navController)
-    }
-
-    @Test fun navControllerNull() {
-        val view = View(InstrumentationRegistry.getTargetContext())
-        try {
-            view.navController
-            fail("navController should throw IllegalStateException if a NavController was not set")
-        } catch (e: IllegalStateException) {
-            // Expected
-        }
-    }
-
     @Test fun findNavController() {
         val view = View(InstrumentationRegistry.getTargetContext())
         val navController = NavController(InstrumentationRegistry.getTargetContext())
-        view.navController = navController
+        Navigation.setViewNavController(view, navController)
 
         val foundNavController = view.findNavController()
-        assertNotNull("findNavController should return non-null if a NavController was set",
-                foundNavController)
         assertTrue("View should have NavController set",
                 foundNavController == navController)
     }
 
     @Test fun findNavControllerNull() {
         val view = View(InstrumentationRegistry.getTargetContext())
-        assertNull("findNavController should return null if a NavController was never set",
-                view.findNavController())
+        try {
+            view.findNavController()
+            fail("findNavController should throw IllegalStateException if a NavController" +
+                    " was not set")
+        } catch (e: IllegalStateException) {
+            // Expected
+        }
     }
 }
