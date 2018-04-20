@@ -242,10 +242,22 @@ limitations under the License.
         <item name="android:textAppearance">@style/TextAppearance.Car.Body1</item>
     </style>
 
-    <!-- Style for the seek bars. -->
+    <!-- Styling for the seek bars. -->
     <style name="Widget.Car.SeekBar" parent="Widget.AppCompat.SeekBar">
         <item name="android:progressDrawable">@drawable/car_seekbar_track</item>
         <item name="android:thumb">@drawable/car_seekbar_thumb</item>
+    </style>
+
+    <!-- Styling for seek bars that is fixed to a dark color for thumb and progress. -->
+    <style name="Widget.Car.SeekBar.Dark">
+        <item name="android:progressDrawable">@drawable/car_seekbar_track_light</item>
+        <item name="android:thumb">@drawable/car_seekbar_thumb_dark</item>
+    </style>
+
+    <!-- Styling for seek bars that is fixed to a light color for thumb and progress. -->
+    <style name="Widget.Car.SeekBar.Light">
+        <item name="android:progressDrawable">@drawable/car_seekbar_track_dark</item>
+        <item name="android:thumb">@drawable/car_seekbar_thumb_light</item>
     </style>
 
     <style name="CarListVerticalDivider">
