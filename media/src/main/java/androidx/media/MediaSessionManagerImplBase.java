@@ -35,6 +35,8 @@ class MediaSessionManagerImplBase implements MediaSessionManager.MediaSessionMan
 
     private static final String PERMISSION_STATUS_BAR_SERVICE =
             "android.permission.STATUS_BAR_SERVICE";
+    private static final String PERMISSION_MEDIA_CONTENT_CONTROL =
+            "android.permission.MEDIA_CONTENT_CONTROL";
     private static final String ENABLED_NOTIFICATION_LISTENERS = "enabled_notification_listeners";
 
     Context mContext;
@@ -71,10 +73,21 @@ class MediaSessionManagerImplBase implements MediaSessionManager.MediaSessionMan
             }
             return false;
         }
-        return mContext.checkPermission(PERMISSION_STATUS_BAR_SERVICE,
-                userInfo.getPid(), userInfo.getUid()) == PackageManager.PERMISSION_GRANTED
+        return isPermissionGranted(userInfo, PERMISSION_STATUS_BAR_SERVICE)
+                || isPermissionGranted(userInfo, PERMISSION_MEDIA_CONTENT_CONTROL)
                 || userInfo.getUid() == Process.SYSTEM_UID
                 || isEnabledNotificationListener(userInfo);
+    }
+
+    private boolean isPermissionGranted(MediaSessionManager.RemoteUserInfoImpl userInfo,
+            String permission) {
+        if (userInfo.getPid() < 0) {
+            // This may happen for the MediaBrowserServiceCompat#onGetRoot().
+            return mContext.getPackageManager().checkPermission(
+                    permission, userInfo.getPackageName()) == PackageManager.PERMISSION_GRANTED;
+        }
+        return mContext.checkPermission(permission, userInfo.getPid(), userInfo.getUid())
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     /**
