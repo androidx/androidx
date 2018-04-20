@@ -28,7 +28,7 @@ import java.util.Set;
  * {@link State#FAILED}).
  */
 
-public class WorkStatus {
+public final class WorkStatus {
 
     private String mId;
     private State mState;

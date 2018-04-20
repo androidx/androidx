@@ -39,7 +39,7 @@ import java.util.Map;
  *   - Else throw an {@link IllegalStateException}
  */
 
-public class ArrayCreatingInputMerger extends InputMerger {
+public final class ArrayCreatingInputMerger extends InputMerger {
 
     @Override
     public @NonNull Data merge(@NonNull List<Data> inputs) {
