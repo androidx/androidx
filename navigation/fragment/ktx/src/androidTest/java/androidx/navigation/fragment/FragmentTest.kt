@@ -22,8 +22,6 @@ import android.support.test.rule.ActivityTestRule
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import androidx.navigation.fragment.ktx.test.R
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Rule
@@ -36,29 +34,6 @@ class ActivityTest {
     private val contentFragment get() = fragmentManager.findFragmentById(android.R.id.content)
 
     @UiThreadTest
-    @Test fun navController() {
-        val navHostFragment = NavHostFragment.create(R.navigation.test_graph)
-        fragmentManager.beginTransaction()
-                .add(android.R.id.content, navHostFragment)
-                .commitNow()
-        assertTrue("Fragment should have NavController set",
-                contentFragment.navController == navHostFragment.navController)
-    }
-
-    @UiThreadTest
-    @Test fun navControllerNull() {
-        fragmentManager.beginTransaction()
-                .add(android.R.id.content, TestFragment())
-                .commitNow()
-        try {
-            contentFragment.navController
-            fail("navController should throw IllegalStateException if a NavController was not set")
-        } catch (e: IllegalStateException) {
-            // Expected
-        }
-    }
-
-    @UiThreadTest
     @Test fun findNavController() {
         val navHostFragment = NavHostFragment.create(R.navigation.test_graph)
         fragmentManager.beginTransaction()
@@ -66,8 +41,6 @@ class ActivityTest {
                 .commitNow()
 
         val foundNavController = contentFragment.findNavController()
-        assertNotNull("findNavController should return non-null if a NavController was set",
-                foundNavController)
         assertTrue("Fragment should have NavController set",
                 foundNavController == navHostFragment.navController)
     }
@@ -77,8 +50,13 @@ class ActivityTest {
         fragmentManager.beginTransaction()
                 .add(android.R.id.content, TestFragment())
                 .commitNow()
-        assertNull("findNavController should return null if a NavController was never set",
-                contentFragment.findNavController())
+        try {
+            contentFragment.findNavController()
+            fail("findNavController should throw IllegalStateException if a NavController " +
+                    "was not set")
+        } catch (e: IllegalStateException) {
+            // Expected
+        }
     }
 }
 

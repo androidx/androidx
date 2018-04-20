@@ -21,15 +21,9 @@ import androidx.navigation.NavController
 
 /**
  * Find a [NavController] given a [Fragment]
- */
-fun Fragment.findNavController(): NavController? =
-        NavHostFragment.findNavController(this)
-
-/**
- * Gets the [NavController] given a [Fragment].
  *
  * Calling this on a Fragment that is not a [NavHostFragment] or within a [NavHostFragment]
  * will result in an [IllegalStateException]
  */
-val Fragment.navController: NavController
-        get() = NavHostFragment.getNavController(this)
+fun Fragment.findNavController(): NavController =
+        NavHostFragment.findNavController(this)
