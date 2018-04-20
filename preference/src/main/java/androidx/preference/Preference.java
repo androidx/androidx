@@ -834,7 +834,7 @@ public class Preference implements Comparable<Preference> {
     }
 
     /**
-     * Sets the key for this Preference, which is used as a key to the {@link SharedPreferences} or
+     * Sets the key for this preference, which is used as a key to the {@link SharedPreferences} or
      * {@link PreferenceDataStore}. This should be unique for the package.
      *
      * @param key The key for the preference
@@ -848,7 +848,7 @@ public class Preference implements Comparable<Preference> {
     }
 
     /**
-     * Gets the key for this Preference, which is also the key used for storing values into
+     * Gets the key for this preference, which is also the key used for storing values into
      * {@link SharedPreferences} or {@link PreferenceDataStore}.
      *
      * @return The key
@@ -1324,7 +1324,7 @@ public class Preference implements Comparable<Preference> {
      * Called when the dependency changes.
      *
      * @param dependency       The preference that this preference depends on
-     * @param disableDependent Set true to disable this Preference
+     * @param disableDependent Set true to disable this preference
      */
     public void onDependencyChanged(Preference dependency, boolean disableDependent) {
         if (mDependencyMet == disableDependent) {
@@ -1409,7 +1409,7 @@ public class Preference implements Comparable<Preference> {
     }
 
     /**
-     * Sets the default value for this Preference, which will be set either if persistence is off
+     * Sets the default value for this preference, which will be set either if persistence is off
      * or persistence is on and the preference is not found in the persistent storage.
      *
      * @param defaultValue The default value
@@ -1453,8 +1453,26 @@ public class Preference implements Comparable<Preference> {
      *                              false to use the given <var>defaultValue</var>.
      * @param defaultValue          The default value for this preference. Only use this
      *                              if <var>restorePersistedValue</var> is false.
+     *
+     * @deprecated Use {@link #onSetInitialValue(Object)} instead.
      */
+    @Deprecated
     protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
+        onSetInitialValue(defaultValue);
+    }
+
+    /**
+     * Implement this to set the initial value of the preference.
+     *
+     * <p>If you are persisting values to {@link SharedPreferences} or a {@link PreferenceDataStore}
+     * you should restore the saved value for the preference.
+     *
+     * <p>If you are not persisting values, or there is no value saved for the preference, you
+     * should set the value of the preference to <var>defaultValue</var>.
+     *
+     * @param defaultValue The default value for the preference if set, otherwise {@code null}.
+     */
+    protected void onSetInitialValue(@Nullable Object defaultValue) {
     }
 
     private void tryCommit(@NonNull SharedPreferences.Editor editor) {
@@ -1855,7 +1873,7 @@ public class Preference implements Comparable<Preference> {
      * later be used to create a new instance with that same state. This state should only
      * contain information that is not persistent or can be reconstructed later.
      *
-     * @return A Parcelable object containing the current dynamic state of this Preference, or
+     * @return A Parcelable object containing the current dynamic state of this preference, or
      * {@code null} if there is nothing interesting to save. The default implementation returns
      * {@code null}.
      * @see #onRestoreInstanceState

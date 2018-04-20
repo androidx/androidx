@@ -178,7 +178,8 @@ package androidx.preference {
     method protected void onPrepareForRemoval();
     method protected void onRestoreInstanceState(android.os.Parcelable);
     method protected android.os.Parcelable onSaveInstanceState();
-    method protected void onSetInitialValue(boolean, java.lang.Object);
+    method protected deprecated void onSetInitialValue(boolean, java.lang.Object);
+    method protected void onSetInitialValue(java.lang.Object);
     method public android.os.Bundle peekExtras();
     method protected boolean persistBoolean(boolean);
     method protected boolean persistFloat(float);

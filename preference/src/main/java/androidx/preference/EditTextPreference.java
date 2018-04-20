@@ -85,8 +85,8 @@ public class EditTextPreference extends DialogPreference {
     }
 
     @Override
-    protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        setText(restoreValue ? getPersistedString(mText) : (String) defaultValue);
+    protected void onSetInitialValue(Object defaultValue) {
+        setText(getPersistedString((String) defaultValue));
     }
 
     @Override
