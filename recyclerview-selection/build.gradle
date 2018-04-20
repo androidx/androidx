@@ -41,4 +41,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2017"
     description = "Library providing item selection framework for RecyclerView. Support for touch based and band selection is provided."
+    failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
 }

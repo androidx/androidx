@@ -40,4 +40,6 @@ supportLibrary {
     inceptionYear = "2017"
     description = "The slices core library provides utilities for the slices view and provider libraries"
     minSdkVersion = 19
+    failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
 }

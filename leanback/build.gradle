@@ -37,4 +37,6 @@ supportLibrary {
     inceptionYear = "2014"
     description = "Android Support Leanback v17"
     minSdkVersion = 17
+    failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
 }

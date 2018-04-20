@@ -42,4 +42,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2014"
     description = "Android Support RecyclerView v7"
+    failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
 }
