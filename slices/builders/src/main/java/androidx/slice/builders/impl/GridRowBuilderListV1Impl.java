@@ -18,11 +18,9 @@ package androidx.slice.builders.impl;
 
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_LARGE;
-import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SEE_MORE;
-import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 
@@ -59,23 +57,12 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
     /**
      */
     @Override
-    @NonNull
-    public Slice build() {
-        Slice.Builder sb = new Slice.Builder(getBuilder())
-                .addHints(HINT_HORIZONTAL, HINT_LIST_ITEM);
-        sb.addSubSlice(getBuilder().addHints(HINT_HORIZONTAL, HINT_LIST_ITEM).build());
-        if (mPrimaryAction != null) {
-            Slice.Builder actionBuilder = new Slice.Builder(getBuilder())
-                    .addHints(HINT_SHORTCUT, HINT_TITLE);
-            sb.addSubSlice(mPrimaryAction.buildSlice(actionBuilder));
-        }
-        return sb.build();
-    }
-
-    /**
-     */
-    @Override
     public void apply(Slice.Builder builder) {
+        builder.addHints(HINT_HORIZONTAL);
+        if (mPrimaryAction != null) {
+            Slice.Builder actionBuilder = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
+            builder.addSubSlice(mPrimaryAction.buildSlice(actionBuilder));
+        }
     }
 
     /**
@@ -96,7 +83,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
      */
     @Override
     public void addCell(TemplateBuilderImpl builder) {
-        getBuilder().addSubSlice(builder.getBuilder().addHints(HINT_LIST_ITEM).build());
+        builder.apply(getBuilder());
     }
 
 
@@ -105,7 +92,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
     @Override
     public void setSeeMoreCell(@NonNull TemplateBuilderImpl builder) {
         builder.getBuilder().addHints(HINT_SEE_MORE);
-        getBuilder().addSubSlice(builder.build());
+        builder.apply(getBuilder());
     }
 
     /**
@@ -236,20 +223,12 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
         @RestrictTo(LIBRARY)
         @Override
         public void apply(Slice.Builder b) {
-        }
-
-        /**
-         */
-        @Override
-        @NonNull
-        public Slice build() {
+            getBuilder().addHints(HINT_HORIZONTAL);
             if (mContentIntent != null) {
-                return new Slice.Builder(getBuilder())
-                        .addHints(HINT_HORIZONTAL)
-                        .addAction(mContentIntent, getBuilder().build(), null)
-                        .build();
+                b.addAction(mContentIntent, getBuilder().build(), null);
+            } else {
+                b.addSubSlice(getBuilder().build());
             }
-            return getBuilder().addHints(HINT_HORIZONTAL).build();
         }
     }
 }

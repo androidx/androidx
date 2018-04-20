@@ -16,6 +16,7 @@
 
 package androidx.slice.widget;
 
+import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
@@ -408,7 +409,7 @@ public class RowContent {
      * @return whether this item is valid content to visibly appear in a row.
      */
     private static boolean isValidRowContent(SliceItem slice, SliceItem item) {
-        if (item.hasAnyHints(HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED)
+        if (item.hasAnyHints(HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED, HINT_HORIZONTAL)
                 || SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
             return false;
         }
