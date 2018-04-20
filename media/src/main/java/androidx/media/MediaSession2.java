@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.IMediaControllerCallback;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.annotation.IntDef;
@@ -1078,6 +1079,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         // Internally used methods
         abstract void setInstance(MediaSession2 session);
         abstract MediaSession2 getInstance();
+        abstract MediaSessionCompat getSessionCompat();
         abstract Context getContext();
         abstract Executor getCallbackExecutor();
         abstract SessionCallback getCallback();
