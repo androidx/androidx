@@ -76,7 +76,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @Override
     public void apply(Slice.Builder builder) {
-        builder.addTimestamp(System.currentTimeMillis(), SUBTYPE_MILLIS, HINT_LAST_UPDATED);
+        builder.addLong(System.currentTimeMillis(), SUBTYPE_MILLIS, HINT_LAST_UPDATED);
         if (mSliceHeader != null) {
             builder.addSubSlice(mSliceHeader);
         }
@@ -95,6 +95,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     @NonNull
     @Override
     public void addRow(@NonNull TemplateBuilderImpl builder) {
+        builder.getBuilder().addHints(HINT_LIST_ITEM);
         getBuilder().addSubSlice(builder.build());
     }
 
@@ -103,6 +104,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     @NonNull
     @Override
     public void addGridRow(@NonNull TemplateBuilderImpl builder) {
+        builder.getBuilder().addHints(HINT_LIST_ITEM);
         getBuilder().addSubSlice(builder.build());
     }
 
@@ -558,7 +560,6 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                         getBuilder()).addHints(HINT_TITLE, HINT_SHORTCUT);
                 b.addSubSlice(mPrimaryAction.buildSlice(sb), null);
             }
-            b.addHints(HINT_LIST_ITEM);
         }
     }
 

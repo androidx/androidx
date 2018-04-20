@@ -291,7 +291,7 @@ public class ListContent {
     private static SliceItem findHeaderItem(@NonNull Slice slice) {
         // See if header is specified
         String[] nonHints = new String[] {HINT_LIST_ITEM, HINT_SHORTCUT, HINT_ACTIONS,
-                HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED};
+                HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED, HINT_HORIZONTAL};
         SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, nonHints);
         if (header != null && isValidHeader(header)) {
             return header;
@@ -302,7 +302,7 @@ public class ListContent {
     @Nullable
     private static SliceItem getSeeMoreItem(@NonNull Slice slice) {
         SliceItem item = SliceQuery.find(slice, null, HINT_SEE_MORE, null);
-        if (item != null && item.hasHint(HINT_SEE_MORE)) {
+        if (item != null) {
             if (FORMAT_SLICE.equals(item.getFormat())) {
                 List<SliceItem> items = item.getSlice().getItems();
                 if (items.size() == 1 && FORMAT_ACTION.equals(items.get(0).getFormat())) {
