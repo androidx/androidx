@@ -20,18 +20,9 @@ import android.view.View
 
 /**
  * Find a [NavController] associated with a [View].
- */
-fun View.findNavController(): NavController? =
-        Navigation.findNavController(this)
-
-/**
- * Property for the [NavController] associated with a [View].
  *
- * Calling view.navController on a View not within a [NavHost] will result in an
+ * Calling this on a View not within a [NavHost] will result in an
  * [IllegalStateException]
  */
-var View.navController: NavController
-    get() = Navigation.getNavController(this)
-    set(value) {
-        Navigation.setViewNavController(this, value)
-    }
+fun View.findNavController(): NavController =
+        Navigation.findNavController(this)

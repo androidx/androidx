@@ -90,13 +90,11 @@ public class NavHostFragment extends Fragment implements NavHost {
      *
      * @param fragment the locally scoped Fragment for navigation
      * @return the locally scoped {@link NavController} for navigating from this {@link Fragment}
+     * @throws IllegalStateException if the given Fragment does not correspond with a
+     * {@link NavHost} or is not within a NavHost.
      */
-    @Nullable
-    public static NavController findNavController(@Nullable Fragment fragment) {
-        if (fragment == null) {
-            return null;
-        }
-
+    @NonNull
+    public static NavController findNavController(@NonNull Fragment fragment) {
         Fragment findFragment = fragment;
         while (findFragment != null) {
             if (findFragment instanceof NavHostFragment) {
@@ -112,30 +110,11 @@ public class NavHostFragment extends Fragment implements NavHost {
 
         // Try looking for one associated with the view instead, if applicable
         View view = fragment.getView();
-        return view != null ? Navigation.findNavController(view) : null;
-    }
-
-    /**
-     * Gets the {@link NavController} given a local {@link Fragment}.
-     *
-     * <p>This method will locate the {@link NavController} associated with this Fragment,
-     * looking first for a {@link NavHostFragment} along the given Fragment's parent chain.
-     * If a {@link NavController} is not found, this method will look for one along this
-     * Fragment's {@link Fragment#getView() view hierarchy} as specified by
-     * {@link Navigation#findNavController(View)}.</p>
-     *
-     * @param fragment the locally scoped Fragment for navigation
-     * @return the locally scoped {@link NavController} for navigating from this {@link Fragment}
-     * @throws IllegalStateException if the given Fragment does not correspond with a
-     * {@link NavHost} or is not within a NavHost.
-     */
-    public static NavController getNavController(@Nullable Fragment fragment) {
-        NavController navController = findNavController(fragment);
-        if (navController == null) {
-            throw new IllegalStateException("Fragment " + fragment
-                    + " does not have a NavController set");
+        if (view != null) {
+            return Navigation.findNavController(view);
         }
-        return navController;
+        throw new IllegalStateException("Fragment " + fragment
+                + " does not have a NavController set");
     }
 
     private NavController mNavController;
