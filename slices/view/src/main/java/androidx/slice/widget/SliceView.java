@@ -375,7 +375,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        View v = mCurrentView.getView();
+        View v = mCurrentView;
         final int left = getPaddingLeft();
         final int top = getPaddingTop();
         v.layout(left, top, left + v.getMeasuredWidth(), top + v.getMeasuredHeight());
@@ -542,7 +542,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             mCurrentView.resetView();
             return;
         }
-        mListContent = new ListContent(getContext(), mCurrentSlice);
+        mListContent = new ListContent(getContext(), mCurrentSlice, mAttrs, mDefStyleAttr,
+                mDefStyleRes);
         if (!mListContent.isValid()) {
             mCurrentView.resetView();
             return;
@@ -579,7 +580,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         mCurrentView.setShowLastUpdated(mShowLastUpdated && expired);
 
         // Set the slice
-        mCurrentView.setSlice(mCurrentSlice);
+        mCurrentView.setSliceContent(mListContent);
         updateActions();
     }
 

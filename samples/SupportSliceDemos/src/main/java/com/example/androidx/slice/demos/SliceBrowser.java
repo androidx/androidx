@@ -68,7 +68,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
 
     private static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
     private static final boolean TEST_INTENT = false;
-    private static final boolean TEST_THEMES = false;
+    private static final boolean TEST_THEMES = true;
     private static final boolean SCROLLING_ENABLED = true;
 
     private ArrayList<Uri> mSliceUris = new ArrayList<Uri>();
