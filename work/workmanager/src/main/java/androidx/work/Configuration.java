@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
 /**
  * Configuration for {@link WorkManager}.
  */
-public class Configuration {
+public final class Configuration {
 
     private final Executor mExecutor;
 
@@ -49,7 +49,7 @@ public class Configuration {
     /**
      * A Builder for {@link Configuration}.
      */
-    public static class Builder {
+    public static final class Builder {
 
         Executor mExecutor;
 

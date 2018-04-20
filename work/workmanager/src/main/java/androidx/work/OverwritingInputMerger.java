@@ -29,7 +29,7 @@ import java.util.Map;
  * where overwriting is a valid strategy to deal with them.
  */
 
-public class OverwritingInputMerger extends InputMerger {
+public final class OverwritingInputMerger extends InputMerger {
 
     @Override
     public @NonNull Data merge(@NonNull List<Data> inputs) {

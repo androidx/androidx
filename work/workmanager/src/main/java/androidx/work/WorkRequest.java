@@ -187,6 +187,10 @@ public abstract class WorkRequest {
          */
         public abstract W build();
 
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         protected abstract B getThis();
 
         /**
