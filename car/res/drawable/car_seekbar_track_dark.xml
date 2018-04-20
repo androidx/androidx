@@ -15,12 +15,13 @@
   ~ limitations under the License
   -->
 
+<!-- Drawable of seekbar track. Uses dark color for track. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
         <shape android:shape="line">
             <stroke
                 android:width="@dimen/car_seekbar_height"
-                android:color="@color/car_seekbar_track_background" />
+                android:color="@color/car_seekbar_track_background_dark" />
         </shape>
     </item>
     <item android:id="@android:id/secondaryProgress">
@@ -28,7 +29,7 @@
             <shape android:shape="line">
                 <stroke
                     android:width="@dimen/car_seekbar_height"
-                    android:color="@color/car_seekbar_track_secondary_progress" />
+                    android:color="@color/car_seekbar_track_secondary_progress_light" />
             </shape>
         </clip>
     </item>
@@ -37,7 +38,7 @@
             <shape android:shape="line">
                 <stroke
                     android:width="@dimen/car_seekbar_height"
-                    android:color="@color/car_accent" />
+                    android:color="@color/car_accent_light" />
             </shape>
         </clip>
     </item>

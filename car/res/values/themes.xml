@@ -31,6 +31,7 @@ limitations under the License.
         <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
         <item name="android:editTextColor">@color/car_body1</item>
         <item name="android:colorControlNormal">@color/car_body2</item>
+        <item name="android:seekBarStyle">@style/Widget.Car.SeekBar</item>
         <item name="carDialogTheme">@style/Theme.Car.Dialog</item>
         <item name="pagedListViewStyle">@style/Widget.Car.List</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
@@ -46,6 +47,7 @@ limitations under the License.
          text. The colors will not change for night mode. -->
     <style name="Theme.Car.Dark.NoActionBar" parent="Theme.Car.NoActionBar">
         <item name="android:alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
+        <item name="android:seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
         <item name="alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
         <item name="carDialogTheme">@style/Theme.Car.Dark.Dialog</item>
         <item name="pagedListViewStyle">@style/Widget.Car.Light.List.LightDivider</item>
