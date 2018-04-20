@@ -16,15 +16,9 @@
 
 package androidx.work;
 
-import android.arch.persistence.room.TypeConverter;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -57,85 +51,6 @@ public final class ContentUriTriggers implements Iterable<ContentUriTriggers.Tri
      */
     public int size() {
         return mTriggers.size();
-    }
-
-    /**
-     * Converts a list of {@link Trigger}s to byte array representation
-     * @param triggers the list of {@link Trigger}s to convert
-     * @return corresponding byte array representation
-     */
-    @TypeConverter
-    public static byte[] toByteArray(ContentUriTriggers triggers) {
-        if (triggers.size() == 0) {
-            // Return null for no triggers. Needed for SQL query check in ForegroundProcessor
-            return null;
-        }
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = null;
-        try {
-            objectOutputStream = new ObjectOutputStream(outputStream);
-            objectOutputStream.writeInt(triggers.size());
-            for (Trigger trigger : triggers) {
-                objectOutputStream.writeUTF(trigger.getUri().toString());
-                objectOutputStream.writeBoolean(trigger.shouldTriggerForDescendants());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (objectOutputStream != null) {
-                try {
-                    objectOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return outputStream.toByteArray();
-    }
-
-    /**
-     * Converts a byte array to list of {@link Trigger}s
-     * @param bytes byte array representation to convert
-     * @return list of {@link Trigger}s
-     */
-    @TypeConverter
-    public static ContentUriTriggers fromByteArray(byte[] bytes) {
-        ContentUriTriggers triggers = new ContentUriTriggers();
-        if (bytes == null) {
-            // bytes will be null if there are no Content Uri Triggers
-            return triggers;
-        }
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-        ObjectInputStream objectInputStream = null;
-        try {
-            objectInputStream = new ObjectInputStream(inputStream);
-            for (int i = objectInputStream.readInt(); i > 0; i--) {
-                Uri uri = Uri.parse(objectInputStream.readUTF());
-                boolean triggersForDescendants = objectInputStream.readBoolean();
-                triggers.add(uri, triggersForDescendants);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (objectInputStream != null) {
-                try {
-                    objectInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return triggers;
     }
 
     @Override
