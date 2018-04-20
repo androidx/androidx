@@ -29,6 +29,9 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.concurrent.Callable;
 
 class WebViewOnUiThread {
@@ -65,52 +68,6 @@ class WebViewOnUiThread {
         });
     }
 
-    public void loadUrl(final String url) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mWebView.loadUrl(url);
-            }
-        });
-    }
-
-    public void setWebViewClient(final WebViewClientCompat webviewClient) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mWebView.setWebViewClient(webviewClient);
-            }
-        });
-    }
-
-    public void postVisualStateCallbackCompat(final long requestId,
-            final WebViewCompat.VisualStateCallback callback) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                WebViewCompat.postVisualStateCallback(mWebView, requestId, callback);
-            }
-        });
-    }
-
-    public WebSettings getSettings() {
-        return getValue(new ValueGetter<WebSettings>() {
-            @Override
-            public WebSettings capture() {
-                return mWebView.getSettings();
-            }
-        });
-    }
-
-    public void addJavascriptInterface(final Object object, final String name) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mWebView.addJavascriptInterface(object, name);
-            }
-        });
-    }
-
     /**
      * Called after a test is complete and the WebView should be disengaged from
      * the tests.
@@ -126,10 +83,6 @@ class WebViewOnUiThread {
                 mWebView.destroy();
             }
         });
-    }
-
-    WebView getWebViewOnCurrentThread() {
-        return mWebView;
     }
 
     /**
@@ -156,9 +109,45 @@ class WebViewOnUiThread {
         this.notifyAll();
     }
 
+    public void setWebViewClient(final WebViewClientCompat webviewClient) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.setWebViewClient(webviewClient);
+            }
+        });
+    }
+
+    public WebMessagePortCompat[] createWebMessageChannelCompat() {
+        return getValue(new ValueGetter<WebMessagePortCompat[]>() {
+            @Override
+            public WebMessagePortCompat[] capture() {
+                return WebViewCompat.createWebMessageChannel(mWebView);
+            }
+        });
+    }
+
+    public void postWebMessageCompat(final WebMessageCompat message, final Uri targetOrigin) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                WebViewCompat.postWebMessage(mWebView, message, targetOrigin);
+            }
+        });
+    }
+
+    public void addJavascriptInterface(final Object object, final String name) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.addJavascriptInterface(object, name);
+            }
+        });
+    }
+
     /**
-     * Calls loadUrl on the WebView and then waits onPageFinished,
-     * onNewPicture and onProgressChange to reach 100.
+     * Calls loadUrl on the WebView and then waits onPageFinished
+     * and onProgressChange to reach 100.
      * Test fails if the load timeout elapses.
      * @param url The URL to load.
      */
@@ -167,6 +156,45 @@ class WebViewOnUiThread {
             @Override
             public void run() {
                 mWebView.loadUrl(url);
+            }
+        });
+    }
+
+    public void loadUrl(final String url) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.loadUrl(url);
+            }
+        });
+    }
+
+    /**
+     * Calls {@link WebView#loadData} on the WebView and then waits onPageFinished
+     * and onProgressChange to reach 100.
+     * Test fails if the load timeout elapses.
+     * @param data The data to load.
+     * @param mimeType The mimeType to pass to loadData.
+     * @param encoding The encoding to pass to loadData.
+     */
+    public void loadDataAndWaitForCompletion(@NonNull final String data,
+            @Nullable final String mimeType, @Nullable final String encoding) {
+        callAndWait(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.loadData(data, mimeType, encoding);
+            }
+        });
+    }
+
+    public void loadDataWithBaseURLAndWaitForCompletion(final String baseUrl,
+            final String data, final String mimeType, final String encoding,
+            final String historyUrl) {
+        callAndWait(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding,
+                        historyUrl);
             }
         });
     }
@@ -195,6 +223,43 @@ class WebViewOnUiThread {
         }
     }
 
+    public String getTitle() {
+        return getValue(new ValueGetter<String>() {
+            @Override
+            public String capture() {
+                return mWebView.getTitle();
+            }
+        });
+    }
+
+    public WebSettings getSettings() {
+        return getValue(new ValueGetter<WebSettings>() {
+            @Override
+            public WebSettings capture() {
+                return mWebView.getSettings();
+            }
+        });
+    }
+
+    public String getUrl() {
+        return getValue(new ValueGetter<String>() {
+            @Override
+            public String capture() {
+                return mWebView.getUrl();
+            }
+        });
+    }
+
+    public void postVisualStateCallbackCompat(final long requestId,
+            final WebViewCompat.VisualStateCallback callback) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                WebViewCompat.postVisualStateCallback(mWebView, requestId, callback);
+            }
+        });
+    }
+
     void evaluateJavascript(final String script, final ValueCallback<String> result) {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -202,6 +267,30 @@ class WebViewOnUiThread {
                 mWebView.evaluateJavascript(script, result);
             }
         });
+    }
+
+    WebView getWebViewOnCurrentThread() {
+        return mWebView;
+    }
+
+    private <T> T getValue(ValueGetter<T> getter) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(getter);
+        return getter.getValue();
+    }
+
+    private abstract class ValueGetter<T> implements Runnable {
+        private T mValue;
+
+        @Override
+        public void run() {
+            mValue = capture();
+        }
+
+        protected abstract T capture();
+
+        public T getValue() {
+            return mValue;
+        }
     }
 
     /**
@@ -301,65 +390,6 @@ class WebViewOnUiThread {
             // Pump messages until our message gets through.
             Looper.loop();
         } catch (ExitLoopException e) {
-        }
-    }
-
-    public WebMessagePortCompat[] createWebMessageChannelCompat() {
-        return getValue(new ValueGetter<WebMessagePortCompat[]>() {
-            @Override
-            public WebMessagePortCompat[] capture() {
-                return WebViewCompat.createWebMessageChannel(mWebView);
-            }
-        });
-    }
-
-    public void postWebMessageCompat(final WebMessageCompat message, final Uri targetOrigin) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                WebViewCompat.postWebMessage(mWebView, message, targetOrigin);
-            }
-        });
-    }
-
-    private <T> T getValue(ValueGetter<T> getter) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(getter);
-        return getter.getValue();
-    }
-
-    public String getTitle() {
-        return getValue(new ValueGetter<String>() {
-            @Override
-            public String capture() {
-                return mWebView.getTitle();
-            }
-        });
-    }
-
-    public void loadDataWithBaseURLAndWaitForCompletion(final String baseUrl,
-            final String data, final String mimeType, final String encoding,
-            final String historyUrl) {
-        callAndWait(new Runnable() {
-            @Override
-            public void run() {
-                mWebView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding,
-                        historyUrl);
-            }
-        });
-    }
-
-    private abstract class ValueGetter<T> implements Runnable {
-        private T mValue;
-
-        @Override
-        public void run() {
-            mValue = capture();
-        }
-
-        protected abstract T capture();
-
-        public T getValue() {
-            return mValue;
         }
     }
 
