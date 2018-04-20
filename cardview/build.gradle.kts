@@ -20,4 +20,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.CARDVIEW
     inceptionYear = "2011"
     description = "Android Support CardView v7"
+    failOnDeprecationWarnings = false
 }

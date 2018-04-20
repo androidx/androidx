@@ -24,4 +24,5 @@ supportLibrary {
     inceptionYear = "2018"
     description = "The TextClassifier Support Library can be added to an Android application in order to use the TextClassifier API introduced in Android O on all devices with API level 14 or later."
     minSdkVersion = 14
+    failOnUncheckedWarnings = false
 }

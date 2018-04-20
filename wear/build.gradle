@@ -42,4 +42,5 @@ supportLibrary {
     inceptionYear = "2016"
     description = "Android Wear Support UI"
     minSdkVersion = 23
+    failOnDeprecationWarnings = false
 }

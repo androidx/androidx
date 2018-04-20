@@ -36,4 +36,5 @@ supportLibrary {
     mavenGroup = LibraryGroups.TRANSITION
     inceptionYear = "2016"
     description = "Android Transition Support Library"
+    failOnDeprecationWarnings = false
 }
