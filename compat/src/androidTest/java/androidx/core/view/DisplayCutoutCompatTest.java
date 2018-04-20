@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.core.view;
+
+import static android.os.Build.VERSION.SDK_INT;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 
 import android.graphics.Rect;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
-
-import static android.os.Build.VERSION.SDK_INT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
