@@ -21,8 +21,6 @@ import android.os.Bundle
 import android.support.test.filters.SmallTest
 import android.support.test.rule.ActivityTestRule
 import android.view.View
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Rule
@@ -33,40 +31,38 @@ class ActivityTest {
     @get:Rule val activityRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private val view get() = activityRule.activity.findViewById<View>(VIEW_ID)
 
-    @Test fun navController() {
-        val navController = NavController(activityRule.activity)
-        view.navController = navController
-        assertTrue("View should have NavController set",
-                activityRule.activity.navController(VIEW_ID) == navController)
-    }
-
-    @Test fun navControllerNull() {
-        try {
-            activityRule.activity.navController(VIEW_ID)
-            fail("navController should throw IllegalStateException if a NavController was not set")
-        } catch (e: IllegalStateException) {
-            // Expected
-        }
-    }
-
     @Test fun findNavController() {
         val navController = NavController(activityRule.activity)
-        view.navController = navController
+        Navigation.setViewNavController(view, navController)
 
         val foundNavController = activityRule.activity.findNavController(VIEW_ID)
-        assertNotNull("findNavController should return non-null if a NavController was set",
-                foundNavController)
         assertTrue("View should have NavController set",
                 foundNavController == navController)
     }
 
     @Test fun findNavControllerNull() {
-        assertNull("findNavController should return null if a NavController was never set",
-                activityRule.activity.findNavController(VIEW_ID))
+        try {
+            activityRule.activity.findNavController(VIEW_ID)
+            fail("findNavController should throw IllegalStateException if a NavController" +
+                    " was not set")
+        } catch (e: IllegalStateException) {
+            // Expected
+        }
+    }
+
+    @Test fun findNavControllerInvalidViewId() {
+        try {
+            activityRule.activity.findNavController(INVALID_VIEW_ID)
+            fail("findNavController should throw IllegalArgumentException if the view" +
+                    " does not exist")
+        } catch (e: IllegalArgumentException) {
+            // Expected
+        }
     }
 }
 
 private const val VIEW_ID = 1
+private const val INVALID_VIEW_ID = 2
 
 class TestActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
