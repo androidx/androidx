@@ -86,8 +86,7 @@ public final class PreferenceWrapper extends Preference {
     }
 
     @Override
-    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
+    protected void onSetInitialValue(Object defaultValue) {
         this.mDefaultValue = defaultValue;
-        super.onSetInitialValue(restorePersistedValue, defaultValue);
     }
 }

@@ -186,9 +186,11 @@ public abstract class TwoStatePreference extends Preference {
     }
 
     @Override
-    protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        setChecked(restoreValue ? getPersistedBoolean(mChecked)
-                : (Boolean) defaultValue);
+    protected void onSetInitialValue(Object defaultValue) {
+        if (defaultValue == null) {
+            defaultValue = false;
+        }
+        setChecked(getPersistedBoolean((Boolean) defaultValue));
     }
 
     /**
