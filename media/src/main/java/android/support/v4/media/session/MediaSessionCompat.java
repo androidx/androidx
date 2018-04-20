@@ -1976,6 +1976,7 @@ public class MediaSessionCompat {
             if (mVolumeProvider != null) {
                 mVolumeProvider.setCallback(null);
             }
+            mLocalStream = stream;
             mVolumeType = MediaControllerCompat.PlaybackInfo.PLAYBACK_TYPE_LOCAL;
             ParcelableVolumeInfo info = new ParcelableVolumeInfo(mVolumeType, mLocalStream,
                     VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
