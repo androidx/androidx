@@ -2527,92 +2527,67 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @return A new View that can be the next focus after the focused View
      */
     @Override
-    @Nullable
-    public View focusSearch(@Nullable View focused, int direction) {
-        View result;
-
-        if (focused != null) {
-            result = mLayout.onInterceptFocusSearch(focused, direction);
-            if (result != null) {
-                return result;
-            }
+    public View focusSearch(View focused, int direction) {
+        View result = mLayout.onInterceptFocusSearch(focused, direction);
+        if (result != null) {
+            return result;
         }
-
-        // As describe by comment at declaration of FORCE_ABS_FOCUS_SEARCH_DIRECTION,
-        // View.FOCUS_BACKWARD is handled incorrectly by FocusFinder.findNextFocus on ICS MR1 and
-        // older, so here we are precomputing a compat version of direction to be passed to
-        // FocusFinder.findNextFocus in code paths where it might otherwise get View.FOCUS_BACKWARD.
-        int directionCompat = direction;
-        if (FORCE_ABS_FOCUS_SEARCH_DIRECTION && direction == View.FOCUS_BACKWARD) {
-            if (mLayout.canScrollVertically()) {
-                directionCompat = View.FOCUS_UP;
-            } else if (mLayout.canScrollHorizontally()) {
-                directionCompat = mLayout.getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL
-                        ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
-            }
-        }
-
         final boolean canRunFocusFailure = mAdapter != null && mLayout != null
-                && !isComputingLayout() && !mLayoutFrozen && focused != null;
+                && !isComputingLayout() && !mLayoutFrozen;
+
         final FocusFinder ff = FocusFinder.getInstance();
-        if (canRunFocusFailure) {
-            if (direction == View.FOCUS_FORWARD || direction == View.FOCUS_BACKWARD) {
-                // For each direction that we can scroll, convert forward and backward to the
-                // correct direction and see if we can find focus without needing to ask for more
-                // items.
-                //
-                // The only time we won't ask for more items is if we can find something to
-                // focus on in both orientations. Otherwise we have to assume we should lay out more
-                // items first so that forward or backward will find the right item.
-                //
-                // We actually call onFocusSearchFailed instead of explicitly asking for more views
-                // to be laid out.
-                boolean needsFocusFailureLayout = false;
-                if (mLayout.canScrollVertically()) {
-                    final int absDir =
-                            direction == View.FOCUS_FORWARD ? View.FOCUS_DOWN : View.FOCUS_UP;
-                    final View found = ff.findNextFocus(this, focused, absDir);
-                    needsFocusFailureLayout = found == null;
-                }
-                if (!needsFocusFailureLayout && mLayout.canScrollHorizontally()) {
-                    boolean rtl = mLayout.getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
-                    final int absDir = (direction == View.FOCUS_FORWARD) ^ rtl
-                            ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
-                    final View found = ff.findNextFocus(this, focused, absDir);
-                    needsFocusFailureLayout = found == null;
-                }
-                if (needsFocusFailureLayout) {
-                    consumePendingUpdateOperations();
-                    final View focusedItemView = findContainingItemView(focused);
-                    if (focusedItemView == null) {
-                        // panic, focused view is not a child anymore, cannot call super.
-                        return null;
-                    }
-                    startInterceptRequestLayout();
-                    mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
-                    stopInterceptRequestLayout(false);
-                }
-                result = ff.findNextFocus(this, focused, directionCompat);
-            } else {
-                // Same as above if block, but simpler because not FOCUS_FORWARD or FOCUS_BACKWARD.
-                result = ff.findNextFocus(this, focused, directionCompat);
-                if (result == null) {
-                    consumePendingUpdateOperations();
-                    final View focusedItemView = findContainingItemView(focused);
-                    if (focusedItemView == null) {
-                        // panic, focused view is not a child anymore, cannot call super.
-                        return null;
-                    }
-                    startInterceptRequestLayout();
-                    result = mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
-                    stopInterceptRequestLayout(false);
+        if (canRunFocusFailure
+                && (direction == View.FOCUS_FORWARD || direction == View.FOCUS_BACKWARD)) {
+            // convert direction to absolute direction and see if we have a view there and if not
+            // tell LayoutManager to add if it can.
+            boolean needsFocusFailureLayout = false;
+            if (mLayout.canScrollVertically()) {
+                final int absDir =
+                        direction == View.FOCUS_FORWARD ? View.FOCUS_DOWN : View.FOCUS_UP;
+                final View found = ff.findNextFocus(this, focused, absDir);
+                needsFocusFailureLayout = found == null;
+                if (FORCE_ABS_FOCUS_SEARCH_DIRECTION) {
+                    // Workaround for broken FOCUS_BACKWARD in API 15 and older devices.
+                    direction = absDir;
                 }
             }
+            if (!needsFocusFailureLayout && mLayout.canScrollHorizontally()) {
+                boolean rtl = mLayout.getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
+                final int absDir = (direction == View.FOCUS_FORWARD) ^ rtl
+                        ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
+                final View found = ff.findNextFocus(this, focused, absDir);
+                needsFocusFailureLayout = found == null;
+                if (FORCE_ABS_FOCUS_SEARCH_DIRECTION) {
+                    // Workaround for broken FOCUS_BACKWARD in API 15 and older devices.
+                    direction = absDir;
+                }
+            }
+            if (needsFocusFailureLayout) {
+                consumePendingUpdateOperations();
+                final View focusedItemView = findContainingItemView(focused);
+                if (focusedItemView == null) {
+                    // panic, focused view is not a child anymore, cannot call super.
+                    return null;
+                }
+                startInterceptRequestLayout();
+                mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
+                stopInterceptRequestLayout(false);
+            }
+            result = ff.findNextFocus(this, focused, direction);
         } else {
-            // We can't run focus failure so just do our best with a simple findNextFocus call.
-            result = ff.findNextFocus(this, focused, directionCompat);
+            result = ff.findNextFocus(this, focused, direction);
+            if (result == null && canRunFocusFailure) {
+                consumePendingUpdateOperations();
+                final View focusedItemView = findContainingItemView(focused);
+                if (focusedItemView == null) {
+                    // panic, focused view is not a child anymore, cannot call super.
+                    return null;
+                }
+                startInterceptRequestLayout();
+                result = mLayout.onFocusSearchFailed(focused, direction, mRecycler, mState);
+                stopInterceptRequestLayout(false);
+            }
         }
-
         if (result != null && !result.hasFocusable()) {
             if (getFocusedChild() == null) {
                 // Scrolling to this unfocusable view is not meaningful since there is no currently
@@ -2626,8 +2601,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             requestChildOnScreen(result, null);
             return focused;
         }
-
-        return isNextFocusPreferred(focused, result, direction)
+        return isPreferredNextFocus(focused, result, direction)
                 ? result : super.focusSearch(focused, direction);
     }
 
@@ -2639,8 +2613,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * When this method returns false, RecyclerView will let the parent make the decision so the
      * same View may still get the focus as a result of that search.
      */
-    private boolean isNextFocusPreferred(@Nullable View focused, @Nullable View next,
-            int direction) {
+    private boolean isPreferredNextFocus(View focused, View next, int direction) {
         if (next == null || next == this) {
             return false;
         }
