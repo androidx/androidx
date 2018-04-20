@@ -474,8 +474,7 @@ public class MediaController2 implements AutoCloseable {
             bundle.putInt(KEY_MAX_VOLUME, mMaxVolume);
             bundle.putInt(KEY_CURRENT_VOLUME, mCurrentVolume);
             if (mAudioAttrsCompat != null) {
-                bundle.putParcelable(KEY_AUDIO_ATTRIBUTES,
-                        MediaUtils2.toAudioAttributesBundle(mAudioAttrsCompat));
+                bundle.putBundle(KEY_AUDIO_ATTRIBUTES, mAudioAttrsCompat.toBundle());
             }
             return bundle;
         }
@@ -493,7 +492,7 @@ public class MediaController2 implements AutoCloseable {
             final int volumeControl = bundle.getInt(KEY_CONTROL_TYPE);
             final int maxVolume = bundle.getInt(KEY_MAX_VOLUME);
             final int currentVolume = bundle.getInt(KEY_CURRENT_VOLUME);
-            final AudioAttributesCompat attrs = MediaUtils2.fromAudioAttributesBundle(
+            final AudioAttributesCompat attrs = AudioAttributesCompat.fromBundle(
                     bundle.getBundle(KEY_AUDIO_ATTRIBUTES));
             return createPlaybackInfo(volumeType, attrs, volumeControl, maxVolume,
                     currentVolume);

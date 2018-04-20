@@ -16,8 +16,6 @@
 
 package androidx.media;
 
-import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_UNKNOWN;
-import static androidx.media.AudioAttributesCompat.USAGE_UNKNOWN;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_DESCRIPTION;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_ICON;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_ICON_URI;
@@ -45,10 +43,6 @@ import java.util.List;
 
 class MediaUtils2 {
     static final String TAG = "MediaUtils2";
-
-    static final String AUDIO_ATTRIBUTES_USAGE = "androidx.media.audio_attrs.USAGE";
-    static final String AUDIO_ATTRIBUTES_CONTENT_TYPE = "androidx.media.audio_attrs.CONTENT_TYPE";
-    static final String AUDIO_ATTRIBUTES_FLAGS = "androidx.media.audio_attrs.FLAGS";
 
     private MediaUtils2() {
     }
@@ -373,28 +367,6 @@ class MediaUtils2 {
             }
         }
         return layout;
-    }
-
-    static Bundle toAudioAttributesBundle(AudioAttributesCompat attrs) {
-        if (attrs == null) {
-            return null;
-        }
-        Bundle bundle = new Bundle();
-        bundle.putInt(AUDIO_ATTRIBUTES_USAGE, attrs.getUsage());
-        bundle.putInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, attrs.getContentType());
-        bundle.putInt(AUDIO_ATTRIBUTES_FLAGS, attrs.getFlags());
-        return bundle;
-    }
-
-    static AudioAttributesCompat fromAudioAttributesBundle(Bundle bundle) {
-        if (bundle == null) {
-            return null;
-        }
-        return new AudioAttributesCompat.Builder()
-                .setUsage(bundle.getInt(AUDIO_ATTRIBUTES_USAGE, USAGE_UNKNOWN))
-                .setContentType(bundle.getInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, CONTENT_TYPE_UNKNOWN))
-                .setFlags(bundle.getInt(AUDIO_ATTRIBUTES_FLAGS, 0))
-                .build();
     }
 
     static List<Bundle> toBundleList(Parcelable[] array) {

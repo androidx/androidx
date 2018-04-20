@@ -52,7 +52,6 @@ import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -236,7 +235,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(currentMediaItem, controller.getCurrentMediaItem());
     }
 
-    @Ignore
     @Test
     public void testUpdatePlayer() throws InterruptedException {
         prepareLooper();
