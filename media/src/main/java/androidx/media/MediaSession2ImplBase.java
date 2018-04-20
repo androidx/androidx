@@ -165,6 +165,10 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             mVolumeProvider = volumeProvider;
             mPlaybackInfo = info;
         }
+        if (volumeProvider == null) {
+            int stream = getLegacyStreamType(player.getAudioAttributes());
+            mSessionCompat.setPlaybackToLocal(stream);
+        }
         if (player != oldPlayer) {
             player.registerPlayerEventCallback(mCallbackExecutor, mPlayerEventCallback);
             if (oldPlayer != null) {
@@ -203,19 +207,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             AudioAttributesCompat attrs) {
         PlaybackInfo info;
         if (volumeProvider == null) {
-            int stream;
-            if (attrs == null) {
-                stream = AudioManager.STREAM_MUSIC;
-            } else {
-                stream = attrs.getVolumeControlStream();
-                if (stream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
-                    // It may happen if the AudioAttributes doesn't have usage.
-                    // Change it to the STREAM_MUSIC because it's not supported by audio manager
-                    // for querying volume level.
-                    stream = AudioManager.STREAM_MUSIC;
-                }
-            }
-
+            int stream = getLegacyStreamType(attrs);
             int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
             if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
                 controlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
@@ -235,6 +227,23 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     volumeProvider.getCurrentVolume());
         }
         return info;
+    }
+
+    private int getLegacyStreamType(@Nullable AudioAttributesCompat attrs) {
+        int stream;
+        if (attrs == null) {
+            stream = AudioManager.STREAM_MUSIC;
+        } else {
+            stream = attrs.getLegacyStreamType();
+            if (stream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
+                // Usually, AudioAttributesCompat#getLegacyStreamType() does not return
+                // USE_DEFAULT_STREAM_TYPE unless the developer sets it with
+                // AudioAttributesCompat.Builder#setLegacyStreamType().
+                // But for safety, let's convert USE_DEFAULT_STREAM_TYPE to STREAM_MUSIC here.
+                stream = AudioManager.STREAM_MUSIC;
+            }
+        }
+        return stream;
     }
 
     @Override
@@ -811,6 +820,11 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @Override
     SessionCallback getCallback() {
         return mCallback;
+    }
+
+    @Override
+    MediaSessionCompat getSessionCompat() {
+        return mSessionCompat;
     }
 
     @Override

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -47,6 +48,7 @@ import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.MediaSession2.SessionCallback;
 import androidx.media.TestServiceRegistry.SessionServiceCallback;
 import androidx.media.TestUtils.SyncHandler;
+import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Before;
@@ -78,6 +80,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     MediaController2 mController;
     MockPlayer mPlayer;
     MockPlaylistAgent mMockAgent;
+    AudioManager mAudioManager;
 
     @Before
     @Override
@@ -112,6 +115,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 .setSessionActivity(mIntent)
                 .setId(TAG).build();
         mController = createController(mSession.getToken());
+        mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         TestServiceRegistry.getInstance().setHandler(sHandler);
     }
 
@@ -684,7 +688,6 @@ public class MediaController2Test extends MediaSession2TestBase {
 
     @Test
     public void testSetVolumeTo() throws Exception {
-        // TODO(jaewan): Also test with local volume.
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
@@ -704,7 +707,6 @@ public class MediaController2Test extends MediaSession2TestBase {
 
     @Test
     public void testAdjustVolume() throws Exception {
-        // TODO(jaewan): Also test with local volume.
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
@@ -720,6 +722,87 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(volumeProvider.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(volumeProvider.mAdjustVolumeCalled);
         assertEquals(direction, volumeProvider.mDirection);
+    }
+
+    @Test
+    public void testSetVolumeWithLocalVolume() throws Exception {
+        prepareLooper();
+        if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            // This test is not eligible for this device.
+            return;
+        }
+
+        // Here, we intentionally choose STREAM_ALARM in order not to consider
+        // 'Do Not Disturb' or 'Volume limit'.
+        final int stream = AudioManager.STREAM_ALARM;
+        final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
+        final int minVolume = 0;
+        if (maxVolume <= minVolume) {
+            return;
+        }
+
+        // Set stream of the session.
+        AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(stream)
+                .build();
+        mPlayer.setAudioAttributes(attrs);
+        mSession.updatePlayer(mPlayer, null, null);
+
+        final int originalVolume = mAudioManager.getStreamVolume(stream);
+        final int targetVolume = originalVolume == minVolume
+                ? originalVolume + 1 : originalVolume - 1;
+
+        mController.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
+        new PollingCheck(WAIT_TIME_MS) {
+            @Override
+            protected boolean check() {
+                return targetVolume == mAudioManager.getStreamVolume(stream);
+            }
+        }.run();
+
+        // Set back to original volume.
+        mAudioManager.setStreamVolume(stream, originalVolume, 0 /* flags */);
+    }
+
+    @Test
+    public void testAdjustVolumeWithLocalVolume() throws Exception {
+        prepareLooper();
+        if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            // This test is not eligible for this device.
+            return;
+        }
+
+        // Here, we intentionally choose STREAM_ALARM in order not to consider
+        // 'Do Not Disturb' or 'Volume limit'.
+        final int stream = AudioManager.STREAM_ALARM;
+        final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
+        final int minVolume = 0;
+        if (maxVolume <= minVolume) {
+            return;
+        }
+
+        // Set stream of the session.
+        AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(stream)
+                .build();
+        mPlayer.setAudioAttributes(attrs);
+        mSession.updatePlayer(mPlayer, null, null);
+
+        final int originalVolume = mAudioManager.getStreamVolume(stream);
+        final int direction = originalVolume == minVolume
+                ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+        final int targetVolume = originalVolume + direction;
+
+        mController.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
+        new PollingCheck(WAIT_TIME_MS) {
+            @Override
+            protected boolean check() {
+                return targetVolume == mAudioManager.getStreamVolume(stream);
+            }
+        }.run();
+
+        // Set back to original volume.
+        mAudioManager.setStreamVolume(stream, originalVolume, 0 /* flags */);
     }
 
     @Test
