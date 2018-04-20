@@ -19,7 +19,9 @@ package androidx.media;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -28,6 +30,7 @@ import androidx.media.MediaMetadata2.Builder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MediaMetadata2Test {

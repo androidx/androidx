@@ -134,6 +134,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.BundleCompat;
 import androidx.media.MediaPlaylistAgent.RepeatMode;
 import androidx.media.MediaPlaylistAgent.ShuffleMode;
 import androidx.media.MediaSession2.CommandButton;
@@ -829,7 +830,12 @@ public class MediaController2 implements AutoCloseable {
                 return;
             }
             mHandler.removeCallbacksAndMessages(null);
-            mHandlerThread.quitSafely();
+
+            if (Build.VERSION.SDK_INT >= 18) {
+                mHandlerThread.quitSafely();
+            } else {
+                mHandlerThread.quit();
+            }
 
             mIsReleased = true;
 
@@ -1780,7 +1786,8 @@ public class MediaController2 implements AutoCloseable {
             controller = mControllerCompat;
             callback = mControllerCompatCallback;
         }
-        args.putBinder(ARGUMENT_ICONTROLLER_CALLBACK, callback.getIControllerCallback().asBinder());
+        BundleCompat.putBinder(args, ARGUMENT_ICONTROLLER_CALLBACK,
+                callback.getIControllerCallback().asBinder());
         args.putString(ARGUMENT_PACKAGE_NAME, mContext.getPackageName());
         args.putInt(ARGUMENT_UID, Process.myUid());
         args.putInt(ARGUMENT_PID, Process.myPid());

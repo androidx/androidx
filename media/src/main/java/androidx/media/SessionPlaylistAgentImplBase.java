@@ -18,12 +18,12 @@ package androidx.media;
 
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.util.ArrayMap;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.collection.ArrayMap;
 import androidx.media.MediaPlayerBase.PlayerEventCallback;
 import androidx.media.MediaSession2.OnDataSourceMissingHelper;
 
