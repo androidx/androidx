@@ -146,6 +146,17 @@ public final class TestUtils {
     }
 
     /**
+     * Create a bundle for testing purpose.
+     *
+     * @return the newly created bundle.
+     */
+    public static Bundle createTestBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString("test_key", "test_value");
+        return bundle;
+    }
+
+    /**
      * Handler that always waits until the Runnable finishes.
      */
     public static class SyncHandler extends Handler {

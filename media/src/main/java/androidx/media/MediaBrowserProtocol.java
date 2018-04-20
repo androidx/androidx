@@ -15,6 +15,7 @@
  */
 package androidx.media;
 
+import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 
 import androidx.annotation.RestrictTo;
@@ -34,6 +35,8 @@ public class MediaBrowserProtocol {
     public static final String DATA_MEDIA_ITEM_LIST = "data_media_item_list";
     public static final String DATA_MEDIA_SESSION_TOKEN = "data_media_session_token";
     public static final String DATA_OPTIONS = "data_options";
+    public static final String DATA_NOTIFY_CHILDREN_CHANGED_OPTIONS =
+            "data_notify_children_changed_options";
     public static final String DATA_PACKAGE_NAME = "data_package_name";
     public static final String DATA_RESULT_RECEIVER = "data_result_receiver";
     public static final String DATA_ROOT_HINTS = "data_root_hints";
@@ -95,6 +98,9 @@ public class MediaBrowserProtocol {
      *     DATA_MEDIA_ITEM_LIST : An array list for the media item children
      *     DATA_OPTIONS : A bundle of service-specific arguments sent from the media browse to
      *                    the media browser service
+     *     DATA_NOTIFY_CHILDREN_CHANGED_OPTIONS : A bundle of service-specific arguments sent from
+     *                    the media browser service to the media browser by calling
+     *                    {@link MediaBrowserServiceCompat#notifyChildrenChanged(String, Bundle)}
      */
     public static final int SERVICE_MSG_ON_LOAD_CHILDREN = 3;
 
