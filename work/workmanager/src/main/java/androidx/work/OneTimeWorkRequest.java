@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * A class that represents a request for non-repeating work.
  */
 
-public class OneTimeWorkRequest extends WorkRequest {
+public final class OneTimeWorkRequest extends WorkRequest {
 
     /**
      * Creates an array of {@link OneTimeWorkRequest} with defaults from an array of
@@ -68,7 +68,7 @@ public class OneTimeWorkRequest extends WorkRequest {
     /**
      * Builder for {@link OneTimeWorkRequest} class.
      */
-    public static class Builder extends WorkRequest.Builder<Builder, OneTimeWorkRequest> {
+    public static final class Builder extends WorkRequest.Builder<Builder, OneTimeWorkRequest> {
 
         public Builder(@NonNull Class<? extends Worker> workerClass) {
             super(workerClass);

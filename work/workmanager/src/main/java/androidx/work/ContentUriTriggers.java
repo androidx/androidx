@@ -32,7 +32,7 @@ import java.util.Set;
 /**
  * Stores a set of {@link Trigger}s
  */
-public class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> {
+public final class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> {
     private final Set<Trigger> mTriggers = new HashSet<>();
 
     /**
@@ -157,7 +157,7 @@ public class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> 
      * Defines a content {@link Uri} trigger for a {@link WorkRequest}
      */
 
-    public static class Trigger {
+    public static final class Trigger {
         @NonNull
         private final Uri mUri;
         private final boolean mTriggerForDescendants;
