@@ -428,7 +428,7 @@ public final class Data {
     /**
      * A builder for {@link Data}.
      */
-    public static class Builder {
+    public static final class Builder {
 
         private Map<String, Object> mValues = new HashMap<>();
 

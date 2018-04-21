@@ -25,7 +25,7 @@ import android.support.annotation.RequiresApi;
 /**
  * The constraints that can be applied to one {@link WorkRequest}.
  */
-public class Constraints {
+public final class Constraints {
 
     public static final Constraints NONE = new Constraints.Builder().build();
 
@@ -165,7 +165,7 @@ public class Constraints {
     /**
      * Builder for {@link Constraints} class.
      */
-    public static class Builder {
+    public static final class Builder {
         private boolean mRequiresCharging = false;
         private boolean mRequiresDeviceIdle = false;
         private NetworkType mRequiredNetworkType = NetworkType.NOT_REQUIRED;
