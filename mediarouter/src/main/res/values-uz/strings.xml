@@ -31,10 +31,10 @@
     <string name="mr_controller_pause" msgid="4701315813294065305">"Pauza"</string>
     <string name="mr_controller_stop" msgid="5106056093749454009">"To‘xtatish"</string>
     <string name="mr_controller_expand_group" msgid="2422682304043876468">"Yoyish"</string>
-    <string name="mr_controller_collapse_group" msgid="5518911192681928413">"Yig‘ish"</string>
+    <string name="mr_controller_collapse_group" msgid="5518911192681928413">"Kichraytirish"</string>
     <string name="mr_controller_album_art" msgid="5813284753012893250">"Albom muqovasi"</string>
     <string name="mr_controller_volume_slider" msgid="691656961160498512">"Tovush balandligi slayderi"</string>
-    <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"Multimedia tanlamagan"</string>
-    <string name="mr_controller_no_info_available" msgid="7299368841849988218">"Ma’lumot yo‘q"</string>
+    <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"Hech narsa tanlanmagan"</string>
+    <string name="mr_controller_no_info_available" msgid="7299368841849988218">"Hech narsa topilmadi"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"Ekran namoyish qilinmoqda"</string>
 </resources>

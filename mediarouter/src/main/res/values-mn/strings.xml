@@ -18,10 +18,10 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="3117964881088969586">"Систем"</string>
     <string name="mr_user_route_category_name" msgid="8236416097133080726">"Төхөөрөмжүүд"</string>
-    <string name="mr_button_content_description" msgid="1685185767093348095">"Cast товчлуур"</string>
-    <string name="mr_cast_button_disconnected" msgid="5501231066847739632">"Cast товчлуур. Салсан"</string>
-    <string name="mr_cast_button_connecting" msgid="8959304318293841992">"Cast товчлуур. Холбогдож байна"</string>
-    <string name="mr_cast_button_connected" msgid="1350095112462806159">"Cast товчлуур. Холбогдсон"</string>
+    <string name="mr_button_content_description" msgid="1685185767093348095">"Дамжуулах товчлуур"</string>
+    <string name="mr_cast_button_disconnected" msgid="5501231066847739632">"Дамжуулах товчлуур. Салсан"</string>
+    <string name="mr_cast_button_connecting" msgid="8959304318293841992">"Дамжуулах товчлуур. Холбогдож байна"</string>
+    <string name="mr_cast_button_connected" msgid="1350095112462806159">"Дамжуулах товчлуур. Холбогдсон"</string>
     <string name="mr_chooser_title" msgid="7548226170787476564">"Дараахад дамжуулах"</string>
     <string name="mr_chooser_searching" msgid="5504553798429329689">"Төхөөрөмжүүдийг хайж байна"</string>
     <string name="mr_controller_disconnect" msgid="1370654436555555647">"Салгах"</string>
@@ -33,7 +33,7 @@
     <string name="mr_controller_expand_group" msgid="2422682304043876468">"Дэлгэх"</string>
     <string name="mr_controller_collapse_group" msgid="5518911192681928413">"Буулгах"</string>
     <string name="mr_controller_album_art" msgid="5813284753012893250">"Цомгийн зураг"</string>
-    <string name="mr_controller_volume_slider" msgid="691656961160498512">"Дууны түвшин тааруулагч"</string>
+    <string name="mr_controller_volume_slider" msgid="691656961160498512">"Дууны түвшин тохируулагч"</string>
     <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"Ямар ч медиа сонгоогүй байна"</string>
     <string name="mr_controller_no_info_available" msgid="7299368841849988218">"Мэдээлэл алга"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"Дэлгэцийг дамжуулж байна"</string>

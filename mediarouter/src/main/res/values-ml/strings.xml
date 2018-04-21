@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="mr_system_route_name" msgid="3117964881088969586">"സിസ്റ്റം"</string>
+    <string name="mr_user_route_category_name" msgid="8236416097133080726">"ഉപകരണങ്ങൾ"</string>
+    <string name="mr_button_content_description" msgid="1685185767093348095">"കാസ്റ്റ് ബട്ടൺ"</string>
+    <string name="mr_cast_button_disconnected" msgid="5501231066847739632">"കാസ്റ്റ് ബട്ടൺ. വിച്ഛേദിച്ചു"</string>
+    <string name="mr_cast_button_connecting" msgid="8959304318293841992">"കാസ്‌റ്റ് ബട്ടൺ. കണക്‌റ്റ് ചെയ്യുന്നു"</string>
+    <string name="mr_cast_button_connected" msgid="1350095112462806159">"കാസ്റ്റ് ബട്ടൺ. കണക്‌റ്റ് ചെയ്തു"</string>
+    <string name="mr_chooser_title" msgid="7548226170787476564">"ഇതിലേക്ക് കാസ്‌റ്റ് ചെയ്യുക"</string>
+    <string name="mr_chooser_searching" msgid="5504553798429329689">"ഉപകരണങ്ങൾ കണ്ടെത്തുന്നു"</string>
+    <string name="mr_controller_disconnect" msgid="1370654436555555647">"വിച്ഛേദിക്കുക"</string>
+    <string name="mr_controller_stop_casting" msgid="7617024847862349259">"കാസ്റ്റ് ചെയ്യുന്നത് നിർത്തുക"</string>
+    <string name="mr_controller_close_description" msgid="5468775621814500662">"അടയ്ക്കുക"</string>
+    <string name="mr_controller_play" msgid="4443315438268112801">"പ്ലേ ചെയ്യുക"</string>
+    <string name="mr_controller_pause" msgid="4701315813294065305">"തൽക്കാലം നിർത്തുക"</string>
+    <string name="mr_controller_stop" msgid="5106056093749454009">"നിര്‍ത്തുക"</string>
+    <string name="mr_controller_expand_group" msgid="2422682304043876468">"വികസിപ്പിക്കുക"</string>
+    <string name="mr_controller_collapse_group" msgid="5518911192681928413">"ചുരുക്കുക"</string>
+    <string name="mr_controller_album_art" msgid="5813284753012893250">"ആൽബം ആർട്ട്"</string>
+    <string name="mr_controller_volume_slider" msgid="691656961160498512">"വോളിയം സ്ലൈഡർ"</string>
+    <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"മീഡിയയൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല"</string>
+    <string name="mr_controller_no_info_available" msgid="7299368841849988218">"വിവരങ്ങളൊന്നും ലഭ്യമല്ല"</string>
+    <string name="mr_controller_casting_screen" msgid="5286734709674025661">"സ്‌ക്രീൻ കാസ്‌റ്റ് ചെയ്യുന്നു"</string>
+</resources>
