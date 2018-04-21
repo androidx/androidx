@@ -27,6 +27,7 @@ import android.arch.persistence.room.integration.testapp.vo.EmbeddedUserAndAllPe
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
+import android.arch.persistence.room.integration.testapp.vo.UserAndGenericPet;
 import android.arch.persistence.room.integration.testapp.vo.UserAndPet;
 import android.arch.persistence.room.integration.testapp.vo.UserAndPetAdoptionDates;
 import android.arch.persistence.room.integration.testapp.vo.UserAndPetNonNull;
@@ -41,6 +42,9 @@ import io.reactivex.Flowable;
 public interface UserPetDao {
     @Query("SELECT * FROM User u, Pet p WHERE u.mId = p.mUserId")
     List<UserAndPet> loadAll();
+
+    @Query("SELECT * FROM User u, Pet p WHERE u.mId = p.mUserId")
+    List<UserAndGenericPet> loadAllGeneric();
 
     @Query("SELECT * FROM User u LEFT OUTER JOIN Pet p ON u.mId = p.mUserId")
     List<UserAndPet> loadUsers();

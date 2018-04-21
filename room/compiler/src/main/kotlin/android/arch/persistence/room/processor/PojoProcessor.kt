@@ -364,8 +364,9 @@ class PojoProcessor(
 
     private fun processEmbeddedField(
             declaredType: DeclaredType?, variableElement: VariableElement): EmbeddedField? {
-
-        val asTypeElement = MoreTypes.asTypeElement(variableElement.asType())
+        val asMemberType = MoreTypes.asMemberOf(
+            context.processingEnv.typeUtils, declaredType, variableElement)
+        val asTypeElement = MoreTypes.asTypeElement(asMemberType)
 
         if (detectReferenceRecursion(asTypeElement)) {
             return null
@@ -379,10 +380,7 @@ class PojoProcessor(
         val embeddedField = Field(
                 variableElement,
                 variableElement.simpleName.toString(),
-                type = context
-                        .processingEnv
-                        .typeUtils
-                        .asMemberOf(declaredType, variableElement),
+                type = asMemberType,
                 affinity = null,
                 parent = parent)
         val subParent = EmbeddedField(
