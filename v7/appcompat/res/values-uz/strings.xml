@@ -32,7 +32,7 @@
     <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> orqali ulashish"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Ruxsat berish"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"YONIQ"</string>
-    <string name="abc_capital_off" msgid="121134116657445385">"O‘CHIQ"</string>
+    <string name="abc_capital_off" msgid="121134116657445385">"YOQILMAGAN"</string>
     <string name="search_menu_title" msgid="146198913615257606">"Qidirish"</string>
     <string name="abc_prepend_shortcut_label" msgid="1351762916121158029">"Menyu+"</string>
     <string name="abc_menu_meta_shortcut_label" msgid="7643535737296831317">"Meta+"</string>
