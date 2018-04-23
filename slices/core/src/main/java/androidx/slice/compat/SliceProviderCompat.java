@@ -136,7 +136,7 @@ public class SliceProviderCompat {
 
             Slice s = handleBindSlice(uri, specs, getCallingPackage());
             Bundle b = new Bundle();
-            b.putParcelable(EXTRA_SLICE, s.toBundle());
+            b.putParcelable(EXTRA_SLICE, s != null ? s.toBundle() : null);
             return b;
         } else if (method.equals(METHOD_MAP_INTENT)) {
             Intent intent = extras.getParcelable(EXTRA_INTENT);
@@ -145,7 +145,7 @@ public class SliceProviderCompat {
             if (uri != null) {
                 Set<SliceSpec> specs = getSpecs(extras);
                 Slice s = handleBindSlice(uri, specs, getCallingPackage());
-                b.putParcelable(EXTRA_SLICE, s.toBundle());
+                b.putParcelable(EXTRA_SLICE, s != null ? s.toBundle() : null);
             } else {
                 b.putParcelable(EXTRA_SLICE, null);
             }
