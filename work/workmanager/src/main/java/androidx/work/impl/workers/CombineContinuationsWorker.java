@@ -22,13 +22,12 @@ import android.support.annotation.RestrictTo;
 import androidx.work.Worker;
 
 /**
- * Is a implementation of the {@link Worker} that helps join
- * work continuations.
+ * A {@link Worker} that helps combine work continuations.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class JoinWorker extends Worker {
+public class CombineContinuationsWorker extends Worker {
     @Override
     public @NonNull WorkerResult doWork() {
         setOutputData(getInputData());
