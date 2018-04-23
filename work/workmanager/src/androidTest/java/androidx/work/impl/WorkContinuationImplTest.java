@@ -113,7 +113,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     public void tearDown() {
         List<String> ids = mDatabase.workSpecDao().getAllWorkSpecIds();
         for (String id : ids) {
-            mWorkManagerImpl.cancelWorkByIdBlocking(id);
+            mWorkManagerImpl.cancelWorkByIdSync(id);
         }
         WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
@@ -154,7 +154,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl continuation = new WorkContinuationImpl(mWorkManagerImpl,
                 createTestWorkerList());
         assertThat(continuation.isEnqueued(), is(false));
-        continuation.enqueueBlocking();
+        continuation.enqueueSync();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
     }
@@ -165,7 +165,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 new WorkContinuationImpl(mWorkManagerImpl, createTestWorkerList());
         WorkContinuationImpl chain = (WorkContinuationImpl) (
                 continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
-        chain.enqueueBlocking();
+        chain.enqueueSync();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
     }
@@ -176,11 +176,11 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 new WorkContinuationImpl(mWorkManagerImpl, createTestWorkerList());
         WorkContinuationImpl chain = (WorkContinuationImpl) (
                 continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
-        chain.enqueueBlocking();
+        chain.enqueueSync();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
         WorkContinuationImpl spy = spy(chain);
-        spy.enqueueBlocking();
+        spy.enqueueSync();
         // Verify no more calls to markEnqueued().
         verify(spy, times(0)).markEnqueued();
     }
@@ -232,7 +232,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 fourth);
         WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(
                 firstDependent, secondDependent);
-        dependent.enqueueBlocking();
+        dependent.enqueueSync();
         verifyEnqueued(dependent);
         verifyScheduled(mScheduler, dependent);
     }
@@ -251,7 +251,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 third);
         WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(
                 firstDependent, secondDependent);
-        dependent.enqueueBlocking();
+        dependent.enqueueSync();
         verifyEnqueued(dependent);
         verifyScheduled(mScheduler, dependent);
     }
@@ -287,7 +287,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(secondWork));
         WorkContinuationImpl dependentContinuation =
                 (WorkContinuationImpl) WorkContinuation.join(firstContinuation, secondContinuation);
-        dependentContinuation.enqueueBlocking();
+        dependentContinuation.enqueueSync();
 
         String joinId = null;
         for (String id : dependentContinuation.getAllIds()) {
