@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * A simple class with the id of a {@link WorkRequest}, its current {@link State}, output, and
@@ -30,13 +31,13 @@ import java.util.Set;
 
 public final class WorkStatus {
 
-    private String mId;
-    private State mState;
-    private Data mOutputData;
-    private Set<String> mTags;
+    private @NonNull UUID mId;
+    private @NonNull State mState;
+    private @NonNull Data mOutputData;
+    private @NonNull Set<String> mTags;
 
     public WorkStatus(
-            @NonNull String id,
+            @NonNull UUID id,
             @NonNull State state,
             @NonNull Data outputData,
             @NonNull List<String> tags) {
@@ -46,7 +47,7 @@ public final class WorkStatus {
         mTags = new HashSet<>(tags);
     }
 
-    public @NonNull String getId() {
+    public @NonNull UUID getId() {
         return mId;
     }
 

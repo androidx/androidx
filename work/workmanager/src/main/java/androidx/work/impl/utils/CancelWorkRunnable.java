@@ -34,6 +34,7 @@ import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkSpecDao;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A {@link Runnable} to cancel work.
@@ -83,13 +84,13 @@ public abstract class CancelWorkRunnable implements Runnable {
      * @return A {@link Runnable} that cancels work for a specific id
      */
     public static Runnable forId(
-            @NonNull final String id,
+            @NonNull final UUID id,
             @NonNull final WorkManagerImpl workManagerImpl) {
         return new CancelWorkRunnable() {
             @WorkerThread
             @Override
             public void run() {
-                cancel(workManagerImpl, id);
+                cancel(workManagerImpl, id.toString());
                 reschedulePendingWorkers(workManagerImpl);
             }
         };

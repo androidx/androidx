@@ -48,6 +48,7 @@ import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A concrete implementation of {@link WorkManager}.
@@ -242,13 +243,13 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public void cancelWorkById(@NonNull String id) {
+    public void cancelWorkById(@NonNull UUID id) {
         mTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forId(id, this));
     }
 
     @Override
     @WorkerThread
-    public void cancelWorkByIdSync(@NonNull String id) {
+    public void cancelWorkByIdSync(@NonNull UUID id) {
         assertBackgroundThread("Cannot cancelWorkByIdSync on main thread!");
         CancelWorkRunnable.forId(id, this).run();
     }
@@ -279,10 +280,10 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public LiveData<WorkStatus> getStatusById(@NonNull String id) {
+    public LiveData<WorkStatus> getStatusById(@NonNull UUID id) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
-                dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id));
+                dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id.toString()));
         return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData,
                 new Function<List<WorkSpec.WorkStatusPojo>, WorkStatus>() {
                     @Override
@@ -298,10 +299,10 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     @WorkerThread
-    public @Nullable WorkStatus getStatusByIdSync(@NonNull String id) {
+    public @Nullable WorkStatus getStatusByIdSync(@NonNull UUID id) {
         assertBackgroundThread("Cannot call getStatusByIdSync on main thread!");
         WorkSpec.WorkStatusPojo workStatusPojo =
-                mWorkDatabase.workSpecDao().getWorkStatusPojoForId(id);
+                mWorkDatabase.workSpecDao().getWorkStatusPojoForId(id.toString());
         if (workStatusPojo != null) {
             return workStatusPojo.toWorkStatus();
         } else {
