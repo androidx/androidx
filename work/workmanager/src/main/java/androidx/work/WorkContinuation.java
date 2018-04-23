@@ -65,12 +65,12 @@ public abstract class WorkContinuation {
     public abstract void enqueue();
 
     /**
-     * Gets an object that gives access to blocking (synchronous) methods.
+     * Gets an object that gives access to synchronous methods.
      *
-     * @return A {@link BlockingWorkContinuation} object, which gives access to blocking
-     *         (synchronous) methods
+     * @return A {@link SynchronousWorkContinuation} object, which gives access to synchronous
+     *         methods
      */
-    public abstract BlockingWorkContinuation blocking();
+    public abstract SynchronousWorkContinuation synchronous();
 
     /**
      * Joins multiple {@link WorkContinuation}s to allow for complex chaining.
