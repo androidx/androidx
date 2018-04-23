@@ -107,8 +107,8 @@ public class VideoViewTest extends FragmentActivity {
             mVideoView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                 @Override
                 public void onViewAttachedToWindow(View v) {
-                    mVideoView.getMediaController().getTransportControls().play();
                     mVideoView.getMediaController().registerCallback(mMediaControllerCallback);
+                    mVideoView.getMediaController().getTransportControls().play();
                 }
 
                 @Override
@@ -199,7 +199,7 @@ public class VideoViewTest extends FragmentActivity {
 
                 ViewGroup.LayoutParams params = mVideoView.getLayoutParams();
                 params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 mVideoView.setLayoutParams(params);
             } else {
                 // Restore notification bar

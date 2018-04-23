@@ -332,6 +332,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mMediaControlView = mediaControlView;
         mShowControllerIntervalMs = intervalMs;
         mMediaControlView.setRouteSelector(mRouteSelector);
+        mMediaControlView.setShowControllerInterval(intervalMs);
 
         if (mInstance.isAttachedToWindow()) {
             attachMediaControlView();
@@ -685,19 +686,13 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             Log.d(TAG, "onTouchEvent(). mCurrentState=" + mCurrentState
                     + ", mTargetState=" + mTargetState);
         }
-        if (ev.getAction() == MotionEvent.ACTION_UP && mMediaControlView != null) {
-            if (!mIsMusicMediaType || mSizeType != SIZE_TYPE_FULL) {
-                toggleMediaControlViewVisibility();
-            }
-        }
     }
 
     @Override
     public void onTrackballEventImpl(MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_UP && mMediaControlView != null) {
-            if (!mIsMusicMediaType || mSizeType != SIZE_TYPE_FULL) {
-                toggleMediaControlViewVisibility();
-            }
+        if (DEBUG) {
+            Log.d(TAG, "onTrackBallEvent(). mCurrentState=" + mCurrentState
+                    + ", mTargetState=" + mTargetState);
         }
     }
 
@@ -722,16 +717,13 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                     if (mSizeType != SIZE_TYPE_FULL) {
                         mSizeType = SIZE_TYPE_FULL;
-                        // Remove existing mFadeOut callback
-                        mMediaControlView.removeCallbacks(mFadeOut);
-                        mMediaControlView.setVisibility(View.VISIBLE);
+                        // TODO: remove MCV2 callback
                     }
                 } else {
                     if (mSizeType != SIZE_TYPE_EMBEDDED) {
                         mSizeType = SIZE_TYPE_EMBEDDED;
                         inflateMusicView(R.layout.embedded_music);
-                        // Add new mFadeOut callback
-                        mMediaControlView.postDelayed(mFadeOut, mShowControllerIntervalMs);
+                        // TODO: remove MCV2 callback
                     }
                 }
                 mPrevWidth = currWidth;
@@ -1031,37 +1023,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 return PlaybackStateCompat.STATE_STOPPED;
             default:
                 return -1;
-        }
-    }
-
-    private final Runnable mFadeOut = new Runnable() {
-        @Override
-        public void run() {
-            if (mCurrentState == STATE_PLAYING) {
-                mMediaControlView.setVisibility(View.GONE);
-            }
-        }
-    };
-
-    private void showController() {
-        if (mMediaControlView == null || !isInPlaybackState()
-                || (mIsMusicMediaType && mSizeType == SIZE_TYPE_FULL)) {
-            return;
-        }
-        mMediaControlView.removeCallbacks(mFadeOut);
-        mMediaControlView.setVisibility(View.VISIBLE);
-        if (mShowControllerIntervalMs != 0
-                && !mAccessibilityManager.isTouchExplorationEnabled()) {
-            mMediaControlView.postDelayed(mFadeOut, mShowControllerIntervalMs);
-        }
-    }
-
-    private void toggleMediaControlViewVisibility() {
-        if (mMediaControlView.getVisibility() == View.VISIBLE) {
-            mMediaControlView.removeCallbacks(mFadeOut);
-            mMediaControlView.setVisibility(View.GONE);
-        } else {
-            showController();
         }
     }
 
@@ -1477,7 +1438,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         break;
                 }
             }
-            showController();
         }
 
         @Override
@@ -1488,7 +1448,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     mCustomActionListenerRecord.second.onCustomAction(action, extras);
                 }
             });
-            showController();
         }
 
         @Override
@@ -1513,7 +1472,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 Log.d(TAG, "onPlay(). mCurrentState=" + mCurrentState
                         + ", mTargetState=" + mTargetState);
             }
-            showController();
         }
 
         @Override
@@ -1533,7 +1491,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 Log.d(TAG, "onPause(). mCurrentState=" + mCurrentState
                         + ", mTargetState=" + mTargetState);
             }
-            showController();
         }
 
         @Override
@@ -1552,7 +1509,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             } else {
                 mSeekWhenPrepared = pos;
             }
-            showController();
         }
 
         @Override
@@ -1562,7 +1518,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             } else {
                 resetPlayer();
             }
-            showController();
         }
     }
 }

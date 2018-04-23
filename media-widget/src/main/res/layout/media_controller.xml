@@ -127,6 +127,7 @@
     </LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/progress_bar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/mcv2_custom_progress_thumb_size">
 

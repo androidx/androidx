@@ -312,6 +312,7 @@ class VideoView2ImplBaseWithMp1
         mMediaControlView = mediaControlView;
         mShowControllerIntervalMs = intervalMs;
         mMediaControlView.setRouteSelector(mRouteSelector);
+        mMediaControlView.setShowControllerInterval(intervalMs);
 
         if (mInstance.isAttachedToWindow()) {
             attachMediaControlView();
@@ -659,19 +660,13 @@ class VideoView2ImplBaseWithMp1
             Log.d(TAG, "onTouchEvent(). mCurrentState=" + mCurrentState
                     + ", mTargetState=" + mTargetState);
         }
-        if (ev.getAction() == MotionEvent.ACTION_UP && mMediaControlView != null) {
-            if (!isMusicMediaType() || mSizeType != SIZE_TYPE_FULL) {
-                toggleMediaControlViewVisibility();
-            }
-        }
     }
 
     @Override
     public void onTrackballEventImpl(MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_UP && mMediaControlView != null) {
-            if (!isMusicMediaType() || mSizeType != SIZE_TYPE_FULL) {
-                toggleMediaControlViewVisibility();
-            }
+        if (DEBUG) {
+            Log.d(TAG, "onTrackBallEvent(). mCurrentState=" + mCurrentState
+                    + ", mTargetState=" + mTargetState);
         }
     }
 
@@ -696,16 +691,13 @@ class VideoView2ImplBaseWithMp1
 
                     if (mSizeType != SIZE_TYPE_FULL) {
                         mSizeType = SIZE_TYPE_FULL;
-                        // Remove existing mFadeOut callback
-                        mMediaControlView.removeCallbacks(mFadeOut);
-                        mMediaControlView.setVisibility(View.VISIBLE);
+                        // TODO: remove MCV2 callback
                     }
                 } else {
                     if (mSizeType != SIZE_TYPE_EMBEDDED) {
                         mSizeType = SIZE_TYPE_EMBEDDED;
                         inflateMusicView(R.layout.embedded_music);
-                        // Add new mFadeOut callback
-                        mMediaControlView.postDelayed(mFadeOut, mShowControllerIntervalMs);
+                        // TODO: remove MCV2 callback
                     }
                 }
                 mPrevWidth = currWidth;
@@ -985,37 +977,6 @@ class VideoView2ImplBaseWithMp1
                 return PlaybackStateCompat.STATE_STOPPED;
             default:
                 return -1;
-        }
-    }
-
-    private final Runnable mFadeOut = new Runnable() {
-        @Override
-        public void run() {
-            if (mCurrentState == STATE_PLAYING) {
-                mMediaControlView.setVisibility(View.GONE);
-            }
-        }
-    };
-
-    private void showController() {
-        if (mMediaControlView == null || !isInPlaybackState()
-                || (isMusicMediaType() && mSizeType == SIZE_TYPE_FULL)) {
-            return;
-        }
-        mMediaControlView.removeCallbacks(mFadeOut);
-        mMediaControlView.setVisibility(View.VISIBLE);
-        if (mShowControllerIntervalMs != 0
-                && !mAccessibilityManager.isTouchExplorationEnabled()) {
-            mMediaControlView.postDelayed(mFadeOut, mShowControllerIntervalMs);
-        }
-    }
-
-    private void toggleMediaControlViewVisibility() {
-        if (mMediaControlView.getVisibility() == View.VISIBLE) {
-            mMediaControlView.removeCallbacks(mFadeOut);
-            mMediaControlView.setVisibility(View.GONE);
-        } else {
-            showController();
         }
     }
 
@@ -1378,7 +1339,6 @@ class VideoView2ImplBaseWithMp1
                         break;
                 }
             }
-            showController();
         }
 
         @Override
@@ -1389,7 +1349,6 @@ class VideoView2ImplBaseWithMp1
                     mCustomActionListenerRecord.second.onCustomAction(action, extras);
                 }
             });
-            showController();
         }
 
         @Override
@@ -1414,7 +1373,6 @@ class VideoView2ImplBaseWithMp1
                 Log.d(TAG, "onPlay(). mCurrentState=" + mCurrentState
                         + ", mTargetState=" + mTargetState);
             }
-            showController();
         }
 
         @Override
@@ -1434,7 +1392,6 @@ class VideoView2ImplBaseWithMp1
                 Log.d(TAG, "onPause(). mCurrentState=" + mCurrentState
                         + ", mTargetState=" + mTargetState);
             }
-            showController();
         }
 
         @Override
@@ -1453,7 +1410,6 @@ class VideoView2ImplBaseWithMp1
             } else {
                 mSeekWhenPrepared = pos;
             }
-            showController();
         }
 
         @Override
@@ -1463,7 +1419,6 @@ class VideoView2ImplBaseWithMp1
             } else {
                 resetPlayer();
             }
-            showController();
         }
     }
 }
