@@ -129,7 +129,7 @@ public class MediaController2Test_copied extends MediaSession2TestBase {
 //                  mContext, MockMediaSessionService2.ID);
 //        assertNotNull(token);
 //        assertEquals(mContext.getPackageName(), token.getPackageName());
-//        assertEquals(MockMediaSessionService2.ID, token.getId());
+//        assertEquals(MockMediaSessionService2.ID, token.getSessionId());
 //        assertEquals(SessionToken2.TYPE_SESSION_SERVICE, token.getType());
 //    }
 //

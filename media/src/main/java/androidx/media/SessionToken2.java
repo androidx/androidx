@@ -24,8 +24,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.os.RemoteException;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -35,6 +38,7 @@ import androidx.annotation.RestrictTo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Represents an ongoing {@link MediaSession2} or a {@link MediaSessionService2}.
@@ -50,6 +54,10 @@ import java.util.List;
 //   - Represent session and library service (formerly browser service) in one class.
 //     Previously MediaSession.Token was for session and ComponentName was for service.
 public final class SessionToken2 {
+    private static final String TAG = "SessionToken2";
+
+    private static final long WAIT_TIME_MS_FOR_SESSION_READY = 300;
+
     /**
      * @hide
      */
@@ -74,25 +82,23 @@ public final class SessionToken2 {
      */
     public static final int TYPE_LIBRARY_SERVICE = 2;
 
-    //private final SessionToken2Provider mProvider;
+    /**
+     * Type for {@link MediaSessionCompat}.
+     */
+    static final int TYPE_SESSION_LEGACY = 100;
 
     // From the return value of android.os.Process.getUidForName(String) when error
-    private static final int UID_UNKNOWN = -1;
+    static final int UID_UNKNOWN = -1;
 
-    private static final String KEY_UID = "android.media.token.uid";
-    private static final String KEY_TYPE = "android.media.token.type";
-    private static final String KEY_PACKAGE_NAME = "android.media.token.package_name";
-    private static final String KEY_SERVICE_NAME = "android.media.token.service_name";
-    private static final String KEY_ID = "android.media.token.id";
-    private static final String KEY_SESSION_TOKEN = "android.media.token.session_token";
+    static final String KEY_UID = "android.media.token.uid";
+    static final String KEY_TYPE = "android.media.token.type";
+    static final String KEY_PACKAGE_NAME = "android.media.token.package_name";
+    static final String KEY_SERVICE_NAME = "android.media.token.service_name";
+    static final String KEY_SESSION_ID = "android.media.token.session_id";
+    static final String KEY_SESSION_BINDER = "android.media.token.session_binder";
+    static final String KEY_TOKEN_LEGACY = "android.media.token.LEGACY";
 
-    private final int mUid;
-    private final @TokenType int mType;
-    private final String mPackageName;
-    private final String mServiceName;
-    private final String mId;
-    private final MediaSessionCompat.Token mSessionCompatToken;
-    private final ComponentName mComponentName;
+    private final SupportLibraryImpl mImpl;
 
     /**
      * Constructor for the token. You can only create token for session service or library service
@@ -102,81 +108,20 @@ public final class SessionToken2 {
      * @param serviceComponent The component name of the media browser service.
      */
     public SessionToken2(@NonNull Context context, @NonNull ComponentName serviceComponent) {
-        this(context, serviceComponent, UID_UNKNOWN);
-    }
-
-    /**
-     * Constructor for the token. You can only create token for session service or library service
-     * to use by {@link MediaController2} or {@link MediaBrowser2}.
-     *
-     * @param context The context.
-     * @param serviceComponent The component name of the media browser service.
-     * @param uid uid of the app.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public SessionToken2(@NonNull Context context, @NonNull ComponentName serviceComponent,
-            int uid) {
-        if (serviceComponent == null) {
-            throw new IllegalArgumentException("serviceComponent shouldn't be null");
-        }
-        mComponentName = serviceComponent;
-        mPackageName = serviceComponent.getPackageName();
-        mServiceName = serviceComponent.getClassName();
-        // Calculate uid if it's not specified.
-        final PackageManager manager = context.getPackageManager();
-        if (uid < 0) {
-            try {
-                uid = manager.getApplicationInfo(mPackageName, 0).uid;
-            } catch (PackageManager.NameNotFoundException e) {
-                throw new IllegalArgumentException("Cannot find package " + mPackageName);
-            }
-        }
-        mUid = uid;
-
-        // Infer id and type from package name and service name
-        String id = getSessionIdFromService(manager, MediaLibraryService2.SERVICE_INTERFACE,
-                serviceComponent);
-        if (id != null) {
-            mId = id;
-            mType = TYPE_LIBRARY_SERVICE;
-        } else {
-            // retry with session service
-            mId = getSessionIdFromService(manager, MediaSessionService2.SERVICE_INTERFACE,
-                    serviceComponent);
-            mType = TYPE_SESSION_SERVICE;
-        }
-        if (mId == null) {
-            throw new IllegalArgumentException("service " + mServiceName + " doesn't implement"
-                    + " session service nor library service. Use service's full name.");
-        }
-        mSessionCompatToken = null;
+        mImpl = new SessionToken2ImplBase(context, serviceComponent);
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    SessionToken2(int uid, int type, String packageName, String serviceName,
-            String id, MediaSessionCompat.Token sessionCompatToken) {
-        mUid = uid;
-        mType = type;
-        mPackageName = packageName;
-        mServiceName = serviceName;
-        mComponentName = (mType == TYPE_SESSION) ? null
-                : new ComponentName(packageName, serviceName);
-        mId = id;
-        mSessionCompatToken = sessionCompatToken;
+    SessionToken2(SupportLibraryImpl impl) {
+        mImpl = impl;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        return mType
-                + prime * (mUid
-                + prime * (mPackageName.hashCode()
-                + prime * (mId.hashCode()
-                + prime * (mServiceName != null ? mServiceName.hashCode() : 0))));
+        return mImpl.hashCode();
     }
 
     @Override
@@ -185,38 +130,33 @@ public final class SessionToken2 {
             return false;
         }
         SessionToken2 other = (SessionToken2) obj;
-        return mUid == other.mUid
-                && TextUtils.equals(mPackageName, other.mPackageName)
-                && TextUtils.equals(mServiceName, other.mServiceName)
-                && TextUtils.equals(mId, other.mId)
-                && mType == other.mType;
+        return mImpl.equals(other.mImpl);
     }
 
     @Override
     public String toString() {
-        return "SessionToken {pkg=" + mPackageName + " id=" + mId + " type=" + mType
-                + " service=" + mServiceName + " sessionCompatToken=" + mSessionCompatToken + "}";
+        return mImpl.toString();
     }
 
     /**
      * @return uid of the session
      */
     public int getUid() {
-        return mUid;
+        return mImpl.getUid();
     }
 
     /**
      * @return package name
      */
     public @NonNull String getPackageName() {
-        return mPackageName;
+        return mImpl.getPackageName();
     }
 
     /**
      * @return service name. Can be {@code null} for TYPE_SESSION.
      */
     public @Nullable String getServiceName() {
-        return mServiceName;
+        return mImpl.getServiceName();
     }
 
     /**
@@ -225,14 +165,14 @@ public final class SessionToken2 {
      */
     @RestrictTo(LIBRARY_GROUP)
     public ComponentName getComponentName() {
-        return mComponentName;
+        return mImpl.getComponentName();
     }
 
     /**
      * @return id
      */
     public String getId() {
-        return mId;
+        return mImpl.getSessionId();
     }
 
     /**
@@ -242,47 +182,23 @@ public final class SessionToken2 {
      * @see #TYPE_LIBRARY_SERVICE
      */
     public @TokenType int getType() {
-        return mType;
+        return mImpl.getType();
     }
 
     /**
-     * Create a token from the bundle, exported by {@link #toBundle()}.
-     *
-     * @param bundle
-     * @return
+     * @hide
      */
-    public static SessionToken2 fromBundle(@NonNull Bundle bundle) {
-        if (bundle == null) {
-            return null;
-        }
-        final int uid = bundle.getInt(KEY_UID);
-        final @TokenType int type = bundle.getInt(KEY_TYPE, -1);
-        final String packageName = bundle.getString(KEY_PACKAGE_NAME);
-        final String serviceName = bundle.getString(KEY_SERVICE_NAME);
-        final String id = bundle.getString(KEY_ID);
-        final MediaSessionCompat.Token token = bundle.getParcelable(KEY_SESSION_TOKEN);
+    @RestrictTo(LIBRARY_GROUP)
+    public boolean isLegacySession() {
+        return mImpl instanceof SessionToken2ImplLegacy;
+    }
 
-        // Sanity check.
-        switch (type) {
-            case TYPE_SESSION:
-                if (token == null) {
-                    throw new IllegalArgumentException("Unexpected token for session,"
-                            + " SessionCompat.Token=" + token);
-                }
-                break;
-            case TYPE_SESSION_SERVICE:
-            case TYPE_LIBRARY_SERVICE:
-                if (TextUtils.isEmpty(serviceName)) {
-                    throw new IllegalArgumentException("Session service needs service name");
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid type");
-        }
-        if (TextUtils.isEmpty(packageName) || id == null) {
-            throw new IllegalArgumentException("Package name nor ID cannot be null.");
-        }
-        return new SessionToken2(uid, type, packageName, serviceName, id, token);
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public Object getBinder() {
+        return mImpl.getBinder();
     }
 
     /**
@@ -290,14 +206,85 @@ public final class SessionToken2 {
      * @return Bundle
      */
     public Bundle toBundle() {
-        Bundle bundle = new Bundle();
-        bundle.putInt(KEY_UID, mUid);
-        bundle.putString(KEY_PACKAGE_NAME, mPackageName);
-        bundle.putString(KEY_SERVICE_NAME, mServiceName);
-        bundle.putString(KEY_ID, mId);
-        bundle.putInt(KEY_TYPE, mType);
-        bundle.putParcelable(KEY_SESSION_TOKEN, mSessionCompatToken);
-        return bundle;
+        return mImpl.toBundle();
+    }
+
+    /**
+     * Create a token from the bundle, exported by {@link #toBundle()}.
+     *
+     * @param bundle
+     * @return SessionToken2 object
+     */
+    public static SessionToken2 fromBundle(@NonNull Bundle bundle) {
+        if (bundle == null) {
+            return null;
+        }
+
+        final int type = bundle.getInt(KEY_TYPE, -1);
+        if (type == TYPE_SESSION_LEGACY) {
+            return new SessionToken2(SessionToken2ImplLegacy.fromBundle(bundle));
+        } else {
+            return new SessionToken2(SessionToken2ImplBase.fromBundle(bundle));
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static void createSessionToken2(@NonNull final Context context,
+            @NonNull final MediaSessionCompat.Token token, @NonNull final Executor executor,
+            @NonNull final OnSessionToken2CreatedListener listener) {
+        if (context == null) {
+            throw new IllegalArgumentException("context shouldn't be null");
+        }
+        if (token == null) {
+            throw new IllegalArgumentException("token shouldn't be null");
+        }
+        if (executor == null) {
+            throw new IllegalArgumentException("executor shouldn't be null");
+        }
+        if (listener == null) {
+            throw new IllegalArgumentException("listener shouldn't be null");
+        }
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final MediaControllerCompat controller = new MediaControllerCompat(context,
+                                token);
+                    MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
+                        @Override
+                        public void onSessionReady() {
+                            synchronized (listener) {
+                                listener.onSessionToken2Created(token,
+                                        controller.getSessionToken2());
+                                listener.notify();
+                            }
+                        }
+                    };
+                    controller.registerCallback(callback);
+                    if (controller.isSessionReady()) {
+                        listener.onSessionToken2Created(token, controller.getSessionToken2());
+                    }
+                    synchronized (listener) {
+                        listener.wait(WAIT_TIME_MS_FOR_SESSION_READY);
+                        if (!controller.isSessionReady()) {
+                            // token for framework session.
+                            SessionToken2 token2 = new SessionToken2(
+                                    new SessionToken2ImplLegacy(token));
+                            token.setSessionToken2(token2);
+                            listener.onSessionToken2Created(token, token2);
+                        }
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Failed to create session token2.", e);
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "Failed to create session token2.", e);
+                }
+            }
+        });
     }
 
     /**
@@ -313,10 +300,6 @@ public final class SessionToken2 {
             return resolveInfo.serviceInfo.metaData.getString(
                     MediaSessionService2.SERVICE_META_DATA, "");
         }
-    }
-
-    MediaSessionCompat.Token getSessionCompatToken() {
-        return mSessionCompatToken;
     }
 
     private static String getSessionIdFromService(PackageManager manager, String serviceInterface,
@@ -342,5 +325,34 @@ public final class SessionToken2 {
             }
         }
         return null;
+    }
+
+    /**
+     * @hide
+     * Interface definition of a listener to be invoked when a {@link SessionToken2 token2} object
+     * is created from a {@link MediaSessionCompat.Token compat token}.
+     *
+     * @see #createSessionToken2
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public interface OnSessionToken2CreatedListener {
+        /**
+         * Called when SessionToken2 object is created.
+         *
+         * @param token the compat token used for creating {@code token2}
+         * @param token2 the created SessionToken2 object
+         */
+        void onSessionToken2Created(MediaSessionCompat.Token token, SessionToken2 token2);
+    }
+
+    interface SupportLibraryImpl {
+        int getUid();
+        @NonNull String getPackageName();
+        @Nullable String getServiceName();
+        @Nullable ComponentName getComponentName();
+        String getSessionId();
+        @TokenType int getType();
+        Bundle toBundle();
+        Object getBinder();
     }
 }

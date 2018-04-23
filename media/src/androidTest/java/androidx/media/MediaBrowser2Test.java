@@ -71,6 +71,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@Ignore
 public class MediaBrowser2Test extends MediaController2Test {
     private static final String TAG = "MediaBrowser2Test";
 

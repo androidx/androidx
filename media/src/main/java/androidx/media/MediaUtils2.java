@@ -306,6 +306,37 @@ class MediaUtils2 {
         }
     }
 
+    static List<Bundle> toMediaItem2BundleList(List<MediaItem2> playlist) {
+        if (playlist == null) {
+            return null;
+        }
+        List<Bundle> itemBundleList = new ArrayList<>();
+        for (int i = 0; i < playlist.size(); i++) {
+            final MediaItem2 item = playlist.get(i);
+            if (item != null) {
+                final Bundle itemBundle = item.toBundle();
+                if (itemBundle != null) {
+                    itemBundleList.add(itemBundle);
+                }
+            }
+        }
+        return itemBundleList;
+    }
+
+    static List<MediaItem2> fromMediaItem2BundleList(List<Bundle> itemBundleList) {
+        if (itemBundleList == null) {
+            return null;
+        }
+        List<MediaItem2> playlist = new ArrayList<>();
+        for (int i = 0; i < itemBundleList.size(); i++) {
+            final Bundle itemBundle = itemBundleList.get(i);
+            if (itemBundle != null) {
+                playlist.add(MediaItem2.fromBundle(itemBundle));
+            }
+        }
+        return playlist;
+    }
+
     static Parcelable[] toMediaItem2ParcelableArray(List<MediaItem2> playlist) {
         if (playlist == null) {
             return null;
@@ -337,6 +368,29 @@ class MediaUtils2 {
             }
         }
         return playlist;
+    }
+
+    static List<Bundle> toCommandButtonBundleList(List<CommandButton> commandButtonList) {
+        List<Bundle> commandButtonBundleList = new ArrayList<>();
+        for (int i = 0; i < commandButtonList.size(); i++) {
+            Bundle bundle = commandButtonList.get(i).toBundle();
+            if (bundle != null) {
+                commandButtonBundleList.add(bundle);
+            }
+        }
+        return commandButtonBundleList;
+    }
+
+    static List<CommandButton> fromCommandButtonBundleList(List<Bundle> commandButtonBundleList) {
+        List<CommandButton> commandButtonList = new ArrayList<>();
+        for (int i = 0; i < commandButtonBundleList.size(); i++) {
+            Bundle bundle = commandButtonBundleList.get(i);
+            if (bundle != null) {
+                commandButtonList.add(CommandButton.fromBundle(bundle));
+            }
+        }
+        return commandButtonList;
+
     }
 
     static Parcelable[] toCommandButtonParcelableArray(List<CommandButton> layout) {
