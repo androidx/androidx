@@ -45,7 +45,7 @@ public interface DependencyDao {
      */
     @Query("SELECT COUNT(*)=0 FROM dependency WHERE work_spec_id=:id AND prerequisite_id IN "
             + "(SELECT id FROM workspec WHERE state!="
-            + EnumTypeConverters.StateIds.SUCCEEDED + ")")
+            + WorkTypeConverters.StateIds.SUCCEEDED + ")")
     boolean hasCompletedAllPrerequisites(String id);
 
     /**
