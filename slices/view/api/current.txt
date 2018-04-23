@@ -26,6 +26,7 @@ package androidx.slice {
     method public static androidx.slice.SliceMetadata from(android.content.Context, androidx.slice.Slice);
     method public long getExpiry();
     method public int getHeaderType();
+    method public android.app.PendingIntent getInputRangeAction();
     method public long getLastUpdatedTime();
     method public int getLoadingState();
     method public androidx.slice.core.SliceAction getPrimaryAction();
