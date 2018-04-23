@@ -91,14 +91,14 @@ public class ArrayCreatingInputMergerTest {
     }
 
     @Test
-    public void testMerge_throwsIllegalStateExceptionOnDifferentTypes() {
+    public void testMerge_throwsIllegalArgumentExceptionOnDifferentTypes() {
         Throwable throwable = null;
         try {
             Data output = getOutputFor(mDataWithInt, mDataWithLong);
         } catch (Throwable t) {
             throwable = t;
         }
-        assertThat(throwable, instanceOf(IllegalStateException.class));
+        assertThat(throwable, instanceOf(IllegalArgumentException.class));
     }
 
     private Data getOutputFor(Data... inputs) {
