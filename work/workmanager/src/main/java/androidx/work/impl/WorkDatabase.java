@@ -16,9 +16,9 @@
 
 package androidx.work.impl;
 
-import static androidx.work.impl.model.EnumTypeConverters.StateIds.COMPLETED_STATES;
-import static androidx.work.impl.model.EnumTypeConverters.StateIds.ENQUEUED;
-import static androidx.work.impl.model.EnumTypeConverters.StateIds.RUNNING;
+import static androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES;
+import static androidx.work.impl.model.WorkTypeConverters.StateIds.ENQUEUED;
+import static androidx.work.impl.model.WorkTypeConverters.StateIds.RUNNING;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
@@ -29,19 +29,18 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
-import androidx.work.ContentUriTriggers;
 import androidx.work.Data;
 import androidx.work.impl.model.AlarmInfo;
 import androidx.work.impl.model.AlarmInfoDao;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
-import androidx.work.impl.model.EnumTypeConverters;
 import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkNameDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.model.WorkTagDao;
+import androidx.work.impl.model.WorkTypeConverters;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +60,7 @@ import java.util.concurrent.TimeUnit;
         WorkName.class},
         version = 1,
         exportSchema = false)
-@TypeConverters(value = {Data.class, ContentUriTriggers.class, EnumTypeConverters.class})
+@TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "androidx.work.workdb";
