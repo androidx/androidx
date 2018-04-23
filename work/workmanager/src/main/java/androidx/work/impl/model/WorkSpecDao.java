@@ -18,7 +18,7 @@ package androidx.work.impl.model;
 
 import static android.arch.persistence.room.OnConflictStrategy.IGNORE;
 
-import static androidx.work.impl.model.EnumTypeConverters.StateIds.COMPLETED_STATES;
+import static androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
@@ -262,7 +262,7 @@ public interface WorkSpecDao {
      * @return The List of {@link WorkSpec}s that are eligible to be scheduled.
      */
     @Query("SELECT * from workspec WHERE "
-            + "state=" + EnumTypeConverters.StateIds.ENQUEUED
+            + "state=" + WorkTypeConverters.StateIds.ENQUEUED
             + " LIMIT "
                 + "(SELECT " + Scheduler.MAX_SCHEDULER_LIMIT + "-COUNT(*) FROM workspec WHERE"
                     + " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
