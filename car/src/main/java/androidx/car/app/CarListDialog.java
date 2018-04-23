@@ -84,12 +84,12 @@ public class CarListDialog extends Dialog {
                 }
             };
 
-    private CarListDialog(Context context, DialogData dialogData) {
+    private CarListDialog(Context context, Builder builder) {
         super(context, getDialogTheme(context));
-        mInitialPosition = dialogData.mInitialPosition;
-        mOnClickListener = dialogData.mOnClickListener;
-        mTitle = dialogData.mTitle;
-        initializeAdapter(dialogData.mItems);
+        mInitialPosition = builder.mInitialPosition;
+        mOnClickListener = builder.mOnClickListener;
+        mTitle = builder.mTitle;
+        initializeAdapter(builder.mItems);
     }
 
     @Override
@@ -295,23 +295,16 @@ public class CarListDialog extends Dialog {
     }
 
     /**
-     * A class that holds the data that is settable by the {@link Builder} and should be displayed
-     * in the {@link CarListDialog}.
-     */
-    private static class DialogData {
-        private CharSequence mTitle;
-        private int mInitialPosition;
-        private String[] mItems;
-        private DialogInterface.OnClickListener mOnClickListener;
-    }
-
-    /**
      * Builder class that can be used to create a {@link CarListDialog} by configuring the
      * options for the list and behavior of the dialog.
      */
     public static final class Builder {
         private final Context mContext;
-        private final DialogData mDialogData = new DialogData();
+
+        private CharSequence mTitle;
+        private int mInitialPosition;
+        private String[] mItems;
+        private DialogInterface.OnClickListener mOnClickListener;
 
         private boolean mCancelable = true;
         private OnCancelListener mOnCancelListener;
@@ -333,7 +326,7 @@ public class CarListDialog extends Dialog {
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         public Builder setTitle(@StringRes int titleId) {
-            mDialogData.mTitle = mContext.getString(titleId);
+            mTitle = mContext.getString(titleId);
             return this;
         }
 
@@ -344,7 +337,7 @@ public class CarListDialog extends Dialog {
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         public Builder setTitle(CharSequence title) {
-            mDialogData.mTitle = title;
+            mTitle = title;
             return this;
         }
 
@@ -371,8 +364,8 @@ public class CarListDialog extends Dialog {
                 throw new IllegalArgumentException("Provided list of items cannot be empty.");
             }
 
-            mDialogData.mItems = items;
-            mDialogData.mOnClickListener = onClickListener;
+            mItems = items;
+            mOnClickListener = onClickListener;
             return this;
         }
 
@@ -387,7 +380,7 @@ public class CarListDialog extends Dialog {
             if (initialPosition < 0) {
                 throw new IllegalArgumentException("Initial position cannot be negative.");
             }
-            mDialogData.mInitialPosition = initialPosition;
+            mInitialPosition = initialPosition;
             return this;
         }
 
@@ -440,17 +433,17 @@ public class CarListDialog extends Dialog {
          * {@link androidx.fragment.app.DialogFragment} to show the dialog.
          */
         public CarListDialog create() {
-            if (mDialogData.mItems == null || mDialogData.mItems.length == 0) {
+            if (mItems == null || mItems.length == 0) {
                 throw new IllegalStateException(
                         "CarListDialog must be created with a non-empty list.");
             }
 
-            if (mDialogData.mInitialPosition >= mDialogData.mItems.length) {
+            if (mInitialPosition >= mItems.length) {
                 throw new IllegalStateException("Initial position is greater than the number of "
                         + "items in the list.");
             }
 
-            CarListDialog dialog = new CarListDialog(mContext, mDialogData);
+            CarListDialog dialog = new CarListDialog(mContext, /* builder= */ this);
 
             dialog.setCancelable(mCancelable);
             dialog.setCanceledOnTouchOutside(mCancelable);
