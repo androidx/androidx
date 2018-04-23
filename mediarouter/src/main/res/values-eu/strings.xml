@@ -29,7 +29,7 @@
     <string name="mr_controller_close_description" msgid="5468775621814500662">"Itxi"</string>
     <string name="mr_controller_play" msgid="4443315438268112801">"Erreproduzitu"</string>
     <string name="mr_controller_pause" msgid="4701315813294065305">"Pausatu"</string>
-    <string name="mr_controller_stop" msgid="5106056093749454009">"Utzi"</string>
+    <string name="mr_controller_stop" msgid="5106056093749454009">"Gelditu"</string>
     <string name="mr_controller_expand_group" msgid="2422682304043876468">"Zabaldu"</string>
     <string name="mr_controller_collapse_group" msgid="5518911192681928413">"Tolestu"</string>
     <string name="mr_controller_album_art" msgid="5813284753012893250">"Albumaren azala"</string>
