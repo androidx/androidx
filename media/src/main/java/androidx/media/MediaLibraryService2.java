@@ -68,8 +68,6 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
      */
     public static final String SERVICE_INTERFACE = "android.media.MediaLibraryService2";
 
-    // TODO: Revisit this value.
-
     /**
      * Session for the {@link MediaLibraryService2}. Build this object with
      * {@link Builder} and return in {@link #onCreateSession(String)}.
@@ -168,7 +166,6 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param parentId parent id
              * @see SessionCommand2#COMMAND_CODE_LIBRARY_UNSUBSCRIBE
              */
-            // TODO: Make this to be called.
             public void onUnsubscribe(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String parentId) {
             }
@@ -487,9 +484,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                 // controller.
                 return sDefaultBrowserRoot;
             }
-            // TODO: Revisit this when we support caller information.
-            final ControllerInfo info = new ControllerInfo(clientPackageName, -1, clientUid,
-                    null);
+            final ControllerInfo controller = getController();
             MediaLibrarySession session = getLibrarySession();
             // Call onGetLibraryRoot() directly instead of execute on the executor. Here's the
             // reason.
@@ -503,7 +498,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             // Because of the reason, just call onGetLibraryRoot directly here. onGetLibraryRoot()
             // has documentation that it may be called on the main thread.
             LibraryRoot libraryRoot = session.getCallback().onGetLibraryRoot(
-                    session, info, extras);
+                    session, controller, extras);
             if (libraryRoot == null) {
                 return null;
             }
@@ -613,7 +608,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
 
         @Override
         public void onCustomAction(String action, Bundle extras, Result<Bundle> result) {
-            // TODO: Implement
+            // No-op. Library session will handle the custom action.
         }
 
         private ControllerInfo getController() {
@@ -626,8 +621,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             }
 
             for (int i = 0; i < controllers.size(); i++) {
-                // TODO: This cannot pick the right controller between two controllers in
-                // same process.
+                // Note: This cannot pick the right controller between two controllers in same
+                // process.
                 ControllerInfo controller = controllers.get(i);
                 if (controller.getPackageName().equals(info.getPackageName())
                         && controller.getUid() == info.getUid()) {
