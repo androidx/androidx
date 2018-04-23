@@ -35,6 +35,7 @@ import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_PROGRESS;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -194,6 +195,23 @@ public class SliceMetadata {
             toggles = rc.getToggleItems();
         }
         return toggles;
+    }
+
+    /**
+     * Gets the input range action associated for this slice, if it exists.
+     *
+     * @return the {@link android.app.PendingIntent} for the input range.
+     */
+    @Nullable
+    public PendingIntent getInputRangeAction() {
+        if (mTemplateType == ROW_TYPE_SLIDER) {
+            RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+            SliceItem range = rc.getRange();
+            if (range != null) {
+                return range.getAction();
+            }
+        }
+        return null;
     }
 
     /**

@@ -262,7 +262,7 @@ public class SliceMetadataTest {
                 .setTitle("another title")
                 .setValue(5)
                 .setMax(10)
-                .setAction(pi));
+                .setInputAction(pi));
 
         Slice sliderSlice = lb.build();
         SliceMetadata sliderInfo = SliceMetadata.from(mContext, sliderSlice);
@@ -467,6 +467,31 @@ public class SliceMetadataTest {
     }
 
     @Test
+    public void testGetInputRangeAction() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        PendingIntent expectedIntent = getIntent("rangeintent");
+
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+        SliceAction primaryAction = new SliceAction(getIntent(""), icon, "action");
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.addInputRange(new ListBuilder.InputRangeBuilder(lb)
+                .setTitle("another title")
+                .setValue(7)
+                .setMin(5)
+                .setMax(10)
+                .setPrimaryAction(primaryAction)
+                .setInputAction(expectedIntent));
+        Slice sliderSlice = lb.build();
+
+        SliceMetadata sliderInfo = SliceMetadata.from(mContext, sliderSlice);
+        assertEquals(expectedIntent, sliderInfo.getInputRangeAction());
+        assertEquivalent(primaryAction, sliderInfo.getPrimaryAction());
+    }
+
+    @Test
     public void testGetRangeForProgress() {
         Uri uri = Uri.parse("content://pkg/slice");
 
@@ -549,9 +574,9 @@ public class SliceMetadataTest {
         long ttl = TimeUnit.DAYS.toMillis(1);
         Slice ttlSlice = new Slice.Builder(uri)
                 .addText("Some text", null)
-                .addTimestamp(timestamp, null)
-                .addTimestamp(timestamp, null, SliceHints.HINT_LAST_UPDATED)
-                .addTimestamp(ttl, null, SliceHints.HINT_TTL)
+                .addLong(timestamp, null)
+                .addLong(timestamp, null, SliceHints.HINT_LAST_UPDATED)
+                .addLong(ttl, null, SliceHints.HINT_TTL)
                 .build();
 
         SliceMetadata si1 = SliceMetadata.from(mContext, ttlSlice);
@@ -560,7 +585,7 @@ public class SliceMetadataTest {
 
         Slice noTtlSlice = new Slice.Builder(uri)
                 .addText("Some text", null)
-                .addTimestamp(timestamp, null).build();
+                .addLong(timestamp, null).build();
         SliceMetadata si2 = SliceMetadata.from(mContext, noTtlSlice);
         long retrievedTtl2 = si2.getExpiry();
         assertEquals(0, retrievedTtl2);
@@ -573,9 +598,9 @@ public class SliceMetadataTest {
         long ttl = TimeUnit.DAYS.toMillis(1);
         Slice ttlSlice = new Slice.Builder(uri)
                 .addText("Some text", null)
-                .addTimestamp(timestamp - 20, null)
-                .addTimestamp(timestamp, null, SliceHints.HINT_LAST_UPDATED)
-                .addTimestamp(ttl, null, SliceHints.HINT_TTL)
+                .addLong(timestamp - 20, null)
+                .addLong(timestamp, null, SliceHints.HINT_LAST_UPDATED)
+                .addLong(ttl, null, SliceHints.HINT_TTL)
                 .build();
 
         SliceMetadata si1 = SliceMetadata.from(mContext, ttlSlice);
@@ -584,7 +609,7 @@ public class SliceMetadataTest {
 
         Slice noTtlSlice = new Slice.Builder(uri)
                 .addText("Some text", null)
-                .addTimestamp(timestamp, null).build();
+                .addLong(timestamp, null).build();
 
         SliceMetadata si2 = SliceMetadata.from(mContext, noTtlSlice);
         long retrievedLastUpdated2 = si2.getLastUpdatedTime();
