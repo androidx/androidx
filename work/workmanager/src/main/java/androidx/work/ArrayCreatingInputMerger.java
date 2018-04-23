@@ -36,7 +36,7 @@ import java.util.Map;
  *     - If they are primitives, turn them into a size 2 array
  *   - Else if one is an array and the other is a primitive
  *     - Make a longer array and concatenate them
- *   - Else throw an {@link IllegalStateException}
+ *   - Else throw an {@link IllegalArgumentException}
  */
 
 public final class ArrayCreatingInputMerger extends InputMerger {
@@ -83,7 +83,7 @@ public final class ArrayCreatingInputMerger extends InputMerger {
                         // We have an existing array of the same type.
                         mergedValue = concatenateArrayAndNonArray(value, existingValue);
                     } else {
-                        throw new IllegalStateException();
+                        throw new IllegalArgumentException();
                     }
                 }
 
