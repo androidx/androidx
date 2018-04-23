@@ -95,13 +95,12 @@
                     style="@style/TitleBarButton.Launch" />
             </LinearLayout>
 
-            <!-- TODO (b/77158231): Causes java.lang.ClassNotFoundException as of Apr 02 2018 -->
-            <!--view class="androidx.mediarouter.app.MediaRouteButton"
+            <view class="androidx.mediarouter.app.MediaRouteButton"
                 android:id="@+id/cast"
                 android:layout_centerVertical="true"
                 android:visibility="gone"
                 android:contentDescription="@string/mr_button_content_description"
-                style="@style/TitleBarButton" /-->
+                style="@style/TitleBarButton" />
         </LinearLayout>
 
     </RelativeLayout>
