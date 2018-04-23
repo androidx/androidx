@@ -33,7 +33,7 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
 import androidx.work.impl.utils.EnqueueRunnable;
-import androidx.work.impl.workers.JoinWorker;
+import androidx.work.impl.workers.CombineContinuationsWorker;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -197,12 +197,12 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Override
-    protected WorkContinuation joinInternal(
+    protected WorkContinuation combineInternal(
             @Nullable OneTimeWorkRequest work,
             @NonNull List<WorkContinuation> continuations) {
 
         if (work == null) {
-            work = new OneTimeWorkRequest.Builder(JoinWorker.class)
+            work = new OneTimeWorkRequest.Builder(CombineContinuationsWorker.class)
                     .withInputMerger(ArrayCreatingInputMerger.class)
                     .build();
         }

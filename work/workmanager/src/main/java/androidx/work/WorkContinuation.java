@@ -73,34 +73,34 @@ public abstract class WorkContinuation {
     public abstract SynchronousWorkContinuation synchronous();
 
     /**
-     * Joins multiple {@link WorkContinuation}s to allow for complex chaining.
+     * Combines multiple {@link WorkContinuation}s to allow for complex chaining.
      *
      * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
      *                      return value
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public static WorkContinuation join(@NonNull WorkContinuation... continuations) {
-        return join(Arrays.asList(continuations));
+    public static WorkContinuation combine(@NonNull WorkContinuation... continuations) {
+        return combine(Arrays.asList(continuations));
     }
 
     /**
-     * Joins multiple {@link WorkContinuation}s to allow for complex chaining.
+     * Combines multiple {@link WorkContinuation}s to allow for complex chaining.
      *
      * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
      *                      return value
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public static WorkContinuation join(@NonNull List<WorkContinuation> continuations) {
+    public static WorkContinuation combine(@NonNull List<WorkContinuation> continuations) {
         if (continuations.size() < 2) {
             throw new IllegalArgumentException(
-                    "WorkContinuation.join() needs at least 2 continuations.");
+                    "WorkContinuation.combine() needs at least 2 continuations.");
         }
 
-        return continuations.get(0).joinInternal(null, continuations);
+        return continuations.get(0).combineInternal(null, continuations);
     }
 
     /**
-     * Joins multiple {@link WorkContinuation}s to allow for complex chaining using the
+     * Combines multiple {@link WorkContinuation}s to allow for complex chaining using the
      * {@link OneTimeWorkRequest} provided.
      *
      * @param work The {@link OneTimeWorkRequest} which depends on the successful completion of the
@@ -109,14 +109,14 @@ public abstract class WorkContinuation {
      *                      {@link OneTimeWorkRequest} provided.
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public static WorkContinuation join(
+    public static WorkContinuation combine(
             @NonNull OneTimeWorkRequest work,
             @NonNull WorkContinuation... continuations) {
-        return join(work, Arrays.asList(continuations));
+        return combine(work, Arrays.asList(continuations));
     }
 
     /**
-     * Joins multiple {@link WorkContinuation}s to allow for complex chaining using the
+     * Combines multiple {@link WorkContinuation}s to allow for complex chaining using the
      * {@link OneTimeWorkRequest} provided.
      *
      * @param work The {@link OneTimeWorkRequest} which depends on the successful completion of the
@@ -125,17 +125,17 @@ public abstract class WorkContinuation {
      *                      {@link OneTimeWorkRequest} provided.
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public static WorkContinuation join(
+    public static WorkContinuation combine(
             @NonNull OneTimeWorkRequest work,
             @NonNull List<WorkContinuation> continuations) {
-        return continuations.get(0).joinInternal(work, continuations);
+        return continuations.get(0).combineInternal(work, continuations);
     }
 
     /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    protected abstract WorkContinuation joinInternal(
+    protected abstract WorkContinuation combineInternal(
             @Nullable OneTimeWorkRequest work,
             @NonNull List<WorkContinuation> continuations);
 }

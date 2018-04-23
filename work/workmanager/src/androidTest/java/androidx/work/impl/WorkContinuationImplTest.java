@@ -192,7 +192,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl second = new WorkContinuationImpl(mWorkManagerImpl,
                 createTestWorkerList());
 
-        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(first,
+        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.combine(first,
                 second);
         assertThat(dependent.getParents(), is(notNullValue()));
         assertThat(dependent.getParents(), containsInAnyOrder(first, second));
@@ -206,8 +206,8 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
         OneTimeWorkRequest work = createTestWorker();
 
-        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(work, first,
-                second);
+        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.combine(
+                work, first, second);
 
         assertThat(dependent.getIds(), containsInAnyOrder(work.getId()));
         assertThat(dependent.getParents(), is(notNullValue()));
@@ -226,11 +226,11 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl fourth = new WorkContinuationImpl(mWorkManagerImpl,
                 createTestWorkerList());
 
-        WorkContinuationImpl firstDependent = (WorkContinuationImpl) WorkContinuation.join(first,
-                second);
-        WorkContinuationImpl secondDependent = (WorkContinuationImpl) WorkContinuation.join(third,
-                fourth);
-        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(
+        WorkContinuationImpl firstDependent = (WorkContinuationImpl) WorkContinuation.combine(
+                first, second);
+        WorkContinuationImpl secondDependent = (WorkContinuationImpl) WorkContinuation.combine(
+                third, fourth);
+        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.combine(
                 firstDependent, secondDependent);
         dependent.enqueueSync();
         verifyEnqueued(dependent);
@@ -245,11 +245,11 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 createTestWorkerList());
         WorkContinuationImpl third = new WorkContinuationImpl(mWorkManagerImpl,
                 createTestWorkerList());
-        WorkContinuationImpl firstDependent = (WorkContinuationImpl) WorkContinuation.join(first,
-                second);
-        WorkContinuationImpl secondDependent = (WorkContinuationImpl) WorkContinuation.join(first,
-                third);
-        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.join(
+        WorkContinuationImpl firstDependent = (WorkContinuationImpl) WorkContinuation.combine(
+                first, second);
+        WorkContinuationImpl secondDependent = (WorkContinuationImpl) WorkContinuation.combine(
+                first, third);
+        WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.combine(
                 firstDependent, secondDependent);
         dependent.enqueueSync();
         verifyEnqueued(dependent);
@@ -286,7 +286,8 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl secondContinuation =
                 new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(secondWork));
         WorkContinuationImpl dependentContinuation =
-                (WorkContinuationImpl) WorkContinuation.join(firstContinuation, secondContinuation);
+                (WorkContinuationImpl) WorkContinuation.combine(
+                        firstContinuation, secondContinuation);
         dependentContinuation.enqueueSync();
 
         String joinId = null;
@@ -324,7 +325,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testContinuation_hasCycles() throws InterruptedException {
+    public void testContinuation_hasCycles() {
         OneTimeWorkRequest aWork = createTestWorker(); // A
         OneTimeWorkRequest bWork = createTestWorker(); // B
         OneTimeWorkRequest cWork = createTestWorker(); // C
@@ -338,8 +339,8 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         // B -> C
         WorkContinuation continuationBC = continuationB.then(cWork);
 
-        // join -> A, C
-        WorkContinuation join = WorkContinuation.join(continuationA, continuationBC);
+        // combine -> A, C
+        WorkContinuation join = WorkContinuation.combine(continuationA, continuationBC);
 
         // withCycles -> B
         WorkContinuationImpl withCycles = (WorkContinuationImpl) join.then(bWork);
@@ -348,7 +349,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testContinuation_hasCycles2() throws InterruptedException {
+    public void testContinuation_hasCycles2() {
         OneTimeWorkRequest aWork = createTestWorker(); // A
         WorkContinuation continuationA = new WorkContinuationImpl(
                 mWorkManagerImpl, Collections.singletonList(aWork));
@@ -360,7 +361,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testContinuation_hasCycles3() throws InterruptedException {
+    public void testContinuation_hasCycles3() {
         OneTimeWorkRequest aWork = createTestWorker(); // A
         WorkContinuation continuationA = new WorkContinuationImpl(
                 mWorkManagerImpl, Collections.singletonList(aWork));
@@ -372,13 +373,14 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         //   A
         //  A A
         //   A
-        WorkContinuationImpl joined = (WorkContinuationImpl) WorkContinuation.join(first, second);
+        WorkContinuationImpl joined = (WorkContinuationImpl) WorkContinuation.combine(
+                first, second);
         assertThat(joined.hasCycles(), is(true));
     }
 
     @Test
     @SmallTest
-    public void testContinuation_hasCycles4() throws InterruptedException {
+    public void testContinuation_hasCycles4() {
         OneTimeWorkRequest aWork = createTestWorker(); // A
         OneTimeWorkRequest cWork = createTestWorker(); // C
 
@@ -387,7 +389,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
         // A   A
         //   B
-        WorkContinuation continuationB = WorkContinuation.join(continuationA, continuationA);
+        WorkContinuation continuationB = WorkContinuation.combine(continuationA, continuationA);
         // A   A
         //   B
         //   C
@@ -402,7 +404,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testContinuation_hasNoCycles() throws InterruptedException {
+    public void testContinuation_hasNoCycles() {
         OneTimeWorkRequest aWork = createTestWorker(); // A
         OneTimeWorkRequest bWork = createTestWorker(); // B
         OneTimeWorkRequest cWork = createTestWorker(); // C
@@ -414,14 +416,14 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 mWorkManagerImpl, Arrays.asList(bWork, cWork));
 
         WorkContinuationImpl joined =
-                (WorkContinuationImpl) WorkContinuation.join(continuationAB, continuationBC);
+                (WorkContinuationImpl) WorkContinuation.combine(continuationAB, continuationBC);
 
         assertThat(joined.hasCycles(), is(false));
     }
 
     @Test
     @SmallTest
-    public void testContinuation_hasNoCycles2() throws InterruptedException {
+    public void testContinuation_hasNoCycles2() {
         OneTimeWorkRequest aWork = createTestWorker(); // A
         OneTimeWorkRequest bWork = createTestWorker(); // B
         OneTimeWorkRequest cWork = createTestWorker(); // C
@@ -444,15 +446,15 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         //    A      A
         //  B   C  B   C
         //       D
-        WorkContinuationImpl joined = (WorkContinuationImpl)
-                WorkContinuation.join(continuationB, continuationC, continuationB2, continuationC2);
+        WorkContinuationImpl joined = (WorkContinuationImpl) WorkContinuation.combine(
+                continuationB, continuationC, continuationB2, continuationC2);
 
         assertThat(joined.hasCycles(), is(false));
     }
 
     @Test
     @SmallTest
-    public void testContinuation_hasNoCycles3() throws InterruptedException {
+    public void testContinuation_hasNoCycles3() {
         OneTimeWorkRequest aWork = createTestWorker(); // A
         OneTimeWorkRequest bWork = createTestWorker(); // B
         OneTimeWorkRequest cWork = createTestWorker(); // C
@@ -466,10 +468,11 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuation continuationC = new WorkContinuationImpl(
                 mWorkManagerImpl, Collections.singletonList(cWork));
 
-        WorkContinuation first = WorkContinuation.join(continuationA, continuationB);
-        WorkContinuation second = WorkContinuation.join(continuationA, continuationC);
+        WorkContinuation first = WorkContinuation.combine(continuationA, continuationB);
+        WorkContinuation second = WorkContinuation.combine(continuationA, continuationC);
 
-        WorkContinuationImpl joined = (WorkContinuationImpl) WorkContinuation.join(first, second);
+        WorkContinuationImpl joined = (WorkContinuationImpl) WorkContinuation.combine(
+                first, second);
         assertThat(joined.hasCycles(), is(false));
     }
 
