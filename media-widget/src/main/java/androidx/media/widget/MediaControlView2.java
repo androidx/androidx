@@ -52,6 +52,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.media.SessionToken2;
+import androidx.mediarouter.app.MediaRouteButton;
+import androidx.mediarouter.media.MediaRouteSelector;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -269,6 +271,8 @@ public class MediaControlView2 extends BaseLayout {
     private TextView mTitleView;
     private View mAdExternalLink;
     private ImageButton mBackButton;
+    private MediaRouteButton mRouteButton;
+    private MediaRouteSelector mRouteSelector;
 
     // Relating to Center View
     private ViewGroup mCenterView;
@@ -592,6 +596,17 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
+    void setRouteSelector(MediaRouteSelector selector) {
+        mRouteSelector = selector;
+        if (mRouteSelector != null && !mRouteSelector.isEmpty()) {
+            mRouteButton.setRouteSelector(selector);
+            mRouteButton.setVisibility(View.VISIBLE);
+        } else {
+            mRouteButton.setRouteSelector(MediaRouteSelector.EMPTY);
+            mRouteButton.setVisibility(View.GONE);
+        }
+    }
+
     ///////////////////////////////////////////////////
     // Protected or private methods
     ///////////////////////////////////////////////////
@@ -673,6 +688,8 @@ public class MediaControlView2 extends BaseLayout {
             mBackButton.setOnClickListener(mBackListener);
             mBackButton.setVisibility(View.GONE);
         }
+        mRouteButton = v.findViewById(R.id.cast);
+
         // Relating to Center View
         mCenterView = v.findViewById(R.id.center_view);
         mTransportControls = inflateTransportControls(R.layout.embedded_transport_controls);
