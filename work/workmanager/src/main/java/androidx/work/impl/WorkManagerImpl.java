@@ -25,11 +25,11 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
-import androidx.work.BlockingWorkManager;
 import androidx.work.Configuration;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.R;
+import androidx.work.SynchronousWorkManager;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
@@ -55,7 +55,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkManagerImpl extends WorkManager implements BlockingWorkManager {
+public class WorkManagerImpl extends WorkManager implements SynchronousWorkManager {
 
     public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 22;
     public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23;
@@ -218,14 +218,14 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     }
 
     @Override
-    public void enqueueBlocking(@NonNull WorkRequest... workRequest) {
-        enqueueBlocking(Arrays.asList(workRequest));
+    public void enqueueSync(@NonNull WorkRequest... workRequest) {
+        enqueueSync(Arrays.asList(workRequest));
     }
 
     @Override
-    public void enqueueBlocking(@NonNull List<? extends WorkRequest> workRequest) {
-        assertBackgroundThread("Cannot enqueueBlocking on main thread!");
-        new WorkContinuationImpl(this, workRequest).enqueueBlocking();
+    public void enqueueSync(@NonNull List<? extends WorkRequest> workRequest) {
+        assertBackgroundThread("Cannot enqueueSync on main thread!");
+        new WorkContinuationImpl(this, workRequest).enqueueSync();
     }
 
     @Override
@@ -248,8 +248,8 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
 
     @Override
     @WorkerThread
-    public void cancelWorkByIdBlocking(@NonNull String id) {
-        assertBackgroundThread("Cannot cancelWorkByIdBlocking on main thread!");
+    public void cancelWorkByIdSync(@NonNull String id) {
+        assertBackgroundThread("Cannot cancelWorkByIdSync on main thread!");
         CancelWorkRunnable.forId(id, this).run();
     }
 
@@ -261,8 +261,8 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
 
     @Override
     @WorkerThread
-    public void cancelAllWorkByTagBlocking(@NonNull String tag) {
-        assertBackgroundThread("Cannot cancelAllWorkByTagBlocking on main thread!");
+    public void cancelAllWorkByTagSync(@NonNull String tag) {
+        assertBackgroundThread("Cannot cancelAllWorkByTagSync on main thread!");
         CancelWorkRunnable.forTag(tag, this).run();
     }
 
@@ -273,7 +273,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     }
 
     @Override
-    public void cancelUniqueWorkBlocking(@NonNull String uniqueWorkName) {
+    public void cancelUniqueWorkSync(@NonNull String uniqueWorkName) {
         assertBackgroundThread("Cannot cancelAllWorkByNameBlocking on main thread!");
         CancelWorkRunnable.forName(uniqueWorkName, this).run();
     }
@@ -298,8 +298,8 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
 
     @Override
     @WorkerThread
-    public @Nullable WorkStatus getStatusByIdBlocking(@NonNull String id) {
-        assertBackgroundThread("Cannot call getStatusByIdBlocking on main thread!");
+    public @Nullable WorkStatus getStatusByIdSync(@NonNull String id) {
+        assertBackgroundThread("Cannot call getStatusByIdSync on main thread!");
         WorkSpec.WorkStatusPojo workStatusPojo =
                 mWorkDatabase.workSpecDao().getWorkStatusPojoForId(id);
         if (workStatusPojo != null) {
@@ -318,8 +318,8 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     }
 
     @Override
-    public List<WorkStatus> getStatusesByTagBlocking(@NonNull String tag) {
-        assertBackgroundThread("Cannot call getStatusesByTagBlocking on main thread!");
+    public List<WorkStatus> getStatusesByTagSync(@NonNull String tag) {
+        assertBackgroundThread("Cannot call getStatusesByTagSync on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForTag(tag);
         return WorkSpec.WORK_STATUS_MAPPER.apply(input);
@@ -334,7 +334,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     }
 
     @Override
-    public List<WorkStatus> getStatusesForUniqueWorkBlocking(@NonNull String uniqueWorkName) {
+    public List<WorkStatus> getStatusesForUniqueWorkSync(@NonNull String uniqueWorkName) {
         assertBackgroundThread("Cannot call getStatusesByNameBlocking on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForName(uniqueWorkName);
@@ -342,7 +342,7 @@ public class WorkManagerImpl extends WorkManager implements BlockingWorkManager 
     }
 
     @Override
-    public BlockingWorkManager blocking() {
+    public SynchronousWorkManager synchronous() {
         return this;
     }
 

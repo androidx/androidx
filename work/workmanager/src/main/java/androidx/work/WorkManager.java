@@ -202,10 +202,9 @@ public abstract class WorkManager {
             @NonNull String uniqueWorkName);
 
     /**
-     * Gets an object that gives access to blocking (synchronous) methods.
+     * Gets an object that gives access to synchronous methods.
      *
-     * @return A {@link BlockingWorkManager} object, which gives access to blocking
-     *         (synchronous) methods
+     * @return A {@link SynchronousWorkManager} object, which gives access to synchronous methods
      */
-    public abstract BlockingWorkManager blocking();
+    public abstract SynchronousWorkManager synchronous();
 }
