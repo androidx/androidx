@@ -450,14 +450,13 @@ public class SliceProviderCompat {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
             final Bundle res = holder.mProvider.call(METHOD_GET_PINNED_SPECS, null, extras);
-            if (res == null) {
-                return null;
+            if (res != null) {
+                return getSpecs(res);
             }
-            return getSpecs(res);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to get pinned specs", e);
-            return null;
         }
+        return null;
     }
 
     /**
@@ -504,14 +503,13 @@ public class SliceProviderCompat {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_INTENT, intent);
             final Bundle res = holder.mProvider.call(METHOD_MAP_ONLY_INTENT, null, extras);
-            if (res == null) {
-                return null;
+            if (res != null) {
+                return res.getParcelable(EXTRA_SLICE);
             }
-            return res.getParcelable(EXTRA_SLICE);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to map slice", e);
-            return null;
         }
+        return null;
     }
 
     /**
@@ -523,7 +521,9 @@ public class SliceProviderCompat {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
             final Bundle res = holder.mProvider.call(METHOD_GET_DESCENDANTS, null, extras);
-            return res.getParcelableArrayList(EXTRA_SLICE_DESCENDANTS);
+            if (res != null) {
+                return res.getParcelableArrayList(EXTRA_SLICE_DESCENDANTS);
+            }
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to get slice descendants", e);
         }
@@ -544,7 +544,9 @@ public class SliceProviderCompat {
             extras.putInt(EXTRA_UID, uid);
 
             final Bundle res = holder.mProvider.call(METHOD_CHECK_PERMISSION, null, extras);
-            return res.getInt(EXTRA_RESULT);
+            if (res != null) {
+                return res.getInt(EXTRA_RESULT);
+            }
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to check slice permission", e);
         }
@@ -601,7 +603,11 @@ public class SliceProviderCompat {
     }
 
     private static ProviderHolder acquireClient(ContentResolver resolver, Uri uri) {
-        return new ProviderHolder(resolver.acquireContentProviderClient(uri));
+        ContentProviderClient provider = resolver.acquireContentProviderClient(uri);
+        if (provider == null) {
+            throw new IllegalArgumentException("No provider found for " + uri);
+        }
+        return new ProviderHolder(provider);
     }
 
     private static class ProviderHolder implements AutoCloseable {
