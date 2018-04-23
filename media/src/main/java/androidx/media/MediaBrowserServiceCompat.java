@@ -329,8 +329,13 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     mRootExtrasList.add(rootExtras);
                 }
             }
+            // We aren't sure whether this connection request would be accepted.
+            // Temporarily set mCurConnection just to make getCurrentBrowserInfo() working.
+            mCurConnection = new ConnectionRecord(clientPackageName, -1, clientUid, rootHints,
+                    null);
             BrowserRoot root = MediaBrowserServiceCompat.this.onGetRoot(
                     clientPackageName, clientUid, rootHints);
+            mCurConnection = null;
             if (root == null) {
                 return null;
             }
@@ -402,8 +407,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 return null;
             }
             if (mCurConnection == null) {
-                throw new IllegalStateException("This should be called inside of onLoadChildren,"
-                        + " onLoadItem, onSearch, or onCustomAction methods");
+                throw new IllegalStateException("This should be called inside of onGetRoot,"
+                        + " onLoadChildren, onLoadItem, onSearch, or onCustomAction methods");
             }
             return mCurConnection.rootHints == null ? null : new Bundle(mCurConnection.rootHints);
         }
@@ -411,8 +416,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
         @Override
         public RemoteUserInfo getCurrentBrowserInfo() {
             if (mCurConnection == null) {
-                throw new IllegalStateException("This should be called inside of onLoadChildren,"
-                        + " onLoadItem, onSearch, or onCustomAction methods");
+                throw new IllegalStateException("This should be called inside of onGetRoot,"
+                        + " onLoadChildren, onLoadItem, onSearch, or onCustomAction methods");
             }
             return mCurConnection.browserInfo;
         }
@@ -492,7 +497,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         @Override
         public Bundle getBrowserRootHints() {
-            // If EXTRA_MESSENGER_BINDER is used, mCurConnection is not null.
+            // mCurConnection is not null when EXTRA_MESSENGER_BINDER is used.
             if (mCurConnection != null) {
                 return mCurConnection.rootHints == null ? null
                         : new Bundle(mCurConnection.rootHints);
@@ -515,6 +520,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
     class MediaBrowserServiceImplApi28 extends MediaBrowserServiceImplApi26 {
         @Override
         public RemoteUserInfo getCurrentBrowserInfo() {
+            // mCurConnection is not null when EXTRA_MESSENGER_BINDER is used.
+            if (mCurConnection != null) {
+                return mCurConnection.browserInfo;
+            }
             android.media.session.MediaSessionManager.RemoteUserInfo userInfoObj =
                     ((MediaBrowserService) mServiceObj).getCurrentBrowserInfo();
             return new RemoteUserInfo(
@@ -1307,10 +1316,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @see MediaSessionManager#isTrustedForMediaControl(RemoteUserInfo)
      */
     public final @NonNull RemoteUserInfo getCurrentBrowserInfo() {
-        if (mCurConnection == null) {
-            throw new IllegalStateException("This should be called inside of onGetRoot or"
-                    + " onLoadChildren or onLoadItem methods");
-        }
         return mImpl.getCurrentBrowserInfo();
     }
 

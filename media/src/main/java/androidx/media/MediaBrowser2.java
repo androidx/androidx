@@ -169,7 +169,7 @@ public class MediaBrowser2 extends MediaController2 {
                 browser.disconnect();
             }
             mBrowserCompats.clear();
-            // TODO: Ensure that ControllerCallback#onDisconnected() is called by super.close().
+            // Ensure that ControllerCallback#onDisconnected() is called by super.close().
             super.close();
         }
     }
@@ -223,17 +223,10 @@ public class MediaBrowser2 extends MediaController2 {
         if (parentId == null) {
             throw new IllegalArgumentException("parentId shouldn't be null");
         }
-        // TODO: Revisit using default browser is OK. Here's my concern.
-        //       Assume that MediaBrowser2 is connected with the MediaBrowserServiceCompat.
-        //       Since MediaBrowserServiceCompat can call MediaBrowserServiceCompat#
-        //       getBrowserRootHints(), the service may refuse calls from MediaBrowser2.
-        //       It may be safe because there's not much app that implements MediaBrowserService
-        //       for sharing contents.
         MediaBrowserCompat browser = getBrowserCompat();
         if (browser == null) {
             return;
         }
-        // TODO: Document that this API creates new SubscriptionCallback for each calls.
         SubscribeCallback callback = new SubscribeCallback();
         synchronized (mLock) {
             List<SubscribeCallback> list = mSubscribeCallbacks.get(parentId);
@@ -305,7 +298,6 @@ public class MediaBrowser2 extends MediaController2 {
         Bundle options = MediaUtils2.createBundle(extras);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
-        // TODO: Revisit using default browser is OK. See TODO in subscribe
         browser.subscribe(parentId, options, new GetChildrenCallback(parentId, page, pageSize));
     }
 
@@ -316,7 +308,6 @@ public class MediaBrowser2 extends MediaController2 {
      * @param mediaId media id for specifying the item
      */
     public void getItem(@NonNull final String mediaId) {
-        // TODO: Revisit using default browser is OK. See TODO in subscribe
         MediaBrowserCompat browser = getBrowserCompat();
         if (browser == null) {
             return;
