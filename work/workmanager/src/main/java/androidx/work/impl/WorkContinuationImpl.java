@@ -26,9 +26,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.work.ArrayCreatingInputMerger;
-import androidx.work.BlockingWorkContinuation;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.SynchronousWorkContinuation;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
@@ -48,7 +48,7 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkContinuationImpl extends WorkContinuation
-        implements BlockingWorkContinuation {
+        implements SynchronousWorkContinuation {
 
     private static final String TAG = "WorkContinuationImpl";
 
@@ -177,9 +177,9 @@ public class WorkContinuationImpl extends WorkContinuation
 
     @Override
     @WorkerThread
-    public void enqueueBlocking() {
+    public void enqueueSync() {
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-            throw new IllegalStateException("Cannot enqueueBlocking on main thread!");
+            throw new IllegalStateException("Cannot enqueueSync on main thread!");
         }
 
         if (!mEnqueued) {
@@ -192,7 +192,7 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Override
-    public BlockingWorkContinuation blocking() {
+    public SynchronousWorkContinuation synchronous() {
         return this;
     }
 
