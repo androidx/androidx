@@ -86,4 +86,14 @@ public final class WorkStatus {
         result = 31 * result + (mTags != null ? mTags.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "WorkStatus{"
+                +   "mId='" + mId + '\''
+                +   ", mState=" + mState
+                +   ", mOutputData=" + mOutputData
+                +   ", mTags=" + mTags
+                + '}';
+    }
 }
