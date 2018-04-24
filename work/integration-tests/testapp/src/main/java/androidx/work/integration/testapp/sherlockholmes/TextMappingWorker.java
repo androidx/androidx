@@ -60,7 +60,7 @@ public class TextMappingWorker extends Worker {
         String inputFileName = input.getString(INPUT_FILE, null);
         String outputFileName = "out_" + inputFileName;
 
-        AssetManager assetManager = getAppContext().getAssets();
+        AssetManager assetManager = getApplicationContext().getAssets();
         InputStream inputStream = null;
         Scanner scanner = null;
         try {
@@ -94,7 +94,8 @@ public class TextMappingWorker extends Worker {
         FileOutputStream fileOutputStream = null;
         DataOutputStream dataOutputStream = null;
         try {
-            fileOutputStream = getAppContext().openFileOutput(outputFileName, Context.MODE_PRIVATE);
+            fileOutputStream = getApplicationContext()
+                    .openFileOutput(outputFileName, Context.MODE_PRIVATE);
             dataOutputStream = new DataOutputStream(fileOutputStream);
             for (Map.Entry<String, Integer> entry : mWordCount.entrySet()) {
                 dataOutputStream.writeUTF(entry.getKey());
