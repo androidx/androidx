@@ -46,7 +46,12 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     private WorkManagerTaskExecutor() {
     }
 
-    void setTaskExecutor(@Nullable TaskExecutor taskExecutor) {
+    /**
+     * Overrides the task executor used by {@link androidx.work.impl.WorkManagerImpl}.
+     *
+     * @param taskExecutor The instance of the {@link TaskExecutor}.
+     */
+    public void setTaskExecutor(@Nullable TaskExecutor taskExecutor) {
         mTaskExecutor = taskExecutor == null ? mDefaultTaskExecutor : taskExecutor;
     }
 

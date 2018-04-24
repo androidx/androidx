@@ -17,26 +17,24 @@
 package androidx.work.test;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import androidx.work.impl.Scheduler;
-import androidx.work.impl.model.WorkSpec;
+import androidx.work.Worker;
 
-import java.util.Arrays;
+import java.util.UUID;
 
 /**
- * An implementation of a Scheduler which just logs requests to schedule and cancel.
+ * Additional functionality exposed for {@link androidx.work.WorkManager}
+ * that are useful in the context of testing.
  */
-public class NoOpScheduler implements Scheduler {
-    private static final String TAG = "NoOpScheduler";
+public interface TestDriver {
 
-    @Override
-    public void schedule(WorkSpec... workSpecs) {
-        Log.i(TAG, String.format("Scheduling Request for %s ", Arrays.toString(workSpecs)));
-    }
-
-    @Override
-    public void cancel(@NonNull String workSpecId) {
-        Log.i(TAG, String.format("Cancel request for %s", workSpecId));
-    }
+    /**
+     * Tells {@link TestDriver} to pretend that all constraints on the
+     * {@link Worker} with the given {@code workSpecId} are met.
+     *
+     * The {@link Worker} is scheduled for execution.
+     *
+     * @param workSpecId is the {@link Worker}s id.
+     */
+    void setAllConstraintsMet(@NonNull UUID workSpecId);
 }

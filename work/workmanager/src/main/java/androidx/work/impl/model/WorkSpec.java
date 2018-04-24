@@ -42,6 +42,7 @@ import androidx.work.WorkStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Stores information about a logical unit of work.
@@ -345,7 +346,7 @@ public class WorkSpec {
          * @return The {@link WorkStatus} represented by this POJO
          */
         public WorkStatus toWorkStatus() {
-            return new WorkStatus(id, state, output, tags);
+            return new WorkStatus(UUID.fromString(id), state, output, tags);
         }
 
         @Override

@@ -26,7 +26,9 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.WorkManager;
+import androidx.work.impl.WorkManagerImpl;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,14 +36,23 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class WorkManagerInitHelperTest {
+
+    private Context mContext;
+
     @Before
     public void setUp() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        WorkManagerTestInitHelper.initializeWorkManager(context);
+        mContext = InstrumentationRegistry.getTargetContext();
+    }
+
+    @After
+    public void tearDown() {
+        // Clear delegates after every single test.
+        WorkManagerImpl.setDelegate(null);
     }
 
     @Test
     public void testWorkManagerIsInitialized() {
+        WorkManagerTestInitHelper.initializeTestWorkManager(mContext);
         assertThat(WorkManager.getInstance(), is(notNullValue()));
     }
 }

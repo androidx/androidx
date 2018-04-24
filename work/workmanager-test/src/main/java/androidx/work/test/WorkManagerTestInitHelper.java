@@ -22,51 +22,75 @@ import android.support.annotation.NonNull;
 import androidx.work.Configuration;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Helps initialize {@link androidx.work.WorkManager} for testing.
  */
-public class WorkManagerTestInitHelper {
+public final class WorkManagerTestInitHelper {
     /**
      * Initializes {@link androidx.work.WorkManager} with a {@link SynchronousExecutor}
-     * and a {@link NoOpScheduler}.
+     * and a {@link TestScheduler}.
      *
      * @param context The application {@link Context}
      */
-    public static void initializeWorkManager(@NonNull Context context) {
+    public static void initializeTestWorkManager(@NonNull Context context) {
+        setupSynchronousTaskExecutor();
         SynchronousExecutor synchronousExecutor = new SynchronousExecutor();
         Configuration configuration = new Configuration.Builder()
                 .withExecutor(synchronousExecutor)
                 .build();
 
-        Scheduler scheduler = new NoOpScheduler();
-        initializeWorkManager(context, configuration, Collections.singletonList(scheduler));
-    }
+        final TestScheduler scheduler = new TestScheduler();
+        WorkManagerImpl workManager = new TestWorkManagerImpl(context, configuration) {
+            @NonNull
+            @Override
+            public List<Scheduler> getSchedulers() {
+                return Collections.singletonList((Scheduler) scheduler);
+            }
 
-    /**
-     * Initializes {@link androidx.work.WorkManager}.
-     *
-     * @param context       The application {@link Context}
-     * @param configuration The {@link Configuration} configuration.
-     * @param schedulers    List of Schedulers to use.
-     */
-    public static void initializeWorkManager(
-            @NonNull Context context,
-            @NonNull Configuration configuration,
-            @NonNull List<Scheduler> schedulers) {
-
-        WorkManagerImpl workManager = new WorkManagerImpl(
-                context,
-                configuration,
-                true,
-                schedulers);
-
+            @Override
+            public void setAllConstraintsMet(@NonNull UUID workSpecId) {
+                scheduler.setAllConstraintsMet(workSpecId);
+            }
+        };
+        workManager.getProcessor().addExecutionListener(scheduler);
         WorkManagerImpl.setDelegate(workManager);
     }
 
+    /**
+     * @return An instance of {@link TestDriver}. This exposes additional functionality
+     * that are useful in the context of testing when using WorkManager.
+     */
+    public static TestDriver getTestDriver() {
+        WorkManagerImpl workManager = WorkManagerImpl.getInstance();
+        if (workManager == null) {
+            return null;
+        } else {
+            return ((TestWorkManagerImpl) WorkManagerImpl.getInstance());
+        }
+    }
+
     private WorkManagerTestInitHelper() {
+    }
+
+    private static void setupSynchronousTaskExecutor() {
+        WorkManagerTaskExecutor.getInstance()
+                .setTaskExecutor(new TaskExecutor() {
+                    @Override
+                    public void postToMainThread(Runnable runnable) {
+                        runnable.run();
+                    }
+
+                    @Override
+                    public void executeOnBackgroundThread(Runnable runnable) {
+                        runnable.run();
+                    }
+                });
     }
 }
