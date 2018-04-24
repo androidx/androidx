@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Blocking methods for {@link WorkManager} operations.  These methods are expected to be called
@@ -50,19 +51,19 @@ public interface SynchronousWorkManager {
     /**
      * Cancels work with the given id in a synchronous fashion if it isn't finished.  Note that
      * cancellation is dependent on timing (for example, the work could have completed in a
-     * different thread just as you issue this call).  Use {@link #getStatusByIdSync(String)} to
+     * different thread just as you issue this call).  Use {@link #getStatusByIdSync(UUID)} to
      * find out the actual state of the work after this call.  This method is expected to be called
      * from a background thread.
      *
      * @param id The id of the work
      */
     @WorkerThread
-    void cancelWorkByIdSync(@NonNull String id);
+    void cancelWorkByIdSync(@NonNull UUID id);
 
     /**
      * Cancels all unfinished work with the given tag in a synchronous fashion.  Note that
      * cancellation is dependent on timing (for example, the work could have completed in a
-     * different thread just as you issue this call).  Use {@link #getStatusByIdSync(String)} to
+     * different thread just as you issue this call).  Use {@link #getStatusByIdSync(UUID)} to
      * find out the actual state of the work after this call.  This method is expected to be called
      * from a background thread.
      *
@@ -74,7 +75,7 @@ public interface SynchronousWorkManager {
     /**
      * Cancels all unfinished work in the work chain with the given name in a synchronous fashion.
      * Note that cancellation is dependent on timing (for example, the work could have completed in
-     * a different thread just as you issue this call).  Use {@link #getStatusByIdSync(String)} to
+     * a different thread just as you issue this call).  Use {@link #getStatusByIdSync(UUID)} to
      * find out the actual state of the work after this call.  This method is expected to be called
      * from a background thread.
      *
@@ -91,7 +92,7 @@ public interface SynchronousWorkManager {
      * @return A {@link WorkStatus} associated with {@code id}
      */
     @WorkerThread
-    WorkStatus getStatusByIdSync(@NonNull String id);
+    WorkStatus getStatusByIdSync(@NonNull UUID id);
 
     /**
      * Gets the {@link WorkStatus} for all work with a given tag in a synchronous fashion.  This

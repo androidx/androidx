@@ -25,6 +25,7 @@ import androidx.work.impl.WorkManagerImpl;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
@@ -157,7 +158,7 @@ public abstract class WorkManager {
      *
      * @param id The id of the work
      */
-    public abstract void cancelWorkById(@NonNull String id);
+    public abstract void cancelWorkById(@NonNull UUID id);
 
     /**
      * Cancels all unfinished work with the given tag.  Note that cancellation is a best-effort
@@ -181,7 +182,7 @@ public abstract class WorkManager {
      * @param id The id of the work
      * @return A {@link LiveData} of the {@link WorkStatus} associated with {@code id}
      */
-    public abstract LiveData<WorkStatus> getStatusById(@NonNull String id);
+    public abstract LiveData<WorkStatus> getStatusById(@NonNull UUID id);
 
     /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for all work for a given tag.

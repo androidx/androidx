@@ -61,7 +61,7 @@ public class AlarmsTest extends DatabaseTest {
     public void testSetAlarm_noPreExistingAlarms() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
 
         Alarms.setAlarm(mContext, mWorkManager, workSpecId, mTriggerAt);
         AlarmInfo alarmInfo = mDatabase.alarmInfoDao().getAlarmInfo(workSpecId);
@@ -72,7 +72,7 @@ public class AlarmsTest extends DatabaseTest {
     public void testSetAlarm_withPreExistingAlarms() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
 
         AlarmInfo alarmInfo = new AlarmInfo(workSpecId, 1);
 
@@ -88,7 +88,7 @@ public class AlarmsTest extends DatabaseTest {
     public void testCancelAlarm() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
 
         AlarmInfo alarmInfo = new AlarmInfo(workSpecId, 1);
 

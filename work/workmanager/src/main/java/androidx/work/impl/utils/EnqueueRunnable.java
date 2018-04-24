@@ -264,17 +264,17 @@ public class EnqueueRunnable implements Runnable {
 
             if (hasPrerequisite) {
                 for (String prerequisiteId : prerequisiteIds) {
-                    Dependency dep = new Dependency(work.getId(), prerequisiteId);
+                    Dependency dep = new Dependency(work.getStringId(), prerequisiteId);
                     workDatabase.dependencyDao().insertDependency(dep);
                 }
             }
 
             for (String tag : work.getTags()) {
-                workDatabase.workTagDao().insert(new WorkTag(tag, work.getId()));
+                workDatabase.workTagDao().insert(new WorkTag(tag, work.getStringId()));
             }
 
             if (isNamed) {
-                workDatabase.workNameDao().insert(new WorkName(name, work.getId()));
+                workDatabase.workNameDao().insert(new WorkName(name, work.getStringId()));
             }
         }
         return needsScheduling;

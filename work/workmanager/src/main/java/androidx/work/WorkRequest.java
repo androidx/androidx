@@ -47,11 +47,12 @@ public abstract class WorkRequest {
      */
     public static final long MIN_BACKOFF_MILLIS = 10 * 1000; // 10 seconds.
 
+    private @NonNull UUID mId;
+    private @NonNull WorkSpec mWorkSpec;
+    private @NonNull Set<String> mTags;
 
-    private WorkSpec mWorkSpec;
-    private Set<String> mTags;
-
-    protected WorkRequest(@NonNull WorkSpec workSpec, @NonNull Set<String> tags) {
+    protected WorkRequest(@NonNull UUID id, @NonNull WorkSpec workSpec, @NonNull Set<String> tags) {
+        mId = id;
         mWorkSpec = workSpec;
         mTags = tags;
     }
@@ -61,8 +62,19 @@ public abstract class WorkRequest {
      *
      * @return The identifier for this unit of work
      */
-    public String getId() {
-        return mWorkSpec.id;
+    public UUID getId() {
+        return mId;
+    }
+
+    /**
+     * Gets the string for the unique identifier associated with this unit of work.
+     *
+     * @return The string identifier for this unit of work
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public String getStringId() {
+        return mId.toString();
     }
 
     /**
@@ -95,12 +107,14 @@ public abstract class WorkRequest {
      */
     public abstract static class Builder<B extends Builder, W extends WorkRequest> {
 
-        protected boolean mBackoffCriteriaSet = false;
-        protected WorkSpec mWorkSpec;
-        protected Set<String> mTags = new HashSet<>();
+        boolean mBackoffCriteriaSet = false;
+        UUID mId;
+        WorkSpec mWorkSpec;
+        Set<String> mTags = new HashSet<>();
 
         public Builder(@NonNull Class<? extends Worker> workerClass) {
-            mWorkSpec = new WorkSpec(UUID.randomUUID().toString(), workerClass.getName());
+            mId = UUID.randomUUID();
+            mWorkSpec = new WorkSpec(mId.toString(), workerClass.getName());
         }
 
         /**
