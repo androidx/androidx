@@ -61,6 +61,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 
 
@@ -113,7 +114,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     public void tearDown() {
         List<String> ids = mDatabase.workSpecDao().getAllWorkSpecIds();
         for (String id : ids) {
-            mWorkManagerImpl.cancelWorkByIdSync(id);
+            mWorkManagerImpl.cancelWorkByIdSync(UUID.fromString(id));
         }
         WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
@@ -127,7 +128,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
         assertThat(continuation.getParents(), is(nullValue()));
         assertThat(continuation.getIds().size(), is(1));
-        assertThat(continuation.getIds().get(0), is(testWork.getId()));
+        assertThat(continuation.getIds().get(0), is(testWork.getStringId()));
         assertThat(continuation.getAllIds().size(), is(1));
     }
 
@@ -142,11 +143,11 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
         assertThat(dependent.getParents(), containsInAnyOrder(continuation));
         assertThat(dependent.getIds().size(), is(1));
-        assertThat(dependent.getIds().get(0), is(dependentWork.getId()));
+        assertThat(dependent.getIds().get(0), is(dependentWork.getStringId()));
         assertThat(dependent.getAllIds().size(), is(2));
         assertThat(
                 dependent.getAllIds(),
-                containsInAnyOrder(dependentWork.getId(), testWork.getId()));
+                containsInAnyOrder(dependentWork.getStringId(), testWork.getStringId()));
     }
 
     @Test
@@ -209,7 +210,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.combine(
                 work, first, second);
 
-        assertThat(dependent.getIds(), containsInAnyOrder(work.getId()));
+        assertThat(dependent.getIds(), containsInAnyOrder(work.getStringId()));
         assertThat(dependent.getParents(), is(notNullValue()));
         assertThat(dependent.getParents(), containsInAnyOrder(first, second));
     }
@@ -275,10 +276,10 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         workSpecDao.insertWorkSpec(getWorkSpec(secondWork));
 
         workSpecDao.setOutput(
-                firstWork.getId(),
+                firstWork.getStringId(),
                 new Data.Builder().putInt(intTag, 0).build());
         workSpecDao.setOutput(
-                secondWork.getId(),
+                secondWork.getStringId(),
                 new Data.Builder().putInt(intTag, 1).putString(stringTag, "hello").build());
 
         WorkContinuationImpl firstContinuation =
@@ -292,7 +293,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
         String joinId = null;
         for (String id : dependentContinuation.getAllIds()) {
-            if (!firstWork.getId().equals(id) && !secondWork.getId().equals(id)) {
+            if (!firstWork.getStringId().equals(id) && !secondWork.getStringId().equals(id)) {
                 joinId = id;
                 break;
             }

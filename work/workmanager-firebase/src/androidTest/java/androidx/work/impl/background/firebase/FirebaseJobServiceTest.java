@@ -70,17 +70,17 @@ public class FirebaseJobServiceTest {
                 new OneTimeWorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
-        JobParameters mockParams = createMockJobParameters(work.getId());
+        JobParameters mockParams = createMockJobParameters(work.getStringId());
         mFirebaseJobService.onStartJob(mockParams);
 
         // TODO(sumir): Remove later.  Put here because WorkerWrapper sets state to RUNNING.
         Thread.sleep(5000L);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getState(work.getId()), is(State.RUNNING));
+        assertThat(workSpecDao.getState(work.getStringId()), is(State.RUNNING));
 
         mFirebaseJobService.onStopJob(mockParams);
-        assertThat(workSpecDao.getState(work.getId()), is(State.ENQUEUED));
+        assertThat(workSpecDao.getState(work.getStringId()), is(State.ENQUEUED));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class FirebaseJobServiceTest {
                 new OneTimeWorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
-        JobParameters mockParams = createMockJobParameters(work.getId());
+        JobParameters mockParams = createMockJobParameters(work.getStringId());
         assertThat(mFirebaseJobService.onStartJob(mockParams), is(true));
         assertThat(mFirebaseJobService.onStopJob(mockParams), is(true));
     }
@@ -102,7 +102,7 @@ public class FirebaseJobServiceTest {
                 new OneTimeWorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
         insertWork(work);
 
-        JobParameters mockParams = createMockJobParameters(work.getId());
+        JobParameters mockParams = createMockJobParameters(work.getStringId());
         assertThat(mFirebaseJobService.onStartJob(mockParams), is(true));
         WorkManagerImpl.getInstance().cancelWorkById(work.getId());
         assertThat(mFirebaseJobService.onStopJob(mockParams), is(false));

@@ -62,7 +62,7 @@ public class ProcessorTest extends DatabaseTest {
     @SmallTest
     public void testStartWork_doesNotStartWorkTwice() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
-        String id = work.getId();
+        String id = work.getStringId();
         insertWork(work);
         assertThat(mProcessor.startWork(id), is(true));
         assertThat(mProcessor.startWork(id), is(false));
@@ -75,7 +75,7 @@ public class ProcessorTest extends DatabaseTest {
         insertWork(work);
 
         assertThat(mProcessor.hasWork(), is(false));
-        mProcessor.startWork(work.getId());
+        mProcessor.startWork(work.getStringId());
         assertThat(mProcessor.hasWork(), is(true));
     }
 }

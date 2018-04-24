@@ -156,7 +156,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 .withInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS).build();
 
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
         final Intent intent = CommandHandler.createScheduleWorkIntent(mContext, workSpecId);
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, intent, START_ID));
@@ -170,7 +170,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 .build();
 
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
         final Intent intent = CommandHandler.createDelayMetIntent(mContext, workSpecId);
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, intent, START_ID));
@@ -188,7 +188,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 .build();
 
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
 
         final Intent delayMet = CommandHandler.createDelayMetIntent(mContext, workSpecId);
         final Intent stopWork = CommandHandler.createStopWorkIntent(mContext, workSpecId);
@@ -213,7 +213,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 .build();
 
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
 
         final Intent scheduleWork = CommandHandler.createDelayMetIntent(mContext, workSpecId);
         final Intent stopWork = CommandHandler.createStopWorkIntent(mContext, workSpecId);
@@ -244,7 +244,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 .build();
 
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
 
         final Intent scheduleWork = CommandHandler.createScheduleWorkIntent(mContext, workSpecId);
 
@@ -265,7 +265,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 .build();
 
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
         final Intent constraintChanged = CommandHandler.createConstraintsChangedIntent(mContext);
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, constraintChanged, START_ID));
@@ -284,7 +284,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 .build();
 
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
         final Intent constraintChanged = CommandHandler.createConstraintsChangedIntent(mContext);
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, constraintChanged, START_ID));
@@ -324,7 +324,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         insertWork(work);
 
-        Intent delayMet = CommandHandler.createDelayMetIntent(mContext, work.getId());
+        Intent delayMet = CommandHandler.createDelayMetIntent(mContext, work.getStringId());
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, delayMet, START_ID));
 
@@ -332,7 +332,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         List<String> intentActions = intentActionsFor(mSpyDispatcher.getCommands());
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        WorkSpec workSpec = workSpecDao.getWorkSpec(work.getId());
+        WorkSpec workSpec = workSpecDao.getWorkSpec(work.getStringId());
 
         assertThat(mLatch.getCount(), is(0L));
         // Verify order of events
@@ -357,7 +357,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         insertWork(work);
 
-        Intent delayMet = CommandHandler.createDelayMetIntent(mContext, work.getId());
+        Intent delayMet = CommandHandler.createDelayMetIntent(mContext, work.getStringId());
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, delayMet, START_ID));
 
@@ -365,7 +365,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         List<String> intentActions = intentActionsFor(mSpyDispatcher.getCommands());
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        WorkSpec workSpec = workSpecDao.getWorkSpec(work.getId());
+        WorkSpec workSpec = workSpecDao.getWorkSpec(work.getStringId());
 
         assertThat(mLatch.getCount(), is(0L));
         // Assert order of events
@@ -428,10 +428,10 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         }
 
         assertThat(capturedIds.size(), is(2));
-        assertThat(capturedIds.contains(noConstraints.getId()), is(true));
-        assertThat(capturedIds.contains(workWithConstraints.getId()), is(true));
-        assertThat(capturedIds.contains(failed.getId()), is(false));
-        assertThat(capturedIds.contains(succeeded.getId()), is(false));
+        assertThat(capturedIds.contains(noConstraints.getStringId()), is(true));
+        assertThat(capturedIds.contains(workWithConstraints.getStringId()), is(true));
+        assertThat(capturedIds.contains(failed.getStringId()), is(false));
+        assertThat(capturedIds.contains(succeeded.getStringId()), is(false));
     }
 
     private static List<String> intentActionsFor(@NonNull List<Intent> intents) {

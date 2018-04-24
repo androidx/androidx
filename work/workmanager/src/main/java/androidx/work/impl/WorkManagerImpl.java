@@ -48,6 +48,7 @@ import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A concrete implementation of {@link WorkManager}.
@@ -60,6 +61,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 22;
     public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23;
 
+    private Context mContext;
     private WorkDatabase mWorkDatabase;
     private TaskExecutor mTaskExecutor;
     private List<Scheduler> mSchedulers;
@@ -133,8 +135,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
             @NonNull Configuration configuration) {
         this(context,
                 configuration,
-                context.getResources().getBoolean(R.bool.workmanager_test_configuration),
-                null);
+                context.getResources().getBoolean(R.bool.workmanager_test_configuration));
     }
 
     /**
@@ -143,36 +144,26 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
      * @param context         The application {@link Context}
      * @param configuration   The {@link Configuration} configuration.
      * @param useTestDatabase {@code true} If using an in-memory test database.
-     * @param schedulers      List of {@link Scheduler}s to use.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkManagerImpl(
             @NonNull Context context,
             @NonNull Configuration configuration,
-            boolean useTestDatabase,
-            @Nullable List<Scheduler> schedulers) {
-
-        if (schedulers == null) {
-            schedulers = Arrays.asList(
-                    Schedulers.createBestAvailableBackgroundScheduler(context),
-                    new GreedyScheduler(context, this));
-        }
+            boolean useTestDatabase) {
 
         context = context.getApplicationContext();
+        mContext = context;
         mWorkDatabase = WorkDatabase.create(context, useTestDatabase);
-        mSchedulers = schedulers;
-
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
         mProcessor = new Processor(
                 context,
                 mWorkDatabase,
-                mSchedulers,
+                getSchedulers(),
                 configuration.getExecutor());
 
         // Checks for app force stops.
         mTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
-
     }
 
     /**
@@ -191,6 +182,12 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull List<Scheduler> getSchedulers() {
+        // Initialized at construction time. So no need to synchronize.
+        if (mSchedulers == null) {
+            mSchedulers = Arrays.asList(
+                    Schedulers.createBestAvailableBackgroundScheduler(mContext),
+                    new GreedyScheduler(mContext, this));
+        }
         return mSchedulers;
     }
 
@@ -242,13 +239,13 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public void cancelWorkById(@NonNull String id) {
+    public void cancelWorkById(@NonNull UUID id) {
         mTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forId(id, this));
     }
 
     @Override
     @WorkerThread
-    public void cancelWorkByIdSync(@NonNull String id) {
+    public void cancelWorkByIdSync(@NonNull UUID id) {
         assertBackgroundThread("Cannot cancelWorkByIdSync on main thread!");
         CancelWorkRunnable.forId(id, this).run();
     }
@@ -279,10 +276,10 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public LiveData<WorkStatus> getStatusById(@NonNull String id) {
+    public LiveData<WorkStatus> getStatusById(@NonNull UUID id) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
-                dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id));
+                dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id.toString()));
         return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData,
                 new Function<List<WorkSpec.WorkStatusPojo>, WorkStatus>() {
                     @Override
@@ -298,10 +295,10 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     @Override
     @WorkerThread
-    public @Nullable WorkStatus getStatusByIdSync(@NonNull String id) {
+    public @Nullable WorkStatus getStatusByIdSync(@NonNull UUID id) {
         assertBackgroundThread("Cannot call getStatusByIdSync on main thread!");
         WorkSpec.WorkStatusPojo workStatusPojo =
-                mWorkDatabase.workSpecDao().getWorkStatusPojoForId(id);
+                mWorkDatabase.workSpecDao().getWorkStatusPojoForId(id.toString());
         if (workStatusPojo != null) {
             return workStatusPojo.toWorkStatus();
         } else {

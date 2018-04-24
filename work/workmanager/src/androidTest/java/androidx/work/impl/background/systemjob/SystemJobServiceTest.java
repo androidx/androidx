@@ -113,19 +113,19 @@ public class SystemJobServiceTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
-        JobParameters mockParams = createMockJobParameters(work.getId());
+        JobParameters mockParams = createMockJobParameters(work.getStringId());
         mSystemJobServiceSpy.onStartJob(mockParams);
 
         // TODO(sumir): Remove later.  Put here because WorkerWrapper sets state to RUNNING.
         Thread.sleep(5000L);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getState(work.getId()), is(State.RUNNING));
+        assertThat(workSpecDao.getState(work.getStringId()), is(State.RUNNING));
 
         mSystemJobServiceSpy.onStopJob(mockParams);
         // TODO(rahulrav): Figure out why this test is flaky.
         Thread.sleep(5000L);
-        assertThat(workSpecDao.getState(work.getId()), is(State.ENQUEUED));
+        assertThat(workSpecDao.getState(work.getStringId()), is(State.ENQUEUED));
     }
 
     @Test
@@ -134,7 +134,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
-        JobParameters mockParams = createMockJobParameters(work.getId());
+        JobParameters mockParams = createMockJobParameters(work.getStringId());
         assertThat(mSystemJobServiceSpy.onStartJob(mockParams), is(true));
         assertThat(mSystemJobServiceSpy.onStopJob(mockParams), is(true));
     }
@@ -145,10 +145,9 @@ public class SystemJobServiceTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
-        JobParameters mockParams = createMockJobParameters(work.getId());
+        JobParameters mockParams = createMockJobParameters(work.getStringId());
         assertThat(mSystemJobServiceSpy.onStartJob(mockParams), is(true));
-        WorkManagerImpl.getInstance()
-                .cancelWorkById(work.getId());
+        WorkManagerImpl.getInstance().cancelWorkById(work.getId());
         assertThat(mSystemJobServiceSpy.onStopJob(mockParams), is(false));
     }
 
@@ -158,7 +157,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
 
-        JobParameters mockParams = createMockJobParameters(work.getId());
+        JobParameters mockParams = createMockJobParameters(work.getStringId());
         assertThat(mSystemJobServiceSpy.onStartJob(mockParams), is(true));
         assertThat(mSystemJobServiceSpy.onStartJob(mockParams), is(false));
     }
@@ -172,8 +171,8 @@ public class SystemJobServiceTest extends WorkManagerTest {
         insertWork(work);
 
         final String[] testContentAuthorities = new String[] {
-                work.getId(),
-                "yet another " + work.getId()
+                work.getStringId(),
+                "yet another " + work.getStringId()
         };
 
         final Uri[] testContentUris = new Uri[] {
@@ -181,7 +180,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
                 Uri.parse("http://www.google.com")
         };
 
-        JobParameters mockParams = createMockJobParameters(work.getId());
+        JobParameters mockParams = createMockJobParameters(work.getStringId());
         when(mockParams.getTriggeredContentAuthorities()).thenReturn(testContentAuthorities);
         when(mockParams.getTriggeredContentUris()).thenReturn(testContentUris);
 

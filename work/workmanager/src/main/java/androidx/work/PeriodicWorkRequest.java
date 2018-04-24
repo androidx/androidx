@@ -38,7 +38,7 @@ public final class PeriodicWorkRequest extends WorkRequest {
     public static final long MIN_PERIODIC_FLEX_MILLIS = 5 * 60 * 1000L; // 5 minutes.
 
     PeriodicWorkRequest(Builder builder) {
-        super(builder.mWorkSpec, builder.mTags);
+        super(builder.mId, builder.mWorkSpec, builder.mTags);
     }
 
     /**
