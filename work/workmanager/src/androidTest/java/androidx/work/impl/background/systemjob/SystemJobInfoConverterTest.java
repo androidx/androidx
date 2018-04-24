@@ -285,7 +285,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
 
     private WorkSpec getTestWorkSpecWithConstraints(Constraints constraints) {
         return getWorkSpec(new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withConstraints(constraints)
+                .setConstraints(constraints)
                 .build());
     }
 }

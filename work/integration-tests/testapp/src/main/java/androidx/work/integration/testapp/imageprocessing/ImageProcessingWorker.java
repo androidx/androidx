@@ -145,6 +145,6 @@ public class ImageProcessingWorker extends Worker {
     static OneTimeWorkRequest createWork(String uriString) {
         Data input = new Data.Builder().putString(URI_KEY, uriString).build();
         return new OneTimeWorkRequest.Builder(ImageProcessingWorker.class)
-                .withInputData(input).build();
+                .setInputData(input).build();
     }
 }

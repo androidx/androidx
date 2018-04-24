@@ -51,7 +51,7 @@ public class TextMappingWorker extends Worker {
         Data input = new Data.Builder()
                 .putString(INPUT_FILE, inputFile)
                 .build();
-        return new OneTimeWorkRequest.Builder(TextMappingWorker.class).withInputData(input);
+        return new OneTimeWorkRequest.Builder(TextMappingWorker.class).setInputData(input);
     }
 
     @Override

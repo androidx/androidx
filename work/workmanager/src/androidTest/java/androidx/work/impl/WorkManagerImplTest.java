@@ -241,7 +241,7 @@ public class WorkManagerImplTest {
     @SmallTest
     public void testEnqueue_insertWithCompletedDependencies_isNotStatusBlocked() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(SUCCEEDED)
+                .setInitialState(SUCCEEDED)
                 .build();
 
         WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
@@ -258,7 +258,7 @@ public class WorkManagerImplTest {
     @SmallTest
     public void testEnqueue_insertWithFailedDependencies_isStatusFailed() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(FAILED)
+                .setInitialState(FAILED)
                 .build();
 
         WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
@@ -275,7 +275,7 @@ public class WorkManagerImplTest {
     @SmallTest
     public void testEnqueue_insertWithCancelledDependencies_isStatusCancelled() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(CANCELLED)
+                .setInitialState(CANCELLED)
                 .build();
 
         WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
@@ -296,7 +296,7 @@ public class WorkManagerImplTest {
         Uri testUri2 = MediaStore.Images.Media.INTERNAL_CONTENT_URI;
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withConstraints(
+                .setConstraints(
                         new Constraints.Builder()
                                 .setRequiresCharging(true)
                                 .setRequiresDeviceIdle(true)
@@ -345,7 +345,7 @@ public class WorkManagerImplTest {
     public void testEnqueue_insertWorkInitialDelay() {
         final long expectedInitialDelay = 5000L;
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS)
+                .setInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl.beginWith(work0).then(work1).synchronous().enqueueSync();
@@ -361,7 +361,7 @@ public class WorkManagerImplTest {
     @SmallTest
     public void testEnqueue_insertWorkBackoffPolicy() {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withBackoffCriteria(BackoffPolicy.LINEAR, 50000, TimeUnit.MILLISECONDS)
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 50000, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl.beginWith(work0).then(work1).synchronous().enqueueSync();
@@ -535,7 +535,7 @@ public class WorkManagerImplTest {
         final String testName = "myname";
 
         OneTimeWorkRequest originalWork = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(SUCCEEDED)
+                .setInitialState(SUCCEEDED)
                 .build();
         insertNamedWorks(testName, originalWork);
 
@@ -680,7 +680,7 @@ public class WorkManagerImplTest {
     @SmallTest
     public void testGetStatusByIdSync() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(SUCCEEDED)
+                .setInitialState(SUCCEEDED)
                 .build();
         insertWorkSpecAndTags(work);
 
@@ -769,15 +769,15 @@ public class WorkManagerImplTest {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .addTag(firstTag)
                 .addTag(secondTag)
-                .withInitialState(RUNNING)
+                .setInitialState(RUNNING)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .addTag(firstTag)
-                .withInitialState(BLOCKED)
+                .setInitialState(BLOCKED)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .addTag(secondTag)
-                .withInitialState(SUCCEEDED)
+                .setInitialState(SUCCEEDED)
                 .build();
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
@@ -820,15 +820,15 @@ public class WorkManagerImplTest {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .addTag(firstTag)
                 .addTag(secondTag)
-                .withInitialState(RUNNING)
+                .setInitialState(RUNNING)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .addTag(firstTag)
-                .withInitialState(BLOCKED)
+                .setInitialState(BLOCKED)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .addTag(secondTag)
-                .withInitialState(SUCCEEDED)
+                .setInitialState(SUCCEEDED)
                 .build();
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
@@ -879,13 +879,13 @@ public class WorkManagerImplTest {
         final String testName = "myname";
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
-                .withInitialState(RUNNING)
+                .setInitialState(RUNNING)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
-                .withInitialState(BLOCKED)
+                .setInitialState(BLOCKED)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
-                .withInitialState(BLOCKED)
+                .setInitialState(BLOCKED)
                 .build();
         insertNamedWorks(testName, work0, work1, work2);
         insertDependency(work1, work0);
@@ -922,13 +922,13 @@ public class WorkManagerImplTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
-                .withInitialState(RUNNING)
+                .setInitialState(RUNNING)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
-                .withInitialState(BLOCKED)
+                .setInitialState(BLOCKED)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
-                .withInitialState(BLOCKED)
+                .setInitialState(BLOCKED)
                 .build();
         insertNamedWorks(testName, work0, work1, work2);
         insertDependency(work1, work0);
@@ -1000,7 +1000,7 @@ public class WorkManagerImplTest {
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(BLOCKED)
+                .setInitialState(BLOCKED)
                 .build();
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
@@ -1018,10 +1018,10 @@ public class WorkManagerImplTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(SUCCEEDED)
+                .setInitialState(SUCCEEDED)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(ENQUEUED)
+                .setInitialState(ENQUEUED)
                 .build();
         insertWorkSpecAndTags(work0);
         insertWorkSpecAndTags(work1);
@@ -1133,7 +1133,7 @@ public class WorkManagerImplTest {
         final String testName = "myname";
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
-                .withInitialState(SUCCEEDED)
+                .setInitialState(SUCCEEDED)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertNamedWorks(testName, work0, work1);
@@ -1164,7 +1164,7 @@ public class WorkManagerImplTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(RUNNING)
+                .setInitialState(RUNNING)
                 .build();
         workSpecDao.insertWorkSpec(work.getWorkSpec());
 
@@ -1181,11 +1181,11 @@ public class WorkManagerImplTest {
     @SmallTest
     public void testGenerateCleanupCallback_deletesOldFinishedWork() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(SUCCEEDED)
-                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .setInitialState(SUCCEEDED)
+                .setPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
                 .build();
 
         insertWorkSpecAndTags(work1);
@@ -1204,16 +1204,16 @@ public class WorkManagerImplTest {
     @SmallTest
     public void testGenerateCleanupCallback_doesNotDeleteOldFinishedWorkWithActiveDependents() {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(SUCCEEDED)
-                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .setInitialState(SUCCEEDED)
+                .setPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(SUCCEEDED)
-                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .setInitialState(SUCCEEDED)
+                .setPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(ENQUEUED)
-                .withPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .setInitialState(ENQUEUED)
+                .setPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
                 .build();
 
         insertWorkSpecAndTags(work0);
@@ -1239,7 +1239,7 @@ public class WorkManagerImplTest {
     @SdkSuppress(maxSdkVersion = 22)
     public void testEnqueueApi22OrLower_withBatteryNotLowConstraint_expectsOriginalWorker() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withConstraints(new Constraints.Builder()
+                .setConstraints(new Constraints.Builder()
                         .setRequiresBatteryNotLow(true)
                         .build())
                 .build();
@@ -1254,7 +1254,7 @@ public class WorkManagerImplTest {
     @SdkSuppress(maxSdkVersion = 22)
     public void testEnqueueApi22OrLower_withStorageNotLowConstraint_expectsOriginalWorker() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withConstraints(new Constraints.Builder()
+                .setConstraints(new Constraints.Builder()
                         .setRequiresStorageNotLow(true)
                         .build())
                 .build();
@@ -1269,7 +1269,7 @@ public class WorkManagerImplTest {
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testEnqueueApi23To25_withBatteryNotLowConstraint_expectsConstraintTrackingWorker() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withConstraints(new Constraints.Builder()
+                .setConstraints(new Constraints.Builder()
                 .setRequiresBatteryNotLow(true)
                 .build())
                 .build();
@@ -1287,7 +1287,7 @@ public class WorkManagerImplTest {
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testEnqueueApi23To25_withStorageNotLowConstraint_expectsConstraintTrackingWorker() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withConstraints(new Constraints.Builder()
+                .setConstraints(new Constraints.Builder()
                         .setRequiresStorageNotLow(true)
                         .build())
                 .build();
@@ -1305,7 +1305,7 @@ public class WorkManagerImplTest {
     @SdkSuppress(minSdkVersion = 26)
     public void testEnqueueApi26OrHigher_withBatteryNotLowConstraint_expectsOriginalWorker() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withConstraints(new Constraints.Builder()
+                .setConstraints(new Constraints.Builder()
                         .setRequiresBatteryNotLow(true)
                         .build())
                 .build();
@@ -1320,7 +1320,7 @@ public class WorkManagerImplTest {
     @SdkSuppress(minSdkVersion = 26)
     public void testEnqueueApi26OrHigher_withStorageNotLowConstraint_expectsOriginalWorker() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withConstraints(new Constraints.Builder()
+                .setConstraints(new Constraints.Builder()
                         .setRequiresStorageNotLow(true)
                         .build())
                 .build();

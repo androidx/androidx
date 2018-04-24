@@ -39,7 +39,7 @@ public class ToastWorker extends Worker {
      */
     public static OneTimeWorkRequest.Builder create(String message) {
         Data input = new Data.Builder().putString(ARG_MESSAGE, message).build();
-        return new OneTimeWorkRequest.Builder(ToastWorker.class).withInputData(input);
+        return new OneTimeWorkRequest.Builder(ToastWorker.class).setInputData(input);
     }
 
     @Override
