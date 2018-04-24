@@ -203,7 +203,7 @@ public class WorkContinuationImpl extends WorkContinuation
 
         if (work == null) {
             work = new OneTimeWorkRequest.Builder(CombineContinuationsWorker.class)
-                    .withInputMerger(ArrayCreatingInputMerger.class)
+                    .setInputMerger(ArrayCreatingInputMerger.class)
                     .build();
         }
 

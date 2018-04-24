@@ -82,7 +82,7 @@ public final class OneTimeWorkRequest extends WorkRequest {
          * @param timeUnit The units of time for {@code duration}
          * @return The current {@link Builder}
          */
-        public Builder withInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
+        public Builder setInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
             mWorkSpec.initialDelay = timeUnit.toMillis(duration);
             return this;
         }
@@ -97,7 +97,7 @@ public final class OneTimeWorkRequest extends WorkRequest {
          *                    {@link OneTimeWorkRequest}
          * @return The current {@link Builder}
          */
-        public Builder withInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
+        public Builder setInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
             mWorkSpec.inputMergerClassName = inputMerger.getName();
             return this;
         }
@@ -115,7 +115,7 @@ public final class OneTimeWorkRequest extends WorkRequest {
         }
 
         @Override
-        protected Builder getThis() {
+        Builder getThis() {
             return this;
         }
     }
