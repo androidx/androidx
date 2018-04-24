@@ -72,7 +72,7 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
         // Instantiate the delegated worker. Use the same workSpecId, and the same Data
         // as this Worker's Data are a superset of the delegate's Worker's Data.
         mDelegate = WorkerWrapper.workerFromClassName(
-                getAppContext(),
+                getApplicationContext(),
                 className,
                 getId(),
                 getInputData(),
@@ -91,7 +91,7 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
             return WorkerResult.FAILURE;
         }
         WorkConstraintsTracker workConstraintsTracker =
-                new WorkConstraintsTracker(getAppContext(), this);
+                new WorkConstraintsTracker(getApplicationContext(), this);
 
         // Start tracking
         workConstraintsTracker.replace(Collections.singletonList(workSpec));

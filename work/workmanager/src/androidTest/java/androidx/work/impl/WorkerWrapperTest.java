@@ -565,7 +565,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 null);
 
         assertThat(worker, is(notNullValue()));
-        assertThat(worker.getAppContext(), is(equalTo(mContext.getApplicationContext())));
+        assertThat(worker.getApplicationContext(), is(equalTo(mContext.getApplicationContext())));
     }
 
     @Test
