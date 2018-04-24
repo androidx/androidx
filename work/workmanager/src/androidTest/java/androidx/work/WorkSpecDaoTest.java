@@ -92,7 +92,7 @@ public class WorkSpecDaoTest extends DatabaseTest {
                 .build();
 
         insertWork(enqueued);
-        workSpecDao.markWorkSpecScheduled(enqueued.getId(), startTime);
+        workSpecDao.markWorkSpecScheduled(enqueued.getStringId(), startTime);
 
         insertWork(succeeded);
         insertWork(failed);
@@ -130,7 +130,7 @@ public class WorkSpecDaoTest extends DatabaseTest {
                 .build();
 
         insertWork(enqueued);
-        workSpecDao.markWorkSpecScheduled(enqueued.getId(), startTime);
+        workSpecDao.markWorkSpecScheduled(enqueued.getStringId(), startTime);
 
         insertWork(succeeded);
         insertWork(failed);
@@ -141,6 +141,6 @@ public class WorkSpecDaoTest extends DatabaseTest {
         List<WorkSpec> eligibleWorkSpecs = workSpecDao.getEligibleWorkForScheduling();
         assertThat(eligibleWorkSpecs.size(), is(1));
         // Not using contains in any order as the scheduleRequestedAt changes post reset.
-        assertThat(eligibleWorkSpecs.get(0).id, is(enqueued.getId()));
+        assertThat(eligibleWorkSpecs.get(0).id, is(enqueued.getStringId()));
     }
 }

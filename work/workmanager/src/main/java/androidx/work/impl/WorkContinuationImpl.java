@@ -140,7 +140,7 @@ public class WorkContinuationImpl extends WorkContinuation
             }
         }
         for (int i = 0; i < work.size(); i++) {
-            String id = work.get(i).getId();
+            String id = work.get(i).getStringId();
             mIds.add(id);
             mAllIds.add(id);
         }

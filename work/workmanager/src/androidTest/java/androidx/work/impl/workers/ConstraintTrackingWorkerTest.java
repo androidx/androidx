@@ -136,7 +136,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                     .build();
 
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
 
         ConstraintTrackingWorker worker =
                 (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
@@ -182,7 +182,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                     .build();
 
         insertWork(work);
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
 
         ConstraintTrackingWorker worker =
                 (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
@@ -227,7 +227,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
 
         insertWork(work);
 
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
 
         ConstraintTrackingWorker worker =
                 (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
@@ -280,7 +280,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
 
         insertWork(work);
 
-        String workSpecId = work.getId();
+        String workSpecId = work.getStringId();
 
         ConstraintTrackingWorker worker =
                 (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
