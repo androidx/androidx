@@ -16,7 +16,6 @@
 
 package androidx.slice;
 
-import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_TITLE;
 
 import static androidx.slice.SliceMetadata.LOADED_ALL;
@@ -24,6 +23,7 @@ import static androidx.slice.SliceMetadata.LOADED_NONE;
 import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
+import static androidx.slice.core.SliceHints.INFINITY;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -551,17 +551,23 @@ public class SliceMetadataTest {
     @Test
     public void testGetLoadingState() {
         Uri uri = Uri.parse("content://pkg/slice");
-        Slice s1 = new Slice.Builder(uri).build();
+        Slice s1 = new ListBuilder(mContext, uri, INFINITY).build();
         SliceMetadata SliceMetadata1 = SliceMetadata.from(mContext, s1);
         int actualState1 = SliceMetadata1.getLoadingState();
         assertEquals(LOADED_NONE, actualState1);
 
-        Slice s2 = new Slice.Builder(uri).addText(null, null, HINT_PARTIAL).build();
+        ListBuilder lb = new ListBuilder(mContext, uri, INFINITY);
+        Slice s2 = lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle(null, true /* isLoading */))
+                .build();
         SliceMetadata SliceMetadata2 = SliceMetadata.from(mContext, s2);
         int actualState2 = SliceMetadata2.getLoadingState();
         assertEquals(LOADED_PARTIAL, actualState2);
 
-        Slice s3 = new Slice.Builder(uri).addText("Text", null).build();
+        ListBuilder lb2 = new ListBuilder(mContext, uri, INFINITY);
+        Slice s3 = lb2.addRow(new ListBuilder.RowBuilder(lb2)
+                .setTitle("Title", false /* isLoading */))
+                .build();
         SliceMetadata SliceMetadata3 = SliceMetadata.from(mContext, s3);
         int actualState3 = SliceMetadata3.getLoadingState();
         assertEquals(LOADED_ALL, actualState3);
