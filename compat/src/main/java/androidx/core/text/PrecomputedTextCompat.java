@@ -263,7 +263,7 @@ public class PrecomputedTextCompat implements Spannable {
             }
             Params other = (Params) o;
             if (mWrapped != null) {
-                return mWrapped.equals(other);
+                return mWrapped.equals(other.mWrapped);
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -505,7 +505,7 @@ public class PrecomputedTextCompat implements Spannable {
     public @IntRange(from = 0) int getParagraphEnd(@IntRange(from = 0) int paraIndex) {
         Preconditions.checkArgumentInRange(paraIndex, 0, getParagraphCount(), "paraIndex");
         if (BuildCompat.isAtLeastP()) {
-            return mWrapped.getParagraphStart(paraIndex);
+            return mWrapped.getParagraphEnd(paraIndex);
         } else {
             return mParagraphEnds[paraIndex];
         }
