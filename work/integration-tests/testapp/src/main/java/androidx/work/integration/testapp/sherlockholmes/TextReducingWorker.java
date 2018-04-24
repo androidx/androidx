@@ -53,7 +53,7 @@ public class TextReducingWorker extends Worker {
             FileInputStream fileInputStream = null;
             DataInputStream dataInputStream = null;
             try {
-                fileInputStream = getAppContext().openFileInput(inputFiles[i]);
+                fileInputStream = getApplicationContext().openFileInput(inputFiles[i]);
                 dataInputStream = new DataInputStream(fileInputStream);
                 while (dataInputStream.available() > 0) {
                     String word = dataInputStream.readUTF();
@@ -87,7 +87,7 @@ public class TextReducingWorker extends Worker {
         sortedList.addAll(mWordCount.entrySet());
         Collections.sort(sortedList, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
 
-        TestDatabase db = TestDatabase.getInstance(getAppContext());
+        TestDatabase db = TestDatabase.getInstance(getApplicationContext());
         db.beginTransaction();
         try {
             for (Map.Entry<String, Integer> entry : sortedList) {

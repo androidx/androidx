@@ -36,7 +36,8 @@ public class ImageCleanupWorker extends Worker {
     @Override
     public @NonNull WorkerResult doWork() {
         Log.d(TAG, "Started");
-        List<Image> images = TestDatabase.getInstance(getAppContext()).getImageDao().getImages();
+        List<Image> images = TestDatabase.getInstance(getApplicationContext())
+                .getImageDao().getImages();
         for (Image image : images) {
             if (!TextUtils.isEmpty(image.mProcessedFilePath)) {
                 if (new File(image.mProcessedFilePath).delete()) {
@@ -48,7 +49,7 @@ public class ImageCleanupWorker extends Worker {
                 Log.d(TAG, image.mOriginalAssetName + "was not processed");
             }
         }
-        TestDatabase.getInstance(getAppContext()).getImageDao().clear();
+        TestDatabase.getInstance(getApplicationContext()).getImageDao().clear();
         Log.d(TAG, "Cleanup Complete!");
         return WorkerResult.SUCCESS;
     }

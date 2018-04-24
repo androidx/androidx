@@ -50,7 +50,7 @@ public class ToastWorker extends Worker {
             @Override
             public void run() {
                 Log.d("ToastWorker", message);
-                Toast.makeText(getAppContext(), message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
         return WorkerResult.SUCCESS;
