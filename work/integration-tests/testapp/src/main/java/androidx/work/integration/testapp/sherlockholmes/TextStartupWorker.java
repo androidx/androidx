@@ -28,7 +28,7 @@ public class TextStartupWorker extends Worker {
 
     @Override
     public @NonNull WorkerResult doWork() {
-        TestDatabase db = TestDatabase.getInstance(getAppContext());
+        TestDatabase db = TestDatabase.getInstance(getApplicationContext());
         db.getWordCountDao().clear();
         Log.d("Startup", "Database cleared");
         return WorkerResult.SUCCESS;

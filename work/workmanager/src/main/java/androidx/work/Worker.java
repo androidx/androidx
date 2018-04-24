@@ -44,7 +44,7 @@ public abstract class Worker {
     private @NonNull Data mOutputData = Data.EMPTY;
     private @Nullable RuntimeExtras mRuntimeExtras;
 
-    public final @NonNull Context getAppContext() {
+    public final @NonNull Context getApplicationContext() {
         return mAppContext;
     }
 
