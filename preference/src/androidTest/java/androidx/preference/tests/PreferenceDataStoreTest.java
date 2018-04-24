@@ -17,9 +17,11 @@
 package androidx.preference.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.AdditionalAnswers.returnsSecondArg;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
@@ -46,6 +48,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.preference.CheckBoxPreference;
+import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceDataStore;
 import androidx.preference.PreferenceManager;
@@ -191,6 +194,89 @@ public class PreferenceDataStoreTest {
         mScreen.addPreference(pref);
 
         assertTrue(pref.isChecked());
+    }
+
+    /**
+     * Test that the initial value is set to the default value provided if a saved value cannot be
+     * found in the data store for a {@link CheckBoxPreference}.
+     */
+    @Test
+    @UiThreadTest
+    public void testInitialValueIsSetToDefaultForCheckBoxPreference() {
+        // Return the default value passed to the data store, mimicking implementation behaviour.
+        when(mDataStore.getBoolean(anyString(), anyBoolean())).then(returnsSecondArg());
+
+        CheckBoxPreference pref = new CheckBoxPreference(mContext);
+        pref.setKey("CheckboxTestPref");
+        pref.setDefaultValue(true);
+        pref.setPreferenceDataStore(mDataStore);
+
+        mScreen.addPreference(pref);
+
+        assertTrue(pref.isChecked());
+    }
+
+    /**
+     * Test that the initial value is set to the default value provided if a saved value cannot be
+     * found in the data store for a {@link EditTextPreference}.
+     */
+    @Test
+    @UiThreadTest
+    public void testInitialValueIsSetToDefaultForEditTextPreference() {
+        // Return the default value passed to the data store, mimicking implementation behaviour.
+        when(mDataStore.getString(anyString(), anyString())).then(returnsSecondArg());
+
+        String defaultValue = "Default Value";
+        EditTextPreference pref = new EditTextPreference(mContext);
+        pref.setKey("EditTextTestPref");
+        pref.setDefaultValue(defaultValue);
+        pref.setPreferenceDataStore(mDataStore);
+
+        mScreen.addPreference(pref);
+
+        assertEquals(defaultValue, pref.getText());
+    }
+
+
+    /**
+     * Test that the initial value is set to unchecked if a saved value cannot be found in the data
+     * store and no default value is provided for a {@link CheckBoxPreference}.
+     */
+    @Test
+    @UiThreadTest
+    public void testInitialValueIsUncheckedIfNoDefaultValueForSwitchBoxPreference() {
+        // Return the default value passed to the data store, mimicking implementation behaviour.
+        // In this case since we haven't set a default, this should return false as a
+        // TwoStatePreference cannot have a null value.
+        when(mDataStore.getBoolean(anyString(), anyBoolean())).then(returnsSecondArg());
+
+        CheckBoxPreference pref = new CheckBoxPreference(mContext);
+        pref.setKey("CheckboxTestPref");
+        pref.setPreferenceDataStore(mDataStore);
+
+        mScreen.addPreference(pref);
+
+        assertFalse(pref.isChecked());
+    }
+
+    /**
+     * Test that the initial value is set to null if a saved value cannot be found in the data store
+     * and no default value is provided for a {@link EditTextPreference}.
+     */
+    @Test
+    @UiThreadTest
+    public void testInitialValueIsNullIfNoDefaultValueForEditTextPreference() {
+        // Return the default value passed to the data store, mimicking implementation behaviour.
+        // In this case since we haven't set a default, this should return null.
+        when(mDataStore.getString(anyString(), anyString())).then(returnsSecondArg());
+
+        EditTextPreference pref = new EditTextPreference(mContext);
+        pref.setKey("EditTextTestPref");
+        pref.setPreferenceDataStore(mDataStore);
+
+        mScreen.addPreference(pref);
+
+        assertEquals(null, pref.getText());
     }
 
     @Test
