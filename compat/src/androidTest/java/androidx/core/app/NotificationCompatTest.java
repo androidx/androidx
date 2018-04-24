@@ -528,6 +528,29 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @Test
+    public void testMessagingStyle_nullPerson() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name");
+        messagingStyle.addMessage("text", 200, (Person) null);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(messagingStyle)
+                .build();
+
+        List<Message> result = NotificationCompat.MessagingStyle
+                .extractMessagingStyleFromNotification(notification)
+                .getMessages();
+
+        assertEquals(1, result.size());
+        assertEquals("text", result.get(0).getText());
+        assertEquals(200, result.get(0).getTimestamp());
+        assertNull(result.get(0).getPerson());
+        assertNull(result.get(0).getSender());
+    }
+
+    @Test
     public void testMessagingStyle_message() {
         NotificationCompat.MessagingStyle messagingStyle =
                 new NotificationCompat.MessagingStyle("self name");
