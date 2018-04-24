@@ -2598,7 +2598,7 @@ public class NotificationCompat {
             @Deprecated
             @Nullable
             public CharSequence getSender() {
-                return mPerson.getName();
+                return mPerson == null ? null : mPerson.getName();
             }
 
             /** Returns the {@link Person} sender of this message. */
@@ -2674,21 +2674,20 @@ public class NotificationCompat {
                         return null;
                     }
 
-                    Message message;
+                    Person person = null;
                     if (bundle.containsKey(KEY_SENDER)) {
-                        // Legacy sender
-                        message = new Message(
-                                bundle.getCharSequence(KEY_TEXT),
-                                bundle.getLong(KEY_TIMESTAMP),
-                                new Person.Builder()
-                                        .setName(bundle.getCharSequence(KEY_SENDER))
-                                        .build());
-                    } else {
-                        message = new Message(
-                                bundle.getCharSequence(KEY_TEXT),
-                                bundle.getLong(KEY_TIMESTAMP),
-                                Person.fromBundle(bundle.getBundle(KEY_PERSON)));
+                        // Legacy person
+                        person = new Person.Builder()
+                                .setName(bundle.getCharSequence(KEY_SENDER))
+                                .build();
+                    } else if (bundle.containsKey(KEY_PERSON)) {
+                        person = Person.fromBundle(bundle.getBundle(KEY_PERSON));
                     }
+
+                    Message message = new Message(
+                            bundle.getCharSequence(KEY_TEXT),
+                            bundle.getLong(KEY_TIMESTAMP),
+                            person);
 
                     if (bundle.containsKey(KEY_DATA_MIME_TYPE)
                             && bundle.containsKey(KEY_DATA_URI)) {
