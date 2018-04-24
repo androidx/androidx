@@ -16,6 +16,14 @@
 
 package androidx.core.widget;
 
+import static android.view.View.TEXT_DIRECTION_ANY_RTL;
+import static android.view.View.TEXT_DIRECTION_FIRST_STRONG;
+import static android.view.View.TEXT_DIRECTION_FIRST_STRONG_LTR;
+import static android.view.View.TEXT_DIRECTION_FIRST_STRONG_RTL;
+import static android.view.View.TEXT_DIRECTION_LOCALE;
+import static android.view.View.TEXT_DIRECTION_LTR;
+import static android.view.View.TEXT_DIRECTION_RTL;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.TargetApi;
@@ -26,14 +34,20 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.icu.text.DecimalFormatSymbols;
 import android.os.Build;
 import android.text.Editable;
+import android.text.TextDirectionHeuristic;
+import android.text.TextDirectionHeuristics;
+import android.text.TextPaint;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
@@ -42,9 +56,11 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.core.os.BuildCompat;
+import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -54,6 +70,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Helper for accessing features in {@link TextView}.
@@ -783,6 +800,184 @@ public final class TextViewCompat {
         if (lineHeight != fontHeight) {
             // Set lineSpacingExtra by the difference of lineSpacing with lineHeight
             textView.setLineSpacing(lineHeight - fontHeight, 1f);
+        }
+    }
+
+    /**
+     * Gets the parameters for text layout precomputation, for use with
+     * {@link PrecomputedTextCompat}.
+     *
+     * @return a current {@link PrecomputedTextCompat.Params}
+     * @see PrecomputedTextCompat
+     */
+    public static @NonNull PrecomputedTextCompat.Params getTextMetricsParams(
+            @NonNull final TextView textView) {
+        if (BuildCompat.isAtLeastP()) {
+            return new PrecomputedTextCompat.Params(textView.getTextMetricsParams());
+        } else {
+            PrecomputedTextCompat.Params.Builder builder =
+                    new PrecomputedTextCompat.Params.Builder(new TextPaint(textView.getPaint()));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                builder.setBreakStrategy(textView.getBreakStrategy());
+                builder.setHyphenationFrequency(textView.getHyphenationFrequency());
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                builder.setTextDirection(getTextDirectionHeuristic(textView));
+            }
+            return builder.build();
+        }
+    }
+
+    /**
+     * Apply the text layout parameter.
+     *
+     * Update the TextView parameters to be compatible with {@link PrecomputedTextCompat.Params}.
+     * @see PrecomputedTextCompat
+     */
+    public static void setTextMetricsParams(@NonNull TextView textView,
+            @NonNull PrecomputedTextCompat.Params params) {
+
+        // There is no way of setting text direction heuristics to TextView.
+        // Convert to the View's text direction int values.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            textView.setTextDirection(getTextDirection(params.getTextDirection()));
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            float paintTextScaleX = params.getTextPaint().getTextScaleX();
+
+            // This is not a recommended way but there is no API to set paint to text view.
+            textView.getPaint().set(params.getTextPaint());
+            // On API 22 or before, doing following trick to invalidate internal layout objects.
+
+            if (paintTextScaleX == textView.getTextScaleX()) {
+                // Set the different value of the scaleX so that the following setTextScaleX will
+                // trigger new layout request.
+                textView.setTextScaleX(paintTextScaleX / 2.0f + 1.0f);
+            }
+            textView.setTextScaleX(paintTextScaleX);
+
+        } else {  // API 23 or later
+            // This is not a recommended way but there is no API to set paint to text view.
+            textView.getPaint().set(params.getTextPaint());
+            // getPaint().set() doesn't invalidaate the internal layout objects.
+            // On API 23 or later, setBreakStrategy/setHyphenationFrequency invalidates internal
+            // layout objects.
+            textView.setBreakStrategy(params.getBreakStrategy());
+            textView.setHyphenationFrequency(params.getHyphenationFrequency());
+        }
+    }
+
+    /**
+     * Sets the PrecomputedTextCompat to the TextView
+     *
+     * If the given PrecomputeTextCompat is not compatible with textView, throws an
+     * IllegalArgumentException.
+     *
+     * @param textView the TextView
+     * @param precomputed the precomputed text
+     * @throws IllegalArgumentException if precomputed text is not compatible with textView.
+     */
+    public static void setPrecomputedText(@NonNull TextView textView,
+                                          @NonNull PrecomputedTextCompat precomputed) {
+
+        if (BuildCompat.isAtLeastP()) {
+            // Framework can not understand PrecomptedTextCompat. Pass underlying PrecomputedText.
+            // Parameter check is also done by framework.
+            textView.setText(precomputed.getPrecomputedText());
+        } else {
+            PrecomputedTextCompat.Params param = TextViewCompat.getTextMetricsParams(textView);
+            if (!param.equals(precomputed.getParams())) {
+                throw new IllegalArgumentException("Given text can not be applied to TextView.");
+            }
+            textView.setText(precomputed);
+        }
+    }
+
+    /**
+     * Returns the current {@link TextDirectionHeuristic}.
+     *
+     * This method is copy of TextView.getTextDirectionHeuristic() in framework.
+     * TODO: Make TextView.getTextDirectionHeuristic() in framework public API.
+     *
+     * @return the current {@link TextDirectionHeuristic}.
+     */
+    @RequiresApi(18)
+    private static TextDirectionHeuristic getTextDirectionHeuristic(@NonNull TextView textView) {
+        if (textView.getTransformationMethod() instanceof PasswordTransformationMethod) {
+            // passwords fields should be LTR
+            return TextDirectionHeuristics.LTR;
+        }
+
+        if (BuildCompat.isAtLeastP()) {
+            if ((textView.getInputType() & EditorInfo.TYPE_MASK_CLASS)
+                    == EditorInfo.TYPE_CLASS_PHONE) {
+                // Phone numbers must be in the direction of the locale's digits. Most locales
+                // have LTR digits, but some locales, such as those written in the Adlam or N'Ko
+                // scripts, have RTL digits.
+                final DecimalFormatSymbols symbols =
+                        DecimalFormatSymbols.getInstance(textView.getTextLocale());
+                final String zero = symbols.getDigitStrings()[0];
+                // In case the zero digit is multi-codepoint, just use the first codepoint to
+                // determine direction.
+                final int firstCodepoint = zero.codePointAt(0);
+                final byte digitDirection = Character.getDirectionality(firstCodepoint);
+                if (digitDirection == Character.DIRECTIONALITY_RIGHT_TO_LEFT
+                        || digitDirection == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC) {
+                    return TextDirectionHeuristics.RTL;
+                } else {
+                    return TextDirectionHeuristics.LTR;
+                }
+            }
+        }
+
+        // Always need to resolve layout direction first
+        final boolean defaultIsRtl = (textView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL);
+
+        // Now, we can select the heuristic
+        switch (textView.getTextDirection()) {
+            default:
+            case TEXT_DIRECTION_FIRST_STRONG:
+                return (defaultIsRtl ? TextDirectionHeuristics.FIRSTSTRONG_RTL :
+                        TextDirectionHeuristics.FIRSTSTRONG_LTR);
+            case TEXT_DIRECTION_ANY_RTL:
+                return TextDirectionHeuristics.ANYRTL_LTR;
+            case TEXT_DIRECTION_LTR:
+                return TextDirectionHeuristics.LTR;
+            case TEXT_DIRECTION_RTL:
+                return TextDirectionHeuristics.RTL;
+            case TEXT_DIRECTION_LOCALE:
+                return TextDirectionHeuristics.LOCALE;
+            case TEXT_DIRECTION_FIRST_STRONG_LTR:
+                return TextDirectionHeuristics.FIRSTSTRONG_LTR;
+            case TEXT_DIRECTION_FIRST_STRONG_RTL:
+                return TextDirectionHeuristics.FIRSTSTRONG_RTL;
+        }
+    }
+
+    /**
+     * Convert TextDirectionHeuristic to TextDirection int values
+     */
+    @RequiresApi(18)
+    private static int getTextDirection(@NonNull  TextDirectionHeuristic heuristic) {
+        if (heuristic == TextDirectionHeuristics.FIRSTSTRONG_RTL) {
+            return TEXT_DIRECTION_FIRST_STRONG;
+        } else if (heuristic == TextDirectionHeuristics.FIRSTSTRONG_LTR) {
+            return TEXT_DIRECTION_FIRST_STRONG;
+        } else if (heuristic == TextDirectionHeuristics.ANYRTL_LTR) {
+            return TEXT_DIRECTION_ANY_RTL;
+        } else if (heuristic == TextDirectionHeuristics.LTR) {
+            return TEXT_DIRECTION_LTR;
+        } else if (heuristic == TextDirectionHeuristics.RTL) {
+            return TEXT_DIRECTION_RTL;
+        } else if (heuristic == TextDirectionHeuristics.LOCALE) {
+            return TEXT_DIRECTION_LOCALE;
+        } else if (heuristic == TextDirectionHeuristics.FIRSTSTRONG_LTR) {
+            return TEXT_DIRECTION_FIRST_STRONG_LTR;
+        } else if (heuristic == TextDirectionHeuristics.FIRSTSTRONG_RTL) {
+            return TEXT_DIRECTION_FIRST_STRONG_RTL;
+        } else {
+            return TEXT_DIRECTION_FIRST_STRONG;
         }
     }
 }
