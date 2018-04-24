@@ -29,6 +29,7 @@ import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
 import androidx.room.integration.testapp.vo.UserAndPet;
 import androidx.room.integration.testapp.vo.UserAndPetAdoptionDates;
+import androidx.room.integration.testapp.vo.UserAndGenericPet;
 import androidx.room.integration.testapp.vo.UserAndPetNonNull;
 import androidx.room.integration.testapp.vo.UserIdAndPetNames;
 import androidx.room.integration.testapp.vo.UserWithPetsAndToys;
@@ -41,6 +42,9 @@ import io.reactivex.Flowable;
 public interface UserPetDao {
     @Query("SELECT * FROM User u, Pet p WHERE u.mId = p.mUserId")
     List<UserAndPet> loadAll();
+
+    @Query("SELECT * FROM User u, Pet p WHERE u.mId = p.mUserId")
+    List<UserAndGenericPet> loadAllGeneric();
 
     @Query("SELECT * FROM User u LEFT OUTER JOIN Pet p ON u.mId = p.mUserId")
     List<UserAndPet> loadUsers();
