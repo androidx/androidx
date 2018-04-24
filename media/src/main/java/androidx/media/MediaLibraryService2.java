@@ -282,6 +282,10 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          */
         public void notifyChildrenChanged(@NonNull ControllerInfo controller,
                 @NonNull String parentId, int itemCount, @Nullable Bundle extras) {
+            List<MediaSessionManager.RemoteUserInfo> subscribingBrowsers =
+                    getServiceCompat().getSubscribingBrowsers(parentId);
+            getImpl().notifyChildrenChanged(controller, parentId, itemCount, extras,
+                    subscribingBrowsers);
         }
 
         /**

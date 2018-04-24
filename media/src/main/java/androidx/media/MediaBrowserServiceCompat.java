@@ -188,6 +188,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         void notifyChildrenChanged(final String parentId, final Bundle options);
         Bundle getBrowserRootHints();
         RemoteUserInfo getCurrentBrowserInfo();
+        List<RemoteUserInfo> getSubscribingBrowsers(String parentId);
     }
 
     class MediaBrowserServiceImplBase implements MediaBrowserServiceImpl {
@@ -265,6 +266,20 @@ public abstract class MediaBrowserServiceCompat extends Service {
                         + " onLoadItem, onSearch, or onCustomAction methods");
             }
             return mCurConnection.browserInfo;
+        }
+
+        @Override
+        public List<RemoteUserInfo> getSubscribingBrowsers(String parentId) {
+            List<RemoteUserInfo> result = new ArrayList<>();
+            for (IBinder binder : mConnections.keySet()) {
+                ConnectionRecord connection = mConnections.get(binder);
+                List<Pair<IBinder, Bundle>> callbackList =
+                        connection.subscriptions.get(parentId);
+                if (callbackList != null) {
+                    result.add(connection.browserInfo);
+                }
+            }
+            return result;
         }
     }
 
@@ -375,6 +390,20 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 }
             };
             MediaBrowserServiceCompat.this.onLoadChildren(parentId, result);
+        }
+
+        @Override
+        public List<RemoteUserInfo> getSubscribingBrowsers(String parentId) {
+            List<RemoteUserInfo> result = new ArrayList<>();
+            for (IBinder binder : mConnections.keySet()) {
+                ConnectionRecord connection = mConnections.get(binder);
+                List<Pair<IBinder, Bundle>> callbackList =
+                        connection.subscriptions.get(parentId);
+                if (callbackList != null) {
+                    result.add(connection.browserInfo);
+                }
+            }
+            return result;
         }
 
         void notifyChildrenChangedForFramework(final String parentId, final Bundle options) {
@@ -1357,6 +1386,18 @@ public abstract class MediaBrowserServiceCompat extends Service {
             throw new IllegalArgumentException("options cannot be null in notifyChildrenChanged");
         }
         mImpl.notifyChildrenChanged(parentId, options);
+    }
+
+    /**
+     * Gets {@link RemoteUserInfo} of all browsers which are subscribing to the given parentId.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public @NonNull List<RemoteUserInfo> getSubscribingBrowsers(@NonNull String parentId) {
+        if (parentId == null) {
+            throw new IllegalArgumentException("parentId cannot be null in getSubscribingBrowsers");
+        }
+        return mImpl.getSubscribingBrowsers(parentId);
     }
 
     /**
