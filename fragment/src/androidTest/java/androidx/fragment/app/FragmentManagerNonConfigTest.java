@@ -16,9 +16,13 @@
 
 package androidx.fragment.app;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import android.os.Build;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -39,14 +43,28 @@ public class FragmentManagerNonConfigTest {
 
     /**
      * When a fragment is added during onStop(), it shouldn't show up in non-config
-     * state when restored.
+     * state when restored before P, because OnSaveInstanceState was already called.
      */
     @Test
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O_MR1)
     public void nonConfigStop() throws Throwable {
         FragmentActivity activity = FragmentActivityUtils.recreateActivity(mActivityRule,
                 mActivityRule.getActivity());
 
         // A fragment was added in onStop(), but we shouldn't see it here...
         assertTrue(activity.getSupportFragmentManager().getFragments().isEmpty());
+    }
+
+    /**
+     * When a fragment is added during onStop(), it shouldn't show up in non-config
+     * state when restored after (>=) P, because OnSaveInstanceState isn't yet called.
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void nonConfigStopSavingFragment() throws Throwable {
+        FragmentActivity activity = FragmentActivityUtils.recreateActivity(mActivityRule,
+                mActivityRule.getActivity());
+
+        assertThat(activity.getSupportFragmentManager().getFragments().size(), is(1));
     }
 }
