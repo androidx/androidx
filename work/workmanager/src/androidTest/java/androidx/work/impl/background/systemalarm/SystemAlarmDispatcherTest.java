@@ -152,8 +152,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testSchedule() throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .withInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS).build();
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS).build();
 
         insertWork(work);
         String workSpecId = work.getStringId();
@@ -166,7 +166,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testDelayMet_success() throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
         insertWork(work);
@@ -183,8 +183,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     public void testDelayMet_withStop() throws InterruptedException {
         // SleepTestWorker sleeps for 5 seconds
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(SleepTestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .withInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setInitialDelay(TimeUnit.HOURS.toMillis(1), TimeUnit.MILLISECONDS)
                 .build();
 
         insertWork(work);
@@ -209,7 +209,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testDelayMet_withStopWhenCancelled() throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(SleepTestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
         insertWork(work);
@@ -235,10 +235,10 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     public void testSchedule_withConstraints() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(
+                .setPeriodStartTime(
                         System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1),
                         TimeUnit.MILLISECONDS)
-                .withConstraints(new Constraints.Builder()
+                .setConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
                         .build())
                 .build();
@@ -260,8 +260,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @Test
     public void testConstraintsChanged_withNoConstraints() throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withScheduleRequestedAt(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setScheduleRequestedAt(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
         insertWork(work);
@@ -280,7 +280,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     public void testConstraintsChangedMarkedNotScheduled_withNoConstraints()
             throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
         insertWork(work);
@@ -298,8 +298,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     public void testConstraintsChanged_withConstraint() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .withConstraints(new Constraints.Builder()
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
                         .build())
                 .build();
@@ -316,8 +316,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     public void testDelayMet_withUnMetConstraint() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(false);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .withConstraints(new Constraints.Builder()
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
                         .build())
                 .build();
@@ -349,8 +349,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     public void testDelayMet_withMetConstraint() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .withConstraints(new Constraints.Builder()
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
                         .build())
                 .build();
@@ -385,22 +385,22 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(scheduler));
 
         OneTimeWorkRequest failed = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .withInitialState(State.FAILED)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setInitialState(State.FAILED)
                 .build();
 
         OneTimeWorkRequest succeeded = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .withInitialState(State.SUCCEEDED)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setInitialState(State.SUCCEEDED)
                 .build();
 
         OneTimeWorkRequest noConstraints = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
         OneTimeWorkRequest workWithConstraints = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .withConstraints(new Constraints.Builder()
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
                         .build())
                 .build();

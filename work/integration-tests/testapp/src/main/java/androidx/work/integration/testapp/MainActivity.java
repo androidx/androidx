@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         WorkManager.getInstance().enqueue(
                                 new OneTimeWorkRequest.Builder(InfiniteWorker.class)
-                                        .withConstraints(new Constraints.Builder()
+                                        .setConstraints(new Constraints.Builder()
                                                 .setRequiresCharging(true)
                                                 .build())
                                         .build());
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         WorkManager.getInstance().enqueue(
                                 new OneTimeWorkRequest.Builder(InfiniteWorker.class)
-                                        .withConstraints(new Constraints.Builder()
+                                        .setConstraints(new Constraints.Builder()
                                                 .setRequiredNetworkType(NetworkType.CONNECTED)
                                                 .build())
                                         .build());
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
                 WorkManager.getInstance().enqueue(ToastWorker
                         .create("Image URI Updated!")
-                        .withConstraints(new Constraints.Builder()
+                        .setConstraints(new Constraints.Builder()
                                 .addContentUriTrigger(
                                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true)
                                 .build())
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Enqueuing job with delay of " + delay + " ms");
                 WorkManager.getInstance().enqueue(ToastWorker
                         .create("Delayed Job Ran!")
-                        .withInitialDelay(delay, TimeUnit.MILLISECONDS)
+                        .setInitialDelay(delay, TimeUnit.MILLISECONDS)
                         .build());
             }
         });

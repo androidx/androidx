@@ -73,7 +73,7 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
 
         OneTimeWorkRequest textReducingWork =
                 new OneTimeWorkRequest.Builder(TextReducingWorker.class)
-                    .withInputMerger(ArrayCreatingInputMerger.class)
+                    .setInputMerger(ArrayCreatingInputMerger.class)
                     .build();
 
         OneTimeWorkRequest startupWork =

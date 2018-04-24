@@ -147,7 +147,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testNotEnqueued() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(RUNNING)
+                .setInitialState(RUNNING)
                 .build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getStringId())
@@ -161,7 +161,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testCancelled() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(CANCELLED)
+                .setInitialState(CANCELLED)
                 .build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getStringId())
@@ -233,7 +233,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testRunning_onlyWhenEnqueued() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(RUNNING)
+                .setInitialState(RUNNING)
                 .build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getStringId())
@@ -249,7 +249,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         OneTimeWorkRequest prerequisiteWork =
                 new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(BLOCKED).build();
+                .setInitialState(BLOCKED).build();
         Dependency dependency = new Dependency(work.getStringId(), prerequisiteWork.getStringId());
 
         mDatabase.beginTransaction();
@@ -287,7 +287,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         OneTimeWorkRequest prerequisiteWork =
                 new OneTimeWorkRequest.Builder(ChainedArgumentWorker.class).build();
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(BLOCKED)
+                .setInitialState(BLOCKED)
                 .build();
         Dependency dependency = new Dependency(work.getStringId(), prerequisiteWork.getStringId());
 
@@ -318,13 +318,13 @@ public class WorkerWrapperTest extends DatabaseTest {
         String value2 = "value2";
 
         OneTimeWorkRequest prerequisiteWork1 = new OneTimeWorkRequest.Builder(EchoingWorker.class)
-                .withInputData(new Data.Builder().putString(key, value1).build())
+                .setInputData(new Data.Builder().putString(key, value1).build())
                 .build();
         OneTimeWorkRequest prerequisiteWork2 = new OneTimeWorkRequest.Builder(EchoingWorker.class)
-                .withInputData(new Data.Builder().putString(key, value2).build())
+                .setInputData(new Data.Builder().putString(key, value2).build())
                 .build();
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInputMerger(ArrayCreatingInputMerger.class)
+                .setInputMerger(ArrayCreatingInputMerger.class)
                 .build();
         Dependency dependency1 =
                 new Dependency(work.getStringId(), prerequisiteWork1.getStringId());
@@ -371,7 +371,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         OneTimeWorkRequest prerequisiteWork =
                 new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(BLOCKED)
+                .setInitialState(BLOCKED)
                 .build();
         Dependency dependency = new Dependency(work.getStringId(), prerequisiteWork.getStringId());
 
@@ -403,10 +403,10 @@ public class WorkerWrapperTest extends DatabaseTest {
         OneTimeWorkRequest prerequisiteWork =
                 new OneTimeWorkRequest.Builder(FailureWorker.class).build();
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(BLOCKED)
+                .setInitialState(BLOCKED)
                 .build();
         OneTimeWorkRequest cancelledWork = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(CANCELLED)
+                .setInitialState(CANCELLED)
                 .build();
         Dependency dependency1 = new Dependency(work.getStringId(), prerequisiteWork.getStringId());
         Dependency dependency2 =
@@ -582,7 +582,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Data input = new Data.Builder().putString(key, expectedValue).build();
 
         OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(TestWorker.class).withInputData(input).build();
+                new OneTimeWorkRequest.Builder(TestWorker.class).setInputData(input).build();
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),

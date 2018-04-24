@@ -52,6 +52,6 @@ public class ImageSetupWorker extends Worker {
 
     static OneTimeWorkRequest createWork(String uriString) {
         Data input = new Data.Builder().putString(URI_KEY, uriString).build();
-        return new OneTimeWorkRequest.Builder(ImageSetupWorker.class).withInputData(input).build();
+        return new OneTimeWorkRequest.Builder(ImageSetupWorker.class).setInputData(input).build();
     }
 }
