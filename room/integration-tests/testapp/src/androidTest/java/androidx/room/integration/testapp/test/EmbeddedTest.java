@@ -39,6 +39,7 @@ import androidx.room.integration.testapp.vo.PetCouple;
 import androidx.room.integration.testapp.vo.School;
 import androidx.room.integration.testapp.vo.SchoolRef;
 import androidx.room.integration.testapp.vo.User;
+import androidx.room.integration.testapp.vo.UserAndGenericPet;
 import androidx.room.integration.testapp.vo.UserAndPet;
 import androidx.room.integration.testapp.vo.UserAndPetNonNull;
 
@@ -81,6 +82,19 @@ public class EmbeddedTest {
         assertThat(all.size(), is(1));
         assertThat(all.get(0).getUser(), is(user));
         assertThat(all.get(0).getPet(), is(pet));
+    }
+
+    @Test
+    public void loadAllGeneric() {
+        Pet pet = TestUtil.createPet(1);
+        User user = TestUtil.createUser(2);
+        pet.setUserId(user.getId());
+        mUserDao.insert(user);
+        mPetDao.insertOrReplace(pet);
+        List<UserAndGenericPet> all = mUserPetDao.loadAllGeneric();
+        assertThat(all.size(), is(1));
+        assertThat(all.get(0).user, is(user));
+        assertThat(all.get(0).item, is(pet));
     }
 
     @Test
