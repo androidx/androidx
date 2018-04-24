@@ -19,6 +19,7 @@ package androidx.work;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import androidx.work.impl.WorkManagerImpl;
 
@@ -207,4 +208,11 @@ public abstract class WorkManager {
      * @return A {@link SynchronousWorkManager} object, which gives access to synchronous methods
      */
     public abstract SynchronousWorkManager synchronous();
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected WorkManager() {
+    }
 }
