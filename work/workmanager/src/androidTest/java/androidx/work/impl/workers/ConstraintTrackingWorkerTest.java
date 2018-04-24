@@ -131,8 +131,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
 
         final OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
-                    .withInputData(input)
-                    .withConstraints(constraints)
+                    .setInputData(input)
+                    .setConstraints(constraints)
                     .build();
 
         insertWork(work);
@@ -178,7 +178,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
 
         final OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
-                    .withConstraints(constraints)
+                    .setConstraints(constraints)
                     .build();
 
         insertWork(work);
@@ -222,7 +222,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
 
         final OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
-                    .withConstraints(constraints)
+                    .setConstraints(constraints)
                     .build();
 
         insertWork(work);
@@ -275,7 +275,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
 
         final OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
-                    .withConstraints(constraints)
+                    .setConstraints(constraints)
                     .build();
 
         insertWork(work);

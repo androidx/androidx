@@ -47,7 +47,7 @@ public class WorkTest extends WorkManagerTest {
     public void testBuild_withInitialDelay() {
         final long expectedInitialDelay = 123L;
         OneTimeWorkRequest work = mBuilder
-                .withInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS)
+                .setInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(work).initialDelay, is(expectedInitialDelay));
     }
@@ -56,7 +56,7 @@ public class WorkTest extends WorkManagerTest {
     public void testBuild_setBackoffCriteria_exceedMaxBackoffDuration() {
         final long backoffDuration = WorkRequest.MAX_BACKOFF_MILLIS + 123L;
         OneTimeWorkRequest work = mBuilder
-                .withBackoffCriteria(
+                .setBackoffCriteria(
                         BackoffPolicy.EXPONENTIAL,
                         backoffDuration,
                         TimeUnit.MILLISECONDS)
@@ -68,7 +68,7 @@ public class WorkTest extends WorkManagerTest {
     public void testBuild_setBackoffCriteria_lessThanMinBackoffDuration() {
         final long backoffDuration = WorkRequest.MIN_BACKOFF_MILLIS - 123L;
         OneTimeWorkRequest work = mBuilder
-                .withBackoffCriteria(
+                .setBackoffCriteria(
                         BackoffPolicy.EXPONENTIAL,
                         backoffDuration,
                         TimeUnit.MILLISECONDS)
@@ -83,8 +83,8 @@ public class WorkTest extends WorkManagerTest {
         Constraints constraints = new Constraints.Builder()
                 .setRequiresDeviceIdle(true)
                 .build();
-        mBuilder.withBackoffCriteria(BackoffPolicy.EXPONENTIAL, 123L, TimeUnit.MILLISECONDS)
-                .withConstraints(constraints)
+        mBuilder.setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 123L, TimeUnit.MILLISECONDS)
+                .setConstraints(constraints)
                 .build();
     }
 }
