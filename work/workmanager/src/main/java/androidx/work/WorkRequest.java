@@ -129,7 +129,7 @@ public abstract class WorkRequest {
          * @param timeUnit The {@link TimeUnit} for {@code backoffDelay}
          * @return The current {@link Builder}
          */
-        public B withBackoffCriteria(
+        public B setBackoffCriteria(
                 @NonNull BackoffPolicy backoffPolicy,
                 long backoffDelay,
                 @NonNull TimeUnit timeUnit) {
@@ -145,7 +145,7 @@ public abstract class WorkRequest {
          * @param constraints The constraints for the work
          * @return The current {@link Builder}
          */
-        public B withConstraints(@NonNull Constraints constraints) {
+        public B setConstraints(@NonNull Constraints constraints) {
             mWorkSpec.constraints = constraints;
             return getThis();
         }
@@ -156,7 +156,7 @@ public abstract class WorkRequest {
          * @param inputData key/value pairs that will be provided to the {@link Worker} class
          * @return The current {@link Builder}
          */
-        public B withInputData(@NonNull Data inputData) {
+        public B setInputData(@NonNull Data inputData) {
             mWorkSpec.input = inputData;
             return getThis();
         }
@@ -201,11 +201,7 @@ public abstract class WorkRequest {
          */
         public abstract W build();
 
-        /**
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        protected abstract B getThis();
+        abstract B getThis();
 
         /**
          * Set the initial state for this work.  Used in testing only.
@@ -216,7 +212,7 @@ public abstract class WorkRequest {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public B withInitialState(@NonNull State state) {
+        public B setInitialState(@NonNull State state) {
             mWorkSpec.state = state;
             return getThis();
         }
@@ -230,7 +226,7 @@ public abstract class WorkRequest {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public B withInitialRunAttemptCount(int runAttemptCount) {
+        public B setInitialRunAttemptCount(int runAttemptCount) {
             mWorkSpec.runAttemptCount = runAttemptCount;
             return getThis();
         }
@@ -245,7 +241,7 @@ public abstract class WorkRequest {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public B withPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
+        public B setPeriodStartTime(long periodStartTime, @NonNull TimeUnit timeUnit) {
             mWorkSpec.periodStartTime = timeUnit.toMillis(periodStartTime);
             return getThis();
         }
@@ -260,7 +256,7 @@ public abstract class WorkRequest {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public B withScheduleRequestedAt(
+        public B setScheduleRequestedAt(
                 long scheduleRequestedAt,
                 @NonNull TimeUnit timeUnit) {
             mWorkSpec.scheduleRequestedAt = timeUnit.toMillis(scheduleRequestedAt);

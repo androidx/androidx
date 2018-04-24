@@ -113,7 +113,7 @@ public final class PeriodicWorkRequest extends WorkRequest {
         }
 
         @Override
-        protected PeriodicWorkRequest.Builder getThis() {
+        Builder getThis() {
             return this;
         }
     }

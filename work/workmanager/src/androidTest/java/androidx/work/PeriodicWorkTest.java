@@ -46,8 +46,8 @@ public class PeriodicWorkTest extends WorkManagerTest {
                 TestWorker.class,
                 PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
                 TimeUnit.MILLISECONDS)
-                .withBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20000, TimeUnit.MILLISECONDS)
-                .withConstraints(new Constraints.Builder()
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20000, TimeUnit.MILLISECONDS)
+                .setConstraints(new Constraints.Builder()
                         .setRequiresDeviceIdle(true)
                         .build())
                 .build();
