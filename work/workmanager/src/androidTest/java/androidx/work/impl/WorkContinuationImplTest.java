@@ -265,10 +265,10 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         final String stringTag = "mystring";
 
         OneTimeWorkRequest firstWork = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(State.SUCCEEDED)
+                .setInitialState(State.SUCCEEDED)
                 .build();
         OneTimeWorkRequest secondWork = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withInitialState(State.SUCCEEDED)
+                .setInitialState(State.SUCCEEDED)
                 .build();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();

@@ -103,7 +103,7 @@ public class TestSchedulerTest {
 
     private static OneTimeWorkRequest createWorkRequestWithNetworkConstraints() {
         return new OneTimeWorkRequest.Builder(TestWorker.class)
-                .withConstraints(new Constraints.Builder()
+                .setConstraints(new Constraints.Builder()
                         .setRequiredNetworkType(NetworkType.CONNECTED).build())
                 .build();
     }
