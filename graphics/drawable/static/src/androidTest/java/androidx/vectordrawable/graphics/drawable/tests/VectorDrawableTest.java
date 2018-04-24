@@ -114,6 +114,37 @@ public class VectorDrawableTest {
             R.drawable.vector_icon_filltype_nonzero_golden,
     };
 
+    private static final int[] EDGES = new int[] {
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            R.drawable.vector_icon_repeated_a_1_edge,
+            R.drawable.vector_icon_repeated_a_2_edge,
+            R.drawable.vector_icon_clip_path_1_edge,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            R.drawable.vector_icon_five_bars_edge,
+            -1,
+            -1,
+    };
+
     private static final int TEST_ICON = R.drawable.vector_icon_create;
 
     private static final int IMAGE_WIDTH = 64;
@@ -150,11 +181,11 @@ public class VectorDrawableTest {
 
     @Test
     public void testSimpleVectorDrawables() throws Exception {
-        verifyVectorDrawables(ICON_RES_IDS, GOLDEN_IMAGES, null);
+        verifyVectorDrawables(ICON_RES_IDS, GOLDEN_IMAGES,  EDGES, null);
     }
 
-    private void verifyVectorDrawables(int[] resIds, int[] goldenImages, int[] stateSet)
-            throws XmlPullParserException, IOException {
+    private void verifyVectorDrawables(int[] resIds, int[] goldenImages, int[] edges,
+            int[] stateSet) throws XmlPullParserException, IOException {
         for (int i = 0; i < resIds.length; i++) {
             // Setup VectorDrawable from xml file and draw into the bitmap.
             mVectorDrawable = VectorDrawableCompat.create(mResources, resIds[i], mTheme);
@@ -171,7 +202,11 @@ public class VectorDrawableTest {
             } else {
                 // Start to compare
                 Bitmap golden = BitmapFactory.decodeResource(mResources, goldenImages[i]);
-                compareImages(mBitmap, golden, mResources.getString(resIds[i]));
+                Bitmap edge = null;
+                if (edges[i] > 0) {
+                    edge = BitmapFactory.decodeResource(mResources, edges[i]);
+                }
+                compareImages(mBitmap, golden, edge, mResources.getString(resIds[i]));
             }
         }
     }
@@ -241,7 +276,7 @@ public class VectorDrawableTest {
         return builder.toString();
     }
 
-    private void compareImages(Bitmap ideal, Bitmap given, String filename) {
+    private void compareImages(Bitmap ideal, Bitmap given, Bitmap edge, String filename) {
         int idealWidth = ideal.getWidth();
         int idealHeight = ideal.getHeight();
 
@@ -264,18 +299,41 @@ public class VectorDrawableTest {
                 totalError += Math.abs(Color.alpha(idealColor) - Color.alpha(givenColor));
 
                 if ((totalError / 1024.0f) >= PIXEL_ERROR_THRESHOLD) {
-                    fail((filename + ": totalError is " + totalError));
+                    if (edge == null) {
+                        fail((filename + ": totalError is " + totalError));
+                    } else if (getColorFromBitmap(edge, x - 1, y - 1) > 0
+                            || getColorFromBitmap(edge, x - 1, y) > 0
+                            || getColorFromBitmap(edge, x - 1, y + 1) > 0
+                            || getColorFromBitmap(edge, x, y - 1) > 0
+                            || getColorFromBitmap(edge, x, y + 1) > 0
+                            || getColorFromBitmap(edge, x + 1, y - 1) > 0
+                            || getColorFromBitmap(edge, x + 1, y) > 0
+                            || getColorFromBitmap(edge, x + 1, y + 1) > 0) {
+                        continue;
+                    }
                 }
 
                 if ((totalError / 1024.0f) >= PIXEL_DIFF_THRESHOLD) {
                     totalDiffPixelCount++;
                 }
+
             }
         }
         if ((totalDiffPixelCount / totalPixelCount) >= PIXEL_DIFF_COUNT_THRESHOLD) {
             fail((filename + ": totalDiffPixelCount is " + totalDiffPixelCount));
         }
 
+    }
+
+    private static int getColorFromBitmap(Bitmap bitmap, int x, int y) {
+        if (x < 0 || y < 0) {
+            return 0;
+        }
+
+        if (x >= bitmap.getWidth() || y >= bitmap.getHeight()) {
+            return 0;
+        }
+        return bitmap.getPixel(x, y);
     }
 
     @Test
