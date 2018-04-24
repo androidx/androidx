@@ -68,7 +68,7 @@ public class ImageProcessingWorker extends Worker {
             return WorkerResult.FAILURE;
         }
 
-        int processed = TestDatabase.getInstance(getAppContext())
+        int processed = TestDatabase.getInstance(getApplicationContext())
                 .getImageDao()
                 .setProcessed(uriString, filePath);
 
@@ -85,7 +85,7 @@ public class ImageProcessingWorker extends Worker {
         Uri uri = Uri.parse(uriString);
         InputStream inputStream = null;
         try {
-            inputStream = getAppContext().getContentResolver().openInputStream(uri);
+            inputStream = getApplicationContext().getContentResolver().openInputStream(uri);
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inSampleSize = 4; // Sample down to save memory
             options.inMutable = true; // Allow editing of bitmap
@@ -121,7 +121,7 @@ public class ImageProcessingWorker extends Worker {
         FileOutputStream os = null;
         try {
             File tempFile = File.createTempFile("compressed_", ".jpg",
-                    getAppContext().getCacheDir());
+                    getApplicationContext().getCacheDir());
             os = new FileOutputStream(tempFile);
             if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 25, os)) {
                 return null;
