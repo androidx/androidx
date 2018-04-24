@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.room.integration.testapp.vo;
 
 import androidx.room.Embedded;
 
-public class UserAndPet {
+public class UserAndGenericPet extends GenericBaseClass<Pet> {
     @Embedded
-    private User mUser;
-    @Embedded
-    private Pet mPet;
-
-    public User getUser() {
-        return mUser;
-    }
-
-    public void setUser(User user) {
-        mUser = user;
-    }
-
-    public Pet getPet() {
-        return mPet;
-    }
-
-    public void setPet(Pet pet) {
-        mPet = pet;
-    }
+    public User user;
 }
