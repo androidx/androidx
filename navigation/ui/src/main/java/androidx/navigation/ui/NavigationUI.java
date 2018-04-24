@@ -68,7 +68,6 @@ public class NavigationUI {
     private static boolean onNavDestinationSelected(@NonNull MenuItem item,
             @NonNull NavController navController, boolean popUp) {
         NavOptions.Builder builder = new NavOptions.Builder()
-                .setPopUpTo(navController.getGraph().getStartDestination(), false)
                 .setLaunchSingleTop(true)
                 .setEnterAnim(R.anim.nav_default_enter_anim)
                 .setExitAnim(R.anim.nav_default_exit_anim)
