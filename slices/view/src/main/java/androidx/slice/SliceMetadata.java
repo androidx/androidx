@@ -288,7 +288,7 @@ public class SliceMetadata {
     public int getLoadingState() {
         // Check loading state
         boolean hasHintPartial = SliceQuery.find(mSlice, null, HINT_PARTIAL, null) != null;
-        if (mSlice.getItems().size() == 0) {
+        if (!mListContent.isValid()) {
             // Empty slice
             return LOADED_NONE;
         } else if (hasHintPartial) {
