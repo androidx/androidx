@@ -880,7 +880,12 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                             onConnectedNotLocked(resultData);
                             break;
                         case CONNECT_RESULT_DISCONNECTED:
-                            mCallback.onDisconnected(mInstance);
+                            mCallbackExecutor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mCallback.onDisconnected(mInstance);
+                                }
+                            });
                             close();
                             break;
                     }
@@ -976,7 +981,12 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                             onConnectedNotLocked(resultData);
                             break;
                         case CONNECT_RESULT_DISCONNECTED:
-                            mCallback.onDisconnected(mInstance);
+                            mCallbackExecutor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mCallback.onDisconnected(mInstance);
+                                }
+                            });
                             close();
                             break;
                     }
@@ -1007,16 +1017,21 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
         public void onSessionEvent(String event, Bundle extras) {
             switch (event) {
                 case SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED: {
-                    SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
+                    final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
                             extras.getBundle(ARGUMENT_ALLOWED_COMMANDS));
                     synchronized (mLock) {
                         mAllowedCommands = allowedCommands;
                     }
-                    mCallback.onAllowedCommandsChanged(mInstance, allowedCommands);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onAllowedCommandsChanged(mInstance, allowedCommands);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_PLAYER_STATE_CHANGED: {
-                    int playerState = extras.getInt(ARGUMENT_PLAYER_STATE);
+                    final int playerState = extras.getInt(ARGUMENT_PLAYER_STATE);
                     PlaybackStateCompat state =
                             extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
                     if (state == null) {
@@ -1026,64 +1041,105 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                         mPlayerState = playerState;
                         mPlaybackStateCompat = state;
                     }
-                    mCallback.onPlayerStateChanged(mInstance, playerState);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onPlayerStateChanged(mInstance, playerState);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED: {
-                    MediaItem2 item = MediaItem2.fromBundle(extras.getBundle(ARGUMENT_MEDIA_ITEM));
+                    final MediaItem2 item = MediaItem2.fromBundle(
+                            extras.getBundle(ARGUMENT_MEDIA_ITEM));
                     synchronized (mLock) {
                         mCurrentMediaItem = item;
                     }
-                    mCallback.onCurrentMediaItemChanged(mInstance, item);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onCurrentMediaItemChanged(mInstance, item);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_ERROR: {
-                    int errorCode = extras.getInt(ARGUMENT_ERROR_CODE);
-                    Bundle errorExtras = extras.getBundle(ARGUMENT_EXTRAS);
-                    mCallback.onError(mInstance, errorCode, errorExtras);
+                    final int errorCode = extras.getInt(ARGUMENT_ERROR_CODE);
+                    final Bundle errorExtras = extras.getBundle(ARGUMENT_EXTRAS);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onError(mInstance, errorCode, errorExtras);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_ROUTES_INFO_CHANGED: {
-                    List<Bundle> routes = MediaUtils2.toBundleList(
+                    final List<Bundle> routes = MediaUtils2.toBundleList(
                             extras.getParcelableArray(ARGUMENT_ROUTE_BUNDLE));
-                    mCallback.onRoutesInfoChanged(mInstance, routes);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onRoutesInfoChanged(mInstance, routes);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_PLAYLIST_CHANGED: {
-                    MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
+                    final MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
                             extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
-                    List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
+                    final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
                             extras.getParcelableArray(ARGUMENT_PLAYLIST));
                     synchronized (mLock) {
                         mPlaylist = playlist;
                         mPlaylistMetadata = playlistMetadata;
                     }
-                    mCallback.onPlaylistChanged(mInstance, playlist, playlistMetadata);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onPlaylistChanged(mInstance, playlist, playlistMetadata);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED: {
-                    MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
+                    final MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
                             extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
                     synchronized (mLock) {
                         mPlaylistMetadata = playlistMetadata;
                     }
-                    mCallback.onPlaylistMetadataChanged(mInstance, playlistMetadata);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onPlaylistMetadataChanged(mInstance, playlistMetadata);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_REPEAT_MODE_CHANGED: {
-                    int repeatMode = extras.getInt(ARGUMENT_REPEAT_MODE);
+                    final int repeatMode = extras.getInt(ARGUMENT_REPEAT_MODE);
                     synchronized (mLock) {
                         mRepeatMode = repeatMode;
                     }
-                    mCallback.onRepeatModeChanged(mInstance, repeatMode);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onRepeatModeChanged(mInstance, repeatMode);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED: {
-                    int shuffleMode = extras.getInt(ARGUMENT_SHUFFLE_MODE);
+                    final int shuffleMode = extras.getInt(ARGUMENT_SHUFFLE_MODE);
                     synchronized (mLock) {
                         mShuffleMode = shuffleMode;
                     }
-                    mCallback.onShuffleModeChanged(mInstance, shuffleMode);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onShuffleModeChanged(mInstance, shuffleMode);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_SEND_CUSTOM_COMMAND: {
@@ -1091,23 +1147,33 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                     if (commandBundle == null) {
                         return;
                     }
-                    SessionCommand2 command = SessionCommand2.fromBundle(commandBundle);
-                    Bundle args = extras.getBundle(ARGUMENT_ARGUMENTS);
-                    ResultReceiver receiver = extras.getParcelable(ARGUMENT_RESULT_RECEIVER);
-                    mCallback.onCustomCommand(mInstance, command, args, receiver);
+                    final SessionCommand2 command = SessionCommand2.fromBundle(commandBundle);
+                    final Bundle args = extras.getBundle(ARGUMENT_ARGUMENTS);
+                    final ResultReceiver receiver = extras.getParcelable(ARGUMENT_RESULT_RECEIVER);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onCustomCommand(mInstance, command, args, receiver);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_SET_CUSTOM_LAYOUT: {
-                    List<CommandButton> layout = MediaUtils2.fromCommandButtonParcelableArray(
+                    final List<CommandButton> layout = MediaUtils2.fromCommandButtonParcelableArray(
                             extras.getParcelableArray(ARGUMENT_COMMAND_BUTTONS));
                     if (layout == null) {
                         return;
                     }
-                    mCallback.onCustomLayoutChanged(mInstance, layout);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onCustomLayoutChanged(mInstance, layout);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED: {
-                    PlaybackInfo info = PlaybackInfo.fromBundle(
+                    final PlaybackInfo info = PlaybackInfo.fromBundle(
                             extras.getBundle(ARGUMENT_PLAYBACK_INFO));
                     if (info == null) {
                         return;
@@ -1115,11 +1181,16 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                     synchronized (mLock) {
                         mPlaybackInfo = info;
                     }
-                    mCallback.onPlaybackInfoChanged(mInstance, info);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onPlaybackInfoChanged(mInstance, info);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED: {
-                    PlaybackStateCompat state =
+                    final PlaybackStateCompat state =
                             extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
                     if (state == null) {
                         return;
@@ -1127,12 +1198,18 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                     synchronized (mLock) {
                         mPlaybackStateCompat = state;
                     }
-                    mCallback.onPlaybackSpeedChanged(mInstance, state.getPlaybackSpeed());
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onPlaybackSpeedChanged(mInstance, state.getPlaybackSpeed());
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_BUFFERING_STATE_CHANGED: {
-                    MediaItem2 item = MediaItem2.fromBundle(extras.getBundle(ARGUMENT_MEDIA_ITEM));
-                    int bufferingState = extras.getInt(ARGUMENT_BUFFERING_STATE);
+                    final MediaItem2 item = MediaItem2.fromBundle(
+                            extras.getBundle(ARGUMENT_MEDIA_ITEM));
+                    final int bufferingState = extras.getInt(ARGUMENT_BUFFERING_STATE);
                     PlaybackStateCompat state =
                             extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
                     if (item == null || state == null) {
@@ -1142,11 +1219,16 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                         mBufferingState = bufferingState;
                         mPlaybackStateCompat = state;
                     }
-                    mCallback.onBufferingStateChanged(mInstance, item, bufferingState);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onBufferingStateChanged(mInstance, item, bufferingState);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_SEEK_COMPLETED: {
-                    long position = extras.getLong(ARGUMENT_SEEK_POSITION);
+                    final long position = extras.getLong(ARGUMENT_SEEK_POSITION);
                     PlaybackStateCompat state =
                             extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
                     if (state == null) {
@@ -1155,18 +1237,28 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                     synchronized (mLock) {
                         mPlaybackStateCompat = state;
                     }
-                    mCallback.onSeekCompleted(mInstance, position);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onSeekCompleted(mInstance, position);
+                        }
+                    });
                     break;
                 }
                 case SESSION_EVENT_ON_SEARCH_RESULT_CHANGED: {
-                    String query = extras.getString(ARGUMENT_QUERY);
+                    final String query = extras.getString(ARGUMENT_QUERY);
                     if (query == null || !(mInstance instanceof MediaBrowser2)) {
                         return;
                     }
-                    int itemCount = extras.getInt(ARGUMENT_ITEM_COUNT, -1);
-                    Bundle searchExtras = extras.getBundle(ARGUMENT_EXTRAS);
-                    ((MediaBrowser2.BrowserCallback) mCallback).onSearchResultChanged(
-                            (MediaBrowser2) mInstance, query, itemCount, searchExtras);
+                    final int itemCount = extras.getInt(ARGUMENT_ITEM_COUNT, -1);
+                    final Bundle searchExtras = extras.getBundle(ARGUMENT_EXTRAS);
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((MediaBrowser2.BrowserCallback) mCallback).onSearchResultChanged(
+                                    (MediaBrowser2) mInstance, query, itemCount, searchExtras);
+                        }
+                    });
                     break;
                 }
             }
