@@ -36,8 +36,8 @@ import org.mockito.MockitoAnnotations;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class ContentRateLimiterTest {
-    private static final float PERMITS_PER_SEC = 0.25f;
-    private static final float MAX_STORED_PERMITS = 4;
+    private static final double PERMITS_PER_SEC = 0.25d;
+    private static final double MAX_STORED_PERMITS = 4d;
     private static final long DELAY_UNTIL_REFILL_SECONDS = 30;
 
     private ContentRateLimiter mContentRateLimiter;
@@ -72,7 +72,7 @@ public class ContentRateLimiterTest {
     public void testTryAcquire_permitRefillDelayed() {
         mContentRateLimiter.tryAcquire();
 
-        float availablePermits = mContentRateLimiter.getAvailablePermits();
+        double availablePermits = mContentRateLimiter.getAvailablePermits();
         mElapsedTimeProvider.setElapsedTime(
                 mElapsedTimeProvider.getElapsedRealtime() + SECONDS.toMillis(1));
         assertEquals(mContentRateLimiter.getAvailablePermits(), availablePermits, 0 /* delta */);
@@ -85,7 +85,7 @@ public class ContentRateLimiterTest {
     @Test
     public void testTryAcquire_inFillDelayFringe_secondAcquireFree() {
         mContentRateLimiter.tryAcquire();
-        float availablePermits = mContentRateLimiter.getAvailablePermits();
+        double availablePermits = mContentRateLimiter.getAvailablePermits();
         mElapsedTimeProvider.setElapsedTime(mElapsedTimeProvider.getElapsedRealtime()
                 + SECONDS.toMillis(DELAY_UNTIL_REFILL_SECONDS - 1));
         mContentRateLimiter.tryAcquire();
@@ -95,7 +95,7 @@ public class ContentRateLimiterTest {
     @Test
     public void testTryAcquire_inFillDelayFringe_secondAcquireResetsFillDelay() {
         mContentRateLimiter.tryAcquire();
-        float availablePermits = mContentRateLimiter.getAvailablePermits();
+        double availablePermits = mContentRateLimiter.getAvailablePermits();
         mElapsedTimeProvider.setElapsedTime(
                 mElapsedTimeProvider.getElapsedRealtime() + SECONDS.toMillis(1));
         mContentRateLimiter.tryAcquire();
@@ -118,7 +118,7 @@ public class ContentRateLimiterTest {
     public void testTryAcquire_inFillDelayFringe_thirdAcquireNotFree() {
         mContentRateLimiter.tryAcquire();
 
-        float availablePermits = mContentRateLimiter.getAvailablePermits();
+        double availablePermits = mContentRateLimiter.getAvailablePermits();
         mElapsedTimeProvider.setElapsedTime(
                 mElapsedTimeProvider.getElapsedRealtime() + SECONDS.toMillis(1));
         mContentRateLimiter.tryAcquire();
@@ -152,14 +152,14 @@ public class ContentRateLimiterTest {
 
     @Test
     public void testSetAvailablePermits() {
-        float permits = 2.0f;
+        double permits = 2.0d;
         mContentRateLimiter.setAvailablePermits(permits);
         assertEquals(permits, mContentRateLimiter.getAvailablePermits(), 0 /* delta */);
     }
 
     @Test
     public void testSetAvailablePermits_setValueGreaterThanMax() {
-        float greaterThanMax = MAX_STORED_PERMITS + 2;
+        double greaterThanMax = MAX_STORED_PERMITS + 2;
         mContentRateLimiter.setAvailablePermits(greaterThanMax);
         assertEquals(MAX_STORED_PERMITS, mContentRateLimiter.getAvailablePermits(), 0 /* delta */);
     }
