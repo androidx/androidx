@@ -57,9 +57,27 @@ public class SliceCreator {
             "com.example.androidx.slice.action.TOAST";
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
 
-    public static final String[] URI_PATHS = {"message", "wifi", "wifi2", "note", "ride",
-            "ride-ttl", "toggle", "toggle2", "contact", "gallery", "subscription", "subscription2",
-            "weather", "reservation", "inputrange", "inputrange2", "range", "permission"};
+    public static final String[] URI_PATHS = {
+            "message",
+            "wifi",
+            "wifi2",
+            "note",
+            "ride",
+            "ride-ttl",
+            "toggle",
+            "toggle2",
+            "contact",
+            "gallery",
+            "subscription",
+            "subscription2",
+            "weather",
+            "reservation",
+            "inputrange",
+            "inputrange2",
+            "range",
+            "permission",
+            "empty",
+    };
 
     private final Context mContext;
 
@@ -121,6 +139,8 @@ public class SliceCreator {
                 return createDownloadProgressRange(sliceUri);
             case "/permission":
                 return createPermissionSlice(sliceUri);
+            case "/empty":
+                return new ListBuilder(getContext(), sliceUri, INFINITY).build();
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
