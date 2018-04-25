@@ -58,6 +58,7 @@ includeProject(":lifecycle:lifecycle-compiler", new File(supportRoot, "lifecycle
 includeProject(":lifecycle:lifecycle-extensions", new File(supportRoot, "lifecycle/extensions"))
 includeProject(":lifecycle:lifecycle-livedata-core", new File(supportRoot, "lifecycle/livedata-core"))
 includeProject(":lifecycle:lifecycle-livedata", new File(supportRoot, "lifecycle/livedata"))
+includeProject(":lifecycle:lifecycle-process", new File(supportRoot, "lifecycle/process"))
 includeProject(":lifecycle:lifecycle-reactivestreams", new File(supportRoot, "lifecycle/reactivestreams"))
 includeProject(":lifecycle:lifecycle-reactivestreams-ktx", new File(supportRoot, "lifecycle/reactivestreams/ktx"))
 includeProject(":lifecycle:lifecycle-runtime", new File(supportRoot, "lifecycle/runtime"))
