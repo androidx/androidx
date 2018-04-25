@@ -18,6 +18,7 @@ package androidx.work.test;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
@@ -29,9 +30,12 @@ import java.util.List;
 /**
  * A concrete implementation of {@link WorkManager} which can be used for testing.
  * This implementation makes it easy to swap Schedulers.
+ *
+ * @hide
  */
-public abstract class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
-    public TestWorkManagerImpl(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+abstract class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
+    TestWorkManagerImpl(
             @NonNull Context context,
             @NonNull Configuration configuration) {
 
