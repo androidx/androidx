@@ -48,12 +48,6 @@ data class PomDependency(
     @SerializedName("optional")
     val optional: String? = null) {
 
-    init {
-        if (version != null) {
-            version = version!!.toLowerCase()
-        }
-    }
-
     /**
      * Whether this dependency should be skipped from the rewriting process
      */
@@ -65,11 +59,16 @@ data class PomDependency(
      * Returns a new dependency created by taking all the items from the [input] dependency and then
      * overwriting these with all of its non-null items.
      */
-    fun rewrite(input: PomDependency): PomDependency {
+    fun rewrite(input: PomDependency, versionsMap: DependencyVersionsMap): PomDependency {
+        var newVersion = input.version
+        if (version != null) {
+            newVersion = versionsMap.applyOnVersionRef(version!!)
+        }
+
         return PomDependency(
             groupId = groupId ?: input.groupId,
             artifactId = artifactId ?: input.artifactId,
-            version = version ?: input.version,
+            version = newVersion,
             classifier = classifier ?: input.classifier,
             type = type ?: input.type,
             scope = scope ?: input.scope,
