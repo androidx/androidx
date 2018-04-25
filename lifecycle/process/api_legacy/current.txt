@@ -1,0 +1,9 @@
+package android.arch.lifecycle {
+
+  public class ProcessLifecycleOwner implements android.arch.lifecycle.LifecycleOwner {
+    method public static android.arch.lifecycle.LifecycleOwner get();
+    method public android.arch.lifecycle.Lifecycle getLifecycle();
+  }
+
+}
+
