@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -1505,6 +1506,36 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         }
 
         abstract @NonNull IBinder getId();
+
+        // Mostly matched with the methods in MediaController2.ControllerCallback
+        abstract void onCustomLayoutChanged(@NonNull List<CommandButton> layout)
+                throws RemoteException;
+        abstract void onPlaybackInfoChanged(@NonNull PlaybackInfo info) throws RemoteException;
+        abstract void onAllowedCommandsChanged(@NonNull SessionCommandGroup2 commands)
+                throws RemoteException;
+        abstract void onCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args,
+                @Nullable ResultReceiver receiver) throws RemoteException;
+        abstract void onPlayerStateChanged(int playerState) throws RemoteException;
+        abstract void onPlaybackSpeedChanged(float speed) throws RemoteException;
+        abstract void onBufferingStateChanged(@NonNull MediaItem2 item,
+                @MediaPlayerInterface.BuffState int state) throws RemoteException;
+        abstract void onSeekCompleted(long position) throws RemoteException;
+        abstract void onError(@ErrorCode int errorCode, @Nullable Bundle extras)
+                throws RemoteException;
+        abstract void onCurrentMediaItemChanged(@Nullable MediaItem2 item) throws RemoteException;
+        abstract void onPlaylistChanged(@NonNull List<MediaItem2> playlist,
+                @Nullable MediaMetadata2 metadata) throws RemoteException;
+        abstract void onPlaylistMetadataChanged(@Nullable MediaMetadata2 metadata)
+                throws RemoteException;
+        abstract void onShuffleModeChanged(@MediaPlaylistAgent.ShuffleMode int shuffleMode)
+                throws RemoteException;
+        abstract void onRepeatModeChanged(@MediaPlaylistAgent.RepeatMode int repeatMode)
+                throws RemoteException;
+        abstract void onRoutesInfoChanged(@Nullable List<Bundle> routes) throws RemoteException;
+        abstract void onChildrenChanged(@NonNull  String parentId, int itemCount,
+                @Nullable Bundle extras) throws RemoteException;
+        abstract void onSearchResultChanged(@NonNull String query, int itemCount,
+                @Nullable Bundle extras) throws RemoteException;
     }
 
     abstract static class SupportLibraryImpl extends MediaInterface2.SessionPlayer

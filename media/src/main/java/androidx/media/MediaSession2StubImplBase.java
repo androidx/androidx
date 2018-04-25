@@ -111,7 +111,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.DeadObjectException;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
@@ -481,310 +480,9 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         return controllers;
     }
 
-    void notifyCustomLayout(ControllerInfo controller, final List<CommandButton> layout) {
-        notifyInternal(controller, new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putParcelableArray(ARGUMENT_COMMAND_BUTTONS,
-                        MediaUtils2.toCommandButtonParcelableArray(layout));
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_SET_CUSTOM_LAYOUT, bundle);
-            }
-        });
-    }
-
     void setAllowedCommands(ControllerInfo controller, final SessionCommandGroup2 commands) {
         synchronized (mLock) {
             mAllowedCommandGroupMap.put(controller, commands);
-        }
-        notifyInternal(controller, new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putBundle(ARGUMENT_ALLOWED_COMMANDS, commands.toBundle());
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED, bundle);
-            }
-        });
-    }
-
-    public void sendCustomCommand(ControllerInfo controller, final SessionCommand2 command,
-            final Bundle args, final ResultReceiver receiver) {
-        if (receiver != null && controller == null) {
-            throw new IllegalArgumentException("Controller shouldn't be null if result receiver is"
-                    + " specified");
-        }
-        if (command == null) {
-            throw new IllegalArgumentException("command shouldn't be null");
-        }
-        notifyInternal(controller, new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
-                bundle.putBundle(ARGUMENT_ARGUMENTS, args);
-                bundle.putParcelable(ARGUMENT_RESULT_RECEIVER, receiver);
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
-            }
-        });
-    }
-
-    public void sendCustomCommand(final SessionCommand2 command, final Bundle args) {
-        if (command == null) {
-            throw new IllegalArgumentException("command shouldn't be null");
-        }
-        final Bundle bundle = new Bundle();
-        bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
-        bundle.putBundle(ARGUMENT_ARGUMENTS, args);
-        notifyAll(new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
-            }
-        });
-    }
-
-    void notifyCurrentMediaItemChanged(final MediaItem2 item) {
-        notifyAll(COMMAND_CODE_PLAYLIST_GET_CURRENT_MEDIA_ITEM, new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putBundle(ARGUMENT_MEDIA_ITEM, (item == null) ? null : item.toBundle());
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifyPlaybackInfoChanged(final PlaybackInfo info) {
-        notifyAll(new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putBundle(ARGUMENT_PLAYBACK_INFO, info.toBundle());
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifyPlayerStateChanged(final int state) {
-        notifyAll(new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                // Note: current position should be also sent to the controller here for controller
-                // to calculate the position more correctly.
-                Bundle bundle = new Bundle();
-                bundle.putInt(ARGUMENT_PLAYER_STATE, state);
-                bundle.putParcelable(
-                        ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_PLAYER_STATE_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifyPlaybackSpeedChanged(final float speed) {
-        notifyAll(new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                // Note: current position should be also sent to the controller here for controller
-                // to calculate the position more correctly.
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(
-                        ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifyBufferingStateChanged(final MediaItem2 item, final int bufferingState) {
-        notifyAll(new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                // Note: buffered position should be also sent to the controller here. It's to
-                // follow the behavior of MediaPlayerInterface.PlayerEventCallback.
-                Bundle bundle = new Bundle();
-                bundle.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-                bundle.putInt(ARGUMENT_BUFFERING_STATE, bufferingState);
-                bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
-                        mSession.getPlaybackStateCompat());
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_BUFFERING_STATE_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifySeekCompleted(final long position) {
-        notifyAll(new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                // Note: current position should be also sent to the controller here because the
-                // position here may refer to the parameter of the previous seek() API calls.
-                Bundle bundle = new Bundle();
-                bundle.putLong(ARGUMENT_SEEK_POSITION, position);
-                bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
-                        mSession.getPlaybackStateCompat());
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_SEEK_COMPLETED, bundle);
-            }
-        });
-    }
-
-    void notifyError(final int errorCode, final Bundle extras) {
-        notifyAll(new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putInt(ARGUMENT_ERROR_CODE, errorCode);
-                bundle.putBundle(ARGUMENT_EXTRAS, extras);
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_ERROR, bundle);
-            }
-        });
-    }
-
-    void notifyRoutesInfoChanged(@NonNull final ControllerInfo controller,
-            @Nullable final List<Bundle> routes) {
-        notifyInternal(controller, new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = null;
-                if (routes != null) {
-                    bundle = new Bundle();
-                    bundle.putParcelableArray(ARGUMENT_ROUTE_BUNDLE, routes.toArray(new Bundle[0]));
-                }
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_ROUTES_INFO_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifyPlaylistChanged(final List<MediaItem2> playlist,
-            final MediaMetadata2 metadata) {
-        notifyAll(COMMAND_CODE_PLAYLIST_GET_LIST, new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putParcelableArray(ARGUMENT_PLAYLIST,
-                        MediaUtils2.toMediaItem2ParcelableArray(playlist));
-                bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
-                        metadata == null ? null : metadata.toBundle());
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifyPlaylistMetadataChanged(final MediaMetadata2 metadata) {
-        notifyAll(SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA, new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
-                        metadata == null ? null : metadata.toBundle());
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifyRepeatModeChanged(final int repeatMode) {
-        notifyAll(new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_REPEAT_MODE_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifyShuffleModeChanged(final int shuffleMode) {
-        notifyAll(new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifyChildrenChanged(ControllerInfo controller, final String parentId,
-            final int itemCount, final Bundle extras) {
-        notifyInternal(controller, new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putString(ARGUMENT_MEDIA_ID, parentId);
-                bundle.putInt(ARGUMENT_ITEM_COUNT, itemCount);
-                bundle.putBundle(ARGUMENT_EXTRAS, extras);
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_CHILDREN_CHANGED, bundle);
-            }
-        });
-    }
-
-    void notifySearchResultChanged(ControllerInfo controller, final String query,
-            final int itemCount, final Bundle extras) {
-        notifyInternal(controller, new Session2Runnable() {
-            @Override
-            public void run(ControllerInfo controller) throws RemoteException {
-                Bundle bundle = new Bundle();
-                bundle.putString(ARGUMENT_QUERY, query);
-                bundle.putInt(ARGUMENT_ITEM_COUNT, itemCount);
-                bundle.putBundle(ARGUMENT_EXTRAS, extras);
-                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
-                        .onEvent(SESSION_EVENT_ON_SEARCH_RESULT_CHANGED, bundle);
-            }
-        });
-    }
-
-    private void notifyAll(@NonNull Session2Runnable runnable) {
-        List<ControllerInfo> controllers = getConnectedControllers();
-        for (int i = 0; i < controllers.size(); i++) {
-            notifyInternal(controllers.get(i), runnable);
-        }
-    }
-
-    private void notifyAll(int commandCode, @NonNull Session2Runnable runnable) {
-        List<ControllerInfo> controllers = getConnectedControllers();
-        for (int i = 0; i < controllers.size(); i++) {
-            ControllerInfo controller = controllers.get(i);
-            if (isAllowedCommand(controller, commandCode)) {
-                notifyInternal(controller, runnable);
-            }
-        }
-    }
-
-    private void notifyInternal(@NonNull ControllerInfo controller,
-            @NonNull Session2Runnable runnable) {
-        if (controller == null
-                || ((Controller2Cb) controller.getControllerCb()).getControllerBinder() == null) {
-            return;
-        }
-        try {
-            runnable.run(controller);
-        } catch (DeadObjectException e) {
-            if (DEBUG) {
-                Log.d(TAG, controller.toString() + " is gone", e);
-            }
-            onControllerClosed(
-                    ((Controller2Cb) controller.getControllerCb()).getControllerBinder());
-        } catch (RemoteException e) {
-            // Currently it's TransactionTooLargeException or DeadSystemException.
-            // We'd better to leave log for those cases because
-            //   - TransactionTooLargeException means that we may need to fix our code.
-            //     (e.g. add pagination or special way to deliver Bitmap)
-            //   - DeadSystemException means that errors around it can be ignored.
-            Log.w(TAG, "Exception in " + controller.toString(), e);
         }
     }
 
@@ -863,6 +561,15 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 }
             }
         });
+    }
+
+    void removeControllerInfo(ControllerInfo controller) {
+        synchronized (mLock) {
+            controller = mControllers.remove(controller.getId());
+            if (DEBUG) {
+                Log.d(TAG, "releasing " + controller);
+            }
+        }
     }
 
     private void onControllerClosed(IMediaControllerCallback iController) {
@@ -1001,7 +708,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         void run(ControllerInfo controller) throws RemoteException;
     }
 
-    static final class Controller2Cb extends ControllerCb {
+    final class Controller2Cb extends ControllerCb {
         private final IMediaControllerCallback mIControllerCallback;
 
         Controller2Cb(@NonNull IMediaControllerCallback callback) {
@@ -1013,8 +720,160 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             return mIControllerCallback.asBinder();
         }
 
-        @NonNull IMediaControllerCallback getControllerBinder() {
-            return mIControllerCallback;
+        @Override
+        void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArray(ARGUMENT_COMMAND_BUTTONS,
+                    MediaUtils2.toCommandButtonParcelableArray(layout));
+            mIControllerCallback.onEvent(SESSION_EVENT_SET_CUSTOM_LAYOUT, bundle);
+        }
+
+        @Override
+        void onPlaybackInfoChanged(PlaybackInfo info) throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putBundle(ARGUMENT_PLAYBACK_INFO, info.toBundle());
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED, bundle);
+
+        }
+
+        @Override
+        void onAllowedCommandsChanged(SessionCommandGroup2 commands) throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putBundle(ARGUMENT_ALLOWED_COMMANDS, commands.toBundle());
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED, bundle);
+        }
+
+        @Override
+        void onCustomCommand(SessionCommand2 command, Bundle args, ResultReceiver receiver)
+                throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
+            bundle.putBundle(ARGUMENT_ARGUMENTS, args);
+            bundle.putParcelable(ARGUMENT_RESULT_RECEIVER, receiver);
+            mIControllerCallback.onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
+        }
+
+        @Override
+        void onPlayerStateChanged(int playerState)
+                throws RemoteException {
+            // Note: current position should be also sent to the controller here for controller
+            // to calculate the position more correctly.
+            Bundle bundle = new Bundle();
+            bundle.putInt(ARGUMENT_PLAYER_STATE, playerState);
+            bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYER_STATE_CHANGED, bundle);
+        }
+
+        @Override
+        void onPlaybackSpeedChanged(float speed) throws RemoteException {
+            // Note: current position should be also sent to the controller here for controller
+            // to calculate the position more correctly.
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(
+                    ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED, bundle);
+        }
+
+        @Override
+        void onBufferingStateChanged(MediaItem2 item, int state) throws RemoteException {
+            // Note: buffered position should be also sent to the controller here. It's to
+            // follow the behavior of MediaPlayerInterface.PlayerEventCallback.
+            Bundle bundle = new Bundle();
+            bundle.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
+            bundle.putInt(ARGUMENT_BUFFERING_STATE, state);
+            bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
+                    mSession.getPlaybackStateCompat());
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_BUFFERING_STATE_CHANGED, bundle);
+
+        }
+
+        @Override
+        void onSeekCompleted(long position) throws RemoteException {
+            // Note: current position should be also sent to the controller here because the
+            // position here may refer to the parameter of the previous seek() API calls.
+            Bundle bundle = new Bundle();
+            bundle.putLong(ARGUMENT_SEEK_POSITION, position);
+            bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
+                    mSession.getPlaybackStateCompat());
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_SEEK_COMPLETED, bundle);
+        }
+
+        @Override
+        void onError(int errorCode, Bundle extras) throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putInt(ARGUMENT_ERROR_CODE, errorCode);
+            bundle.putBundle(ARGUMENT_EXTRAS, extras);
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_ERROR, bundle);
+        }
+
+        @Override
+        void onCurrentMediaItemChanged(MediaItem2 item) throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putBundle(ARGUMENT_MEDIA_ITEM, (item == null) ? null : item.toBundle());
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED, bundle);
+        }
+
+        @Override
+        void onPlaylistChanged(List<MediaItem2> playlist, MediaMetadata2 metadata)
+                throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArray(ARGUMENT_PLAYLIST,
+                    MediaUtils2.toMediaItem2ParcelableArray(playlist));
+            bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
+                    metadata == null ? null : metadata.toBundle());
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);
+        }
+
+        @Override
+        void onPlaylistMetadataChanged(MediaMetadata2 metadata) throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
+                    metadata == null ? null : metadata.toBundle());
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED, bundle);
+        }
+
+        @Override
+        void onShuffleModeChanged(int shuffleMode) throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED, bundle);
+        }
+
+        @Override
+        void onRepeatModeChanged(int repeatMode) throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_REPEAT_MODE_CHANGED, bundle);
+        }
+
+        @Override
+        void onRoutesInfoChanged(List<Bundle> routes) throws RemoteException {
+            Bundle bundle = null;
+            if (routes != null) {
+                bundle = new Bundle();
+                bundle.putParcelableArray(ARGUMENT_ROUTE_BUNDLE, routes.toArray(new Bundle[0]));
+            }
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_ROUTES_INFO_CHANGED, bundle);
+        }
+
+        @Override
+        void onChildrenChanged(String parentId, int itemCount, Bundle extras)
+                throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putString(ARGUMENT_MEDIA_ID, parentId);
+            bundle.putInt(ARGUMENT_ITEM_COUNT, itemCount);
+            bundle.putBundle(ARGUMENT_EXTRAS, extras);
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_CHILDREN_CHANGED, bundle);
+        }
+
+        @Override
+        void onSearchResultChanged(String query, int itemCount, Bundle extras)
+                throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putString(ARGUMENT_QUERY, query);
+            bundle.putInt(ARGUMENT_ITEM_COUNT, itemCount);
+            bundle.putBundle(ARGUMENT_EXTRAS, extras);
+            mIControllerCallback.onEvent(SESSION_EVENT_ON_SEARCH_RESULT_CHANGED, bundle);
         }
     }
 }
