@@ -33,10 +33,10 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class RemoteActionCompatTest extends BaseInstrumentationTestCase<TestSupportActivity> {
+public class RemoteActionCompatTest extends BaseInstrumentationTestCase<TestActivity> {
 
     public RemoteActionCompatTest() {
-        super(TestSupportActivity.class);
+        super(TestActivity.class);
     }
 
     @Test

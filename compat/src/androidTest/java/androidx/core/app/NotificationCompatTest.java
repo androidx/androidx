@@ -57,7 +57,7 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupportActivity> {
+public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActivity> {
     private static final String TEXT_RESULT_KEY = "text";
     private static final String DATA_RESULT_KEY = "data";
     private static final String EXTRA_COLORIZED = "android.colorized";
@@ -65,7 +65,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     Context mContext;
 
     public NotificationCompatTest() {
-        super(TestSupportActivity.class);
+        super(TestActivity.class);
     }
 
     @Before
