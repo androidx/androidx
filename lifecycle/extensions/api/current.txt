@@ -1,10 +1,5 @@
 package androidx.lifecycle {
 
-  public class ProcessLifecycleOwner implements androidx.lifecycle.LifecycleOwner {
-    method public static androidx.lifecycle.LifecycleOwner get();
-    method public androidx.lifecycle.Lifecycle getLifecycle();
-  }
-
   public class ViewModelProviders {
     ctor public deprecated ViewModelProviders();
     method public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.Fragment);
