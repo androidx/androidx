@@ -24,6 +24,8 @@ android-support-asynclayoutinflater,androidx.asynclayoutinflater_asynclayoutinfl
 android-support-car,androidx.car_car
 android-support-collections,androidx.collection_collection
 android-support-compat,androidx.core_core
+android-support-constraint-layout,androidx-constraintlayout_constraintlayout
+android-support-constraint-layout-solver,androidx-constraintlayout_constraintlayout-solver
 android-support-contentpaging,androidx.contentpaging_contentpaging
 android-support-coordinatorlayout,androidx.coordinatorlayout_coordinatorlayout
 android-support-core-ui,androidx.legacy_legacy-support-core-ui
