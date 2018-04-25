@@ -39,7 +39,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -517,7 +517,7 @@ public class Preference implements Comparable<Preference> {
         if (imageView != null) {
             if (mIconResId != 0 || mIcon != null) {
                 if (mIcon == null) {
-                    mIcon = ContextCompat.getDrawable(getContext(), mIconResId);
+                    mIcon = AppCompatResources.getDrawable(mContext, mIconResId);
                 }
                 if (mIcon != null) {
                     imageView.setImageDrawable(mIcon);
@@ -666,7 +666,7 @@ public class Preference implements Comparable<Preference> {
      * @see #setIcon(Drawable)
      */
     public void setIcon(int iconResId) {
-        setIcon(ContextCompat.getDrawable(mContext, iconResId));
+        setIcon(AppCompatResources.getDrawable(mContext, iconResId));
         mIconResId = iconResId;
     }
 
@@ -678,7 +678,7 @@ public class Preference implements Comparable<Preference> {
      */
     public Drawable getIcon() {
         if (mIcon == null && mIconResId != 0) {
-            mIcon = ContextCompat.getDrawable(mContext, mIconResId);
+            mIcon = AppCompatResources.getDrawable(mContext, mIconResId);
         }
         return mIcon;
     }
