@@ -2343,8 +2343,38 @@ public class NotificationCompat {
 
             if (Build.VERSION.SDK_INT >= 24) {
                 Notification.MessagingStyle style =
-                        new Notification.MessagingStyle(mUserDisplayName)
-                                .setConversationTitle(mConversationTitle);
+                        new Notification.MessagingStyle(mUserDisplayName);
+
+                // If no set conversation title, use first incoming message sender name
+                CharSequence conversationTitle = mConversationTitle;
+                if (mConversationTitle == null) {
+                    Message latestIncomingMessage = findLatestIncomingMessage();
+                    if (latestIncomingMessage != null
+                            && latestIncomingMessage.getPerson() != null) {
+                        conversationTitle = latestIncomingMessage.getPerson().getName();
+                    }
+                }
+
+                // In SDK < 28, base Android will assume a MessagingStyle notification is a group
+                // chat if the conversation title is set. In compat, this isn't the case as we've
+                // introduced #setGroupConversation. When we apply these settings to base Android
+                // notifications, we should only set base Android's MessagingStyle conversation
+                // title if it's a group conversation OR SDK >= 28. Otherwise we set the
+                // Notification content title so Android won't think it's a group conversation.
+                if (isGroupConversation() || Build.VERSION.SDK_INT >= 28) {
+                    // If group or non-legacy, set MessagingStyle#mConversationTitle.
+                    style.setConversationTitle(conversationTitle);
+                } else {
+                    // Otherwise set Notification#mContentTitle.
+                    builder.getBuilder().setContentTitle(conversationTitle);
+                }
+
+                // For SDK >= 28, we can simply denote the group conversation status regardless of
+                // if we set the conversation title or not.
+                if (Build.VERSION.SDK_INT >= 28) {
+                    style.setGroupConversation(mIsGroupConversation);
+                }
+
                 for (MessagingStyle.Message message : mMessages) {
                     Notification.MessagingStyle.Message frameworkMessage =
                             new Notification.MessagingStyle.Message(
@@ -2397,7 +2427,8 @@ public class NotificationCompat {
             for (int i = mMessages.size() - 1; i >= 0; i--) {
                 MessagingStyle.Message message = mMessages.get(i);
                 // Incoming messages have a non-empty sender.
-                if (!TextUtils.isEmpty(message.getSender())) {
+                if (message.getPerson() != null
+                        && !TextUtils.isEmpty(message.getPerson().getName())) {
                     return message;
                 }
             }
@@ -5030,6 +5061,12 @@ public class NotificationCompat {
             }
         }
         return result;
+    }
+
+    /** Returns the content title of a {@link Notification}. **/
+    @RequiresApi(19)
+    public static CharSequence getContentTitle(Notification notification) {
+        return notification.extras.getCharSequence(Notification.EXTRA_TITLE);
     }
 
     /**
