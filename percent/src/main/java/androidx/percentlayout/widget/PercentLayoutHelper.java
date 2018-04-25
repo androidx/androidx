@@ -75,34 +75,34 @@ import androidx.percentlayout.R;
  * the gap:
  *
  * <pre class="prettyprint">
- * &lt;android.support.constraint.ConstraintLayout
+ * &lt;androidx.constraintlayout.widget.ConstraintLayout
  *         xmlns:android="http://schemas.android.com/apk/res/android"
  *         xmlns:app="http://schemas.android.com/apk/res-auto"
  *         android:layout_width="match_parent"
  *         android:layout_height="match_parent"&gt
  *
- *     &lt;android.support.constraint.Guideline
+ *     &lt;androidx.constraintlayout.widget.Guideline
  *         android:layout_width="wrap_content"
  *         android:layout_height="wrap_content"
  *         android:id="@+id/left_guideline"
  *         app:layout_constraintGuide_percent=".15"
  *         android:orientation="vertical"/&gt
  *
- *     &lt;android.support.constraint.Guideline
+ *     &lt;androidx.constraintlayout.widget.Guideline
  *         android:layout_width="wrap_content"
  *         android:layout_height="wrap_content"
  *         android:id="@+id/right_guideline"
  *         app:layout_constraintGuide_percent=".85"
  *         android:orientation="vertical"/&gt
  *
- *     &lt;android.support.constraint.Guideline
+ *     &lt;androidx.constraintlayout.widget.Guideline
  *         android:layout_width="wrap_content"
  *         android:layout_height="wrap_content"
  *         android:id="@+id/top_guideline"
  *         app:layout_constraintGuide_percent=".15"
  *         android:orientation="horizontal"/&gt
  *
- *     &lt;android.support.constraint.Guideline
+ *     &lt;androidx.constraintlayout.widget.Guideline
  *         android:layout_width="wrap_content"
  *         android:layout_height="wrap_content"
  *         android:id="@+id/bottom_guideline"
@@ -119,7 +119,7 @@ import androidx.percentlayout.R;
  *         app:layout_constraintTop_toTopOf="@+id/top_guideline"
  *         app:layout_constraintBottom_toBottomOf="@+id/bottom_guideline" /&gt
  *
- * &lt;/android.support.constraint.ConstraintLayout&gt
+ * &lt;/androidx.constraintlayout.widget.ConstraintLayout&gt
  */
 @Deprecated
 public class PercentLayoutHelper {
