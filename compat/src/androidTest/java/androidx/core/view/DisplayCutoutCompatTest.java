@@ -58,16 +58,16 @@ public class DisplayCutoutCompatTest {
 
     @Test
     public void testSafeInsets() {
-        if (SDK_INT > 28) {
+        if (SDK_INT >= 28) {
             assertEquals("left", 30, mCutoutLeftRight.getSafeInsetLeft());
-            assertEquals("top", 10, mCutoutLeftRight.getSafeInsetTop());
+            assertEquals("top", 10, mCutoutTopBottom.getSafeInsetTop());
             assertEquals("right", 40, mCutoutLeftRight.getSafeInsetRight());
-            assertEquals("bottom", 20, mCutoutLeftRight.getSafeInsetBottom());
+            assertEquals("bottom", 20, mCutoutTopBottom.getSafeInsetBottom());
         } else {
             assertEquals("left", 0, mCutoutLeftRight.getSafeInsetLeft());
-            assertEquals("top", 0, mCutoutLeftRight.getSafeInsetTop());
+            assertEquals("top", 0, mCutoutTopBottom.getSafeInsetTop());
             assertEquals("right", 0, mCutoutLeftRight.getSafeInsetRight());
-            assertEquals("bottom", 0, mCutoutLeftRight.getSafeInsetBottom());
+            assertEquals("bottom", 0, mCutoutTopBottom.getSafeInsetBottom());
         }
     }
 
