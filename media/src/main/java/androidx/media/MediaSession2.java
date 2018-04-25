@@ -166,7 +166,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
 
     MediaSession2(SupportLibraryImpl impl) {
         mImpl = impl;
-        mImpl.setInstance(this);
     }
 
     SupportLibraryImpl getImpl() {
@@ -1536,7 +1535,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
                 @NonNull String query, int itemCount, @Nullable Bundle extras);
 
         // Internally used methods
-        abstract void setInstance(MediaSession2 session);
+        abstract MediaSession2 createInstance();
         abstract MediaSession2 getInstance();
         abstract MediaSessionCompat getSessionCompat();
         abstract Context getContext();
