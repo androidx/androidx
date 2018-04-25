@@ -13,19 +13,20 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false">
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/ws_nav_drawer_guide_start"
         app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_2_items_start"
         style="@style/WsVerticalGuideStyle" />
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/ws_nav_drawer_guide_end"
         app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_2_items_end"
         style="@style/WsVerticalGuideStyle" />
@@ -50,4 +51,4 @@
 
     <include layout="@layout/ws_single_page_nav_drawer_text" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

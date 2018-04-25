@@ -19,7 +19,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:showIn="@layout/ws_single_page_nav_drawer_5_item">
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/ws_nav_drawer_text_guide"
         app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_text_guide"
         style="@style/WsHorizontalGuideStyle" />
