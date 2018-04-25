@@ -1,0 +1,20 @@
+package androidx.lifecycle {
+
+  public class LifecycleService extends android.app.Service implements androidx.lifecycle.LifecycleOwner {
+    ctor public LifecycleService();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method public android.os.IBinder onBind(android.content.Intent);
+    method public void onStart(android.content.Intent, int);
+  }
+
+  public class ServiceLifecycleDispatcher {
+    ctor public ServiceLifecycleDispatcher(androidx.lifecycle.LifecycleOwner);
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method public void onServicePreSuperOnBind();
+    method public void onServicePreSuperOnCreate();
+    method public void onServicePreSuperOnDestroy();
+    method public void onServicePreSuperOnStart();
+  }
+
+}
+
