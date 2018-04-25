@@ -59,7 +59,7 @@ import java.util.logging.Logger;
 /**
  * Base class for tests which use MediaPlayer2 to play audio or video.
  */
-public class MediaPlayer2TestBase {
+public class MediaPlayer2TestBase extends MediaTestBase {
     private static final Logger LOG = Logger.getLogger(MediaPlayer2TestBase.class.getName());
 
     protected static final int SLEEP_TIME = 1000;

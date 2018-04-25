@@ -1196,7 +1196,6 @@ package androidx.media {
     method public void sendCustomCommand(androidx.media.SessionCommand2, android.os.Bundle);
     method public void sendCustomCommand(androidx.media.MediaSession2.ControllerInfo, androidx.media.SessionCommand2, android.os.Bundle, android.os.ResultReceiver);
     method public void setAllowedCommands(androidx.media.MediaSession2.ControllerInfo, androidx.media.SessionCommandGroup2);
-    method public void setAudioFocusRequest(android.media.AudioFocusRequest);
     method public void setCustomLayout(androidx.media.MediaSession2.ControllerInfo, java.util.List<androidx.media.MediaSession2.CommandButton>);
     method public void setOnDataSourceMissingHelper(androidx.media.MediaSession2.OnDataSourceMissingHelper);
     method public void setPlaybackSpeed(float);
