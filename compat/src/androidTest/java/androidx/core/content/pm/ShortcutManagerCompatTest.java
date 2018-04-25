@@ -51,7 +51,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 
-import androidx.core.app.TestSupportActivity;
+import androidx.core.app.TestActivity;
 import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Before;
@@ -64,13 +64,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
-public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestSupportActivity> {
+public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestActivity> {
 
     Context mContext;
     ShortcutInfoCompat mInfoCompat;
 
     public ShortcutManagerCompatTest() {
-        super(TestSupportActivity.class);
+        super(TestActivity.class);
     }
 
     @Before

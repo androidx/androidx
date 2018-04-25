@@ -42,8 +42,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.ComponentActivity;
 import androidx.core.app.SharedElementCallback;
-import androidx.core.app.SupportActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
@@ -65,7 +65,7 @@ import java.util.Collection;
  * specify an ID (or tag) in the <code>&lt;fragment></code>.</p>
  * </ul>
  */
-public class FragmentActivity extends SupportActivity implements
+public class FragmentActivity extends ComponentActivity implements
         ViewModelStoreOwner,
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompat.RequestPermissionsRequestCodeValidator {
