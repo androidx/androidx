@@ -706,6 +706,101 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         assertTrue(result.isGroupConversation());
     }
 
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void testMessagingStyle_applyNoTitleAndNotGroup() {
+        assertFalse(true);
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name")
+                        .setGroupConversation(false)
+                        .addMessage(
+                                new Message(
+                                        "body",
+                                        1,
+                                        new Person.Builder().setName("example name").build()))
+                        .addMessage(new Message("body 2", 2, (Person) null));
+
+        Notification resultNotification = new NotificationCompat.Builder(mContext, "test id")
+                .setStyle(messagingStyle)
+                .build();
+        NotificationCompat.MessagingStyle resultCompatMessagingStyle =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(resultNotification);
+
+        // SDK >= 28 applies first incoming message sender name as MessagingStyle title.
+        assertNull(NotificationCompat.getContentTitle(resultNotification));
+        assertEquals("example name", resultCompatMessagingStyle.getConversationTitle());
+        assertFalse(resultCompatMessagingStyle.isGroupConversation());
+    }
+
+    @SdkSuppress(minSdkVersion = 24, maxSdkVersion = 27)
+    @Test
+    public void testMessagingStyle_applyNoTitleAndNotGroup_legacy() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name")
+                        .setGroupConversation(false)
+                        .addMessage(
+                                new Message(
+                                        "body",
+                                        1,
+                                        new Person.Builder().setName("example name").build()))
+                        .addMessage(new Message("body 2", 2, (Person) null));
+
+        Notification resultNotification = new NotificationCompat.Builder(mContext, "test id")
+                .setStyle(messagingStyle)
+                .build();
+        NotificationCompat.MessagingStyle resultCompatMessagingStyle =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(resultNotification);
+
+        // SDK [24, 27] applies first incoming message sender name as Notification content title.
+        assertEquals("example name", NotificationCompat.getContentTitle(resultNotification));
+        assertNull(resultCompatMessagingStyle.getConversationTitle());
+        assertFalse(resultCompatMessagingStyle.isGroupConversation());
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void testMessagingStyle_applyConversationTitleAndNotGroup() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name")
+                        .setGroupConversation(false)
+                        .setConversationTitle("test title");
+
+        Notification resultNotification = new NotificationCompat.Builder(mContext, "test id")
+                .setStyle(messagingStyle)
+                .build();
+        NotificationCompat.MessagingStyle resultMessagingStyle =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(resultNotification);
+
+        // SDK >= 28 applies MessagingStyle title to MessagingStyle.
+        assertNull(NotificationCompat.getContentTitle(resultNotification));
+        assertEquals("test title", resultMessagingStyle.getConversationTitle());
+        assertFalse(resultMessagingStyle.isGroupConversation());
+    }
+
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 27)
+    @Test
+    public void testMessagingStyle_applyConversationTitleAndNotGroup_legacy() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name")
+                        .setGroupConversation(false)
+                        .setConversationTitle("test title");
+
+        Notification resultNotification = new NotificationCompat.Builder(mContext, "test id")
+                .setStyle(messagingStyle)
+                .build();
+        NotificationCompat.MessagingStyle resultMessagingStyle =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(resultNotification);
+
+        // SDK <= 27 applies MessagingStyle title as Notification content title.
+        assertEquals("test title", NotificationCompat.getContentTitle(resultNotification));
+        assertEquals("test title", resultMessagingStyle.getConversationTitle());
+        assertFalse(resultMessagingStyle.isGroupConversation());
+    }
+
     @Test
     public void testMessagingStyle_extras() {
         NotificationCompat.MessagingStyle messagingStyle =
@@ -784,6 +879,16 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .extend(carExtender)
                 .build();
         verifyInvisibleActionExists(notification);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void getContentTitle() {
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setContentTitle("example title")
+                .build();
+
+        assertEquals("example title", NotificationCompat.getContentTitle(notification));
     }
 
     private static void verifyInvisibleActionExists(Notification notification) {
