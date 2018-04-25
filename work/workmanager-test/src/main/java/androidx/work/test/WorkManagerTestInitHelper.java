@@ -34,8 +34,7 @@ import java.util.UUID;
  */
 public final class WorkManagerTestInitHelper {
     /**
-     * Initializes {@link androidx.work.WorkManager} with a {@link SynchronousExecutor}
-     * and a {@link TestScheduler}.
+     * Initializes {@link androidx.work.WorkManager} with a {@link SynchronousExecutor}.
      *
      * @param context The application {@link Context}
      */
