@@ -126,6 +126,7 @@ import androidx.collection.ArrayMap;
 import androidx.core.app.BundleCompat;
 import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaSession2.CommandButton;
+import androidx.media.MediaSession2.ControllerCb;
 import androidx.media.MediaSession2.ControllerInfo;
 
 import java.util.ArrayList;
@@ -486,7 +487,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 Bundle bundle = new Bundle();
                 bundle.putParcelableArray(ARGUMENT_COMMAND_BUTTONS,
                         MediaUtils2.toCommandButtonParcelableArray(layout));
-                controller.getControllerBinder().onEvent(SESSION_EVENT_SET_CUSTOM_LAYOUT, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_SET_CUSTOM_LAYOUT, bundle);
             }
         });
     }
@@ -500,8 +502,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
                 bundle.putBundle(ARGUMENT_ALLOWED_COMMANDS, commands.toBundle());
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED, bundle);
             }
         });
     }
@@ -522,7 +524,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
                 bundle.putBundle(ARGUMENT_ARGUMENTS, args);
                 bundle.putParcelable(ARGUMENT_RESULT_RECEIVER, receiver);
-                controller.getControllerBinder().onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
             }
         });
     }
@@ -537,7 +540,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         notifyAll(new Session2Runnable() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                controller.getControllerBinder().onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_SEND_CUSTOM_COMMAND, bundle);
             }
         });
     }
@@ -548,8 +552,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
                 bundle.putBundle(ARGUMENT_MEDIA_ITEM, (item == null) ? null : item.toBundle());
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED, bundle);
             }
         });
     }
@@ -560,8 +564,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
                 bundle.putBundle(ARGUMENT_PLAYBACK_INFO, info.toBundle());
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED, bundle);
             }
         });
     }
@@ -576,8 +580,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 bundle.putInt(ARGUMENT_PLAYER_STATE, state);
                 bundle.putParcelable(
                         ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_PLAYER_STATE_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_PLAYER_STATE_CHANGED, bundle);
             }
         });
     }
@@ -591,8 +595,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(
                         ARGUMENT_PLAYBACK_STATE_COMPAT, mSession.getPlaybackStateCompat());
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED, bundle);
             }
         });
     }
@@ -608,8 +612,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 bundle.putInt(ARGUMENT_BUFFERING_STATE, bufferingState);
                 bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
                         mSession.getPlaybackStateCompat());
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_BUFFERING_STATE_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_BUFFERING_STATE_CHANGED, bundle);
             }
         });
     }
@@ -624,7 +628,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 bundle.putLong(ARGUMENT_SEEK_POSITION, position);
                 bundle.putParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT,
                         mSession.getPlaybackStateCompat());
-                controller.getControllerBinder().onEvent(SESSION_EVENT_ON_SEEK_COMPLETED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_SEEK_COMPLETED, bundle);
             }
         });
     }
@@ -636,7 +641,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 Bundle bundle = new Bundle();
                 bundle.putInt(ARGUMENT_ERROR_CODE, errorCode);
                 bundle.putBundle(ARGUMENT_EXTRAS, extras);
-                controller.getControllerBinder().onEvent(SESSION_EVENT_ON_ERROR, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_ERROR, bundle);
             }
         });
     }
@@ -651,8 +657,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                     bundle = new Bundle();
                     bundle.putParcelableArray(ARGUMENT_ROUTE_BUNDLE, routes.toArray(new Bundle[0]));
                 }
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_ROUTES_INFO_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_ROUTES_INFO_CHANGED, bundle);
             }
         });
     }
@@ -667,8 +673,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                         MediaUtils2.toMediaItem2ParcelableArray(playlist));
                 bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
                         metadata == null ? null : metadata.toBundle());
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);
             }
         });
     }
@@ -680,8 +686,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 Bundle bundle = new Bundle();
                 bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
                         metadata == null ? null : metadata.toBundle());
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED, bundle);
             }
         });
     }
@@ -692,8 +698,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
                 bundle.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_REPEAT_MODE_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_REPEAT_MODE_CHANGED, bundle);
             }
         });
     }
@@ -704,8 +710,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             public void run(ControllerInfo controller) throws RemoteException {
                 Bundle bundle = new Bundle();
                 bundle.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED, bundle);
             }
         });
     }
@@ -719,31 +725,21 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 bundle.putString(ARGUMENT_QUERY, query);
                 bundle.putInt(ARGUMENT_ITEM_COUNT, itemCount);
                 bundle.putBundle(ARGUMENT_EXTRAS, extras);
-                controller.getControllerBinder().onEvent(
-                        SESSION_EVENT_ON_SEARCH_RESULT_CHANGED, bundle);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_SEARCH_RESULT_CHANGED, bundle);
             }
         });
     }
 
-    private List<ControllerInfo> getControllers() {
-        ArrayList<ControllerInfo> controllers = new ArrayList<>();
-        synchronized (mLock) {
-            for (int i = 0; i < mControllers.size(); i++) {
-                controllers.add(mControllers.valueAt(i));
-            }
-        }
-        return controllers;
-    }
-
     private void notifyAll(@NonNull Session2Runnable runnable) {
-        List<ControllerInfo> controllers = getControllers();
+        List<ControllerInfo> controllers = getConnectedControllers();
         for (int i = 0; i < controllers.size(); i++) {
             notifyInternal(controllers.get(i), runnable);
         }
     }
 
     private void notifyAll(int commandCode, @NonNull Session2Runnable runnable) {
-        List<ControllerInfo> controllers = getControllers();
+        List<ControllerInfo> controllers = getConnectedControllers();
         for (int i = 0; i < controllers.size(); i++) {
             ControllerInfo controller = controllers.get(i);
             if (isAllowedCommand(controller, commandCode)) {
@@ -754,7 +750,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
 
     private void notifyInternal(@NonNull ControllerInfo controller,
             @NonNull Session2Runnable runnable) {
-        if (controller == null || controller.getControllerBinder() == null) {
+        if (controller == null
+                || ((Controller2Cb) controller.getControllerCb()).getControllerBinder() == null) {
             return;
         }
         try {
@@ -763,7 +760,8 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             if (DEBUG) {
                 Log.d(TAG, controller.toString() + " is gone", e);
             }
-            onControllerClosed(controller.getControllerBinder());
+            onControllerClosed(
+                    ((Controller2Cb) controller.getControllerCb()).getControllerBinder());
         } catch (RemoteException e) {
             // Currently it's TransactionTooLargeException or DeadSystemException.
             // We'd better to leave log for those cases because
@@ -877,7 +875,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         String packageName = extras.getString(ARGUMENT_PACKAGE_NAME);
         int uid = extras.getInt(ARGUMENT_UID);
         int pid = extras.getInt(ARGUMENT_PID);
-        return new ControllerInfo(packageName, pid, uid, callback);
+        return new ControllerInfo(packageName, pid, uid, new Controller2Cb(callback));
     }
 
     private void connect(Bundle extras, final ResultReceiver cb) {
@@ -985,5 +983,22 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
     @FunctionalInterface
     private interface Session2Runnable {
         void run(ControllerInfo controller) throws RemoteException;
+    }
+
+    static final class Controller2Cb extends ControllerCb {
+        private final IMediaControllerCallback mIControllerCallback;
+
+        Controller2Cb(@NonNull IMediaControllerCallback callback) {
+            mIControllerCallback = callback;
+        }
+
+        @Override
+        @NonNull IBinder getId() {
+            return mIControllerCallback.asBinder();
+        }
+
+        @NonNull IMediaControllerCallback getControllerBinder() {
+            return mIControllerCallback;
+        }
     }
 }

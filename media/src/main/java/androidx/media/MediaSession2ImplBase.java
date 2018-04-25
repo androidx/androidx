@@ -293,7 +293,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     @Override
-    public @NonNull List<MediaSession2.ControllerInfo> getConnectedControllers() {
+    public @NonNull List<ControllerInfo> getConnectedControllers() {
         return mSession2Stub.getConnectedControllers();
     }
 
