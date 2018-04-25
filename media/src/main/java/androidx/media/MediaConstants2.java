@@ -47,6 +47,8 @@ class MediaConstants2 {
             "androidx.media.session.event.ON_PLAYLIST_METADATA_CHANGED";
     static final String SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED =
             "androidx.media.session.event.ON_ALLOWED_COMMANDS_CHANGED";
+    static final String SESSION_EVENT_ON_CHILDREN_CHANGED =
+            "androidx.media.session.event.ON_CHILDREN_CHANGED";
     static final String SESSION_EVENT_ON_SEARCH_RESULT_CHANGED =
             "androidx.media.session.event.ON_SEARCH_RESULT_CHANGED";
     static final String SESSION_EVENT_SEND_CUSTOM_COMMAND =

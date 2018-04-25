@@ -34,6 +34,7 @@ import static androidx.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION_EXTRAS;
 import static androidx.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_ID;
 import static androidx.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_LIST;
 import static androidx.media.MediaBrowserProtocol.DATA_MEDIA_SESSION_TOKEN;
+import static androidx.media.MediaBrowserProtocol.DATA_NOTIFY_CHILDREN_CHANGED_OPTIONS;
 import static androidx.media.MediaBrowserProtocol.DATA_OPTIONS;
 import static androidx.media.MediaBrowserProtocol.DATA_PACKAGE_NAME;
 import static androidx.media.MediaBrowserProtocol.DATA_RESULT_RECEIVER;
@@ -187,6 +188,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         void notifyChildrenChanged(final String parentId, final Bundle options);
         Bundle getBrowserRootHints();
         RemoteUserInfo getCurrentBrowserInfo();
+        List<RemoteUserInfo> getSubscribingBrowsers(String parentId);
     }
 
     class MediaBrowserServiceImplBase implements MediaBrowserServiceImpl {
@@ -238,7 +240,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
                             for (Pair<IBinder, Bundle> callback : callbackList) {
                                 if (MediaBrowserCompatUtils.hasDuplicatedItems(
                                         options, callback.second)) {
-                                    performLoadChildren(parentId, connection, callback.second);
+                                    performLoadChildren(parentId, connection, callback.second,
+                                            options);
                                 }
                             }
                         }
@@ -263,6 +266,20 @@ public abstract class MediaBrowserServiceCompat extends Service {
                         + " onLoadItem, onSearch, or onCustomAction methods");
             }
             return mCurConnection.browserInfo;
+        }
+
+        @Override
+        public List<RemoteUserInfo> getSubscribingBrowsers(String parentId) {
+            List<RemoteUserInfo> result = new ArrayList<>();
+            for (IBinder binder : mConnections.keySet()) {
+                ConnectionRecord connection = mConnections.get(binder);
+                List<Pair<IBinder, Bundle>> callbackList =
+                        connection.subscriptions.get(parentId);
+                if (callbackList != null) {
+                    result.add(connection.browserInfo);
+                }
+            }
+            return result;
         }
     }
 
@@ -375,6 +392,20 @@ public abstract class MediaBrowserServiceCompat extends Service {
             MediaBrowserServiceCompat.this.onLoadChildren(parentId, result);
         }
 
+        @Override
+        public List<RemoteUserInfo> getSubscribingBrowsers(String parentId) {
+            List<RemoteUserInfo> result = new ArrayList<>();
+            for (IBinder binder : mConnections.keySet()) {
+                ConnectionRecord connection = mConnections.get(binder);
+                List<Pair<IBinder, Bundle>> callbackList =
+                        connection.subscriptions.get(parentId);
+                if (callbackList != null) {
+                    result.add(connection.browserInfo);
+                }
+            }
+            return result;
+        }
+
         void notifyChildrenChangedForFramework(final String parentId, final Bundle options) {
             MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
         }
@@ -391,7 +422,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
                             for (Pair<IBinder, Bundle> callback : callbackList) {
                                 if (MediaBrowserCompatUtils.hasDuplicatedItems(
                                         options, callback.second)) {
-                                    performLoadChildren(parentId, connection, callback.second);
+                                    performLoadChildren(parentId, connection, callback.second,
+                                            options);
                                 }
                             }
                         }
@@ -1010,8 +1042,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
         void onConnect(String root, MediaSessionCompat.Token session, Bundle extras)
                 throws RemoteException;
         void onConnectFailed() throws RemoteException;
-        void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list, Bundle options)
-                throws RemoteException;
+        void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list, Bundle options,
+                Bundle notifyChildrenChangedOptions) throws RemoteException;
     }
 
     private static class ServiceCallbacksCompat implements ServiceCallbacks {
@@ -1047,10 +1079,11 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
         @Override
         public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list,
-                Bundle options) throws RemoteException {
+                Bundle options, Bundle notifyChildrenChangedOptions) throws RemoteException {
             Bundle data = new Bundle();
             data.putString(DATA_MEDIA_ITEM_ID, mediaId);
             data.putBundle(DATA_OPTIONS, options);
+            data.putBundle(DATA_NOTIFY_CHILDREN_CHANGED_OPTIONS, notifyChildrenChangedOptions);
             if (list != null) {
                 data.putParcelableArrayList(DATA_MEDIA_ITEM_LIST,
                         list instanceof ArrayList ? (ArrayList) list : new ArrayList<>(list));
@@ -1356,6 +1389,18 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     /**
+     * Gets {@link RemoteUserInfo} of all browsers which are subscribing to the given parentId.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public @NonNull List<RemoteUserInfo> getSubscribingBrowsers(@NonNull String parentId) {
+        if (parentId == null) {
+            throw new IllegalArgumentException("parentId cannot be null in getSubscribingBrowsers");
+        }
+        return mImpl.getSubscribingBrowsers(parentId);
+    }
+
+    /**
      * Return whether the given package is one of the ones that is owned by the uid.
      */
     boolean isValidPackage(String pkg, int uid) {
@@ -1392,7 +1437,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         callbackList.add(new Pair<>(token, options));
         connection.subscriptions.put(id, callbackList);
         // send the results
-        performLoadChildren(id, connection, options);
+        performLoadChildren(id, connection, options, null);
     }
 
     /**
@@ -1425,7 +1470,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * Callers must make sure that this connection is still connected.
      */
     void performLoadChildren(final String parentId, final ConnectionRecord connection,
-            final Bundle options) {
+            final Bundle subscribeOptions, final Bundle notifyChildrenChangedOptions) {
         final Result<List<MediaBrowserCompat.MediaItem>> result
                 = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
             @Override
@@ -1440,9 +1485,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
                 List<MediaBrowserCompat.MediaItem> filteredList =
                         (getFlags() & RESULT_FLAG_OPTION_NOT_HANDLED) != 0
-                                ? applyOptions(list, options) : list;
+                                ? applyOptions(list, subscribeOptions) : list;
                 try {
-                    connection.callbacks.onLoadChildren(parentId, filteredList, options);
+                    connection.callbacks.onLoadChildren(parentId, filteredList, subscribeOptions,
+                            notifyChildrenChangedOptions);
                 } catch (RemoteException ex) {
                     // The other side is in the process of crashing.
                     Log.w(TAG, "Calling onLoadChildren() failed for id=" + parentId
@@ -1452,10 +1498,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
         };
 
         mCurConnection = connection;
-        if (options == null) {
+        if (subscribeOptions == null) {
             onLoadChildren(parentId, result);
         } else {
-            onLoadChildren(parentId, result, options);
+            onLoadChildren(parentId, result, subscribeOptions);
         }
         mCurConnection = null;
 

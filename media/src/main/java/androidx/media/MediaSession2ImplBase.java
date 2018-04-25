@@ -781,6 +781,26 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     ///////////////////////////////////////////////////
 
     @Override
+    void notifyChildrenChanged(ControllerInfo controller, String parentId, int itemCount,
+            Bundle extras, List<MediaSessionManager.RemoteUserInfo> subscribingBrowsers) {
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
+        if (TextUtils.isEmpty(parentId)) {
+            throw new IllegalArgumentException("query shouldn't be empty");
+        }
+
+        // Notify controller only if it has subscribed the parentId.
+        for (MediaSessionManager.RemoteUserInfo info : subscribingBrowsers) {
+            if (info.getPackageName().equals(controller.getPackageName())
+                    && info.getUid() == controller.getUid()) {
+                getSession2Stub().notifyChildrenChanged(controller, parentId, itemCount, extras);
+                return;
+            }
+        }
+    }
+
+    @Override
     void notifySearchResultChanged(ControllerInfo controller, String query, int itemCount,
             Bundle extras) {
         if (controller == null) {

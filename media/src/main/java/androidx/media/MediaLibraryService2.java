@@ -19,6 +19,7 @@ package androidx.media;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE_SIZE;
 
+import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_PAGE;
 import static androidx.media.MediaConstants2.ARGUMENT_PAGE_SIZE;
 
@@ -35,7 +36,6 @@ import androidx.media.MediaLibraryService2.MediaLibrarySession.Builder;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media.MediaSession2.ControllerInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -282,8 +282,10 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          */
         public void notifyChildrenChanged(@NonNull ControllerInfo controller,
                 @NonNull String parentId, int itemCount, @Nullable Bundle extras) {
-            Bundle options = MediaUtils2.createBundle(extras);
-            options.putInt(MediaBrowser2.EXTRA_ITEM_COUNT, itemCount);
+            List<MediaSessionManager.RemoteUserInfo> subscribingBrowsers =
+                    getServiceCompat().getSubscribingBrowsers(parentId);
+            getImpl().notifyChildrenChanged(controller, parentId, itemCount, extras,
+                    subscribingBrowsers);
         }
 
         /**
@@ -298,9 +300,11 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         // This is for the backward compatibility.
         public void notifyChildrenChanged(@NonNull String parentId, int itemCount,
                 @Nullable Bundle extras) {
-            Bundle options = MediaUtils2.createBundle(extras);
-            options.putInt(MediaBrowser2.EXTRA_ITEM_COUNT, itemCount);
-            getServiceCompat().notifyChildrenChanged(parentId, options);
+            if (extras == null) {
+                getServiceCompat().notifyChildrenChanged(parentId);
+            } else {
+                getServiceCompat().notifyChildrenChanged(parentId, extras);
+            }
         }
 
         /**
@@ -521,32 +525,32 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
                     if (options != null) {
                         options.setClassLoader(MediaLibraryService2.this.getClassLoader());
                         try {
-                            int page = options.getInt(EXTRA_PAGE, -1);
-                            int pageSize = options.getInt(EXTRA_PAGE_SIZE, -1);
-                            if (page >= 0 && pageSize >= 0) {
-                                // Requesting the list of children through the pagenation.
+                            int page = options.getInt(EXTRA_PAGE);
+                            int pageSize = options.getInt(EXTRA_PAGE_SIZE);
+                            if (page > 0 && pageSize > 0) {
+                                // Requesting the list of children through pagination.
                                 List<MediaItem2> children = getLibrarySession().getCallback()
                                         .onGetChildren(getLibrarySession(), controller, parentId,
-                                                page,
-                                                pageSize, options);
-                                if (children == null) {
-                                    result.sendResult(null);
-                                } else {
-                                    List<MediaItem> list = new ArrayList<>();
-                                    for (int i = 0; i < children.size(); i++) {
-                                        list.add(MediaUtils2.createMediaItem(children.get(i)));
-                                    }
-                                    result.sendResult(list);
-                                }
+                                                page, pageSize, options);
+                                result.sendResult(MediaUtils2.fromMediaItem2List(children));
+                                return;
+                            } else if (options.containsKey(
+                                    MediaBrowser2.MEDIA_BROWSER2_SUBSCRIBE)) {
+                                // This onLoadChildren() was triggered by MediaBrowser2.subscribe().
+                                options.remove(MediaBrowser2.MEDIA_BROWSER2_SUBSCRIBE);
+                                getLibrarySession().getCallback().onSubscribe(getLibrarySession(),
+                                        controller, parentId, options.getBundle(ARGUMENT_EXTRAS));
                                 return;
                             }
                         } catch (BadParcelableException e) {
                             // pass-through.
                         }
                     }
-                    // No valid pagination info. Only wants to register callbacks
-                    getLibrarySession().getCallback().onSubscribe(getLibrarySession(),
-                            controller, parentId, options);
+                    List<MediaItem2> children = getLibrarySession().getCallback()
+                            .onGetChildren(getLibrarySession(), controller, parentId,
+                                    1 /* page */, Integer.MAX_VALUE /* pageSize*/,
+                                    null /* extras */);
+                    result.sendResult(MediaUtils2.fromMediaItem2List(children));
                 }
             });
         }

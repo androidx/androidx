@@ -59,6 +59,7 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CHILDREN_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
@@ -1243,6 +1244,17 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                             mCallback.onSeekCompleted(mInstance, position);
                         }
                     });
+                    break;
+                }
+                case SESSION_EVENT_ON_CHILDREN_CHANGED: {
+                    String parentId = extras.getString(ARGUMENT_MEDIA_ID);
+                    if (parentId == null || !(mInstance instanceof MediaBrowser2)) {
+                        return;
+                    }
+                    int itemCount = extras.getInt(ARGUMENT_ITEM_COUNT, -1);
+                    Bundle childrenExtras = extras.getBundle(ARGUMENT_EXTRAS);
+                    ((MediaBrowser2.BrowserCallback) mCallback).onChildrenChanged(
+                            (MediaBrowser2) mInstance, parentId, itemCount, childrenExtras);
                     break;
                 }
                 case SESSION_EVENT_ON_SEARCH_RESULT_CHANGED: {
