@@ -1532,6 +1532,9 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
                 @Nullable List<Bundle> routes);
 
         // LibrarySession methods
+        abstract void notifyChildrenChanged(@NonNull ControllerInfo controller,
+                @NonNull String parentId, int itemCount, @Nullable Bundle extras,
+                @NonNull List<MediaSessionManager.RemoteUserInfo> subscribingBrowsers);
         abstract void notifySearchResultChanged(@NonNull ControllerInfo controller,
                 @NonNull String query, int itemCount, @Nullable Bundle extras);
 

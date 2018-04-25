@@ -17,6 +17,7 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_PAGE;
 import static androidx.media.MediaConstants2.ARGUMENT_PAGE_SIZE;
 
@@ -53,6 +54,12 @@ public class MediaBrowser2 extends MediaController2 {
      */
     @RestrictTo(LIBRARY_GROUP)
     public static final String EXTRA_ITEM_COUNT = "android.media.browse.extra.ITEM_COUNT";
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static final String MEDIA_BROWSER2_SUBSCRIBE = "androidx.media.MEDIA_BROWSER2_SUBSCRIBE";
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -236,11 +243,11 @@ public class MediaBrowser2 extends MediaController2 {
             }
             list.add(callback);
         }
-        if (extras == null) {
-            browser.subscribe(parentId, callback);
-        } else {
-            browser.subscribe(parentId, extras, callback);
-        }
+
+        Bundle options = new Bundle();
+        options.putBundle(ARGUMENT_EXTRAS, extras);
+        options.putBoolean(MEDIA_BROWSER2_SUBSCRIBE, true);
+        browser.subscribe(parentId, options, callback);
     }
 
     /**
@@ -507,11 +514,14 @@ public class MediaBrowser2 extends MediaController2 {
                 // Currently no way to tell failures in MediaBrowser2#subscribe().
                 return;
             }
+
+            final Bundle notifyChildrenChangedOptions =
+                    getBrowserCompat().getNotifyChildrenChangedOptions();
             getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
                     getCallback().onChildrenChanged(MediaBrowser2.this, parentId, itemCount,
-                            options);
+                            notifyChildrenChangedOptions);
                 }
             });
         }

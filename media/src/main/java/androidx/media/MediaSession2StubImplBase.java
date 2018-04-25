@@ -57,6 +57,7 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHANGED;
+import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CHILDREN_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
@@ -712,6 +713,21 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 bundle.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
                 ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
                         .onEvent(SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED, bundle);
+            }
+        });
+    }
+
+    void notifyChildrenChanged(ControllerInfo controller, final String parentId,
+            final int itemCount, final Bundle extras) {
+        notifyInternal(controller, new Session2Runnable() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                Bundle bundle = new Bundle();
+                bundle.putString(ARGUMENT_MEDIA_ID, parentId);
+                bundle.putInt(ARGUMENT_ITEM_COUNT, itemCount);
+                bundle.putBundle(ARGUMENT_EXTRAS, extras);
+                ((Controller2Cb) controller.getControllerCb()).getControllerBinder()
+                        .onEvent(SESSION_EVENT_ON_CHILDREN_CHANGED, bundle);
             }
         });
     }

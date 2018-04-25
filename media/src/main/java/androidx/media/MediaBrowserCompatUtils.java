@@ -70,12 +70,8 @@ public class MediaBrowserCompatUtils {
             endIndex2 = startIndex2 + pageSize2 - 1;
         }
 
-        if (startIndex1 <= startIndex2 && startIndex2 <= endIndex1) {
-            return true;
-        } else if (startIndex1 <= endIndex2 && endIndex2 <= endIndex1) {
-            return true;
-        }
-        return false;
+        // For better readability, leaving the exclamation mark here.
+        return !(endIndex1 < startIndex2 || endIndex2 < startIndex1);
     }
 
     private MediaBrowserCompatUtils() {
