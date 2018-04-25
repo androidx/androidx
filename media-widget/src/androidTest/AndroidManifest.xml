@@ -20,6 +20,7 @@
 
     <application>
         <activity android:name="androidx.media.widget.VideoView2TestActivity"
+            android:theme="@style/Theme.AppCompat"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="VideoView2TestActivity">
             <intent-filter>
