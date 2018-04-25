@@ -232,7 +232,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
             }
 
             @Override
-            public @NonNull Builder setPlayer(@NonNull MediaPlayerBase player) {
+            public @NonNull Builder setPlayer(@NonNull MediaPlayerInterface player) {
                 return super.setPlayer(player);
             }
 

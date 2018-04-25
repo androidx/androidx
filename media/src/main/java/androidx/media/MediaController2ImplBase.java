@@ -73,8 +73,8 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEEK_COMPLETED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
-import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
-import static androidx.media.MediaPlayerBase.UNKNOWN_TIME;
+import static androidx.media.MediaPlayerInterface.BUFFERING_STATE_UNKNOWN;
+import static androidx.media.MediaPlayerInterface.UNKNOWN_TIME;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
@@ -525,7 +525,7 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                 return mMediaMetadataCompat.getLong(METADATA_KEY_DURATION);
             }
         }
-        return MediaPlayerBase.UNKNOWN_TIME;
+        return MediaPlayerInterface.UNKNOWN_TIME;
     }
 
     @Override
@@ -572,7 +572,7 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     }
 
     @Override
-    public @MediaPlayerBase.BuffState int getBufferingState() {
+    public @MediaPlayerInterface.BuffState int getBufferingState() {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
