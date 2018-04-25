@@ -88,7 +88,9 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
      * Retrieves the singleton instance of {@link WorkManagerImpl}.
      *
      * @return The singleton instance of {@link WorkManagerImpl}
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static WorkManagerImpl getInstance() {
         synchronized (sLock) {
             if (sDelegatedInstance != null) {
