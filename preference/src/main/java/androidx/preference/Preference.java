@@ -1185,8 +1185,15 @@ public class Preference implements Comparable<Preference> {
      * remove the current parent.
      *
      * @param parentGroup Parent preference group of this preference or {@code null} if none
+     *
+     * @throws IllegalStateException If the preference already has a parent assigned.
      */
     void assignParent(@Nullable PreferenceGroup parentGroup) {
+        if (parentGroup != null && mParentGroup != null) {
+            throw new IllegalStateException(
+                    "This preference already has a parent. You must remove the existing parent "
+                            + "before assigning a new one.");
+        }
         mParentGroup = parentGroup;
     }
 
