@@ -177,6 +177,7 @@ package androidx.core.app {
     method public static int getBadgeIconType(android.app.Notification);
     method public static java.lang.String getCategory(android.app.Notification);
     method public static java.lang.String getChannelId(android.app.Notification);
+    method public static java.lang.CharSequence getContentTitle(android.app.Notification);
     method public static android.os.Bundle getExtras(android.app.Notification);
     method public static java.lang.String getGroup(android.app.Notification);
     method public static int getGroupAlertBehavior(android.app.Notification);
