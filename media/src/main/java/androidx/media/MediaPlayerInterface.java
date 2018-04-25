@@ -32,10 +32,10 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * Base class for all media players that want media session.
+ * Base interface for all media players that want media session.
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
-public abstract class MediaPlayerBase implements AutoCloseable {
+public abstract class MediaPlayerInterface implements AutoCloseable {
     /**
      * @hide
      */
@@ -111,9 +111,9 @@ public abstract class MediaPlayerBase implements AutoCloseable {
 
     /**
      * Prepares the player for playback.
-     * See {@link PlayerEventCallback#onMediaPrepared(MediaPlayerBase, DataSourceDesc)} for being
-     * notified when the preparation phase completed. During this time, the player may allocate
-     * resources required to play, such as audio and video decoders.
+     * See {@link PlayerEventCallback#onMediaPrepared(MediaPlayerInterface, DataSourceDesc)} for
+     * being notified when the preparation phase completed. During this time, the player may
+     * allocate resources required to play, such as audio and video decoders.
      */
     public abstract void prepare();
 
@@ -123,7 +123,7 @@ public abstract class MediaPlayerBase implements AutoCloseable {
     public abstract void pause();
 
     /**
-     * Resets the MediaPlayerBase to its uninitialized state.
+     * Resets the MediaPlayerInterface to its uninitialized state.
      */
     public abstract void reset();
 
@@ -166,7 +166,7 @@ public abstract class MediaPlayerBase implements AutoCloseable {
 
     /**
      * Returns the current player state.
-     * See also {@link PlayerEventCallback#onPlayerStateChanged(MediaPlayerBase, int)} for
+     * See also {@link PlayerEventCallback#onPlayerStateChanged(MediaPlayerInterface, int)} for
      * notification of changes.
      * @return the current player state
      */
@@ -294,8 +294,8 @@ public abstract class MediaPlayerBase implements AutoCloseable {
 
     /**
      * A callback class to receive notifications for events on the media player.
-     * See {@link MediaPlayerBase#registerPlayerEventCallback(Executor, PlayerEventCallback)} to
-     * register this callback.
+     * See {@link MediaPlayerInterface#registerPlayerEventCallback(Executor, PlayerEventCallback)}
+     * to register this callback.
      */
     public abstract static class PlayerEventCallback {
         /**
@@ -304,7 +304,7 @@ public abstract class MediaPlayerBase implements AutoCloseable {
          * @param mpb the player whose data source changed.
          * @param dsd the new current data source. null, if no more data sources available.
          */
-        public void onCurrentDataSourceChanged(@NonNull MediaPlayerBase mpb,
+        public void onCurrentDataSourceChanged(@NonNull MediaPlayerInterface mpb,
                 @Nullable DataSourceDesc dsd) { }
 
         /**
@@ -313,16 +313,17 @@ public abstract class MediaPlayerBase implements AutoCloseable {
          * @param mpb the player that is prepared.
          * @param dsd the data source that the player is prepared to play.
          */
-        public void onMediaPrepared(@NonNull MediaPlayerBase mpb,
+        public void onMediaPrepared(@NonNull MediaPlayerInterface mpb,
                 @NonNull DataSourceDesc dsd) { }
 
         /**
          * Called to indicate that the state of the player has changed.
-         * See {@link MediaPlayerBase#getPlayerState()} for polling the player state.
+         * See {@link MediaPlayerInterface#getPlayerState()} for polling the player state.
          * @param mpb the player whose state has changed.
          * @param state the new state of the player.
          */
-        public void onPlayerStateChanged(@NonNull MediaPlayerBase mpb, @PlayerState int state) { }
+        public void onPlayerStateChanged(@NonNull MediaPlayerInterface mpb,
+                @PlayerState int state) { }
 
         /**
          * Called to report buffering events for a data source.
@@ -330,7 +331,7 @@ public abstract class MediaPlayerBase implements AutoCloseable {
          * @param dsd the data source for which buffering is happening.
          * @param state the new buffering state.
          */
-        public void onBufferingStateChanged(@NonNull MediaPlayerBase mpb,
+        public void onBufferingStateChanged(@NonNull MediaPlayerInterface mpb,
                 @NonNull DataSourceDesc dsd, @BuffState int state) { }
 
         /**
@@ -338,7 +339,7 @@ public abstract class MediaPlayerBase implements AutoCloseable {
          * @param mpb the player that has changed the playback speed.
          * @param speed the new playback speed.
          */
-        public void onPlaybackSpeedChanged(@NonNull MediaPlayerBase mpb, float speed) { }
+        public void onPlaybackSpeedChanged(@NonNull MediaPlayerInterface mpb, float speed) { }
 
         /**
          * Called to indicate that {@link #seekTo(long)} is completed.
@@ -347,6 +348,6 @@ public abstract class MediaPlayerBase implements AutoCloseable {
          * @param position the previous seeking request.
          * @see #seekTo(long)
          */
-        public void onSeekCompleted(@NonNull MediaPlayerBase mpb, long position) { }
+        public void onSeekCompleted(@NonNull MediaPlayerInterface mpb, long position) { }
     }
 }

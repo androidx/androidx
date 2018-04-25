@@ -73,7 +73,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
     public void testGetMediaSession2Tokens_hasMediaController() throws InterruptedException {
         prepareLooper();
         final MockPlayer player = (MockPlayer) mSession.getPlayer();
-        player.notifyPlaybackState(MediaPlayerBase.PLAYER_STATE_IDLE);
+        player.notifyPlaybackState(MediaPlayerInterface.PLAYER_STATE_IDLE);
 
         MediaController2 controller = null;
 //        List<SessionToken2> tokens = mManager.getActiveSessionTokens();
@@ -89,7 +89,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
 //        assertNotNull(controller);
 //
 //        // Test if the found controller is correct one.
-//        assertEquals(MediaPlayerBase.PLAYER_STATE_IDLE, controller.getPlayerState());
+//        assertEquals(MediaPlayerInterface.PLAYER_STATE_IDLE, controller.getPlayerState());
 //        controller.play();
 //
 //        assertTrue(player.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));

@@ -37,8 +37,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.MediaController2.PlaybackInfo;
-import androidx.media.MediaPlayerBase.BuffState;
-import androidx.media.MediaPlayerBase.PlayerState;
+import androidx.media.MediaPlayerInterface.BuffState;
+import androidx.media.MediaPlayerInterface.PlayerState;
 import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
 import androidx.media.MediaPlaylistAgent.RepeatMode;
 import androidx.media.MediaPlaylistAgent.ShuffleMode;
@@ -224,7 +224,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * Called when a controller sent a command which will be sent directly to one of the
          * following:
          * <ul>
-         *  <li> {@link MediaPlayerBase} </li>
+         *  <li> {@link MediaPlayerInterface} </li>
          *  <li> {@link MediaPlaylistAgent} </li>
          *  <li> {@link android.media.AudioManager} or {@link VolumeProviderCompat} </li>
          * </ul>
@@ -343,7 +343,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * <p>
          * During the preparation, a session should not hold audio focus in order to allow other
          * sessions play seamlessly. The state of playback should be updated to
-         * {@link MediaPlayerBase#PLAYER_STATE_PAUSED} after the preparation is done.
+         * {@link MediaPlayerInterface#PLAYER_STATE_PAUSED} after the preparation is done.
          * <p>
          * The playback of the prepared content should start in the later calls of
          * {@link MediaSession2#play()}.
@@ -368,7 +368,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * An empty query indicates that the app may prepare any music. The implementation should
          * attempt to make a smart choice about what to play.
          * <p>
-         * The state of playback should be updated to {@link MediaPlayerBase#PLAYER_STATE_PAUSED}
+         * The state of playback should be updated to
+         * {@link MediaPlayerInterface#PLAYER_STATE_PAUSED}
          * after the preparation is done. The playback of the prepared content should start in the
          * later calls of {@link MediaSession2#play()}.
          * <p>
@@ -391,7 +392,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * <p>
          * During the preparation, a session should not hold audio focus in order to allow
          * other sessions play seamlessly. The state of playback should be updated to
-         * {@link MediaPlayerBase#PLAYER_STATE_PAUSED} after the preparation is done.
+         * {@link MediaPlayerInterface#PLAYER_STATE_PAUSED} after the preparation is done.
          * <p>
          * The playback of the prepared content should start in the later calls of
          * {@link MediaSession2#play()}.
@@ -468,7 +469,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @param item new item
          */
         public void onCurrentMediaItemChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerBase player, @Nullable MediaItem2 item) { }
+                @NonNull MediaPlayerInterface player, @Nullable MediaItem2 item) { }
 
         /**
          * Called when the player is <i>prepared</i>, i.e. it is ready to play the content
@@ -477,18 +478,18 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @param player the player for this event
          * @param item the media item for which buffering is happening
          */
-        public void onMediaPrepared(@NonNull MediaSession2 session, @NonNull MediaPlayerBase player,
-                @NonNull MediaItem2 item) { }
+        public void onMediaPrepared(@NonNull MediaSession2 session,
+                @NonNull MediaPlayerInterface player, @NonNull MediaItem2 item) { }
 
         /**
          * Called to indicate that the state of the player has changed.
-         * See {@link MediaPlayerBase#getPlayerState()} for polling the player state.
+         * See {@link MediaPlayerInterface#getPlayerState()} for polling the player state.
          * @param session the session for this event
          * @param player the player for this event
          * @param state the new state of the player.
          */
         public void onPlayerStateChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerBase player, @PlayerState int state) { }
+                @NonNull MediaPlayerInterface player, @PlayerState int state) { }
 
         /**
          * Called to report buffering events for a data source.
@@ -499,7 +500,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @param state the new buffering state.
          */
         public void onBufferingStateChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerBase player, @NonNull MediaItem2 item, @BuffState int state) { }
+                @NonNull MediaPlayerInterface player, @NonNull MediaItem2 item,
+                @BuffState int state) { }
 
         /**
          * Called to indicate that the playback speed has changed.
@@ -508,7 +510,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @param speed the new playback speed.
          */
         public void onPlaybackSpeedChanged(@NonNull MediaSession2 session,
-                @NonNull MediaPlayerBase player, float speed) { }
+                @NonNull MediaPlayerInterface player, float speed) { }
 
         /**
          * Called to indicate that {@link #seekTo(long)} is completed.
@@ -518,8 +520,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @param position the previous seeking request.
          * @see #seekTo(long)
          */
-        public void onSeekCompleted(@NonNull MediaSession2 session, @NonNull MediaPlayerBase mpb,
-                long position) { }
+        public void onSeekCompleted(@NonNull MediaSession2 session,
+                @NonNull MediaPlayerInterface mpb, long position) { }
 
         /**
          * Called when a playlist is changed from the {@link MediaPlaylistAgent}.
@@ -599,7 +601,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             <T extends MediaSession2, U extends BuilderBase<T, U, C>, C extends SessionCallback> {
         final Context mContext;
         MediaSession2ImplBase.BuilderBase<T, C> mBaseImpl;
-        MediaPlayerBase mPlayer;
+        MediaPlayerInterface mPlayer;
         String mId;
         Executor mCallbackExecutor;
         C mCallback;
@@ -617,12 +619,13 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         }
 
         /**
-         * Sets the underlying {@link MediaPlayerBase} for this session to dispatch incoming event
-         * to.
+         * Sets the underlying {@link MediaPlayerInterface} for this session to dispatch incoming
+         * event to.
          *
-         * @param player a {@link MediaPlayerBase} that handles actual media playback in your app.
+         * @param player a {@link MediaPlayerInterface} that handles actual media playback in your
+         *               app.
          */
-        @NonNull U setPlayer(@NonNull MediaPlayerBase player) {
+        @NonNull U setPlayer(@NonNull MediaPlayerInterface player) {
             if (player == null) {
                 throw new IllegalArgumentException("player shouldn't be null");
             }
@@ -632,8 +635,9 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
 
         /**
          * Sets the {@link MediaPlaylistAgent} for this session to manages playlist of the
-         * underlying {@link MediaPlayerBase}. The playlist agent should manage
-         * {@link MediaPlayerBase} for calling {@link MediaPlayerBase#setNextDataSources(List)}.
+         * underlying {@link MediaPlayerInterface}. The playlist agent should manage
+         * {@link MediaPlayerInterface} for calling
+         * {@link MediaPlayerInterface#setNextDataSources(List)}.
          * <p>
          * If the {@link MediaPlaylistAgent} isn't set, session will create the default playlist
          * agent.
@@ -740,7 +744,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         }
 
         @Override
-        public @NonNull Builder setPlayer(@NonNull MediaPlayerBase player) {
+        public @NonNull Builder setPlayer(@NonNull MediaPlayerInterface player) {
             return super.setPlayer(player);
         }
 
@@ -1051,10 +1055,10 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
 
     abstract static class SupportLibraryImpl extends MediaInterface2.SessionPlayer
             implements AutoCloseable {
-        abstract void updatePlayer(@NonNull MediaPlayerBase player,
+        abstract void updatePlayer(@NonNull MediaPlayerInterface player,
                 @Nullable MediaPlaylistAgent playlistAgent,
                 @Nullable VolumeProviderCompat volumeProvider);
-        abstract @NonNull MediaPlayerBase getPlayer();
+        abstract @NonNull MediaPlayerInterface getPlayer();
         abstract @NonNull MediaPlaylistAgent getPlaylistAgent();
         abstract @Nullable VolumeProviderCompat getVolumeProvider();
         abstract @NonNull SessionToken2 getToken();
@@ -1102,21 +1106,22 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     }
 
     /**
-     * Sets the underlying {@link MediaPlayerBase} and {@link MediaPlaylistAgent} for this session
-     * to dispatch incoming event to.
+     * Sets the underlying {@link MediaPlayerInterface} and {@link MediaPlaylistAgent} for this
+     * session to dispatch incoming event to.
      * <p>
      * When a {@link MediaPlaylistAgent} is specified here, the playlist agent should manage
-     * {@link MediaPlayerBase} for calling {@link MediaPlayerBase#setNextDataSources(List)}.
+     * {@link MediaPlayerInterface} for calling
+     * {@link MediaPlayerInterface#setNextDataSources(List)}.
      * <p>
      * If the {@link MediaPlaylistAgent} isn't set, session will recreate the default playlist
      * agent.
      *
-     * @param player a {@link MediaPlayerBase} that handles actual media playback in your app
+     * @param player a {@link MediaPlayerInterface} that handles actual media playback in your app
      * @param playlistAgent a {@link MediaPlaylistAgent} that manages playlist of the {@code player}
      * @param volumeProvider a {@link VolumeProviderCompat}. If {@code null}, system will adjust the
      *                       appropriate stream volume for this session's player.
      */
-    public void updatePlayer(@NonNull MediaPlayerBase player,
+    public void updatePlayer(@NonNull MediaPlayerInterface player,
             @Nullable MediaPlaylistAgent playlistAgent,
             @Nullable VolumeProviderCompat volumeProvider) {
         mImpl.updatePlayer(player, playlistAgent, volumeProvider);
@@ -1134,7 +1139,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     /**
      * @return player
      */
-    public @NonNull MediaPlayerBase getPlayer() {
+    public @NonNull MediaPlayerInterface getPlayer() {
         return mImpl.getPlayer();
     }
 
@@ -1251,7 +1256,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     /**
      * Play playback.
      * <p>
-     * This calls {@link MediaPlayerBase#play()}.
+     * This calls {@link MediaPlayerInterface#play()}.
      */
     @Override
     public void play() {
@@ -1261,7 +1266,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     /**
      * Pause playback.
      * <p>
-     * This calls {@link MediaPlayerBase#pause()}.
+     * This calls {@link MediaPlayerInterface#pause()}.
      */
     @Override
     public void pause() {
@@ -1271,7 +1276,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     /**
      * Stop playback, and reset the player to the initial state.
      * <p>
-     * This calls {@link MediaPlayerBase#reset()}.
+     * This calls {@link MediaPlayerInterface#reset()}.
      */
     @Override
     public void reset() {
@@ -1282,10 +1287,10 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      * Request that the player prepare its playback. In other words, other sessions can continue
      * to play during the preparation of this session. This method can be used to speed up the
      * start of the playback. Once the preparation is done, the session will change its playback
-     * state to {@link MediaPlayerBase#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be called
-     * to start playback.
+     * state to {@link MediaPlayerInterface#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be
+     * called to start playback.
      * <p>
-     * This calls {@link MediaPlayerBase#reset()}.
+     * This calls {@link MediaPlayerInterface#reset()}.
      */
     @Override
     public void prepare() {
@@ -1356,7 +1361,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     /**
      * Gets the current position.
      *
-     * @return the current playback position in ms, or {@link MediaPlayerBase#UNKNOWN_TIME} if
+     * @return the current playback position in ms, or {@link MediaPlayerInterface#UNKNOWN_TIME} if
      *         unknown.
      */
     @Override
@@ -1367,7 +1372,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     /**
      * Gets the duration of the currently playing media item.
      *
-     * @return the duration of the current item from {@link MediaPlayerBase#getDuration()}.
+     * @return the duration of the current item from {@link MediaPlayerInterface#getDuration()}.
      */
     @Override
     public long getDuration() {
@@ -1375,9 +1380,9 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     }
 
     /**
-     * Gets the buffered position, or {@link MediaPlayerBase#UNKNOWN_TIME} if unknown.
+     * Gets the buffered position, or {@link MediaPlayerInterface#UNKNOWN_TIME} if unknown.
      *
-     * @return the buffered position in ms, or {@link MediaPlayerBase#UNKNOWN_TIME}.
+     * @return the buffered position in ms, or {@link MediaPlayerInterface#UNKNOWN_TIME}.
      */
     @Override
     public long getBufferedPosition() {

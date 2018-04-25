@@ -602,7 +602,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 // Note: buffered position should be also sent to the controller here. It's to
-                // follow the behavior of MediaPlayerBase.PlayerEventCallback.
+                // follow the behavior of MediaPlayerInterface.PlayerEventCallback.
                 Bundle bundle = new Bundle();
                 bundle.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
                 bundle.putInt(ARGUMENT_BUFFERING_STATE, bufferingState);
