@@ -22,7 +22,7 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.res.TypedArrayUtils;
 
 /**
@@ -166,7 +166,7 @@ public abstract class DialogPreference extends Preference {
      * @param dialogIconRes The icon, as a resource ID
      */
     public void setDialogIcon(int dialogIconRes) {
-        mDialogIcon = ContextCompat.getDrawable(getContext(), dialogIconRes);
+        mDialogIcon = AppCompatResources.getDrawable(getContext(), dialogIconRes);
     }
 
     /**
