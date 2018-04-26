@@ -16,6 +16,8 @@
 
 package androidx.car.widget;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -23,14 +25,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.DimenRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
+
+import java.lang.annotation.Retention;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class to build a sub-header list item.
@@ -72,6 +75,7 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
     @IntDef({
             TEXT_START_MARGIN_TYPE_NONE, TEXT_START_MARGIN_TYPE_LARGE,
             TEXT_START_MARGIN_TYPE_SMALL})
+    @Retention(SOURCE)
     public @interface TextStartMarginType {}
 
     /**
@@ -191,7 +195,7 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
          * @param restrictions current car UX restrictions.
          */
         @Override
-        void complyWithUxRestrictions(CarUxRestrictions restrictions) {
+        protected void complyWithUxRestrictions(CarUxRestrictions restrictions) {
             CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
         }
 
