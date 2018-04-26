@@ -32,7 +32,7 @@ class DependencyMappingTest {
     @Test fun mapTest_oneToOne_shouldMap() {
         MappingTester.testRewrite(
             from = "hello:world:1.0.0",
-            to = setOf("hi:all:2.0.0"),
+            to = "hi:all:2.0.0",
             rules = setOf(
                 PomRewriteRule(
                     from = PomDependency(groupId = "hello", artifactId = "world"),
@@ -43,25 +43,10 @@ class DependencyMappingTest {
         )
     }
 
-    @Test fun mapTest_oneToTwo_shouldMap() {
-        MappingTester.testRewrite(
-            from = "hello:world:1.0.0",
-            to = setOf("hi:all:2.0.0", "hey:all:3.0.0"),
-            rules = setOf(
-                PomRewriteRule(
-                    from = PomDependency(groupId = "hello", artifactId = "world"),
-                    to = setOf(
-                        PomDependency(groupId = "hi", artifactId = "all", version = "2.0.0"),
-                        PomDependency(groupId = "hey", artifactId = "all", version = "3.0.0")
-                    )
-                ))
-        )
-    }
-
     @Test fun mapTest_oneToNone_shouldMapToEmpty() {
         MappingTester.testRewrite(
             from = "hello:world:1.0.0",
-            to = setOf(),
+            to = null,
             rules = setOf(
                 PomRewriteRule(
                     from = PomDependency(groupId = "hello", artifactId = "world"),
@@ -84,7 +69,7 @@ class DependencyMappingTest {
 
     object MappingTester {
 
-        fun testRewrite(from: String, to: Set<String>?, rules: Set<PomRewriteRule>) {
+        fun testRewrite(from: String, to: String?, rules: Set<PomRewriteRule>) {
             val config = Config(
                 restrictToPackagePrefixes = emptySet(),
                 rulesMap = RewriteRulesMap.EMPTY,
@@ -101,7 +86,7 @@ class DependencyMappingTest {
             if (to == null) {
                 Truth.assertThat(result).isNull()
             } else {
-                Truth.assertThat(result).containsExactlyElementsIn(to)
+                Truth.assertThat(result).isEqualTo(to)
             }
         }
     }

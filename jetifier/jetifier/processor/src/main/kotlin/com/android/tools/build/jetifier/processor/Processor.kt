@@ -17,6 +17,7 @@
 package com.android.tools.build.jetifier.processor
 
 import com.android.tools.build.jetifier.core.config.Config
+import com.android.tools.build.jetifier.core.pom.DependencyVersionsMap
 import com.android.tools.build.jetifier.core.pom.PomDependency
 import com.android.tools.build.jetifier.core.utils.Log
 import com.android.tools.build.jetifier.processor.archive.Archive
@@ -81,12 +82,15 @@ class Processor private constructor(
          * @param config Transformation configuration
          * @param reversedMode Whether the processor should run in reversed mode
          * @param rewritingSupportLib Whether we are rewriting the support library itself
+         * @param useFallbackIfTypeIsMissing Use fallback for types resolving instead of crashing
+         * @param versionsMap Versions map for dependencies rewriting
          */
         fun createProcessor(
             config: Config,
             reversedMode: Boolean = false,
             rewritingSupportLib: Boolean = false,
-            useIdentityIfTypeIsMissing: Boolean = true
+            useFallbackIfTypeIsMissing: Boolean = true,
+            versionsMap: DependencyVersionsMap = DependencyVersionsMap.LATEST_RELEASED
         ): Processor {
             var newConfig = config
 
@@ -106,7 +110,8 @@ class Processor private constructor(
                 config = newConfig,
                 rewritingSupportLib = rewritingSupportLib,
                 isInReversedMode = reversedMode,
-                useFallbackIfTypeIsMissing = useIdentityIfTypeIsMissing)
+                useFallbackIfTypeIsMissing = useFallbackIfTypeIsMissing,
+                versionsMap = versionsMap)
             val transformers = if (rewritingSupportLib) {
                 createSLTransformers(context)
             } else {
@@ -187,7 +192,7 @@ class Processor private constructor(
      * removed without replacement. Returns null in case a mapping was not found which means that
      * the given artifact was unknown.
      */
-    fun mapDependency(depNotation: String): Set<String>? {
+    fun mapDependency(depNotation: String): String? {
         val parts = depNotation.split(":")
         val inputDependency = PomDependency(
             groupId = parts[0],
@@ -198,9 +203,13 @@ class Processor private constructor(
         val resultRule = context.config.pomRewriteRules
             .firstOrNull { it.matches(inputDependency) } ?: return null
 
-        return resultRule.to
-            .map { it.toStringNotation() }
-            .toSet()
+        if (resultRule.to.isEmpty()) {
+            return null
+        }
+
+        return resultRule.to.single()
+            .rewrite(inputDependency, context.versionsMap)
+            .toStringNotation()
     }
 
     private fun loadLibraries(inputLibraries: Iterable<FileMapping>): List<Archive> {
