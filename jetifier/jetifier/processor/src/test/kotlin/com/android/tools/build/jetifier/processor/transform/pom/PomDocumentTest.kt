@@ -18,6 +18,7 @@ package com.android.tools.build.jetifier.processor.transform.pom
 
 import com.android.tools.build.jetifier.core.PackageMap
 import com.android.tools.build.jetifier.core.config.Config
+import com.android.tools.build.jetifier.core.pom.DependencyVersionsMap
 import com.android.tools.build.jetifier.core.pom.PomDependency
 import com.android.tools.build.jetifier.core.pom.PomRewriteRule
 import com.android.tools.build.jetifier.core.proguard.ProGuardTypesMap
@@ -85,6 +86,40 @@ class PomDocumentTest {
                     )
                 )
             )
+        )
+    }
+
+    @Test fun pom_oneRule_withVersionSubstitution_shouldApply() {
+        testRewrite(
+            givenXml =
+            "  <dependencies>\n" +
+            "    <dependency>\n" +
+            "      <groupId>supportGroup</groupId>\n" +
+            "      <artifactId>supportArtifact</artifactId>\n" +
+            "      <version>4.0</version>\n" +
+            "    </dependency>\n" +
+            "  </dependencies>",
+            expectedXml =
+            "  <dependencies>\n" +
+            "    <dependency>\n" +
+            "      <groupId>testGroup</groupId>\n" +
+            "      <artifactId>testArtifact</artifactId>\n" +
+            "      <version>1.0.0-test</version>\n" +
+            "    </dependency>\n" +
+            "  </dependencies>",
+            rules = setOf(
+                PomRewriteRule(
+                    PomDependency(
+                        groupId = "supportGroup", artifactId = "supportArtifact",
+                        version = "4.0"),
+                    setOf(
+                        PomDependency(
+                            groupId = "testGroup", artifactId = "testArtifact",
+                            version = "{slVersion}")
+                    )
+                )
+            ),
+            versionsMap = DependencyVersionsMap(slVersion = "1.0.0-test", archVersion = "")
         )
     }
 
@@ -368,7 +403,12 @@ class PomDocumentTest {
         testRewrite(givenAndExpectedXml, givenAndExpectedXml, rules)
     }
 
-    private fun testRewrite(givenXml: String, expectedXml: String, rules: Set<PomRewriteRule>) {
+    private fun testRewrite(
+        givenXml: String,
+        expectedXml: String,
+        rules: Set<PomRewriteRule>,
+        versionsMap: DependencyVersionsMap = DependencyVersionsMap.LATEST
+    ) {
         val given =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
@@ -405,7 +445,7 @@ class PomDocumentTest {
             pomRewriteRules = rules,
             proGuardMap = ProGuardTypesMap.EMPTY,
             packageMap = PackageMap.EMPTY)
-        val context = TransformationContext(config)
+        val context = TransformationContext(config, versionsMap = versionsMap)
         pomDocument.applyRules(context)
         pomDocument.saveBackToFileIfNeeded()
         var strResult = file.data.toString(StandardCharsets.UTF_8)

@@ -18,6 +18,7 @@ package com.android.tools.build.jetifier.processor.transform
 
 import com.android.tools.build.jetifier.core.TypeRewriter
 import com.android.tools.build.jetifier.core.config.Config
+import com.android.tools.build.jetifier.core.pom.DependencyVersionsMap
 import java.util.regex.Pattern
 
 /**
@@ -30,7 +31,8 @@ class TransformationContext(
     /**
      * Whether to use fallback if type in our scope is missing instead of throwing an exception.
      */
-    val useFallbackIfTypeIsMissing: Boolean = true
+    val useFallbackIfTypeIsMissing: Boolean = true,
+    val versionsMap: DependencyVersionsMap = DependencyVersionsMap.LATEST_RELEASED
 ) {
 
     // Merges all packages prefixes into one regEx pattern
@@ -42,7 +44,7 @@ class TransformationContext(
     /**
      * Whether to skip verification of dependency version match in pom files.
      */
-    val ignorePomVersionCheck = rewritingSupportLib || isInReversedMode
+    val ignorePomVersionCheck = true
 
     /** Counter for [reportNoMappingFoundFailure] calls. */
     var mappingNotFoundFailuresCount = 0
