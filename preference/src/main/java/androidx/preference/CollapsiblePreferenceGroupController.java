@@ -158,7 +158,7 @@ final class CollapsiblePreferenceGroupController {
             setSummary(collapsedPreferences);
             // Since IDs are unique, using the parentId as a reference ensures that this expand
             // button will have a unique ID and hence transitions will be correctly animated by
-            // RecyclerView when there are multiple ExpandButtons.
+            // RecyclerView when there are multiple expand buttons.
             mId = parentId + 1000000;
         }
 
@@ -171,9 +171,9 @@ final class CollapsiblePreferenceGroupController {
         }
 
         /*
-         * The summary of this will be the list of title for collapsed preferences. Iterate through
-         * the preferences not in the visible list and add its title to the summary text. If
-         * there are any nested groups with titles, ignore their children.
+         * Sets the summary of the expand button to a list containing the titles of the collapsed
+         * preferences. If there are any nested groups with titles, only add the group's title
+         * and not the titles of the group's children.
          */
         private void setSummary(List<Preference> collapsedPreferences) {
             CharSequence summary = null;

@@ -106,11 +106,10 @@ public class PreferenceParentGroupTest {
     }
 
     /**
-     * Tests that the most recent parent PreferenceGroup is set when adding a preference to two
-     * different groups without removing it first. This is maybe not something we want to support
-     * in the future but this makes this behavior visible.
+     * Tests that attempting to add a preference that already has a parent PreferenceGroup to a
+     * new PreferenceGroup without removing the previous parent will throw an exception.
      */
-    @Test
+    @Test(expected = IllegalStateException.class)
     @UiThreadTest
     public void parentDoubleAddTest() {
         PreferenceManager manager = new PreferenceManager(mContext);
@@ -127,7 +126,5 @@ public class PreferenceParentGroupTest {
 
         category1.addPreference(preference);
         category2.addPreference(preference);
-
-        assertEquals(category2, preference.getParent());
     }
 }
