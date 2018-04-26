@@ -66,6 +66,8 @@ import java.util.List;
  *
  * <p>When conflicting methods are called (e.g. setting primary action to both primary icon and
  * no icon), the last called method wins.
+ *
+ * {@code minimum value} is set to 0.
  */
 public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
 
@@ -99,8 +101,9 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
 
     private String mText;
 
-    private int mProgress;
     private int mMax;
+    private int mProgress;
+    private int mSecondaryProgress;
     private SeekBar.OnSeekBarChangeListener mOnSeekBarChangeListener;
 
     @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_NO_ACTION;
@@ -123,16 +126,22 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
      * @param progress the current progress of the specified value.
      * @param listener listener to receive notification of changes to progress level.
      * @param text displays a text on top of the SeekBar.
+     *
+     * @deprecated use {@link #SeekbarListItem(Context)} and individual field setters instead.
      */
+    @Deprecated
     public SeekbarListItem(Context context, int max, int progress,
             SeekBar.OnSeekBarChangeListener listener, String text) {
+        this(context);
+
+        setMax(max);
+        setProgress(progress);
+        setOnSeekBarChangeListener(listener);
+        setText(text);
+    }
+
+    public SeekbarListItem(Context context) {
         mContext = context;
-
-        mMax = max;
-        mProgress = progress;
-        mOnSeekBarChangeListener = listener;
-        mText = text;
-
         markDirty();
     }
 
@@ -142,6 +151,46 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     @Override
     public int getViewType() {
         return ListItemAdapter.LIST_ITEM_TYPE_SEEKBAR;
+    }
+
+    /**
+     * Sets max value of seekbar.
+     */
+    public void setMax(int max) {
+        mMax = max;
+        markDirty();
+    }
+
+    /**
+     * Sets progress of seekbar.
+     */
+    public void setProgress(int progress) {
+        mProgress = progress;
+        markDirty();
+    }
+
+    /**
+     * Sets secondary progress of seekbar.
+     */
+    public void setSecondaryProgress(int secondaryProgress) {
+        mSecondaryProgress = secondaryProgress;
+        markDirty();
+    }
+
+    /**
+     * Sets {@link SeekBar.OnSeekBarChangeListener}.
+     */
+    public void setOnSeekBarChangeListener(SeekBar.OnSeekBarChangeListener listener) {
+        mOnSeekBarChangeListener = listener;
+        markDirty();
+    }
+
+    /**
+     * Sets text that sits on top of seekbar.
+     */
+    public void setText(String text) {
+        mText = text;
+        markDirty();
     }
 
     /**
@@ -272,6 +321,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
         mBinders.add(vh -> {
             vh.getSeekBar().setMax(mMax);
             vh.getSeekBar().setProgress(mProgress);
+            vh.getSeekBar().setSecondaryProgress(mSecondaryProgress);
             vh.getSeekBar().setOnSeekBarChangeListener(mOnSeekBarChangeListener);
 
             if (!TextUtils.isEmpty(mText)) {
