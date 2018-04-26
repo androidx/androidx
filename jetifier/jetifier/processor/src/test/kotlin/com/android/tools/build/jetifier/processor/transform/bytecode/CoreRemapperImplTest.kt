@@ -59,7 +59,7 @@ class CoreRemapperImplTest {
             restrictToPackagePrefixes = prefixes,
             rulesMap = RewriteRulesMap.EMPTY,
             typesMap = typesMap,
-            slRules = emptySet(),
+            slRules = emptyList(),
             pomRewriteRules = emptySet(),
             proGuardMap = ProGuardTypesMap.EMPTY,
             packageMap = PackageMap.EMPTY)

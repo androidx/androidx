@@ -338,7 +338,7 @@ class XmlResourcesTransformerTest {
         val config = Config(
             restrictToPackagePrefixes = prefixes,
             rulesMap = RewriteRulesMap.EMPTY,
-            slRules = emptySet(),
+            slRules = emptyList(),
             pomRewriteRules = emptySet(),
             typesMap = typeMap,
             proGuardMap = ProGuardTypesMap.EMPTY,

@@ -44,7 +44,7 @@ class ClassFilesMoveTest {
                 RewriteRule("android/support/v7/preference/R(.*)", "ignore"),
                 RewriteRule("android/support/v4/(.*)", "ignore")
             ),
-            slRules = setOf(
+            slRules = listOf(
                 RewriteRule("android/support/annotation/(.*)", "ignore"),
                 RewriteRule("android/support/v7/preference/R(.*)", "ignore"),
                 RewriteRule("android/support/v4/(.*)", "ignore")
