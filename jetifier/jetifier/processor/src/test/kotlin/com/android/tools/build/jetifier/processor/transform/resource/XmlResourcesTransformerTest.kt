@@ -175,6 +175,19 @@ class XmlResourcesTransformerTest {
         )
     }
 
+    @Test fun application_appComponentFactory() {
+        testRewrite(
+            givenXml =
+                "<application android:appComponentFactory=\"android.support.v7.Preference\" />",
+            expectedXml =
+                "<application android:appComponentFactory=\"android.test.pref.Preference\" />",
+            prefixes = setOf("android/support/"),
+            typesMap = mapOf(
+                "android/support/v7/Preference" to "android/test/pref/Preference"
+            )
+        )
+    }
+
     @Test fun layout_onePrefix_oneRule_identity() {
         testRewrite(
             givenXml =
