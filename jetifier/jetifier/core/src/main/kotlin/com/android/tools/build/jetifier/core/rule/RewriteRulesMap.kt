@@ -21,15 +21,15 @@ import com.android.tools.build.jetifier.core.type.JavaType
 /**
  * Contains all [RewriteRule]s.
  */
-class RewriteRulesMap(val rewriteRules: Set<RewriteRule>) {
+class RewriteRulesMap(val rewriteRules: List<RewriteRule>) {
 
     companion object {
         private const val TAG = "RewriteRulesMap"
 
-        val EMPTY = RewriteRulesMap(emptySet())
+        val EMPTY = RewriteRulesMap(emptyList())
     }
 
-    constructor(vararg rules: RewriteRule) : this(rules.toSet())
+    constructor(vararg rules: RewriteRule) : this(rules.toList())
 
     val runtimeIgnoreRules = rewriteRules.filter { it.isRuntimeIgnoreRule() }.toSet()
 
@@ -56,10 +56,10 @@ class RewriteRulesMap(val rewriteRules: Set<RewriteRule>) {
         return RewriteRulesMap(rewriteRules
             .filter { !it.isIgnoreRule() }
             .map { it.reverse() }
-            .toSet())
+            .toList())
     }
 
-    fun appendRules(rules: Set<RewriteRule>): RewriteRulesMap {
+    fun appendRules(rules: List<RewriteRule>): RewriteRulesMap {
         return RewriteRulesMap(rewriteRules + rules)
     }
 

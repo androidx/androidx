@@ -134,7 +134,7 @@ class TypeRewriterTest {
         val config = Config(
             restrictToPackagePrefixes = setOf(packagePrefix),
             rulesMap = rewriteRulesMap,
-            slRules = emptySet(),
+            slRules = emptyList(),
             pomRewriteRules = emptySet(),
             typesMap = typesMap,
             proGuardMap = ProGuardTypesMap.EMPTY,

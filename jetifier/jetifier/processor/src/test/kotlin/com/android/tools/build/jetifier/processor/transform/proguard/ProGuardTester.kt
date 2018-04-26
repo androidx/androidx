@@ -78,8 +78,8 @@ class ProGuardTester {
             restrictToPackagePrefixes = prefixes,
             rulesMap = RewriteRulesMap(rewriteRules
                 .map { RewriteRule(it.first, it.second) }
-                .toSet()),
-            slRules = emptySet(),
+                .toList()),
+            slRules = emptyList(),
             pomRewriteRules = emptySet(),
             typesMap = TypesMap(
                 types = javaTypes.map { JavaType(it.first) to JavaType(it.second) }.toMap()

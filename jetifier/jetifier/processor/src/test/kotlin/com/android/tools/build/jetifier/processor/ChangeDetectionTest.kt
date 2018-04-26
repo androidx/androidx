@@ -46,7 +46,7 @@ class ChangeDetectionTest {
             RewriteRule(from = "android/support/v7/preference/Preference(.+)", to = "ignore"),
             RewriteRule(from = "(.*)/R(.*)", to = "ignore")
         ),
-        slRules = setOf(),
+        slRules = listOf(),
         pomRewriteRules = setOf(
             PomRewriteRule(
                 PomDependency(
