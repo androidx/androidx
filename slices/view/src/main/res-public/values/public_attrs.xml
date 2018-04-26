@@ -22,9 +22,14 @@
     <public type="attr" name="tintColor" />
     <public type="attr" name="headerTitleSize" />
     <public type="attr" name="headerSubtitleSize" />
+    <public type="attr" name="headerTextVerticalPadding" />
     <public type="attr" name="titleSize" />
     <public type="attr" name="subtitleSize" />
+    <public type="attr" name="textVerticalPadding" />
     <public type="attr" name="gridTitleSize" />
     <public type="attr" name="gridSubtitleSize" />
+    <public type="attr" name="gridTextVerticalPadding" />
+    <public type="attr" name="gridTopPadding" />
+    <public type="attr" name="gridBottomPadding" />
     <public type="attr" name="sliceViewStyle" />
 </resources>

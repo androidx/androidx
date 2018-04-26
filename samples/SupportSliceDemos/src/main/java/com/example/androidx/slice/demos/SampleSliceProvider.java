@@ -65,9 +65,27 @@ public class SampleSliceProvider extends SliceProvider {
     public static final String ACTION_TOAST_RANGE_VALUE =
             "com.example.androidx.slice.action.TOAST_RANGE_VALUE";
 
-    public static final String[] URI_PATHS = {"message", "wifi", "note", "ride", "toggle",
-            "toggle2", "toggletester", "contact", "gallery", "weather", "reservation", "loadlist",
-            "loadgrid", "inputrange", "range", "contact2", "subscription", "singleitems"};
+    public static final String[] URI_PATHS = {
+            "message",
+            "wifi",
+            "note",
+            "ride",
+            "toggle",
+            "toggle2",
+            "toggletester",
+            "contact",
+            "contact2",
+            "gallery",
+            "gallery2",
+            "weather",
+            "reservation",
+            "loadlist",
+            "loadgrid",
+            "inputrange",
+            "range",
+            "subscription",
+            "singleitems",
+    };
 
     /**
      * @return Uri with the provided path
@@ -123,7 +141,9 @@ public class SampleSliceProvider extends SliceProvider {
             case "/contact2":
                 return createContact2(sliceUri);
             case "/gallery":
-                return createGallery(sliceUri);
+                return createGallery(sliceUri, true /* showHeader */);
+            case "/gallery2":
+                return createGallery(sliceUri, false /* showHeader */);
             case "/weather":
                 return createWeather(sliceUri);
             case "/reservation":
@@ -185,58 +205,41 @@ public class SampleSliceProvider extends SliceProvider {
                 .build();
     }
 
-    private Slice createGallery(Uri sliceUri) {
+    private Slice createGallery(Uri sliceUri, boolean showHeader) {
         SliceAction primaryAction = new SliceAction(
                 getBroadcastIntent(ACTION_TOAST, "open photo album"),
                 IconCompat.createWithResource(getContext(), R.drawable.slices_1),
                 LARGE_IMAGE,
                 "Open photo album");
-        return new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setColor(0xff4285F4)
-                .addRow(b -> b
-                        .setTitle("Family trip to Hawaii")
-                        .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
-                        .setPrimaryAction(primaryAction))
-                .addAction(new SliceAction(
-                        getBroadcastIntent(ACTION_TOAST, "cast photo album"),
-                        IconCompat.createWithResource(getContext(), R.drawable.ic_cast),
-                        "Cast photo album"))
-                .addAction(new SliceAction(
-                        getBroadcastIntent(ACTION_TOAST, "share photo album"),
-                        IconCompat.createWithResource(getContext(), R.drawable.ic_share),
-                        "Share photo album"))
-                .addGridRow(b -> b
-                        .addCell(cb -> cb
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.slices_1),
-                                        LARGE_IMAGE))
-                        .addCell(cb -> cb
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.slices_2),
-                                        LARGE_IMAGE))
-                        .addCell(cb -> cb
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.slices_3),
-                                        LARGE_IMAGE))
-                        .addCell(cb -> cb
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.slices_4),
-                                        LARGE_IMAGE))
-                        .addCell(cb -> cb
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.slices_2),
-                                        LARGE_IMAGE))
-                        .addCell(cb -> cb
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.slices_3),
-                                        LARGE_IMAGE))
-                        .addCell(cb -> cb
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.slices_4),
-                                        LARGE_IMAGE))
-                        .setSeeMoreAction(getBroadcastIntent(ACTION_TOAST, "see your gallery"))
-                        .setContentDescription("Images from your trip to Hawaii"))
-                .build();
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setColor(0xff4285F4);
+        if (showHeader) {
+            lb.addRow(b -> b
+                    .setTitle("Family trip to Hawaii")
+                    .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
+                    .setPrimaryAction(primaryAction))
+                    .addAction(new SliceAction(
+                            getBroadcastIntent(ACTION_TOAST, "cast photo album"),
+                            IconCompat.createWithResource(getContext(), R.drawable.ic_cast),
+                            "Cast photo album"))
+                    .addAction(new SliceAction(
+                            getBroadcastIntent(ACTION_TOAST, "share photo album"),
+                            IconCompat.createWithResource(getContext(), R.drawable.ic_share),
+                            "Share photo album"));
+        }
+        int[] galleryResId = new int[] {R.drawable.slices_1, R.drawable.slices_2,
+                R.drawable.slices_3, R.drawable.slices_4};
+        int imageCount = 7;
+        GridRowBuilder grb = new GridRowBuilder(lb);
+        for (int i = 0; i < imageCount; i++) {
+            IconCompat ic = IconCompat.createWithResource(getContext(),
+                    galleryResId[i % galleryResId.length]);
+            grb.addCell(cb -> cb.addImage(ic, LARGE_IMAGE));
+        }
+        grb.setPrimaryAction(primaryAction)
+                .setSeeMoreAction(getBroadcastIntent(ACTION_TOAST, "see your gallery"))
+                .setContentDescription("Images from your trip to Hawaii");
+        return lb.addGridRow(grb).build();
     }
 
     private Slice createCatSlice(Uri sliceUri, boolean customSeeMore) {

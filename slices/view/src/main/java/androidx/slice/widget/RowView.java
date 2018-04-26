@@ -62,7 +62,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
@@ -216,17 +215,12 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
     }
 
-    @Override
-    public void setSlice(Slice slice) {
-        // Nothing to do
-    }
-
     /**
      * This is called when RowView is being used as a component in a large template.
      */
     @Override
     public void setSliceItem(SliceItem slice, boolean isHeader, int index,
-            SliceView.OnSliceActionListener observer) {
+            int rowCount, SliceView.OnSliceActionListener observer) {
         setSliceActionListener(observer);
         mRowIndex = index;
         mIsHeader = ListContent.isValidHeader(slice);
@@ -355,6 +349,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                     ? mHeaderSubtitleSize
                     : mSubtitleSize);
             mSecondaryText.setTextColor(mSubtitleColor);
+            int verticalPadding = mIsHeader ? mVerticalHeaderTextPadding : mVerticalTextPadding;
+            mSecondaryText.setPadding(0, verticalPadding, 0, 0);
         }
         if (subtitleTimeString != null) {
             if (!TextUtils.isEmpty(subtitle)) {

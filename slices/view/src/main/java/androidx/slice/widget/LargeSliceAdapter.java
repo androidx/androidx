@@ -251,7 +251,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             mSliceChildView.setMode(mode);
             mSliceChildView.setTint(mColor);
             mSliceChildView.setStyle(mAttrs, mDefStyleAttr, mDefStyleRes);
-            mSliceChildView.setSliceItem(item, isHeader, position, mSliceObserver);
+            mSliceChildView.setSliceItem(item, isHeader, position, getItemCount(), mSliceObserver);
             mSliceChildView.setSliceActions(isHeader ? mSliceActions : null);
             mSliceChildView.setLastUpdated(isHeader ? mLastUpdated : -1);
             mSliceChildView.setShowLastUpdated(isHeader && mShowLastUpdated);

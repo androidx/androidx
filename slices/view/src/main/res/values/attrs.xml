@@ -30,17 +30,33 @@
         <attr name="headerTitleSize" format="dimension" />
         <!-- Text size to use for subtitle text in the header of the slice. -->
         <attr name="headerSubtitleSize" format="dimension"/>
+        <!-- Vertical padding to use between header title text and header subtitle text. -->
+        <attr name="headerTextVerticalPadding" format="dimension" />
+
         <!-- Text size to use for title text in a non-header row of the slice. -->
         <attr name="titleSize" format="dimension" />
         <!-- Text size to use for subtitle text in a non-header row of the slice. -->
         <attr name="subtitleSize" format="dimension" />
+        <!-- Vertical padding to use between title text and subtitle text. -->
+        <attr name="textVerticalPadding" format="dimension" />
+
         <!-- Text size to use for title text in a grid row of the slice. -->
         <attr name="gridTitleSize" format="dimension" />
         <!-- Text size to use for the subtitle text in a grid row of the slice. -->
         <attr name="gridSubtitleSize" format="dimension" />
+        <!-- Vertical padding to use between title text and subtitle text in a grid cell. -->
+        <attr name="gridTextVerticalPadding" format="dimension" />
+        <!-- A grid row with all images goes right to the edge of the view if it's the first or
+         last row of a slice. Use this to specify padding to apply to the top of the grid row in
+         this situation. -->
+        <attr name="gridTopPadding" format="dimension" />
+        <!-- A grid row with all images goes right to the edge of the view if it's the first or
+         last row of a slice. Use this to specify padding to apply to the bottom of the grid row in
+         this situation. -->
+        <attr name="gridBottomPadding" format="dimension" />
     </declare-styleable>
 
     <!-- To apply a style for all slices shown within an activity or app you
          may set this in your app theme pointing to your custom SliceView style.-->
-    <attr name="sliceViewStyle" format="reference"/>
+    <attr name="sliceViewStyle" format="reference" />
 </resources>
