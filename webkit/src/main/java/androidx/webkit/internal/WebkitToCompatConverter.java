@@ -18,6 +18,7 @@ package androidx.webkit.internal;
 
 import android.webkit.SafeBrowsingResponse;
 import android.webkit.ServiceWorkerWebSettings;
+import android.webkit.WebMessagePort;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -124,5 +125,25 @@ public class WebkitToCompatConverter {
     SafeBrowsingResponse convertSafeBrowsingResponse(
             /* SupportLibSafeBrowsingResponse */ InvocationHandler safeBrowsingResponse) {
         return (SafeBrowsingResponse) mImpl.convertSafeBrowsingResponse(safeBrowsingResponse);
+    }
+
+    /**
+     * Return a {@link InvocationHandler} linked to the given
+     * {@link WebResourceError} such that calls on either of those objects affect the other
+     * object.
+     */
+    InvocationHandler convertWebMessagePort(WebMessagePort webMessagePort) {
+        return mImpl.convertWebMessagePort(webMessagePort);
+    }
+
+
+    /**
+     * Convert from an {@link InvocationHandler} representing a {@link WebResourceErrorCompat} into
+     * a {@link WebResourceError}.
+     */
+    @RequiresApi(23)
+    WebMessagePort convertWebMessagePort(
+            /* SupportLibWebMessagePort */ InvocationHandler webMessagePort) {
+        return (WebMessagePort) mImpl.convertWebMessagePort(webMessagePort);
     }
 }

@@ -21,7 +21,10 @@ import android.webkit.WebMessagePort;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+
+import java.lang.reflect.InvocationHandler;
 
 /**
  * <p>The Java representation of the
@@ -111,9 +114,21 @@ public abstract class WebMessagePortCompat {
             @NonNull WebMessageCallbackCompat callback);
 
     /**
-     * Internal getter returning the private {@link WebMessagePort} implementing this class.
+     * Internal getter returning the private {@link WebMessagePort} implementing this class. This is
+     * only available on devices with an Android versions supporting WebMessagePorts.
+     * @hide
+     */
+    @RequiresApi(23)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract WebMessagePort getFrameworkPort();
+
+    /**
+     * Internal getter returning the private {@link java.lang.reflect.InvocationHandler}
+     * implementing this class. This is only available on devices where the support library glue in
+     * the WebView APK supports {@link WebMessagePortCompat}.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract WebMessagePort getFrameworkPort();
+    public abstract InvocationHandler getInvocationHandler();
+
 }

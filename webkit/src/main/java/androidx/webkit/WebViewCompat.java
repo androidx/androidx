@@ -348,8 +348,8 @@ public class WebViewCompat {
             @NonNull WebView webview) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return WebMessagePortImpl.portsToCompat(webview.createWebMessageChannel());
-        } else { // TODO(gsennton) add reflection-based implementation
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        } else {
+            return getProvider(webview).createWebMessageChannel();
         }
     }
 
@@ -379,8 +379,8 @@ public class WebViewCompat {
             webview.postWebMessage(
                     WebMessagePortImpl.compatToFrameworkMessage(message),
                     targetOrigin);
-        } else { // TODO(gsennton) add reflection-based implementation
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        } else {
+            getProvider(webview).postWebMessage(message, targetOrigin);
         }
     }
 

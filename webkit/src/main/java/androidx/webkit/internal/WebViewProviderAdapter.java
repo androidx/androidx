@@ -16,10 +16,17 @@
 
 package androidx.webkit.internal;
 
+import android.net.Uri;
+import android.webkit.WebView;
+
+import androidx.webkit.WebMessageCompat;
+import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebViewCompat;
 
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
+
+import java.lang.reflect.InvocationHandler;
 
 /**
  * Adapter for WebViewProviderBoundaryInterface providing the functionality expected of
@@ -41,5 +48,26 @@ public class WebViewProviderAdapter {
         mImpl.insertVisualStateCallback(requestId,
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                         new VisualStateCallbackAdapter(callback)));
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#createWebMessageChannel(WebView)}.
+     */
+    public WebMessagePortCompat[] createWebMessageChannel() {
+        InvocationHandler[] invocationHandlers = mImpl.createWebMessageChannel();
+        WebMessagePortCompat[] messagePorts = new WebMessagePortCompat[invocationHandlers.length];
+        for (int n = 0; n < invocationHandlers.length; n++) {
+            messagePorts[n] = new WebMessagePortImpl(invocationHandlers[n]);
+        }
+        return messagePorts;
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)}.
+     */
+    public void postWebMessage(WebMessageCompat message, Uri targetOrigin) {
+        mImpl.postMessageToMainFrame(
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new WebMessageAdapter(message)), targetOrigin);
     }
 }

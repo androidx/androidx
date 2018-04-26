@@ -26,26 +26,58 @@ import androidx.annotation.RequiresApi;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 
+import org.chromium.support_lib_boundary.WebMessagePortBoundaryInterface;
+import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+
 /**
  * Implementation of {@link WebMessagePortCompat}.
  * This class uses either the framework, the WebView APK, or both, to implement
  * {@link WebMessagePortCompat} functionality.
  */
 public class WebMessagePortImpl extends WebMessagePortCompat {
-    private final WebMessagePort mFrameworksImpl;
-    // TODO(gsennton) add WebMessagePortBoundaryInterface variable
+    private WebMessagePort mFrameworksImpl;
+    private WebMessagePortBoundaryInterface mBoundaryInterface;
 
     public WebMessagePortImpl(WebMessagePort frameworksImpl) {
         mFrameworksImpl = frameworksImpl;
+    }
+
+    public WebMessagePortImpl(InvocationHandler invocationHandler) {
+        mBoundaryInterface = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                WebMessagePortBoundaryInterface.class, invocationHandler);
+    }
+
+    @RequiresApi(23)
+    private WebMessagePort getFrameworksImpl() {
+        if (mFrameworksImpl == null) {
+            mFrameworksImpl = WebViewGlueCommunicator.getCompatConverter().convertWebMessagePort(
+                    Proxy.getInvocationHandler(mBoundaryInterface));
+        }
+        return mFrameworksImpl;
+    }
+
+    private WebMessagePortBoundaryInterface getBoundaryInterface() {
+        if (mBoundaryInterface == null) {
+            mBoundaryInterface = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                    WebMessagePortBoundaryInterface.class,
+                    WebViewGlueCommunicator.getCompatConverter().convertWebMessagePort(
+                            mFrameworksImpl));
+        }
+        return mBoundaryInterface;
     }
 
     @SuppressLint("NewApi")
     @Override
     public void postMessage(WebMessageCompat message) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mFrameworksImpl.postMessage(compatToFrameworkMessage(message));
-        } else { // TODO(gsennton) add reflection-based implementation
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
+            getFrameworksImpl().postMessage(compatToFrameworkMessage(message));
+        } else { // TODO(gsennton) use feature flag
+            getBoundaryInterface().postMessage(
+                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                            new WebMessageAdapter(message)));
         }
     }
 
@@ -53,16 +85,16 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     @Override
     public void close() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mFrameworksImpl.close();
-        } else { // TODO(gsennton) add reflection-based implementation
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
+            getFrameworksImpl().close();
+        } else { // TODO(gsennton) use feature flag
+            getBoundaryInterface().close();
         }
     }
 
     @Override
     public void setWebMessageCallback(final WebMessageCallbackCompat callback) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mFrameworksImpl.setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
+            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
                 @Override
                 @SuppressWarnings("NewApi")
                 public void onMessage(WebMessagePort port, WebMessage message) {
@@ -70,15 +102,17 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
                             frameworkMessageToCompat(message));
                 }
             });
-        } else { // TODO(gsennton) add reflection-based implementation
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        } else { // TODO(gsennton) use feature flag
+            getBoundaryInterface().setWebMessageCallback(
+                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                            new WebMessageCallbackAdapter(callback)));
         }
     }
 
     @Override
     public void setWebMessageCallback(Handler handler, final WebMessageCallbackCompat callback) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mFrameworksImpl.setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
+            getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
                 @Override
                 @SuppressWarnings("NewApi")
                 public void onMessage(WebMessagePort port, WebMessage message) {
@@ -86,14 +120,22 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
                             frameworkMessageToCompat(message));
                 }
             }, handler);
-        } else { // TODO(gsennton) add reflection-based implementation
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        } else { // TODO(gsennton) use feature flag
+            getBoundaryInterface().setWebMessageCallback(
+                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                            new WebMessageCallbackAdapter(callback)), handler);
         }
     }
 
+    @RequiresApi(23)
     @Override
     public WebMessagePort getFrameworkPort() {
-        return mFrameworksImpl;
+        return getFrameworksImpl();
+    }
+
+    @Override
+    public InvocationHandler getInvocationHandler() {
+        return Proxy.getInvocationHandler(getBoundaryInterface());
     }
 
     /**
@@ -113,6 +155,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
      * Convert an array of {@link WebMessagePortCompat} objects into an array containing objects of
      * the corresponding framework class {@link WebMessagePort}.
      */
+    @RequiresApi(23)
     public static WebMessagePort[] compatToPorts(WebMessagePortCompat[] compatPorts) {
         if (compatPorts == null) return null;
         WebMessagePort[] ports = new WebMessagePort[compatPorts.length];
