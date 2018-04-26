@@ -312,7 +312,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private int getHeightForMode() {
         int mode = getMode();
         if (mode == MODE_SHORTCUT) {
-            return mShortcutSize;
+            return mListContent != null && mListContent.isValid() ? mShortcutSize : 0;
         }
         return mode == MODE_LARGE
                 ? mCurrentView.getActualHeight()
@@ -540,11 +540,13 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private void reinflate() {
         if (mCurrentSlice == null) {
             mCurrentView.resetView();
+            updateActions();
             return;
         }
         mListContent = new ListContent(getContext(), mCurrentSlice);
         if (!mListContent.isValid()) {
             mCurrentView.resetView();
+            updateActions();
             return;
         }
 
