@@ -21,7 +21,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-interface VideoViewInterface {
+interface VideoViewInterfaceWithMp1 {
     /**
      * Assigns the view's surface to the given MediaPlayer instance.
      *
@@ -44,7 +44,7 @@ interface VideoViewInterface {
      *
      * @param oldView The view that MediaPlayer is currently rendering on.
      */
-    void takeOver(@NonNull VideoViewInterface oldView);
+    void takeOver(@NonNull VideoViewInterfaceWithMp1 oldView);
 
     /**
      * Indicates if the view's surface is available.
@@ -61,6 +61,6 @@ interface VideoViewInterface {
         void onSurfaceCreated(View view, int width, int height);
         void onSurfaceDestroyed(View view);
         void onSurfaceChanged(View view, int width, int height);
-        void onSurfaceTakeOverDone(VideoViewInterface view);
+        void onSurfaceTakeOverDone(VideoViewInterfaceWithMp1 view);
     }
 }
