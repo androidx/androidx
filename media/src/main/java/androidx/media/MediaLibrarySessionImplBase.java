@@ -39,6 +39,11 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase {
                 callbackExecutor, callback);
     }
 
+    @Override
+    MediaSession2 createInstance() {
+        return new MediaLibrarySession(this);
+    }
+
     static final class Builder extends MediaSession2ImplBase.BuilderBase<
             MediaLibrarySession, MediaLibrarySession.MediaLibrarySessionCallback> {
         Builder(Context context) {
