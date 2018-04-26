@@ -31,6 +31,12 @@ enum class NavType {
         override fun bundleGetMethod() = "getInt"
     },
 
+    FLOAT {
+        override fun typeName(): TypeName = TypeName.FLOAT
+        override fun bundlePutMethod() = "putFloat"
+        override fun bundleGetMethod() = "getFloat"
+    },
+
     STRING {
         override fun typeName(): TypeName = ClassName.get(String::class.java)
         override fun bundlePutMethod() = "putString"
@@ -66,4 +72,9 @@ data class StringValue(private val value: String) : WriteableValue() {
 // keeping value as String, it will help to preserve client format of it: hex, dec
 data class IntValue(private val value: String) : WriteableValue() {
     override fun write(): CodeBlock = CodeBlock.of(value)
+}
+
+// keeping value as String, it will help to preserve client format of it: scientific, dot
+data class FloatValue(private val value: String) : WriteableValue() {
+    override fun write(): CodeBlock = CodeBlock.of("${value}F")
 }

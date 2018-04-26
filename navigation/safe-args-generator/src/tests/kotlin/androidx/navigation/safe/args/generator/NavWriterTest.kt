@@ -16,6 +16,7 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.NavType.FLOAT
 import androidx.navigation.safe.args.generator.NavType.INT
 import androidx.navigation.safe.args.generator.NavType.STRING
 import androidx.navigation.safe.args.generator.NavType.REFERENCE
@@ -129,7 +130,8 @@ class WriterTest {
                 Argument("main", STRING),
                 Argument("optional", INT, IntValue("-1")),
                 Argument("reference", REFERENCE, ReferenceValue(ResReference("a.b", "drawable",
-                        "background")))),
+                        "background"))),
+                Argument("floatArg", FLOAT, FloatValue("1"))),
                 listOf())
 
         val actual = toJavaFileObject(generateArgsJavaFile(dest))

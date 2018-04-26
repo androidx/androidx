@@ -11,6 +11,8 @@ public class MainFragmentArgs {
 
     private int reference = a.b.R.drawable.background;
 
+    private float floatArg = 1F;
+
     private MainFragmentArgs() {
     }
 
@@ -27,6 +29,9 @@ public class MainFragmentArgs {
         if (bundle.containsKey("reference")) {
             result.reference = bundle.getInt("reference");
         }
+        if (bundle.containsKey("floatArg")) {
+            result.floatArg = bundle.getFloat("floatArg");
+        }
         return result;
     }
 
@@ -42,11 +47,16 @@ public class MainFragmentArgs {
         return reference;
     }
 
+    public float getFloatArg() {
+        return floatArg;
+    }
+
     public Bundle toBundle() {
         Bundle __outBundle = new Bundle();
         __outBundle.putString("main", this.main);
         __outBundle.putInt("optional", this.optional);
         __outBundle.putInt("reference", this.reference);
+        __outBundle.putFloat("floatArg", this.floatArg);
         return __outBundle;
     }
 
@@ -57,10 +67,13 @@ public class MainFragmentArgs {
 
         private int reference = a.b.R.drawable.background;
 
+        private float floatArg = 1F;
+
         public Builder(MainFragmentArgs original) {
             this.main = original.main;
             this.optional = original.optional;
             this.reference = original.reference;
+            this.floatArg = original.floatArg;
         }
 
         public Builder(String main) {
@@ -72,6 +85,7 @@ public class MainFragmentArgs {
             result.main = this.main;
             result.optional = this.optional;
             result.reference = this.reference;
+            result.floatArg = this.floatArg;
             return result;
         }
 
@@ -90,6 +104,11 @@ public class MainFragmentArgs {
             return this;
         }
 
+        public Builder setFloatArg(float floatArg) {
+            this.floatArg = floatArg;
+            return this;
+        }
+
         public String getMain() {
             return main;
         }
@@ -100,6 +119,10 @@ public class MainFragmentArgs {
 
         public int getReference() {
             return reference;
+        }
+
+        public float getFloatArg() {
+            return floatArg;
         }
     }
 }

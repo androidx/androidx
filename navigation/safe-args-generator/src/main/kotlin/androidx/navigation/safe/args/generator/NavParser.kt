@@ -75,6 +75,7 @@ private fun parseArgument(parser: XmlPullParser, rFilePackage: String): Argument
 
     val (type, defaultTypedValue) = when (typeString) {
         "integer" -> NavType.INT to defaultValue?.let { parseIntValue(defaultValue) }
+        "float" -> NavType.FLOAT to defaultValue?.let { parseFloatValue(defaultValue) }
         "reference" -> NavType.REFERENCE to defaultValue?.let {
             ReferenceValue(parseReference(defaultValue, rFilePackage))
         }
@@ -91,6 +92,10 @@ internal fun inferArgument(name: String, defaultValue: String, rFilePackage: Str
     val intValue = tryToParseIntValue(defaultValue)
     if (intValue != null) {
         return Argument(name, NavType.INT, intValue)
+    }
+    val floatValue = tryToParseFloatValue(defaultValue)
+    if (floatValue != null) {
+        return Argument(name, NavType.FLOAT, floatValue)
     }
     return Argument(name, NavType.STRING, StringValue(defaultValue))
 }
@@ -166,4 +171,12 @@ private fun tryToParseIntValue(value: String): IntValue? {
 internal fun parseIntValue(value: String): IntValue {
     return tryToParseIntValue(value)
             ?: throw IllegalArgumentException("Failed to parse $value as int")
+}
+
+private fun tryToParseFloatValue(value: String): FloatValue? =
+        value.toFloatOrNull()?.let { FloatValue(value) }
+
+internal fun parseFloatValue(value: String): FloatValue {
+    return tryToParseFloatValue(value)
+            ?: throw IllegalArgumentException("Failed to parse $value as float")
 }
