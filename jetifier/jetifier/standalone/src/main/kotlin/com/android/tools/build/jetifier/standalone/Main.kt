@@ -18,6 +18,7 @@ package com.android.tools.build.jetifier.standalone
 
 import com.android.tools.build.jetifier.core.config.Config
 import com.android.tools.build.jetifier.core.config.ConfigParser
+import com.android.tools.build.jetifier.core.pom.DependencyVersionsMap
 import com.android.tools.build.jetifier.core.utils.Log
 import com.android.tools.build.jetifier.processor.FileMapping
 import com.android.tools.build.jetifier.processor.Processor
@@ -54,6 +55,9 @@ class Main {
         val OPTION_REBUILD_TOP_OF_TREE = createOption("rebuildTopOfTree",
             "Rebuild the zip of maven distribution according to the generated pom file",
             hasArgs = false, isRequired = false)
+        val OPTION_VERSIONS = createOption("versions",
+                "Versions to be used with jetifier (latest or alpha1)",
+                hasArgs = true, isRequired = false)
 
         private fun createOption(
             argName: String,
@@ -130,6 +134,13 @@ class Main {
             return
         }
 
+        val versionsMap = DependencyVersionsMap.parseFromVersionSetTypeId(
+            if (cmd.hasOption(OPTION_VERSIONS.opt)) {
+                cmd.getOptionValue(OPTION_VERSIONS.opt)
+            } else {
+                null
+            })
+
         val isReversed = cmd.hasOption(OPTION_REVERSED.opt)
         val rewriteSupportLib = cmd.hasOption(OPTION_REWRITE_SUPPORT_LIB.opt)
         val isStrict = cmd.hasOption(OPTION_STRICT.opt)
@@ -137,7 +148,8 @@ class Main {
             config = config,
             reversedMode = isReversed,
             rewritingSupportLib = rewriteSupportLib,
-            useIdentityIfTypeIsMissing = !isStrict)
+            useFallbackIfTypeIsMissing = !isStrict,
+            versionsMap = versionsMap)
         processor.transform(fileMappings)
 
         if (rebuildTopOfTree) {
