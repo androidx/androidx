@@ -46,6 +46,9 @@ import java.util.List;
  * Compatibility version of {@link android.webkit.WebView}
  */
 public class WebViewCompat {
+    private static final Uri WILDCARD_URI = Uri.parse("*");
+    private static final Uri EMPTY_URI = Uri.parse("");
+
     private WebViewCompat() {} // Don't allow instances of this class to be constructed.
 
     /**
@@ -364,6 +367,14 @@ public class WebViewCompat {
      */
     public static void postWebMessage(@NonNull WebView webview, @NonNull WebMessageCompat message,
             @NonNull Uri targetOrigin) {
+        // The wildcard ("*") Uri was first supported in WebView 60, see
+        // crrev/5ec5b67cbab33cea51b0ee11a286c885c2de4d5d, so on some Android versions using "*"
+        // won't work. WebView has always supported using an empty Uri "" as a wildcard - so convert
+        // "*" into "" here.
+        if (WILDCARD_URI.equals(targetOrigin)) {
+            targetOrigin = EMPTY_URI;
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             webview.postWebMessage(
                     WebMessagePortImpl.compatToFrameworkMessage(message),
