@@ -18,7 +18,17 @@ package androidx.room.integration.testapp.migration;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import androidx.sqlite.db.SupportSQLiteDatabase;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+import android.text.TextUtils;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Dao;
 import androidx.room.Database;
@@ -28,15 +38,7 @@ import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.NonNull;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-import android.text.TextUtils;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,6 +56,7 @@ import java.util.UUID;
 /**
  * reproduces b/78359448
  */
+@SdkSuppress(minSdkVersion = 24)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class JournalDbPostMigrationTest {

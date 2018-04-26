@@ -22,7 +22,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
@@ -45,7 +44,7 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void setWriteAheadLoggingEnabled(boolean enabled) {
         mDelegate.setWriteAheadLoggingEnabled(enabled);
     }
