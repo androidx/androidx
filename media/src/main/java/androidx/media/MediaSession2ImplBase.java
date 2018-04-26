@@ -72,7 +72,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
     private final MediaSessionCompat mSessionCompat;
-    private final MediaSession2StubImplBase mSession2Stub;
+    private final MediaSession2Stub mSession2Stub;
+    private final MediaSessionLegacyStub mSessionLegacyStub;
     private final String mId;
     private final Executor mCallbackExecutor;
     private final SessionCallback mCallback;
@@ -106,7 +107,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         mHandler = new Handler(mHandlerThread.getLooper());
 
         mSessionCompat = sessionCompat;
-        mSession2Stub = new MediaSession2StubImplBase(this);
+        mSession2Stub = new MediaSession2Stub(this);
+        mSessionLegacyStub = new MediaSessionLegacyStub(this);
         mSessionCompat.setCallback(mSession2Stub, mHandler);
         mSessionCompat.setSessionActivity(sessionActivity);
 
@@ -937,11 +939,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             return mPlaybackInfo;
         }
     }
-
-    MediaSession2StubImplBase getSession2Stub() {
-        return mSession2Stub;
-    }
-
     private static String getServiceName(Context context, String serviceAction, String id) {
         PackageManager manager = context.getPackageManager();
         Intent serviceIntent = new Intent(serviceAction);

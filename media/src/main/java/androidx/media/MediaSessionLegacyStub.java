@@ -20,7 +20,6 @@ import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
 import static androidx.media.MediaConstants2.ARGUMENT_ARGUMENTS;
 import static androidx.media.MediaConstants2.ARGUMENT_BUFFERING_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_BUTTONS;
-import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
@@ -31,30 +30,19 @@ import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media.MediaConstants2.ARGUMENT_PID;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_INFO;
-import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_SPEED;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
-import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_INDEX;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
 import static androidx.media.MediaConstants2.ARGUMENT_QUERY;
-import static androidx.media.MediaConstants2.ARGUMENT_RATING;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_RESULT_RECEIVER;
 import static androidx.media.MediaConstants2.ARGUMENT_ROUTE_BUNDLE;
 import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
 import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_UID;
-import static androidx.media.MediaConstants2.ARGUMENT_URI;
-import static androidx.media.MediaConstants2.ARGUMENT_VOLUME;
-import static androidx.media.MediaConstants2.ARGUMENT_VOLUME_DIRECTION;
-import static androidx.media.MediaConstants2.ARGUMENT_VOLUME_FLAGS;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
-import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
-import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_CUSTOM_COMMAND;
-import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
-import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CHILDREN_CHANGED;
@@ -73,42 +61,11 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANG
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
 import static androidx.media.SessionCommand2.COMMAND_CODE_CUSTOM;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_GET_CURRENT_MEDIA_ITEM;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM;
-import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_REWIND;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SET_RATING;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
-import static androidx.media.SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
-import static androidx.media.SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -135,7 +92,7 @@ import java.util.List;
 import java.util.Set;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
-class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
+class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     private static final String TAG = "MS2StubImplBase";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
@@ -167,7 +124,7 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
     private final ArrayMap<ControllerInfo, SessionCommandGroup2> mAllowedCommandGroupMap =
             new ArrayMap<>();
 
-    MediaSession2StubImplBase(MediaSession2.SupportLibraryImpl session) {
+    MediaSessionLegacyStub(MediaSession2.SupportLibraryImpl session) {
         mSession = session;
         mContext = mSession.getContext();
     }
@@ -235,239 +192,6 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
                 mSession.seekTo(pos);
             }
         });
-    }
-
-    @Override
-    public void onCommand(String command, final Bundle extras, final ResultReceiver cb) {
-        switch (command) {
-            case CONTROLLER_COMMAND_CONNECT:
-                connect(extras, cb);
-                break;
-            case CONTROLLER_COMMAND_DISCONNECT:
-                disconnect(extras);
-                break;
-            case CONTROLLER_COMMAND_BY_COMMAND_CODE: {
-                final int commandCode = extras.getInt(ARGUMENT_COMMAND_CODE);
-                IMediaControllerCallback caller = (IMediaControllerCallback)
-                        BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK);
-                if (caller == null) {
-                    return;
-                }
-
-                onCommand2(caller.asBinder(), commandCode, new Session2Runnable() {
-                    @Override
-                    public void run(ControllerInfo controller) {
-                        switch (commandCode) {
-                            case COMMAND_CODE_PLAYBACK_PLAY:
-                                mSession.play();
-                                break;
-                            case COMMAND_CODE_PLAYBACK_PAUSE:
-                                mSession.pause();
-                                break;
-                            case COMMAND_CODE_PLAYBACK_RESET:
-                                mSession.reset();
-                                break;
-                            case COMMAND_CODE_PLAYBACK_PREPARE:
-                                mSession.prepare();
-                                break;
-                            case COMMAND_CODE_PLAYBACK_SEEK_TO: {
-                                long seekPos = extras.getLong(ARGUMENT_SEEK_POSITION);
-                                mSession.seekTo(seekPos);
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE: {
-                                int repeatMode = extras.getInt(ARGUMENT_REPEAT_MODE);
-                                mSession.setRepeatMode(repeatMode);
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE: {
-                                int shuffleMode = extras.getInt(ARGUMENT_SHUFFLE_MODE);
-                                mSession.setShuffleMode(shuffleMode);
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYLIST_SET_LIST: {
-                                List<MediaItem2> list = MediaUtils2.fromMediaItem2ParcelableArray(
-                                        extras.getParcelableArray(ARGUMENT_PLAYLIST));
-                                MediaMetadata2 metadata = MediaMetadata2.fromBundle(
-                                        extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
-                                mSession.setPlaylist(list, metadata);
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYLIST_SET_LIST_METADATA: {
-                                MediaMetadata2 metadata = MediaMetadata2.fromBundle(
-                                        extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
-                                mSession.updatePlaylistMetadata(metadata);
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYLIST_ADD_ITEM: {
-                                int index = extras.getInt(ARGUMENT_PLAYLIST_INDEX);
-                                MediaItem2 item = MediaItem2.fromBundle(
-                                        extras.getBundle(ARGUMENT_MEDIA_ITEM));
-                                mSession.addPlaylistItem(index, item);
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYLIST_REMOVE_ITEM: {
-                                MediaItem2 item = MediaItem2.fromBundle(
-                                        extras.getBundle(ARGUMENT_MEDIA_ITEM));
-                                mSession.removePlaylistItem(item);
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYLIST_REPLACE_ITEM: {
-                                int index = extras.getInt(ARGUMENT_PLAYLIST_INDEX);
-                                MediaItem2 item = MediaItem2.fromBundle(
-                                        extras.getBundle(ARGUMENT_MEDIA_ITEM));
-                                mSession.replacePlaylistItem(index, item);
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM: {
-                                mSession.skipToNextItem();
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM: {
-                                mSession.skipToPreviousItem();
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM: {
-                                MediaItem2 item = MediaItem2.fromBundle(
-                                        extras.getBundle(ARGUMENT_MEDIA_ITEM));
-                                mSession.skipToPlaylistItem(item);
-                                break;
-                            }
-                            case COMMAND_CODE_VOLUME_SET_VOLUME: {
-                                int value = extras.getInt(ARGUMENT_VOLUME);
-                                int flags = extras.getInt(ARGUMENT_VOLUME_FLAGS);
-                                VolumeProviderCompat vp = mSession.getVolumeProvider();
-                                if (vp == null) {
-                                    MediaSessionCompat sessionCompat = mSession.getSessionCompat();
-                                    if (sessionCompat != null) {
-                                        sessionCompat.getController().setVolumeTo(value, flags);
-                                    }
-                                } else {
-                                    vp.onSetVolumeTo(value);
-                                }
-                                break;
-                            }
-                            case COMMAND_CODE_VOLUME_ADJUST_VOLUME: {
-                                int direction = extras.getInt(ARGUMENT_VOLUME_DIRECTION);
-                                int flags = extras.getInt(ARGUMENT_VOLUME_FLAGS);
-                                VolumeProviderCompat vp = mSession.getVolumeProvider();
-                                if (vp == null) {
-                                    MediaSessionCompat sessionCompat = mSession.getSessionCompat();
-                                    if (sessionCompat != null) {
-                                        sessionCompat.getController().adjustVolume(
-                                                direction, flags);
-                                    }
-                                } else {
-                                    vp.onAdjustVolume(direction);
-                                }
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_REWIND: {
-                                mSession.getCallback().onRewind(
-                                        mSession.getInstance(), controller);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_FAST_FORWARD: {
-                                mSession.getCallback().onFastForward(
-                                        mSession.getInstance(), controller);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID: {
-                                String mediaId = extras.getString(ARGUMENT_MEDIA_ID);
-                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
-                                mSession.getCallback().onPlayFromMediaId(
-                                        mSession.getInstance(), controller, mediaId, extra);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_PLAY_FROM_SEARCH: {
-                                String query = extras.getString(ARGUMENT_QUERY);
-                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
-                                mSession.getCallback().onPlayFromSearch(
-                                        mSession.getInstance(), controller, query, extra);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_PLAY_FROM_URI: {
-                                Uri uri = extras.getParcelable(ARGUMENT_URI);
-                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
-                                mSession.getCallback().onPlayFromUri(
-                                        mSession.getInstance(), controller, uri, extra);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID: {
-                                String mediaId = extras.getString(ARGUMENT_MEDIA_ID);
-                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
-                                mSession.getCallback().onPrepareFromMediaId(
-                                        mSession.getInstance(), controller, mediaId, extra);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH: {
-                                String query = extras.getString(ARGUMENT_QUERY);
-                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
-                                mSession.getCallback().onPrepareFromSearch(
-                                        mSession.getInstance(), controller, query, extra);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_PREPARE_FROM_URI: {
-                                Uri uri = extras.getParcelable(ARGUMENT_URI);
-                                Bundle extra = extras.getBundle(ARGUMENT_EXTRAS);
-                                mSession.getCallback().onPrepareFromUri(
-                                        mSession.getInstance(), controller, uri, extra);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_SET_RATING: {
-                                String mediaId = extras.getString(ARGUMENT_MEDIA_ID);
-                                Rating2 rating = Rating2.fromBundle(
-                                        extras.getBundle(ARGUMENT_RATING));
-                                mSession.getCallback().onSetRating(
-                                        mSession.getInstance(), controller, mediaId, rating);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO: {
-                                mSession.getCallback().onSubscribeRoutesInfo(
-                                        mSession.getInstance(), controller);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO: {
-                                mSession.getCallback().onUnsubscribeRoutesInfo(
-                                        mSession.getInstance(), controller);
-                                break;
-                            }
-                            case COMMAND_CODE_SESSION_SELECT_ROUTE: {
-                                Bundle route = extras.getBundle(ARGUMENT_ROUTE_BUNDLE);
-                                mSession.getCallback().onSelectRoute(
-                                        mSession.getInstance(), controller, route);
-                                break;
-                            }
-                            case COMMAND_CODE_PLAYBACK_SET_SPEED: {
-                                float speed = extras.getFloat(ARGUMENT_PLAYBACK_SPEED);
-                                mSession.setPlaybackSpeed(speed);
-                                break;
-                            }
-                        }
-                    }
-                });
-                break;
-            }
-            case CONTROLLER_COMMAND_BY_CUSTOM_COMMAND: {
-                final SessionCommand2 customCommand =
-                        SessionCommand2.fromBundle(extras.getBundle(ARGUMENT_CUSTOM_COMMAND));
-                IMediaControllerCallback caller = (IMediaControllerCallback)
-                        BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK);
-                if (caller == null || customCommand == null) {
-                    return;
-                }
-
-                final Bundle args = extras.getBundle(ARGUMENT_ARGUMENTS);
-                onCommand2(caller.asBinder(), customCommand, new Session2Runnable() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSession.getCallback().onCustomCommand(
-                                mSession.getInstance(), controller, customCommand, args, cb);
-                    }
-                });
-                break;
-            }
-        }
     }
 
     List<ControllerInfo> getConnectedControllers() {
@@ -572,33 +296,13 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         }
     }
 
-    private void onControllerClosed(IMediaControllerCallback iController) {
-        ControllerInfo controller;
-        synchronized (mLock) {
-            controller = mControllers.remove(iController.asBinder());
-            if (DEBUG) {
-                Log.d(TAG, "releasing " + controller);
-            }
-        }
-        if (controller == null) {
-            return;
-        }
-        final ControllerInfo removedController = controller;
-        mSession.getCallbackExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                mSession.getCallback().onDisconnected(mSession.getInstance(), removedController);
-            }
-        });
-    }
-
     private ControllerInfo createControllerInfo(Bundle extras) {
         IMediaControllerCallback callback = IMediaControllerCallback.Stub.asInterface(
                 BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK));
         String packageName = extras.getString(ARGUMENT_PACKAGE_NAME);
         int uid = extras.getInt(ARGUMENT_UID);
         int pid = extras.getInt(ARGUMENT_PID);
-        return new ControllerInfo(packageName, pid, uid, new Controller2Cb(callback));
+        return new ControllerInfo(packageName, pid, uid, new ControllerLegacyCb(callback));
     }
 
     private void connect(Bundle extras, final ResultReceiver cb) {
@@ -708,10 +412,10 @@ class MediaSession2StubImplBase extends MediaSessionCompat.Callback {
         void run(ControllerInfo controller) throws RemoteException;
     }
 
-    final class Controller2Cb extends ControllerCb {
+    final class ControllerLegacyCb extends ControllerCb {
         private final IMediaControllerCallback mIControllerCallback;
 
-        Controller2Cb(@NonNull IMediaControllerCallback callback) {
+        ControllerLegacyCb(@NonNull IMediaControllerCallback callback) {
             mIControllerCallback = callback;
         }
 
