@@ -173,6 +173,20 @@ limitations under the License.
         <item name="android:textColor">@color/car_body4</item>
     </style>
 
+    <!-- The styling for action button text. -->
+    <style name="TextAppearance.Car.Action1">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/car_action1_size</item>
+        <item name="android:textColor">@color/car_accent</item>
+    </style>
+
+    <!-- The styling for menu text in action bar. -->
+    <style name="TextAppearance.Car.ActionBar.Menu" parent="TextAppearance.Car.Action1">
+        <item name="android:textColor">?attr/actionMenuTextColor</item>
+    </style>
+
     <!-- Styles for TextInputLayout hints. -->
     <style name="TextAppearance.Car.Hint" parent="TextAppearance.Car.Body2" />
 
@@ -181,11 +195,33 @@ limitations under the License.
     <!-- ======= -->
     <eat-comment />
 
-    <!-- The styling for the action bar. -->
+    <!-- The styling for Toolbar used as action bar. -->
     <style name="Widget.Car.Toolbar" parent="Widget.AppCompat.Toolbar">
-        <item name="titleTextAppearance">@style/TextAppearance.Car.Title.Light</item>
-        <item name="contentInsetStart">@dimen/car_keyline_1</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
+        <item name="background">@color/car_card</item>
         <item name="contentInsetEnd">@dimen/car_keyline_1</item>
+        <item name="contentInsetStart">@dimen/car_keyline_1</item>
+        <item name="elevation">@dimen/car_action_bar_elevation</item>
+        <item name="subtitleTextAppearance">@style/TextAppearance.Car.Body2</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Car.Title2</item>
+        <item name="navigationIcon">@drawable/ic_nav_arrow_back</item>
+    </style>
+
+    <!-- The styling for the navigation button in action bar. -->
+    <style name="Widget.Car.Toolbar.Button.Navigation"
+           parent="Widget.AppCompat.Toolbar.Button.Navigation">
+        <item name="android:background">@drawable/car_card_ripple_background</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:tint">@color/car_tint</item>
+    </style>
+
+    <style name="Widget.Car.ActionButton" parent="Widget.AppCompat.ActionButton">
+        <item name="android:background">?attr/actionBarItemBackground</item>
+        <item name="android:minHeight">@dimen/car_action_bar_height</item>
+        <item name="android:paddingLeft">@dimen/car_padding_2</item>
+        <item name="android:paddingRight">@dimen/car_padding_2</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:tint">@color/car_tint</item>
     </style>
 
     <!-- The style for the menu bar (i.e. hamburger) and back arrow in the navigation drawer. -->
