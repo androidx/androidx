@@ -109,9 +109,8 @@ public class PostMessageTest {
 
     // Post a string message to main frame passing a wildcard as target origin
     @Test
-    @SdkSuppress(minSdkVersion = 27) // TODO (gsennton) remove this restriction when we can
+    @SdkSuppress(minSdkVersion = 23) // TODO (gsennton) remove this restriction when we can
     // pre-install a WebView APK containing support for the WebView Support Library, see b/73454652.
-    // TODO (gsennton) enable this test for earlier Android versions after converting "*" into "".
     public void testWildcardOriginMatchesAnything() throws Throwable {
         verifyPostMessageToOrigin(Uri.parse("*"));
     }
