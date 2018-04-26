@@ -23,12 +23,6 @@ plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
-android {
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
-}
-
 dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
     api(project(":arch:core-common"))
