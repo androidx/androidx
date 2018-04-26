@@ -34,21 +34,7 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="CustomSliceView" parent="Widget.SliceView">
-        <item name="tintColor">@color/tintColor</item>
-
-        <item name="titleColor">@color/textColor</item>
-        <item name="subtitleColor">@color/textColor</item>
-
-        <item name="headerTitleSize">@dimen/textSize</item>
-        <item name="headerSubtitleSize">@dimen/textSize</item>
-        <item name="titleSize">@dimen/textSize</item>
-        <item name="subtitleSize">@dimen/textSize</item>
-        <item name="gridTitleSize">@dimen/textSize</item>
-        <item name="gridSubtitleSize">@dimen/smallTextSize</item>
-
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingRight">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
+        <item name="gridTopPadding">4dp</item>
+        <item name="gridBottomPadding">4dp</item>
     </style>
 </resources>

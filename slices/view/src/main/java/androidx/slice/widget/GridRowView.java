@@ -48,7 +48,6 @@ import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
-import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
@@ -79,11 +78,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     private static final int MAX_CELL_IMAGES = 1;
 
     private int mRowIndex;
+    private int mRowCount;
+
     private int mSmallImageSize;
     private int mIconSize;
     private int mGutter;
     private int mTextPadding;
-    private int mInnerTextPadding;
 
     private GridContent mGridContent;
     private LinearLayout mViewContainer;
@@ -103,18 +103,42 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         mSmallImageSize = res.getDimensionPixelSize(R.dimen.abc_slice_small_image_size);
         mGutter = res.getDimensionPixelSize(R.dimen.abc_slice_grid_gutter);
         mTextPadding = res.getDimensionPixelSize(R.dimen.abc_slice_grid_text_padding);
-        mInnerTextPadding = res.getDimensionPixelSize(R.dimen.abc_slice_grid_text_inner_padding);
     }
 
     @Override
     public int getSmallHeight() {
         // GridRow is small if its the first element in a list without a header presented in small
-        return mGridContent != null ? mGridContent.getSmallHeight() : 0;
+        if (mGridContent == null) {
+            return 0;
+        }
+        return mGridContent.getSmallHeight() + getExtraTopPadding() + getExtraBottomPadding();
     }
 
     @Override
     public int getActualHeight() {
-        return mGridContent != null ? mGridContent.getActualHeight() : 0;
+        if (mGridContent == null) {
+            return 0;
+        }
+        return mGridContent.getActualHeight() + getExtraTopPadding() + getExtraBottomPadding();
+    }
+
+    private int getExtraTopPadding() {
+        if (mGridContent != null && mGridContent.isAllImages()) {
+            // Might need to add padding if in first or last position
+            if (mRowIndex == 0) {
+                return mGridTopPadding;
+            }
+        }
+        return 0;
+    }
+
+    private int getExtraBottomPadding() {
+        if (mGridContent != null && mGridContent.isAllImages()) {
+            if (mRowIndex == mRowCount - 1 || getMode() == MODE_SMALL) {
+                return mGridBottomPadding;
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -136,22 +160,19 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         }
     }
 
-    @Override
-    public void setSlice(Slice slice) {
-        // Nothing to do
-    }
-
     /**
      * This is called when GridView is being used as a component in a larger template.
      */
     @Override
-    public void setSliceItem(SliceItem slice, boolean isHeader, int index,
-            SliceView.OnSliceActionListener observer) {
+    public void setSliceItem(SliceItem slice, boolean isHeader, int rowIndex,
+            int rowCount, SliceView.OnSliceActionListener observer) {
         resetView();
         setSliceActionListener(observer);
-        mRowIndex = index;
+        mRowIndex = rowIndex;
+        mRowCount = rowCount;
         mGridContent = new GridContent(getContext(), slice);
         populateViews(mGridContent);
+        mViewContainer.setPadding(0, getExtraTopPadding(), 0, getExtraBottomPadding());
     }
 
     private void populateViews(GridContent gc) {
@@ -366,7 +387,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
             return mTextPadding;
         } else if (FORMAT_TEXT.equals(prevItem.getFormat())
                 || FORMAT_LONG.equals(prevItem.getFormat())) {
-            return mInnerTextPadding;
+            return mVerticalGridTextPadding;
         }
         return 0;
     }

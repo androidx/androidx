@@ -230,6 +230,8 @@ public class GridContent {
 
     /**
      * @return the height to display a grid row at when it is used as a small template.
+     * Does not include padding that might be added by slice view attributes,
+     * see {@link ListContent#getListHeight(Context, List)}.
      */
     public int getSmallHeight() {
         return getHeight(true /* isSmall */);
@@ -237,6 +239,8 @@ public class GridContent {
 
     /**
      * @return the height the content in this template requires to be displayed.
+     * Does not include padding that might be added by slice view attributes,
+     * see {@link ListContent#getListHeight(Context, List)}.
      */
     public int getActualHeight() {
         return getHeight(false /* isSmall */);

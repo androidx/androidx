@@ -129,7 +129,7 @@ public class SliceMetadata {
         }
         mSliceActions = getSliceActions(mSlice);
 
-        mListContent = new ListContent(context, slice);
+        mListContent = new ListContent(context, slice, null, 0, 0);
         mHeaderItem = mListContent.getHeaderItem();
         mTemplateType = mListContent.getHeaderTemplateType();
 
