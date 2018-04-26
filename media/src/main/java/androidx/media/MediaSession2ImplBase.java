@@ -77,8 +77,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private final AudioManager mAudioManager;
     private final MediaPlayerInterface.PlayerEventCallback mPlayerEventCallback;
     private final MediaPlaylistAgent.PlaylistEventCallback mPlaylistEventCallback;
-
-    private WeakReference<MediaSession2> mInstance;
+    private final MediaSession2 mInstance;
 
     @GuardedBy("mLock")
     private MediaPlayerInterface mPlayer;
@@ -98,6 +97,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
             Executor callbackExecutor, SessionCallback callback) {
         mContext = context;
+        mInstance = createInstance();
         mHandlerThread = new HandlerThread("MediaController2_Thread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
@@ -815,16 +815,14 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     ///////////////////////////////////////////////////
     // package private and private methods
     ///////////////////////////////////////////////////
-
     @Override
-    void setInstance(MediaSession2 session) {
-        mInstance = new WeakReference<>(session);
-
+    MediaSession2 createInstance() {
+        return new MediaSession2(this);
     }
 
     @Override
-    MediaSession2 getInstance() {
-        return mInstance.get();
+    @NonNull MediaSession2 getInstance() {
+        return mInstance;
     }
 
     @Override
@@ -970,11 +968,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                 return;
             }
         }
-        MediaSession2 session2 = mInstance.get();
-        if (session2 != null) {
-            mCallback.onPlaylistChanged(session2, playlistAgent, list, metadata);
-            mSession2Stub.notifyPlaylistChanged(list, metadata);
-        }
+        mCallback.onPlaylistChanged(getInstance(), playlistAgent, list, metadata);
+        mSession2Stub.notifyPlaylistChanged(list, metadata);
     }
 
     private void notifyPlaylistMetadataChangedOnExecutor(MediaPlaylistAgent playlistAgent,
@@ -985,11 +980,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                 return;
             }
         }
-        MediaSession2 session2 = mInstance.get();
-        if (session2 != null) {
-            mCallback.onPlaylistMetadataChanged(session2, playlistAgent, metadata);
-            mSession2Stub.notifyPlaylistMetadataChanged(metadata);
-        }
+        mCallback.onPlaylistMetadataChanged(getInstance(), playlistAgent, metadata);
+        mSession2Stub.notifyPlaylistMetadataChanged(metadata);
     }
 
     private void notifyRepeatModeChangedOnExecutor(MediaPlaylistAgent playlistAgent,
@@ -1000,11 +992,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                 return;
             }
         }
-        MediaSession2 session2 = mInstance.get();
-        if (session2 != null) {
-            mCallback.onRepeatModeChanged(session2, playlistAgent, repeatMode);
-            mSession2Stub.notifyRepeatModeChanged(repeatMode);
-        }
+        mCallback.onRepeatModeChanged(getInstance(), playlistAgent, repeatMode);
+        mSession2Stub.notifyRepeatModeChanged(repeatMode);
     }
 
     private void notifyShuffleModeChangedOnExecutor(MediaPlaylistAgent playlistAgent,
@@ -1015,11 +1004,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                 return;
             }
         }
-        MediaSession2 session2 = mInstance.get();
-        if (session2 != null) {
-            mCallback.onShuffleModeChanged(session2, playlistAgent, shuffleMode);
-            mSession2Stub.notifyShuffleModeChanged(shuffleMode);
-        }
+        mCallback.onShuffleModeChanged(getInstance(), playlistAgent, shuffleMode);
+        mSession2Stub.notifyShuffleModeChanged(shuffleMode);
     }
 
     ///////////////////////////////////////////////////
