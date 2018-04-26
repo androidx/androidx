@@ -30,6 +30,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.app.Notification;
 import android.content.Context;
@@ -583,6 +584,16 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @Test
+    public void testMessagingStyle_requiresNonEmptyUserName() {
+        try {
+            new NotificationCompat.MessagingStyle(new Person.Builder().build());
+            fail("Expected IllegalArgumentException about a non-empty user name.");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+    }
+
+    @Test
     public void testMessagingStyle_isGroupConversation() {
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.P;
         NotificationCompat.MessagingStyle messagingStyle =
@@ -802,18 +813,20 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @Test
-    public void testMessagingStyle_extras() {
+    public void testMessagingStyle_restoreFromCompatExtras() {
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("test name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("test name").build())
                         .setGroupConversation(true);
         Bundle bundle = new Bundle();
         messagingStyle.addCompatExtras(bundle);
 
         NotificationCompat.MessagingStyle resultMessagingStyle =
-                new NotificationCompat.MessagingStyle("test name");
+                new NotificationCompat.MessagingStyle(new Person.Builder().setName("temp").build());
         resultMessagingStyle.restoreFromCompatExtras(bundle);
 
         assertTrue(resultMessagingStyle.isGroupConversation());
+        assertEquals("test name", resultMessagingStyle.getUser().getName());
     }
 
     @Test

@@ -221,6 +221,7 @@ package androidx.core.app {
     field public static final java.lang.String EXTRA_LARGE_ICON_BIG = "android.largeIcon.big";
     field public static final java.lang.String EXTRA_MEDIA_SESSION = "android.mediaSession";
     field public static final java.lang.String EXTRA_MESSAGES = "android.messages";
+    field public static final java.lang.String EXTRA_MESSAGING_STYLE_USER = "android.messagingStyleUser";
     field public static final java.lang.String EXTRA_PEOPLE = "android.people";
     field public static final java.lang.String EXTRA_PICTURE = "android.picture";
     field public static final java.lang.String EXTRA_PROGRESS = "android.progress";
@@ -457,7 +458,8 @@ package androidx.core.app {
   }
 
   public static class NotificationCompat.MessagingStyle extends androidx.core.app.NotificationCompat.Style {
-    ctor public NotificationCompat.MessagingStyle(java.lang.CharSequence);
+    ctor public deprecated NotificationCompat.MessagingStyle(java.lang.CharSequence);
+    ctor public NotificationCompat.MessagingStyle(androidx.core.app.Person);
     method public void addCompatExtras(android.os.Bundle);
     method public deprecated androidx.core.app.NotificationCompat.MessagingStyle addMessage(java.lang.CharSequence, long, java.lang.CharSequence);
     method public androidx.core.app.NotificationCompat.MessagingStyle addMessage(java.lang.CharSequence, long, androidx.core.app.Person);
@@ -465,7 +467,8 @@ package androidx.core.app {
     method public static androidx.core.app.NotificationCompat.MessagingStyle extractMessagingStyleFromNotification(android.app.Notification);
     method public java.lang.CharSequence getConversationTitle();
     method public java.util.List<androidx.core.app.NotificationCompat.MessagingStyle.Message> getMessages();
-    method public java.lang.CharSequence getUserDisplayName();
+    method public androidx.core.app.Person getUser();
+    method public deprecated java.lang.CharSequence getUserDisplayName();
     method public boolean isGroupConversation();
     method public androidx.core.app.NotificationCompat.MessagingStyle setConversationTitle(java.lang.CharSequence);
     method public androidx.core.app.NotificationCompat.MessagingStyle setGroupConversation(boolean);
