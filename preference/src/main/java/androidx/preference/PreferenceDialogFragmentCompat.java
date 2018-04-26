@@ -193,6 +193,10 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
      * displayed. Default is false. Subclasses should override this method if they need the soft
      * input method brought up automatically.
      *
+     * <p>Note: If your application targets P or above, ensure your subclass manually requests
+     * focus (ideally in {@link #onBindDialogView(View)}) for the input field in order to
+     * correctly attach the input method to the field.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
