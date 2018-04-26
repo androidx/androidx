@@ -33,13 +33,12 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.SEARCH_Q
 import static org.junit.Assert.assertNull;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-
-import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
