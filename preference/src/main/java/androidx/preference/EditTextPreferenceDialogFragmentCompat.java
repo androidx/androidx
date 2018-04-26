@@ -63,6 +63,7 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
         super.onBindDialogView(view);
 
         mEditText = view.findViewById(android.R.id.edit);
+        mEditText.requestFocus();
 
         if (mEditText == null) {
             throw new IllegalStateException("Dialog view must contain an EditText with id" +
@@ -71,7 +72,7 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
 
         mEditText.setText(mText);
         // Place cursor at the end
-        mEditText.setSelection(mText.length());
+        mEditText.setSelection(mEditText.getText().length());
     }
 
     private EditTextPreference getEditTextPreference() {

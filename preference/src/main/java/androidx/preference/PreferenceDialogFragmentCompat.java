@@ -190,9 +190,14 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
     protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {}
 
     /**
-     * Returns whether the preference needs to display a soft input method when the dialog
-     * is displayed. Default is false. Subclasses should override this method if they need
-     * the soft input method brought up automatically.
+     * Returns whether the preference needs to display a soft input method when the dialog is
+     * displayed. Default is false. Subclasses should override this method if they need the soft
+     * input method brought up automatically.
+     *
+     * <p>Note: If your application targets P or above, ensure your subclass manually requests
+     * focus (ideally in {@link #onBindDialogView(View)}) for the input field in order to
+     * correctly attach the input method to the field.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
