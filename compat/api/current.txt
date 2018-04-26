@@ -906,9 +906,21 @@ package androidx.core.content.res {
 
 package androidx.core.database {
 
+  public final class CursorWindowCompat {
+    method public android.database.CursorWindow create(java.lang.String, long);
+  }
+
   public final deprecated class DatabaseUtilsCompat {
     method public static deprecated java.lang.String[] appendSelectionArgs(java.lang.String[], java.lang.String[]);
     method public static deprecated java.lang.String concatenateWhere(java.lang.String, java.lang.String);
+  }
+
+}
+
+package androidx.core.database.sqlite {
+
+  public final class SQLiteCursorCompat {
+    method public void setFillWindowForwardOnly(android.database.sqlite.SQLiteCursor, boolean);
   }
 
 }
