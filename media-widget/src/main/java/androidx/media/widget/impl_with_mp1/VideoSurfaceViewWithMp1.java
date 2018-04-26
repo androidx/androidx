@@ -29,24 +29,25 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-@RequiresApi(28)
-class VideoSurfaceView extends SurfaceView implements VideoViewInterface, SurfaceHolder.Callback {
-    private static final String TAG = "VideoSurfaceView";
-    private static final boolean DEBUG = true; // STOPSHIP: Log.isLoggable(TAG, Log.DEBUG);
+@RequiresApi(21)
+class VideoSurfaceViewWithMp1 extends SurfaceView
+        implements VideoViewInterfaceWithMp1, SurfaceHolder.Callback {
+    private static final String TAG = "VideoSurfaceViewWithMp1";
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private SurfaceHolder mSurfaceHolder = null;
     private SurfaceListener mSurfaceListener = null;
     private MediaPlayer mMediaPlayer;
     // A flag to indicate taking over other view should be proceed.
     private boolean mIsTakingOverOldView;
-    private VideoViewInterface mOldView;
+    private VideoViewInterfaceWithMp1 mOldView;
 
-    VideoSurfaceView(Context context) {
+    VideoSurfaceViewWithMp1(Context context) {
         super(context, null);
         getHolder().addCallback(this);
     }
 
     ////////////////////////////////////////////////////
-    // implements VideoViewInterface
+    // implements VideoViewInterfaceWithMp1
     ////////////////////////////////////////////////////
 
     @Override
@@ -78,7 +79,7 @@ class VideoSurfaceView extends SurfaceView implements VideoViewInterface, Surfac
     }
 
     @Override
-    public void takeOver(@NonNull VideoViewInterface oldView) {
+    public void takeOver(@NonNull VideoViewInterfaceWithMp1 oldView) {
         if (assignSurfaceToMediaPlayer(mMediaPlayer)) {
             ((View) oldView).setVisibility(GONE);
             mIsTakingOverOldView = false;
@@ -133,7 +134,6 @@ class VideoSurfaceView extends SurfaceView implements VideoViewInterface, Surfac
         }
     }
 
-    // TODO: Investigate the way to move onMeasure() code into FrameLayout.
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int videoWidth = (mMediaPlayer == null) ? 0 : mMediaPlayer.getVideoWidth();
@@ -176,11 +176,5 @@ class VideoSurfaceView extends SurfaceView implements VideoViewInterface, Surfac
             Log.i(TAG, "end of onMeasure()");
             Log.i(TAG, " measuredSize: " + getMeasuredWidth() + "/" + getMeasuredHeight());
         }
-    }
-
-    @Override
-    public String toString() {
-        return "ViewType: SurfaceView / Visibility: " + getVisibility()
-                + " / surfaceHolder: " + mSurfaceHolder;
     }
 }

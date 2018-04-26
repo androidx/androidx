@@ -29,26 +29,26 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-@RequiresApi(28)
-class VideoTextureView extends TextureView
-        implements VideoViewInterface, TextureView.SurfaceTextureListener {
-    private static final String TAG = "VideoTextureView";
-    private static final boolean DEBUG = true; // STOPSHIP: Log.isLoggable(TAG, Log.DEBUG);
+@RequiresApi(21)
+class VideoTextureViewWithMp1 extends TextureView
+        implements VideoViewInterfaceWithMp1, TextureView.SurfaceTextureListener {
+    private static final String TAG = "VideoTextureViewWithMp1";
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private Surface mSurface;
     private SurfaceListener mSurfaceListener;
     private MediaPlayer mMediaPlayer;
     // A flag to indicate taking over other view should be proceed.
     private boolean mIsTakingOverOldView;
-    private VideoViewInterface mOldView;
+    private VideoViewInterfaceWithMp1 mOldView;
 
-    VideoTextureView(Context context) {
+    VideoTextureViewWithMp1(Context context) {
         super(context, null);
         setSurfaceTextureListener(this);
     }
 
     ////////////////////////////////////////////////////
-    // implements VideoViewInterface
+    // implements VideoViewInterfaceWithMp1
     ////////////////////////////////////////////////////
 
     @Override
@@ -80,7 +80,7 @@ class VideoTextureView extends TextureView
     }
 
     @Override
-    public void takeOver(@NonNull VideoViewInterface oldView) {
+    public void takeOver(@NonNull VideoViewInterfaceWithMp1 oldView) {
         if (assignSurfaceToMediaPlayer(mMediaPlayer)) {
             ((View) oldView).setVisibility(GONE);
             mIsTakingOverOldView = false;
