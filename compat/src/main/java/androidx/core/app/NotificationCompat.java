@@ -386,11 +386,15 @@ public class NotificationCompat {
 
     /**
      * Notification key: the username to be displayed for all messages sent by the user
-     * including
-     * direct replies
-     * {@link MessagingStyle} notification.
+     * including direct replies {@link MessagingStyle} notification.
      */
     public static final String EXTRA_SELF_DISPLAY_NAME = "android.selfDisplayName";
+
+    /**
+     * Notification key: the person to display for all messages sent by the user, including direct
+     * replies to {@link MessagingStyle} notifications.
+     */
+    public static final String EXTRA_MESSAGING_STYLE_USER = "android.messagingStyleUser";
 
     /**
      * Notification key: a {@link String} to be displayed as the title to a conversation
@@ -1672,6 +1676,9 @@ public class NotificationCompat {
         }
 
         /**
+         * Applies the compat style data to the framework {@link Notification} in a backwards
+         * compatible way. All other data should be stored within the Notification's extras.
+         *
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
@@ -2151,29 +2158,54 @@ public class NotificationCompat {
          */
         public static final int MAXIMUM_RETAINED_MESSAGES = 25;
 
-        CharSequence mUserDisplayName;
-        @Nullable CharSequence mConversationTitle;
-        List<Message> mMessages = new ArrayList<>();
-        @Nullable Boolean mIsGroupConversation;
+        private final List<Message> mMessages = new ArrayList<>();
+        private Person mUser;
+        private @Nullable CharSequence mConversationTitle;
+        private @Nullable Boolean mIsGroupConversation;
 
-        MessagingStyle() {
-        }
+        /** Private empty constructor for {@link Style#restoreFromCompatExtras(Bundle)}. */
+        private MessagingStyle() {}
 
         /**
          * @param userDisplayName Required - the name to be displayed for any replies sent by the
          * user before the posting app reposts the notification with those messages after they've
          * been actually sent and in previous messages sent by the user added in
          * {@link #addMessage(Message)}
+         * @deprecated Use {@code #MessagingStyle(Person)} instead.
          */
+        @Deprecated
         public MessagingStyle(@NonNull CharSequence userDisplayName) {
-            mUserDisplayName = userDisplayName;
+            mUser = new Person.Builder().setName(userDisplayName).build();
         }
 
         /**
-         * Returns the name to be displayed for any replies sent by the user
+         * Creates a new {@link MessagingStyle} object. Note that {@link Person} must have a
+         * non-empty name.
+         *
+         * @param user This {@link Person}'s name will be shown when this app's notification is
+         * being replied to. It's used temporarily so the app has time to process the send request
+         * and repost the notification with updates to the conversation.
          */
+        public MessagingStyle(@NonNull Person user) {
+            if (TextUtils.isEmpty(user.getName())) {
+                throw new IllegalArgumentException("User's name must not be empty.");
+            }
+            mUser = user;
+        }
+
+        /**
+         * Returns the name to be displayed for any replies sent by the user.
+         *
+         * @deprecated Use {@link #getUser()} instead.
+         */
+        @Deprecated
         public CharSequence getUserDisplayName() {
-            return mUserDisplayName;
+            return mUser.getName();
+        }
+
+        /** Returns the person to be used for any replies sent by the user. */
+        public Person getUser() {
+            return mUser;
         }
 
         /**
@@ -2314,19 +2346,20 @@ public class NotificationCompat {
          */
         public static MessagingStyle extractMessagingStyleFromNotification(
                 Notification notification) {
-            MessagingStyle style;
             Bundle extras = NotificationCompat.getExtras(notification);
-            if (extras != null && !extras.containsKey(EXTRA_SELF_DISPLAY_NAME)) {
-                style = null;
-            } else {
-                try {
-                    style = new MessagingStyle();
-                    style.restoreFromCompatExtras(extras);
-                } catch (ClassCastException e) {
-                    style = null;
-                }
+            if (extras != null
+                    && !extras.containsKey(EXTRA_SELF_DISPLAY_NAME)
+                    && !extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
+                return null;
             }
-            return style;
+
+            try {
+                MessagingStyle style = new MessagingStyle();
+                style.restoreFromCompatExtras(extras);
+                return style;
+            } catch (ClassCastException e) {
+                return null;
+            }
         }
 
         /**
@@ -2343,17 +2376,7 @@ public class NotificationCompat {
 
             if (Build.VERSION.SDK_INT >= 24) {
                 Notification.MessagingStyle style =
-                        new Notification.MessagingStyle(mUserDisplayName);
-
-                // If no set conversation title, use first incoming message sender name
-                CharSequence conversationTitle = mConversationTitle;
-                if (mConversationTitle == null) {
-                    Message latestIncomingMessage = findLatestIncomingMessage();
-                    if (latestIncomingMessage != null
-                            && latestIncomingMessage.getPerson() != null) {
-                        conversationTitle = latestIncomingMessage.getPerson().getName();
-                    }
-                }
+                        new Notification.MessagingStyle(mUser.getName());
 
                 // In SDK < 28, base Android will assume a MessagingStyle notification is a group
                 // chat if the conversation title is set. In compat, this isn't the case as we've
@@ -2363,10 +2386,10 @@ public class NotificationCompat {
                 // Notification content title so Android won't think it's a group conversation.
                 if (isGroupConversation() || Build.VERSION.SDK_INT >= 28) {
                     // If group or non-legacy, set MessagingStyle#mConversationTitle.
-                    style.setConversationTitle(conversationTitle);
+                    style.setConversationTitle(mConversationTitle);
                 } else {
                     // Otherwise set Notification#mContentTitle.
-                    builder.getBuilder().setContentTitle(conversationTitle);
+                    builder.getBuilder().setContentTitle(mConversationTitle);
                 }
 
                 // For SDK >= 28, we can simply denote the group conversation status regardless of
@@ -2376,11 +2399,13 @@ public class NotificationCompat {
                 }
 
                 for (MessagingStyle.Message message : mMessages) {
+                    CharSequence name = null;
+                    if (message.getPerson() != null) {
+                        name = message.getPerson().getName();
+                    }
                     Notification.MessagingStyle.Message frameworkMessage =
                             new Notification.MessagingStyle.Message(
-                                    message.getText(),
-                                    message.getTimestamp(),
-                                    message.getSender());
+                                    message.getText(), message.getTimestamp(), name);
                     if (message.getDataMimeType() != null) {
                         frameworkMessage.setData(message.getDataMimeType(), message.getDataUri());
                     }
@@ -2393,7 +2418,11 @@ public class NotificationCompat {
                 if (mConversationTitle != null) {
                     builder.getBuilder().setContentTitle(mConversationTitle);
                 } else if (latestIncomingMessage != null) {
-                    builder.getBuilder().setContentTitle(latestIncomingMessage.getSender());
+                    builder.getBuilder().setContentTitle("");
+                    if (latestIncomingMessage.getPerson() != null) {
+                        builder.getBuilder().setContentTitle(
+                                latestIncomingMessage.getPerson().getName());
+                    }
                 }
                 // Set the text
                 if (latestIncomingMessage != null) {
@@ -2442,7 +2471,7 @@ public class NotificationCompat {
         private boolean hasMessagesWithoutSender() {
             for (int i = mMessages.size() - 1; i >= 0; i--) {
                 MessagingStyle.Message message = mMessages.get(i);
-                if (message.getSender() == null) {
+                if (message.getPerson() != null && message.getPerson().getName() == null) {
                     return true;
                 }
             }
@@ -2454,10 +2483,10 @@ public class NotificationCompat {
             SpannableStringBuilder sb = new SpannableStringBuilder();
             final boolean afterLollipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
             int color = afterLollipop ? Color.BLACK : Color.WHITE;
-            CharSequence replyName = message.getSender();
-            if (TextUtils.isEmpty(message.getSender())) {
-                replyName = mUserDisplayName == null
-                        ? "" : mUserDisplayName;
+            CharSequence replyName =
+                    message.getPerson() == null ? "" : message.getPerson().getName();
+            if (TextUtils.isEmpty(replyName)) {
+                replyName = mUser.getName();
                 color = afterLollipop && mBuilder.getColor() != NotificationCompat.COLOR_DEFAULT
                         ? mBuilder.getColor()
                         : color;
@@ -2481,9 +2510,9 @@ public class NotificationCompat {
         @Override
         public void addCompatExtras(Bundle extras) {
             super.addCompatExtras(extras);
-            if (mUserDisplayName != null) {
-                extras.putCharSequence(EXTRA_SELF_DISPLAY_NAME, mUserDisplayName);
-            }
+            extras.putCharSequence(EXTRA_SELF_DISPLAY_NAME, mUser.getName());
+            extras.putBundle(EXTRA_MESSAGING_STYLE_USER, mUser.toBundle());
+
             if (mConversationTitle != null) {
                 extras.putCharSequence(EXTRA_CONVERSATION_TITLE, mConversationTitle);
             }
@@ -2503,11 +2532,21 @@ public class NotificationCompat {
         @Override
         protected void restoreFromCompatExtras(Bundle extras) {
             mMessages.clear();
-            mUserDisplayName = extras.getString(EXTRA_SELF_DISPLAY_NAME);
+            // Call to #restore requires that there either be a display name OR a user.
+            if (extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
+                // New path simply unpacks Person, but checks if there's a valid name.
+                mUser = Person.fromBundle(extras.getBundle(EXTRA_MESSAGING_STYLE_USER));
+            } else {
+                // Legacy extra simply builds Person with a name.
+                mUser = new Person.Builder()
+                        .setName(extras.getString(EXTRA_SELF_DISPLAY_NAME))
+                        .build();
+            }
+
             mConversationTitle = extras.getString(EXTRA_CONVERSATION_TITLE);
             Parcelable[] parcelables = extras.getParcelableArray(EXTRA_MESSAGES);
             if (parcelables != null) {
-                mMessages = Message.getMessagesFromBundleArray(parcelables);
+                mMessages.addAll(Message.getMessagesFromBundleArray(parcelables));
             }
             if (extras.containsKey(EXTRA_IS_GROUP_CONVERSATION)) {
                 mIsGroupConversation = extras.getBoolean(EXTRA_IS_GROUP_CONVERSATION);
@@ -2660,6 +2699,9 @@ public class NotificationCompat {
                 }
                 bundle.putLong(KEY_TIMESTAMP, mTimestamp);
                 if (mPerson != null) {
+                    // We must add both as Frameworks depends on this extra directly in order to
+                    // render properly.
+                    bundle.putCharSequence(KEY_SENDER, mPerson.getName());
                     bundle.putBundle(KEY_PERSON, mPerson.toBundle());
                 }
                 if (mDataMimeType != null) {
@@ -2706,13 +2748,13 @@ public class NotificationCompat {
                     }
 
                     Person person = null;
-                    if (bundle.containsKey(KEY_SENDER)) {
+                    if (bundle.containsKey(KEY_PERSON)) {
+                        person = Person.fromBundle(bundle.getBundle(KEY_PERSON));
+                    } else if (bundle.containsKey(KEY_SENDER)) {
                         // Legacy person
                         person = new Person.Builder()
                                 .setName(bundle.getCharSequence(KEY_SENDER))
                                 .build();
-                    } else if (bundle.containsKey(KEY_PERSON)) {
-                        person = Person.fromBundle(bundle.getBundle(KEY_PERSON));
                     }
 
                     Message message = new Message(
