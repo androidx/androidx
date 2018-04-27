@@ -13,6 +13,8 @@ public class MainFragmentArgs {
 
     private float floatArg = 1F;
 
+    private boolean boolArg = true;
+
     private MainFragmentArgs() {
     }
 
@@ -31,6 +33,9 @@ public class MainFragmentArgs {
         }
         if (bundle.containsKey("floatArg")) {
             result.floatArg = bundle.getFloat("floatArg");
+        }
+        if (bundle.containsKey("boolArg")) {
+            result.boolArg = bundle.getBoolean("boolArg");
         }
         return result;
     }
@@ -51,12 +56,17 @@ public class MainFragmentArgs {
         return floatArg;
     }
 
+    public boolean getBoolArg() {
+        return boolArg;
+    }
+
     public Bundle toBundle() {
         Bundle __outBundle = new Bundle();
         __outBundle.putString("main", this.main);
         __outBundle.putInt("optional", this.optional);
         __outBundle.putInt("reference", this.reference);
         __outBundle.putFloat("floatArg", this.floatArg);
+        __outBundle.putBoolean("boolArg", this.boolArg);
         return __outBundle;
     }
 
@@ -69,11 +79,14 @@ public class MainFragmentArgs {
 
         private float floatArg = 1F;
 
+        private boolean boolArg = true;
+
         public Builder(MainFragmentArgs original) {
             this.main = original.main;
             this.optional = original.optional;
             this.reference = original.reference;
             this.floatArg = original.floatArg;
+            this.boolArg = original.boolArg;
         }
 
         public Builder(String main) {
@@ -86,6 +99,7 @@ public class MainFragmentArgs {
             result.optional = this.optional;
             result.reference = this.reference;
             result.floatArg = this.floatArg;
+            result.boolArg = this.boolArg;
             return result;
         }
 
@@ -109,6 +123,11 @@ public class MainFragmentArgs {
             return this;
         }
 
+        public Builder setBoolArg(boolean boolArg) {
+            this.boolArg = boolArg;
+            return this;
+        }
+
         public String getMain() {
             return main;
         }
@@ -123,6 +142,10 @@ public class MainFragmentArgs {
 
         public float getFloatArg() {
             return floatArg;
+        }
+
+        public boolean getBoolArg() {
+            return boolArg;
         }
     }
 }

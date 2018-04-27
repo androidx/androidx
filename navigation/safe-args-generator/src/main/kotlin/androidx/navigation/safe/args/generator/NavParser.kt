@@ -76,6 +76,7 @@ private fun parseArgument(parser: XmlPullParser, rFilePackage: String): Argument
     val (type, defaultTypedValue) = when (typeString) {
         "integer" -> NavType.INT to defaultValue?.let { parseIntValue(defaultValue) }
         "float" -> NavType.FLOAT to defaultValue?.let { parseFloatValue(defaultValue) }
+        "boolean" -> NavType.BOOLEAN to defaultValue?.let { parseBooleanValue(defaultValue) }
         "reference" -> NavType.REFERENCE to defaultValue?.let {
             ReferenceValue(parseReference(defaultValue, rFilePackage))
         }
@@ -96,6 +97,10 @@ internal fun inferArgument(name: String, defaultValue: String, rFilePackage: Str
     val floatValue = tryToParseFloatValue(defaultValue)
     if (floatValue != null) {
         return Argument(name, NavType.FLOAT, floatValue)
+    }
+    val boolValue = tryToParseBoolean(defaultValue)
+    if (boolValue != null) {
+        return Argument(name, NavType.BOOLEAN, boolValue)
     }
     return Argument(name, NavType.STRING, StringValue(defaultValue))
 }
@@ -179,4 +184,16 @@ private fun tryToParseFloatValue(value: String): FloatValue? =
 internal fun parseFloatValue(value: String): FloatValue {
     return tryToParseFloatValue(value)
             ?: throw IllegalArgumentException("Failed to parse $value as float")
+}
+
+private fun tryToParseBoolean(value: String): BooleanValue? {
+    if (value == "true" || value == "false") {
+        return BooleanValue(value)
+    }
+    return null
+}
+
+internal fun parseBooleanValue(value: String): BooleanValue {
+    return tryToParseBoolean(value)
+            ?: throw IllegalArgumentException("Failed to parse $value as boolean")
 }

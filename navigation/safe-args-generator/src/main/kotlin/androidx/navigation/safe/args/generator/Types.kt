@@ -43,6 +43,12 @@ enum class NavType {
         override fun bundleGetMethod() = "getString"
     },
 
+    BOOLEAN {
+        override fun typeName(): TypeName = TypeName.BOOLEAN
+        override fun bundlePutMethod() = "putBoolean"
+        override fun bundleGetMethod() = "getBoolean"
+    },
+
     REFERENCE {
         // it is internally the same as INT, but we don't want to allow to
         // assignment between int and reference args
@@ -77,4 +83,8 @@ data class IntValue(private val value: String) : WriteableValue() {
 // keeping value as String, it will help to preserve client format of it: scientific, dot
 data class FloatValue(private val value: String) : WriteableValue() {
     override fun write(): CodeBlock = CodeBlock.of("${value}F")
+}
+
+data class BooleanValue(private val value: String) : WriteableValue() {
+    override fun write(): CodeBlock = CodeBlock.of(value)
 }
