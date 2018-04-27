@@ -600,7 +600,7 @@ public class PreviewChannelHelperTest {
                 .setAppLinkIntent(new Intent())
                 .setDescription("Test Preview Channel Description")
                 .setDisplayName("Test Display Name")
-                .setPackageName("androidx.tvprovider.media.tv.test")
+                .setPackageName("androidx.tvprovider.test")
                 .setInternalProviderFlag1(0x1)
                 .setInternalProviderFlag2(0x2)
                 .setInternalProviderFlag3(0x3)

@@ -177,7 +177,7 @@ public class ChannelTest {
                 .setInputId("TestInputService")
                 .setNetworkAffiliation("Network Affiliation")
                 .setOriginalNetworkId(2)
-                .setPackageName("androidx.tvprovider.media.tv.test")
+                .setPackageName("androidx.tvprovider.test")
                 .setSearchable(false)
                 .setServiceId(3)
                 .setTransportStreamId(4)
