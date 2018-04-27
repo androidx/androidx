@@ -19,9 +19,15 @@ package androidx.webkit.internal;
 import android.annotation.SuppressLint;
 import android.webkit.ServiceWorkerWebSettings;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.webkit.ServiceWorkerWebSettingsCompat;
 
 import org.chromium.support_lib_boundary.ServiceWorkerWebSettingsBoundaryInterface;
+import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 
 /**
  * Implementation of {@link ServiceWorkerWebSettingsCompat}.
@@ -29,7 +35,7 @@ import org.chromium.support_lib_boundary.ServiceWorkerWebSettingsBoundaryInterfa
  * {@link ServiceWorkerWebSettingsCompat} functionality.
  */
 public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat {
-    private final ServiceWorkerWebSettings mFrameworksImpl;
+    private ServiceWorkerWebSettings mFrameworksImpl;
     private ServiceWorkerWebSettingsBoundaryInterface mBoundaryInterface;
 
     /**
@@ -44,23 +50,40 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
      * API we fetch a {@link ServiceWorkerWebSettingsBoundaryInterface} corresponding to our
      * {@link android.webkit.ServiceWorkerWebSettings}.
      */
-    public ServiceWorkerWebSettingsImpl(ServiceWorkerWebSettings frameworksImpl,
-            ServiceWorkerWebSettingsBoundaryInterface boundaryInterface) {
-        if (frameworksImpl == null && boundaryInterface == null) {
-            throw new IllegalArgumentException(
-                    "Both of the possible implementations cannot be null!");
+    public ServiceWorkerWebSettingsImpl(@NonNull ServiceWorkerWebSettings settings) {
+        mFrameworksImpl = settings;
+    }
+
+    public ServiceWorkerWebSettingsImpl(@NonNull InvocationHandler invocationHandler) {
+        mBoundaryInterface = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                ServiceWorkerWebSettingsBoundaryInterface.class, invocationHandler);
+    }
+
+    @RequiresApi(24)
+    private ServiceWorkerWebSettings getFrameworksImpl() {
+        if (mFrameworksImpl == null) {
+            mFrameworksImpl =
+                    WebViewGlueCommunicator.getCompatConverter().convertServiceWorkerSettings(
+                            Proxy.getInvocationHandler(mBoundaryInterface));
         }
-        mFrameworksImpl = frameworksImpl;
-        mBoundaryInterface = boundaryInterface;
+        return mFrameworksImpl;
     }
 
     private ServiceWorkerWebSettingsBoundaryInterface getBoundaryInterface() {
-        if (mBoundaryInterface != null) return mBoundaryInterface;
-        // If the boundary interface is null we must have a working frameworks implementation to
-        // convert into a boundary interface.
-        mBoundaryInterface =
-                WebViewGlueCommunicator.getCompatConverter().convertServiceWorkerSettings(
-                        mFrameworksImpl);
+        if (mBoundaryInterface == null) {
+            // If the boundary interface is null we must have a working frameworks implementation to
+            // convert into a boundary interface.
+            // The case of the boundary interface being null here only occurs if we created the
+            // ServiceWorkerWebSettingsImpl using a frameworks API, but now want to call an API on
+            // the ServiceWorkerWebSettingsImpl that is only supported by the support library glue.
+            // This could happen for example if we introduce a new ServiceWorkerWebSettings API in
+            // level 30 and we run the support library on an N device (whose framework supports
+            // ServiceWorkerWebSettings).
+            mBoundaryInterface = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                    ServiceWorkerWebSettingsBoundaryInterface.class,
+                    WebViewGlueCommunicator.getCompatConverter().convertServiceWorkerSettings(
+                            mFrameworksImpl));
+        }
         return mBoundaryInterface;
     }
 
@@ -69,7 +92,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public void setCacheMode(int mode) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_CACHE_MODE;
         if (feature.isSupportedByFramework()) {
-            mFrameworksImpl.setCacheMode(mode);
+            getFrameworksImpl().setCacheMode(mode);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setCacheMode(mode);
         } else {
@@ -82,7 +105,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public int getCacheMode() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_CACHE_MODE;
         if (feature.isSupportedByFramework()) {
-            return mFrameworksImpl.getCacheMode();
+            return getFrameworksImpl().getCacheMode();
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().getCacheMode();
         } else {
@@ -95,7 +118,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public void setAllowContentAccess(boolean allow) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_CONTENT_ACCESS;
         if (feature.isSupportedByFramework()) {
-            mFrameworksImpl.setAllowContentAccess(allow);
+            getFrameworksImpl().setAllowContentAccess(allow);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setAllowContentAccess(allow);
         } else {
@@ -108,7 +131,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public boolean getAllowContentAccess() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_CONTENT_ACCESS;
         if (feature.isSupportedByFramework()) {
-            return mFrameworksImpl.getAllowContentAccess();
+            return getFrameworksImpl().getAllowContentAccess();
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().getAllowContentAccess();
         } else {
@@ -121,7 +144,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public void setAllowFileAccess(boolean allow) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_FILE_ACCESS;
         if (feature.isSupportedByFramework()) {
-            mFrameworksImpl.setAllowFileAccess(allow);
+            getFrameworksImpl().setAllowFileAccess(allow);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setAllowFileAccess(allow);
         } else {
@@ -134,7 +157,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public boolean getAllowFileAccess() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_FILE_ACCESS;
         if (feature.isSupportedByFramework()) {
-            return mFrameworksImpl.getAllowFileAccess();
+            return getFrameworksImpl().getAllowFileAccess();
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().getAllowFileAccess();
         } else {
@@ -148,7 +171,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.SERVICE_WORKER_BLOCK_NETWORK_LOADS;
         if (feature.isSupportedByFramework()) {
-            mFrameworksImpl.setBlockNetworkLoads(flag);
+            getFrameworksImpl().setBlockNetworkLoads(flag);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setBlockNetworkLoads(flag);
         } else {
@@ -162,7 +185,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.SERVICE_WORKER_BLOCK_NETWORK_LOADS;
         if (feature.isSupportedByFramework()) {
-            return mFrameworksImpl.getBlockNetworkLoads();
+            return getFrameworksImpl().getBlockNetworkLoads();
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().getBlockNetworkLoads();
         } else {

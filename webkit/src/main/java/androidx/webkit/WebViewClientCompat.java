@@ -28,6 +28,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.webkit.internal.WebResourceErrorImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
 
 import org.chromium.support_lib_boundary.WebViewClientBoundaryInterface;
@@ -123,7 +124,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     @RequiresApi(21)
     public final void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
             /* WebResourceError */ @NonNull InvocationHandler handler) {
-        onReceivedError(view, request, WebResourceErrorCompat.fromInvocationHandler(handler));
+        onReceivedError(view, request, new WebResourceErrorImpl(handler));
     }
 
     /**
@@ -140,7 +141,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     public final void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
             @NonNull WebResourceError error) {
         if (Build.VERSION.SDK_INT < 23) return;
-        onReceivedError(view, request, WebResourceErrorCompat.fromWebResourceError(error));
+        onReceivedError(view, request, new WebResourceErrorImpl(error));
     }
 
     /**

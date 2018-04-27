@@ -21,17 +21,11 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
-import androidx.webkit.internal.WebViewFeatureInternal;
-
-import org.chromium.support_lib_boundary.WebResourceErrorBoundaryInterface;
-import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.InvocationHandler;
 
 /**
  * Compatibility version of {@link WebResourceError}.
@@ -82,73 +76,10 @@ public abstract class WebResourceErrorCompat {
     public abstract CharSequence getDescription();
 
     /**
-     * This class cannot be created by applications. The support library should instantiate this
-     * with {@link #fromInvocationHandler} or {@link #fromWebResourceError}.
+     * This class cannot be created by applications.
+     * @hide
      */
-    private WebResourceErrorCompat() {
-    }
-
-    /**
-     * Conversion helper to create a WebResourceErrorCompat which delegates calls to {@param
-     * handler}. The InvocationHandler must be created by {@link
-     * BoundaryInterfaceReflectionUtil#createInvocationHandlerFor} using {@link
-     * WebResourceErrorBoundaryInterface}.
-     *
-     * @param handler The InvocationHandler that chromium passed in the callback.
-     */
-    @NonNull
-    /* package */ static WebResourceErrorCompat fromInvocationHandler(
-            @NonNull InvocationHandler handler) {
-        final WebResourceErrorBoundaryInterface errorDelegate =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        WebResourceErrorBoundaryInterface.class, handler);
-        return new WebResourceErrorCompat() {
-            @Override
-            public @NetErrorCode int getErrorCode() {
-                final WebViewFeatureInternal webViewFeature =
-                        WebViewFeatureInternal.getFeature(
-                                WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE);
-                if (!webViewFeature.isSupportedByWebView()) {
-                    throw WebViewFeatureInternal.getUnsupportedOperationException();
-                }
-                return errorDelegate.getErrorCode();
-            }
-
-            @Override
-            @NonNull
-            public CharSequence getDescription() {
-                final WebViewFeatureInternal webViewFeature =
-                        WebViewFeatureInternal.getFeature(
-                                WebViewFeature.WEB_RESOURCE_ERROR_GET_DESCRIPTION);
-                if (!webViewFeature.isSupportedByWebView()) {
-                    throw WebViewFeatureInternal.getUnsupportedOperationException();
-                }
-                return errorDelegate.getDescription();
-            }
-        };
-    }
-
-    /**
-     * Conversion helper to create a WebResourceErrorCompat which delegates calls to {@param error}.
-     *
-     * @param error The WebResourceError that chromium passed in the callback.
-     */
-    @NonNull
-    @RequiresApi(23)
-    /* package */ static WebResourceErrorCompat fromWebResourceError(
-            @NonNull final WebResourceError error) {
-        // Frameworks support is implied by the API level.
-        return new WebResourceErrorCompat() {
-            @Override
-            public @NetErrorCode int getErrorCode() {
-                return error.getErrorCode();
-            }
-
-            @Override
-            @NonNull
-            public CharSequence getDescription() {
-                return error.getDescription();
-            }
-        };
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WebResourceErrorCompat() {
     }
 }
