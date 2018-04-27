@@ -19,7 +19,6 @@ package androidx.media.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -87,12 +86,12 @@ import java.util.concurrent.Executor;
  *
  * <p>
  * <em> Audio focus and audio attributes : </em>
- * By default, VideoView2 requests audio focus with
- * {@link AudioManager#AUDIOFOCUS_GAIN}. Use {@link #setAudioFocusRequest(int)} to change this
- * behavior. The default {@link AudioAttributes} used during playback have a usage of
- * {@link AudioAttributes#USAGE_MEDIA} and a content type of
- * {@link AudioAttributes#CONTENT_TYPE_MOVIE}, use {@link #setAudioAttributes(AudioAttributes)} to
- * modify them.
+ * VideoView2 requests audio focus with {@link AudioManager#AUDIOFOCUS_GAIN} internally,
+ * when playing a media content.
+ * The default {@link AudioAttributesCompat} used during playback have a usage of
+ * {@link AudioAttributesCompat#USAGE_MEDIA} and a content type of
+ * {@link AudioAttributesCompat#CONTENT_TYPE_MOVIE},
+ * use {@link #setAudioAttributes(AudioAttributesCompat)} to modify them.
  *
  * <p>
  * Note: VideoView2 does not retain its full state when going into the background. In particular, it
@@ -281,28 +280,18 @@ public class VideoView2 extends BaseLayout {
      * @param focusGain the type of audio focus gain that will be requested, or
      *                  {@link AudioManager#AUDIOFOCUS_NONE} to disable the use audio focus during
      *                  playback.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void setAudioFocusRequest(int focusGain) {
         mImpl.setAudioFocusRequest(focusGain);
-    }
-
-    /**
-     * Sets the {@link AudioAttributes} to be used during the playback of the video.
-     *
-     * @param attributes non-null <code>AudioAttributes</code>.
-     */
-    public void setAudioAttributes(@NonNull AudioAttributes attributes) {
-        mImpl.setAudioAttributes(AudioAttributesCompat.wrap(attributes));
     }
 
     /**
      * Sets the {@link AudioAttributesCompat} to be used during the playback of the video.
      *
      * @param attributes non-null <code>AudioAttributesCompat</code>.
-     *
-     * @hide TODO unhide and remove setAudioAttributes with framework attributes
      */
-    @RestrictTo(LIBRARY_GROUP)
     public void setAudioAttributes(@NonNull AudioAttributesCompat attributes) {
         mImpl.setAudioAttributes(attributes);
     }
