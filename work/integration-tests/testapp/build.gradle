@@ -29,6 +29,7 @@ android {
             proguardFiles("proguard-rules.pro")
         }
     }
+    defaultConfig.vectorDrawables.useSupportLibrary = true
 }
 
 dependencies {
