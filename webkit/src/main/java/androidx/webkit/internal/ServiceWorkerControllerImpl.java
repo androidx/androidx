@@ -19,12 +19,12 @@ package androidx.webkit.internal;
 import android.annotation.SuppressLint;
 import android.webkit.ServiceWorkerController;
 
+import androidx.annotation.RequiresApi;
 import androidx.webkit.ServiceWorkerClientCompat;
 import androidx.webkit.ServiceWorkerControllerCompat;
 import androidx.webkit.ServiceWorkerWebSettingsCompat;
 
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
-import org.chromium.support_lib_boundary.ServiceWorkerWebSettingsBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
 /**
@@ -33,7 +33,7 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
  * {@link ServiceWorkerControllerCompat} functionality.
  */
 public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
-    private final ServiceWorkerController mFrameworksImpl;
+    private ServiceWorkerController mFrameworksImpl;
     private ServiceWorkerControllerBoundaryInterface mBoundaryInterface;
     private final ServiceWorkerWebSettingsCompat mWebSettings;
 
@@ -46,25 +46,29 @@ public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
             // boundary interface to null for now.
             mBoundaryInterface = null;
             mWebSettings = new ServiceWorkerWebSettingsImpl(
-                    mFrameworksImpl.getServiceWorkerWebSettings(), null);
+                    mFrameworksImpl.getServiceWorkerWebSettings());
         } else if (feature.isSupportedByWebView()) {
             mFrameworksImpl = null;
             mBoundaryInterface = WebViewGlueCommunicator.getFactory().getServiceWorkerController();
-            mWebSettings = new ServiceWorkerWebSettingsImpl(null,
-                    BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                            ServiceWorkerWebSettingsBoundaryInterface.class,
-                            mBoundaryInterface.getServiceWorkerWebSettings()));
+            mWebSettings = new ServiceWorkerWebSettingsImpl(
+                    mBoundaryInterface.getServiceWorkerWebSettings());
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
-    private ServiceWorkerControllerBoundaryInterface getBoundaryInterface() {
-        if (mBoundaryInterface != null) return mBoundaryInterface;
+    @RequiresApi(24)
+    private ServiceWorkerController getFrameworksImpl() {
+        if (mFrameworksImpl == null) {
+            mFrameworksImpl = ServiceWorkerController.getInstance();
+        }
+        return mFrameworksImpl;
+    }
 
-        // If the boundary interface is null we must have a working frameworks implementation to
-        // convert into a boundary interface.
-        mBoundaryInterface = WebViewGlueCommunicator.getFactory().getServiceWorkerController();
+    private ServiceWorkerControllerBoundaryInterface getBoundaryInterface() {
+        if (mBoundaryInterface == null) {
+            mBoundaryInterface = WebViewGlueCommunicator.getFactory().getServiceWorkerController();
+        }
         return mBoundaryInterface;
     }
 
@@ -78,7 +82,7 @@ public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
     public void setServiceWorkerClient(ServiceWorkerClientCompat client)  {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
-            mFrameworksImpl.setServiceWorkerClient(new FrameworkServiceWorkerClient(client));
+            getFrameworksImpl().setServiceWorkerClient(new FrameworkServiceWorkerClient(client));
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setServiceWorkerClient(
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
