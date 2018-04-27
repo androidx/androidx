@@ -3,15 +3,15 @@ package androidx.car.widget;
 import android.car.drivingstate.CarUxRestrictions;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Definition of items that can be inserted into {@link ListItemAdapter}.
@@ -252,6 +252,6 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
          *
          * @param restrictions current car UX restrictions.
          */
-        abstract void complyWithUxRestrictions(CarUxRestrictions restrictions);
+        protected abstract void complyWithUxRestrictions(CarUxRestrictions restrictions);
     }
 }

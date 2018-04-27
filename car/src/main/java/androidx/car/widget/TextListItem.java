@@ -16,6 +16,8 @@
 
 package androidx.car.widget;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
 import android.content.res.Resources;
@@ -30,10 +32,6 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import java.lang.annotation.Retention;
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
@@ -42,7 +40,9 @@ import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+import java.lang.annotation.Retention;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class to build a list item of text.
@@ -868,7 +868,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
          * @param restrictions current car UX restrictions.
          */
         @Override
-        void complyWithUxRestrictions(CarUxRestrictions restrictions) {
+        protected void complyWithUxRestrictions(CarUxRestrictions restrictions) {
             CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getBody());
         }
 
