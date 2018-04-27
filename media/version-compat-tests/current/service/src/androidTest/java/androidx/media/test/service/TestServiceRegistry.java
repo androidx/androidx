@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.test.client;
+package androidx.media.test.service;
 
 import static org.junit.Assert.fail;
 
@@ -23,7 +23,7 @@ import android.os.Handler;
 import androidx.annotation.GuardedBy;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media.MediaSessionService2;
-import androidx.media.test.client.TestUtils.SyncHandler;
+import androidx.media.test.lib.TestUtils.SyncHandler;
 
 /**
  * Keeps the instance of currently running {@link MockMediaSessionService2}. And also provides

@@ -32,7 +32,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.media.MediaPlaylistAgent.RepeatMode;
 import androidx.media.MediaPlaylistAgent.ShuffleMode;
 import androidx.media.MediaSession2.CommandButton;
@@ -673,9 +672,11 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Sets the time diff forcefully when calculating current position.
      * @param timeDiff {@code null} for reset.
+     *
+     * @hide
      */
-    @VisibleForTesting
-    void setTimeDiff(Long timeDiff) {
+    @RestrictTo(LIBRARY_GROUP)
+    public void setTimeDiff(Long timeDiff) {
         mTimeDiff = timeDiff;
     }
 

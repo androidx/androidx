@@ -16,10 +16,9 @@
 
 package androidx.media.test.client;
 
-import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
-import static android.support.mediacompat.testlib.VersionConstants.VERSION_TOT;
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
-import static android.support.test.InstrumentationRegistry.getArguments;
+
+import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -34,44 +33,40 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.media.MediaController2;
 import androidx.media.SessionToken2;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.Executor;
 
-/** Test {@link TestHelper}. */
+/** Test {@link ClientTestHelper}. */
 @RunWith(AndroidJUnit4.class)
-public class TestHelperTest {
+public class ClientTestHelperTest {
     private static final int TIME_OUT_MS = 3000;
 
     private Context mContext;
-    private TestHelper mTestHelper;
-    private String mServiceVersion;
+    private ClientTestHelper mTestHelper;
 
     @Before
     public void setUp() {
-        // The version of the service app is provided through the instrumentation arguments.
-        mServiceVersion = getArguments().getString(KEY_SERVICE_VERSION, "");
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
-
         mContext = InstrumentationRegistry.getTargetContext();
-        mTestHelper = new TestHelper(mContext);
+        mTestHelper = new ClientTestHelper(mContext);
         boolean connected = mTestHelper.connect(TIME_OUT_MS);
         if (!connected) {
-            fail("Failed to connect to Test helper service.");
+            fail("Failed to connect to TestHelperService.");
         }
+    }
+
+    @After
+    public void cleanUp() {
+        mTestHelper.disconnect(true);
     }
 
     @Test
     @SmallTest
     public void testGettingToken() {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
-        SessionToken2 token = mTestHelper.getSessionToken2("testGettingToken");
+        SessionToken2 token = mTestHelper.createSession2(DEFAULT_TEST_NAME);
         assertNotNull(token);
         assertEquals(SERVICE_PACKAGE_NAME, token.getPackageName());
     }
@@ -79,11 +74,8 @@ public class TestHelperTest {
     @Test
     @SmallTest
     public void testCreatingController() {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         Looper.prepare();
-        SessionToken2 token = mTestHelper.getSessionToken2("testCreatingController");
+        SessionToken2 token = mTestHelper.createSession2(DEFAULT_TEST_NAME);
         assertNotNull(token);
         MediaController2 controller = new MediaController2(mContext, token, new Executor() {
             @Override

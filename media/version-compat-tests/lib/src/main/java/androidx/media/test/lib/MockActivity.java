@@ -16,19 +16,7 @@
 
 package androidx.media.test.lib;
 
-import android.content.ComponentName;
-import android.support.mediacompat.testlib.util.IntentUtil;
+import android.app.Activity;
 
-/**
- * Methods and constants used for calling methods between client and service apps by using
- * TestHelper/TestHelperService.
- */
-public class TestHelperUtil {
-    public static final ComponentName SERVICE_TEST_HELPER_COMPONENT_NAME = new ComponentName(
-            IntentUtil.SERVICE_PACKAGE_NAME, "androidx.media.test.service.TestHelperService");
-
-    public static final String ACTION_TEST_HELPER = "androidx.media.action.test.TEST_HELPER";
-
-    private TestHelperUtil() {
-    }
+public class MockActivity extends Activity {
 }
