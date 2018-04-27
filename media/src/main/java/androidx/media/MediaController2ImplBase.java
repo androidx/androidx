@@ -782,6 +782,7 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
 
     // Should be used without a lock to prevent potential deadlock.
     void onConnectedNotLocked(Bundle data) {
+        data.setClassLoader(MediaSession2.class.getClassLoader());
         // is enough or should we pass it while connecting?
         final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
                 data.getBundle(ARGUMENT_ALLOWED_COMMANDS));
