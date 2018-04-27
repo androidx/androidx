@@ -77,7 +77,8 @@ package androidx.slice.builders {
     method public deprecated androidx.slice.builders.ListBuilder addSeeMoreAction(android.app.PendingIntent);
     method public deprecated androidx.slice.builders.ListBuilder addSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder);
     method public deprecated androidx.slice.builders.ListBuilder addSeeMoreRow(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
-    method public androidx.slice.builders.ListBuilder setColor(int);
+    method public androidx.slice.builders.ListBuilder setAccentColor(int);
+    method public deprecated androidx.slice.builders.ListBuilder setColor(int);
     method public androidx.slice.builders.ListBuilder setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
     method public androidx.slice.builders.ListBuilder setHeader(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.HeaderBuilder>);
     method public androidx.slice.builders.ListBuilder setKeywords(java.util.List<java.lang.String>);
