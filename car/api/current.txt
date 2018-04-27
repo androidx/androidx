@@ -99,10 +99,10 @@ package androidx.car.drawer {
 package androidx.car.moderator {
 
   public class ContentRateLimiter {
-    ctor public ContentRateLimiter(float, float, long);
-    method public float getAvailablePermits();
-    method public float getMaxStoredPermits();
-    method public void setAvailablePermits(float);
+    ctor public ContentRateLimiter(double, double, long);
+    method public double getAvailablePermits();
+    method public double getMaxStoredPermits();
+    method public void setAvailablePermits(double);
     method public void setUnlimitedMode(boolean);
     method public boolean tryAcquire();
     method public boolean tryAcquire(int);

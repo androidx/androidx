@@ -39,10 +39,10 @@ class SpeedBumpController {
      * The number of permitted actions that are acquired per second that the user has not
      * interacted with the {@code SpeedBumpView}.
      */
-    private static final float ACQUIRED_PERMITS_PER_SECOND = 0.5f;
+    private static final double ACQUIRED_PERMITS_PER_SECOND = 0.5d;
 
     /** The maximum number of permits that can be acquired when the user is idling. */
-    private static final float MAX_PERMIT_POOL = 5f;
+    private static final double MAX_PERMIT_POOL = 5d;
 
     /** The delay between when the permit pool has been depleted and when it begins to refill. */
     private static final long PERMIT_FILL_DELAY_MS = 600L;

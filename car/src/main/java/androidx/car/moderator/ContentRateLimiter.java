@@ -18,10 +18,11 @@ package androidx.car.moderator;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import android.util.Log;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
-import android.util.Log;
 
 /**
  * A class that keeps track of a general number of permitted actions that happen over time and
@@ -41,7 +42,7 @@ public class ContentRateLimiter {
     private static final String TAG = "ContentRateLimiter";
 
     /** The maximum number of stored permits. */
-    private final float mMaxStoredPermits;
+    private final double mMaxStoredPermits;
 
     /**
      * The interval between two unit requests at our stable rate. For example, a stable rate of
@@ -62,7 +63,7 @@ public class ContentRateLimiter {
      * Used to do incremental calculations by {@link #getLastCalculatedPermitCount()}, cannot be
      * used directly.
      */
-    private float mLastCalculatedPermitCount;
+    private double mLastCalculatedPermitCount;
 
     /** Time in milliseconds when permits can resume incrementing. */
     private long mResumeIncrementingMs;
@@ -90,7 +91,7 @@ public class ContentRateLimiter {
      * @param fillDelayMs The amount of time to wait between when a permit is acquired and when
      *                    the number of available permits start refilling.
      */
-    public ContentRateLimiter(float acquiredPermitsPerSecond, float maxStoredPermits,
+    public ContentRateLimiter(double acquiredPermitsPerSecond, double maxStoredPermits,
             long fillDelayMs) {
         this(acquiredPermitsPerSecond, maxStoredPermits, fillDelayMs,
                 new SystemClockTimeProvider());
@@ -99,7 +100,7 @@ public class ContentRateLimiter {
     // A constructor that allows for the SystemClockTimeProvider to be provided. This is needed for
     // testing so that the unit test does not rely on the actual SystemClock.
     @VisibleForTesting
-    ContentRateLimiter(float acquiredPermitsPerSecond, float maxStoredPermits,
+    ContentRateLimiter(double acquiredPermitsPerSecond, double maxStoredPermits,
             long fillDelayMs, ElapsedTimeProvider elapsedTimeProvider) {
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
             Log.v(TAG, String.format("permitsPerSecond: %f maxStoredPermits: %f, fillDelayMs %d",
@@ -121,7 +122,7 @@ public class ContentRateLimiter {
 
     /** Gets the current number of stored permits ready to be used. */
     @MainThread
-    public float getAvailablePermits() {
+    public double getAvailablePermits() {
         return getLastCalculatedPermitCount();
     }
 
@@ -131,12 +132,12 @@ public class ContentRateLimiter {
      * is used instead.
      */
     @MainThread
-    public void setAvailablePermits(float availablePermits) {
+    public void setAvailablePermits(double availablePermits) {
         setLastCalculatedPermitCount(availablePermits, mElapsedTimeProvider.getElapsedRealtime());
     }
 
     /** Gets the max number of permits allowed to be stored for future usage. */
-    public float getMaxStoredPermits() {
+    public double getMaxStoredPermits() {
         return mMaxStoredPermits;
     }
 
@@ -169,7 +170,7 @@ public class ContentRateLimiter {
             }
             return true;
         }
-        float availablePermits = getLastCalculatedPermitCount();
+        double availablePermits = getLastCalculatedPermitCount();
         long nowMs = mElapsedTimeProvider.getElapsedRealtime();
 
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
@@ -223,17 +224,17 @@ public class ContentRateLimiter {
      * Updates {@link #mLastCalculatedPermitCount} and {@link #mResumeIncrementingMs} based on the
      * current time.
      */
-    private float getLastCalculatedPermitCount() {
+    private double getLastCalculatedPermitCount() {
         long nowMs = mElapsedTimeProvider.getElapsedRealtime();
         if (nowMs > mResumeIncrementingMs) {
             long deltaMs = nowMs - mResumeIncrementingMs;
-            float newPermits = deltaMs / (float) mStableIntervalMs;
+            double newPermits = deltaMs / (double) mStableIntervalMs;
             setLastCalculatedPermitCount(mLastCalculatedPermitCount + newPermits, nowMs);
         }
         return mLastCalculatedPermitCount;
     }
 
-    private void setLastCalculatedPermitCount(float newCount, long nextMs) {
+    private void setLastCalculatedPermitCount(double newCount, long nextMs) {
         mLastCalculatedPermitCount = Math.min(mMaxStoredPermits, newCount);
         mResumeIncrementingMs = nextMs;
     }
