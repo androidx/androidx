@@ -82,8 +82,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @SmallTest
 @FlakyTest
 @Ignore
-public class MediaController2Test extends MediaSession2TestBase {
-    private static final String TAG = "MediaController2Test";
+public class MediaController2Test_copied extends MediaSession2TestBase {
+    private static final String TAG = "MediaController2Test_copied";
 
     PendingIntent mIntent;
     MediaSession2 mSession;
