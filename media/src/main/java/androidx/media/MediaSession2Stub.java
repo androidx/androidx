@@ -183,8 +183,8 @@ class MediaSession2Stub extends MediaSessionCompat.Callback {
                 break;
             case CONTROLLER_COMMAND_BY_COMMAND_CODE: {
                 final int commandCode = extras.getInt(ARGUMENT_COMMAND_CODE);
-                IMediaControllerCallback caller = (IMediaControllerCallback)
-                        BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK);
+                IMediaControllerCallback caller = IMediaControllerCallback.Stub.asInterface(
+                        BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK));
                 if (caller == null) {
                     return;
                 }
@@ -386,8 +386,8 @@ class MediaSession2Stub extends MediaSessionCompat.Callback {
             case CONTROLLER_COMMAND_BY_CUSTOM_COMMAND: {
                 final SessionCommand2 customCommand =
                         SessionCommand2.fromBundle(extras.getBundle(ARGUMENT_CUSTOM_COMMAND));
-                IMediaControllerCallback caller = (IMediaControllerCallback)
-                        BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK);
+                IMediaControllerCallback caller = IMediaControllerCallback.Stub.asInterface(
+                        BundleCompat.getBinder(extras, ARGUMENT_ICONTROLLER_CALLBACK));
                 if (caller == null || customCommand == null) {
                     return;
                 }
