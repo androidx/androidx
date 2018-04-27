@@ -212,7 +212,7 @@ public class SampleSliceProvider extends SliceProvider {
                 LARGE_IMAGE,
                 "Open photo album");
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setColor(0xff4285F4);
+                .setAccentColor(0xff4285F4);
         if (showHeader) {
             lb.addRow(b -> b
                     .setTitle("Family trip to Hawaii")
@@ -287,7 +287,7 @@ public class SampleSliceProvider extends SliceProvider {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(b);
         GridRowBuilder gb = new GridRowBuilder(b);
-        return b.setColor(0xff3949ab)
+        return b.setAccentColor(0xff3949ab)
                 .addRow(rb
                         .setTitle("Mady Pitza")
                         .setSubtitle("Frequently contacted contact")
@@ -329,7 +329,7 @@ public class SampleSliceProvider extends SliceProvider {
                 R.drawable.mady), SMALL_IMAGE, "Mady");
 
         return new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setColor(0xff3949ab)
+                .setAccentColor(0xff3949ab)
                 .setHeader(b -> b
                         .setTitle("Mady Pitza")
                         .setSummary("Called " + lastCalledString)
@@ -384,7 +384,7 @@ public class SampleSliceProvider extends SliceProvider {
     private Slice createNoteSlice(Uri sliceUri) {
         // TODO: Remote input.
         return new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setColor(0xfff4b400)
+                .setAccentColor(0xfff4b400)
                 .addRow(b -> b.setTitle("Create new note"))
                 .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_create),
@@ -400,7 +400,7 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createReservationSlice(Uri sliceUri) {
         return new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setColor(0xffFF5252)
+                .setAccentColor(0xffFF5252)
                 .setHeader(b -> b
                         .setTitle("Upcoming trip to Seattle")
                         .setSubtitle("Feb 1 - 19 | 2 guests"))
@@ -439,7 +439,7 @@ public class SampleSliceProvider extends SliceProvider {
         SliceAction primaryAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "get ride"),
                 IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
         return new ListBuilder(getContext(), sliceUri, TimeUnit.SECONDS.toMillis(10))
-                .setColor(0xff0F9D58)
+                .setAccentColor(0xff0F9D58)
                 .setHeader(b -> b
                         .setTitle("Get ride")
                         .setSubtitle(headerSubtitle)
@@ -462,7 +462,7 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createCustomToggleSlice(Uri sliceUri) {
         return new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setColor(0xffff4081)
+                .setAccentColor(0xffff4081)
                 .addRow(b -> b
                         .setTitle("Custom toggle")
                         .setSubtitle("It can support two states")
@@ -475,7 +475,7 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createTwoCustomToggleSlices(Uri sliceUri) {
         return new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setColor(0xffff4081)
+                .setAccentColor(0xffff4081)
                 .addRow(b -> b
                         .setTitle("2 toggles")
                         .setSubtitle("each supports two states")
@@ -521,7 +521,7 @@ public class SampleSliceProvider extends SliceProvider {
         String sliceCDString = wifiEnabled ? "Wifi connected to " + state
                 : "Wifi disconnected, 10 networks available";
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setColor(0xff4285f4)
+                .setAccentColor(0xff4285f4)
                 .setHeader(b -> b
                         .setTitle("Wi-fi")
                         .setSubtitle(state)
@@ -577,7 +577,7 @@ public class SampleSliceProvider extends SliceProvider {
                 new SliceAction(getBroadcastIntent(ACTION_TOAST, "open star rating"),
                         icon, "Rate");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setColor(0xffff4081)
+                .setAccentColor(0xffff4081)
                 .addInputRange(c -> c
                         .setTitle("Star rating")
                         .setSubtitle("Rate from 5 to 10 because it's weird")
@@ -597,7 +597,7 @@ public class SampleSliceProvider extends SliceProvider {
                 new SliceAction(
                         getBroadcastIntent(ACTION_TOAST, "open download"), icon, "Download");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setColor(0xffff4081)
+                .setAccentColor(0xffff4081)
                 .addRange(c -> c
                         .setTitle("Download progress")
                         .setSubtitle("Download is happening")

@@ -82,9 +82,10 @@ import java.util.List;
  * <ul>
  *     <li>{@link androidx.slice.widget.SliceView#MODE_SHORTCUT} - The primary {@link SliceAction}
  *     of the slice is used your primary action should contain an image and title representative
- *     of your slice. If providing a tintable icon, use {@link #setColor(int)} to specify the color.
- *     If a header has been specified for the list, the primary action associated with it will be
- *     used, otherwise it will be the primary action associated with the first row of the list.
+ *     of your slice. If providing a tintable icon, use {@link #setAccentColor(int)} to specify the
+ *     color. If a header has been specified for the list, the primary action associated with it
+ *     will be used, otherwise it will be the primary action associated with the first row of the
+ *     list.
  *     </li>
  *     <li>{@link androidx.slice.widget.SliceView#MODE_SMALL} - Only a single row of content is
  *     displayed in small format. If a header has been specified it will be displayed. If no header
@@ -310,6 +311,15 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
+     * @deprecated TO BE REMOVED; use {@link #setAccentColor(int)} instead.
+     */
+    @Deprecated
+    @NonNull
+    public ListBuilder setColor(@ColorInt int color) {
+        return setAccentColor(color);
+    }
+
+    /**
      * Sets the color to use on tintable items within the list builder.
      * Things that might be tinted are:
      * <ul>
@@ -322,7 +332,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      * </ul>
      */
     @NonNull
-    public ListBuilder setColor(@ColorInt int color) {
+    public ListBuilder setAccentColor(@ColorInt int color) {
         mImpl.setColor(color);
         return this;
     }
