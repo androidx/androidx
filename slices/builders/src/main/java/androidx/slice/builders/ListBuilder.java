@@ -518,6 +518,10 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Add an input range row to the list builder.
+     * <p>
+     * If {@link InputRangeBuilder#setValue(int)} is not between
+     * {@link InputRangeBuilder#setMin(int)} and {@link InputRangeBuilder#setMax(int)}, this
+     * will throw {@link IllegalArgumentException}.
      */
     @NonNull
     public ListBuilder addInputRange(@NonNull InputRangeBuilder b) {
@@ -527,6 +531,10 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Add an input range row to the list builder.
+     * <p>
+     * If {@link InputRangeBuilder#setValue(int)} is not between
+     * {@link InputRangeBuilder#setMin(int)} and {@link InputRangeBuilder#setMax(int)}, this
+     * will throw {@link IllegalArgumentException}.
      */
     @NonNull
     public ListBuilder addInputRange(@NonNull Consumer<InputRangeBuilder> c) {
@@ -537,6 +545,9 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Add a range row to the list builder.
+     * <p>
+     * If {@link RangeBuilder#setValue(int)} is not between 0 and
+     * {@link RangeBuilder#setMax(int)}, this will throw {@link IllegalArgumentException}.
      */
     @NonNull
     public ListBuilder addRange(@NonNull RangeBuilder rangeBuilder) {
@@ -546,6 +557,9 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Add a range row to the list builder.
+     * <p>
+     * If {@link RangeBuilder#setValue(int)} is not between 0 and
+     * {@link RangeBuilder#setMax(int)}, this will throw {@link IllegalArgumentException}.
      */
     @NonNull
     public ListBuilder addRange(@NonNull Consumer<RangeBuilder> c) {
@@ -588,6 +602,8 @@ public class ListBuilder extends TemplateSliceBuilder {
 
         /**
          * Set the current value of the range.
+         *
+         * @param value the value of the range, between 0 and {@link #setMax(int)}.
          */
         @NonNull
         public RangeBuilder setValue(int value) {
@@ -684,6 +700,9 @@ public class ListBuilder extends TemplateSliceBuilder {
 
         /**
          * Set the current value of the range.
+         *
+         * @param value the value of the range, between {@link #setMin(int)}
+         *              and {@link #setMax(int)}.
          */
         @NonNull
         public InputRangeBuilder setValue(int value) {

@@ -16,6 +16,8 @@
 
 package androidx.slice;
 
+import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
+import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_PARTIAL;
@@ -37,12 +39,14 @@ import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.math.MathUtils;
 import androidx.core.util.Pair;
 import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
@@ -198,7 +202,24 @@ public class SliceMetadata {
     }
 
     /**
-     * Gets the input range action associated for this slice, if it exists.
+     * Sends the intent to adjust the state of the provided toggle action.
+     *
+     * @param toggleAction the toggle action.
+     * @param toggleValue the new value to set the toggle to.
+     * @return whether there was an action to send.
+     */
+    public boolean sendToggleAction(SliceAction toggleAction, boolean toggleValue)
+            throws PendingIntent.CanceledException {
+        if (toggleAction != null) {
+            Intent intent = new Intent().putExtra(EXTRA_TOGGLE_STATE, toggleValue);
+            toggleAction.getAction().send(mContext, 0, intent, null, null);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Gets the input range action associated with the header of this slice, if it exists.
      *
      * @return the {@link android.app.PendingIntent} for the input range.
      */
@@ -212,6 +233,28 @@ public class SliceMetadata {
             }
         }
         return null;
+    }
+
+    /**
+     * Sends the intent to adjust the input range value for the header of this slice, if it exists.
+     *
+     * @param newValue the value to set the input range to.
+     * @return whether there was an action to send.
+     */
+    public boolean sendInputRangeAction(int newValue) throws PendingIntent.CanceledException {
+        if (mTemplateType == ROW_TYPE_SLIDER) {
+            RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+            SliceItem range = rc.getRange();
+            if (range != null) {
+                // Ensure new value is valid
+                Pair<Integer, Integer> validRange = getRange();
+                int adjustedValue = MathUtils.clamp(newValue, validRange.first, validRange.second);
+                Intent intent = new Intent().putExtra(EXTRA_RANGE_VALUE, adjustedValue);
+                range.fireAction(mContext, intent);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
