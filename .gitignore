@@ -4,6 +4,9 @@
 **/.idea/**
 !**/.idea/codeStyleSettings.xml
 !**/.idea/copyright
+!**/.idea/codeStyles
+!.idea/codeStyles/Project.xml
+!.idea/codeStyles/codeStyleConfig.xml
 !.idea/copyright/AndroidCopyright.xml
 !.idea/copyright/profiles_settings.xml
 !.idea/vcs.xml
