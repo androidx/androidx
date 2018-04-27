@@ -720,7 +720,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     @SdkSuppress(minSdkVersion = 28)
     @Test
     public void testMessagingStyle_applyNoTitleAndNotGroup() {
-        assertFalse(true);
         NotificationCompat.MessagingStyle messagingStyle =
                 new NotificationCompat.MessagingStyle("self name")
                         .setGroupConversation(false)
@@ -738,9 +737,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 NotificationCompat.MessagingStyle
                         .extractMessagingStyleFromNotification(resultNotification);
 
-        // SDK >= 28 applies first incoming message sender name as MessagingStyle title.
-        assertNull(NotificationCompat.getContentTitle(resultNotification));
-        assertEquals("example name", resultCompatMessagingStyle.getConversationTitle());
+        // SDK >= 28 applies no title when none is provided to MessagingStyle.
+        assertNull(resultCompatMessagingStyle.getConversationTitle());
         assertFalse(resultCompatMessagingStyle.isGroupConversation());
     }
 
@@ -785,8 +783,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 NotificationCompat.MessagingStyle
                         .extractMessagingStyleFromNotification(resultNotification);
 
-        // SDK >= 28 applies MessagingStyle title to MessagingStyle.
-        assertNull(NotificationCompat.getContentTitle(resultNotification));
+        // SDK >= 28 applies provided title to MessagingStyle.
         assertEquals("test title", resultMessagingStyle.getConversationTitle());
         assertFalse(resultMessagingStyle.isGroupConversation());
     }
