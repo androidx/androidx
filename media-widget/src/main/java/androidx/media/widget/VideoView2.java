@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.media.AudioAttributesCompat;
 import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
@@ -126,6 +127,7 @@ public class VideoView2 extends BaseLayout {
 
     private static final String TAG = "VideoView2";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean USE_MP2 = Log.isLoggable("VV2MP2", Log.DEBUG);
 
     private VideoView2Impl mImpl;
 
@@ -140,8 +142,15 @@ public class VideoView2 extends BaseLayout {
     public VideoView2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         if (android.os.Build.VERSION.SDK_INT >= 28) {
-            mImpl = new VideoView2ImplApi28WithMp1();
+            if (USE_MP2) {
+                Log.d(TAG, "Create VideoView2ImplBase");
+                mImpl = new VideoView2ImplBase();
+            } else {
+                Log.d(TAG, "Create VideoView2ImplApi28WithMp1");
+                mImpl = new VideoView2ImplApi28WithMp1();
+            }
         } else {
+            Log.d(TAG, "Create VideoView2ImplBaseWithMp1");
             mImpl = new VideoView2ImplBaseWithMp1();
         }
         mImpl.initialize(this, context, attrs, defStyleAttr);
@@ -283,6 +292,18 @@ public class VideoView2 extends BaseLayout {
      * @param attributes non-null <code>AudioAttributes</code>.
      */
     public void setAudioAttributes(@NonNull AudioAttributes attributes) {
+        mImpl.setAudioAttributes(AudioAttributesCompat.wrap(attributes));
+    }
+
+    /**
+     * Sets the {@link AudioAttributesCompat} to be used during the playback of the video.
+     *
+     * @param attributes non-null <code>AudioAttributesCompat</code>.
+     *
+     * @hide TODO unhide and remove setAudioAttributes with framework attributes
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setAudioAttributes(@NonNull AudioAttributesCompat attributes) {
         mImpl.setAudioAttributes(attributes);
     }
 

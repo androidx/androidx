@@ -17,7 +17,6 @@
 package androidx.media.widget;
 
 import android.content.Context;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -28,6 +27,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.media.AudioAttributesCompat;
 import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
@@ -146,11 +146,11 @@ interface VideoView2Impl {
     void setAudioFocusRequest(int focusGain);
 
     /**
-     * Sets the {@link AudioAttributes} to be used during the playback of the video.
+     * Sets the {@link AudioAttributesCompat} to be used during the playback of the video.
      *
-     * @param attributes non-null <code>AudioAttributes</code>.
+     * @param attributes non-null <code>AudioAttributesCompat</code>.
      */
-    void setAudioAttributes(@NonNull AudioAttributes attributes);
+    void setAudioAttributes(@NonNull AudioAttributesCompat attributes);
 
     /**
      * Sets video path.
