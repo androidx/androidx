@@ -195,7 +195,7 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
          * @param restrictions current car UX restrictions.
          */
         @Override
-        void complyWithUxRestrictions(CarUxRestrictions restrictions) {
+        protected void complyWithUxRestrictions(CarUxRestrictions restrictions) {
             CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
         }
 
