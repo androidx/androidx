@@ -585,7 +585,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
         }
 
         @Override
-        void complyWithUxRestrictions(CarUxRestrictions restrictions) {
+        protected void complyWithUxRestrictions(CarUxRestrictions restrictions) {
             CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
         }
 
