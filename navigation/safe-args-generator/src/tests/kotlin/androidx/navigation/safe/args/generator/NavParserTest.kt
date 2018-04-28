@@ -16,6 +16,8 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.NavType.BOOLEAN
+import androidx.navigation.safe.args.generator.NavType.FLOAT
 import androidx.navigation.safe.args.generator.NavType.INT
 import androidx.navigation.safe.args.generator.NavType.REFERENCE
 import androidx.navigation.safe.args.generator.NavType.STRING
@@ -90,7 +92,9 @@ class NavParserTest {
     fun testArgInference() {
         val infer = { value: String -> inferArgument("foo", value, "a.b") }
         val intArg = { value: String -> Argument("foo", INT, IntValue(value)) }
+        val floatArg = { value: String -> Argument("foo", FLOAT, FloatValue(value)) }
         val stringArg = { value: String -> Argument("foo", STRING, StringValue(value)) }
+        val boolArg = { value: String -> Argument("foo", BOOLEAN, BooleanValue(value)) }
         val referenceArg = { pName: String, type: String, value: String ->
             Argument("foo", REFERENCE, ReferenceValue(ResReference(pName, type, value)))
         }
@@ -103,7 +107,12 @@ class NavParserTest {
         assertThat(infer("@+id/foo"), `is`(referenceArg("a.b", "id", "foo")))
         assertThat(infer("@foo:stuff"), `is`(stringArg("@foo:stuff")))
         assertThat(infer("@/stuff"), `is`(stringArg("@/stuff")))
-        assertThat(infer("10101010100100"), `is`(stringArg("10101010100100")))
+        assertThat(infer("10101010100100"), `is`(floatArg("10101010100100")))
+        assertThat(infer("1."), `is`(floatArg("1.")))
+        assertThat(infer("1.2e-4"), `is`(floatArg("1.2e-4")))
+        assertThat(infer(".4"), `is`(floatArg(".4")))
+        assertThat(infer("true"), `is`(boolArg("true")))
+        assertThat(infer("false"), `is`(boolArg("false")))
     }
 
     private fun errorOf(f: () -> Unit, message: String = ""): Exception {
