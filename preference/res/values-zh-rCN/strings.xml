@@ -4,5 +4,5 @@
     <string name="v7_preference_on" msgid="27351710992731591">"开启"</string>
     <string name="v7_preference_off" msgid="5138405918326871307">"关闭"</string>
     <string name="expand_button_title" msgid="1234962710353108940">"高级"</string>
-    <string name="summary_collapsed_preference_list" msgid="5190123168583152844">"当前显示了 <xliff:g id="CURRENT_ITEMS">%1$s</xliff:g> 项（已添加 <xliff:g id="ADDED_ITEMS">%2$s</xliff:g> 项）"</string>
+    <string name="summary_collapsed_preference_list" msgid="5190123168583152844">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>、<xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>
 </resources>
