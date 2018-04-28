@@ -96,6 +96,10 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isHeading(), is(true));
         nodeCompat.setHeading(false);
         assertThat(nodeCompat.isHeading(), is(false));
+        AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfo =
+                AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(0, 1, 0, 1, true);
+        nodeCompat.setCollectionItemInfo(collectionItemInfo);
+        assertThat(nodeCompat.isHeading(), is(true));
     }
 
     private AccessibilityNodeInfoCompat obtainedWrappedNodeCompat() {
