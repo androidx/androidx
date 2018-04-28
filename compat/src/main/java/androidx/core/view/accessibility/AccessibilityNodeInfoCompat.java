@@ -642,7 +642,9 @@ public class AccessibilityNodeInfoCompat {
          * @param rowSpan The number of rows the item spans.
          * @param columnIndex The column index at which the item is located.
          * @param columnSpan The number of columns the item spans.
-         * @param heading Whether the item is a heading.
+         * @param heading Whether the item is a heading. This should be set to false and the newer
+         *                {@link AccessibilityNodeInfoCompat#setHeading(boolean)} used to identify
+         *                headings.
          * @param selected Whether the item is selected.
          * @return An instance.
          */
@@ -666,7 +668,9 @@ public class AccessibilityNodeInfoCompat {
          * @param rowSpan The number of rows the item spans.
          * @param columnIndex The column index at which the item is located.
          * @param columnSpan The number of columns the item spans.
-         * @param heading Whether the item is a heading.
+         * @param heading Whether the item is a heading. This should be set to false and the newer
+         *                {@link AccessibilityNodeInfoCompat#setHeading(boolean)} used to identify
+         *                headings.
          * @return An instance.
          */
         public static CollectionItemInfoCompat obtain(int rowIndex, int rowSpan,
@@ -740,6 +744,7 @@ public class AccessibilityNodeInfoCompat {
          * heading, table header, etc.
          *
          * @return If the item is a heading.
+         * @deprecated Use {@link AccessibilityNodeInfoCompat#isHeading()}
          */
         public boolean isHeading() {
             if (Build.VERSION.SDK_INT >= 19) {
@@ -3313,11 +3318,16 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Returns whether node represents a heading.
+     * <p><strong>Note:</strong> Returns {@code true} if either {@link #setHeading(boolean)}
+     * marks this node as a heading or if the node has a {@link CollectionItemInfoCompat} that marks
+     * it as such, to accomodate apps that use the now-deprecated API.</p>
      *
      * @return {@code true} if the node is a heading, {@code false} otherwise.
      */
     public boolean isHeading() {
-        return getBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING);
+        if (getBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING)) return true;
+        CollectionItemInfoCompat collectionItemInfo = getCollectionItemInfo();
+        return (collectionItemInfo != null) && (collectionItemInfo.isHeading());
     }
 
     /**

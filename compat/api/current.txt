@@ -2400,7 +2400,7 @@ package androidx.core.view.accessibility {
     method public int getColumnSpan();
     method public int getRowIndex();
     method public int getRowSpan();
-    method public boolean isHeading();
+    method public deprecated boolean isHeading();
     method public boolean isSelected();
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat obtain(int, int, int, int, boolean, boolean);
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat obtain(int, int, int, int, boolean);
