@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
+import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.dependencies.ESPRESSO_CORE_TMP
-import androidx.build.dependencies.ESPRESSO_EXCLUDE
-import androidx.build.dependencies.TEST_RUNNER_TMP
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -28,10 +26,16 @@ dependencies {
     api(project(":fragment"))
     api(project(":recyclerview"))
 
-    androidTestImplementation(TEST_RUNNER_TMP, ESPRESSO_EXCLUDE)
-    androidTestImplementation(ESPRESSO_CORE_TMP, ESPRESSO_EXCLUDE)
-    androidTestImplementation(project(":internal-testutils")) {
-        exclude(group = "androidx.viewpager2", module = "viewpager2")
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation project(':internal-testutils'), {
+        exclude group: 'androidx.viewpager2', module: 'viewpager2'
+    }
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 14
     }
 }
 
