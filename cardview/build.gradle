@@ -10,7 +10,9 @@ dependencies {
 }
 
 android {
-    sourceSets.getByName("main").res.srcDir("res")
+    sourceSets {
+        main.res.srcDir("res")
+    }
 }
 
 supportLibrary {

@@ -1,8 +1,6 @@
+import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.dependencies.ESPRESSO_CORE_TMP
-import androidx.build.dependencies.ESPRESSO_EXCLUDE
-import androidx.build.dependencies.TEST_RUNNER_TMP
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -15,8 +13,8 @@ dependencies {
     api(project(":collection"))
     api(project(":legacy-support-core-ui"))
 
-    androidTestImplementation(TEST_RUNNER_TMP, ESPRESSO_EXCLUDE)
-    androidTestImplementation(ESPRESSO_CORE_TMP, ESPRESSO_EXCLUDE)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
     androidTestImplementation(project(":internal-testutils"))
 }
 
