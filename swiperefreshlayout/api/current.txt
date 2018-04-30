@@ -58,7 +58,9 @@ package androidx.swiperefreshlayout.widget {
     method public void setProgressViewOffset(boolean, int, int);
     method public void setRefreshing(boolean);
     method public void setSize(int);
+    method public void setSlingshotDistance(int);
     field public static final int DEFAULT = 1; // 0x1
+    field public static final int DEFAULT_SLINGSHOT_DISTANCE = -1; // 0xffffffff
     field public static final int LARGE = 0; // 0x0
     field protected int mFrom;
     field protected int mOriginalOffsetTop;

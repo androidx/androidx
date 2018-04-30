@@ -17,7 +17,6 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
-import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
@@ -26,9 +25,9 @@ import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
@@ -102,7 +101,11 @@ public class GridContent {
                 new String[] {HINT_ACTIONS} /* nonHints */);
         mAllImages = true;
         if (FORMAT_SLICE.equals(gridItem.getFormat())) {
-            List<SliceItem> items = gridItem.getSlice().getItems().get(0).getSlice().getItems();
+            List<SliceItem> items = gridItem.getSlice().getItems();
+            if (items.size() == 1 && FORMAT_SLICE.equals(items.get(0).getFormat())) {
+                // TODO: this can be removed at release
+                items = items.get(0).getSlice().getItems();
+            }
             items = filterAndProcessItems(items);
             // Check if it it's only one item that is a slice
             if (items.size() == 1 && items.get(0).getFormat().equals(FORMAT_SLICE)) {
@@ -197,11 +200,14 @@ public class GridContent {
         List<SliceItem> filteredItems = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
             SliceItem item = items.get(i);
-            boolean isNonCellContent = item.hasAnyHints(HINT_SHORTCUT, HINT_SEE_MORE,
-                    HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED);
+            // TODO: This see more can be removed at release
+            boolean containsSeeMore = SliceQuery.find(item, null, HINT_SEE_MORE, null) != null;
+            boolean isNonCellContent = containsSeeMore
+                    || item.hasAnyHints(HINT_SHORTCUT, HINT_SEE_MORE, HINT_KEYWORDS, HINT_TTL,
+                            HINT_LAST_UPDATED);
             if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
                 mContentDescr = item;
-            } else if (item.hasHint(HINT_LIST_ITEM) && !isNonCellContent) {
+            } else if (!isNonCellContent) {
                 filteredItems.add(item);
             }
         }
@@ -224,6 +230,8 @@ public class GridContent {
 
     /**
      * @return the height to display a grid row at when it is used as a small template.
+     * Does not include padding that might be added by slice view attributes,
+     * see {@link ListContent#getListHeight(Context, List)}.
      */
     public int getSmallHeight() {
         return getHeight(true /* isSmall */);
@@ -231,6 +239,8 @@ public class GridContent {
 
     /**
      * @return the height the content in this template requires to be displayed.
+     * Does not include padding that might be added by slice view attributes,
+     * see {@link ListContent#getListHeight(Context, List)}.
      */
     public int getActualHeight() {
         return getHeight(false /* isSmall */);
@@ -295,7 +305,7 @@ public class GridContent {
                     if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
                         mContentDescr = item;
                     } else if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
-                            || FORMAT_TIMESTAMP.equals(itemFormat))) {
+                            || FORMAT_LONG.equals(itemFormat))) {
                         mTextCount++;
                         mCellItems.add(item);
                     } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
@@ -340,7 +350,7 @@ public class GridContent {
                     || cellItem.hasAnyHints(HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED);
             return !isNonCellContent
                     && (FORMAT_TEXT.equals(format)
-                    || FORMAT_TIMESTAMP.equals(format)
+                    || FORMAT_LONG.equals(format)
                     || FORMAT_IMAGE.equals(format));
         }
 

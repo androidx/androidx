@@ -16,7 +16,6 @@
 
 package androidx.slice;
 
-import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_TITLE;
 
 import static androidx.slice.SliceMetadata.LOADED_ALL;
@@ -24,6 +23,7 @@ import static androidx.slice.SliceMetadata.LOADED_NONE;
 import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
+import static androidx.slice.core.SliceHints.INFINITY;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -36,7 +36,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -92,7 +91,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction action1 = new SliceAction(pi, icon, "action1");
         SliceAction action2 = new SliceAction(pi, icon, "action2");
@@ -123,7 +122,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction primaryAction = new SliceAction(pi, icon, "action");
 
@@ -146,7 +145,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction primaryAction = new SliceAction(pi, icon, "action");
         SliceAction endAction = new SliceAction(pi, "toogle action", false);
@@ -169,7 +168,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction primaryAction = new SliceAction(pi, icon, "action");
         SliceAction sliceAction = new SliceAction(pi, "another action", true);
@@ -192,7 +191,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction endAction1 = new SliceAction(pi, icon, "action");
         SliceAction endAction2 = new SliceAction(pi, "toogle action", false);
@@ -263,7 +262,7 @@ public class SliceMetadataTest {
                 .setTitle("another title")
                 .setValue(5)
                 .setMax(10)
-                .setAction(pi));
+                .setInputAction(pi));
 
         Slice sliderSlice = lb.build();
         SliceMetadata sliderInfo = SliceMetadata.from(mContext, sliderSlice);
@@ -305,22 +304,22 @@ public class SliceMetadataTest {
         Uri uri = Uri.parse("content://pkg/slice");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        Icon icon = Icon.createWithBitmap(b);
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
         GridRowBuilder grb = new GridRowBuilder(lb);
         grb.addCell(new GridRowBuilder.CellBuilder(grb)
                 .addText("some text")
                 .addText("more text")
-                .addImage(IconCompat.createFromIcon(icon), ICON_IMAGE));
+                .addImage(icon, ICON_IMAGE));
         grb.addCell(new GridRowBuilder.CellBuilder(grb)
                 .addText("some text")
                 .addText("more text")
-                .addImage(IconCompat.createFromIcon(icon), ICON_IMAGE));
+                .addImage(icon, ICON_IMAGE));
         grb.addCell(new GridRowBuilder.CellBuilder(grb)
                 .addText("some text")
                 .addText("more text")
-                .addImage(IconCompat.createFromIcon(icon), ICON_IMAGE));
+                .addImage(icon, ICON_IMAGE));
         lb.addGridRow(grb);
 
         Slice gridSlice = lb.build();
@@ -407,7 +406,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createFromIcon(Icon.createWithBitmap(b));
+        IconCompat icon = IconCompat.createWithBitmap(b);
 
         SliceAction toggleAction = new SliceAction(pi, icon, "toggle", false /* isChecked */);
         SliceAction toggleAction2 = new SliceAction(pi, icon, "toggle2", true /* isChecked */);
@@ -465,6 +464,31 @@ public class SliceMetadataTest {
 
         int currentValue = sliderInfo.getRangeValue();
         assertEquals(7, currentValue);
+    }
+
+    @Test
+    public void testGetInputRangeAction() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        PendingIntent expectedIntent = getIntent("rangeintent");
+
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+        SliceAction primaryAction = new SliceAction(getIntent(""), icon, "action");
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.addInputRange(new ListBuilder.InputRangeBuilder(lb)
+                .setTitle("another title")
+                .setValue(7)
+                .setMin(5)
+                .setMax(10)
+                .setPrimaryAction(primaryAction)
+                .setInputAction(expectedIntent));
+        Slice sliderSlice = lb.build();
+
+        SliceMetadata sliderInfo = SliceMetadata.from(mContext, sliderSlice);
+        assertEquals(expectedIntent, sliderInfo.getInputRangeAction());
+        assertEquivalent(primaryAction, sliderInfo.getPrimaryAction());
     }
 
     @Test
@@ -527,17 +551,23 @@ public class SliceMetadataTest {
     @Test
     public void testGetLoadingState() {
         Uri uri = Uri.parse("content://pkg/slice");
-        Slice s1 = new Slice.Builder(uri).build();
+        Slice s1 = new ListBuilder(mContext, uri, INFINITY).build();
         SliceMetadata SliceMetadata1 = SliceMetadata.from(mContext, s1);
         int actualState1 = SliceMetadata1.getLoadingState();
         assertEquals(LOADED_NONE, actualState1);
 
-        Slice s2 = new Slice.Builder(uri).addText(null, null, HINT_PARTIAL).build();
+        ListBuilder lb = new ListBuilder(mContext, uri, INFINITY);
+        Slice s2 = lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle(null, true /* isLoading */))
+                .build();
         SliceMetadata SliceMetadata2 = SliceMetadata.from(mContext, s2);
         int actualState2 = SliceMetadata2.getLoadingState();
         assertEquals(LOADED_PARTIAL, actualState2);
 
-        Slice s3 = new Slice.Builder(uri).addText("Text", null).build();
+        ListBuilder lb2 = new ListBuilder(mContext, uri, INFINITY);
+        Slice s3 = lb2.addRow(new ListBuilder.RowBuilder(lb2)
+                .setTitle("Title", false /* isLoading */))
+                .build();
         SliceMetadata SliceMetadata3 = SliceMetadata.from(mContext, s3);
         int actualState3 = SliceMetadata3.getLoadingState();
         assertEquals(LOADED_ALL, actualState3);
@@ -550,9 +580,9 @@ public class SliceMetadataTest {
         long ttl = TimeUnit.DAYS.toMillis(1);
         Slice ttlSlice = new Slice.Builder(uri)
                 .addText("Some text", null)
-                .addTimestamp(timestamp, null)
-                .addTimestamp(timestamp, null, SliceHints.HINT_LAST_UPDATED)
-                .addTimestamp(ttl, null, SliceHints.HINT_TTL)
+                .addLong(timestamp, null)
+                .addLong(timestamp, null, SliceHints.HINT_LAST_UPDATED)
+                .addLong(ttl, null, SliceHints.HINT_TTL)
                 .build();
 
         SliceMetadata si1 = SliceMetadata.from(mContext, ttlSlice);
@@ -561,7 +591,7 @@ public class SliceMetadataTest {
 
         Slice noTtlSlice = new Slice.Builder(uri)
                 .addText("Some text", null)
-                .addTimestamp(timestamp, null).build();
+                .addLong(timestamp, null).build();
         SliceMetadata si2 = SliceMetadata.from(mContext, noTtlSlice);
         long retrievedTtl2 = si2.getExpiry();
         assertEquals(0, retrievedTtl2);
@@ -574,9 +604,9 @@ public class SliceMetadataTest {
         long ttl = TimeUnit.DAYS.toMillis(1);
         Slice ttlSlice = new Slice.Builder(uri)
                 .addText("Some text", null)
-                .addTimestamp(timestamp - 20, null)
-                .addTimestamp(timestamp, null, SliceHints.HINT_LAST_UPDATED)
-                .addTimestamp(ttl, null, SliceHints.HINT_TTL)
+                .addLong(timestamp - 20, null)
+                .addLong(timestamp, null, SliceHints.HINT_LAST_UPDATED)
+                .addLong(ttl, null, SliceHints.HINT_TTL)
                 .build();
 
         SliceMetadata si1 = SliceMetadata.from(mContext, ttlSlice);
@@ -585,7 +615,7 @@ public class SliceMetadataTest {
 
         Slice noTtlSlice = new Slice.Builder(uri)
                 .addText("Some text", null)
-                .addTimestamp(timestamp, null).build();
+                .addLong(timestamp, null).build();
 
         SliceMetadata si2 = SliceMetadata.from(mContext, noTtlSlice);
         long retrievedLastUpdated2 = si2.getLastUpdatedTime();

@@ -16,26 +16,26 @@
 
 package androidx.webkit;
 
-import android.os.Build;
+import android.annotation.SuppressLint;
 import android.webkit.WebSettings;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
+import androidx.webkit.internal.WebSettingsAdapter;
+import androidx.webkit.internal.WebViewFeatureInternal;
+import androidx.webkit.internal.WebViewGlueCommunicator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.RestrictTo;
-import androidx.webkit.internal.WebSettingsAdapter;
-import androidx.webkit.internal.WebViewGlueCommunicator;
-
 /**
  * Compatibility version of {@link android.webkit.WebSettings}
  */
 public class WebSettingsCompat {
     private WebSettingsCompat() {}
-
-    // TODO(gsennton): add feature detection
 
     /**
      * Sets whether this WebView should raster tiles when it is
@@ -50,11 +50,18 @@ public class WebSettingsCompat {
      *   visible WebViews and WebViews about to be animated to visible.
      * </ul>
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setOffscreenPreRaster(WebSettings webSettings, boolean enabled) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
+        if (webviewFeature.isSupportedByFramework()) {
             webSettings.setOffscreenPreRaster(enabled);
-        } else {
+        } else if (webviewFeature.isSupportedByWebView()) {
             getAdapter(webSettings).setOffscreenPreRaster(enabled);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -64,11 +71,18 @@ public class WebSettingsCompat {
      * @return {@code true} if this WebView will raster tiles when it is
      * offscreen but attached to a window.
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getOffscreenPreRaster(WebSettings webSettings) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
+        if (webviewFeature.isSupportedByFramework()) {
             return webSettings.getOffscreenPreRaster();
-        } else {
+        } else if (webviewFeature.isSupportedByWebView()) {
             return getAdapter(webSettings).getOffscreenPreRaster();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -86,11 +100,18 @@ public class WebSettingsCompat {
      *
      * @param enabled Whether Safe Browsing is enabled.
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingEnabled(WebSettings webSettings, boolean enabled) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
+        if (webviewFeature.isSupportedByFramework()) {
             webSettings.setSafeBrowsingEnabled(enabled);
-        } else {
+        } else if (webviewFeature.isSupportedByWebView()) {
             getAdapter(webSettings).setSafeBrowsingEnabled(enabled);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -100,11 +121,18 @@ public class WebSettingsCompat {
      *
      * @return {@code true} if Safe Browsing is enabled and {@code false} otherwise.
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getSafeBrowsingEnabled(WebSettings webSettings) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
+        if (webviewFeature.isSupportedByFramework()) {
             return webSettings.getSafeBrowsingEnabled();
-        } else {
+        } else if (webviewFeature.isSupportedByWebView()) {
             return getAdapter(webSettings).getSafeBrowsingEnabled();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -126,12 +154,19 @@ public class WebSettingsCompat {
      * Disables the action mode menu items according to {@code menuItems} flag.
      * @param menuItems an integer field flag for the menu items to be disabled.
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setDisabledActionModeMenuItems(WebSettings webSettings,
             @MenuItemFlags int menuItems) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS);
+        if (webviewFeature.isSupportedByFramework()) {
             webSettings.setDisabledActionModeMenuItems(menuItems);
-        } else {
+        } else if (webviewFeature.isSupportedByWebView()) {
             getAdapter(webSettings).setDisabledActionModeMenuItems(menuItems);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -141,11 +176,18 @@ public class WebSettingsCompat {
      *
      * @return all the disabled menu item flags combined with bitwise OR.
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @MenuItemFlags int getDisabledActionModeMenuItems(WebSettings webSettings) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS);
+        if (webviewFeature.isSupportedByFramework()) {
             return webSettings.getDisabledActionModeMenuItems();
-        } else {
+        } else if (webviewFeature.isSupportedByWebView()) {
             return getAdapter(webSettings).getDisabledActionModeMenuItems();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 

@@ -19,9 +19,9 @@ package androidx.core.view.accessibility;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assume.assumeTrue;
 
 import android.os.Build;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -68,9 +68,9 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.getTooltipText(), equalTo(tooltipText));
     }
 
+    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetSetShowingHintText() {
-        assumeTrue(Build.VERSION.SDK_INT >= 19);
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setShowingHintText(true);
         assertThat(nodeCompat.isShowingHintText(), is(true));
@@ -78,9 +78,9 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isShowingHintText(), is(false));
     }
 
+    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetSetScreenReaderFocusable() {
-        assumeTrue(Build.VERSION.SDK_INT >= 19);
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setScreenReaderFocusable(true);
         assertThat(nodeCompat.isScreenReaderFocusable(), is(true));
@@ -88,14 +88,18 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isScreenReaderFocusable(), is(false));
     }
 
+    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testGetSetHeading() {
-        assumeTrue(Build.VERSION.SDK_INT >= 19);
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHeading(true);
         assertThat(nodeCompat.isHeading(), is(true));
         nodeCompat.setHeading(false);
         assertThat(nodeCompat.isHeading(), is(false));
+        AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfo =
+                AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(0, 1, 0, 1, true);
+        nodeCompat.setCollectionItemInfo(collectionItemInfo);
+        assertThat(nodeCompat.isHeading(), is(true));
     }
 
     private AccessibilityNodeInfoCompat obtainedWrappedNodeCompat() {

@@ -17,6 +17,7 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.HINT_HORIZONTAL;
+import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.SUBTYPE_MESSAGE;
 import static android.app.slice.Slice.SUBTYPE_SOURCE;
 import static android.app.slice.SliceItem.FORMAT_INT;
@@ -103,14 +104,14 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     /**
      * Set the {@link SliceItem}'s to be displayed in the adapter and the accent color.
      */
-    public void setSliceItems(List<SliceItem> slices, int color) {
+    public void setSliceItems(List<SliceItem> slices, int color, int mode) {
         if (slices == null) {
             mSlices.clear();
         } else {
             mIdGen.resetUsage();
             mSlices = new ArrayList<>(slices.size());
             for (SliceItem s : slices) {
-                mSlices.add(new SliceWrapper(s, mIdGen));
+                mSlices.add(new SliceWrapper(s, mIdGen, mode));
             }
         }
         mColor = color;
@@ -191,8 +192,6 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
                         null);
                 break;
         }
-        int mode = mParent != null ? mParent.getMode() : MODE_LARGE;
-        ((SliceChildView) v).setMode(mode);
         return v;
     }
 
@@ -201,10 +200,10 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         private final int mType;
         private final long mId;
 
-        public SliceWrapper(SliceItem item, IdGenerator idGen) {
+        public SliceWrapper(SliceItem item, IdGenerator idGen, int mode) {
             mItem = item;
             mType = getFormat(item);
-            mId = idGen.getId(item);
+            mId = idGen.getId(item, mode);
         }
 
         public static int getFormat(SliceItem item) {
@@ -248,14 +247,16 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             mSliceChildView.setOnTouchListener(this);
 
             final boolean isHeader = position == HEADER_INDEX;
+            int mode = mParent != null ? mParent.getMode() : MODE_LARGE;
+            mSliceChildView.setMode(mode);
             mSliceChildView.setTint(mColor);
             mSliceChildView.setStyle(mAttrs, mDefStyleAttr, mDefStyleRes);
-            mSliceChildView.setSliceItem(item, isHeader, position, mSliceObserver);
-            if (isHeader && mSliceChildView instanceof RowView) {
+            mSliceChildView.setSliceItem(item, isHeader, position, getItemCount(), mSliceObserver);
+            mSliceChildView.setSliceActions(isHeader ? mSliceActions : null);
+            mSliceChildView.setLastUpdated(isHeader ? mLastUpdated : -1);
+            mSliceChildView.setShowLastUpdated(isHeader && mShowLastUpdated);
+            if (mSliceChildView instanceof RowView) {
                 ((RowView) mSliceChildView).setSingleItem(getItemCount() == 1);
-                mSliceChildView.setSliceActions(mSliceActions);
-                mSliceChildView.setLastUpdated(mLastUpdated);
-                mSliceChildView.setShowLastUpdated(mShowLastUpdated);
             }
             int[] info = new int[2];
             info[0] = ListContent.getRowType(mContext, item, isHeader, mSliceActions);
@@ -285,8 +286,12 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         private final ArrayMap<String, Long> mCurrentIds = new ArrayMap<>();
         private final ArrayMap<String, Integer> mUsedIds = new ArrayMap<>();
 
-        public long getId(SliceItem item) {
+        public long getId(SliceItem item, int mode) {
             String str = genString(item);
+            SliceItem summary = SliceQuery.find(item, null, HINT_SUMMARY, null);
+            if (summary != null) {
+                str += mode; // mode matters
+            }
             if (!mCurrentIds.containsKey(str)) {
                 mCurrentIds.put(str, mNextLong++);
             }

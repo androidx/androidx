@@ -16,6 +16,7 @@
 
 package androidx.webkit;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -29,10 +30,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.core.os.BuildCompat;
+import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.internal.WebViewProviderAdapter;
-import androidx.webkit.internal.WebViewProviderFactoryAdapter;
+import androidx.webkit.internal.WebViewProviderFactory;
 
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 
@@ -44,6 +46,9 @@ import java.util.List;
  * Compatibility version of {@link android.webkit.WebView}
  */
 public class WebViewCompat {
+    private static final Uri WILDCARD_URI = Uri.parse("*");
+    private static final Uri EMPTY_URI = Uri.parse("");
+
     private WebViewCompat() {} // Don't allow instances of this class to be constructed.
 
     /**
@@ -135,7 +140,7 @@ public class WebViewCompat {
             checkThread(webview);
             getProvider(webview).insertVisualStateCallback(requestId, callback);
         } else {
-            WebViewFeatureInternal.throwUnsupportedOperationException("postVisualStateCallback");
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -157,12 +162,19 @@ public class WebViewCompat {
      * @param callback will be called on the UI thread with {@code true} if initialization is
      * successful, {@code false} otherwise.
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.START_SAFE_BROWSING,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void startSafeBrowsing(@NonNull Context context,
             @Nullable ValueCallback<Boolean> callback) {
-        if (Build.VERSION.SDK_INT >= 27) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.START_SAFE_BROWSING);
+        if (webviewFeature.isSupportedByFramework()) {
             WebView.startSafeBrowsing(context, callback);
-        } else { // TODO(gsennton): guard with WebViewApk.hasFeature(SafeBrowsing)
+        } else if (webviewFeature.isSupportedByWebView()) {
             getFactory().getStatics().initSafeBrowsing(context, callback);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -189,12 +201,19 @@ public class WebViewCompat {
      * whitelist. It will be called with {@code false} if any hosts are malformed. The callback
      * will be run on the UI thread
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_WHITELIST,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingWhitelist(@NonNull List<String> hosts,
             @Nullable ValueCallback<Boolean> callback) {
-        if (Build.VERSION.SDK_INT >= 27) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.SAFE_BROWSING_WHITELIST);
+        if (webviewFeature.isSupportedByFramework()) {
             WebView.setSafeBrowsingWhitelist(hosts, callback);
-        } else { // TODO(gsennton): guard with WebViewApk.hasFeature(SafeBrowsing)
+        } else if (webviewFeature.isSupportedByWebView()) {
             getFactory().getStatics().setSafeBrowsingWhitelist(hosts, callback);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -203,12 +222,19 @@ public class WebViewCompat {
      *
      * @return the url pointing to a privacy policy document which can be displayed to users.
      */
+    @SuppressLint("NewApi")
     @NonNull
+    @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static Uri getSafeBrowsingPrivacyPolicyUrl() {
-        if (Build.VERSION.SDK_INT >= 27) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL);
+        if (webviewFeature.isSupportedByFramework()) {
             return WebView.getSafeBrowsingPrivacyPolicyUrl();
-        } else { // TODO(gsennton): guard with WebViewApk.hasFeature(SafeBrowsing)
+        } else if (webviewFeature.isSupportedByWebView()) {
             return getFactory().getStatics().getSafeBrowsingPrivacyPolicyUrl();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -258,7 +284,7 @@ public class WebViewCompat {
     private static PackageInfo getLoadedWebViewPackageInfo()
             throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
-        Class webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
+        Class<?> webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
         PackageInfo webviewPackageInfo =
                 (PackageInfo) webViewFactoryClass.getMethod(
                         "getLoadedPackageInfo").invoke(null);
@@ -274,13 +300,13 @@ public class WebViewCompat {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
                     && Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-                Class webViewFactoryClass = null;
+                Class<?> webViewFactoryClass = null;
                 webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
 
                 webviewPackageName = (String) webViewFactoryClass.getMethod(
                         "getWebViewPackageName").invoke(null);
             } else {
-                Class webviewUpdateServiceClass =
+                Class<?> webviewUpdateServiceClass =
                         Class.forName("android.webkit.WebViewUpdateService");
                 webviewPackageName = (String) webviewUpdateServiceClass.getMethod(
                         "getCurrentWebViewPackageName").invoke(null);
@@ -307,7 +333,58 @@ public class WebViewCompat {
         return new WebViewProviderAdapter(createProvider(webview));
     }
 
-    private static WebViewProviderFactoryAdapter getFactory() {
+    /**
+     * Creates a message channel to communicate with JS and returns the message
+     * ports that represent the endpoints of this message channel. The HTML5 message
+     * channel functionality is described
+     * <a href="https://html.spec.whatwg.org/multipage/comms.html#messagechannel">here
+     * </a>
+     *
+     * <p>The returned message channels are entangled and already in started state.
+     *
+     * @return an array of size two, containing the two message ports that form the message channel.
+     */
+    public static @NonNull WebMessagePortCompat[] createWebMessageChannel(
+            @NonNull WebView webview) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return WebMessagePortImpl.portsToCompat(webview.createWebMessageChannel());
+        } else { // TODO(gsennton) add reflection-based implementation
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Post a message to main frame. The embedded application can restrict the
+     * messages to a certain target origin. See
+     * <a href="https://html.spec.whatwg.org/multipage/comms.html#posting-messages">
+     * HTML5 spec</a> for how target origin can be used.
+     * <p>
+     * A target origin can be set as a wildcard ("*"). However this is not recommended.
+     * See the page above for security issues.
+     *
+     * @param message the WebMessage
+     * @param targetOrigin the target origin.
+     */
+    public static void postWebMessage(@NonNull WebView webview, @NonNull WebMessageCompat message,
+            @NonNull Uri targetOrigin) {
+        // The wildcard ("*") Uri was first supported in WebView 60, see
+        // crrev/5ec5b67cbab33cea51b0ee11a286c885c2de4d5d, so on some Android versions using "*"
+        // won't work. WebView has always supported using an empty Uri "" as a wildcard - so convert
+        // "*" into "" here.
+        if (WILDCARD_URI.equals(targetOrigin)) {
+            targetOrigin = EMPTY_URI;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            webview.postWebMessage(
+                    WebMessagePortImpl.compatToFrameworkMessage(message),
+                    targetOrigin);
+        } else { // TODO(gsennton) add reflection-based implementation
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    private static WebViewProviderFactory getFactory() {
         return WebViewGlueCommunicator.getFactory();
     }
 
@@ -322,7 +399,7 @@ public class WebViewCompat {
                 throw new RuntimeException("A WebView method was called on thread '"
                         + Thread.currentThread().getName() + "'. "
                         + "All WebView methods must be called on the same thread. "
-                        + "(Expected Looper " + webview.getLooper() + " called on "
+                        + "(Expected Looper " + webview.getWebViewLooper() + " called on "
                         + Looper.myLooper() + ", FYI main Looper is " + Looper.getMainLooper()
                         + ")");
             }

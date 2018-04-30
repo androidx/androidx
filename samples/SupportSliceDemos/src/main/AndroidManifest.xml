@@ -48,6 +48,7 @@
 
         <provider android:authorities="com.example.androidx.slice.demos"
                   android:name=".SampleSliceProvider"
+                  android:exported="true"
                   android:grantUriPermissions="true">
             <intent-filter>
                 <action android:name="androidx.intent.SLICE_ACTION"/>

@@ -16,8 +16,6 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -31,7 +29,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.SessionToken2.TokenType;
@@ -39,7 +36,6 @@ import androidx.media.SessionToken2.TokenType;
 import java.util.List;
 
 /**
- * @hide
  * Base class for media session services, which is the service version of the {@link MediaSession2}.
  * <p>
  * It's highly recommended for an app to use this instead of {@link MediaSession2} if it wants
@@ -97,7 +93,6 @@ import java.util.List;
  * <p>
  * After the binding, session's
  * {@link MediaSession2.SessionCallback#onConnect(MediaSession2, ControllerInfo)}
- *
  * will be called to accept or reject connection request from a controller. If the connection is
  * rejected, the controller will unbind. If it's accepted, the controller will be available to use
  * and keep binding.
@@ -106,6 +101,9 @@ import java.util.List;
  * is called and service would become a foreground service. It's needed to keep playback after the
  * controller is destroyed. The session service becomes background service when the playback is
  * stopped.
+ * <p>
+ * The service is destroyed when the session is closed, or no media controller is bounded to the
+ * session while the service is not running as a foreground service.
  * <a name="Permissions"></a>
  * <h3>Permissions</h3>
  * <p>
@@ -113,10 +111,7 @@ import java.util.List;
  * the session service accepted the connection request through
  * {@link MediaSession2.SessionCallback#onConnect(MediaSession2, ControllerInfo)}.
  */
-@RestrictTo(LIBRARY_GROUP)
 public abstract class MediaSessionService2 extends Service {
-    //private final MediaSessionService2Provider mProvider;
-
     /**
      * This is the interface name that a service implementing a session service should say that it
      * support -- that is, this is the action it uses for its intent filter.
@@ -316,8 +311,6 @@ public abstract class MediaSessionService2 extends Service {
             //   2. MediaSessionService2 is defined as the simplified version of the library
             //      service with no browsing feature, so shouldn't allow MediaBrowserServiceCompat
             //      specific operations.
-            // TODO: Revisit here API not to return stub root here. The fake media ID here may be
-            //       used by the browser service for real.
             return sDefaultBrowserRoot;
         }
 

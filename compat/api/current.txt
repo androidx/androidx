@@ -81,6 +81,20 @@ package androidx.core.app {
     method public static void setExactAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
   }
 
+  public class AppComponentFactory extends android.app.AppComponentFactory {
+    ctor public AppComponentFactory();
+    method public final android.app.Activity instantiateActivity(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public android.app.Activity instantiateActivityCompat(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.app.Application instantiateApplication(java.lang.ClassLoader, java.lang.String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public android.app.Application instantiateApplicationCompat(java.lang.ClassLoader, java.lang.String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.content.ContentProvider instantiateProvider(java.lang.ClassLoader, java.lang.String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public android.content.ContentProvider instantiateProviderCompat(java.lang.ClassLoader, java.lang.String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.content.BroadcastReceiver instantiateReceiver(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public android.content.BroadcastReceiver instantiateReceiverCompat(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.app.Service instantiateService(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public android.app.Service instantiateServiceCompat(java.lang.ClassLoader, java.lang.String, android.content.Intent) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+  }
+
   public class AppLaunchChecker {
     ctor public deprecated AppLaunchChecker();
     method public static boolean hasStartedFromLauncher(android.content.Context);
@@ -163,6 +177,7 @@ package androidx.core.app {
     method public static int getBadgeIconType(android.app.Notification);
     method public static java.lang.String getCategory(android.app.Notification);
     method public static java.lang.String getChannelId(android.app.Notification);
+    method public static java.lang.CharSequence getContentTitle(android.app.Notification);
     method public static android.os.Bundle getExtras(android.app.Notification);
     method public static java.lang.String getGroup(android.app.Notification);
     method public static int getGroupAlertBehavior(android.app.Notification);
@@ -206,6 +221,7 @@ package androidx.core.app {
     field public static final java.lang.String EXTRA_LARGE_ICON_BIG = "android.largeIcon.big";
     field public static final java.lang.String EXTRA_MEDIA_SESSION = "android.mediaSession";
     field public static final java.lang.String EXTRA_MESSAGES = "android.messages";
+    field public static final java.lang.String EXTRA_MESSAGING_STYLE_USER = "android.messagingStyleUser";
     field public static final java.lang.String EXTRA_PEOPLE = "android.people";
     field public static final java.lang.String EXTRA_PICTURE = "android.picture";
     field public static final java.lang.String EXTRA_PROGRESS = "android.progress";
@@ -442,7 +458,8 @@ package androidx.core.app {
   }
 
   public static class NotificationCompat.MessagingStyle extends androidx.core.app.NotificationCompat.Style {
-    ctor public NotificationCompat.MessagingStyle(java.lang.CharSequence);
+    ctor public deprecated NotificationCompat.MessagingStyle(java.lang.CharSequence);
+    ctor public NotificationCompat.MessagingStyle(androidx.core.app.Person);
     method public void addCompatExtras(android.os.Bundle);
     method public deprecated androidx.core.app.NotificationCompat.MessagingStyle addMessage(java.lang.CharSequence, long, java.lang.CharSequence);
     method public androidx.core.app.NotificationCompat.MessagingStyle addMessage(java.lang.CharSequence, long, androidx.core.app.Person);
@@ -450,7 +467,8 @@ package androidx.core.app {
     method public static androidx.core.app.NotificationCompat.MessagingStyle extractMessagingStyleFromNotification(android.app.Notification);
     method public java.lang.CharSequence getConversationTitle();
     method public java.util.List<androidx.core.app.NotificationCompat.MessagingStyle.Message> getMessages();
-    method public java.lang.CharSequence getUserDisplayName();
+    method public androidx.core.app.Person getUser();
+    method public deprecated java.lang.CharSequence getUserDisplayName();
     method public boolean isGroupConversation();
     method public androidx.core.app.NotificationCompat.MessagingStyle setConversationTitle(java.lang.CharSequence);
     method public androidx.core.app.NotificationCompat.MessagingStyle setGroupConversation(boolean);
@@ -809,6 +827,11 @@ package androidx.core.content.pm {
     method public static long getLongVersionCode(android.content.pm.PackageInfo);
   }
 
+  public final class PermissionInfoCompat {
+    method public static int getProtection(android.content.pm.PermissionInfo);
+    method public static int getProtectionFlags(android.content.pm.PermissionInfo);
+  }
+
   public class ShortcutInfoCompat {
     method public android.content.ComponentName getActivity();
     method public java.lang.CharSequence getDisabledMessage();
@@ -866,9 +889,21 @@ package androidx.core.content.res {
 
 package androidx.core.database {
 
+  public final class CursorWindowCompat {
+    method public android.database.CursorWindow create(java.lang.String, long);
+  }
+
   public final deprecated class DatabaseUtilsCompat {
     method public static deprecated java.lang.String[] appendSelectionArgs(java.lang.String[], java.lang.String[]);
     method public static deprecated java.lang.String concatenateWhere(java.lang.String, java.lang.String);
+  }
+
+}
+
+package androidx.core.database.sqlite {
+
+  public final class SQLiteCursorCompat {
+    method public void setFillWindowForwardOnly(android.database.sqlite.SQLiteCursor, boolean);
   }
 
 }
@@ -1275,6 +1310,40 @@ package androidx.core.text {
     method public static java.lang.String maximizeAndGetScript(java.util.Locale);
   }
 
+  public class PrecomputedTextCompat implements android.text.Spannable {
+    method public char charAt(int);
+    method public static androidx.core.text.PrecomputedTextCompat create(java.lang.CharSequence, androidx.core.text.PrecomputedTextCompat.Params);
+    method public int getParagraphCount();
+    method public int getParagraphEnd(int);
+    method public int getParagraphStart(int);
+    method public androidx.core.text.PrecomputedTextCompat.Params getParams();
+    method public int getSpanEnd(java.lang.Object);
+    method public int getSpanFlags(java.lang.Object);
+    method public int getSpanStart(java.lang.Object);
+    method public <T> T[] getSpans(int, int, java.lang.Class<T>);
+    method public int length();
+    method public int nextSpanTransition(int, int, java.lang.Class);
+    method public void removeSpan(java.lang.Object);
+    method public void setSpan(java.lang.Object, int, int, int);
+    method public java.lang.CharSequence subSequence(int, int);
+  }
+
+  public static final class PrecomputedTextCompat.Params {
+    ctor public PrecomputedTextCompat.Params(android.text.PrecomputedText.Params);
+    method public int getBreakStrategy();
+    method public int getHyphenationFrequency();
+    method public android.text.TextDirectionHeuristic getTextDirection();
+    method public android.text.TextPaint getTextPaint();
+  }
+
+  public static class PrecomputedTextCompat.Params.Builder {
+    ctor public PrecomputedTextCompat.Params.Builder(android.text.TextPaint);
+    method public androidx.core.text.PrecomputedTextCompat.Params build();
+    method public androidx.core.text.PrecomputedTextCompat.Params.Builder setBreakStrategy(int);
+    method public androidx.core.text.PrecomputedTextCompat.Params.Builder setHyphenationFrequency(int);
+    method public androidx.core.text.PrecomputedTextCompat.Params.Builder setTextDirection(android.text.TextDirectionHeuristic);
+  }
+
   public abstract interface TextDirectionHeuristicCompat {
     method public abstract boolean isRtl(char[], int, int);
     method public abstract boolean isRtl(java.lang.CharSequence, int, int);
@@ -1399,6 +1468,15 @@ package androidx.core.view {
 
   public static abstract interface ActionProvider.VisibilityListener {
     method public abstract void onActionProviderVisibilityChanged(boolean);
+  }
+
+  public final class DisplayCutoutCompat {
+    ctor public DisplayCutoutCompat(android.graphics.Rect, java.util.List<android.graphics.Rect>);
+    method public java.util.List<android.graphics.Rect> getBoundingRects();
+    method public int getSafeInsetBottom();
+    method public int getSafeInsetLeft();
+    method public int getSafeInsetRight();
+    method public int getSafeInsetTop();
   }
 
   public final class DragAndDropPermissionsCompat {
@@ -2006,8 +2084,10 @@ package androidx.core.view {
 
   public class WindowInsetsCompat {
     ctor public WindowInsetsCompat(androidx.core.view.WindowInsetsCompat);
+    method public androidx.core.view.WindowInsetsCompat consumeDisplayCutout();
     method public androidx.core.view.WindowInsetsCompat consumeStableInsets();
     method public androidx.core.view.WindowInsetsCompat consumeSystemWindowInsets();
+    method public androidx.core.view.DisplayCutoutCompat getDisplayCutout();
     method public int getStableInsetBottom();
     method public int getStableInsetLeft();
     method public int getStableInsetRight();
@@ -2320,7 +2400,7 @@ package androidx.core.view.accessibility {
     method public int getColumnSpan();
     method public int getRowIndex();
     method public int getRowSpan();
-    method public boolean isHeading();
+    method public deprecated boolean isHeading();
     method public boolean isSelected();
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat obtain(int, int, int, int, boolean, boolean);
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat obtain(int, int, int, int, boolean);

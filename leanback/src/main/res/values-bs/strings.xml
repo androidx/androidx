@@ -19,7 +19,7 @@ limitations under the License.
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="lb_navigation_menu_contentDescription" msgid="8126335323963415494">"Meni za navigaciju"</string>
     <string name="orb_search_action" msgid="7534843523462177008">"Pretraživanje"</string>
-    <string name="lb_search_bar_hint" msgid="4819380969103509861">"Pretražite"</string>
+    <string name="lb_search_bar_hint" msgid="4819380969103509861">"Traži"</string>
     <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"Kažite nešto da pokrenete pretragu"</string>
     <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"Pretraži <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"Kažite nešto da pokrenete pretragu <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>

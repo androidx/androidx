@@ -25,10 +25,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.core.util.ObjectsCompat;
+
 import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -68,18 +69,29 @@ public final class TestUtils {
      *     incorrect if any bundle contains a bundle.
      */
     public static boolean equals(Bundle a, Bundle b) {
+        return contains(a, b) && contains(b, a);
+    }
+
+    /**
+     * Checks whether a Bundle contains another bundle.
+     *
+     * @param a a bundle
+     * @param b another bundle
+     * @return {@code true} if a contains b. {@code false} otherwise. This may be incorrect if any
+     *      bundle contains a bundle.
+     */
+    public static boolean contains(Bundle a, Bundle b) {
         if (a == b) {
             return true;
         }
         if (a == null || b == null) {
+            return b == null;
+        }
+        if (!a.keySet().containsAll(b.keySet())) {
             return false;
         }
-        if (!a.keySet().containsAll(b.keySet())
-                || !b.keySet().containsAll(a.keySet())) {
-            return false;
-        }
-        for (String key : a.keySet()) {
-            if (!Objects.equals(a.get(key), b.get(key))) {
+        for (String key : b.keySet()) {
+            if (!ObjectsCompat.equals(a.get(key), b.get(key))) {
                 return false;
             }
         }
@@ -91,7 +103,7 @@ public final class TestUtils {
      * <p>
      * Caller's method name will be used for prefix of each media item's media id.
      *
-     * @param size lits size
+     * @param size list size
      * @return the newly created playlist
      */
     public static List<MediaItem2> createPlaylist(int size) {
@@ -100,11 +112,7 @@ public final class TestUtils {
         for (int i = 0; i < size; i++) {
             list.add(new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
                     .setMediaId(caller + "_item_" + (size + 1))
-                    .setDataSourceDesc(
-                            new DataSourceDesc.Builder()
-                                    .setDataSource(new FileDescriptor())
-                                    .build())
-                    .build());
+                    .setDataSourceDesc(createDSD()).build());
         }
         return list;
     }
@@ -117,7 +125,7 @@ public final class TestUtils {
      */
     public static MediaItem2 createMediaItemWithMetadata() {
         return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                .setMetadata(createMetadata()).build();
+                .setMetadata(createMetadata()).setDataSourceDesc(createDSD()).build();
     }
 
     /**
@@ -131,6 +139,21 @@ public final class TestUtils {
         String mediaId = Thread.currentThread().getStackTrace()[1].getMethodName();
         return new MediaMetadata2.Builder()
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId).build();
+    }
+
+    private static DataSourceDesc createDSD() {
+        return new DataSourceDesc.Builder().setDataSource(new FileDescriptor()).build();
+    }
+
+    /**
+     * Create a bundle for testing purpose.
+     *
+     * @return the newly created bundle.
+     */
+    public static Bundle createTestBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString("test_key", "test_value");
+        return bundle;
     }
 
     /**

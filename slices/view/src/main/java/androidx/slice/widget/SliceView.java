@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -312,7 +313,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private int getHeightForMode() {
         int mode = getMode();
         if (mode == MODE_SHORTCUT) {
-            return mShortcutSize;
+            return mListContent != null && mListContent.isValid() ? mShortcutSize : 0;
         }
         return mode == MODE_LARGE
                 ? mCurrentView.getActualHeight()
@@ -375,7 +376,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        View v = mCurrentView.getView();
+        View v = mCurrentView;
         final int left = getPaddingLeft();
         final int top = getPaddingTop();
         v.layout(left, top, left + v.getMeasuredWidth(), top + v.getMeasuredHeight());
@@ -484,15 +485,23 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
+     * @deprecated TO BE REMOVED; use {@link #setAccentColor(int)} instead.
+     */
+    @Deprecated
+    public void setTint(int tintColor) {
+        setAccentColor(tintColor);
+    }
+
+    /**
      * Contents of a slice such as icons, text, and controls (e.g. toggle) can be tinted. Normally
      * a color for tinting will be provided by the slice. Using this method will override
-     * this color information and instead tint elements with the provided color.
+     * the slice-provided color information and instead tint elements with the color set here.
      *
-     * @param tintColor the color to use for tinting contents of this view.
+     * @param accentColor the color to use for tinting contents of this view.
      */
-    public void setTint(int tintColor) {
-        mThemeTintColor = tintColor;
-        mCurrentView.setTint(tintColor);
+    public void setAccentColor(@ColorInt int accentColor) {
+        mThemeTintColor = accentColor;
+        mCurrentView.setTint(accentColor);
     }
 
     /**
@@ -540,11 +549,14 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private void reinflate() {
         if (mCurrentSlice == null) {
             mCurrentView.resetView();
+            updateActions();
             return;
         }
-        mListContent = new ListContent(getContext(), mCurrentSlice);
+        mListContent = new ListContent(getContext(), mCurrentSlice, mAttrs, mDefStyleAttr,
+                mDefStyleRes);
         if (!mListContent.isValid()) {
             mCurrentView.resetView();
+            updateActions();
             return;
         }
 
@@ -579,7 +591,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         mCurrentView.setShowLastUpdated(mShowLastUpdated && expired);
 
         // Set the slice
-        mCurrentView.setSlice(mCurrentSlice);
+        mCurrentView.setSliceContent(mListContent);
         updateActions();
     }
 

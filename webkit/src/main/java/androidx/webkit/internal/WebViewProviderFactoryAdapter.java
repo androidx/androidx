@@ -29,7 +29,7 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
  * Adapter for WebViewProviderFactoryBoundaryInterface providing static WebView functionality
  * similar to that provided by {@link android.webkit.WebViewFactoryProvider}.
  */
-public class WebViewProviderFactoryAdapter {
+public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     WebViewProviderFactoryBoundaryInterface mImpl;
 
     public WebViewProviderFactoryAdapter(WebViewProviderFactoryBoundaryInterface impl) {
@@ -41,6 +41,7 @@ public class WebViewProviderFactoryAdapter {
      * {@link android.webkit.WebViewProvider} - the class used to implement
      * {@link androidx.webkit.WebViewCompat}.
      */
+    @Override
     public WebViewProviderBoundaryInterface createWebView(WebView webview) {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebViewProviderBoundaryInterface.class, mImpl.createWebView(webview));
@@ -51,6 +52,7 @@ public class WebViewProviderFactoryAdapter {
      * {@link androidx.webkit.internal.WebkitToCompatConverter}, which converts android.webkit
      * classes into their corresponding support library classes.
      */
+    @Override
     public WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter() {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebkitToCompatConverterBoundaryInterface.class, mImpl.getWebkitToCompatConverter());
@@ -60,6 +62,7 @@ public class WebViewProviderFactoryAdapter {
      * Adapter method for fetching the support library class representing
      * {@link android.webkit.WebViewFactoryProvider#Statics}.
      */
+    @Override
     public StaticsBoundaryInterface getStatics() {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 StaticsBoundaryInterface.class, mImpl.getStatics());
@@ -68,6 +71,7 @@ public class WebViewProviderFactoryAdapter {
     /**
      * Adapter method for fetching the features supported by the current WebView APK.
      */
+    @Override
     public String[] getWebViewFeatures() {
         return mImpl.getSupportedFeatures();
     }
@@ -76,6 +80,7 @@ public class WebViewProviderFactoryAdapter {
      * Adapter method for fetching the support library class representing
      * {@link android.webkit.ServiceWorkerController}.
      */
+    @Override
     public ServiceWorkerControllerBoundaryInterface getServiceWorkerController() {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 ServiceWorkerControllerBoundaryInterface.class, mImpl.getServiceWorkerController());

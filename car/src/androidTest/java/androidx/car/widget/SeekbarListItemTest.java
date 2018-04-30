@@ -40,6 +40,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 
+import androidx.car.test.R;
+
 import org.hamcrest.Matcher;
 import org.junit.Assume;
 import org.junit.Before;
@@ -50,8 +52,6 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import androidx.car.test.R;
 
 /**
  * Tests the layout configuration in {@link SeekbarListItem}.
@@ -67,54 +67,11 @@ public class SeekbarListItemTest {
     private PagedListViewTestActivity mActivity;
     private PagedListView mPagedListView;
 
-    private boolean isAutoDevice() {
-        PackageManager packageManager = mActivityRule.getActivity().getPackageManager();
-        return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
-    }
-
     @Before
     public void setUp() {
         Assume.assumeTrue(isAutoDevice());
         mActivity = mActivityRule.getActivity();
         mPagedListView = mActivity.findViewById(R.id.paged_list_view);
-    }
-
-    private void setupPagedListView(List<? extends ListItem> items) {
-        ListItemProvider provider = new ListItemProvider.ListProvider(
-                new ArrayList<>(items));
-        try {
-            mActivityRule.runOnUiThread(() -> {
-                mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider));
-            });
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-            throw new RuntimeException(throwable);
-        }
-        // Wait for paged list view to layout by using espresso to scroll to a position.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
-    }
-
-    private void verifyViewDefaultVisibility(View view) {
-        if (view instanceof ViewGroup) {
-            ViewGroup viewGroup = (ViewGroup) view;
-            final int childCount = viewGroup.getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                verifyViewDefaultVisibility(viewGroup.getChildAt(i));
-            }
-        } else if (view instanceof SeekBar) {
-            assertThat(view.getVisibility(), is(equalTo(View.VISIBLE)));
-        } else {
-            assertThat("Visibility of view "
-                    + mActivity.getResources().getResourceEntryName(view.getId())
-                    + " by default should be GONE.",
-                    view.getVisibility(), is(equalTo(View.GONE)));
-        }
-    }
-
-    private SeekbarListItem.ViewHolder getViewHolderAtPosition(int position) {
-        return (SeekbarListItem.ViewHolder) mPagedListView.getRecyclerView()
-                .findViewHolderForAdapterPosition(
-                        position);
     }
 
     @Test
@@ -179,6 +136,82 @@ public class SeekbarListItemTest {
                 is(equalTo(View.VISIBLE)));
         assertThat(getViewHolderAtPosition(0).getSupplementalIconDivider().getVisibility(),
                 is(equalTo(View.VISIBLE)));
+    }
+
+    @Test
+    public void testSettingMax() {
+        final int max = 50;
+        SeekbarListItem item = new SeekbarListItem(mActivity);
+        item.setMax(max);
+
+        setupPagedListView(Arrays.asList(item));
+
+        assertThat(getViewHolderAtPosition(0).getSeekBar().getMax(), is(equalTo(max)));
+    }
+
+    @Test
+    public void testSettingProgress() {
+        final int progress = 100;
+        SeekbarListItem item = new SeekbarListItem(mActivity);
+        item.setMax(progress);
+        item.setProgress(progress);
+
+        setupPagedListView(Arrays.asList(item));
+
+        assertThat(getViewHolderAtPosition(0).getSeekBar().getProgress(), is(equalTo(progress)));
+    }
+
+    @Test
+    public void testSettingSecondaryProgress() {
+        final int secondaryProgress = 50;
+        SeekbarListItem item = new SeekbarListItem(mActivity);
+        item.setMax(secondaryProgress);
+        item.setSecondaryProgress(secondaryProgress);
+
+        setupPagedListView(Arrays.asList(item));
+
+        assertThat(getViewHolderAtPosition(0).getSeekBar().getSecondaryProgress(),
+                is(equalTo(secondaryProgress)));
+    }
+
+    @Test
+    public void testSettingOnSeekBarChangeListener() throws Throwable {
+        boolean[] changed = new boolean[]{false};
+
+        SeekbarListItem item = new SeekbarListItem(mActivity);
+        item.setMax(100);
+        item.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                changed[0] = true;
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        setupPagedListView(Arrays.asList(item));
+
+        mActivityRule.runOnUiThread(() -> getViewHolderAtPosition(0).getSeekBar().setProgress(50));
+        assertTrue(changed[0]);
+    }
+
+    @Test
+    public void testUpdatingProgress() {
+        final int progress = 50;
+        final int newProgress = 100;
+
+        SeekbarListItem item = new SeekbarListItem(mActivity);
+        item.setMax(newProgress);
+        item.setProgress(progress);
+        setupPagedListView(Arrays.asList(item));
+
+        item.setProgress(newProgress);
+        refreshUi();
+
+        assertThat(getViewHolderAtPosition(0).getSeekBar().getProgress(), is(equalTo(newProgress)));
     }
 
     @Test
@@ -289,6 +322,62 @@ public class SeekbarListItemTest {
 
         assertThat(getViewHolderAtPosition(0).getSupplementalIcon().getDrawable(),
                 is(equalTo(drawable)));
+    }
+
+    private boolean isAutoDevice() {
+        PackageManager packageManager = mActivityRule.getActivity().getPackageManager();
+        return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
+    }
+
+    private void setupPagedListView(List<? extends ListItem> items) {
+        ListItemProvider provider = new ListItemProvider.ListProvider(
+                new ArrayList<>(items));
+        try {
+            mActivityRule.runOnUiThread(() -> {
+                mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider));
+            });
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            throw new RuntimeException(throwable);
+        }
+        // Wait for paged list view to layout by using espresso to scroll to a position.
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+    }
+
+    private void verifyViewDefaultVisibility(View view) {
+        if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            final int childCount = viewGroup.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                verifyViewDefaultVisibility(viewGroup.getChildAt(i));
+            }
+        } else if (view instanceof SeekBar) {
+            assertThat(view.getVisibility(), is(equalTo(View.VISIBLE)));
+        } else {
+            assertThat("Visibility of view "
+                            + mActivity.getResources().getResourceEntryName(view.getId())
+                            + " by default should be GONE.",
+                    view.getVisibility(), is(equalTo(View.GONE)));
+        }
+    }
+
+    private SeekbarListItem.ViewHolder getViewHolderAtPosition(int position) {
+        return (SeekbarListItem.ViewHolder) mPagedListView.getRecyclerView()
+                .findViewHolderForAdapterPosition(
+                        position);
+    }
+
+    private void refreshUi() {
+        try {
+            mActivityRule.runOnUiThread(() -> {
+                mPagedListView.getAdapter().notifyDataSetChanged();
+            });
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            throw new RuntimeException(throwable);
+        }
+        // Wait for paged list view to layout by using espresso to scroll to a position.
+        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
     }
 
     private static ViewAction clickChildViewWithId(final int id) {

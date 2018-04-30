@@ -57,9 +57,27 @@ public class SliceCreator {
             "com.example.androidx.slice.action.TOAST";
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
 
-    public static final String[] URI_PATHS = {"message", "wifi", "wifi2", "note", "ride",
-            "ride-ttl", "toggle", "toggle2", "contact", "gallery", "subscription", "subscription2",
-            "weather", "reservation", "inputrange", "range", "permission"};
+    public static final String[] URI_PATHS = {
+            "message",
+            "wifi",
+            "wifi2",
+            "note",
+            "ride",
+            "ride-ttl",
+            "toggle",
+            "toggle2",
+            "contact",
+            "gallery",
+            "subscription",
+            "subscription2",
+            "weather",
+            "reservation",
+            "inputrange",
+            "inputrange2",
+            "range",
+            "permission",
+            "empty",
+    };
 
     private final Context mContext;
 
@@ -115,10 +133,14 @@ public class SliceCreator {
                 return createReservationSlice(sliceUri);
             case "/inputrange":
                 return createStarRatingInputRange(sliceUri);
+            case "/inputrange2":
+                return createBasicInputRange(sliceUri);
             case "/range":
                 return createDownloadProgressRange(sliceUri);
             case "/permission":
                 return createPermissionSlice(sliceUri);
+            case "/empty":
+                return new ListBuilder(getContext(), sliceUri, INFINITY).build();
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -236,7 +258,7 @@ public class SliceCreator {
                 "See contact info"), IconCompat.createWithResource(getContext(),
                 R.drawable.mady), SMALL_IMAGE, "Mady");
         GridRowBuilder gb = new GridRowBuilder(b);
-        return b.setColor(0xff3949ab)
+        return b.setAccentColor(0xff3949ab)
                 .addRow(rb
                         .setTitle("Mady Pitza")
                         .setSubtitle("Frequently contacted contact")
@@ -292,7 +314,7 @@ public class SliceCreator {
     private Slice createNoteSlice(Uri sliceUri) {
         // TODO: Remote input.
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
-        return lb.setColor(0xfff4b400)
+        return lb.setAccentColor(0xfff4b400)
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .setTitle("Create new note")
                         .setSubtitle("with this note taking app")
@@ -322,11 +344,11 @@ public class SliceCreator {
                 ? -TimeUnit.MINUTES.toMillis(2) // negative for testing
                 : INFINITY;
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, ttl);
-        return lb.setColor(0xff0F9D58)
+        return lb.setAccentColor(0xff0F9D58)
                 .setHeader(new ListBuilder.HeaderBuilder(lb)
                         .setTitle("Get ride")
                         .setSubtitle(headerSubtitle)
-                        .setSummarySubtitle("Ride to work in 12 min | Ride home in 1 hour 45 min")
+                        .setSummary("Ride to work in 12 min | Ride home in 1 hour 45 min")
                         .setPrimaryAction(primaryAction))
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .setTitle("Work")
@@ -345,7 +367,7 @@ public class SliceCreator {
 
     private Slice createCustomToggleSlice(Uri sliceUri) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, -TimeUnit.HOURS.toMillis(1));
-        return b.setColor(0xffff4081)
+        return b.setAccentColor(0xffff4081)
                 .addRow(new ListBuilder.RowBuilder(b)
                         .setTitle("Custom toggle")
                         .addEndItem(
@@ -358,7 +380,7 @@ public class SliceCreator {
 
     private Slice createTwoCustomToggleSlices(Uri sliceUri) {
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
-        return lb.setColor(0xffff4081)
+        return lb.setAccentColor(0xffff4081)
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .setTitle("2 toggles")
                         .setSubtitle("each supports two states")
@@ -398,7 +420,7 @@ public class SliceCreator {
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
         SliceAction primaryAction = new SliceAction(getIntent(Settings.ACTION_WIFI_SETTINGS),
                 IconCompat.createWithResource(getContext(), R.drawable.ic_wifi), "Wi-fi Settings");
-        lb.setColor(0xff4285f4);
+        lb.setAccentColor(0xff4285f4);
         lb.addRow(new ListBuilder.RowBuilder(lb)
                 .setTitle("Wi-fi")
                 .setTitleItem(IconCompat.createWithResource(getContext(), R.drawable.ic_wifi),
@@ -459,7 +481,7 @@ public class SliceCreator {
                 .addCell(new GridRowBuilder.CellBuilder(gb2)
                         .addTitleText("Check Out")
                         .addText("11:00 AM, Feb 19"));
-        return lb.setColor(0xffFF5252)
+        return lb.setAccentColor(0xffFF5252)
                 .setHeader(new ListBuilder.HeaderBuilder(lb)
                         .setTitle("Upcoming trip to Seattle")
                         .setSubtitle("Feb 1 - 19 | 2 guests"))
@@ -475,13 +497,30 @@ public class SliceCreator {
                 .build();
     }
 
+    private Slice createBasicInputRange(Uri sliceUri) {
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        SliceAction primaryAction =
+                new SliceAction(getBroadcastIntent(ACTION_TOAST, "open star rating"),
+                        icon, "Rate");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        return lb.setAccentColor(0xff4285f4)
+                .addInputRange(new ListBuilder.InputRangeBuilder(lb)
+                        .setTitle("Alarm volume")
+                        .setSubtitle("Adjust your volume")
+                        .setInputAction(getBroadcastIntent(ACTION_TOAST, "volume changed"))
+                        .setValue(80)
+                        .setPrimaryAction(primaryAction)
+                        .setContentDescription("Slider for alarm volume"))
+                .build();
+    }
+
     private Slice createStarRatingInputRange(Uri sliceUri) {
         IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
         SliceAction primaryAction =
                 new SliceAction(getBroadcastIntent(ACTION_TOAST, "open star rating"), icon,
                         "Rate");
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
-        return lb.setColor(0xffff4081)
+        return lb.setAccentColor(0xffff4081)
                 .addInputRange(new ListBuilder.InputRangeBuilder(lb)
                         .setTitle("Star rating")
                         .setSubtitle("Pick a rating from 0 to 5")
@@ -502,7 +541,7 @@ public class SliceCreator {
                         getBroadcastIntent(ACTION_TOAST, "open download"), icon,
                         "Download");
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
-        return lb.setColor(0xffff4081)
+        return lb.setAccentColor(0xffff4081)
                 .addRange(new ListBuilder.RangeBuilder(lb)
                         .setTitle("Download progress")
                         .setSubtitle("Download is happening")

@@ -64,6 +64,7 @@ includeProject(":lifecycle:lifecycle-reactivestreams-ktx", new File(supportRoot,
 includeProject(":lifecycle:lifecycle-runtime", new File(supportRoot, "lifecycle/runtime"))
 includeProject(":lifecycle:lifecycle-service", new File(supportRoot, "lifecycle/service"))
 includeProject(":lifecycle:lifecycle-viewmodel", new File(supportRoot, "lifecycle/viewmodel"))
+includeProject(":lifecycle:lifecycle-viewmodel-ktx", new File(supportRoot, "lifecycle/viewmodel/ktx"))
 includeProject(":paging:integration-tests:testapp", new File(supportRoot, "paging/integration-tests/testapp"))
 includeProject(":paging:paging-common", new File(supportRoot, "paging/common"))
 includeProject(":paging:paging-runtime", new File(supportRoot, "paging/runtime"))

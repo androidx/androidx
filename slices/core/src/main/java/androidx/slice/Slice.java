@@ -35,7 +35,6 @@ import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.SliceConvert.unwrap;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
@@ -388,7 +387,7 @@ public final class Slice {
         }
 
         /**
-         * Add a timestamp to the slice being constructed
+         * Add a long to the slice being constructed
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
          */
@@ -396,6 +395,16 @@ public final class Slice {
                 @SliceHint String... hints) {
             mItems.add(new SliceItem(time, FORMAT_LONG, subType, hints));
             return this;
+        }
+
+        /**
+         * Add a long to the slice being constructed
+         * @param subType Optional template-specific type information
+         * @see {@link SliceItem#getSubType()}
+         */
+        public Slice.Builder addLong(long time, @Nullable String subType,
+                @SliceHint List<String> hints) {
+            return addLong(time, subType, hints.toArray(new String[hints.size()]));
         }
 
         /**
@@ -407,7 +416,7 @@ public final class Slice {
         @Deprecated
         public Slice.Builder addTimestamp(long time, @Nullable String subType,
                 @SliceHint String... hints) {
-            mItems.add(new SliceItem(time, FORMAT_TIMESTAMP, subType, hints));
+            mItems.add(new SliceItem(time, FORMAT_LONG, subType, hints));
             return this;
         }
 
@@ -455,17 +464,34 @@ public final class Slice {
     public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
         sb.append(indent);
-        sb.append("slice: ");
-        sb.append("\n");
-        indent += "   ";
+        sb.append("slice ");
+        addHints(sb, mHints);
+        sb.append("{\n");
+        String nextIndent = indent + "  ";
         for (int i = 0; i < mItems.length; i++) {
             SliceItem item = mItems[i];
-            sb.append(item.toString(indent));
-            if (!FORMAT_SLICE.equals(item.getFormat())) {
-                sb.append("\n");
-            }
+            sb.append(item.toString(nextIndent));
         }
+        sb.append(indent);
+        sb.append("}");
         return sb.toString();
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public static void addHints(StringBuilder sb, String[] hints) {
+        if (hints == null || hints.length == 0) return;
+
+        sb.append("(");
+        int end = hints.length - 1;
+        for (int i = 0; i < end; i++) {
+            sb.append(hints[i]);
+            sb.append(", ");
+        }
+        sb.append(hints[end]);
+        sb.append(") ");
     }
 
     /**
@@ -493,6 +519,6 @@ public final class Slice {
     private static Slice callBindSlice(Context context, Uri uri,
             Set<SliceSpec> supportedSpecs) {
         return SliceConvert.wrap(context.getSystemService(SliceManager.class)
-                .bindSlice(uri, new ArrayList<>(unwrap(supportedSpecs))));
+                .bindSlice(uri, unwrap(supportedSpecs)));
     }
 }

@@ -27,6 +27,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -51,6 +52,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.media.SessionToken2;
+import androidx.mediarouter.app.MediaRouteButton;
+import androidx.mediarouter.media.MediaRouteSelector;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -60,41 +63,34 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 
-// import androidx.mediarouter.app.MediaRouteButton;
-// import androidx.mediarouter.media.MediaRouter;
-// import androidx.mediarouter.media.MediaRouteSelector;
-
 /**
- * @hide
- * A View that contains the controls for MediaPlayer2.
- * It provides a wide range of UI including buttons such as "Play/Pause", "Rewind", "Fast Forward",
- * "Subtitle", "Full Screen", and it is also possible to add multiple custom buttons.
+ * A View that contains the controls for {@link android.media.MediaPlayer}.
+ * It provides a wide range of buttons that serve the following functions: play/pause,
+ * rewind/fast-forward, skip to next/previous, select subtitle track, enter/exit full screen mode,
+ * adjust video quality, select audio track, mute/unmute, and adjust playback speed.
  *
  * <p>
  * <em> MediaControlView2 can be initialized in two different ways: </em>
- * 1) When VideoView2 is initialized, it automatically initializes a MediaControlView2 instance and
- * adds it to the view.
- * 2) Initialize MediaControlView2 programmatically and add it to a ViewGroup instance.
+ * 1) When initializing {@link VideoView2} a default MediaControlView2 is created.
+ * 2) Initialize MediaControlView2 programmatically and add it to a {@link ViewGroup} instance.
  *
  * In the first option, VideoView2 automatically connects MediaControlView2 to MediaController,
- * which is necessary to communicate with MediaSession2. In the second option, however, the
- * developer needs to manually retrieve a MediaController instance and set it to MediaControlView2
- * by calling setController(MediaController controller).
+ * which is necessary to communicate with MediaSession. In the second option, however, the
+ * developer needs to manually retrieve a MediaController instance from MediaSession and set it to
+ * MediaControlView2.
  *
  * <p>
  * There is no separate method that handles the show/hide behavior for MediaControlView2. Instead,
- * one can directly change the visibility of this view by calling View.setVisibility(int). The
- * values supported are View.VISIBLE and View.GONE.
- * In addition, the following customization is supported:
- * Set focus to the play/pause button by calling requestPlayButtonFocus().
+ * one can directly change the visibility of this view by calling {@link View#setVisibility(int)}.
+ * The values supported are View.VISIBLE and View.GONE.
  *
  * <p>
- * It is also possible to add custom buttons with custom icons and actions inside MediaControlView2.
- * Those buttons will be shown when the overflow button is clicked.
- * See VideoView2#setCustomActions for more details on how to add.
+ * In addition, the following customizations are supported:
+ * 1) Set focus to the play/pause button by calling requestPlayButtonFocus().
+ * 2) Set full screen mode
+ *
  */
 @RequiresApi(21) // TODO correct minSdk API use incompatibilities and remove before release.
-@RestrictTo(LIBRARY_GROUP)
 public class MediaControlView2 extends BaseLayout {
     /**
      * @hide
@@ -185,10 +181,6 @@ public class MediaControlView2 extends BaseLayout {
 
     private static final String TAG = "MediaControlView2";
 
-    static final String ARGUMENT_KEY_FULLSCREEN = "fullScreen";
-
-    // TODO: Make these constants public api to support custom video view.
-    // TODO: Combine these constants into one regarding TrackInfo.
     static final String KEY_VIDEO_TRACK_COUNT = "VideoTrackCount";
     static final String KEY_AUDIO_TRACK_COUNT = "AudioTrackCount";
     static final String KEY_SUBTITLE_TRACK_COUNT = "SubtitleTrackCount";
@@ -196,8 +188,6 @@ public class MediaControlView2 extends BaseLayout {
     static final String KEY_SELECTED_AUDIO_INDEX = "SelectedAudioIndex";
     static final String KEY_SELECTED_SUBTITLE_INDEX = "SelectedSubtitleIndex";
     static final String EVENT_UPDATE_TRACK_STATUS = "UpdateTrackStatus";
-
-    // TODO: Remove this once integrating with MediaSession2 & MediaMetadata2
     static final String KEY_STATE_IS_ADVERTISEMENT = "MediaTypeAdvertisement";
     static final String EVENT_UPDATE_MEDIA_TYPE_STATUS = "UpdateMediaTypeStatus";
 
@@ -205,8 +195,6 @@ public class MediaControlView2 extends BaseLayout {
     static final String COMMAND_SHOW_SUBTITLE = "showSubtitle";
     // String for sending command to hide subtitle to MediaSession.
     static final String COMMAND_HIDE_SUBTITLE = "hideSubtitle";
-    // TODO: remove once the implementation is revised
-    public static final String COMMAND_SET_FULLSCREEN = "setFullscreen";
     // String for sending command to select audio track to MediaSession.
     static final String COMMAND_SELECT_AUDIO_TRACK = "SelectTrack";
     // String for sending command to set playback speed to MediaSession.
@@ -230,7 +218,6 @@ public class MediaControlView2 extends BaseLayout {
 
     private static final int SIZE_TYPE_EMBEDDED = 0;
     private static final int SIZE_TYPE_FULL = 1;
-    // TODO: add support for Minimal size type.
     private static final int SIZE_TYPE_MINIMAL = 2;
 
     private static final int MAX_PROGRESS = 1000;
@@ -246,6 +233,7 @@ public class MediaControlView2 extends BaseLayout {
     private MediaControllerCompat.TransportControls mControls;
     private PlaybackStateCompat mPlaybackState;
     private MediaMetadataCompat mMetadata;
+    private OnFullScreenListener mOnFullScreenListener;
     private int mDuration;
     private int mPrevState;
     private int mPrevWidth;
@@ -261,8 +249,7 @@ public class MediaControlView2 extends BaseLayout {
     private int mSelectedSpeedIndex;
     private int mEmbeddedSettingsItemWidth;
     private int mFullSettingsItemWidth;
-    private int mEmbeddedSettingsItemHeight;
-    private int mFullSettingsItemHeight;
+    private int mSettingsItemHeight;
     private int mSettingsWindowMargin;
     private int mMediaType;
     private int mSizeType;
@@ -284,9 +271,8 @@ public class MediaControlView2 extends BaseLayout {
     private TextView mTitleView;
     private View mAdExternalLink;
     private ImageButton mBackButton;
-    // TODO (b/77158231) revive
-    // private MediaRouteButton mRouteButton;
-    // private MediaRouteSelector mRouteSelector;
+    private MediaRouteButton mRouteButton;
+    private MediaRouteSelector mRouteSelector;
 
     // Relating to Center View
     private ViewGroup mCenterView;
@@ -354,20 +340,9 @@ public class MediaControlView2 extends BaseLayout {
 
     public MediaControlView2(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
-    }
+        super(context, attrs, defStyleAttr);
 
-    public MediaControlView2(@NonNull Context context, @Nullable AttributeSet attrs,
-            int defStyleAttr, int defStyleRes) {
-//        super((instance, superProvider, privateProvider) ->
-//                ApiLoader.getProvider().createMediaControlView2(
-//                        (MediaControlView2) instance, superProvider, privateProvider,
-//                        attrs, defStyleAttr, defStyleRes),
-//                context, attrs, defStyleAttr, defStyleRes);
-//        mProvider.initialize(attrs, defStyleAttr, defStyleRes);
-        super(context, attrs, defStyleAttr, defStyleRes);
-
-        mResources = getContext().getResources();
+        mResources = context.getResources();
         // Inflate MediaControlView2 from XML
         mRoot = makeControllerView();
         addView(mRoot);
@@ -375,9 +350,10 @@ public class MediaControlView2 extends BaseLayout {
 
     /**
      * Sets MediaSession2 token to control corresponding MediaSession2.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void setMediaSessionToken(SessionToken2 token) {
-        //mProvider.setMediaSessionToken_impl(token);
     }
 
     /**
@@ -385,17 +361,20 @@ public class MediaControlView2 extends BaseLayout {
      * @param l The callback that will be run
      */
     public void setOnFullScreenListener(OnFullScreenListener l) {
-        //mProvider.setOnFullScreenListener_impl(l);
+        mOnFullScreenListener = l;
     }
 
     /**
+     * Sets MediaController instance to MediaControlView2, which makes it possible to send and
+     * receive data between MediaControlView2 and VideoView2. This method does not need to be called
+     * when MediaControlView2 is initialized with VideoView2.
      * @hide TODO: remove once the implementation is revised
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setController(MediaControllerCompat controller) {
         mController = controller;
         if (controller != null) {
-            mControls = controller.getTransportControls();
+            mControls = mController.getTransportControls();
             // Set mMetadata and mPlaybackState to existing MediaSession variables since they may
             // be called before the callback is called
             mPlaybackState = mController.getPlaybackState();
@@ -429,8 +408,6 @@ public class MediaControlView2 extends BaseLayout {
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setButtonVisibility(@Button int button, /*@Visibility*/ int visibility) {
-        // TODO: add member variables for Fast-Forward/Prvious/Rewind buttons to save visibility in
-        // order to prevent being overriden inside updateLayout().
         switch (button) {
             case MediaControlView2.BUTTON_PLAY_PAUSE:
                 if (mPlayPauseButton != null && canPause()) {
@@ -517,7 +494,6 @@ public class MediaControlView2 extends BaseLayout {
         return false;
     }
 
-    // TODO: Should this function be removed?
     @Override
     public boolean onTrackballEvent(MotionEvent ev) {
         return false;
@@ -546,17 +522,13 @@ public class MediaControlView2 extends BaseLayout {
             manager.getDefaultDisplay().getSize(screenSize);
             int screenWidth = screenSize.x;
             int screenHeight = screenSize.y;
-            int fullIconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_full_icon_size);
-            int embeddedIconSize = mResources.getDimensionPixelSize(
-                    R.dimen.mcv2_embedded_icon_size);
-            int marginSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_margin);
+            int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_size);
 
-            // TODO: add support for Advertisement Mode.
             if (mMediaType == MEDIA_TYPE_DEFAULT) {
                 // Max number of icons inside BottomBarRightView for Music mode is 4.
                 int maxIconCount = 4;
-                updateLayout(maxIconCount, fullIconSize, embeddedIconSize, marginSize, currWidth,
-                        currHeight, screenWidth, screenHeight);
+                updateLayout(maxIconCount, iconSize, currWidth, currHeight, screenWidth,
+                        screenHeight);
 
             } else if (mMediaType == MEDIA_TYPE_MUSIC) {
                 if (mNeedUXUpdate) {
@@ -575,13 +547,12 @@ public class MediaControlView2 extends BaseLayout {
 
                 // Max number of icons inside BottomBarRightView for Music mode is 3.
                 int maxIconCount = 3;
-                updateLayout(maxIconCount, fullIconSize, embeddedIconSize, marginSize, currWidth,
-                        currHeight, screenWidth, screenHeight);
+                updateLayout(maxIconCount, iconSize, currWidth, currHeight, screenWidth,
+                        screenHeight);
             }
             mPrevWidth = currWidth;
             mPrevHeight = currHeight;
         }
-        // TODO: move this to a different location.
         // Update title bar parameters in order to avoid overlap between title view and the right
         // side of the title bar.
         updateTitleBarLayout();
@@ -591,7 +562,6 @@ public class MediaControlView2 extends BaseLayout {
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
 
-        // TODO: Merge the below code with disableUnsupportedButtons().
         if (mPlayPauseButton != null) {
             mPlayPauseButton.setEnabled(enabled);
         }
@@ -626,19 +596,16 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    // TODO (b/77158231) revive once androidx.mediarouter.* packagaes are available.
-    /*
     void setRouteSelector(MediaRouteSelector selector) {
         mRouteSelector = selector;
         if (mRouteSelector != null && !mRouteSelector.isEmpty()) {
-            mRouteButton.setRouteSelector(selector, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+            mRouteButton.setRouteSelector(selector);
             mRouteButton.setVisibility(View.VISIBLE);
         } else {
             mRouteButton.setRouteSelector(MediaRouteSelector.EMPTY);
             mRouteButton.setVisibility(View.GONE);
         }
     }
-    */
 
     ///////////////////////////////////////////////////
     // Protected or private methods
@@ -698,14 +665,12 @@ public class MediaControlView2 extends BaseLayout {
      *
      * @return The controller view.
      */
-    // TODO: This was "protected". Determine if it should be protected in MCV2.
     private ViewGroup makeControllerView() {
         ViewGroup root = (ViewGroup) inflateLayout(getContext(), R.layout.media_controller);
         initControllerView(root);
         return root;
     }
 
-    // TODO(b/76444971) make sure this is compatible with ApiHelper's one in updatable.
     private View inflateLayout(Context context, int resId) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -723,8 +688,7 @@ public class MediaControlView2 extends BaseLayout {
             mBackButton.setOnClickListener(mBackListener);
             mBackButton.setVisibility(View.GONE);
         }
-        // TODO (b/77158231) revive
-        // mRouteButton = v.findViewById(R.id.cast);
+        mRouteButton = v.findViewById(R.id.cast);
 
         // Relating to Center View
         mCenterView = v.findViewById(R.id.center_view);
@@ -735,7 +699,7 @@ public class MediaControlView2 extends BaseLayout {
         mMinimalExtraView = (LinearLayout) v.findViewById(R.id.minimal_extra_view);
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) mMinimalExtraView.getLayoutParams();
-        int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_embedded_icon_size);
+        int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_size);
         int marginSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_margin);
         params.setMargins(0, (iconSize + marginSize * 2) * (-1), 0, 0);
         mMinimalExtraView.setLayoutParams(params);
@@ -778,7 +742,6 @@ public class MediaControlView2 extends BaseLayout {
         mFullScreenButton = v.findViewById(R.id.fullscreen);
         if (mFullScreenButton != null) {
             mFullScreenButton.setOnClickListener(mFullScreenListener);
-            // TODO: Show Fullscreen button when only it is possible.
         }
         mOverflowButtonRight = v.findViewById(R.id.overflow_right);
         if (mOverflowButtonRight != null) {
@@ -815,10 +778,8 @@ public class MediaControlView2 extends BaseLayout {
         mEmbeddedSettingsItemWidth = mResources.getDimensionPixelSize(
                 R.dimen.mcv2_embedded_settings_width);
         mFullSettingsItemWidth = mResources.getDimensionPixelSize(R.dimen.mcv2_full_settings_width);
-        mEmbeddedSettingsItemHeight = mResources.getDimensionPixelSize(
-                R.dimen.mcv2_embedded_settings_height);
-        mFullSettingsItemHeight = mResources.getDimensionPixelSize(
-                R.dimen.mcv2_full_settings_height);
+        mSettingsItemHeight = mResources.getDimensionPixelSize(
+                R.dimen.mcv2_settings_height);
         mSettingsWindowMargin = (-1) * mResources.getDimensionPixelSize(
                 R.dimen.mcv2_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
@@ -840,13 +801,6 @@ public class MediaControlView2 extends BaseLayout {
             if (mFfwdButton != null && !canSeekForward()) {
                 mFfwdButton.setEnabled(false);
             }
-            // TODO What we really should do is add a canSeek to the MediaPlayerControl interface;
-            // this scheme can break the case when applications want to allow seek through the
-            // progress bar but disable forward/backward buttons.
-            //
-            // However, currently the flags SEEK_BACKWARD_AVAILABLE, SEEK_FORWARD_AVAILABLE,
-            // and SEEK_AVAILABLE are all (un)set together; as such the aforementioned issue
-            // shouldn't arise in existing applications.
             if (mProgress != null && !canSeekBackward() && !canSeekForward()) {
                 mProgress.setEnabled(false);
             }
@@ -1078,7 +1032,11 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mBackListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO: implement
+            View parent = (View) getParent();
+            if (parent != null) {
+                parent.onKeyDown(KeyEvent.KEYCODE_BACK,
+                        new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+            }
         }
     };
 
@@ -1105,8 +1063,11 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mFullScreenListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (mOnFullScreenListener == null) {
+                return;
+            }
+
             final boolean isEnteringFullScreen = !mIsFullScreen;
-            // TODO: Re-arrange the button layouts according to the UX.
             if (isEnteringFullScreen) {
                 mFullScreenButton.setImageDrawable(
                         mResources.getDrawable(R.drawable.ic_fullscreen_exit, null));
@@ -1114,11 +1075,9 @@ public class MediaControlView2 extends BaseLayout {
                 mFullScreenButton.setImageDrawable(
                         mResources.getDrawable(R.drawable.ic_fullscreen, null));
             }
-            Bundle args = new Bundle();
-            args.putBoolean(ARGUMENT_KEY_FULLSCREEN, isEnteringFullScreen);
-            mController.sendCommand(COMMAND_SET_FULLSCREEN, args, null);
-
             mIsFullScreen = isEnteringFullScreen;
+            mOnFullScreenListener.onFullScreen(MediaControlView2.this,
+                    mIsFullScreen);
         }
     };
 
@@ -1183,7 +1142,6 @@ public class MediaControlView2 extends BaseLayout {
                         mSubSettingsAdapter.setCheckPosition(mSelectedSpeedIndex);
                         mSettingsMode = SETTINGS_MODE_PLAYBACK_SPEED;
                     } else if (position == SETTINGS_MODE_HELP) {
-                        // TODO: implement this.
                         mSettingsWindow.dismiss();
                         return;
                     }
@@ -1214,7 +1172,6 @@ public class MediaControlView2 extends BaseLayout {
                     mSettingsWindow.dismiss();
                     break;
                 case SETTINGS_MODE_HELP:
-                    // TODO: implement this.
                     break;
                 case SETTINGS_MODE_SUBTITLE_TRACK:
                     if (position != mSelectedSubtitleTrackIndex) {
@@ -1240,7 +1197,6 @@ public class MediaControlView2 extends BaseLayout {
                     mSettingsWindow.dismiss();
                     break;
                 case SETTINGS_MODE_VIDEO_QUALITY:
-                    // TODO: add support for video quality
                     mSelectedVideoQualityIndex = position;
                     mSettingsWindow.dismiss();
                     break;
@@ -1350,20 +1306,13 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    private void updateLayout(int maxIconCount, int fullIconSize, int embeddedIconSize,
-             int marginSize, int currWidth, int currHeight, int screenWidth, int screenHeight) {
-        int fullBottomBarRightWidthMax = fullIconSize * maxIconCount
-                + marginSize * (maxIconCount * 2);
-        int embeddedBottomBarRightWidthMax = embeddedIconSize * maxIconCount
-                + marginSize * (maxIconCount * 2);
+    private void updateLayout(int maxIconCount, int iconSize, int currWidth,
+             int currHeight, int screenWidth, int screenHeight) {
+        int bottomBarRightWidthMax = iconSize * maxIconCount;
         int fullWidth = mTransportControls.getWidth() + mTimeView.getWidth()
-                + fullBottomBarRightWidthMax;
-        int embeddedWidth = mTimeView.getWidth() + embeddedBottomBarRightWidthMax;
+                + bottomBarRightWidthMax;
+        int embeddedWidth = mTimeView.getWidth() + bottomBarRightWidthMax;
         int screenMaxLength = Math.max(screenWidth, screenHeight);
-
-        if (fullWidth > screenMaxLength) {
-            // TODO: screen may be smaller than the length needed for Full size.
-        }
 
         boolean isFullSize = (mMediaType == MEDIA_TYPE_DEFAULT) ? (currWidth == screenMaxLength) :
                 (currWidth == screenWidth && currHeight == screenHeight);
@@ -1403,6 +1352,11 @@ public class MediaControlView2 extends BaseLayout {
                 // Relating to Title Bar
                 mTitleBar.setVisibility(View.VISIBLE);
                 mBackButton.setVisibility(View.GONE);
+                mTitleView.setPadding(
+                        mResources.getDimensionPixelSize(R.dimen.mcv2_embedded_icon_padding),
+                        mTitleView.getPaddingTop(),
+                        mTitleView.getPaddingRight(),
+                        mTitleView.getPaddingBottom());
 
                 // Relating to Full Screen Button
                 mMinimalExtraView.setVisibility(View.GONE);
@@ -1431,6 +1385,11 @@ public class MediaControlView2 extends BaseLayout {
                 // Relating to Title Bar
                 mTitleBar.setVisibility(View.VISIBLE);
                 mBackButton.setVisibility(View.VISIBLE);
+                mTitleView.setPadding(
+                        0,
+                        mTitleView.getPaddingTop(),
+                        mTitleView.getPaddingRight(),
+                        mTitleView.getPaddingBottom());
 
                 // Relating to Full Screen Button
                 mMinimalExtraView.setVisibility(View.GONE);
@@ -1523,7 +1482,6 @@ public class MediaControlView2 extends BaseLayout {
                 mRewButton.setVisibility(View.GONE);
             }
         }
-        // TODO: Add support for Next and Previous buttons
         mNextButton = v.findViewById(R.id.next);
         if (mNextButton != null) {
             mNextButton.setOnClickListener(mNextListener);
@@ -1590,15 +1548,12 @@ public class MediaControlView2 extends BaseLayout {
         mSettingsWindow.setWidth(itemWidth);
 
         // Calculate height of window and show
-        int itemHeight = (mSizeType == SIZE_TYPE_EMBEDDED)
-                ? mEmbeddedSettingsItemHeight : mFullSettingsItemHeight;
-        int totalHeight = adapter.getCount() * itemHeight;
+        int totalHeight = adapter.getCount() * mSettingsItemHeight;
         mSettingsWindow.dismiss();
         mSettingsWindow.showAsDropDown(this, mSettingsWindowMargin,
                 mSettingsWindowMargin - totalHeight, Gravity.BOTTOM | Gravity.RIGHT);
     }
 
-    @RequiresApi(26) // TODO correct minSdk API use incompatibilities and remove before release.
     private class MediaControllerCallback extends MediaControllerCompat.Callback {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
@@ -1670,16 +1625,12 @@ public class MediaControlView2 extends BaseLayout {
                 for (final PlaybackStateCompat.CustomAction action : customActions) {
                     ImageButton button = new ImageButton(getContext(),
                             null /* AttributeSet */, 0 /* Style */);
-                    // TODO: Apply R.style.BottomBarButton to this button using library context.
                     // Refer Constructor with argument (int defStyleRes) of View.java
                     button.setImageResource(action.getIcon());
-                    button.setTooltipText(action.getName());
                     final String actionString = action.getAction().toString();
                     button.setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            // TODO: Currently, we are just sending extras that came from session.
-                            // Is it the right behavior?
                             mControls.sendCustomAction(actionString, action.getExtras());
                             setVisibility(View.VISIBLE);
                         }
@@ -1708,7 +1659,6 @@ public class MediaControlView2 extends BaseLayout {
                     mAudioTrackCount = extras.getInt(KEY_AUDIO_TRACK_COUNT);
                     mAudioTrackList = new ArrayList<String>();
                     if (mAudioTrackCount > 0) {
-                        // TODO: add more text about track info.
                         for (int i = 0; i < mAudioTrackCount; i++) {
                             String track = mResources.getString(
                                     R.string.MediaControlView2_audio_track_number_text, i + 1);
@@ -1787,14 +1737,12 @@ public class MediaControlView2 extends BaseLayout {
         @Override
         public long getItemId(int position) {
             // Auto-generated method stub--does not have any purpose here
-            // TODO: implement this.
             return 0;
         }
 
         @Override
         public Object getItem(int position) {
             // Auto-generated method stub--does not have any purpose here
-            // TODO: implement this.
             return null;
         }
 
@@ -1838,7 +1786,6 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    // TODO: extend this class from SettingsAdapter
     private class SubSettingsAdapter extends BaseAdapter {
         private List<String> mTexts;
         private int mCheckPosition;
@@ -1865,14 +1812,12 @@ public class MediaControlView2 extends BaseLayout {
         @Override
         public long getItemId(int position) {
             // Auto-generated method stub--does not have any purpose here
-            // TODO: implement this.
             return 0;
         }
 
         @Override
         public Object getItem(int position) {
             // Auto-generated method stub--does not have any purpose here
-            // TODO: implement this.
             return null;
         }
 

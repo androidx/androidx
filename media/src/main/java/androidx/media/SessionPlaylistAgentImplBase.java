@@ -18,13 +18,13 @@ package androidx.media;
 
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.util.ArrayMap;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.media.MediaPlayerBase.PlayerEventCallback;
+import androidx.collection.ArrayMap;
+import androidx.media.MediaPlayerInterface.PlayerEventCallback;
 import androidx.media.MediaSession2.OnDataSourceMissingHelper;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     private final MyPlayerEventCallback mPlayerCallback;
 
     @GuardedBy("mLock")
-    private MediaPlayerBase mPlayer;
+    private MediaPlayerInterface mPlayer;
     @GuardedBy("mLock")
     private OnDataSourceMissingHelper mDsmHelper;
     // TODO: Check if having the same item is okay (b/74090741)
@@ -68,7 +68,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     // Called on session callback executor.
     private class MyPlayerEventCallback extends PlayerEventCallback {
         @Override
-        public void onCurrentDataSourceChanged(@NonNull MediaPlayerBase mpb,
+        public void onCurrentDataSourceChanged(@NonNull MediaPlayerInterface mpb,
                 @Nullable DataSourceDesc dsd) {
             synchronized (mLock) {
                 if (mPlayer != mpb) {
@@ -133,7 +133,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     }
 
     SessionPlaylistAgentImplBase(@NonNull MediaSession2ImplBase session,
-            @NonNull MediaPlayerBase player) {
+            @NonNull MediaPlayerInterface player) {
         super();
         if (session == null) {
             throw new IllegalArgumentException("sessionImpl shouldn't be null");
@@ -147,7 +147,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         mPlayer.registerPlayerEventCallback(mSession.getCallbackExecutor(), mPlayerCallback);
     }
 
-    public void setPlayer(@NonNull MediaPlayerBase player) {
+    public void setPlayer(@NonNull MediaPlayerInterface player) {
         if (player == null) {
             throw new IllegalArgumentException("player shouldn't be null");
         }

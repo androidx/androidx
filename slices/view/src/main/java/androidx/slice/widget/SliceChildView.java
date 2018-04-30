@@ -19,13 +19,11 @@ package androidx.slice.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.view.R;
 
@@ -45,10 +43,15 @@ public abstract class SliceChildView extends FrameLayout {
     protected int mSubtitleColor;
     protected int mHeaderTitleSize;
     protected int mHeaderSubtitleSize;
+    protected int mVerticalHeaderTextPadding;
     protected int mTitleSize;
     protected int mSubtitleSize;
+    protected int mVerticalTextPadding;
     protected int mGridTitleSize;
     protected int mGridSubtitleSize;
+    protected int mVerticalGridTextPadding;
+    protected int mGridTopPadding;
+    protected int mGridBottomPadding;
     protected boolean mShowLastUpdated;
     protected long mLastUpdated = -1;
 
@@ -60,6 +63,46 @@ public abstract class SliceChildView extends FrameLayout {
         this(context);
     }
 
+    /**
+     * Called when the view should be reset.
+     */
+    public abstract void resetView();
+
+    /**
+     * Sets the content to display in this slice.
+     */
+    public void setSliceContent(ListContent content) {
+        // Do nothing
+    }
+
+    /**
+     * Called when the slice being displayed in this view is an element of a larger list.
+     */
+    public void setSliceItem(SliceItem slice, boolean isHeader, int rowIndex,
+            int rowCount, SliceView.OnSliceActionListener observer) {
+        // Do nothing
+    }
+
+    /**
+     * Sets the slice actions for this view.
+     */
+    public void setSliceActions(List<SliceItem> actions) {
+        // Do nothing
+    }
+
+    /**
+     * @return the height of the view when displayed in {@link SliceView#MODE_SMALL}.
+     */
+    public int getSmallHeight() {
+        return 0;
+    }
+
+    /**
+     * @return the height of the view when displayed in {@link SliceView#MODE_LARGE}.
+     */
+    public int getActualHeight() {
+        return 0;
+    }
 
     /**
      * Set the mode of the slice being presented.
@@ -74,37 +117,6 @@ public abstract class SliceChildView extends FrameLayout {
     @SliceView.SliceMode
     public int getMode() {
         return mMode;
-    }
-
-    /**
-     * @return the height of this view when displayed in {@link SliceView#MODE_SMALL}.
-     */
-    public int getSmallHeight() {
-        return 0;
-    }
-
-    /**
-     * @return the height of this view if it displayed all of its contents.
-     */
-    public int getActualHeight() {
-        return 0;
-    }
-
-    /**
-     * @param slice the slice to show in this view.
-     */
-    public abstract void setSlice(Slice slice);
-
-    /**
-     * Called when the view should be reset.
-     */
-    public abstract void resetView();
-
-    /**
-     * @return the view.
-     */
-    public View getView() {
-        return this;
     }
 
     /**
@@ -146,33 +158,31 @@ public abstract class SliceChildView extends FrameLayout {
             mTintColor = themeColor != -1 ? themeColor : mTintColor;
             mTitleColor = a.getColor(R.styleable.SliceView_titleColor, 0);
             mSubtitleColor = a.getColor(R.styleable.SliceView_subtitleColor, 0);
+
             mHeaderTitleSize = (int) a.getDimension(
                     R.styleable.SliceView_headerTitleSize, 0);
             mHeaderSubtitleSize = (int) a.getDimension(
                     R.styleable.SliceView_headerSubtitleSize, 0);
+            mVerticalHeaderTextPadding = (int) a.getDimension(
+                    R.styleable.SliceView_headerTextVerticalPadding, 0);
+
             mTitleSize = (int) a.getDimension(R.styleable.SliceView_titleSize, 0);
             mSubtitleSize = (int) a.getDimension(
                     R.styleable.SliceView_subtitleSize, 0);
+            mVerticalTextPadding = (int) a.getDimension(
+                    R.styleable.SliceView_textVerticalPadding, 0);
+
             mGridTitleSize = (int) a.getDimension(R.styleable.SliceView_gridTitleSize, 0);
             mGridSubtitleSize = (int) a.getDimension(
                     R.styleable.SliceView_gridSubtitleSize, 0);
+            int defaultVerticalGridPadding = getContext().getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_grid_text_inner_padding);
+            mVerticalGridTextPadding = (int) a.getDimension(
+                    R.styleable.SliceView_gridTextVerticalPadding, defaultVerticalGridPadding);
+            mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
+            mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
         } finally {
             a.recycle();
         }
-    }
-
-    /**
-     * Called when the slice being displayed in this view is an element of a larger list.
-     */
-    public void setSliceItem(SliceItem slice, boolean isHeader, int rowIndex,
-            SliceView.OnSliceActionListener observer) {
-        // Do nothing
-    }
-
-    /**
-     * Sets the slice actions for this view.
-     */
-    public void setSliceActions(List<SliceItem> actions) {
-        // Do nothing
     }
 }

@@ -21,23 +21,8 @@
     <string name="abc_slice_more" msgid="1983560225998630901">"Więcej"</string>
     <string name="abc_slice_show_more" msgid="1567717014004692768">"Pokaż więcej"</string>
     <string name="abc_slice_updated" msgid="8155085405396453848">"Aktualizacja: <xliff:g id="TIME">%1$s</xliff:g>"</string>
-    <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
-      <item quantity="few"><xliff:g id="ID_2">%d</xliff:g> min temu</item>
-      <item quantity="many"><xliff:g id="ID_2">%d</xliff:g> min temu</item>
-      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> min temu</item>
-      <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> min temu</item>
-    </plurals>
-    <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
-      <item quantity="few"><xliff:g id="ID_2">%d</xliff:g> lata temu</item>
-      <item quantity="many"><xliff:g id="ID_2">%d</xliff:g> lat temu</item>
-      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> roku temu</item>
-      <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> rok temu</item>
-    </plurals>
-    <plurals name="abc_slice_duration_days" formatted="false" msgid="6241698511167107334">
-      <item quantity="few"><xliff:g id="ID_2">%d</xliff:g> dni temu</item>
-      <item quantity="many"><xliff:g id="ID_2">%d</xliff:g> dni temu</item>
-      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> dnia temu</item>
-      <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> dzień temu</item>
-    </plurals>
+    <!-- no translation found for abc_slice_duration_min (6996334305156847955) -->
+    <!-- no translation found for abc_slice_duration_years (6212691832333991589) -->
+    <!-- no translation found for abc_slice_duration_days (6241698511167107334) -->
     <string name="abc_slice_error" msgid="4188371422904147368">"Nie udało się połączyć"</string>
 </resources>

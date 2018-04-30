@@ -5,6 +5,8 @@ package androidx.slice {
     method public abstract androidx.slice.Slice bindSlice(android.content.Intent);
     method public abstract int checkSlicePermission(android.net.Uri, int, int);
     method public static androidx.slice.SliceManager getInstance(android.content.Context);
+    method public abstract java.util.List<android.net.Uri> getPinnedSlices();
+    method public abstract java.util.Set<androidx.slice.SliceSpec> getPinnedSpecs(android.net.Uri);
     method public abstract java.util.Collection<android.net.Uri> getSliceDescendants(android.net.Uri);
     method public abstract void grantSlicePermission(java.lang.String, android.net.Uri);
     method public abstract android.net.Uri mapIntentToUri(android.content.Intent);
@@ -24,6 +26,7 @@ package androidx.slice {
     method public static androidx.slice.SliceMetadata from(android.content.Context, androidx.slice.Slice);
     method public long getExpiry();
     method public int getHeaderType();
+    method public android.app.PendingIntent getInputRangeAction();
     method public long getLastUpdatedTime();
     method public int getLoadingState();
     method public androidx.slice.core.SliceAction getPrimaryAction();
@@ -117,12 +120,13 @@ package androidx.slice.widget {
     method public java.util.List<androidx.slice.SliceItem> getSliceActions();
     method public void onChanged(androidx.slice.Slice);
     method public void onClick(android.view.View);
+    method public void setAccentColor(int);
     method public void setMode(int);
     method public void setOnSliceActionListener(androidx.slice.widget.SliceView.OnSliceActionListener);
     method public void setScrollable(boolean);
     method public void setSlice(androidx.slice.Slice);
     method public void setSliceActions(java.util.List<androidx.slice.SliceItem>);
-    method public void setTint(int);
+    method public deprecated void setTint(int);
     field public static final int MODE_LARGE = 2; // 0x2
     field public static final int MODE_SHORTCUT = 3; // 0x3
     field public static final int MODE_SMALL = 1; // 0x1

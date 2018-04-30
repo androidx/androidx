@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -29,15 +30,10 @@ import android.os.Build;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
-import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
-import android.webkit.SafeBrowsingResponse;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-
-import androidx.core.os.BuildCompat;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,9 +61,7 @@ public class WebViewCompatTest {
 
     @Test
     public void testVisualStateCallbackCalled() throws Exception {
-        // TODO(gsennton) activate this test for pre-P devices when we can pre-install a WebView APK
-        // containing support for the WebView Support Library, see b/73454652.
-        if (!BuildCompat.isAtLeastP()) return;
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.VISUAL_STATE_CALLBACK));
 
         final CountDownLatch callbackLatch = new CountDownLatch(1);
         final long kRequest = 100;
@@ -85,9 +79,10 @@ public class WebViewCompatTest {
         assertTrue(callbackLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
     }
 
-    @Suppress // TODO(gsennton) remove @Suppress when b/76202025 has been resolved
     @Test
     public void testCheckThread() {
+        // Skip this test if VisualStateCallback is not supported.
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.VISUAL_STATE_CALLBACK));
         try {
             WebViewCompat.postVisualStateCallback(mWebViewOnUiThread.getWebViewOnCurrentThread(), 5,
                     new WebViewCompat.VisualStateCallback() {
@@ -120,9 +115,7 @@ public class WebViewCompatTest {
 
     @Test
     public void testStartSafeBrowsingUseApplicationContext() throws Exception {
-        // TODO(gsennton) activate this test for pre-P devices when we can pre-install a WebView APK
-        // containing support for the WebView Support Library, see b/73454652.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) return;
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING));
 
         final MockContext ctx =
                 new MockContext(InstrumentationRegistry.getTargetContext().getApplicationContext());
@@ -140,18 +133,14 @@ public class WebViewCompatTest {
 
     @Test
     public void testStartSafeBrowsingWithNullCallbackDoesntCrash() throws Exception {
-        // TODO(gsennton) activate this test for pre-P devices when we can pre-install a WebView APK
-        // containing support for the WebView Support Library, see b/73454652.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) return;
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING));
 
         WebViewCompat.startSafeBrowsing(InstrumentationRegistry.getTargetContext(), null);
     }
 
     @Test
     public void testStartSafeBrowsingInvokesCallback() throws Exception {
-        // TODO(gsennton) activate this test for pre-P devices when we can pre-install a WebView APK
-        // containing support for the WebView Support Library, see b/73454652.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) return;
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING));
 
         final CountDownLatch resultLatch = new CountDownLatch(1);
         WebViewCompat.startSafeBrowsing(
@@ -169,9 +158,7 @@ public class WebViewCompatTest {
 
     @Test
     public void testSetSafeBrowsingWhitelistWithMalformedList() throws Exception {
-        // TODO(gsennton) activate this test for pre-P devices when we can pre-install a WebView APK
-        // containing support for the WebView Support Library, see b/73454652.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) return;
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_WHITELIST));
 
         List whitelist = new ArrayList<String>();
         // Protocols are not supported in the whitelist
@@ -189,9 +176,9 @@ public class WebViewCompatTest {
 
     @Test
     public void testSetSafeBrowsingWhitelistWithValidList() throws Exception {
-        // TODO(gsennton) activate this test for pre-P devices when we can pre-install a WebView APK
-        // containing support for the WebView Support Library, see b/73454652.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) return;
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_WHITELIST));
+        // This test relies on the onSafeBrowsingHit callback to verify correctness.
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_HIT));
 
         List whitelist = new ArrayList<String>();
         whitelist.add("safe-browsing");
@@ -206,7 +193,7 @@ public class WebViewCompatTest {
         assertTrue(resultLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
 
         final CountDownLatch resultLatch2 = new CountDownLatch(1);
-        mWebViewOnUiThread.setWebViewClient(new WebViewClient() {
+        mWebViewOnUiThread.setWebViewClient(new WebViewClientCompat() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 resultLatch2.countDown();
@@ -214,7 +201,7 @@ public class WebViewCompatTest {
 
             @Override
             public void onSafeBrowsingHit(WebView view, WebResourceRequest request, int threatType,
-                    SafeBrowsingResponse callback) {
+                    SafeBrowsingResponseCompat callback) {
                 Assert.fail("Should not invoke onSafeBrowsingHit");
             }
         });
@@ -227,9 +214,8 @@ public class WebViewCompatTest {
 
     @Test
     public void testGetSafeBrowsingPrivacyPolicyUrl() throws Exception {
-        // TODO(gsennton) activate this test for pre-P devices when we can pre-install a WebView APK
-        // containing support for the WebView Support Library, see b/73454652.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) return;
+        assumeTrue(
+                WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL));
 
         assertNotNull(WebViewCompat.getSafeBrowsingPrivacyPolicyUrl());
         try {

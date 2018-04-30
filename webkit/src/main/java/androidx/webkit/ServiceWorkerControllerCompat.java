@@ -16,18 +16,11 @@
 
 package androidx.webkit;
 
-import android.os.Build;
-import android.webkit.ServiceWorkerController;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
-import androidx.webkit.internal.FrameworkServiceWorkerController;
-import androidx.webkit.internal.ServiceWorkerControllerAdapter;
-import androidx.webkit.internal.WebViewGlueCommunicator;
-
-// TODO(gsennton) guard APIs with isFeatureSupported(String)
+import androidx.webkit.internal.ServiceWorkerControllerImpl;
 
 /**
  * Manages Service Workers used by WebView.
@@ -61,28 +54,14 @@ public abstract class ServiceWorkerControllerCompat {
      * @return the default ServiceWorkerController instance
      */
     @NonNull
+    @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_BASIC_USAGE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static ServiceWorkerControllerCompat getInstance() {
         return LAZY_HOLDER.INSTANCE;
     }
 
     private static class LAZY_HOLDER {
-        static final ServiceWorkerControllerCompat INSTANCE =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                        ? getFrameworkControllerCompat() : getSupportLibraryControllerCompat();
-    }
-
-    /**
-     * Return a version of {@link ServiceWorkerControllerCompat} that only uses framework APIs.
-     */
-    @RequiresApi(Build.VERSION_CODES.N)
-    private static ServiceWorkerControllerCompat getFrameworkControllerCompat() {
-        return new FrameworkServiceWorkerController(
-                ServiceWorkerController.getInstance());
-    }
-
-    private static ServiceWorkerControllerCompat getSupportLibraryControllerCompat() {
-        return new ServiceWorkerControllerAdapter(
-                WebViewGlueCommunicator.getFactory().getServiceWorkerController());
+        static final ServiceWorkerControllerCompat INSTANCE = new ServiceWorkerControllerImpl();
     }
 
     /**

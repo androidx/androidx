@@ -116,7 +116,7 @@ public class SliceRenderer {
 
     private File getScreenshotDirectory() {
         if (sScreenshotDirectory == null) {
-            File storage = mContext.getDataDir();
+            File storage = mContext.getFilesDir();
             sScreenshotDirectory = new File(storage, SCREENSHOT_DIR);
             if (!sScreenshotDirectory.exists()) {
                 if (!sScreenshotDirectory.mkdirs()) {
@@ -188,12 +188,12 @@ public class SliceRenderer {
                             .setActionMode(SliceUtils.SerializeOptions.MODE_CONVERT));
 
             byte[] bytes = outputStream.toByteArray();
+            Log.d(TAG, "Serialized: " + new String(bytes));
             ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
             return SliceUtils.parseSlice(mContext, inputStream, "UTF-8",
                     new SliceUtils.SliceActionListener() {
                         @Override
-                        public void onSliceAction(Uri actionUri) {
-                        }
+                        public void onSliceAction(Uri actionUri) { }
                     });
         } catch (Exception e) {
             throw new RuntimeException(e);

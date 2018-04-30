@@ -21,17 +21,8 @@
     <string name="abc_slice_more" msgid="1983560225998630901">"Mer"</string>
     <string name="abc_slice_show_more" msgid="1567717014004692768">"Visa mer"</string>
     <string name="abc_slice_updated" msgid="8155085405396453848">"Uppdaterades <xliff:g id="TIME">%1$s</xliff:g>"</string>
-    <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
-      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> minuter sedan</item>
-      <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> minut sedan</item>
-    </plurals>
-    <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
-      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> år sedan</item>
-      <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> år sedan</item>
-    </plurals>
-    <plurals name="abc_slice_duration_days" formatted="false" msgid="6241698511167107334">
-      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> dagar sedan</item>
-      <item quantity="one"><xliff:g id="ID_1">%d</xliff:g> dag sedan</item>
-    </plurals>
+    <!-- no translation found for abc_slice_duration_min (6996334305156847955) -->
+    <!-- no translation found for abc_slice_duration_years (6212691832333991589) -->
+    <!-- no translation found for abc_slice_duration_days (6241698511167107334) -->
     <string name="abc_slice_error" msgid="4188371422904147368">"Det gick inte att ansluta"</string>
 </resources>

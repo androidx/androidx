@@ -50,7 +50,8 @@ public class CoreComponentFactory extends AppComponentFactory {
     }
 
     @Override
-    public BroadcastReceiver instantiateReceiver(ClassLoader cl, String className, Intent intent)
+    public BroadcastReceiver instantiateReceiver(ClassLoader cl, String className,
+            Intent intent)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         return checkCompatWrapper(super.instantiateReceiver(cl, className, intent));
     }
@@ -67,7 +68,7 @@ public class CoreComponentFactory extends AppComponentFactory {
         return checkCompatWrapper(super.instantiateService(cl, className, intent));
     }
 
-    private <T> T checkCompatWrapper(T obj) {
+    static <T> T checkCompatWrapper(T obj) {
         if (obj instanceof CompatWrapped) {
             T wrapper = (T) ((CompatWrapped) obj).getWrapper();
             if (wrapper != null) {

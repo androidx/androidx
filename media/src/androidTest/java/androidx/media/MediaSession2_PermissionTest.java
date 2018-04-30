@@ -48,9 +48,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
@@ -68,6 +70,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests whether {@link MediaSession2} receives commands that hasn't allowed.
  */
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class MediaSession2_PermissionTest extends MediaSession2TestBase {

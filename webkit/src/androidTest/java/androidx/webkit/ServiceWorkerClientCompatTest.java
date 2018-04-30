@@ -17,8 +17,8 @@
 package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
-import android.os.Build;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.webkit.JavascriptInterface;
@@ -141,9 +141,9 @@ public class ServiceWorkerClientCompatTest {
     // Test correct invocation of shouldInterceptRequest for Service Workers.
     @Test
     public void testServiceWorkerClientInterceptCallback() throws Exception {
-        // TODO(gsennton) activate this test for pre-N devices when we can pre-install a WebView APK
-        // containing support for the WebView Support Library, see b/73454652.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return;
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SERVICE_WORKER_BASIC_USAGE));
+        assumeTrue(WebViewFeature.isFeatureSupported(
+                WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST));
 
         final InterceptServiceWorkerClient mInterceptServiceWorkerClient =
                 new InterceptServiceWorkerClient();

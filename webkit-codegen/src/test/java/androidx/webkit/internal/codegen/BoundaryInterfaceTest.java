@@ -18,6 +18,9 @@ package androidx.webkit.internal.codegen;
 
 import static org.junit.Assert.assertEquals;
 
+import androidx.webkit.internal.codegen.representations.ClassRepr;
+import androidx.webkit.internal.codegen.representations.MethodRepr;
+
 import com.android.tools.lint.LintCoreProjectEnvironment;
 
 import com.intellij.psi.PsiClass;
@@ -27,14 +30,12 @@ import com.squareup.javapoet.JavaFile;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
-
-import androidx.webkit.internal.codegen.representations.ClassRepr;
-import androidx.webkit.internal.codegen.representations.MethodRepr;
 
 @RunWith(JUnit4.class)
 public class BoundaryInterfaceTest {
@@ -58,10 +59,12 @@ public class BoundaryInterfaceTest {
         testBoundaryInterfaceGeneration("SingleClassAndMethod");
     }
 
+    @Ignore
     @Test public void testWebkitReturnTypeGeneratesInvocationHandler() {
         testBoundaryInterfaceGeneration("WebKitTypeAsMethodParameter");
     }
 
+    @Ignore
     @Test public void testWebkitMethodParameterTypeGeneratesInvocationHandler() {
         testBoundaryInterfaceGeneration("WebKitTypeAsMethodReturn");
     }

@@ -18,11 +18,9 @@
 
 <TextView
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
         android:gravity="center"
         android:layout_height="wrap_content"
-        android:padding="4dp"
         android:layout_width="match_parent"
         android:maxLines="1"
+        android:singleLine="true"
         android:ellipsize="end"/>
