@@ -48,8 +48,7 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
                 return result.toDotNotation()
             }
 
-            context.reportNoProGuardMappingFoundFailure()
-            Log.e(TAG, "No mapping for: %s", type)
+            context.reportNoProGuardMappingFoundFailure(TAG, javaType.toString())
             return typeToReplace
         }
 
@@ -62,8 +61,7 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
 
         // Report error only when we are sure
         if (context.typeRewriter.isEligibleForRewrite(type)) {
-            context.reportNoProGuardMappingFoundFailure()
-            Log.e(TAG, "No mapping for: " + type)
+            context.reportNoProGuardMappingFoundFailure(TAG, type.toString())
         }
         return typeToReplace
     }

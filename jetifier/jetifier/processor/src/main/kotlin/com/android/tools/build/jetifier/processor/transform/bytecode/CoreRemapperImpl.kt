@@ -51,9 +51,7 @@ class CoreRemapperImpl(
             return result
         }
 
-        if (!context.useFallbackIfTypeIsMissing) {
-            context.reportNoMappingFoundFailure()
-        }
+        context.reportNoMappingFoundFailure(TAG, type)
         return type
     }
 
@@ -107,14 +105,16 @@ class CoreRemapperImpl(
 
         val owner = path.toFile().path.replace('\\', '/').removeSuffix(".class")
         val type = JavaType(owner)
-        val result = rewriteType(type)
+
+        val result = context.typeRewriter.rewriteType(type)
+        if (result == null) {
+            context.reportNoMappingFoundFailure("PathRewrite", type)
+            return path
+        }
+
         if (result != type) {
             changesDone = true
             return path.fileSystem.getPath(result.fullName + ".class")
-        }
-
-        if (!context.useFallbackIfTypeIsMissing) {
-            context.reportNoMappingFoundFailure()
         }
 
         return path
