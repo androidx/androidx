@@ -15,14 +15,17 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.androidx.media">
+
+    <uses-sdk tools:overrideLibrary="androidx.media.widget" />
+
     <application android:label="Video View Test">
 
         <!-- Video Selection Activity -->
         <activity android:name="VideoSelector"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:configChanges="orientation|screenSize"
-            >
+            android:theme="@style/Theme.AppCompat"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -31,8 +34,8 @@
 
         <!-- Video playback activity -->
         <activity android:name="VideoViewTest"
-            android:configChanges="orientation|screenSize"
-            >
+            android:theme="@style/Theme.AppCompat"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
             </intent-filter>

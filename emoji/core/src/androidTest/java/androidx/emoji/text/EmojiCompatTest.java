@@ -53,6 +53,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -689,6 +690,97 @@ public class EmojiCompatTest {
         assertFalse(extras.containsKey(EmojiCompat.EDITOR_INFO_REPLACE_ALL_KEY));
 
         metadataLoader.getLoaderLatch().countDown();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testLoad_throwsException_whenLoadStrategyDefault() {
+        final EmojiCompat.MetadataRepoLoader loader = mock(EmojiCompat.MetadataRepoLoader.class);
+        final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader);
+        EmojiCompat.reset(config);
+
+        EmojiCompat.get().load();
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 18)
+    public void testLoad_pre19() {
+        final EmojiCompat.MetadataRepoLoader loader = spy(new TestConfigBuilder
+                .TestEmojiDataLoader());
+        final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader)
+                .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL);
+
+        EmojiCompat.reset(config);
+
+        verify(loader, never()).load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
+        assertEquals(EmojiCompat.LOAD_STATE_DEFAULT, EmojiCompat.get().getLoadState());
+
+        EmojiCompat.get().load();
+        assertEquals(EmojiCompat.LOAD_STATE_SUCCEEDED, EmojiCompat.get().getLoadState());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testLoad_startsLoading() {
+        final EmojiCompat.MetadataRepoLoader loader = spy(new TestConfigBuilder
+                .TestEmojiDataLoader());
+        final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader)
+                .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL);
+
+        EmojiCompat.reset(config);
+
+        verify(loader, never()).load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
+        assertEquals(EmojiCompat.LOAD_STATE_DEFAULT, EmojiCompat.get().getLoadState());
+
+        EmojiCompat.get().load();
+        verify(loader, times(1)).load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
+        assertEquals(EmojiCompat.LOAD_STATE_SUCCEEDED, EmojiCompat.get().getLoadState());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testLoad_onceSuccessDoesNotStartLoading() {
+        final EmojiCompat.MetadataRepoLoader loader = spy(new TestConfigBuilder
+                .TestEmojiDataLoader());
+        final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader)
+                .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL);
+
+        EmojiCompat.reset(config);
+
+        EmojiCompat.get().load();
+        verify(loader, times(1)).load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
+        assertEquals(EmojiCompat.LOAD_STATE_SUCCEEDED, EmojiCompat.get().getLoadState());
+
+        reset(loader);
+        EmojiCompat.get().load();
+        verify(loader, never()).load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
+        assertEquals(EmojiCompat.LOAD_STATE_SUCCEEDED, EmojiCompat.get().getLoadState());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testLoad_onceLoadingDoesNotStartLoading() throws InterruptedException {
+        final TestConfigBuilder.WaitingDataLoader loader = spy(
+                new TestConfigBuilder.WaitingDataLoader(true /*success*/));
+        final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader)
+                .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL);
+
+        EmojiCompat.reset(config);
+
+        verify(loader, never()).load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
+
+        EmojiCompat.get().load();
+        verify(loader, times(1)).load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
+        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_LOADING);
+
+        reset(loader);
+
+        EmojiCompat.get().load();
+        verify(loader, never()).load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
+
+        loader.getLoaderLatch().countDown();
+        loader.getTestLatch().await();
+
+        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_SUCCEEDED);
     }
 
     @Test

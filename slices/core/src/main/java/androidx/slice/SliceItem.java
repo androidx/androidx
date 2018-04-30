@@ -19,13 +19,18 @@ package androidx.slice;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
+
+import static androidx.slice.Slice.addHints;
 
 import android.app.PendingIntent;
 import android.app.RemoteInput;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -36,6 +41,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 
 import java.util.Arrays;
@@ -52,7 +58,7 @@ import java.util.List;
  * <li>{@link android.app.slice.SliceItem#FORMAT_IMAGE}</li>
  * <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
  * <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
- * <li>{@link android.app.slice.SliceItem#FORMAT_TIMESTAMP}</li>
+ * <li>{@link android.app.slice.SliceItem#FORMAT_LONG}</li>
  * <p>
  * The hints that a {@link SliceItem} are a set of strings which annotate
  * the content. The hints that are guaranteed to be understood by the system
@@ -71,7 +77,7 @@ public class SliceItem {
      */
     @RestrictTo(Scope.LIBRARY)
     @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,
-            FORMAT_TIMESTAMP, FORMAT_REMOTE_INPUT})
+            FORMAT_LONG, FORMAT_REMOTE_INPUT, FORMAT_LONG})
     public @interface SliceType {
     }
 
@@ -111,7 +117,16 @@ public class SliceItem {
     @RestrictTo(Scope.LIBRARY)
     public SliceItem(PendingIntent intent, Slice slice, String format, String subType,
             @Slice.SliceHint String[] hints) {
-        this(new Pair<>(intent, slice), format, subType, hints);
+        this(new Pair<Object, Slice>(intent, slice), format, subType, hints);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public SliceItem(Consumer<Uri> action, Slice slice, String format, String subType,
+            @Slice.SliceHint String[] hints) {
+        this(new Pair<Object, Slice>(action, slice), format, subType, hints);
     }
 
     /**
@@ -148,7 +163,7 @@ public class SliceItem {
      * <li>{@link android.app.slice.SliceItem#FORMAT_IMAGE}</li>
      * <li>{@link android.app.slice.SliceItem#FORMAT_ACTION}</li>
      * <li>{@link android.app.slice.SliceItem#FORMAT_INT}</li>
-     * <li>{@link android.app.slice.SliceItem#FORMAT_TIMESTAMP}</li>
+     * <li>{@link android.app.slice.SliceItem#FORMAT_LONG}</li>
      * <li>{@link android.app.slice.SliceItem#FORMAT_REMOTE_INPUT}</li>
      * @see #getSubType() ()
      */
@@ -188,7 +203,20 @@ public class SliceItem {
      * SliceItem
      */
     public PendingIntent getAction() {
-        return ((Pair<PendingIntent, Slice>) mObj).first;
+        return (PendingIntent) ((Pair<Object, Slice>) mObj).first;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void fireAction(Context context, Intent i) throws PendingIntent.CanceledException {
+        Object action = ((Pair<Object, Slice>) mObj).first;
+        if (action instanceof PendingIntent) {
+            ((PendingIntent) action).send(context, 0, i, null, null);
+        } else {
+            ((Consumer<Uri>) action).accept(getSlice().getUri());
+        }
     }
 
     /**
@@ -215,15 +243,23 @@ public class SliceItem {
      */
     public Slice getSlice() {
         if (FORMAT_ACTION.equals(getFormat())) {
-            return ((Pair<PendingIntent, Slice>) mObj).second;
+            return ((Pair<Object, Slice>) mObj).second;
         }
         return (Slice) mObj;
     }
 
     /**
-     * @return The timestamp held by this {@link android.app.slice.SliceItem#FORMAT_TIMESTAMP}
+     * @return The long held by this {@link android.app.slice.SliceItem#FORMAT_LONG}
      * SliceItem
      */
+    public long getLong() {
+        return (Long) mObj;
+    }
+
+    /**
+     * @deprecated TO BE REMOVED
+     */
+    @Deprecated
     public long getTimestamp() {
         return (Long) mObj;
     }
@@ -301,8 +337,8 @@ public class SliceItem {
                 dest.putParcelable(OBJ, ((Slice) obj).toBundle());
                 break;
             case FORMAT_ACTION:
-                dest.putParcelable(OBJ, ((Pair<PendingIntent, Slice>) obj).first);
-                dest.putBundle(OBJ_2, ((Pair<PendingIntent, Slice>) obj).second.toBundle());
+                dest.putParcelable(OBJ, (PendingIntent) ((Pair<Object, Slice>) obj).first);
+                dest.putBundle(OBJ_2, ((Pair<Object, Slice>) obj).second.toBundle());
                 break;
             case FORMAT_TEXT:
                 dest.putCharSequence(OBJ, (CharSequence) obj);
@@ -310,7 +346,7 @@ public class SliceItem {
             case FORMAT_INT:
                 dest.putInt(OBJ, (Integer) mObj);
                 break;
-            case FORMAT_TIMESTAMP:
+            case FORMAT_LONG:
                 dest.putLong(OBJ, (Long) mObj);
                 break;
         }
@@ -328,11 +364,11 @@ public class SliceItem {
                 return in.getCharSequence(OBJ);
             case FORMAT_ACTION:
                 return new Pair<>(
-                        (PendingIntent) in.getParcelable(OBJ),
+                        in.getParcelable(OBJ),
                         new Slice(in.getBundle(OBJ_2)));
             case FORMAT_INT:
                 return in.getInt(OBJ);
-            case FORMAT_TIMESTAMP:
+            case FORMAT_LONG:
                 return in.getLong(OBJ);
         }
         throw new RuntimeException("Unsupported type " + type);
@@ -354,8 +390,8 @@ public class SliceItem {
                 return "Action";
             case FORMAT_INT:
                 return "Int";
-            case FORMAT_TIMESTAMP:
-                return "Timestamp";
+            case FORMAT_LONG:
+                return "Long";
             case FORMAT_REMOTE_INPUT:
                 return "RemoteInput";
         }
@@ -377,36 +413,35 @@ public class SliceItem {
     @RestrictTo(Scope.LIBRARY)
     public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
-        if (!FORMAT_SLICE.equals(getFormat())) {
-            sb.append(indent);
-            sb.append(getFormat());
-            sb.append(": ");
-        }
         switch (getFormat()) {
             case FORMAT_SLICE:
                 sb.append(getSlice().toString(indent));
                 break;
             case FORMAT_ACTION:
-                sb.append(getAction());
-                sb.append("\n");
+                sb.append(indent).append(getAction()).append(",\n");
                 sb.append(getSlice().toString(indent));
                 break;
             case FORMAT_TEXT:
-                sb.append(getText());
+                sb.append(indent).append('"').append(getText()).append('"');
                 break;
             case FORMAT_IMAGE:
-                sb.append(getIcon());
+                sb.append(indent).append(getIcon());
                 break;
             case FORMAT_INT:
-                sb.append(getInt());
+                sb.append(indent).append(getInt());
                 break;
-            case FORMAT_TIMESTAMP:
-                sb.append(getTimestamp());
+            case FORMAT_LONG:
+                sb.append(indent).append(getLong());
                 break;
             default:
-                sb.append(SliceItem.typeToString(getFormat()));
+                sb.append(indent).append(SliceItem.typeToString(getFormat()));
                 break;
         }
+        if (!FORMAT_SLICE.equals(getFormat())) {
+            sb.append(' ');
+            addHints(sb, mHints);
+        }
+        sb.append(",\n");
         return sb.toString();
     }
 }

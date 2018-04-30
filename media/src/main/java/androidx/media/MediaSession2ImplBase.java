@@ -16,7 +16,8 @@
 
 package androidx.media;
 
-import static androidx.media.MediaPlayerBase.BUFFERING_STATE_UNKNOWN;
+import static androidx.media.MediaPlayerInterface.BUFFERING_STATE_UNKNOWN;
+import static androidx.media.MediaSession2.ControllerCb;
 import static androidx.media.MediaSession2.ControllerInfo;
 import static androidx.media.MediaSession2.ErrorCode;
 import static androidx.media.MediaSession2.OnDataSourceMissingHelper;
@@ -35,9 +36,11 @@ import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
+import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -47,8 +50,9 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaController2.PlaybackInfo;
-import androidx.media.MediaPlayerBase.PlayerEventCallback;
+import androidx.media.MediaPlayerInterface.PlayerEventCallback;
 import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
 
 import java.lang.ref.WeakReference;
@@ -68,19 +72,19 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
     private final MediaSessionCompat mSessionCompat;
-    private final MediaSession2StubImplBase mSession2Stub;
+    private final MediaSession2Stub mSession2Stub;
+    private final MediaSessionLegacyStub mSessionLegacyStub;
     private final String mId;
     private final Executor mCallbackExecutor;
     private final SessionCallback mCallback;
     private final SessionToken2 mSessionToken;
     private final AudioManager mAudioManager;
-    private final MediaPlayerBase.PlayerEventCallback mPlayerEventCallback;
+    private final MediaPlayerInterface.PlayerEventCallback mPlayerEventCallback;
     private final MediaPlaylistAgent.PlaylistEventCallback mPlaylistEventCallback;
-
-    private WeakReference<MediaSession2> mInstance;
+    private final MediaSession2 mInstance;
 
     @GuardedBy("mLock")
-    private MediaPlayerBase mPlayer;
+    private MediaPlayerInterface mPlayer;
     @GuardedBy("mLock")
     private MediaPlaylistAgent mPlaylistAgent;
     @GuardedBy("mLock")
@@ -90,21 +94,21 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @GuardedBy("mLock")
     private OnDataSourceMissingHelper mDsmHelper;
     @GuardedBy("mLock")
-    private PlaybackStateCompat mPlaybackStateCompat;
-    @GuardedBy("mLock")
     private PlaybackInfo mPlaybackInfo;
 
     MediaSession2ImplBase(Context context, MediaSessionCompat sessionCompat, String id,
-            MediaPlayerBase player, MediaPlaylistAgent playlistAgent,
+            MediaPlayerInterface player, MediaPlaylistAgent playlistAgent,
             VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
             Executor callbackExecutor, SessionCallback callback) {
         mContext = context;
+        mInstance = createInstance();
         mHandlerThread = new HandlerThread("MediaController2_Thread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
 
         mSessionCompat = sessionCompat;
-        mSession2Stub = new MediaSession2StubImplBase(this);
+        mSession2Stub = new MediaSession2Stub(this);
+        mSessionLegacyStub = new MediaSessionLegacyStub(this);
         mSessionCompat.setCallback(mSession2Stub, mHandler);
         mSessionCompat.setSessionActivity(sessionActivity);
 
@@ -113,7 +117,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         mCallbackExecutor = callbackExecutor;
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-        // TODO: Set callback values properly
         mPlayerEventCallback = new MyPlayerEventCallback(this);
         mPlaylistEventCallback = new MyPlaylistEventCallback(this);
 
@@ -137,16 +140,22 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     @Override
-    public void updatePlayer(@NonNull MediaPlayerBase player,
+    public void updatePlayer(@NonNull MediaPlayerInterface player,
             @Nullable MediaPlaylistAgent playlistAgent,
             @Nullable VolumeProviderCompat volumeProvider) {
         if (player == null) {
             throw new IllegalArgumentException("player shouldn't be null");
         }
-        final MediaPlayerBase oldPlayer;
+        final boolean hasPlayerChanged;
+        final boolean hasAgentChanged;
+        final boolean hasPlaybackInfoChanged;
+        final MediaPlayerInterface oldPlayer;
         final MediaPlaylistAgent oldAgent;
         final PlaybackInfo info = createPlaybackInfo(volumeProvider, player.getAudioAttributes());
         synchronized (mLock) {
+            hasPlayerChanged = (mPlayer != player);
+            hasAgentChanged = (mPlaylistAgent != playlistAgent);
+            hasPlaybackInfoChanged = (mPlaybackInfo != info);
             oldPlayer = mPlayer;
             oldAgent = mPlaylistAgent;
             mPlayer = player;
@@ -161,6 +170,10 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             mVolumeProvider = volumeProvider;
             mPlaybackInfo = info;
         }
+        if (volumeProvider == null) {
+            int stream = getLegacyStreamType(player.getAudioAttributes());
+            mSessionCompat.setPlaybackToLocal(stream);
+        }
         if (player != oldPlayer) {
             player.registerPlayerEventCallback(mCallbackExecutor, mPlayerEventCallback);
             if (oldPlayer != null) {
@@ -171,35 +184,40 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         if (playlistAgent != oldAgent) {
             playlistAgent.registerPlaylistEventCallback(mCallbackExecutor, mPlaylistEventCallback);
             if (oldAgent != null) {
-                // Warning: Poorly implement player may ignore this
+                // Warning: Poorly implement agent may ignore this
                 oldAgent.unregisterPlaylistEventCallback(mPlaylistEventCallback);
             }
         }
 
         if (oldPlayer != null) {
-            mSession2Stub.notifyPlaybackInfoChanged(info);
-            notifyPlayerUpdatedNotLocked(oldPlayer);
+            // If it's not the first updatePlayer(), tell changes in the player, agent, and playback
+            // info.
+            if (hasAgentChanged) {
+                // Update agent first. Otherwise current position may be changed off the current
+                // media item's duration, and controller may consider it as a bug.
+                notifyAgentUpdatedNotLocked(oldAgent);
+            }
+            if (hasPlayerChanged) {
+                notifyPlayerUpdatedNotLocked(oldPlayer);
+            }
+            if (hasPlaybackInfoChanged) {
+                // Currently hasPlaybackInfo is always true, but check this in case that we're
+                // adding PlaybackInfo#equals().
+                notifyToAllControllers(new NotifyRunnable() {
+                    @Override
+                    public void run(ControllerCb callback) throws RemoteException {
+                        callback.onPlaybackInfoChanged(info);
+                    }
+                });
+            }
         }
-        // TODO(jaewan): Repeat the same thing for the playlist agent.
     }
 
     private PlaybackInfo createPlaybackInfo(VolumeProviderCompat volumeProvider,
             AudioAttributesCompat attrs) {
         PlaybackInfo info;
         if (volumeProvider == null) {
-            int stream;
-            if (attrs == null) {
-                stream = AudioManager.STREAM_MUSIC;
-            } else {
-                stream = attrs.getVolumeControlStream();
-                if (stream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
-                    // It may happen if the AudioAttributes doesn't have usage.
-                    // Change it to the STREAM_MUSIC because it's not supported by audio manager
-                    // for querying volume level.
-                    stream = AudioManager.STREAM_MUSIC;
-                }
-            }
-
+            int stream = getLegacyStreamType(attrs);
             int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
             if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
                 controlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
@@ -221,6 +239,23 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         return info;
     }
 
+    private int getLegacyStreamType(@Nullable AudioAttributesCompat attrs) {
+        int stream;
+        if (attrs == null) {
+            stream = AudioManager.STREAM_MUSIC;
+        } else {
+            stream = attrs.getLegacyStreamType();
+            if (stream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
+                // Usually, AudioAttributesCompat#getLegacyStreamType() does not return
+                // USE_DEFAULT_STREAM_TYPE unless the developer sets it with
+                // AudioAttributesCompat.Builder#setLegacyStreamType().
+                // But for safety, let's convert USE_DEFAULT_STREAM_TYPE to STREAM_MUSIC here.
+                stream = AudioManager.STREAM_MUSIC;
+            }
+        }
+        return stream;
+    }
+
     @Override
     public void close() {
         synchronized (mLock) {
@@ -232,13 +267,17 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             mSessionCompat.release();
             mHandler.removeCallbacksAndMessages(null);
             if (mHandlerThread.isAlive()) {
-                mHandlerThread.quitSafely();
+                if (Build.VERSION.SDK_INT >= 18) {
+                    mHandlerThread.quitSafely();
+                } else {
+                    mHandlerThread.quit();
+                }
             }
         }
     }
 
     @Override
-    public @NonNull MediaPlayerBase getPlayer() {
+    public @NonNull MediaPlayerInterface getPlayer() {
         synchronized (mLock) {
             return mPlayer;
         }
@@ -264,31 +303,34 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     @Override
-    public @NonNull List<MediaSession2.ControllerInfo> getConnectedControllers() {
+    public @NonNull List<ControllerInfo> getConnectedControllers() {
         return mSession2Stub.getConnectedControllers();
     }
 
     @Override
     public void setAudioFocusRequest(@Nullable AudioFocusRequest afr) {
-        // TODO(jaewan): implement this (b/72529899)
-        // mProvider.setAudioFocusRequest_impl(focusGain);
     }
 
     @Override
     public void setCustomLayout(@NonNull ControllerInfo controller,
-            @NonNull List<MediaSession2.CommandButton> layout) {
+            @NonNull final List<MediaSession2.CommandButton> layout) {
         if (controller == null) {
             throw new IllegalArgumentException("controller shouldn't be null");
         }
         if (layout == null) {
             throw new IllegalArgumentException("layout shouldn't be null");
         }
-        mSession2Stub.notifyCustomLayout(controller, layout);
+        notifyToController(controller, new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onCustomLayoutChanged(layout);
+            }
+        });
     }
 
     @Override
     public void setAllowedCommands(@NonNull ControllerInfo controller,
-            @NonNull SessionCommandGroup2 commands) {
+            @NonNull final SessionCommandGroup2 commands) {
         if (controller == null) {
             throw new IllegalArgumentException("controller shouldn't be null");
         }
@@ -296,32 +338,49 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             throw new IllegalArgumentException("commands shouldn't be null");
         }
         mSession2Stub.setAllowedCommands(controller, commands);
+        notifyToController(controller, new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onAllowedCommandsChanged(commands);
+            }
+        });
     }
 
     @Override
-    public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
+    public void sendCustomCommand(@NonNull final SessionCommand2 command,
+            @Nullable final Bundle args) {
         if (command == null) {
             throw new IllegalArgumentException("command shouldn't be null");
         }
-        mSession2Stub.sendCustomCommand(command, args);
+        notifyToAllControllers(new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onCustomCommand(command, args, null);
+            }
+        });
     }
 
     @Override
     public void sendCustomCommand(@NonNull ControllerInfo controller,
-            @NonNull SessionCommand2 command, @Nullable Bundle args,
-            @Nullable ResultReceiver receiver) {
+            @NonNull final SessionCommand2 command, @Nullable final Bundle args,
+            @Nullable final ResultReceiver receiver) {
         if (controller == null) {
             throw new IllegalArgumentException("controller shouldn't be null");
         }
         if (command == null) {
             throw new IllegalArgumentException("command shouldn't be null");
         }
-        mSession2Stub.sendCustomCommand(controller, command, args, receiver);
+        notifyToController(controller, new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onCustomCommand(command, args, receiver);
+            }
+        });
     }
 
     @Override
     public void play() {
-        MediaPlayerBase player;
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -334,7 +393,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void pause() {
-        MediaPlayerBase player;
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -347,7 +406,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void reset() {
-        MediaPlayerBase player;
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -360,7 +419,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void prepare() {
-        MediaPlayerBase player;
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -373,7 +432,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void seekTo(long pos) {
-        MediaPlayerBase player;
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -395,19 +454,29 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     @Override
-    public void notifyError(@ErrorCode int errorCode, @Nullable Bundle extras) {
-        mSession2Stub.notifyError(errorCode, extras);
+    public void notifyError(@ErrorCode final int errorCode, @Nullable final Bundle extras) {
+        notifyToAllControllers(new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onError(errorCode, extras);
+            }
+        });
     }
 
     @Override
     public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
-            @Nullable List<Bundle> routes) {
-        mSession2Stub.notifyRoutesInfoChanged(controller, routes);
+            @Nullable final List<Bundle> routes) {
+        notifyToController(controller, new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onRoutesInfoChanged(routes);
+            }
+        });
     }
 
     @Override
-    public @MediaPlayerBase.PlayerState int getPlayerState() {
-        MediaPlayerBase player;
+    public @MediaPlayerInterface.PlayerState int getPlayerState() {
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -416,12 +485,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
-        return MediaPlayerBase.PLAYER_STATE_ERROR;
+        return MediaPlayerInterface.PLAYER_STATE_ERROR;
     }
 
     @Override
     public long getCurrentPosition() {
-        MediaPlayerBase player;
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -430,18 +499,28 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
-        return MediaPlayerBase.UNKNOWN_TIME;
+        return MediaPlayerInterface.UNKNOWN_TIME;
     }
 
     @Override
     public long getDuration() {
-        // TODO: implement
-        return 0;
+        MediaPlayerInterface player;
+        synchronized (mLock) {
+            player = mPlayer;
+        }
+        if (player != null) {
+            // Note: This should be the same as
+            // getCurrentMediaItem().getMetadata().getLong(METADATA_KEY_DURATION)
+            return player.getDuration();
+        } else if (DEBUG) {
+            Log.d(TAG, "API calls after the close()", new IllegalStateException());
+        }
+        return MediaPlayerInterface.UNKNOWN_TIME;
     }
 
     @Override
     public long getBufferedPosition() {
-        MediaPlayerBase player;
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -450,12 +529,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
-        return MediaPlayerBase.UNKNOWN_TIME;
+        return MediaPlayerInterface.UNKNOWN_TIME;
     }
 
     @Override
-    public @MediaPlayerBase.BuffState int getBufferingState() {
-        MediaPlayerBase player;
+    public @MediaPlayerInterface.BuffState int getBufferingState() {
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -469,7 +548,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public float getPlaybackSpeed() {
-        MediaPlayerBase player;
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -483,7 +562,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void setPlaybackSpeed(float speed) {
-        MediaPlayerBase player;
+        MediaPlayerInterface player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -740,18 +819,63 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     ///////////////////////////////////////////////////
-    // package private and private methods
+    // LibrarySession Methods
     ///////////////////////////////////////////////////
 
     @Override
-    void setInstance(MediaSession2 session) {
-        mInstance = new WeakReference<>(session);
+    void notifyChildrenChanged(ControllerInfo controller, final String parentId,
+            final int itemCount, final Bundle extras,
+            List<MediaSessionManager.RemoteUserInfo> subscribingBrowsers) {
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
+        if (TextUtils.isEmpty(parentId)) {
+            throw new IllegalArgumentException("query shouldn't be empty");
+        }
 
+        // Notify controller only if it has subscribed the parentId.
+        for (MediaSessionManager.RemoteUserInfo info : subscribingBrowsers) {
+            if (info.getPackageName().equals(controller.getPackageName())
+                    && info.getUid() == controller.getUid()) {
+                notifyToController(controller, new NotifyRunnable() {
+                    @Override
+                    public void run(ControllerCb callback) throws RemoteException {
+                        callback.onChildrenChanged(parentId, itemCount, extras);
+                    }
+                });
+                return;
+            }
+        }
     }
 
     @Override
-    MediaSession2 getInstance() {
-        return mInstance.get();
+    void notifySearchResultChanged(ControllerInfo controller, final String query,
+            final int itemCount, final Bundle extras) {
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
+        if (TextUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("query shouldn't be empty");
+        }
+        notifyToController(controller, new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onSearchResultChanged(query, itemCount, extras);
+            }
+        });
+    }
+
+    ///////////////////////////////////////////////////
+    // package private and private methods
+    ///////////////////////////////////////////////////
+    @Override
+    MediaSession2 createInstance() {
+        return new MediaSession2(this);
+    }
+
+    @Override
+    @NonNull MediaSession2 getInstance() {
+        return mInstance;
     }
 
     @Override
@@ -770,6 +894,11 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     @Override
+    MediaSessionCompat getSessionCompat() {
+        return mSessionCompat;
+    }
+
+    @Override
     boolean isClosed() {
         return !mHandlerThread.isAlive();
     }
@@ -779,12 +908,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         synchronized (mLock) {
             int state = MediaUtils2.createPlaybackStateCompatState(getPlayerState(),
                     getBufferingState());
-            // TODO: Consider following missing stuff
-            //       - setCustomAction(): Fill custom layout
-            //       - setErrorMessage(): Fill error message when notifyError() is called.
-            //       - setActiveQueueItemId(): Fill here with the current media item...
-            //       - setExtra(): No idea at this moment.
-            // TODO: generate actions from the allowed commands.
             long allActions = PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_PAUSE
                     | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_REWIND
                     | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
@@ -816,11 +939,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             return mPlaybackInfo;
         }
     }
-
-    MediaSession2StubImplBase getSession2Stub() {
-        return mSession2Stub;
-    }
-
     private static String getServiceName(Context context, String serviceAction, String id) {
         PackageManager manager = context.getPackageManager();
         Intent serviceIntent = new Intent(serviceAction);
@@ -846,105 +964,203 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         return serviceName;
     }
 
-    private void notifyPlayerUpdatedNotLocked(MediaPlayerBase oldPlayer) {
-        MediaPlayerBase player;
-        synchronized (mLock) {
-            player = mPlayer;
+    private void notifyAgentUpdatedNotLocked(MediaPlaylistAgent oldAgent) {
+        // Tells the playlist change first, to current item can change be notified with an item
+        // within the playlist.
+        List<MediaItem2> oldPlaylist = oldAgent.getPlaylist();
+        final List<MediaItem2> newPlaylist = getPlaylist();
+        if (!ObjectsCompat.equals(oldPlaylist, newPlaylist)) {
+            notifyToAllControllers(new NotifyRunnable() {
+                @Override
+                public void run(ControllerCb callback) throws RemoteException {
+                    callback.onPlaylistChanged(
+                            newPlaylist, getPlaylistMetadata());
+                }
+            });
+        } else {
+            MediaMetadata2 oldMetadata = oldAgent.getPlaylistMetadata();
+            final MediaMetadata2 newMetadata = getPlaylistMetadata();
+            if (!ObjectsCompat.equals(oldMetadata, newMetadata)) {
+                notifyToAllControllers(new NotifyRunnable() {
+                    @Override
+                    public void run(ControllerCb callback) throws RemoteException {
+                        callback.onPlaylistMetadataChanged(newMetadata);
+                    }
+                });
+            }
         }
-        // TODO(jaewan): (Can be post-P) Find better way for player.getPlayerState() //
-        //               In theory, Session.getXXX() may not be the same as Player.getXXX()
-        //               and we should notify information of the session.getXXX() instead of
-        //               player.getXXX()
-        // Notify to controllers as well.
-        final int state = player.getPlayerState();
-        if (state != oldPlayer.getPlayerState()) {
-            // TODO: implement
-            mSession2Stub.notifyPlayerStateChanged(state);
+        MediaItem2 oldCurrentItem = oldAgent.getCurrentMediaItem();
+        final MediaItem2 newCurrentItem = getCurrentMediaItem();
+        if (!ObjectsCompat.equals(oldCurrentItem, newCurrentItem)) {
+            notifyToAllControllers(new NotifyRunnable() {
+                @Override
+                public void run(ControllerCb callback) throws RemoteException {
+                    callback.onCurrentMediaItemChanged(newCurrentItem);
+                }
+            });
         }
+        final int repeatMode = getRepeatMode();
+        if (oldAgent.getRepeatMode() != repeatMode) {
+            notifyToAllControllers(new NotifyRunnable() {
+                @Override
+                public void run(ControllerCb callback) throws RemoteException {
+                    callback.onRepeatModeChanged(repeatMode);
+                }
+            });
+        }
+        final int shuffleMode = getShuffleMode();
+        if (oldAgent.getShuffleMode() != shuffleMode) {
+            notifyToAllControllers(new NotifyRunnable() {
+                @Override
+                public void run(ControllerCb callback) throws RemoteException {
+                    callback.onShuffleModeChanged(shuffleMode);
+                }
+            });
+        }
+    }
 
-        final long currentTimeMs = System.currentTimeMillis();
-        final long position = player.getCurrentPosition();
-        if (position != oldPlayer.getCurrentPosition()) {
-            // TODO: implement
-            //mSession2Stub.notifyPositionChangedNotLocked(currentTimeMs, position);
+    private void notifyPlayerUpdatedNotLocked(MediaPlayerInterface oldPlayer) {
+        // Always forcefully send the player state and buffered state to send the current position
+        // and buffered position.
+        final int playerState = getPlayerState();
+        notifyToAllControllers(new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onPlayerStateChanged(playerState);
+            }
+        });
+        final MediaItem2 item = getCurrentMediaItem();
+        if (item != null) {
+            final int bufferingState = getBufferingState();
+            notifyToAllControllers(new NotifyRunnable() {
+                @Override
+                public void run(ControllerCb callback) throws RemoteException {
+                    callback.onBufferingStateChanged(item, bufferingState);
+                }
+            });
         }
-
-        final float speed = player.getPlaybackSpeed();
+        final float speed = getPlaybackSpeed();
         if (speed != oldPlayer.getPlaybackSpeed()) {
-            // TODO: implement
-            //mSession2Stub.notifyPlaybackSpeedChangedNotLocked(speed);
+            notifyToAllControllers(new NotifyRunnable() {
+                @Override
+                public void run(ControllerCb callback) throws RemoteException {
+                    callback.onPlaybackSpeedChanged(speed);
+                }
+            });
         }
-
-        final long bufferedPosition = player.getBufferedPosition();
-        if (bufferedPosition != oldPlayer.getBufferedPosition()) {
-            // TODO: implement
-            //mSession2Stub.notifyBufferedPositionChangedNotLocked(bufferedPosition);
-        }
+        // Note: AudioInfo is updated outside of this API.
     }
 
     private void notifyPlaylistChangedOnExecutor(MediaPlaylistAgent playlistAgent,
-            List<MediaItem2> list, MediaMetadata2 metadata) {
+            final List<MediaItem2> list, final MediaMetadata2 metadata) {
         synchronized (mLock) {
             if (playlistAgent != mPlaylistAgent) {
                 // Ignore calls from the old agent.
                 return;
             }
         }
-        MediaSession2 session2 = mInstance.get();
-        if (session2 != null) {
-            mCallback.onPlaylistChanged(session2, playlistAgent, list, metadata);
-            mSession2Stub.notifyPlaylistChanged(list, metadata);
-        }
+        mCallback.onPlaylistChanged(mInstance, playlistAgent, list, metadata);
+        notifyToAllControllers(new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onPlaylistChanged(list, metadata);
+            }
+        });
     }
 
     private void notifyPlaylistMetadataChangedOnExecutor(MediaPlaylistAgent playlistAgent,
-            MediaMetadata2 metadata) {
+            final MediaMetadata2 metadata) {
         synchronized (mLock) {
             if (playlistAgent != mPlaylistAgent) {
                 // Ignore calls from the old agent.
                 return;
             }
         }
-        MediaSession2 session2 = mInstance.get();
-        if (session2 != null) {
-            mCallback.onPlaylistMetadataChanged(session2, playlistAgent, metadata);
-            mSession2Stub.notifyPlaylistMetadataChanged(metadata);
-        }
+        mCallback.onPlaylistMetadataChanged(mInstance, playlistAgent, metadata);
+        notifyToAllControllers(new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onPlaylistMetadataChanged(metadata);
+            }
+        });
     }
 
     private void notifyRepeatModeChangedOnExecutor(MediaPlaylistAgent playlistAgent,
-            int repeatMode) {
+            final int repeatMode) {
         synchronized (mLock) {
             if (playlistAgent != mPlaylistAgent) {
                 // Ignore calls from the old agent.
                 return;
             }
         }
-        MediaSession2 session2 = mInstance.get();
-        if (session2 != null) {
-            mCallback.onRepeatModeChanged(session2, playlistAgent, repeatMode);
-            mSession2Stub.notifyRepeatModeChanged(repeatMode);
-        }
+        mCallback.onRepeatModeChanged(mInstance, playlistAgent, repeatMode);
+        notifyToAllControllers(new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onRepeatModeChanged(repeatMode);
+            }
+        });
     }
 
     private void notifyShuffleModeChangedOnExecutor(MediaPlaylistAgent playlistAgent,
-            int shuffleMode) {
+            final int shuffleMode) {
         synchronized (mLock) {
             if (playlistAgent != mPlaylistAgent) {
                 // Ignore calls from the old agent.
                 return;
             }
         }
-        MediaSession2 session2 = mInstance.get();
-        if (session2 != null) {
-            mCallback.onShuffleModeChanged(session2, playlistAgent, shuffleMode);
-            mSession2Stub.notifyShuffleModeChanged(shuffleMode);
+        mCallback.onShuffleModeChanged(mInstance, playlistAgent, shuffleMode);
+        notifyToAllControllers(new NotifyRunnable() {
+            @Override
+            public void run(ControllerCb callback) throws RemoteException {
+                callback.onShuffleModeChanged(shuffleMode);
+            }
+        });
+    }
+
+    private void notifyToController(@NonNull final ControllerInfo controller,
+            @NonNull NotifyRunnable runnable) {
+        if (controller == null) {
+            return;
+        }
+        try {
+            runnable.run(controller.getControllerCb());
+        } catch (DeadObjectException e) {
+            if (DEBUG) {
+                Log.d(TAG, controller.toString() + " is gone", e);
+            }
+            mSession2Stub.removeControllerInfo(controller);
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onDisconnected(MediaSession2ImplBase.this.getInstance(), controller);
+                }
+            });
+        } catch (RemoteException e) {
+            // Currently it's TransactionTooLargeException or DeadSystemException.
+            // We'd better to leave log for those cases because
+            //   - TransactionTooLargeException means that we may need to fix our code.
+            //     (e.g. add pagination or special way to deliver Bitmap)
+            //   - DeadSystemException means that errors around it can be ignored.
+            Log.w(TAG, "Exception in " + controller.toString(), e);
+        }
+    }
+
+    private void notifyToAllControllers(@NonNull NotifyRunnable runnable) {
+        List<ControllerInfo> controllers = getConnectedControllers();
+        for (int i = 0; i < controllers.size(); i++) {
+            notifyToController(controllers.get(i), runnable);
         }
     }
 
     ///////////////////////////////////////////////////
     // Inner classes
     ///////////////////////////////////////////////////
+    @FunctionalInterface
+    private interface NotifyRunnable {
+        void run(ControllerCb callback) throws RemoteException;
+    }
 
     private static class MyPlayerEventCallback extends PlayerEventCallback {
         private final WeakReference<MediaSession2ImplBase> mSession;
@@ -954,50 +1170,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
 
         @Override
-        public void onCurrentDataSourceChanged(final MediaPlayerBase mpb,
+        public void onCurrentDataSourceChanged(final MediaPlayerInterface player,
                 final DataSourceDesc dsd) {
-            final MediaSession2ImplBase session = getSession();
-            // TODO: handle properly when dsd == null
-            if (session == null || dsd == null) {
-                return;
-            }
-            session.getCallbackExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    MediaItem2 item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
-                    if (item == null) {
-                        return;
-                    }
-                    session.getCallback().onCurrentMediaItemChanged(session.getInstance(), mpb,
-                            item);
-                    if (item.equals(session.getCurrentMediaItem())) {
-                        session.getSession2Stub().notifyCurrentMediaItemChanged(item);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onMediaPrepared(final MediaPlayerBase mpb, final DataSourceDesc dsd) {
-            final MediaSession2ImplBase session = getSession();
-            if (session == null || dsd == null) {
-                return;
-            }
-            session.getCallbackExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    MediaItem2 item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
-                    if (item == null) {
-                        return;
-                    }
-                    session.getCallback().onMediaPrepared(session.getInstance(), mpb, item);
-                    // TODO (jaewan): Notify controllers through appropriate callback. (b/74505936)
-                }
-            });
-        }
-
-        @Override
-        public void onPlayerStateChanged(final MediaPlayerBase mpb, final int state) {
             final MediaSession2ImplBase session = getSession();
             if (session == null) {
                 return;
@@ -1005,15 +1179,32 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             session.getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
-                    session.getCallback().onPlayerStateChanged(session.getInstance(), mpb, state);
-                    session.getSession2Stub().notifyPlayerStateChanged(state);
+                    final MediaItem2 item;
+                    if (dsd == null) {
+                        // This is OK because onCurrentDataSourceChanged() can be called with the
+                        // null dsd, so onCurrentMediaItemChanged() can be as well.
+                        item = null;
+                    } else {
+                        item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
+                        if (item == null) {
+                            Log.w(TAG, "Cannot obtain media item from the dsd=" + dsd);
+                            return;
+                        }
+                    }
+                    session.getCallback().onCurrentMediaItemChanged(session.getInstance(), player,
+                            item);
+                    session.notifyToAllControllers(new NotifyRunnable() {
+                        @Override
+                        public void run(ControllerCb callback) throws RemoteException {
+                            callback.onCurrentMediaItemChanged(item);
+                        }
+                    });
                 }
             });
         }
 
         @Override
-        public void onBufferingStateChanged(final MediaPlayerBase mpb, final DataSourceDesc dsd,
-                final int state) {
+        public void onMediaPrepared(final MediaPlayerInterface mpb, final DataSourceDesc dsd) {
             final MediaSession2ImplBase session = getSession();
             if (session == null || dsd == null) {
                 return;
@@ -1025,15 +1216,105 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     if (item == null) {
                         return;
                     }
-                    session.getCallback().onBufferingStateChanged(
-                            session.getInstance(), mpb, item, state);
-                    session.getSession2Stub().notifyBufferingStateChanged(item, state);
+                    if (item.equals(session.getCurrentMediaItem())) {
+                        long duration = session.getDuration();
+                        if (duration < 0) {
+                            return;
+                        }
+                        MediaMetadata2 metadata = item.getMetadata();
+                        if (metadata != null) {
+                            if (!metadata.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
+                                metadata = new MediaMetadata2.Builder(metadata).putLong(
+                                        MediaMetadata2.METADATA_KEY_DURATION, duration).build();
+                            } else {
+                                long durationFromMetadata =
+                                        metadata.getLong(MediaMetadata2.METADATA_KEY_DURATION);
+                                if (duration != durationFromMetadata) {
+                                    // Warns developers about the mismatch. Don't log media item
+                                    // here to keep metadata secure.
+                                    Log.w(TAG, "duration mismatch for an item."
+                                            + " duration from player=" + duration
+                                            + " duration from metadata=" + durationFromMetadata
+                                            + ". May be a timing issue?");
+                                }
+                                // Trust duration in the metadata set by developer.
+                                // In theory, duration may differ if the current item has been
+                                // changed before the getDuration(). So it's better not touch
+                                // duration set by developer.
+                                metadata = null;
+                            }
+                        } else {
+                            metadata = new MediaMetadata2.Builder()
+                                    .putLong(MediaMetadata2.METADATA_KEY_DURATION, duration)
+                                    .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
+                                            item.getMediaId())
+                                    .build();
+                        }
+                        if (metadata != null) {
+                            item.setMetadata(metadata);
+                            session.notifyToAllControllers(new NotifyRunnable() {
+                                @Override
+                                public void run(ControllerCb callback) throws RemoteException {
+                                    callback.onPlaylistChanged(
+                                            session.getPlaylist(), session.getPlaylistMetadata());
+                                }
+                            });
+                        }
+                    }
+                    session.getCallback().onMediaPrepared(session.getInstance(), mpb, item);
                 }
             });
         }
 
         @Override
-        public void onPlaybackSpeedChanged(final MediaPlayerBase mpb, final float speed) {
+        public void onPlayerStateChanged(final MediaPlayerInterface player, final int state) {
+            final MediaSession2ImplBase session = getSession();
+            if (session == null) {
+                return;
+            }
+            session.getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    session.getCallback().onPlayerStateChanged(
+                            session.getInstance(), player, state);
+                    session.notifyToAllControllers(new NotifyRunnable() {
+                        @Override
+                        public void run(ControllerCb callback) throws RemoteException {
+                            callback.onPlayerStateChanged(state);
+                        }
+                    });
+                }
+            });
+        }
+
+        @Override
+        public void onBufferingStateChanged(final MediaPlayerInterface mpb,
+                final DataSourceDesc dsd, final int state) {
+            final MediaSession2ImplBase session = getSession();
+            if (session == null || dsd == null) {
+                return;
+            }
+            session.getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    final MediaItem2 item = MyPlayerEventCallback.this.getMediaItem(session, dsd);
+                    if (item == null) {
+                        return;
+                    }
+                    session.getCallback().onBufferingStateChanged(
+                            session.getInstance(), mpb, item, state);
+                    session.notifyToAllControllers(new NotifyRunnable() {
+                        @Override
+                        public void run(ControllerCb callback) throws RemoteException {
+                            callback.onBufferingStateChanged(item, state);
+                        }
+                    });
+                }
+            });
+        }
+
+        @Override
+        public void onPlaybackSpeedChanged(final MediaPlayerInterface mpb, final float speed) {
             final MediaSession2ImplBase session = getSession();
             if (session == null) {
                 return;
@@ -1042,7 +1323,32 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                 @Override
                 public void run() {
                     session.getCallback().onPlaybackSpeedChanged(session.getInstance(), mpb, speed);
-                    session.getSession2Stub().notifyPlaybackSpeedChanged(speed);
+                    session.notifyToAllControllers(new NotifyRunnable() {
+                        @Override
+                        public void run(ControllerCb callback) throws RemoteException {
+                            callback.onPlaybackSpeedChanged(speed);
+                        }
+                    });
+                }
+            });
+        }
+
+        @Override
+        public void onSeekCompleted(final MediaPlayerInterface mpb, final long position) {
+            final MediaSession2ImplBase session = getSession();
+            if (session == null) {
+                return;
+            }
+            session.getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    session.getCallback().onSeekCompleted(session.getInstance(), mpb, position);
+                    session.notifyToAllControllers(new NotifyRunnable() {
+                        @Override
+                        public void run(ControllerCb callback) throws RemoteException {
+                            callback.onSeekCompleted(position);
+                        }
+                    });
                 }
             });
         }
@@ -1123,7 +1429,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     abstract static class BuilderBase
             <T extends MediaSession2, C extends SessionCallback> {
         final Context mContext;
-        MediaPlayerBase mPlayer;
+        MediaPlayerInterface mPlayer;
         String mId;
         Executor mCallbackExecutor;
         C mCallback;
@@ -1140,7 +1446,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             mId = TAG;
         }
 
-        void setPlayer(@NonNull MediaPlayerBase player) {
+        void setPlayer(@NonNull MediaPlayerInterface player) {
             if (player == null) {
                 throw new IllegalArgumentException("player shouldn't be null");
             }

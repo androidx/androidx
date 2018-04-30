@@ -240,6 +240,7 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
             return mNext != null;
         }
 
+        @SuppressWarnings("ReferenceEquality")
         @Override
         public void supportRemove(@NonNull Entry<K, V> entry) {
             if (mExpectedEnd == entry && entry == mNext) {
@@ -256,6 +257,7 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
             }
         }
 
+        @SuppressWarnings("ReferenceEquality")
         private Entry<K, V> nextNode() {
             if (mNext == mExpectedEnd || mExpectedEnd == null) {
                 return null;
@@ -312,6 +314,7 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
         private Entry<K, V> mCurrent;
         private boolean mBeforeStart = true;
 
+        @SuppressWarnings("ReferenceEquality")
         @Override
         public void supportRemove(@NonNull Entry<K, V> entry) {
             if (entry == mCurrent) {
@@ -379,6 +382,7 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
             return mKey + "=" + mValue;
         }
 
+        @SuppressWarnings("ReferenceEquality")
         @Override
         public boolean equals(Object obj) {
             if (obj == this) {

@@ -25,7 +25,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.app.AppCompatDelegate;
 
 import java.lang.ref.WeakReference;
 
@@ -37,9 +36,10 @@ import java.lang.ref.WeakReference;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class VectorEnabledTintResources extends Resources {
+    private static boolean sCompatVectorFromResourcesEnabled = false;
 
     public static boolean shouldBeUsed() {
-        return AppCompatDelegate.isCompatVectorFromResourcesEnabled()
+        return isCompatVectorFromResourcesEnabled()
                 && Build.VERSION.SDK_INT <= MAX_SDK_WHERE_REQUIRED;
     }
 
@@ -73,5 +73,23 @@ public class VectorEnabledTintResources extends Resources {
 
     final Drawable superGetDrawable(int id) {
         return super.getDrawable(id);
+    }
+
+    /**
+     * Sets whether vector drawables on older platforms (< API 21) can be used within
+     * {@link android.graphics.drawable.DrawableContainer} resources.
+     */
+    public static void setCompatVectorFromResourcesEnabled(boolean enabled) {
+        sCompatVectorFromResourcesEnabled = enabled;
+    }
+
+    /**
+     * Returns whether vector drawables on older platforms (< API 21) can be accessed from within
+     * resources.
+     *
+     * @see #setCompatVectorFromResourcesEnabled(boolean)
+     */
+    public static boolean isCompatVectorFromResourcesEnabled() {
+        return sCompatVectorFromResourcesEnabled;
     }
 }

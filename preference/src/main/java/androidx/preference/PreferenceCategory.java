@@ -20,6 +20,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import androidx.core.content.res.TypedArrayUtils;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat;
 
@@ -66,21 +67,30 @@ public class PreferenceCategory extends PreferenceGroup {
     }
 
     @Override
+    public void onBindViewHolder(PreferenceViewHolder holder) {
+        super.onBindViewHolder(holder);
+        if (BuildCompat.isAtLeastP()) {
+            holder.itemView.setAccessibilityHeading(true);
+        }
+    }
+
+    @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {
         super.onInitializeAccessibilityNodeInfo(info);
+        if (!BuildCompat.isAtLeastP()) {
+            CollectionItemInfoCompat existingItemInfo = info.getCollectionItemInfo();
+            if (existingItemInfo == null) {
+                return;
+            }
 
-        CollectionItemInfoCompat existingItemInfo = info.getCollectionItemInfo();
-        if (existingItemInfo == null) {
-            return;
+            final CollectionItemInfoCompat newItemInfo = CollectionItemInfoCompat.obtain(
+                    existingItemInfo.getRowIndex(),
+                    existingItemInfo.getRowSpan(),
+                    existingItemInfo.getColumnIndex(),
+                    existingItemInfo.getColumnSpan(),
+                    true /* heading */,
+                    existingItemInfo.isSelected());
+            info.setCollectionItemInfo(newItemInfo);
         }
-
-        final CollectionItemInfoCompat newItemInfo = CollectionItemInfoCompat.obtain(
-                existingItemInfo.getRowIndex(),
-                existingItemInfo.getRowSpan(),
-                existingItemInfo.getColumnIndex(),
-                existingItemInfo.getColumnSpan(),
-                true /* heading */,
-                existingItemInfo.isSelected());
-        info.setCollectionItemInfo(newItemInfo);
     }
 }

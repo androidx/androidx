@@ -17,4 +17,5 @@ limitations under the License.
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="speed_bump_lockout_message" msgid="5405697774899378511">"Зосередьтеся на дорозі"</string>
+    <string name="action_bar_expand_collapse_button" msgid="196909968432559564">"Кнопка \"Розгорнути або згорнути\""</string>
 </resources>

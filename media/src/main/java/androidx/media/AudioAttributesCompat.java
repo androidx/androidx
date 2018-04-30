@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.SparseIntArray;
 
 import androidx.annotation.IntDef;
@@ -228,6 +229,16 @@ public class AudioAttributesCompat {
     private static final int FLAG_ALL_PUBLIC =
             (FLAG_AUDIBILITY_ENFORCED | FLAG_HW_AV_SYNC | FLAG_LOW_LATENCY);
 
+    /** Keys to convert to (or create from) Bundle. */
+    private static final String AUDIO_ATTRIBUTES_FRAMEWORKS =
+            "androidx.media.audio_attrs.FRAMEWORKS";
+    private static final String AUDIO_ATTRIBUTES_USAGE = "androidx.media.audio_attrs.USAGE";
+    private static final String AUDIO_ATTRIBUTES_CONTENT_TYPE =
+            "androidx.media.audio_attrs.CONTENT_TYPE";
+    private static final String AUDIO_ATTRIBUTES_FLAGS = "androidx.media.audio_attrs.FLAGS";
+    private static final String AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE =
+            "androidx.media.audio_attrs.LEGACY_STREAM_TYPE";
+
     int mUsage = USAGE_UNKNOWN;
     int mContentType = CONTENT_TYPE_UNKNOWN;
     int mFlags = 0x0;
@@ -373,6 +384,56 @@ public class AudioAttributesCompat {
                 flags |= FLAG_AUDIBILITY_ENFORCED;
             }
             return flags & FLAG_ALL_PUBLIC;
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public @NonNull Bundle toBundle() {
+        Bundle bundle = new Bundle();
+        if (Build.VERSION.SDK_INT >= 21) {
+            bundle.putParcelable(AUDIO_ATTRIBUTES_FRAMEWORKS, mAudioAttributesWrapper.unwrap());
+        } else {
+            bundle.putInt(AUDIO_ATTRIBUTES_USAGE, mUsage);
+            bundle.putInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, mContentType);
+            bundle.putInt(AUDIO_ATTRIBUTES_FLAGS, mFlags);
+            if (mLegacyStream != null) {
+                bundle.putInt(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE, mLegacyStream);
+            }
+        }
+        return bundle;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static AudioAttributesCompat fromBundle(Bundle bundle) {
+        if (bundle == null) {
+            return null;
+        }
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            AudioAttributes frameworkAttrs = (AudioAttributes)
+                    bundle.getParcelable(AUDIO_ATTRIBUTES_FRAMEWORKS);
+            return frameworkAttrs == null ? null : AudioAttributesCompat.wrap(frameworkAttrs);
+        } else {
+            int usage = bundle.getInt(AUDIO_ATTRIBUTES_USAGE, USAGE_UNKNOWN);
+            int contentType = bundle.getInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, CONTENT_TYPE_UNKNOWN);
+            int flags = bundle.getInt(AUDIO_ATTRIBUTES_FLAGS, 0);
+
+            // Here, we do not use builder in order to 'copy' the exact state of the original one.
+            // Builder class guesses the usage based on other value (contentType/legacyStream), and
+            // overwrites it. So using builder cannot ensure the equality.
+            AudioAttributesCompat attr = new AudioAttributesCompat();
+            attr.mUsage = usage;
+            attr.mContentType = contentType;
+            attr.mFlags = flags;
+            attr.mLegacyStream = bundle.containsKey(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE)
+                    ? bundle.getInt(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE) : null;
+            return attr;
         }
     }
 

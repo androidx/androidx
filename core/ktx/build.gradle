@@ -1,0 +1,37 @@
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // Breaks Kotlin compiler.
+        }
+    }
+}
+
+dependencies {
+    api(KOTLIN_STDLIB)
+    api(project(":annotation"))
+    api(project(":core"))
+
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(project(":internal-testutils-ktx"))
+}
+
+supportLibrary {
+    name = "Core Kotlin Extensions"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.CORE
+    inceptionYear = "2018"
+    description = "Kotlin extensions for 'core' artifact"
+}

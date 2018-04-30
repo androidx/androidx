@@ -41,5 +41,12 @@
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
+
+        <service android:name="androidx.media.test.service.TestHelperService">
+            <intent-filter>
+                <!-- Keep sync with TestHelperUtil.java -->
+                <action android:name="androidx.media.test.action.TEST_HELPER"/>
+            </intent-filter>
+        </service>
     </application>
 </manifest>

@@ -61,7 +61,7 @@ import java.util.List;
 /**
  * Test {@link VideoView2}.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // TODO: KITKAT
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // TODO: KITKAT
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class VideoView2Test {
@@ -107,10 +107,17 @@ public class VideoView2Test {
             @Override
             public void run() {
                 // Keep screen on while testing.
-                mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                mActivity.setTurnScreenOn(true);
-                mActivity.setShowWhenLocked(true);
-                mKeyguardManager.requestDismissKeyguard(mActivity, null);
+                if (Build.VERSION.SDK_INT >= 27) {
+                    mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    mActivity.setTurnScreenOn(true);
+                    mActivity.setShowWhenLocked(true);
+                    mKeyguardManager.requestDismissKeyguard(mActivity, null);
+                } else {
+                    mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                            | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                            | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                            | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+                }
             }
         });
         mInstrumentation.waitForIdleSync();

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -41,15 +42,16 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
 import androidx.media.MediaController2.ControllerCallback;
+import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.MediaSession2.SessionCallback;
 import androidx.media.TestServiceRegistry.SessionServiceCallback;
 import androidx.media.TestUtils.SyncHandler;
+import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -65,7 +67,7 @@ import java.util.concurrent.atomic.AtomicReference;
 // TODO(jaewan): Implement host-side test so controller and session can run in different processes.
 // TODO(jaewan): Fix flaky failure -- see MediaController2Impl.getController()
 // TODO(jaeawn): Revisit create/close session in the sHandler. It's no longer necessary.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @FlakyTest
@@ -77,6 +79,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     MediaController2 mController;
     MockPlayer mPlayer;
     MockPlaylistAgent mMockAgent;
+    AudioManager mAudioManager;
 
     @Before
     @Override
@@ -111,6 +114,7 @@ public class MediaController2Test extends MediaSession2TestBase {
                 .setSessionActivity(mIntent)
                 .setId(TAG).build();
         mController = createController(mSession.getToken());
+        mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         TestServiceRegistry.getInstance().setHandler(sHandler);
     }
 
@@ -207,11 +211,12 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGettersAfterConnected() throws InterruptedException {
         prepareLooper();
-        final int state = MediaPlayerBase.PLAYER_STATE_PLAYING;
-        final int bufferingState = MediaPlayerBase.BUFFERING_STATE_BUFFERING_COMPLETE;
+        final int state = MediaPlayerInterface.PLAYER_STATE_PLAYING;
+        final int bufferingState = MediaPlayerInterface.BUFFERING_STATE_BUFFERING_COMPLETE;
         final long position = 150000;
         final long bufferedPosition = 900000;
         final float speed = 0.5f;
+        final long timeDiff = 102;
         final MediaItem2 currentMediaItem = TestUtils.createMediaItemWithMetadata();
 
         mPlayer.mLastPlayerState = state;
@@ -221,19 +226,57 @@ public class MediaController2Test extends MediaSession2TestBase {
         mPlayer.mPlaybackSpeed = speed;
         mMockAgent.mCurrentMediaItem = currentMediaItem;
 
-        long time1 = System.currentTimeMillis();
         MediaController2 controller = createController(mSession.getToken());
-        long time2 = System.currentTimeMillis();
+        controller.setTimeDiff(timeDiff);
         assertEquals(state, controller.getPlayerState());
         assertEquals(bufferedPosition, controller.getBufferedPosition());
         assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
-        long positionLowerBound = (long) (position + speed * (System.currentTimeMillis() - time2));
-        long currentPosition = controller.getCurrentPosition();
-        long positionUpperBound = (long) (position + speed * (System.currentTimeMillis() - time1));
-        assertTrue("curPos=" + currentPosition + ", lowerBound=" + positionLowerBound
-                        + ", upperBound=" + positionUpperBound,
-                positionLowerBound <= currentPosition && currentPosition <= positionUpperBound);
+        assertEquals(position + (long) (speed * timeDiff), controller.getCurrentPosition());
         assertEquals(currentMediaItem, controller.getCurrentMediaItem());
+    }
+
+    @Test
+    public void testUpdatePlayer() throws InterruptedException {
+        prepareLooper();
+        final int testState = MediaPlayerInterface.PLAYER_STATE_PLAYING;
+        final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
+        final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(AudioManager.STREAM_RING).build();
+        final CountDownLatch latch = new CountDownLatch(3);
+        mController = createController(mSession.getToken(), true, new ControllerCallback() {
+            @Override
+            public void onPlayerStateChanged(MediaController2 controller, int state) {
+                assertEquals(mController, controller);
+                assertEquals(testState, state);
+                latch.countDown();
+            }
+
+            @Override
+            public void onPlaylistChanged(MediaController2 controller, List<MediaItem2> list,
+                    MediaMetadata2 metadata) {
+                assertEquals(mController, controller);
+                assertEquals(testPlaylist, list);
+                assertNull(metadata);
+                latch.countDown();
+            }
+
+            @Override
+            public void onPlaybackInfoChanged(MediaController2 controller, PlaybackInfo info) {
+                assertEquals(mController, controller);
+                assertEquals(testAudioAttributes, info.getAudioAttributes());
+                latch.countDown();
+            }
+        });
+
+        MockPlayer player = new MockPlayer(0);
+        player.mLastPlayerState = testState;
+        player.setAudioAttributes(testAudioAttributes);
+
+        MockPlaylistAgent agent = new MockPlaylistAgent();
+        agent.mPlaylist = testPlaylist;
+
+        mSession.updatePlayer(player, agent, null);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -420,6 +463,77 @@ public class MediaController2Test extends MediaSession2TestBase {
         }
     }
 
+
+    @Test
+    public void testControllerCallback_onSeekCompleted() throws InterruptedException {
+        prepareLooper();
+        final long testSeekPosition = 400;
+        final long testPosition = 500;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onSeekCompleted(MediaController2 controller, long position) {
+                controller.setTimeDiff(Long.valueOf(0));
+                assertEquals(testSeekPosition, position);
+                assertEquals(testPosition, controller.getCurrentPosition());
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller = createController(mSession.getToken(), true, callback);
+        mPlayer.mCurrentPosition = testPosition;
+        mPlayer.notifySeekCompleted(testSeekPosition);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testControllerCallback_onBufferingStateChanged() throws InterruptedException {
+        prepareLooper();
+        final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
+        final MediaItem2 testItem = testPlaylist.get(0);
+        final int testBufferingState = MediaPlayerInterface.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
+        final long testBufferingPosition = 500;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onBufferingStateChanged(MediaController2 controller, MediaItem2 item,
+                    int state) {
+                controller.setTimeDiff(Long.valueOf(0));
+                assertEquals(testItem, item);
+                assertEquals(testBufferingState, state);
+                assertEquals(testBufferingState, controller.getBufferingState());
+                assertEquals(testBufferingPosition, controller.getBufferedPosition());
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller = createController(mSession.getToken(), true, callback);
+        mSession.setPlaylist(testPlaylist, null);
+        mPlayer.mBufferedPosition = testBufferingPosition;
+        mPlayer.notifyBufferingStateChanged(testItem.getDataSourceDesc(), testBufferingState);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testControllerCallback_onPlayerStateChanged() throws InterruptedException {
+        prepareLooper();
+        final int testPlayerState = MediaPlayerInterface.PLAYER_STATE_PLAYING;
+        final long testPosition = 500;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onPlayerStateChanged(MediaController2 controller, int state) {
+                controller.setTimeDiff(Long.valueOf(0));
+                assertEquals(testPlayerState, state);
+                assertEquals(testPlayerState, controller.getPlayerState());
+                assertEquals(testPosition, controller.getCurrentPosition());
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller = createController(mSession.getToken(), true, callback);
+        mPlayer.mCurrentPosition = testPosition;
+        mPlayer.notifyPlaybackState(testPlayerState);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
     @Test
     public void testAddPlaylistItem() throws InterruptedException {
         prepareLooper();
@@ -572,7 +686,6 @@ public class MediaController2Test extends MediaSession2TestBase {
 
     @Test
     public void testSetVolumeTo() throws Exception {
-        // TODO(jaewan): Also test with local volume.
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
@@ -592,7 +705,6 @@ public class MediaController2Test extends MediaSession2TestBase {
 
     @Test
     public void testAdjustVolume() throws Exception {
-        // TODO(jaewan): Also test with local volume.
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
@@ -608,6 +720,87 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertTrue(volumeProvider.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(volumeProvider.mAdjustVolumeCalled);
         assertEquals(direction, volumeProvider.mDirection);
+    }
+
+    @Test
+    public void testSetVolumeWithLocalVolume() throws Exception {
+        prepareLooper();
+        if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            // This test is not eligible for this device.
+            return;
+        }
+
+        // Here, we intentionally choose STREAM_ALARM in order not to consider
+        // 'Do Not Disturb' or 'Volume limit'.
+        final int stream = AudioManager.STREAM_ALARM;
+        final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
+        final int minVolume = 0;
+        if (maxVolume <= minVolume) {
+            return;
+        }
+
+        // Set stream of the session.
+        AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(stream)
+                .build();
+        mPlayer.setAudioAttributes(attrs);
+        mSession.updatePlayer(mPlayer, null, null);
+
+        final int originalVolume = mAudioManager.getStreamVolume(stream);
+        final int targetVolume = originalVolume == minVolume
+                ? originalVolume + 1 : originalVolume - 1;
+
+        mController.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
+        new PollingCheck(WAIT_TIME_MS) {
+            @Override
+            protected boolean check() {
+                return targetVolume == mAudioManager.getStreamVolume(stream);
+            }
+        }.run();
+
+        // Set back to original volume.
+        mAudioManager.setStreamVolume(stream, originalVolume, 0 /* flags */);
+    }
+
+    @Test
+    public void testAdjustVolumeWithLocalVolume() throws Exception {
+        prepareLooper();
+        if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            // This test is not eligible for this device.
+            return;
+        }
+
+        // Here, we intentionally choose STREAM_ALARM in order not to consider
+        // 'Do Not Disturb' or 'Volume limit'.
+        final int stream = AudioManager.STREAM_ALARM;
+        final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
+        final int minVolume = 0;
+        if (maxVolume <= minVolume) {
+            return;
+        }
+
+        // Set stream of the session.
+        AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(stream)
+                .build();
+        mPlayer.setAudioAttributes(attrs);
+        mSession.updatePlayer(mPlayer, null, null);
+
+        final int originalVolume = mAudioManager.getStreamVolume(stream);
+        final int direction = originalVolume == minVolume
+                ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+        final int targetVolume = originalVolume + direction;
+
+        mController.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
+        new PollingCheck(WAIT_TIME_MS) {
+            @Override
+            protected boolean check() {
+                return targetVolume == mAudioManager.getStreamVolume(stream);
+            }
+        }.run();
+
+        // Set back to original volume.
+        mAudioManager.setStreamVolume(stream, originalVolume, 0 /* flags */);
     }
 
     @Test
@@ -979,7 +1172,7 @@ public class MediaController2Test extends MediaSession2TestBase {
             testHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    final int state = MediaPlayerBase.PLAYER_STATE_ERROR;
+                    final int state = MediaPlayerInterface.PLAYER_STATE_ERROR;
                     for (int i = 0; i < 100; i++) {
                         // triggers call from session to controller.
                         player.notifyPlaybackState(state);
@@ -1012,11 +1205,13 @@ public class MediaController2Test extends MediaSession2TestBase {
                     }
                 });
             }
-            if (sessionThread != null) {
+
+            if (Build.VERSION.SDK_INT >= 18) {
                 sessionThread.quitSafely();
-            }
-            if (testThread != null) {
                 testThread.quitSafely();
+            } else {
+                sessionThread.quit();
+                testThread.quit();
             }
         }
     }
@@ -1065,30 +1260,29 @@ public class MediaController2Test extends MediaSession2TestBase {
         };
         TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
 
-        mController = createController(TestUtils.getServiceToken(mContext, id));
+        final SessionCommand2 testCommand = new SessionCommand2("testConnectToService", null);
+        final CountDownLatch controllerLatch = new CountDownLatch(1);
+        mController = createController(TestUtils.getServiceToken(mContext, id), true,
+                new ControllerCallback() {
+                    @Override
+                    public void onCustomCommand(MediaController2 controller,
+                            SessionCommand2 command, Bundle args, ResultReceiver receiver) {
+                        if (testCommand.equals(command)) {
+                            controllerLatch.countDown();
+                        }
+                    }
+                }
+        );
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
-        // Test command from controller to session service
-        // TODO: Re enable when transport control works
-        /*
+        // Test command from controller to session service.
         mController.play();
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPlayCalled);
-        */
 
-        // Test command from session service to controller
-        // TODO(jaewan): Add equivalent tests again
-        /*
-        final CountDownLatch latch = new CountDownLatch(1);
-        mController.registerPlayerEventCallback((state) -> {
-            assertNotNull(state);
-            assertEquals(PlaybackState.STATE_REWINDING, state.getState());
-            latch.countDown();
-        }, sHandler);
-        mPlayer.notifyPlaybackState(
-                TestUtils.createPlaybackState(PlaybackState.STATE_REWINDING));
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        */
+        // Test command from session service to controller.
+        mSession.sendCustomCommand(testCommand, null);
+        assertTrue(controllerLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -1097,15 +1291,11 @@ public class MediaController2Test extends MediaSession2TestBase {
         testControllerAfterSessionIsClosed(mSession.getToken().getId());
     }
 
-    // TODO(jaewan): Re-enable this test
-    @Ignore
     @Test
     public void testControllerAfterSessionIsClosed_sessionService() throws InterruptedException {
         prepareLooper();
-        /*
-        connectToService(TestUtils.getServiceToken(mContext, MockMediaSessionService2.ID));
+        testConnectToService(MockMediaSessionService2.ID);
         testControllerAfterSessionIsClosed(MockMediaSessionService2.ID);
-        */
     }
 
     @Test
@@ -1192,14 +1382,12 @@ public class MediaController2Test extends MediaSession2TestBase {
         testControllerAfterSessionIsClosed(id);
     }
 
-    @Ignore
     @Test
     public void testClose_sessionService() throws InterruptedException {
         prepareLooper();
         testCloseFromService(MockMediaSessionService2.ID);
     }
 
-    @Ignore
     @Test
     public void testClose_libraryService() throws InterruptedException {
         prepareLooper();

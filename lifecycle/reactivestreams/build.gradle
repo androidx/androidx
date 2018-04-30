@@ -35,9 +35,7 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(RX_JAVA)
-    testImplementation(TEST_RUNNER)
-
-    androidTestImplementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
+    testImplementation(project(":arch:core-testing"))
 }
 
 supportLibrary {

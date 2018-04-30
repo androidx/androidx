@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -148,9 +149,25 @@ public class ConfigTest {
         assertTrue(emojiCompat.isEmojiSpanIndicatorEnabled());
     }
 
+    @Test
+    public void testBuild_manualLoadStrategy_doesNotCallMetadataLoaderLoad() {
+        final EmojiCompat.MetadataRepoLoader loader = mock(EmojiCompat.MetadataRepoLoader.class);
+        final EmojiCompat.Config config = new ValidTestConfig(loader)
+                .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL);
+
+        EmojiCompat.reset(config);
+
+        verify(loader, never()).load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
+        assertEquals(EmojiCompat.LOAD_STATE_DEFAULT, EmojiCompat.get().getLoadState());
+    }
+
     private static class ValidTestConfig extends EmojiCompat.Config {
         ValidTestConfig() {
             super(new TestConfigBuilder.TestEmojiDataLoader());
+        }
+
+        ValidTestConfig(EmojiCompat.MetadataRepoLoader loader) {
+            super(loader);
         }
     }
 }

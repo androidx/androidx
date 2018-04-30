@@ -32,7 +32,7 @@ limitations under the License.
     <string name="lb_playback_controls_rewind" msgid="1412664391757869774">"Retour arrière"</string>
     <string name="lb_playback_controls_rewind_multiplier" msgid="8651612807713092781">"Retour rapide à %1$dX"</string>
     <string name="lb_playback_controls_skip_next" msgid="4877009494447817003">"Passer à l\'élément suivant"</string>
-    <string name="lb_playback_controls_skip_previous" msgid="3147124289285911980">"Passer à l\'élément précédent"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="3147124289285911980">"Retourner à l\'élément précédent"</string>
     <string name="lb_playback_controls_more_actions" msgid="2827883329510404797">"Autres actions"</string>
     <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"Désélectionner la mention « J\'aime »"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"Sélectionner la mention « J\'aime »"</string>

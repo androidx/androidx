@@ -33,6 +33,7 @@ public class SliceTestProvider extends androidx.slice.SliceProvider {
 
     @Override
     public boolean onCreateSliceProvider() {
+        getContext().getPackageName();
         return true;
     }
 

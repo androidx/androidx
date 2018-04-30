@@ -31,10 +31,10 @@ import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.SliceConvert.unwrap;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
@@ -58,6 +58,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.BuildCompat;
+import androidx.core.util.Consumer;
 import androidx.slice.compat.SliceProviderCompat;
 
 import java.util.ArrayList;
@@ -285,6 +286,19 @@ public final class Slice {
         }
 
         /**
+         * Add an action to the slice being constructed
+         * @param subType Optional template-specific type information
+         * @see {@link SliceItem#getSubType()}
+         */
+        public Slice.Builder addAction(@NonNull Consumer<Uri> action,
+                @NonNull Slice s, @Nullable String subType) {
+            @SliceHint String[] hints = s != null
+                    ? s.getHints().toArray(new String[s.getHints().size()]) : new String[0];
+            mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));
+            return this;
+        }
+
+        /**
          * Add text to the slice being constructed
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
@@ -373,13 +387,36 @@ public final class Slice {
         }
 
         /**
-         * Add a timestamp to the slice being constructed
+         * Add a long to the slice being constructed
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
          */
+        public Slice.Builder addLong(long time, @Nullable String subType,
+                @SliceHint String... hints) {
+            mItems.add(new SliceItem(time, FORMAT_LONG, subType, hints));
+            return this;
+        }
+
+        /**
+         * Add a long to the slice being constructed
+         * @param subType Optional template-specific type information
+         * @see {@link SliceItem#getSubType()}
+         */
+        public Slice.Builder addLong(long time, @Nullable String subType,
+                @SliceHint List<String> hints) {
+            return addLong(time, subType, hints.toArray(new String[hints.size()]));
+        }
+
+        /**
+         * Add a timestamp to the slice being constructed
+         * @param subType Optional template-specific type information
+         * @see {@link SliceItem#getSubType()}
+         * @deprecated TO BE REMOVED
+         */
+        @Deprecated
         public Slice.Builder addTimestamp(long time, @Nullable String subType,
                 @SliceHint String... hints) {
-            mItems.add(new SliceItem(time, FORMAT_TIMESTAMP, subType, hints));
+            mItems.add(new SliceItem(time, FORMAT_LONG, subType, hints));
             return this;
         }
 
@@ -427,17 +464,34 @@ public final class Slice {
     public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
         sb.append(indent);
-        sb.append("slice: ");
-        sb.append("\n");
-        indent += "   ";
+        sb.append("slice ");
+        addHints(sb, mHints);
+        sb.append("{\n");
+        String nextIndent = indent + "  ";
         for (int i = 0; i < mItems.length; i++) {
             SliceItem item = mItems[i];
-            sb.append(item.toString(indent));
-            if (!FORMAT_SLICE.equals(item.getFormat())) {
-                sb.append("\n");
-            }
+            sb.append(item.toString(nextIndent));
         }
+        sb.append(indent);
+        sb.append("}");
         return sb.toString();
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public static void addHints(StringBuilder sb, String[] hints) {
+        if (hints == null || hints.length == 0) return;
+
+        sb.append("(");
+        int end = hints.length - 1;
+        for (int i = 0; i < end; i++) {
+            sb.append(hints[i]);
+            sb.append(", ");
+        }
+        sb.append(hints[end]);
+        sb.append(") ");
     }
 
     /**
@@ -465,6 +519,6 @@ public final class Slice {
     private static Slice callBindSlice(Context context, Uri uri,
             Set<SliceSpec> supportedSpecs) {
         return SliceConvert.wrap(context.getSystemService(SliceManager.class)
-                .bindSlice(uri, new ArrayList<>(unwrap(supportedSpecs))));
+                .bindSlice(uri, unwrap(supportedSpecs)));
     }
 }

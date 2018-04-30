@@ -50,7 +50,7 @@ public class TvContractUtils {
         if (TextUtils.isEmpty(commaSeparatedRatings)) {
             return EMPTY;
         }
-        String[] ratings = commaSeparatedRatings.split("\\s*,\\s*");
+        String[] ratings = commaSeparatedRatings.split("\\s*,\\s*", -1);
         List<TvContentRating> contentRatings = new ArrayList<>(ratings.length);
         for (String rating : ratings) {
             try {

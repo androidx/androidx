@@ -378,19 +378,25 @@ package androidx.car.widget {
   }
 
   public class SeekbarListItem extends androidx.car.widget.ListItem {
-    ctor public SeekbarListItem(android.content.Context, int, int, android.widget.SeekBar.OnSeekBarChangeListener, java.lang.String);
+    ctor public deprecated SeekbarListItem(android.content.Context, int, int, android.widget.SeekBar.OnSeekBarChangeListener, java.lang.String);
+    ctor public SeekbarListItem(android.content.Context);
     method public static androidx.car.widget.SeekbarListItem.ViewHolder createViewHolder(android.view.View);
     method public int getViewType();
     method protected void onBind(androidx.car.widget.SeekbarListItem.ViewHolder);
     method protected void resolveDirtyState();
+    method public void setMax(int);
+    method public void setOnSeekBarChangeListener(android.widget.SeekBar.OnSeekBarChangeListener);
     method public void setPrimaryActionEmptyIcon();
     method public void setPrimaryActionIcon(int);
     method public void setPrimaryActionIcon(android.graphics.drawable.Drawable);
+    method public void setProgress(int);
+    method public void setSecondaryProgress(int);
     method public void setSupplementalEmptyIcon(boolean);
     method public void setSupplementalIcon(int, boolean);
     method public void setSupplementalIcon(int, boolean, android.view.View.OnClickListener);
     method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean);
     method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean, android.view.View.OnClickListener);
+    method public void setText(java.lang.String);
   }
 
   public static class SeekbarListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {

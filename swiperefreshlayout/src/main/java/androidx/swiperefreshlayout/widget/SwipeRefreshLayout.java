@@ -36,6 +36,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.NestedScrollingChild;
@@ -72,6 +73,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     public static final int LARGE = CircularProgressDrawable.LARGE;
     // Maps to ProgressBar default style
     public static final int DEFAULT = CircularProgressDrawable.DEFAULT;
+
+    public static final int DEFAULT_SLINGSHOT_DISTANCE = -1;
 
     @VisibleForTesting
     static final int CIRCLE_DIAMETER = 40;
@@ -148,6 +151,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     protected int mOriginalOffsetTop;
 
     int mSpinnerOffsetEnd;
+
+    int mCustomSlingshotDistance;
 
     CircularProgressDrawable mProgress;
 
@@ -291,6 +296,18 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         mSpinnerOffsetEnd = end;
         mScale = scale;
         mCircleView.invalidate();
+    }
+
+    /**
+     * Sets a custom slingshot distance.
+     *
+     * @param slingshotDistance The distance in pixels that the refresh indicator can be pulled
+     *                          beyond its resting position. Use
+     *                          {@link #DEFAULT_SLINGSHOT_DISTANCE} to reset to the default value.
+     *
+     */
+    public void setSlingshotDistance(@Px int slingshotDistance) {
+        mCustomSlingshotDistance = slingshotDistance;
     }
 
     /**
@@ -902,8 +919,11 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         float dragPercent = Math.min(1f, Math.abs(originalDragPercent));
         float adjustedPercent = (float) Math.max(dragPercent - .4, 0) * 5 / 3;
         float extraOS = Math.abs(overscrollTop) - mTotalDragDistance;
-        float slingshotDist = mUsingCustomStart ? mSpinnerOffsetEnd - mOriginalOffsetTop
-                : mSpinnerOffsetEnd;
+        float slingshotDist = mCustomSlingshotDistance > 0
+                ? mCustomSlingshotDistance
+                : (mUsingCustomStart
+                        ? mSpinnerOffsetEnd - mOriginalOffsetTop
+                        : mSpinnerOffsetEnd);
         float tensionSlingshotPercent = Math.max(0, Math.min(extraOS, slingshotDist * 2)
                 / slingshotDist);
         float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow(

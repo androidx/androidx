@@ -17,13 +17,18 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
+import static androidx.media.MediaConstants2.ARGUMENT_PAGE;
+import static androidx.media.MediaConstants2.ARGUMENT_PAGE_SIZE;
 
 import android.content.Context;
+import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.ItemCallback;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
+import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -38,11 +43,12 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
  * Browses media content offered by a {@link MediaLibraryService2}.
  */
-@RestrictTo(LIBRARY_GROUP)
 public class MediaBrowser2 extends MediaController2 {
+    static final String TAG = "MediaBrowser2";
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+
     /**
      * @hide
      */
@@ -50,11 +56,10 @@ public class MediaBrowser2 extends MediaController2 {
     public static final String EXTRA_ITEM_COUNT = "android.media.browse.extra.ITEM_COUNT";
 
     /**
-     * Key for Bundle version of {@link MediaSession2.ControllerInfo}.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final String EXTRA_TARGET = "android.media.browse.extra.TARGET";
+    public static final String MEDIA_BROWSER2_SUBSCRIBE = "androidx.media.MEDIA_BROWSER2_SUBSCRIBE";
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -171,7 +176,7 @@ public class MediaBrowser2 extends MediaController2 {
                 browser.disconnect();
             }
             mBrowserCompats.clear();
-            // TODO: Ensure that ControllerCallback#onDisconnected() is called by super.close().
+            // Ensure that ControllerCallback#onDisconnected() is called by super.close().
             super.close();
         }
     }
@@ -195,13 +200,20 @@ public class MediaBrowser2 extends MediaController2 {
                 }
             });
         } else {
-            MediaBrowserCompat newBrowser = new MediaBrowserCompat(getContext(),
-                    getSessionToken().getComponentName(), new GetLibraryRootCallback(extras),
-                    extras);
-            newBrowser.connect();
-            synchronized (mLock) {
-                mBrowserCompats.put(extras, newBrowser);
-            }
+            getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    // Do this on the callback executor to set the looper of MediaBrowserCompat's
+                    // callback handler to this looper.
+                    MediaBrowserCompat newBrowser = new MediaBrowserCompat(getContext(),
+                            getSessionToken().getComponentName(),
+                            new GetLibraryRootCallback(extras), extras);
+                    synchronized (mLock) {
+                        mBrowserCompats.put(extras, newBrowser);
+                    }
+                    newBrowser.connect();
+                }
+            });
         }
     }
 
@@ -218,15 +230,9 @@ public class MediaBrowser2 extends MediaController2 {
         if (parentId == null) {
             throw new IllegalArgumentException("parentId shouldn't be null");
         }
-        // TODO: Document this behavior
-        Bundle option;
-        if (extras != null && (extras.containsKey(MediaBrowserCompat.EXTRA_PAGE)
-                || extras.containsKey(MediaBrowserCompat.EXTRA_PAGE_SIZE))) {
-            option = new Bundle(extras);
-            option.remove(MediaBrowserCompat.EXTRA_PAGE);
-            option.remove(MediaBrowserCompat.EXTRA_PAGE_SIZE);
-        } else {
-            option = extras;
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
         }
         SubscribeCallback callback = new SubscribeCallback();
         synchronized (mLock) {
@@ -237,11 +243,11 @@ public class MediaBrowser2 extends MediaController2 {
             }
             list.add(callback);
         }
-        // TODO: Revisit using default browser is OK. Here's my concern.
-        //       Assume that MediaBrowser2 is connected with the MediaBrowserServiceCompat.
-        //       Since MediaBrowserServiceCompat can call MediaBrowserServiceCompat#
-        //       getBrowserRootHints(), the service may refuse calls from MediaBrowser2
-        getBrowserCompat().subscribe(parentId, option, callback);
+
+        Bundle options = new Bundle();
+        options.putBundle(ARGUMENT_EXTRAS, extras);
+        options.putBoolean(MEDIA_BROWSER2_SUBSCRIBE, true);
+        browser.subscribe(parentId, options, callback);
     }
 
     /**
@@ -257,6 +263,10 @@ public class MediaBrowser2 extends MediaController2 {
         if (parentId == null) {
             throw new IllegalArgumentException("parentId shouldn't be null");
         }
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
+        }
         // Note: don't use MediaBrowserCompat#unsubscribe(String) here, to keep the subscription
         // callback for getChildren.
         synchronized (mLock) {
@@ -264,7 +274,6 @@ public class MediaBrowser2 extends MediaController2 {
             if (list == null) {
                 return;
             }
-            MediaBrowserCompat browser = getBrowserCompat();
             for (int i = 0; i < list.size(); i++) {
                 browser.unsubscribe(parentId, list.get(i));
             }
@@ -288,12 +297,15 @@ public class MediaBrowser2 extends MediaController2 {
         if (page < 1 || pageSize < 1) {
             throw new IllegalArgumentException("Neither page nor pageSize should be less than 1");
         }
-        Bundle options = new Bundle(extras);
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
+        }
+
+        Bundle options = MediaUtils2.createBundle(extras);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
-        // TODO: Revisit using default browser is OK. See TODO in subscribe
-        getBrowserCompat().subscribe(parentId, options,
-                new GetChildrenCallback(parentId, page, pageSize));
+        browser.subscribe(parentId, options, new GetChildrenCallback(parentId, page, pageSize));
     }
 
     /**
@@ -303,8 +315,11 @@ public class MediaBrowser2 extends MediaController2 {
      * @param mediaId media id for specifying the item
      */
     public void getItem(@NonNull final String mediaId) {
-        // TODO: Revisit using default browser is OK. See TODO in subscribe
-        getBrowserCompat().getItem(mediaId, new ItemCallback() {
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
+        }
+        browser.getItem(mediaId, new ItemCallback() {
             @Override
             public void onItemLoaded(final MediaItem item) {
                 getCallbackExecutor().execute(new Runnable() {
@@ -338,7 +353,28 @@ public class MediaBrowser2 extends MediaController2 {
      * @param extras extra bundle
      */
     public void search(@NonNull String query, @Nullable Bundle extras) {
-        // TODO: Implement
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
+        }
+        browser.search(query, extras, new MediaBrowserCompat.SearchCallback() {
+            @Override
+            public void onSearchResult(final String query, final Bundle extras,
+                    final List<MediaItem> items) {
+                getCallbackExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        getCallback().onSearchResultChanged(
+                                MediaBrowser2.this, query, items.size(), extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final String query, final Bundle extras) {
+                // Currently no way to tell failures in MediaBrowser2#search().
+            }
+        });
     }
 
     /**
@@ -351,9 +387,40 @@ public class MediaBrowser2 extends MediaController2 {
      * @param pageSize page size. Should be greater or equal to {@code 1}
      * @param extras extra bundle
      */
-    public void getSearchResult(@NonNull String query, int page, int pageSize,
-            @Nullable Bundle extras) {
-        // TODO: Implement
+    public void getSearchResult(final @NonNull String query, final int page, final int pageSize,
+            final @Nullable Bundle extras) {
+        MediaBrowserCompat browser = getBrowserCompat();
+        if (browser == null) {
+            return;
+        }
+        Bundle options = MediaUtils2.createBundle(extras);
+        options.putInt(ARGUMENT_PAGE, page);
+        options.putInt(ARGUMENT_PAGE_SIZE, pageSize);
+        browser.search(query, options, new MediaBrowserCompat.SearchCallback() {
+            @Override
+            public void onSearchResult(final String query, final Bundle extrasSent,
+                    final List<MediaItem> items) {
+                getCallbackExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<MediaItem2> item2List = MediaUtils2.toMediaItem2List(items);
+                        getCallback().onGetSearchResultDone(
+                                MediaBrowser2.this, query, page, pageSize, item2List, extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final String query, final Bundle extrasSent) {
+                getCallbackExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        getCallback().onGetSearchResultDone(
+                                MediaBrowser2.this, query, page, pageSize, null, extras);
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -365,6 +432,20 @@ public class MediaBrowser2 extends MediaController2 {
         synchronized (mLock) {
             return mBrowserCompats.get(extras);
         }
+    }
+
+    private Bundle getExtrasWithoutPagination(Bundle extras) {
+        if (extras == null) {
+            return null;
+        }
+        extras.setClassLoader(getContext().getClassLoader());
+        try {
+            extras.remove(MediaBrowserCompat.EXTRA_PAGE);
+            extras.remove(MediaBrowserCompat.EXTRA_PAGE_SIZE);
+        } catch (BadParcelableException e) {
+            // Pass through...
+        }
+        return extras;
     }
 
     private class GetLibraryRootCallback extends MediaBrowserCompat.ConnectionCallback {
@@ -433,11 +514,14 @@ public class MediaBrowser2 extends MediaController2 {
                 // Currently no way to tell failures in MediaBrowser2#subscribe().
                 return;
             }
+
+            final Bundle notifyChildrenChangedOptions =
+                    getBrowserCompat().getNotifyChildrenChangedOptions();
             getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
                     getCallback().onChildrenChanged(MediaBrowser2.this, parentId, itemCount,
-                            options);
+                            notifyChildrenChangedOptions);
                 }
             });
         }
@@ -472,7 +556,7 @@ public class MediaBrowser2 extends MediaController2 {
 
         @Override
         public void onChildrenLoaded(final String parentId, List<MediaItem> children,
-                final Bundle options) {
+                Bundle options) {
             final List<MediaItem2> items;
             if (children == null) {
                 items = null;
@@ -482,12 +566,17 @@ public class MediaBrowser2 extends MediaController2 {
                     items.add(MediaUtils2.createMediaItem2(children.get(i)));
                 }
             }
+            final Bundle extras = getExtrasWithoutPagination(options);
             getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
+                    MediaBrowserCompat browser = getBrowserCompat();
+                    if (browser == null) {
+                        return;
+                    }
                     getCallback().onGetChildrenDone(MediaBrowser2.this, parentId, mPage, mPageSize,
-                            items, options);
-                    getBrowserCompat().unsubscribe(mParentId, GetChildrenCallback.this);
+                            items, extras);
+                    browser.unsubscribe(mParentId, GetChildrenCallback.this);
                 }
             });
         }

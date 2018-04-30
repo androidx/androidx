@@ -22,16 +22,17 @@ import android.annotation.TargetApi;
 import android.app.slice.Slice;
 import android.app.slice.SliceProvider;
 import android.app.slice.SliceSpec;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ProviderInfo;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.collection.ArraySet;
 import androidx.slice.SliceConvert;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 /**
  * @hide
@@ -46,18 +47,26 @@ public class SliceProviderWrapperContainer {
 
         private androidx.slice.SliceProvider mSliceProvider;
 
-        public SliceProviderWrapper(androidx.slice.SliceProvider provider) {
+        public SliceProviderWrapper(androidx.slice.SliceProvider provider,
+                String[] autoGrantPermissions) {
+            super(autoGrantPermissions);
             mSliceProvider = provider;
         }
 
         @Override
-        public boolean onCreate() {
-            return mSliceProvider.onCreateSliceProvider();
+        public void attachInfo(Context context, ProviderInfo info) {
+            mSliceProvider.attachInfo(context, info);
+            super.attachInfo(context, info);
         }
 
         @Override
-        public Slice onBindSlice(Uri sliceUri, List<SliceSpec> supportedVersions) {
-            androidx.slice.SliceProvider.setSpecs(new ArraySet<>(wrap(supportedVersions)));
+        public boolean onCreate() {
+            return true;
+        }
+
+        @Override
+        public Slice onBindSlice(Uri sliceUri, Set<SliceSpec> supportedVersions) {
+            androidx.slice.SliceProvider.setSpecs(wrap(supportedVersions));
             try {
                 return SliceConvert.unwrap(mSliceProvider.onBindSlice(sliceUri));
             } finally {

@@ -168,14 +168,14 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
                 // Update the intent extra state
                 boolean isChecked = ((Checkable) mActionView).isChecked();
                 Intent i = new Intent().putExtra(EXTRA_TOGGLE_STATE, isChecked);
-                pi.send(getContext(), 0, i, null, null);
+                mSliceAction.getActionItem().fireAction(getContext(), i);
 
                 // Update event info state
                 if (mEventInfo != null) {
                     mEventInfo.state = isChecked ? EventInfo.STATE_ON : EventInfo.STATE_OFF;
                 }
             } else {
-                pi.send();
+                mSliceAction.getActionItem().fireAction(null, null); 
             }
             if (mObserver != null && mEventInfo != null) {
                 mObserver.onSliceAction(mEventInfo, mSliceAction.getSliceItem());

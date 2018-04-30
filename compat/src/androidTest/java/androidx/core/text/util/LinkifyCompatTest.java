@@ -781,12 +781,6 @@ public class LinkifyCompatTest {
     // ADDRESS RELATED TESTS
 
     @Test
-    public void testFindAddress_withoutZipcode() {
-        final String address = "455 LARKSPUR DRIVE CALIFORNIA SPRINGS CALIFORNIA";
-        verifyAddLinksWithMapAddressSucceeds("Should match map address: " + address, address);
-    }
-
-    @Test
     public void testFindAddress_withZipcode() {
         final String address = "455 LARKSPUR DRIVE CALIFORNIA SPRINGS CALIFORNIA 92826";
         verifyAddLinksWithMapAddressSucceeds("Should match map address: " + address, address);

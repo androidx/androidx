@@ -15,20 +15,29 @@
  */
 package androidx.media;
 
+import static android.content.Context.KEYGUARD_SERVICE;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.app.Instrumentation;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaTimestamp;
+import android.media.SubtitleData;
 import android.media.TimedMetaData;
 import android.net.Uri;
+import android.os.PersistableBundle;
+import android.os.PowerManager;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.view.SurfaceHolder;
+import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
 
@@ -41,6 +50,7 @@ import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -65,6 +75,7 @@ public class MediaPlayer2TestBase {
     protected Monitor mOnCompletionCalled = new Monitor();
     protected Monitor mOnInfoCalled = new Monitor();
     protected Monitor mOnErrorCalled = new Monitor();
+    protected Monitor mOnMediaTimeDiscontinuityCalled = new Monitor();
     protected int mCallStatus;
 
     protected Context mContext;
@@ -75,34 +86,35 @@ public class MediaPlayer2TestBase {
     protected MediaPlayer2 mPlayer = null;
     protected MediaPlayer2 mPlayer2 = null;
     protected MediaStubActivity mActivity;
+    protected Instrumentation mInstrumentation;
 
     protected final Object mEventCbLock = new Object();
-    protected List<MediaPlayer2.MediaPlayer2EventCallback> mEventCallbacks =
-            new ArrayList<MediaPlayer2.MediaPlayer2EventCallback>();
+    protected List<MediaPlayer2.MediaPlayer2EventCallback> mEventCallbacks = new ArrayList<>();
     protected final Object mEventCbLock2 = new Object();
-    protected List<MediaPlayer2.MediaPlayer2EventCallback> mEventCallbacks2 =
-            new ArrayList<MediaPlayer2.MediaPlayer2EventCallback>();
+    protected List<MediaPlayer2.MediaPlayer2EventCallback> mEventCallbacks2 = new ArrayList<>();
 
     @Rule
     public ActivityTestRule<MediaStubActivity> mActivityRule =
             new ActivityTestRule<>(MediaStubActivity.class);
+    public PowerManager.WakeLock mScreenLock;
+    private KeyguardManager mKeyguardManager;
 
     // convenience functions to create MediaPlayer2
-    protected static MediaPlayer2 createMediaPlayer2(Context context, Uri uri) {
+    protected MediaPlayer2 createMediaPlayer2(Context context, Uri uri) {
         return createMediaPlayer2(context, uri, null);
     }
 
-    protected static MediaPlayer2 createMediaPlayer2(Context context, Uri uri,
+    protected MediaPlayer2 createMediaPlayer2(Context context, Uri uri,
             SurfaceHolder holder) {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         int s = am.generateAudioSessionId();
         return createMediaPlayer2(context, uri, holder, null, s > 0 ? s : 0);
     }
 
-    protected static MediaPlayer2 createMediaPlayer2(Context context, Uri uri, SurfaceHolder holder,
+    protected MediaPlayer2 createMediaPlayer2(Context context, Uri uri, SurfaceHolder holder,
             AudioAttributesCompat audioAttributes, int audioSessionId) {
         try {
-            MediaPlayer2 mp = MediaPlayer2.create();
+            MediaPlayer2 mp = createMediaPlayer2OnUiThread();
             final AudioAttributesCompat aa = audioAttributes != null ? audioAttributes :
                     new AudioAttributesCompat.Builder().build();
             mp.setAudioAttributes(aa);
@@ -144,13 +156,13 @@ public class MediaPlayer2TestBase {
         return null;
     }
 
-    protected static MediaPlayer2 createMediaPlayer2(Context context, int resid) {
+    protected MediaPlayer2 createMediaPlayer2(Context context, int resid) {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         int s = am.generateAudioSessionId();
         return createMediaPlayer2(context, resid, null, s > 0 ? s : 0);
     }
 
-    protected static MediaPlayer2 createMediaPlayer2(Context context, int resid,
+    protected MediaPlayer2 createMediaPlayer2(Context context, int resid,
             AudioAttributesCompat audioAttributes, int audioSessionId) {
         try {
             AssetFileDescriptor afd = context.getResources().openRawResourceFd(resid);
@@ -158,7 +170,7 @@ public class MediaPlayer2TestBase {
                 return null;
             }
 
-            MediaPlayer2 mp = MediaPlayer2.create();
+            MediaPlayer2 mp = createMediaPlayer2OnUiThread();
 
             final AudioAttributesCompat aa = audioAttributes != null ? audioAttributes :
                     new AudioAttributesCompat.Builder().build();
@@ -202,6 +214,20 @@ public class MediaPlayer2TestBase {
             // fall through
         }
         return null;
+    }
+
+    private MediaPlayer2 createMediaPlayer2OnUiThread() {
+        final MediaPlayer2[] mp = new MediaPlayer2[1];
+        try {
+            mActivityRule.runOnUiThread(new Runnable() {
+                public void run() {
+                    mp[0] = MediaPlayer2.create();
+                }
+            });
+        } catch (Throwable throwable) {
+            fail("Failed to create MediaPlayer2 instance on UI thread.");
+        }
+        return mp[0];
     }
 
     public static class Monitor {
@@ -258,8 +284,23 @@ public class MediaPlayer2TestBase {
 
     @Before
     @CallSuper
-    public void setUp() throws Exception {
+    public void setUp() throws Throwable {
+        mInstrumentation = InstrumentationRegistry.getInstrumentation();
+        mKeyguardManager = (KeyguardManager)
+                mInstrumentation.getTargetContext().getSystemService(KEYGUARD_SERVICE);
         mActivity = mActivityRule.getActivity();
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Keep screen on while testing.
+                mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                mActivity.setTurnScreenOn(true);
+                mActivity.setShowWhenLocked(true);
+                mKeyguardManager.requestDismissKeyguard(mActivity, null);
+            }
+        });
+        mInstrumentation.waitForIdleSync();
+
         try {
             mActivityRule.runOnUiThread(new Runnable() {
                 public void run() {
@@ -344,11 +385,11 @@ public class MediaPlayer2TestBase {
             }
 
             @Override
-            public void onMediaTimeChanged(MediaPlayer2 mp, DataSourceDesc dsd,
+            public void onMediaTimeDiscontinuity(MediaPlayer2 mp, DataSourceDesc dsd,
                     MediaTimestamp timestamp) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.MediaPlayer2EventCallback ecb : ecbs) {
-                        ecb.onMediaTimeChanged(mp, dsd, timestamp);
+                        ecb.onMediaTimeDiscontinuity(mp, dsd, timestamp);
                     }
                 }
             }
@@ -358,6 +399,15 @@ public class MediaPlayer2TestBase {
                 synchronized (cbLock) {
                     for (MediaPlayer2.MediaPlayer2EventCallback ecb : ecbs) {
                         ecb.onCommandLabelReached(mp, label);
+                    }
+                }
+            }
+            @Override
+            public  void onSubtitleData(MediaPlayer2 mp, DataSourceDesc dsd,
+                    final SubtitleData data) {
+                synchronized (cbLock) {
+                    for (MediaPlayer2.MediaPlayer2EventCallback ecb : ecbs) {
+                        ecb.onSubtitleData(mp, dsd, data);
                     }
                 }
             }
@@ -490,11 +540,7 @@ public class MediaPlayer2TestBase {
 
         boolean audioOnly = (width != null && width.intValue() == -1)
                 || (height != null && height.intValue() == -1);
-
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-        /* FIXME: ensure that screen is on in activity level.
-        mPlayer.setScreenOnWhilePlaying(true);
-        */
 
         synchronized (mEventCbLock) {
             mEventCallbacks.add(new MediaPlayer2.MediaPlayer2EventCallback() {
@@ -559,13 +605,49 @@ public class MediaPlayer2TestBase {
         if (playTime == -1) {
             return;
         } else if (playTime == 0) {
-            while (mPlayer.getPlayerState() == MediaPlayerBase.PLAYER_STATE_PLAYING) {
+            while (mPlayer.getMediaPlayer2State() == MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING) {
                 Thread.sleep(SLEEP_TIME);
             }
         } else {
             Thread.sleep(playTime);
         }
 
+        // validate a few MediaMetrics.
+        PersistableBundle metrics = mPlayer.getMetrics();
+        if (metrics == null) {
+            fail("MediaPlayer.getMetrics() returned null metrics");
+        } else if (metrics.isEmpty()) {
+            fail("MediaPlayer.getMetrics() returned empty metrics");
+        } else {
+
+            int size = metrics.size();
+            Set<String> keys = metrics.keySet();
+
+            if (keys == null) {
+                fail("MediaMetricsSet returned no keys");
+            } else if (keys.size() != size) {
+                fail("MediaMetricsSet.keys().size() mismatch MediaMetricsSet.size()");
+            }
+
+            // we played something; so one of these should be non-null
+            String vmime = metrics.getString(MediaPlayer2.MetricsConstants.MIME_TYPE_VIDEO, null);
+            String amime = metrics.getString(MediaPlayer2.MetricsConstants.MIME_TYPE_AUDIO, null);
+            if (vmime == null && amime == null) {
+                fail("getMetrics() returned neither video nor audio mime value");
+            }
+
+            long duration = metrics.getLong(MediaPlayer2.MetricsConstants.DURATION, -2);
+            if (duration == -2) {
+                fail("getMetrics() didn't return a duration");
+            }
+            long playing = metrics.getLong(MediaPlayer2.MetricsConstants.PLAYING, -2);
+            if (playing == -2) {
+                fail("getMetrics() didn't return a playing time");
+            }
+            if (!keys.contains(MediaPlayer2.MetricsConstants.PLAYING)) {
+                fail("MediaMetricsSet.keys() missing: " + MediaPlayer2.MetricsConstants.PLAYING);
+            }
+        }
         mPlayer.reset();
     }
 

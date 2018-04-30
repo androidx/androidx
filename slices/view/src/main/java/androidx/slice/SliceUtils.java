@@ -30,7 +30,10 @@ import static androidx.slice.SliceMetadata.LOADED_NONE;
 import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.content.Context;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
@@ -42,6 +45,7 @@ import androidx.slice.core.SliceQuery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,10 +69,11 @@ public class SliceUtils {
      * @param output The output of the serialization.
      * @param encoding The encoding to use for serialization.
      * @param options Options defining how to handle non-serializable items.
+     * @throws IllegalArgumentException if the slice cannot be serialized using the given options.
      */
     public static void serializeSlice(@NonNull Slice s, @NonNull Context context,
             @NonNull OutputStream output, @NonNull String encoding,
-            @NonNull SerializeOptions options) throws IOException {
+            @NonNull SerializeOptions options) throws IOException, IllegalArgumentException {
         SliceXml.serializeSlice(s, context, output, encoding, options);
     }
 
@@ -76,13 +81,18 @@ public class SliceUtils {
      * Parse a slice that has been previously serialized.
      * <p>
      * Parses a slice that was serialized with {@link #serializeSlice}.
+     * <p>
+     * Note: Slices returned by this cannot be passed to {@link SliceConvert#unwrap(Slice)}.
      *
      * @param input The input stream to read from.
      * @param encoding The encoding to read as.
+     * @param listener Listener used to handle actions when reconstructing the slice.
+     * @throws SliceParseException if the InputStream cannot be parsed.
      */
-    public static @NonNull Slice parseSlice(@NonNull InputStream input, @NonNull String encoding)
-            throws IOException {
-        return SliceXml.parseSlice(input, encoding);
+    public static @NonNull Slice parseSlice(@NonNull Context context, @NonNull InputStream input,
+            @NonNull String encoding, @NonNull SliceActionListener listener)
+            throws IOException, SliceParseException {
+        return SliceXml.parseSlice(context, input, encoding, listener);
     }
 
     /**
@@ -101,17 +111,22 @@ public class SliceUtils {
         /**
          * Constant indicating that the SliceItem should be serialized as much as possible.
          * <p>
-         * For images this means it will be replaced with an empty image. For actions, the
-         * action will be removed but the content of the action will be serialized.
+         * For images this means they will be attempted to be serialized. For actions, the
+         * action will be removed but the content of the action will be serialized. The action
+         * may be triggered later on a de-serialized slice by binding the slice again and activating
+         * a pending-intent at the same location as the serialized action.
          */
-        public static final int MODE_DISABLE = 2;
+        public static final int MODE_CONVERT = 2;
 
-        @IntDef({MODE_THROW, MODE_REMOVE, MODE_DISABLE})
+        @IntDef({MODE_THROW, MODE_REMOVE, MODE_CONVERT})
+        @Retention(SOURCE)
         @interface FormatMode {
         }
 
         private int mActionMode = MODE_THROW;
         private int mImageMode = MODE_THROW;
+        private int mMaxWidth = 1000;
+        private int mMaxHeight = 1000;
 
         /**
          * @hide
@@ -149,6 +164,22 @@ public class SliceUtils {
         }
 
         /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public int getMaxWidth() {
+            return mMaxWidth;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public int getMaxHeight() {
+            return mMaxHeight;
+        }
+
+        /**
          * Sets how {@link android.app.slice.SliceItem#FORMAT_ACTION} items should be handled.
          *
          * The default mode is {@link #MODE_THROW}.
@@ -167,6 +198,30 @@ public class SliceUtils {
          */
         public SerializeOptions setImageMode(@FormatMode int mode) {
             mImageMode = mode;
+            return this;
+        }
+
+        /**
+         * Set the maximum width of an image to use when serializing.
+         * <p>
+         * Will only be used if the {@link #setImageMode(int)} is set to {@link #MODE_CONVERT}.
+         * Any images larger than the maximum size will be scaled down to fit within that size.
+         * The default value is 1000.
+         */
+        public SerializeOptions setMaxImageWidth(int width) {
+            mMaxWidth = width;
+            return this;
+        }
+
+        /**
+         * Set the maximum height of an image to use when serializing.
+         * <p>
+         * Will only be used if the {@link #setImageMode(int)} is set to {@link #MODE_CONVERT}.
+         * Any images larger than the maximum size will be scaled down to fit within that size.
+         * The default value is 1000.
+         */
+        public SerializeOptions setMaxImageHeight(int height) {
+            mMaxHeight = height;
             return this;
         }
     }
@@ -254,5 +309,40 @@ public class SliceUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * A listener used to receive events on slices parsed with
+     * {@link #parseSlice(Context, InputStream, String, SliceActionListener)}.
+     */
+    public interface SliceActionListener {
+        /**
+         * Called when an action is triggered on a slice parsed with
+         * {@link #parseSlice(Context, InputStream, String, SliceActionListener)}.
+         * @param actionUri The uri of the action selected.
+         */
+        void onSliceAction(Uri actionUri);
+    }
+
+    /**
+     * Exception thrown during
+     * {@link #parseSlice(Context, InputStream, String, SliceActionListener)}.
+     */
+    public static class SliceParseException extends Exception {
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public SliceParseException(String s, Throwable e) {
+            super(s, e);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public SliceParseException(String s) {
+            super(s);
+        }
     }
 }

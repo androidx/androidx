@@ -21,8 +21,8 @@ limitations under the License.
     <string name="orb_search_action" msgid="7534843523462177008">"Пошук"</string>
     <string name="lb_search_bar_hint" msgid="4819380969103509861">"Пошук"</string>
     <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"Прамоўце пошукавы запыт"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"Шукаць тут <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"Прамоўце пошукавы запыт тут <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"Шукаць тут: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"Прамоўце запыт для пошуку тут: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_control_display_fast_forward_multiplier" msgid="2721825378927619928">"%1$dX"</string>
     <string name="lb_control_display_rewind_multiplier" msgid="6173753802428649303">"%1$dX"</string>
     <string name="lb_playback_controls_play" msgid="1590369760862605402">"Прайграць"</string>
@@ -53,7 +53,7 @@ limitations under the License.
     <string name="lb_playback_controls_hidden" msgid="619396299825306757">"Элементы кіравання мультымедыя схаваны. Каб паказаць іх, націсніце d-pad"</string>
     <string name="lb_guidedaction_finish_title" msgid="7747913934287176843">"Завяршыць"</string>
     <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"Працягнуць"</string>
-    <string name="lb_media_player_error" msgid="8748646000835486516">"Код памылкі MediaPlayer %1$d дадаткова %2$d"</string>
+    <string name="lb_media_player_error" msgid="8748646000835486516">"Код памылкі MediaPlayer: %1$d (дадатковы: %2$d)"</string>
     <string name="lb_onboarding_get_started" msgid="7674487829030291492">"ПАЧАЦЬ"</string>
     <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"Далей"</string>
 </resources>

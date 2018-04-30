@@ -19,11 +19,9 @@ package androidx.slice;
 import static androidx.slice.widget.SliceLiveData.SUPPORTED_SPECS;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.ArrayMap;
@@ -31,7 +29,6 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.core.content.PermissionChecker;
 
 import java.util.concurrent.Executor;
 
@@ -69,31 +66,6 @@ public abstract class SliceManagerBase extends SliceManager {
     public void unregisterSliceCallback(@NonNull Uri uri, @NonNull SliceCallback callback) {
         SliceListenerImpl impl = mListenerLookup.remove(new Pair<>(uri, callback));
         if (impl != null) impl.stopListening();
-    }
-
-    @Override
-    @PermissionChecker.PermissionResult
-    public int checkSlicePermission(@NonNull Uri uri, int pid, int uid) {
-        // TODO: Switch off Uri permissions.
-        return mContext.checkUriPermission(uri, pid, uid,
-                Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-    }
-
-    @Override
-    public void grantSlicePermission(@NonNull String toPackage, @NonNull Uri uri) {
-        // TODO: Switch off Uri permissions.
-        mContext.grantUriPermission(toPackage, uri,
-                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                        | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-    }
-
-    @Override
-    public void revokeSlicePermission(@NonNull String toPackage, @NonNull Uri uri) {
-        // TODO: Switch off Uri permissions.
-        if (Build.VERSION.SDK_INT >= 26) {
-            mContext.revokeUriPermission(toPackage, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        }
     }
 
 

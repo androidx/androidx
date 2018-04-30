@@ -37,10 +37,13 @@ dependencies {
 }
 
 supportLibrary {
-    name = "Android Media Support Library"
+    name = "Android Support Media Widget"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.MEDIA
     inceptionYear = "2011"
-    description = "Android Media Support Library"
+    description = "Android Support Media Widget"
+    minSdkVersion = 19
+    failOnDeprecationWarnings = false
+    failOnDeprecationWarnings = false
 }

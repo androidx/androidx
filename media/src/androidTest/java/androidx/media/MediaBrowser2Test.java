@@ -29,9 +29,12 @@ import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertNotEquals;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.ResultReceiver;
+import android.support.test.filters.LargeTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -65,17 +68,15 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link MediaController2} works cleanly.
  */
 // TODO(jaewan): Implement host-side test so browser and service can run in different processes.
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@Ignore
 public class MediaBrowser2Test extends MediaController2Test {
     private static final String TAG = "MediaBrowser2Test";
 
     @Override
     TestControllerInterface onCreateController(final @NonNull SessionToken2 token,
-            @Nullable ControllerCallback callback) throws InterruptedException {
-        final BrowserCallback browserCallback =
-                callback != null ? (BrowserCallback) callback : new BrowserCallback() {};
+            final @Nullable ControllerCallback callback) throws InterruptedException {
         final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -84,7 +85,7 @@ public class MediaBrowser2Test extends MediaController2Test {
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
                 controller.set(new TestMediaBrowser(
-                        mContext, token, new TestBrowserCallback(browserCallback)));
+                        mContext, token, new TestBrowserCallback(callback)));
             }
         });
         return controller.get();
@@ -120,7 +121,9 @@ public class MediaBrowser2Test extends MediaController2Test {
                     Bundle rootHints, String rootMediaId, Bundle rootExtra) {
                 assertTrue(TestUtils.equals(param, rootHints));
                 assertEquals(ROOT_ID, rootMediaId);
-                assertTrue(TestUtils.equals(EXTRAS, rootExtra));
+                // Note that TestUtils#equals() cannot be used for this because
+                // MediaBrowserServiceCompat adds extra_client_version to the rootHints.
+                assertTrue(TestUtils.contains(rootExtra, EXTRAS));
                 latch.countDown();
             }
         };
@@ -259,7 +262,6 @@ public class MediaBrowser2Test extends MediaController2Test {
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Ignore
     @Test
     public void testSearch() throws InterruptedException {
         prepareLooper();
@@ -317,6 +319,7 @@ public class MediaBrowser2Test extends MediaController2Test {
     }
 
     @Test
+    @LargeTest
     public void testSearchTakesTime() throws InterruptedException {
         prepareLooper();
         final String query = MockMediaLibraryService2.SEARCH_QUERY_TAKES_TIME;
@@ -418,80 +421,199 @@ public class MediaBrowser2Test extends MediaController2Test {
     }
 
     @Test
-    public void testBrowserCallback_notifyChildrenChanged() throws InterruptedException {
+    public void testBrowserCallback_onChildrenChangedIsNotCalledWhenNotSubscribed()
+            throws InterruptedException {
+        // This test uses MediaLibrarySession.notifyChildrenChanged().
         prepareLooper();
-        // TODO(jaewan): Add test for the notifyChildrenChanged itself.
-        final String testParentId1 = "testBrowserCallback_notifyChildrenChanged_unexpectedParent";
-        final String testParentId2 = "testBrowserCallback_notifyChildrenChanged";
+        final String subscribedMediaId = "subscribedMediaId";
+        final String anotherMediaId = "anotherMediaId";
         final int testChildrenCount = 101;
-        final Bundle testExtras = new Bundle();
-        testExtras.putString(testParentId1, testParentId1);
+        final CountDownLatch latch = new CountDownLatch(1);
 
-        final CountDownLatch latch = new CountDownLatch(3);
-        final MediaLibrarySessionCallback sessionCallback =
-                new MediaLibrarySessionCallback() {
-                    @Override
-                    public SessionCommandGroup2 onConnect(@NonNull MediaSession2 session,
-                            @NonNull ControllerInfo controller) {
-                        if (Process.myUid() == controller.getUid()) {
-                            assertTrue(session instanceof MediaLibrarySession);
-                            if (mSession != null) {
-                                mSession.close();
-                            }
-                            mSession = session;
-                            // Shouldn't trigger onChildrenChanged() for the browser, because it
-                            // hasn't subscribed.
-                            ((MediaLibrarySession) session).notifyChildrenChanged(
-                                    testParentId1, testChildrenCount, null);
-                            ((MediaLibrarySession) session).notifyChildrenChanged(
-                                    controller, testParentId1, testChildrenCount, null);
-                        }
-                        return super.onConnect(session, controller);
-                    }
+        final MediaLibrarySessionCallback sessionCallback = new MediaLibrarySessionCallback() {
+            @Override
+            public void onSubscribe(@NonNull MediaLibrarySession session,
+                    @NonNull ControllerInfo controller, @NonNull String parentId,
+                    @Nullable Bundle extras) {
+                if (Process.myUid() == controller.getUid()) {
+                    // Shouldn't trigger onChildrenChanged() for the browser,
+                    // because the browser didn't subscribe this media id.
+                    session.notifyChildrenChanged(anotherMediaId, testChildrenCount, null);
+                }
+            }
 
-                    @Override
-                    public void onSubscribe(@NonNull MediaLibrarySession session,
-                            @NonNull ControllerInfo info, @NonNull String parentId,
-                            @Nullable Bundle extras) {
-                        if (Process.myUid() == info.getUid()) {
-                            session.notifyChildrenChanged(testParentId2, testChildrenCount, null);
-                            session.notifyChildrenChanged(info, testParentId2, testChildrenCount,
-                                    testExtras);
-                        }
-                    }
+            @Override
+            public List<MediaItem2> onGetChildren(MediaLibrarySession session,
+                    ControllerInfo controller, String parentId, int page, int pageSize,
+                    Bundle extras) {
+                return TestUtils.createPlaylist(testChildrenCount);
+            }
         };
-        final BrowserCallback controllerCallbackProxy =
-                new BrowserCallback() {
-                    @Override
-                    public void onChildrenChanged(MediaBrowser2 browser, String parentId,
-                            int itemCount, Bundle extras) {
-                        switch ((int) latch.getCount()) {
-                            case 3:
-                                assertEquals(testParentId2, parentId);
-                                assertEquals(testChildrenCount, itemCount);
-                                assertNull(extras);
-                                latch.countDown();
-                                break;
-                            case 2:
-                                assertEquals(testParentId2, parentId);
-                                assertEquals(testChildrenCount, itemCount);
-                                assertTrue(TestUtils.equals(testExtras, extras));
-                                latch.countDown();
-                                break;
-                            default:
-                                // Unexpected call.
-                                fail();
-                        }
-                    }
-                };
+        final BrowserCallback controllerCallbackProxy = new BrowserCallback() {
+            @Override
+            public void onChildrenChanged(MediaBrowser2 browser, String parentId,
+                    int itemCount, Bundle extras) {
+                // Unexpected call.
+                fail();
+            }
+        };
+
         TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
         final SessionToken2 token = MockMediaLibraryService2.getToken(mContext);
         final MediaBrowser2 browser = (MediaBrowser2) createController(
                 token, true, controllerCallbackProxy);
-        assertTrue(mSession instanceof MediaLibrarySession);
-        browser.subscribe(testParentId2, null);
-        // This ensures that onChildrenChanged() is only called for the expected reasons.
+        browser.subscribe(subscribedMediaId, null);
+
+        // onChildrenChanged() should not be called.
         assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testBrowserCallback_onChildrenChangedIsCalledWhenSubscribed()
+            throws InterruptedException {
+        // This test uses MediaLibrarySession.notifyChildrenChanged().
+        prepareLooper();
+        final String expectedParentId = "expectedParentId";
+        final int testChildrenCount = 101;
+        final Bundle testExtras = TestUtils.createTestBundle();
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaLibrarySessionCallback sessionCallback = new MediaLibrarySessionCallback() {
+            @Override
+            public void onSubscribe(@NonNull MediaLibrarySession session,
+                    @NonNull ControllerInfo controller, @NonNull String parentId,
+                    @Nullable Bundle extras) {
+                if (Process.myUid() == controller.getUid()) {
+                    // Should trigger onChildrenChanged() for the browser.
+                    session.notifyChildrenChanged(expectedParentId, testChildrenCount, testExtras);
+                }
+            }
+
+            @Override
+            public List<MediaItem2> onGetChildren(MediaLibrarySession session,
+                    ControllerInfo controller, String parentId, int page, int pageSize,
+                    Bundle extras) {
+                return TestUtils.createPlaylist(testChildrenCount);
+            }
+        };
+        final BrowserCallback controllerCallbackProxy = new BrowserCallback() {
+            @Override
+            public void onChildrenChanged(MediaBrowser2 browser, String parentId,
+                    int itemCount, Bundle extras) {
+                assertEquals(expectedParentId, parentId);
+                assertEquals(testChildrenCount, itemCount);
+                assertTrue(TestUtils.equals(testExtras, extras));
+                latch.countDown();
+            }
+        };
+
+        TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
+        final SessionToken2 token = MockMediaLibraryService2.getToken(mContext);
+        final MediaBrowser2 browser = (MediaBrowser2) createController(
+                token, true, controllerCallbackProxy);
+        browser.subscribe(expectedParentId, null);
+
+        // onChildrenChanged() should be called.
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testBrowserCallback_onChildrenChangedIsNotCalledWhenNotSubscribed2()
+            throws InterruptedException {
+        // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
+        prepareLooper();
+        final String subscribedMediaId = "subscribedMediaId";
+        final String anotherMediaId = "anotherMediaId";
+        final int testChildrenCount = 101;
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final MediaLibrarySessionCallback sessionCallback = new MediaLibrarySessionCallback() {
+            @Override
+            public void onSubscribe(@NonNull MediaLibrarySession session,
+                    @NonNull ControllerInfo controller, @NonNull String parentId,
+                    @Nullable Bundle extras) {
+                if (Process.myUid() == controller.getUid()) {
+                    // Shouldn't trigger onChildrenChanged() for the browser,
+                    // because the browser didn't subscribe this media id.
+                    session.notifyChildrenChanged(
+                            controller, anotherMediaId, testChildrenCount, null);
+                }
+            }
+
+            @Override
+            public List<MediaItem2> onGetChildren(MediaLibrarySession session,
+                    ControllerInfo controller, String parentId, int page, int pageSize,
+                    Bundle extras) {
+                return TestUtils.createPlaylist(testChildrenCount);
+            }
+        };
+        final BrowserCallback controllerCallbackProxy = new BrowserCallback() {
+            @Override
+            public void onChildrenChanged(MediaBrowser2 browser, String parentId,
+                    int itemCount, Bundle extras) {
+                // Unexpected call.
+                fail();
+            }
+        };
+
+        TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
+        final SessionToken2 token = MockMediaLibraryService2.getToken(mContext);
+        final MediaBrowser2 browser = (MediaBrowser2) createController(
+                token, true, controllerCallbackProxy);
+        browser.subscribe(subscribedMediaId, null);
+
+        // onChildrenChanged() should not be called.
+        assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testBrowserCallback_onChildrenChangedIsCalledWhenSubscribed2()
+            throws InterruptedException {
+        // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
+        prepareLooper();
+        final String expectedParentId = "expectedParentId";
+        final int testChildrenCount = 101;
+        final Bundle testExtras = TestUtils.createTestBundle();
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaLibrarySessionCallback sessionCallback = new MediaLibrarySessionCallback() {
+            @Override
+            public void onSubscribe(@NonNull MediaLibrarySession session,
+                    @NonNull ControllerInfo controller, @NonNull String parentId,
+                    @Nullable Bundle extras) {
+                if (Process.myUid() == controller.getUid()) {
+                    // Should trigger onChildrenChanged() for the browser.
+                    session.notifyChildrenChanged(
+                            controller, expectedParentId, testChildrenCount, testExtras);
+                }
+            }
+
+            @Override
+            public List<MediaItem2> onGetChildren(MediaLibrarySession session,
+                    ControllerInfo controller, String parentId, int page, int pageSize,
+                    Bundle extras) {
+                return TestUtils.createPlaylist(testChildrenCount);
+            }
+        };
+        final BrowserCallback controllerCallbackProxy = new BrowserCallback() {
+            @Override
+            public void onChildrenChanged(MediaBrowser2 browser, String parentId,
+                    int itemCount, Bundle extras) {
+                assertEquals(expectedParentId, parentId);
+                assertEquals(testChildrenCount, itemCount);
+                assertTrue(TestUtils.equals(testExtras, extras));
+                latch.countDown();
+            }
+        };
+
+        TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
+        final SessionToken2 token = MockMediaLibraryService2.getToken(mContext);
+        final MediaBrowser2 browser = (MediaBrowser2) createController(
+                token, true, controllerCallbackProxy);
+        browser.subscribe(expectedParentId, null);
+
+        // onChildrenChanged() should be called.
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     public static class TestBrowserCallback extends BrowserCallback
@@ -504,7 +626,7 @@ public class MediaBrowser2Test extends MediaController2Test {
 
         TestBrowserCallback(ControllerCallback callbackProxy) {
             if (callbackProxy == null) {
-                throw new IllegalArgumentException("Callback proxy shouldn't be null. Test bug");
+                callbackProxy = new BrowserCallback() {};
             }
             mCallbackProxy = callbackProxy;
         }
@@ -690,9 +812,9 @@ public class MediaBrowser2Test extends MediaController2Test {
         private final BrowserCallback mCallback;
 
         public TestMediaBrowser(@NonNull Context context, @NonNull SessionToken2 token,
-                @NonNull ControllerCallback callback) {
-            super(context, token, sHandlerExecutor, (BrowserCallback) callback);
-            mCallback = (BrowserCallback) callback;
+                @NonNull BrowserCallback callback) {
+            super(context, token, sHandlerExecutor, callback);
+            mCallback = callback;
         }
 
         @Override

@@ -30,7 +30,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
-import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
 
@@ -57,11 +56,6 @@ public class MessageView extends SliceChildView {
     }
 
     @Override
-    public void setSlice(Slice slice) {
-        // Do nothing it's always a list item
-    }
-
-    @Override
     public void resetView() {
         // TODO
     }
@@ -75,7 +69,7 @@ public class MessageView extends SliceChildView {
 
     @Override
     public void setSliceItem(SliceItem slice, boolean isHeader, int index,
-            SliceView.OnSliceActionListener observer) {
+            int rowCount, SliceView.OnSliceActionListener observer) {
         setSliceActionListener(observer);
         mRowIndex = index;
         SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, SUBTYPE_SOURCE);

@@ -85,6 +85,7 @@ import android.os.Looper;
 import android.os.Parcel;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
+import android.support.mediacompat.testlib.util.PollingCheck;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -722,7 +723,80 @@ public class MediaSessionCompatCallbackTest {
 
     @Test
     @SmallTest
-    public void testVolumeControl() throws Exception {
+    public void testSetVolumeWithLocalVolume() throws Exception {
+        if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            // This test is not eligible for this device.
+            return;
+        }
+
+        // Here, we intentionally choose STREAM_ALARM in order not to consider
+        // 'Do Not Disturb' or 'Volume limit'.
+        final int stream = AudioManager.STREAM_ALARM;
+        final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
+        final int minVolume = 0;
+        if (maxVolume <= minVolume) {
+            return;
+        }
+
+        mSession.setPlaybackToLocal(stream);
+
+        final int originalVolume = mAudioManager.getStreamVolume(stream);
+        final int targetVolume = originalVolume == minVolume
+                ? originalVolume + 1 : originalVolume - 1;
+
+        callMediaControllerMethod(SET_VOLUME_TO, targetVolume, getContext(),
+                mSession.getSessionToken());
+        new PollingCheck(TIME_OUT_MS) {
+            @Override
+            protected boolean check() {
+                return targetVolume == mAudioManager.getStreamVolume(stream);
+            }
+        }.run();
+
+        // Set back to original volume.
+        mAudioManager.setStreamVolume(stream, originalVolume, 0 /* flags */);
+    }
+
+    @Test
+    @SmallTest
+    public void testAdjustVolumeWithLocalVolume() throws Exception {
+        if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            // This test is not eligible for this device.
+            return;
+        }
+
+        // Here, we intentionally choose STREAM_ALARM in order not to consider
+        // 'Do Not Disturb' or 'Volume limit'.
+        final int stream = AudioManager.STREAM_ALARM;
+        final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
+        final int minVolume = 0;
+        if (maxVolume <= minVolume) {
+            return;
+        }
+
+        mSession.setPlaybackToLocal(stream);
+
+        final int originalVolume = mAudioManager.getStreamVolume(stream);
+        final int direction = originalVolume == minVolume
+                ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+        final int targetVolume = originalVolume + direction;
+
+        callMediaControllerMethod(ADJUST_VOLUME, direction, getContext(),
+                mSession.getSessionToken());
+        new PollingCheck(TIME_OUT_MS) {
+            @Override
+            protected boolean check() {
+                return targetVolume == mAudioManager.getStreamVolume(stream);
+            }
+        }.run();
+
+        // Set back to original volume.
+        mAudioManager.setStreamVolume(stream, originalVolume, 0 /* flags */);
+    }
+
+    @Test
+    @SmallTest
+    public void testRemoteVolumeControl() throws Exception {
         if (android.os.Build.VERSION.SDK_INT < 27) {
             // This test causes an Exception on System UI in API < 27.
             return;

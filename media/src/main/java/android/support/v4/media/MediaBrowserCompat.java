@@ -15,6 +15,7 @@
  */
 package android.support.v4.media;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
@@ -32,6 +33,7 @@ import static androidx.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION_EXTRAS;
 import static androidx.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_ID;
 import static androidx.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_LIST;
 import static androidx.media.MediaBrowserProtocol.DATA_MEDIA_SESSION_TOKEN;
+import static androidx.media.MediaBrowserProtocol.DATA_NOTIFY_CHILDREN_CHANGED_OPTIONS;
 import static androidx.media.MediaBrowserProtocol.DATA_OPTIONS;
 import static androidx.media.MediaBrowserProtocol.DATA_PACKAGE_NAME;
 import static androidx.media.MediaBrowserProtocol.DATA_RESULT_RECEIVER;
@@ -425,6 +427,20 @@ public final class MediaBrowserCompat {
             throw new IllegalArgumentException("action cannot be empty");
         }
         mImpl.sendCustomAction(action, extras, callback);
+    }
+
+    /**
+     * Gets the options which is passed to {@link MediaBrowserServiceCompat#notifyChildrenChanged(
+     * String, Bundle)} call that triggered {@link SubscriptionCallback#onChildrenLoaded}.
+     * This should be called inside of {@link SubscriptionCallback#onChildrenLoaded}.
+     *
+     * @return A bundle which is passed to {@link MediaBrowserServiceCompat#notifyChildrenChanged(
+     *         String, Bundle)}
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public @Nullable Bundle getNotifyChildrenChangedOptions() {
+        return mImpl.getNotifyChildrenChangedOptions();
     }
 
     /**
@@ -951,13 +967,15 @@ public final class MediaBrowserCompat {
         void search(@NonNull String query, Bundle extras, @NonNull SearchCallback callback);
         void sendCustomAction(@NonNull String action, Bundle extras,
                 @Nullable CustomActionCallback callback);
+        @Nullable Bundle getNotifyChildrenChangedOptions();
     }
 
     interface MediaBrowserServiceCallbackImpl {
         void onServiceConnected(Messenger callback, String root, MediaSessionCompat.Token session,
                 Bundle extra);
         void onConnectionFailed(Messenger callback);
-        void onLoadChildren(Messenger callback, String parentId, List list, Bundle options);
+        void onLoadChildren(Messenger callback, String parentId, List list, Bundle options,
+                Bundle notifyChildrenChangedOptions);
     }
 
     static class MediaBrowserImplBase
@@ -982,6 +1000,7 @@ public final class MediaBrowserCompat {
         private String mRootId;
         private MediaSessionCompat.Token mMediaSessionToken;
         private Bundle mExtras;
+        private Bundle mNotifyChildrenChangedOptions;
 
         public MediaBrowserImplBase(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
@@ -1372,7 +1391,7 @@ public final class MediaBrowserCompat {
 
         @Override
         public void onLoadChildren(final Messenger callback, final String parentId,
-                final List list, final Bundle options) {
+                final List list, final Bundle options, final Bundle notifyChildrenChangedOptions) {
             // Check that there hasn't been a disconnect or a different ServiceConnection.
             if (!isCurrent(callback, "onLoadChildren")) {
                 return;
@@ -1398,16 +1417,25 @@ public final class MediaBrowserCompat {
                     if (list == null) {
                         subscriptionCallback.onError(parentId);
                     } else {
+                        mNotifyChildrenChangedOptions = notifyChildrenChangedOptions;
                         subscriptionCallback.onChildrenLoaded(parentId, list);
+                        mNotifyChildrenChangedOptions = null;
                     }
                 } else {
                     if (list == null) {
                         subscriptionCallback.onError(parentId, options);
                     } else {
+                        mNotifyChildrenChangedOptions = notifyChildrenChangedOptions;
                         subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                        mNotifyChildrenChangedOptions = null;
                     }
                 }
             }
+        }
+
+        @Override
+        public Bundle getNotifyChildrenChangedOptions() {
+            return mNotifyChildrenChangedOptions;
         }
 
         /**
@@ -1589,6 +1617,7 @@ public final class MediaBrowserCompat {
         protected ServiceBinderWrapper mServiceBinderWrapper;
         protected Messenger mCallbacksMessenger;
         private MediaSessionCompat.Token mMediaSessionToken;
+        private Bundle mNotifyChildrenChangedOptions;
 
         MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
@@ -1862,7 +1891,7 @@ public final class MediaBrowserCompat {
                 mCallbacksMessenger = new Messenger(mHandler);
                 mHandler.setCallbacksMessenger(mCallbacksMessenger);
                 try {
-                    mServiceBinderWrapper.registerCallbackMessenger(mCallbacksMessenger);
+                    mServiceBinderWrapper.registerCallbackMessenger(mContext, mCallbacksMessenger);
                 } catch (RemoteException e) {
                     Log.i(TAG, "Remote error registering client messenger." );
                 }
@@ -1901,7 +1930,8 @@ public final class MediaBrowserCompat {
 
         @Override
         @SuppressWarnings("ReferenceEquality")
-        public void onLoadChildren(Messenger callback, String parentId, List list, Bundle options) {
+        public void onLoadChildren(Messenger callback, String parentId, List list, Bundle options,
+                Bundle notifyChildrenChangedOptions) {
             if (mCallbacksMessenger != callback) {
                 return;
             }
@@ -1922,16 +1952,25 @@ public final class MediaBrowserCompat {
                     if (list == null) {
                         subscriptionCallback.onError(parentId);
                     } else {
+                        mNotifyChildrenChangedOptions = notifyChildrenChangedOptions;
                         subscriptionCallback.onChildrenLoaded(parentId, list);
+                        mNotifyChildrenChangedOptions = null;
                     }
                 } else {
                     if (list == null) {
                         subscriptionCallback.onError(parentId, options);
                     } else {
+                        mNotifyChildrenChangedOptions = notifyChildrenChangedOptions;
                         subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                        mNotifyChildrenChangedOptions = null;
                     }
                 }
             }
+        }
+
+        @Override
+        public Bundle getNotifyChildrenChangedOptions() {
+            return mNotifyChildrenChangedOptions;
         }
     }
 
@@ -2077,7 +2116,8 @@ public final class MediaBrowserCompat {
                         serviceCallback.onLoadChildren(callbacksMessenger,
                                 data.getString(DATA_MEDIA_ITEM_ID),
                                 data.getParcelableArrayList(DATA_MEDIA_ITEM_LIST),
-                                data.getBundle(DATA_OPTIONS));
+                                data.getBundle(DATA_OPTIONS),
+                                data.getBundle(DATA_NOTIFY_CHILDREN_CHANGED_OPTIONS));
                         break;
                     default:
                         Log.w(TAG, "Unhandled message: " + msg
@@ -2147,8 +2187,10 @@ public final class MediaBrowserCompat {
             sendRequest(CLIENT_MSG_GET_MEDIA_ITEM, data, callbacksMessenger);
         }
 
-        void registerCallbackMessenger(Messenger callbackMessenger) throws RemoteException {
+        void registerCallbackMessenger(Context context, Messenger callbackMessenger)
+                throws RemoteException {
             Bundle data = new Bundle();
+            data.putString(DATA_PACKAGE_NAME, context.getPackageName());
             data.putBundle(DATA_ROOT_HINTS, mRootHints);
             sendRequest(CLIENT_MSG_REGISTER_CALLBACK_MESSENGER, data, callbackMessenger);
         }

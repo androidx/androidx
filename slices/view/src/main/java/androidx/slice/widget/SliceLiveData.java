@@ -63,8 +63,7 @@ public final class SliceLiveData {
 
     /**
      * Produces an {@link LiveData} that tracks a Slice for a given Uri. To use
-     * this method your app must have the permission to the slice Uri or hold
-     * {@link android.Manifest.permission#BIND_SLICE}).
+     * this method your app must have the permission to the slice Uri.
      */
     public static LiveData<Slice> fromUri(Context context, Uri uri) {
         return new SliceLiveDataImpl(context.getApplicationContext(), uri);
@@ -72,8 +71,7 @@ public final class SliceLiveData {
 
     /**
      * Produces an {@link LiveData} that tracks a Slice for a given Intent. To use
-     * this method your app must have the permission to the slice Uri or hold
-     * {@link android.Manifest.permission#BIND_SLICE}).
+     * this method your app must have the permission to the slice Uri.
      */
     public static LiveData<Slice> fromIntent(@NonNull Context context, @NonNull Intent intent) {
         return new SliceLiveDataImpl(context.getApplicationContext(), intent);

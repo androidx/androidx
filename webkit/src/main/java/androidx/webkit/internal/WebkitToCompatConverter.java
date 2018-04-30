@@ -16,11 +16,21 @@
 
 package androidx.webkit.internal;
 
+import android.webkit.ServiceWorkerWebSettings;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 
+import androidx.annotation.RequiresApi;
+import androidx.webkit.WebResourceErrorCompat;
+
+import org.chromium.support_lib_boundary.ServiceWorkerWebSettingsBoundaryInterface;
+import org.chromium.support_lib_boundary.WebResourceRequestBoundaryInterface;
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
+
+import java.lang.reflect.InvocationHandler;
 
 /**
  * A class providing functionality for converting android.webkit classes into support library
@@ -41,5 +51,56 @@ public class WebkitToCompatConverter {
     public WebSettingsAdapter convertSettings(WebSettings webSettings) {
         return new WebSettingsAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebSettingsBoundaryInterface.class, mImpl.convertSettings(webSettings)));
+    }
+
+    /**
+     * Return a {@link WebResourceRequestAdapter} linked to the given {@link WebResourceRequest} so
+     * that calls on either of those objects affect the other object.
+     */
+    public WebResourceRequestAdapter convertWebResourceRequest(WebResourceRequest request) {
+        return new WebResourceRequestAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                WebResourceRequestBoundaryInterface.class,
+                mImpl.convertWebResourceRequest(request)));
+    }
+
+    /**
+     * Return a {@link ServiceWorkerWebSettingsBoundaryInterface} linked to the given
+     * {@link ServiceWorkerWebSettings} such that calls on either of those objects affect the other
+     * object.
+     */
+    public InvocationHandler convertServiceWorkerSettings(
+            ServiceWorkerWebSettings settings) {
+        return mImpl.convertServiceWorkerSettings(settings);
+    }
+
+    /**
+     * Convert from an {@link InvocationHandler} representing an
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat} into a
+     * {@link ServiceWorkerWebSettings}.
+     */
+    @RequiresApi(24)
+    public ServiceWorkerWebSettings convertServiceWorkerSettings(
+            /* SupportLibServiceWorkerSettings */ InvocationHandler serviceWorkerSettings) {
+        return (ServiceWorkerWebSettings) mImpl.convertServiceWorkerSettings(serviceWorkerSettings);
+    }
+
+    /**
+     * Return a {@link InvocationHandler} linked to the given
+     * {@link WebResourceError}such that calls on either of those objects affect the other
+     * object.
+     */
+    InvocationHandler convertWebResourceError(WebResourceError webResourceError) {
+        return mImpl.convertWebResourceError(webResourceError);
+    }
+
+
+    /**
+     * Convert from an {@link InvocationHandler} representing a {@link WebResourceErrorCompat} into
+     * a {@link WebResourceError}.
+     */
+    @RequiresApi(23)
+    WebResourceError convertWebResourceError(
+            /* SupportLibWebResourceError */ InvocationHandler webResourceError) {
+        return (WebResourceError) mImpl.convertWebResourceError(webResourceError);
     }
 }

@@ -188,7 +188,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
                 updateHoveredVirtualView(virtualViewId);
                 return (virtualViewId != INVALID_ID);
             case MotionEvent.ACTION_HOVER_EXIT:
-                if (mAccessibilityFocusedVirtualViewId != INVALID_ID) {
+                if (mHoveredVirtualViewId != INVALID_ID) {
                     updateHoveredVirtualView(INVALID_ID);
                     return true;
                 }

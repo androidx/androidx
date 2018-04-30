@@ -34,10 +34,10 @@ limitations under the License.
     <string name="lb_playback_controls_skip_next" msgid="4877009494447817003">"跳至下一個項目"</string>
     <string name="lb_playback_controls_skip_previous" msgid="3147124289285911980">"跳至上一個項目"</string>
     <string name="lb_playback_controls_more_actions" msgid="2827883329510404797">"更多動作"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"取消選取喜歡"</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"選取喜歡"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"取消選取不喜歡"</string>
-    <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"選取不喜歡"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="8332816524260995892">"取消選取「喜歡」"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1038344559734334272">"選取「喜歡」"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"取消選取「不喜歡」"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"選取「不喜歡」"</string>
     <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"不重複播放"</string>
     <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"重複播放所有項目"</string>
     <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"重複播放單一項目"</string>

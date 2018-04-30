@@ -23,9 +23,9 @@ import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.SUBTYPE_MAX;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-import static android.app.slice.SliceItem.FORMAT_TIMESTAMP;
 
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
@@ -35,6 +35,7 @@ import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_PROGRESS;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -118,17 +119,17 @@ public class SliceMetadata {
     private SliceMetadata(@NonNull Context context, @NonNull Slice slice) {
         mSlice = slice;
         mContext = context;
-        SliceItem ttlItem = SliceQuery.find(slice, FORMAT_TIMESTAMP, HINT_TTL, null);
+        SliceItem ttlItem = SliceQuery.find(slice, FORMAT_LONG, HINT_TTL, null);
         if (ttlItem != null) {
             mExpiry = ttlItem.getTimestamp();
         }
-        SliceItem updatedItem = SliceQuery.find(slice, FORMAT_TIMESTAMP, HINT_LAST_UPDATED, null);
+        SliceItem updatedItem = SliceQuery.find(slice, FORMAT_LONG, HINT_LAST_UPDATED, null);
         if (updatedItem != null) {
             mLastUpdated = updatedItem.getTimestamp();
         }
         mSliceActions = getSliceActions(mSlice);
 
-        mListContent = new ListContent(context, slice);
+        mListContent = new ListContent(context, slice, null, 0, 0);
         mHeaderItem = mListContent.getHeaderItem();
         mTemplateType = mListContent.getHeaderTemplateType();
 
@@ -194,6 +195,23 @@ public class SliceMetadata {
             toggles = rc.getToggleItems();
         }
         return toggles;
+    }
+
+    /**
+     * Gets the input range action associated for this slice, if it exists.
+     *
+     * @return the {@link android.app.PendingIntent} for the input range.
+     */
+    @Nullable
+    public PendingIntent getInputRangeAction() {
+        if (mTemplateType == ROW_TYPE_SLIDER) {
+            RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+            SliceItem range = rc.getRange();
+            if (range != null) {
+                return range.getAction();
+            }
+        }
+        return null;
     }
 
     /**
@@ -270,7 +288,7 @@ public class SliceMetadata {
     public int getLoadingState() {
         // Check loading state
         boolean hasHintPartial = SliceQuery.find(mSlice, null, HINT_PARTIAL, null) != null;
-        if (mSlice.getItems().size() == 0) {
+        if (!mListContent.isValid()) {
             // Empty slice
             return LOADED_NONE;
         } else if (hasHintPartial) {
