@@ -1017,6 +1017,9 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
 
         @Override
         public void onSessionEvent(String event, Bundle extras) {
+            if (extras != null) {
+                extras.setClassLoader(MediaSession2.class.getClassLoader());
+            }
             switch (event) {
                 case SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED: {
                     final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(

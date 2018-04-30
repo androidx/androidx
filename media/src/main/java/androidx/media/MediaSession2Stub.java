@@ -174,6 +174,9 @@ class MediaSession2Stub extends MediaSessionCompat.Callback {
 
     @Override
     public void onCommand(String command, final Bundle extras, final ResultReceiver cb) {
+        if (extras != null) {
+            extras.setClassLoader(MediaSession2.class.getClassLoader());
+        }
         switch (command) {
             case CONTROLLER_COMMAND_CONNECT:
                 connect(extras, cb);
