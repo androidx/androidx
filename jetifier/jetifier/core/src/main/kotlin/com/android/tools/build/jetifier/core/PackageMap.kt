@@ -234,6 +234,10 @@ class PackageMap(private val rules: List<PackageRule>) {
                 to = "androidx/webkit"
             ),
             PackageRule(
+                from = "androidx/safeparcelable",
+                to = "androidx/safeparcelable"
+            ),
+            PackageRule(
                 from = "androidx/slice/view",
                 to = "androidx/slice/view"
             ),
