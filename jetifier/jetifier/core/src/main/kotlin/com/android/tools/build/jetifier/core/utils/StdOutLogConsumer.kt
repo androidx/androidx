@@ -25,15 +25,15 @@ class StdOutLogConsumer : LogConsumer {
         println("ERROR: $message")
     }
 
+    override fun warning(message: String) {
+        println("WARNING: $message")
+    }
+
     override fun info(message: String) {
         println("INFO: $message")
     }
 
     override fun verbose(message: String) {
         println("VERBOSE: $message")
-    }
-
-    override fun debug(message: String) {
-        println("DEBUG: $message")
     }
 }

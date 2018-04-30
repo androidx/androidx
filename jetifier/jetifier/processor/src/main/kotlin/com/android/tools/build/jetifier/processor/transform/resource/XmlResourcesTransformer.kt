@@ -161,10 +161,7 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
             return result.toDotNotation()
         }
 
-        if (!context.useFallbackIfTypeIsMissing) {
-            context.reportNoMappingFoundFailure()
-        }
-
+        context.reportNoMappingFoundFailure(TAG, type)
         return typeName
     }
 

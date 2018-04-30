@@ -28,15 +28,15 @@ class JetifierLoggerAdapter(val gradleLogger: Logger) : LogConsumer {
         gradleLogger.error(message)
     }
 
+    override fun warning(message: String) {
+        gradleLogger.warn(message)
+    }
+
     override fun info(message: String) {
         gradleLogger.info(message)
     }
 
     override fun verbose(message: String) {
         gradleLogger.info(message)
-    }
-
-    override fun debug(message: String) {
-        gradleLogger.debug(message)
     }
 }

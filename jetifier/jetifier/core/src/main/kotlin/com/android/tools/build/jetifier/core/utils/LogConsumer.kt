@@ -23,10 +23,10 @@ interface LogConsumer {
 
     fun error(message: String)
 
+    fun warning(message: String)
+
     fun info(message: String)
 
     fun verbose(message: String)
-
-    fun debug(message: String)
 }
 
