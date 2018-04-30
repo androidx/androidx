@@ -40,7 +40,7 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"싫어요 선택"</string>
     <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"반복 안함"</string>
     <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"전체 반복"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"한 항목 반복"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"한 개 반복"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"셔플 사용 설정"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"셔플 사용 중지"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"고품질 사용 설정"</string>

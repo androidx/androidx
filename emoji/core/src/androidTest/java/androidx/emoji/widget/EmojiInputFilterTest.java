@@ -114,4 +114,16 @@ public class EmojiInputFilterTest {
         verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt());
         verify(mEmojiCompat, times(0)).registerInitCallback(any(EmojiCompat.InitCallback.class));
     }
+
+    @Test
+    public void testFilter_withManualLoadStrategy() {
+        final Spannable testString = new SpannableString("abc");
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_DEFAULT);
+
+        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);
+
+        assertNotNull(result);
+        verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt());
+        verify(mEmojiCompat, times(1)).registerInitCallback(any(EmojiCompat.InitCallback.class));
+    }
 }

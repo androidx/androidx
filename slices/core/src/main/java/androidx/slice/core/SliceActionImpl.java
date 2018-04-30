@@ -27,7 +27,6 @@ import static android.app.slice.Slice.SUBTYPE_TOGGLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
-import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
@@ -64,6 +63,7 @@ public class SliceActionImpl implements SliceAction {
     private boolean mIsChecked;
     private int mPriority = -1;
     private SliceItem mSliceItem;
+    private SliceItem mActionItem;
 
     /**
      * Construct a SliceAction representing a tappable icon.
@@ -147,40 +147,36 @@ public class SliceActionImpl implements SliceAction {
     @RestrictTo(LIBRARY)
     public SliceActionImpl(SliceItem slice) {
         mSliceItem = slice;
-        if (slice.hasHint(HINT_SHORTCUT) && FORMAT_SLICE.equals(slice.getFormat())) {
-            SliceItem actionItem = SliceQuery.find(slice, FORMAT_ACTION);
-            if (actionItem == null) {
-                // Can't have action slice without action
-                return;
-            }
-            mAction = actionItem.getAction();
-            SliceItem iconItem = SliceQuery.find(actionItem.getSlice(), FORMAT_IMAGE);
-            if (iconItem != null) {
-                mIcon = iconItem.getIcon();
-                mImageMode = iconItem.hasHint(HINT_NO_TINT)
-                        ? iconItem.hasHint(HINT_LARGE) ? LARGE_IMAGE : SMALL_IMAGE
-                        : ICON_IMAGE;
-            }
-            SliceItem titleItem = SliceQuery.find(actionItem.getSlice(), FORMAT_TEXT, HINT_TITLE,
-                    null /* nonHints */);
-            if (titleItem != null) {
-                mTitle = titleItem.getText();
-            }
-            SliceItem cdItem = SliceQuery.findSubtype(actionItem.getSlice(), FORMAT_TEXT,
-                    SUBTYPE_CONTENT_DESCRIPTION);
-            if (cdItem != null) {
-                mContentDescription = cdItem.getText();
-            }
-            mIsToggle = SUBTYPE_TOGGLE.equals(actionItem.getSubType());
-            if (mIsToggle) {
-                mIsChecked = actionItem.hasHint(HINT_SELECTED);
-            }
-            SliceItem priority = SliceQuery.findSubtype(actionItem.getSlice(), FORMAT_INT,
-                    SUBTYPE_PRIORITY);
-            mPriority = priority != null ? priority.getInt() : -1;
-        } else if (FORMAT_ACTION.equals(slice.getFormat())) {
-            mAction = slice.getAction();
+        SliceItem actionItem = SliceQuery.find(slice, FORMAT_ACTION);
+        if (actionItem == null) {
+            // Can't have action slice without action
+            return;
         }
+        mActionItem = actionItem;
+        SliceItem iconItem = SliceQuery.find(actionItem.getSlice(), FORMAT_IMAGE);
+        if (iconItem != null) {
+            mIcon = iconItem.getIcon();
+            mImageMode = iconItem.hasHint(HINT_NO_TINT)
+                    ? iconItem.hasHint(HINT_LARGE) ? LARGE_IMAGE : SMALL_IMAGE
+                    : ICON_IMAGE;
+        }
+        SliceItem titleItem = SliceQuery.find(actionItem.getSlice(), FORMAT_TEXT, HINT_TITLE,
+                null /* nonHints */);
+        if (titleItem != null) {
+            mTitle = titleItem.getText();
+        }
+        SliceItem cdItem = SliceQuery.findSubtype(actionItem.getSlice(), FORMAT_TEXT,
+                SUBTYPE_CONTENT_DESCRIPTION);
+        if (cdItem != null) {
+            mContentDescription = cdItem.getText();
+        }
+        mIsToggle = SUBTYPE_TOGGLE.equals(actionItem.getSubType());
+        if (mIsToggle) {
+            mIsChecked = actionItem.hasHint(HINT_SELECTED);
+        }
+        SliceItem priority = SliceQuery.findSubtype(actionItem.getSlice(), FORMAT_INT,
+                SUBTYPE_PRIORITY);
+        mPriority = priority != null ? priority.getInt() : -1;
     }
 
     /**
@@ -218,7 +214,15 @@ public class SliceActionImpl implements SliceAction {
     @NonNull
     @Override
     public PendingIntent getAction() {
-        return mAction;
+        return mAction != null ? mAction : mActionItem.getAction();
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public SliceItem getActionItem() {
+        return mActionItem;
     }
 
     /**

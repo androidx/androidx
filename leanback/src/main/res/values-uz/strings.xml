@@ -21,8 +21,8 @@ limitations under the License.
     <string name="orb_search_action" msgid="7534843523462177008">"Qidiruv amali"</string>
     <string name="lb_search_bar_hint" msgid="4819380969103509861">"Qidiruv"</string>
     <string name="lb_search_bar_hint_speech" msgid="2795474673510974502">"Qidirish uchun gapiring"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"Qidirish: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"Qidirish uchun ayting: <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="7453744869467668159">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> ichidan qidirish"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="5851694095153624617">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> ichidan qidirish uchun gapiring"</string>
     <string name="lb_control_display_fast_forward_multiplier" msgid="2721825378927619928">"%1$dX"</string>
     <string name="lb_control_display_rewind_multiplier" msgid="6173753802428649303">"%1$dX"</string>
     <string name="lb_playback_controls_play" msgid="1590369760862605402">"Ijro"</string>
@@ -39,14 +39,14 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"Salbiy baho tanlovini bekor qilish"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"Salbiy bahoni tanlash"</string>
     <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"Takrorlamaslik"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"Barchasini takrorlash"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"Hammasini takrorlash"</string>
     <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"Bir marta takrorlash"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"Aralashtirish funksiyasini yoqish"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"Aralashtirish funksiyasini o‘chirish"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"Aralashtirmaslik"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"Yuqori sifatni yoqish"</string>
-    <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"Yuqori sifatni o‘chirib qo‘yish"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"Yuqori sifatda ijro qilmaslik"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"Taglavhalarni yoqish"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"Taglavhalarni o‘chirib qo‘yish"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"Taglavhalarni chiqarmaslik"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"Tasvir ustida tasvir rejimiga kirish"</string>
     <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
     <string name="lb_playback_controls_shown" msgid="7794717158616536936">"Boshqaruv elementlari ochiq"</string>

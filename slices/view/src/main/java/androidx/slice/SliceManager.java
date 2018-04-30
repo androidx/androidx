@@ -28,6 +28,7 @@ import androidx.core.content.PermissionChecker;
 import androidx.core.os.BuildCompat;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -125,10 +126,8 @@ public abstract class SliceManager {
      * <p>
      * This is the set of specs supported for a specific pinned slice. It will take
      * into account all clients and returns only specs supported by all.
-     * @hide
      * @see SliceSpec
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract @NonNull Set<SliceSpec> getPinnedSpecs(@NonNull Uri uri);
 
     /**
@@ -141,9 +140,8 @@ public abstract class SliceManager {
     public abstract @Nullable Slice bindSlice(@NonNull Uri uri);
 
     /**
-     * Turns a slice intent into slice content. Expects an explicit intent. If there is no
-     * {@link android.content.ContentProvider} associated with the given intent this will throw
-     * {@link IllegalArgumentException}.
+     * Turns a slice intent into slice content. Is a shortcut to perform the action
+     * of both {@link #mapIntentToUri(Intent)} and {@link #bindSlice(Uri)} at once.
      *
      * @param intent The intent associated with a slice.
      * @return The Slice provided by the app or null if none is given.
@@ -154,12 +152,23 @@ public abstract class SliceManager {
     public abstract @Nullable Slice bindSlice(@NonNull Intent intent);
 
     /**
-     * Turns a slice intent into a slice uri. Expects an explicit intent. If there is no
-     * {@link android.content.ContentProvider} associated with the given intent this will throw
-     * {@link IllegalArgumentException}.
-     *
+     * Turns a slice intent into a slice uri. Expects an explicit intent.
+     * <p>
+     * This goes through a several stage resolution process to determine if any slice
+     * can represent this intent.
+     * <ol>
+     *  <li> If the intent contains data that {@link android.content.ContentResolver#getType} is
+     *  {@link android.app.slice.SliceProvider#SLICE_TYPE} then the data will be returned.</li>
+     *  <li>If the intent explicitly points at an activity, and that activity has
+     *  meta-data for key {@link android.app.slice.SliceManager#SLICE_METADATA_KEY},
+     *  then the Uri specified there will be returned.</li>
+     *  <li>Lastly, if the intent with {@link android.app.slice.SliceManager#CATEGORY_SLICE} added
+     *  resolves to a provider, then the provider will be asked to
+     *  {@link SliceProvider#onMapIntentToUri} and that result will be returned.</li>
+     *  <li>If no slice is found, then {@code null} is returned.</li>
+     * </ol>
      * @param intent The intent associated with a slice.
-     * @return The Slice Uri provided by the app or null if none is given.
+     * @return The Slice Uri provided by the app or null if none exists.
      * @see Slice
      * @see SliceProvider#onMapIntentToUri(Intent)
      * @see Intent
@@ -221,6 +230,12 @@ public abstract class SliceManager {
      * @see SliceProvider#onGetSliceDescendants(Uri)
      */
     public abstract @NonNull Collection<Uri> getSliceDescendants(@NonNull Uri uri);
+
+    /**
+     * Get the list of currently pinned slices for this app.
+     * @see SliceProvider#onSlicePinned
+     */
+    public abstract @NonNull List<Uri> getPinnedSlices();
 
     /**
      * Class that listens to changes in {@link Slice}s.

@@ -16,15 +16,15 @@
 
 package androidx.media.widget;
 
-import android.app.Activity;
 import android.os.Bundle;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.media.widget.test.R;
 
 /**
  * A minimal application for {@link VideoView2} test.
  */
-public class VideoView2TestActivity extends Activity {
+public class VideoView2TestActivity extends FragmentActivity {
     /**
      * Called with the activity is first created.
      */

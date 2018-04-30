@@ -16,7 +16,8 @@
 
 <ListView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="@dimen/mcv2_embedded_settings_width"
-    android:layout_height="@dimen/mcv2_embedded_settings_height"
+    android:layout_height="@dimen/mcv2_settings_height"
+    android:layout_gravity="center_vertical"
     android:divider="@null"
     android:dividerHeight="0dp">
 </ListView>

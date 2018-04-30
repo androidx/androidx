@@ -20,16 +20,20 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
-import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.text.BidiFormatter;
 import androidx.slice.core.R;
 
 /**
@@ -39,6 +43,8 @@ import androidx.slice.core.R;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SlicePermissionActivity extends Activity implements OnClickListener,
         OnDismissListener {
+
+    private static final float MAX_LABEL_SIZE_PX = 500f;
 
     private static final String TAG = "SlicePermissionActivity";
 
@@ -56,8 +62,12 @@ public class SlicePermissionActivity extends Activity implements OnClickListener
 
         try {
             PackageManager pm = getPackageManager();
-            CharSequence app1 = pm.getApplicationInfo(mCallingPkg, 0).loadLabel(pm);
-            CharSequence app2 = pm.getApplicationInfo(mProviderPkg, 0).loadLabel(pm);
+            CharSequence app1 = BidiFormatter.getInstance().unicodeWrap(
+                    loadSafeLabel(pm, pm.getApplicationInfo(mCallingPkg, 0))
+                    .toString());
+            CharSequence app2 = BidiFormatter.getInstance().unicodeWrap(
+                    loadSafeLabel(pm, pm.getApplicationInfo(mProviderPkg, 0))
+                    .toString());
             AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.abc_slice_permission_title, app1, app2))
                     .setView(R.layout.abc_slice_permission_request)
@@ -75,14 +85,50 @@ public class SlicePermissionActivity extends Activity implements OnClickListener
         }
     }
 
+    // Based on loadSafeLabel in PackageitemInfo
+    private CharSequence loadSafeLabel(PackageManager pm, ApplicationInfo appInfo) {
+        // loadLabel() always returns non-null
+        String label = appInfo.loadLabel(pm).toString();
+        // strip HTML tags to avoid <br> and other tags overwriting original message
+        String labelStr = Html.fromHtml(label).toString();
+
+        // If the label contains new line characters it may push the UI
+        // down to hide a part of it. Labels shouldn't have new line
+        // characters, so just truncate at the first time one is seen.
+        final int labelLength = labelStr.length();
+        int offset = 0;
+        while (offset < labelLength) {
+            final int codePoint = labelStr.codePointAt(offset);
+            final int type = Character.getType(codePoint);
+            if (type == Character.LINE_SEPARATOR
+                    || type == Character.CONTROL
+                    || type == Character.PARAGRAPH_SEPARATOR) {
+                labelStr = labelStr.substring(0, offset);
+                break;
+            }
+            // replace all non-break space to " " in order to be trimmed
+            if (type == Character.SPACE_SEPARATOR) {
+                labelStr = labelStr.substring(0, offset) + " " + labelStr.substring(offset
+                        + Character.charCount(codePoint));
+            }
+            offset += Character.charCount(codePoint);
+        }
+
+        labelStr = labelStr.trim();
+        if (labelStr.isEmpty()) {
+            return appInfo.packageName;
+        }
+        TextPaint paint = new TextPaint();
+        paint.setTextSize(42);
+
+        return TextUtils.ellipsize(labelStr, paint, MAX_LABEL_SIZE_PX, TextUtils.TruncateAt.END);
+    }
+
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            grantUriPermission(mCallingPkg, mUri.buildUpon().path("").build(),
-                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                            | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-            getContentResolver().notifyChange(mUri, null);
+            SliceProviderCompat.grantSlicePermission(this, getPackageName(), mCallingPkg,
+                    mUri.buildUpon().path("").build());
         }
         finish();
     }

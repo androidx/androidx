@@ -377,12 +377,12 @@ public abstract class MediaPlaylistAgent {
 
     /**
      * Called by {@link MediaSession2} when it wants to translate {@link DataSourceDesc} from the
-     * {@link MediaPlayerBase.PlayerEventCallback} to the {@link MediaItem2}. Override this method
-     * if you want to create {@link DataSourceDesc}s dynamically, instead of specifying them with
-     * {@link #setPlaylist(List, MediaMetadata2)}.
+     * {@link MediaPlayerInterface.PlayerEventCallback} to the {@link MediaItem2}. Override this
+     * method if you want to create {@link DataSourceDesc}s dynamically, instead of specifying them
+     * with {@link #setPlaylist(List, MediaMetadata2)}.
      * <p>
      * Session would throw an exception if this returns {@code null} for the dsd from the
-     * {@link MediaPlayerBase.PlayerEventCallback}.
+     * {@link MediaPlayerInterface.PlayerEventCallback}.
      * <p>
      * Default implementation calls the {@link #getPlaylist()} and searches the {@link MediaItem2}
      * with the {@param dsd}.

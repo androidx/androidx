@@ -18,12 +18,6 @@ package androidx.heifwriter;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 
-import static androidx.heifwriter.HeifWriter.INPUT_MODE_BITMAP;
-import static androidx.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
-import static androidx.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.media.MediaExtractor;
@@ -34,12 +28,20 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_BITMAP;
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
+import static androidx.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.heifwriter.test.R;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
@@ -222,7 +224,11 @@ public class HeifWriterTest {
     }
 
     private void doTestForVariousNumberImages(TestConfig.Builder builder) throws Exception {
-        doTest(builder.setNumImages(4).build());
+        builder.setNumImages(4);
+        doTest(builder.setRotation(270).build());
+        doTest(builder.setRotation(180).build());
+        doTest(builder.setRotation(90).build());
+        doTest(builder.setRotation(0).build());
         doTest(builder.setNumImages(1).build());
         doTest(builder.setNumImages(8).build());
     }
@@ -250,102 +256,109 @@ public class HeifWriterTest {
     }
 
     private static class TestConfig {
-        final int inputMode;
-        final boolean useGrid;
-        final boolean useHandler;
-        final int maxNumImages;
-        final int numImages;
-        final int width;
-        final int height;
-        final int quality;
-        final String inputPath;
-        final String outputPath;
-        final Bitmap[] bitmaps;
+        final int mInputMode;
+        final boolean mUseGrid;
+        final boolean mUseHandler;
+        final int mMaxNumImages;
+        final int mNumImages;
+        final int mWidth;
+        final int mHeight;
+        final int mRotation;
+        final int mQuality;
+        final String mInputPath;
+        final String mOutputPath;
+        final Bitmap[] mBitmaps;
 
-        TestConfig(int _inputMode, boolean _useGrid, boolean _useHandler,
-                   int _maxNumImage, int _numImages, int _width, int _height, int _quality,
-                   String _inputPath, String _outputPath, Bitmap[] _bitmaps) {
-            inputMode = _inputMode;
-            useGrid = _useGrid;
-            useHandler = _useHandler;
-            maxNumImages = _maxNumImage;
-            numImages = _numImages;
-            width = _width;
-            height = _height;
-            quality = _quality;
-            inputPath = _inputPath;
-            outputPath = _outputPath;
-            bitmaps = _bitmaps;
+        TestConfig(int inputMode, boolean useGrid, boolean useHandler,
+                   int maxNumImages, int numImages, int width, int height,
+                   int rotation, int quality,
+                   String inputPath, String outputPath, Bitmap[] bitmaps) {
+            mInputMode = inputMode;
+            mUseGrid = useGrid;
+            mUseHandler = useHandler;
+            mMaxNumImages = maxNumImages;
+            mNumImages = numImages;
+            mWidth = width;
+            mHeight = height;
+            mRotation = rotation;
+            mQuality = quality;
+            mInputPath = inputPath;
+            mOutputPath = outputPath;
+            mBitmaps = bitmaps;
         }
 
         static class Builder {
-            final int inputMode;
-            final boolean useGrid;
-            final boolean useHandler;
-            int maxNumImages;
-            int numImages;
-            int width;
-            int height;
-            int quality;
-            String inputPath;
-            final String outputPath;
-            Bitmap[] bitmaps;
+            final int mInputMode;
+            final boolean mUseGrid;
+            final boolean mUseHandler;
+            int mMaxNumImages;
+            int mNumImages;
+            int mWidth;
+            int mHeight;
+            int mRotation;
+            final int mQuality;
+            String mInputPath;
+            final String mOutputPath;
+            Bitmap[] mBitmaps;
+            boolean mNumImagesSetExplicitly;
 
-            boolean numImagesSetExplicitly;
 
-
-            Builder(int _inputMode, boolean _useGrids, boolean _useHandler) {
-                inputMode = _inputMode;
-                useGrid = _useGrids;
-                useHandler = _useHandler;
-                maxNumImages = numImages = 4;
-                width = 1920;
-                height = 1080;
-                quality = 100;
-                outputPath = new File(Environment.getExternalStorageDirectory(),
+            Builder(int inputMode, boolean useGrids, boolean useHandler) {
+                mInputMode = inputMode;
+                mUseGrid = useGrids;
+                mUseHandler = useHandler;
+                mMaxNumImages = mNumImages = 4;
+                mWidth = 1920;
+                mHeight = 1080;
+                mRotation = 0;
+                mQuality = 100;
+                mOutputPath = new File(Environment.getExternalStorageDirectory(),
                         OUTPUT_FILENAME).getAbsolutePath();
             }
 
-            Builder setInputPath(String _inputPath) {
-                inputPath = (inputMode == INPUT_MODE_BITMAP) ? _inputPath : null;
+            Builder setInputPath(String inputPath) {
+                mInputPath = (mInputMode == INPUT_MODE_BITMAP) ? inputPath : null;
                 return this;
             }
 
-            Builder setNumImages(int _numImages) {
-                numImagesSetExplicitly = true;
-                numImages = _numImages;
+            Builder setNumImages(int numImages) {
+                mNumImagesSetExplicitly = true;
+                mNumImages = numImages;
+                return this;
+            }
+
+            Builder setRotation(int rotation) {
+                mRotation = rotation;
                 return this;
             }
 
             private void loadBitmapInputs() {
-                if (inputMode != INPUT_MODE_BITMAP) {
+                if (mInputMode != INPUT_MODE_BITMAP) {
                     return;
                 }
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                retriever.setDataSource(inputPath);
+                retriever.setDataSource(mInputPath);
                 String hasImage = retriever.extractMetadata(
                         MediaMetadataRetriever.METADATA_KEY_HAS_IMAGE);
                 if (!"yes".equals(hasImage)) {
                     throw new IllegalArgumentException("no bitmap found!");
                 }
-                width = Integer.parseInt(retriever.extractMetadata(
-                        MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH));
-                height = Integer.parseInt(retriever.extractMetadata(
-                        MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT));
-                maxNumImages = Math.min(maxNumImages, Integer.parseInt(retriever.extractMetadata(
+                mMaxNumImages = Math.min(mMaxNumImages, Integer.parseInt(retriever.extractMetadata(
                         MediaMetadataRetriever.METADATA_KEY_IMAGE_COUNT)));
-                if (!numImagesSetExplicitly) {
-                    numImages = maxNumImages;
+                if (!mNumImagesSetExplicitly) {
+                    mNumImages = mMaxNumImages;
                 }
-                bitmaps = new Bitmap[maxNumImages];
-                for (int i = 0; i < bitmaps.length; i++) {
-                    bitmaps[i] = retriever.getImageAtIndex(i);
+                mBitmaps = new Bitmap[mMaxNumImages];
+                for (int i = 0; i < mBitmaps.length; i++) {
+                    mBitmaps[i] = retriever.getImageAtIndex(i);
                 }
+                mWidth = mBitmaps[0].getWidth();
+                mHeight = mBitmaps[0].getHeight();
                 retriever.release();
             }
 
             private void cleanupStaleOutputs() {
-                File outputFile = new File(outputPath);
+                File outputFile = new File(mOutputPath);
                 if (outputFile.exists()) {
                     outputFile.delete();
                 }
@@ -355,58 +368,61 @@ public class HeifWriterTest {
                 cleanupStaleOutputs();
                 loadBitmapInputs();
 
-                return new TestConfig(inputMode, useGrid, useHandler, maxNumImages, numImages,
-                        width, height, quality, inputPath, outputPath, bitmaps);
+                return new TestConfig(mInputMode, mUseGrid, mUseHandler, mMaxNumImages, mNumImages,
+                        mWidth, mHeight, mRotation, mQuality, mInputPath, mOutputPath, mBitmaps);
             }
         }
 
         @Override
         public String toString() {
-            return "TestConfig" +
-                    ": inputMode " + inputMode +
-                    ", useGrid " + useGrid +
-                    ", useHandler " + useHandler +
-                    ", maxNumImages " + maxNumImages +
-                    ", numImages " + numImages +
-                    ", width " + width +
-                    ", height " + height +
-                    ", quality " + quality +
-                    ", inputPath " + inputPath +
-                    ", outputPath " + outputPath;
+            return "TestConfig"
+                    + ": mInputMode " + mInputMode
+                    + ", mUseGrid " + mUseGrid
+                    + ", mUseHandler " + mUseHandler
+                    + ", mMaxNumImages " + mMaxNumImages
+                    + ", mNumImages " + mNumImages
+                    + ", mWidth " + mWidth
+                    + ", mHeight " + mHeight
+                    + ", mRotation " + mRotation
+                    + ", mQuality " + mQuality
+                    + ", mInputPath " + mInputPath
+                    + ", mOutputPath " + mOutputPath;
         }
     }
 
-    private void doTest(TestConfig testConfig) throws Exception {
-        int width = testConfig.width;
-        int height = testConfig.height;
-        int numImages = testConfig.numImages;
+    private void doTest(TestConfig config) throws Exception {
+        int width = config.mWidth;
+        int height = config.mHeight;
+        int numImages = config.mNumImages;
 
         mInputIndex = 0;
         HeifWriter heifWriter = null;
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
         try {
-            if (DEBUG) Log.d(TAG, "started: " + testConfig);
+            if (DEBUG) Log.d(TAG, "started: " + config);
 
-            heifWriter = new HeifWriter(testConfig.outputPath, width, height,
-                    testConfig.useGrid,
-                    testConfig.quality,
-                    testConfig.maxNumImages,
-                    testConfig.maxNumImages - 1,
-                    testConfig.inputMode,
-                    testConfig.useHandler ? mHandler : null);
+            heifWriter = new HeifWriter.Builder(
+                    config.mOutputPath, width, height, config.mInputMode)
+                    .setRotation(config.mRotation)
+                    .setGridEnabled(config.mUseGrid)
+                    .setMaxImages(config.mMaxNumImages)
+                    .setQuality(config.mQuality)
+                    .setPrimaryIndex(config.mMaxNumImages - 1)
+                    .setHandler(config.mUseHandler ? mHandler : null)
+                    .build();
 
-            if (testConfig.inputMode == INPUT_MODE_SURFACE) {
+            if (config.mInputMode == INPUT_MODE_SURFACE) {
                 mInputEglSurface = new EglWindowSurface(heifWriter.getInputSurface());
             }
 
             heifWriter.start();
 
-            if (testConfig.inputMode == INPUT_MODE_BUFFER) {
+            if (config.mInputMode == INPUT_MODE_BUFFER) {
                 byte[] data = new byte[width * height * 3 / 2];
 
-                if (testConfig.inputPath != null) {
-                    inputStream = new FileInputStream(testConfig.inputPath);
+                if (config.mInputPath != null) {
+                    inputStream = new FileInputStream(config.mInputPath);
                 }
 
                 if (DUMP_YUV_INPUT) {
@@ -424,7 +440,7 @@ public class HeifWriterTest {
                     }
                     heifWriter.addYuvBuffer(ImageFormat.YUV_420_888, data);
                 }
-            } else if (testConfig.inputMode == INPUT_MODE_SURFACE) {
+            } else if (config.mInputMode == INPUT_MODE_SURFACE) {
                 // The input surface is a surface texture using single buffer mode, draws will be
                 // blocked until onFrameAvailable is done with the buffer, which is dependant on
                 // how fast MediaCodec processes them, which is further dependent on how fast the
@@ -436,8 +452,8 @@ public class HeifWriterTest {
                 }
                 heifWriter.setInputEndOfStreamTimestamp(
                         1000 * computePresentationTime(numImages - 1));
-            } else if (testConfig.inputMode == INPUT_MODE_BITMAP) {
-                Bitmap[] bitmaps = testConfig.bitmaps;
+            } else if (config.mInputMode == INPUT_MODE_BITMAP) {
+                Bitmap[] bitmaps = config.mBitmaps;
                 for (int i = 0; i < Math.min(bitmaps.length, numImages); i++) {
                     if (DEBUG) Log.d(TAG, "addBitmap: " + i);
                     heifWriter.addBitmap(bitmaps[i]);
@@ -446,8 +462,8 @@ public class HeifWriterTest {
             }
 
             heifWriter.stop(3000);
-            verifyResult(testConfig.outputPath, width, height, testConfig.useGrid,
-                    Math.min(numImages, testConfig.maxNumImages));
+            verifyResult(config.mOutputPath, width, height, config.mRotation, config.mUseGrid,
+                    Math.min(numImages, config.mMaxNumImages));
             if (DEBUG) Log.d(TAG, "finished: PASS");
         } finally {
             try {
@@ -530,7 +546,7 @@ public class HeifWriterTest {
     }
 
     private void verifyResult(
-            String filename, int width, int height, boolean useGrid, int numImages)
+            String filename, int width, int height, int rotation, boolean useGrid, int numImages)
             throws Exception {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(filename);
@@ -540,23 +556,30 @@ public class HeifWriterTest {
         }
         assertEquals("Wrong image count", numImages,
                 Integer.parseInt(retriever.extractMetadata(
-                MediaMetadataRetriever.METADATA_KEY_IMAGE_COUNT)));
+                    MediaMetadataRetriever.METADATA_KEY_IMAGE_COUNT)));
         assertEquals("Wrong width", width,
                 Integer.parseInt(retriever.extractMetadata(
-                MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH)));
+                    MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH)));
         assertEquals("Wrong height", height,
                 Integer.parseInt(retriever.extractMetadata(
-                MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT)));
+                    MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT)));
+        assertEquals("Wrong rotation", rotation,
+                Integer.parseInt(retriever.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_IMAGE_ROTATION)));
         retriever.release();
 
         if (useGrid) {
             MediaExtractor extractor = new MediaExtractor();
             extractor.setDataSource(filename);
             MediaFormat format = extractor.getTrackFormat(0);
-            int gridWidth = format.getInteger(MediaFormat.KEY_GRID_WIDTH);
-            int gridHeight = format.getInteger(MediaFormat.KEY_GRID_HEIGHT);
-            assertEquals("Wrong grid width", 512, gridWidth);
-            assertEquals("Wrong grid height", 512, gridHeight);
+            int gridWidth = format.getInteger(MediaFormat.KEY_TILE_WIDTH);
+            int gridHeight = format.getInteger(MediaFormat.KEY_TILE_HEIGHT);
+            int gridRows = format.getInteger(MediaFormat.KEY_GRID_ROWS);
+            int gridCols = format.getInteger(MediaFormat.KEY_GRID_COLUMNS);
+            assertTrue("Wrong grid width or cols",
+                    ((width + gridWidth - 1) / gridWidth) == gridCols);
+            assertTrue("Wrong grid height or rows",
+                    ((height + gridHeight - 1) / gridHeight) == gridRows);
             extractor.release();
         }
     }

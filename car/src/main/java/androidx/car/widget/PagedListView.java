@@ -18,6 +18,8 @@ package androidx.car.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -49,6 +51,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.lang.annotation.Retention;
 
 /**
  * View that wraps a {@link RecyclerView} and a scroll bar that has
@@ -187,6 +191,7 @@ public class PagedListView extends FrameLayout {
             Gutter.END,
             Gutter.BOTH,
     })
+    @Retention(SOURCE)
     public @interface Gutter {
         /**
          * No gutter on either side of the list items. The items will span the full width of the

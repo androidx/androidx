@@ -43,8 +43,8 @@ limitations under the License.
     <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"1 曲をリピート"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"シャッフルを有効にする"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"シャッフルを無効にする"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"高品質を有効にする"</string>
-    <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"高品質を無効にする"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"高画質を有効にする"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"高画質を無効にする"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"クローズド キャプションを有効にする"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"クローズド キャプションを無効にする"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"ピクチャー イン ピクチャー モードに移動"</string>

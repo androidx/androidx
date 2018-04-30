@@ -30,8 +30,12 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
+import static androidx.slice.widget.SliceView.MODE_LARGE;
+import static androidx.slice.widget.SliceView.MODE_SMALL;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,6 +46,7 @@ import androidx.slice.SliceMetadata;
 import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
+import androidx.slice.view.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +58,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ListContent {
 
+    private Slice mSlice;
     private SliceItem mHeaderItem;
     private SliceItem mColorItem;
     private SliceItem mSeeMoreItem;
@@ -60,8 +66,54 @@ public class ListContent {
     private List<SliceItem> mSliceActions;
     private Context mContext;
 
-    public ListContent(Context context, Slice slice) {
+    private int mHeaderTitleSize;
+    private int mHeaderSubtitleSize;
+    private int mVerticalHeaderTextPadding;
+    private int mTitleSize;
+    private int mSubtitleSize;
+    private int mVerticalTextPadding;
+    private int mGridTitleSize;
+    private int mGridSubtitleSize;
+    private int mVerticalGridTextPadding;
+    private int mGridTopPadding;
+    private int mGridBottomPadding;
+
+    public ListContent(Context context, Slice slice, AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
+        mSlice = slice;
         mContext = context;
+
+        // TODO: duplicated code from SliceChildView; could do something better
+        // Some of this information will impact the size calculations for slice content.
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
+                defStyleAttr, defStyleRes);
+        try {
+            mHeaderTitleSize = (int) a.getDimension(
+                    R.styleable.SliceView_headerTitleSize, 0);
+            mHeaderSubtitleSize = (int) a.getDimension(
+                    R.styleable.SliceView_headerSubtitleSize, 0);
+            mVerticalHeaderTextPadding = (int) a.getDimension(
+                    R.styleable.SliceView_headerTextVerticalPadding, 0);
+
+            mTitleSize = (int) a.getDimension(R.styleable.SliceView_titleSize, 0);
+            mSubtitleSize = (int) a.getDimension(
+                    R.styleable.SliceView_subtitleSize, 0);
+            mVerticalTextPadding = (int) a.getDimension(
+                    R.styleable.SliceView_textVerticalPadding, 0);
+
+            mGridTitleSize = (int) a.getDimension(R.styleable.SliceView_gridTitleSize, 0);
+            mGridSubtitleSize = (int) a.getDimension(
+                    R.styleable.SliceView_gridSubtitleSize, 0);
+            int defaultVerticalGridPadding = context.getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_grid_text_inner_padding);
+            mVerticalGridTextPadding = (int) a.getDimension(
+                    R.styleable.SliceView_gridTextVerticalPadding, defaultVerticalGridPadding);
+            mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
+            mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
+        } finally {
+            a.recycle();
+        }
+
         populate(slice);
     }
 
@@ -107,7 +159,7 @@ public class ListContent {
      *
      * @return the total height of all the rows contained in the provided list.
      */
-    public static int getListHeight(Context context, List<SliceItem> listItems) {
+    public int getListHeight(Context context, List<SliceItem> listItems) {
         if (listItems == null) {
             return 0;
         }
@@ -119,10 +171,12 @@ public class ListContent {
             hasRealHeader = !maybeHeader.hasAnyHints(HINT_LIST_ITEM, HINT_HORIZONTAL);
         }
         if (listItems.size() == 1 && !maybeHeader.hasHint(HINT_HORIZONTAL)) {
-            return getHeight(context, maybeHeader, true);
+            return getHeight(context, maybeHeader, true /* isHeader */, 0, 1, MODE_LARGE);
         }
+        int rowCount = listItems.size();
         for (int i = 0; i < listItems.size(); i++) {
-            height += getHeight(context, listItems.get(i), i == 0 && hasRealHeader /* isHeader */);
+            height += getHeight(context, listItems.get(i), i == 0 && hasRealHeader /* isHeader */,
+                    i, rowCount, MODE_LARGE);
         }
         return height;
     }
@@ -149,8 +203,10 @@ public class ListContent {
             RowContent rc = new RowContent(mContext, mSeeMoreItem, false /* isHeader */);
             visibleHeight += rc.getActualHeight();
         }
-        for (int i = 0; i < mRowItems.size(); i++) {
-            int itemHeight = getHeight(mContext, mRowItems.get(i), i == 0 /* isHeader */);
+        int rowCount = mRowItems.size();
+        for (int i = 0; i < rowCount; i++) {
+            int itemHeight = getHeight(mContext, mRowItems.get(i), i == 0 /* isHeader */,
+                    i, rowCount, MODE_LARGE);
             if ((height == -1 && i > idealItemCount)
                     || (height > 0 && visibleHeight + itemHeight > height)) {
                 break;
@@ -170,13 +226,20 @@ public class ListContent {
         return visibleItems;
     }
 
-    private static int getHeight(Context context, SliceItem item, boolean isHeader) {
+    /**
+     * Determines the height of the provided {@link SliceItem}.
+     */
+    public int getHeight(Context context, SliceItem item, boolean isHeader, int index,
+            int count, int mode) {
         if (item.hasHint(HINT_HORIZONTAL)) {
             GridContent gc = new GridContent(context, item);
-            return gc.getActualHeight();
+            int topPadding = gc.isAllImages() && index == 0 ? mGridTopPadding : 0;
+            int bottomPadding = gc.isAllImages() && index == count - 1 ? mGridBottomPadding : 0;
+            int height = mode == MODE_SMALL ? gc.getSmallHeight() : gc.getActualHeight();
+            return height + topPadding + bottomPadding;
         } else {
             RowContent rc = new RowContent(context, item, isHeader);
-            return rc.getActualHeight();
+            return mode == MODE_SMALL ? rc.getSmallHeight() : rc.getActualHeight();
         }
     }
 
@@ -185,6 +248,11 @@ public class ListContent {
      */
     public boolean isValid() {
         return mRowItems.size() > 0;
+    }
+
+    @Nullable
+    public Slice getSlice() {
+        return mSlice;
     }
 
     @Nullable
@@ -291,7 +359,7 @@ public class ListContent {
     private static SliceItem findHeaderItem(@NonNull Slice slice) {
         // See if header is specified
         String[] nonHints = new String[] {HINT_LIST_ITEM, HINT_SHORTCUT, HINT_ACTIONS,
-                HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED};
+                HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED, HINT_HORIZONTAL};
         SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, nonHints);
         if (header != null && isValidHeader(header)) {
             return header;
@@ -302,7 +370,7 @@ public class ListContent {
     @Nullable
     private static SliceItem getSeeMoreItem(@NonNull Slice slice) {
         SliceItem item = SliceQuery.find(slice, null, HINT_SEE_MORE, null);
-        if (item != null && item.hasHint(HINT_SEE_MORE)) {
+        if (item != null) {
             if (FORMAT_SLICE.equals(item.getFormat())) {
                 List<SliceItem> items = item.getSlice().getItems();
                 if (items.size() == 1 && FORMAT_ACTION.equals(items.get(0).getFormat())) {

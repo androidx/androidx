@@ -16,8 +16,6 @@
 
 package androidx.media;
 
-import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_UNKNOWN;
-import static androidx.media.AudioAttributesCompat.USAGE_UNKNOWN;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_DESCRIPTION;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_ICON;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_ICON_URI;
@@ -44,9 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class MediaUtils2 {
-    static final String AUDIO_ATTRIBUTES_USAGE = "androidx.media.audio_attrs.USAGE";
-    static final String AUDIO_ATTRIBUTES_CONTENT_TYPE = "androidx.media.audio_attrs.CONTENT_TYPE";
-    static final String AUDIO_ATTRIBUTES_FLAGS = "androidx.media.audio_attrs.FLAGS";
+    static final String TAG = "MediaUtils2";
 
     private MediaUtils2() {
     }
@@ -114,6 +110,28 @@ class MediaUtils2 {
                 .setMediaId(item.getMediaId())
                 .setMetadata(metadata2)
                 .build();
+    }
+
+    static List<MediaItem> fromMediaItem2List(List<MediaItem2> items) {
+        if (items == null) {
+            return null;
+        }
+        List<MediaItem> result = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            result.add(createMediaItem(items.get(i)));
+        }
+        return result;
+    }
+
+    static List<MediaItem2> toMediaItem2List(List<MediaItem> items) {
+        if (items == null) {
+            return null;
+        }
+        List<MediaItem2> result = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            result.add(createMediaItem2(items.get(i)));
+        }
+        return result;
     }
 
     /**
@@ -351,28 +369,6 @@ class MediaUtils2 {
         return layout;
     }
 
-    static Bundle toAudioAttributesBundle(AudioAttributesCompat attrs) {
-        if (attrs == null) {
-            return null;
-        }
-        Bundle bundle = new Bundle();
-        bundle.putInt(AUDIO_ATTRIBUTES_USAGE, attrs.getUsage());
-        bundle.putInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, attrs.getContentType());
-        bundle.putInt(AUDIO_ATTRIBUTES_FLAGS, attrs.getFlags());
-        return bundle;
-    }
-
-    static AudioAttributesCompat fromAudioAttributesBundle(Bundle bundle) {
-        if (bundle == null) {
-            return null;
-        }
-        return new AudioAttributesCompat.Builder()
-                .setUsage(bundle.getInt(AUDIO_ATTRIBUTES_USAGE, USAGE_UNKNOWN))
-                .setContentType(bundle.getInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, CONTENT_TYPE_UNKNOWN))
-                .setFlags(bundle.getInt(AUDIO_ATTRIBUTES_FLAGS, 0))
-                .build();
-    }
-
     static List<Bundle> toBundleList(Parcelable[] array) {
         if (array == null) {
             return null;
@@ -386,17 +382,17 @@ class MediaUtils2 {
 
     static int createPlaybackStateCompatState(int playerState, int bufferingState) {
         switch (playerState) {
-            case MediaPlayerBase.PLAYER_STATE_PLAYING:
+            case MediaPlayerInterface.PLAYER_STATE_PLAYING:
                 switch (bufferingState) {
-                    case MediaPlayerBase.BUFFERING_STATE_BUFFERING_AND_STARVED:
+                    case MediaPlayerInterface.BUFFERING_STATE_BUFFERING_AND_STARVED:
                         return PlaybackStateCompat.STATE_BUFFERING;
                 }
                 return PlaybackStateCompat.STATE_PLAYING;
-            case MediaPlayerBase.PLAYER_STATE_PAUSED:
+            case MediaPlayerInterface.PLAYER_STATE_PAUSED:
                 return PlaybackStateCompat.STATE_PAUSED;
-            case MediaPlayerBase.PLAYER_STATE_IDLE:
+            case MediaPlayerInterface.PLAYER_STATE_IDLE:
                 return PlaybackStateCompat.STATE_NONE;
-            case MediaPlayerBase.PLAYER_STATE_ERROR:
+            case MediaPlayerInterface.PLAYER_STATE_ERROR:
                 return PlaybackStateCompat.STATE_ERROR;
         }
         // For unknown value
@@ -406,13 +402,13 @@ class MediaUtils2 {
     static int toPlayerState(int playbackStateCompatState) {
         switch (playbackStateCompatState) {
             case PlaybackStateCompat.STATE_ERROR:
-                return MediaPlayerBase.PLAYER_STATE_ERROR;
+                return MediaPlayerInterface.PLAYER_STATE_ERROR;
             case PlaybackStateCompat.STATE_NONE:
-                return MediaPlayerBase.PLAYER_STATE_IDLE;
+                return MediaPlayerInterface.PLAYER_STATE_IDLE;
             case PlaybackStateCompat.STATE_PAUSED:
             case PlaybackStateCompat.STATE_STOPPED:
             case PlaybackStateCompat.STATE_BUFFERING: // means paused for buffering.
-                return MediaPlayerBase.PLAYER_STATE_PAUSED;
+                return MediaPlayerInterface.PLAYER_STATE_PAUSED;
             case PlaybackStateCompat.STATE_FAST_FORWARDING:
             case PlaybackStateCompat.STATE_PLAYING:
             case PlaybackStateCompat.STATE_REWINDING:
@@ -420,12 +416,16 @@ class MediaUtils2 {
             case PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS:
             case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
             case PlaybackStateCompat.STATE_CONNECTING: // Note: there's no perfect match for this.
-                return MediaPlayerBase.PLAYER_STATE_PLAYING;
+                return MediaPlayerInterface.PLAYER_STATE_PLAYING;
         }
-        return MediaPlayerBase.PLAYER_STATE_ERROR;
+        return MediaPlayerInterface.PLAYER_STATE_ERROR;
     }
 
     static boolean isDefaultLibraryRootHint(Bundle bundle) {
         return bundle != null && bundle.getBoolean(MediaConstants2.ROOT_EXTRA_DEFAULT, false);
+    }
+
+    static Bundle createBundle(Bundle bundle) {
+        return (bundle == null) ? new Bundle() : new Bundle(bundle);
     }
 }

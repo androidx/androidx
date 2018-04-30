@@ -48,7 +48,6 @@ import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
-import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
@@ -79,9 +78,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     private static final int MAX_CELL_IMAGES = 1;
 
     private int mRowIndex;
+    private int mRowCount;
+
     private int mSmallImageSize;
     private int mIconSize;
     private int mGutter;
+    private int mTextPadding;
 
     private GridContent mGridContent;
     private LinearLayout mViewContainer;
@@ -100,17 +102,43 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         mIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_icon_size);
         mSmallImageSize = res.getDimensionPixelSize(R.dimen.abc_slice_small_image_size);
         mGutter = res.getDimensionPixelSize(R.dimen.abc_slice_grid_gutter);
+        mTextPadding = res.getDimensionPixelSize(R.dimen.abc_slice_grid_text_padding);
     }
 
     @Override
     public int getSmallHeight() {
         // GridRow is small if its the first element in a list without a header presented in small
-        return mGridContent != null ? mGridContent.getSmallHeight() : 0;
+        if (mGridContent == null) {
+            return 0;
+        }
+        return mGridContent.getSmallHeight() + getExtraTopPadding() + getExtraBottomPadding();
     }
 
     @Override
     public int getActualHeight() {
-        return mGridContent != null ? mGridContent.getActualHeight() : 0;
+        if (mGridContent == null) {
+            return 0;
+        }
+        return mGridContent.getActualHeight() + getExtraTopPadding() + getExtraBottomPadding();
+    }
+
+    private int getExtraTopPadding() {
+        if (mGridContent != null && mGridContent.isAllImages()) {
+            // Might need to add padding if in first or last position
+            if (mRowIndex == 0) {
+                return mGridTopPadding;
+            }
+        }
+        return 0;
+    }
+
+    private int getExtraBottomPadding() {
+        if (mGridContent != null && mGridContent.isAllImages()) {
+            if (mRowIndex == mRowCount - 1 || getMode() == MODE_SMALL) {
+                return mGridBottomPadding;
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -132,22 +160,19 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         }
     }
 
-    @Override
-    public void setSlice(Slice slice) {
-        // Nothing to do
-    }
-
     /**
      * This is called when GridView is being used as a component in a larger template.
      */
     @Override
-    public void setSliceItem(SliceItem slice, boolean isHeader, int index,
-            SliceView.OnSliceActionListener observer) {
+    public void setSliceItem(SliceItem slice, boolean isHeader, int rowIndex,
+            int rowCount, SliceView.OnSliceActionListener observer) {
         resetView();
         setSliceActionListener(observer);
-        mRowIndex = index;
+        mRowIndex = rowIndex;
+        mRowCount = rowCount;
         mGridContent = new GridContent(getContext(), slice);
         populateViews(mGridContent);
+        mViewContainer.setPadding(0, getExtraTopPadding(), 0, getExtraBottomPadding());
     }
 
     private void populateViews(GridContent gc) {
@@ -204,6 +229,11 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
             seeMoreView = (LinearLayout) inflater.inflate(
                     R.layout.abc_slice_grid_see_more, mViewContainer, false);
             extraText = seeMoreView.findViewById(R.id.text_see_more_count);
+
+            // Update text appearance
+            TextView moreText = seeMoreView.findViewById(R.id.text_see_more);
+            moreText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mGridTitleSize);
+            moreText.setTextColor(mTitleColor);
         }
         mViewContainer.addView(seeMoreView, new LinearLayout.LayoutParams(0, MATCH_PARENT, 1));
         extraText.setText(getResources().getString(R.string.abc_slice_more_content, numExtra));
@@ -249,25 +279,29 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
             Iterator<SliceItem> iterator = textItems.iterator();
             while (textItems.size() > 1) {
                 SliceItem item = iterator.next();
-                if (!item.hasHint(HINT_TITLE)) {
+                if (!item.hasAnyHints(HINT_TITLE, HINT_LARGE)) {
                     iterator.remove();
                 }
             }
         }
+        SliceItem prevItem = null;
         for (int i = 0; i < cellItems.size(); i++) {
             SliceItem item = cellItems.get(i);
             final String itemFormat = item.getFormat();
+            int padding = determinePadding(prevItem);
             if (textCount < maxCellText && (FORMAT_TEXT.equals(itemFormat)
                     || FORMAT_TIMESTAMP.equals(itemFormat))) {
                 if (textItems != null && !textItems.contains(item)) {
                     continue;
                 }
-                if (addItem(item, mTintColor, cellContainer, singleItem)) {
+                if (addItem(item, mTintColor, cellContainer, padding)) {
+                    prevItem = item;
                     textCount++;
                     added = true;
                 }
             } else if (imageCount < MAX_CELL_IMAGES && FORMAT_IMAGE.equals(item.getFormat())) {
-                if (addItem(item, mTintColor, cellContainer, singleItem)) {
+                if (addItem(item, mTintColor, cellContainer, 0)) {
+                    prevItem = item;
                     imageCount++;
                     added = true;
                 }
@@ -300,22 +334,28 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
 
     /**
      * Adds simple items to a container. Simple items include icons, text, and timestamps.
+     *
+     * @param item item to add to the container.
+     * @param container the container to add to.
+     * @param padding the padding to apply to the item.
+     *
      * @return Whether an item was added.
      */
-    private boolean addItem(SliceItem item, int color, ViewGroup container, boolean singleItem) {
+    private boolean addItem(SliceItem item, int color, ViewGroup container, int padding) {
         final String format = item.getFormat();
         View addedView = null;
         if (FORMAT_TEXT.equals(format) || FORMAT_TIMESTAMP.equals(format)) {
             boolean title = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
             TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(title
                     ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, title ? mTitleSize : mSubtitleSize);
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, title ? mGridTitleSize : mGridSubtitleSize);
             tv.setTextColor(title ? mTitleColor : mSubtitleColor);
             CharSequence text = FORMAT_TIMESTAMP.equals(format)
                     ? SliceViewUtil.getRelativeTimeString(item.getTimestamp())
                     : item.getText();
             tv.setText(text);
             container.addView(tv);
+            tv.setPadding(0, padding, 0, 0);
             addedView = tv;
         } else if (FORMAT_IMAGE.equals(format)) {
             ImageView iv = new ImageView(getContext());
@@ -339,6 +379,19 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         return addedView != null;
     }
 
+    private int determinePadding(SliceItem prevItem) {
+        if (prevItem == null) {
+            // No need for top padding
+            return 0;
+        } else if (FORMAT_IMAGE.equals(prevItem.getFormat())) {
+            return mTextPadding;
+        } else if (FORMAT_TEXT.equals(prevItem.getFormat())
+                || FORMAT_LONG.equals(prevItem.getFormat())) {
+            return mVerticalGridTextPadding;
+        }
+        return 0;
+    }
+
     private void makeClickable(View layout, boolean isClickable) {
         layout.setOnClickListener(isClickable ? this : null);
         layout.setBackground(isClickable
@@ -354,7 +407,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         final EventInfo info = tagItem.second;
         if (actionItem != null && FORMAT_ACTION.equals(actionItem.getFormat())) {
             try {
-                actionItem.getAction().send();
+                actionItem.fireAction(null, null);
                 if (mObserver != null) {
                     mObserver.onSliceAction(info, actionItem);
                 }

@@ -37,4 +37,5 @@ supportLibrary {
     description = "A set of builders to create templates using SliceProvider APIs"
     minSdkVersion = 19
     failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
 }

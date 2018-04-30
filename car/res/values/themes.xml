@@ -32,12 +32,19 @@ limitations under the License.
         <item name="android:editTextColor">@color/car_body1</item>
         <item name="android:colorControlNormal">@color/car_body2</item>
         <item name="android:seekBarStyle">@style/Widget.Car.SeekBar</item>
+        <item name="actionBarItemBackground">@drawable/car_card_ripple_background</item>
+        <item name="actionBarSize">@dimen/car_app_bar_height</item>
+        <item name="actionButtonStyle">@style/Widget.Car.ActionButton</item>
+        <item name="actionMenuTextAppearance">@style/TextAppearance.Car.ActionBar.Menu</item>
+        <item name="actionMenuTextColor">@color/car_accent</item>
         <item name="carDialogTheme">@style/Theme.Car.Dialog</item>
-        <item name="pagedListViewStyle">@style/Widget.Car.List</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
+        <item name="pagedListViewStyle">@style/Widget.Car.List</item>
+        <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
+        <item name="toolbarStyle">@style/Widget.Car.Toolbar</item>
     </style>
 
     <!-- Theme for the Car that is a passthrough for the default theme. -->

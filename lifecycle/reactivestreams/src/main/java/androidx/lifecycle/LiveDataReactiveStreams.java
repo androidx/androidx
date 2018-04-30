@@ -165,7 +165,7 @@ public final class LiveDataReactiveStreams {
     }
 
     /**
-     * Creates an Observable {@link LiveData} stream from a ReactiveStreams publisher.
+     * Creates an observable {@link LiveData} stream from a ReactiveStreams {@link Publisher}}.
      *
      * <p>
      * When the LiveData becomes active, it subscribes to the emissions from the Publisher.

@@ -35,14 +35,15 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.internal.view.SupportMenu;
 import androidx.core.internal.view.SupportMenuItem;
 import androidx.core.view.ActionProvider;
+import androidx.core.view.ViewConfigurationCompat;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -816,7 +817,8 @@ public class MenuBuilder implements SupportMenu {
     private void setShortcutsVisibleInner(boolean shortcutsVisible) {
         mShortcutsVisible = shortcutsVisible
                 && mResources.getConfiguration().keyboard != Configuration.KEYBOARD_NOKEYS
-                && mResources.getBoolean(R.bool.abc_config_showMenuShortcutsWhenKeyboardPresent);
+                && ViewConfigurationCompat.shouldShowMenuShortcutsWhenKeyboardPresent(
+                        ViewConfiguration.get(mContext), mContext);
     }
 
     /**

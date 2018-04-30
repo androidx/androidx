@@ -31,12 +31,17 @@ import java.util.concurrent.Executor;
 class MediaLibrarySessionImplBase extends MediaSession2ImplBase {
     MediaLibrarySessionImplBase(Context context,
             MediaSessionCompat sessionCompat, String id,
-            MediaPlayerBase player, MediaPlaylistAgent playlistAgent,
+            MediaPlayerInterface player, MediaPlaylistAgent playlistAgent,
             VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
             Executor callbackExecutor,
             MediaSession2.SessionCallback callback) {
         super(context, sessionCompat, id, player, playlistAgent, volumeProvider, sessionActivity,
                 callbackExecutor, callback);
+    }
+
+    @Override
+    MediaSession2 createInstance() {
+        return new MediaLibrarySession(this);
     }
 
     static final class Builder extends MediaSession2ImplBase.BuilderBase<

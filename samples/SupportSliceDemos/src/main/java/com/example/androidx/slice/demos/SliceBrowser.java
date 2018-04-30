@@ -16,6 +16,8 @@
 
 package com.example.androidx.slice.demos;
 
+import static androidx.slice.core.SliceHints.INFINITY;
+
 import static com.example.androidx.slice.demos.SampleSliceProvider.URI_PATHS;
 import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
 
@@ -47,6 +49,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
+import androidx.slice.SliceMetadata;
 import androidx.slice.widget.EventInfo;
 import androidx.slice.widget.SliceLiveData;
 import androidx.slice.widget.SliceView;
@@ -65,7 +68,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
 
     private static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
     private static final boolean TEST_INTENT = false;
-    private static final boolean TEST_THEMES = false;
+    private static final boolean TEST_THEMES = true;
     private static final boolean SCROLLING_ENABLED = true;
 
     private ArrayList<Uri> mSliceUris = new ArrayList<Uri>();
@@ -218,7 +221,17 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             mContainer.addView(v);
             mSliceLiveData = SliceLiveData.fromUri(this, uri);
             v.setMode(mSelectedMode);
-            mSliceLiveData.observe(this, v);
+            mSliceLiveData.observe(this, slice -> {
+                v.setSlice(slice);
+                SliceMetadata metadata = SliceMetadata.from(this, slice);
+                long expiry = metadata.getExpiry();
+                if (expiry != INFINITY) {
+                    // Shows the updated text after the TTL expires.
+                    v.postDelayed(() -> v.setSlice(slice),
+                            expiry - System.currentTimeMillis() + 15);
+                }
+            });
+            mSliceLiveData.observe(this, slice -> Log.d(TAG, "Slice: " + slice));
         } else {
             Log.w(TAG, "Invalid uri, skipping slice: " + uri);
         }

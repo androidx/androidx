@@ -16,6 +16,8 @@
 
 package androidx.heifwriter;
 
+import static android.media.MediaMuxer.OutputFormat.MUXER_OUTPUT_HEIF;
+
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.media.MediaCodec;
@@ -25,11 +27,12 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
+import android.util.Log;
+import android.view.Surface;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.util.Log;
-import android.view.Surface;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -37,8 +40,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeoutException;
-
-import static android.media.MediaMuxer.OutputFormat.MUXER_OUTPUT_HEIF;
 
 /**
  * This class writes one or more still images (of the same dimensions) into
@@ -79,7 +80,8 @@ public final class HeifWriter implements AutoCloseable {
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
     private int mNumTiles;
-    private final int mNumImages;
+    private final int mRotation;
+    private final int mMaxImages;
     private final int mPrimaryIndex;
     private final ResultWaiter mResultWaiter = new ResultWaiter();
 
@@ -119,96 +121,200 @@ public final class HeifWriter implements AutoCloseable {
     public @interface InputMode {}
 
     /**
-     * Construct a heif writer that writes to a file specified by its path.
-     *
-     * @param path Path of the file to be written.
-     * @param width Width of the image.
-     * @param height Height of the image.
-     * @param useGrid Whether to encode image into tiles. If enabled, the tile size will be
-     *                automatically chosen.
-     * @param quality A number between 0 and 100 (inclusive), with 100 indicating the best quality
-     *                supported by this implementation (which often results in larger file size).
-     * @param numImages Max number of images to write. Frames exceeding this number will not be
-     *                  written to file. The writing can be stopped earlier before this number of
-     *                  images are written by {@link #stop(long)}, except for the input mode of
-     *                  {@link #INPUT_MODE_SURFACE}, where the EOS timestamp must be specified (via
-     *                 {@link #setInputEndOfStreamTimestamp(long)} and reached.
-     * @param primaryIndex Index of the image that should be marked as primary, must be within range
-     *                     [0, numImages - 1] inclusive.
-     * @param inputMode Input mode for this writer, must be one of {@link #INPUT_MODE_BUFFER},
-     *                  {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
-     * @param handler If not null, client will receive all callbacks on the handler's looper.
-     *                Otherwise, client will receive callbacks on a looper created by the writer.
-     *
-     * @throws IOException if failed to construct MediaMuxer or HeifEncoder.
+     * Builder class for constructing a HeifWriter object from specified parameters.
      */
-    @SuppressLint("WrongConstant")
-    public HeifWriter(@NonNull String path,
-                      int width, int height, boolean useGrid,
-                      int quality, int numImages, int primaryIndex,
-                      @InputMode int inputMode,
-                      @Nullable Handler handler) throws IOException {
-        this(width, height, useGrid, quality, numImages, primaryIndex, inputMode, handler,
-                new MediaMuxer(path, MUXER_OUTPUT_HEIF));
+    public static final class Builder {
+        private final String mPath;
+        private final FileDescriptor mFd;
+        private final int mWidth;
+        private final int mHeight;
+        private final @InputMode int mInputMode;
+        private boolean mGridEnabled = true;
+        private int mQuality = 100;
+        private int mMaxImages = 1;
+        private int mPrimaryIndex = 0;
+        private int mRotation = 0;
+        private Handler mHandler;
+
+        /**
+         * Construct a Builder with output specified by its path.
+         *
+         * @param path Path of the file to be written.
+         * @param width Width of the image.
+         * @param height Height of the image.
+         * @param inputMode Input mode for this writer, must be one of {@link #INPUT_MODE_BUFFER},
+         *                  {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
+         */
+        public Builder(@NonNull String path,
+                       int width, int height, @InputMode int inputMode) {
+            this(path, null, width, height, inputMode);
+        }
+
+        /**
+         * Construct a Builder with output specified by its file descriptor.
+         *
+         * @param fd File descriptor of the file to be written.
+         * @param width Width of the image.
+         * @param height Height of the image.
+         * @param inputMode Input mode for this writer, must be one of {@link #INPUT_MODE_BUFFER},
+         *                  {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
+         */
+        public Builder(@NonNull FileDescriptor fd,
+                       int width, int height, @InputMode int inputMode) {
+            this(null, fd, width, height, inputMode);
+        }
+
+        private Builder(String path, FileDescriptor fd,
+                        int width, int height, @InputMode int inputMode) {
+            if (width <= 0 || height <= 0) {
+                throw new IllegalArgumentException("Invalid image size: " + width + "x" + height);
+            }
+            mPath = path;
+            mFd = fd;
+            mWidth = width;
+            mHeight = height;
+            mInputMode = inputMode;
+        }
+
+        /**
+         * Set the image rotation in degrees.
+         *
+         * @param rotation Rotation angle (clockwise) of the image, must be 0, 90, 180 or 270.
+         *                 Default is 0.
+         * @return this Builder object.
+         */
+        public Builder setRotation(int rotation) {
+            if (rotation != 0 && rotation != 90 && rotation != 180 && rotation != 270) {
+                throw new IllegalArgumentException("Invalid rotation angle: " + rotation);
+            }
+            mRotation = rotation;
+            return this;
+        }
+
+        /**
+         * Set whether to enable grid option.
+         *
+         * @param gridEnabled Whether to enable grid option. If enabled, the tile size will be
+         *                    automatically chosen. Default is to enable.
+         * @return this Builder object.
+         */
+        public Builder setGridEnabled(boolean gridEnabled) {
+            mGridEnabled = gridEnabled;
+            return this;
+        }
+
+        /**
+         * Set the quality for encoding images.
+         *
+         * @param quality A number between 0 and 100 (inclusive), with 100 indicating the best
+         *                quality supported by this implementation. Default is 100.
+         * @return this Builder object.
+         */
+        public Builder setQuality(int quality) {
+            if (quality < 0 || quality > 100) {
+                throw new IllegalArgumentException("Invalid quality: " + quality);
+            }
+            mQuality = quality;
+            return this;
+        }
+
+        /**
+         * Set the maximum number of images to write.
+         *
+         * @param maxImages Max number of images to write. Frames exceeding this number will not be
+         *                  written to file. The writing can be stopped earlier before this number
+         *                  of images are written by {@link #stop(long)}, except for the input mode
+         *                  of {@link #INPUT_MODE_SURFACE}, where the EOS timestamp must be
+         *                  specified (via {@link #setInputEndOfStreamTimestamp(long)} and reached.
+         *                  Default is 1.
+         * @return this Builder object.
+         */
+        public Builder setMaxImages(int maxImages) {
+            if (maxImages <= 0) {
+                throw new IllegalArgumentException("Invalid maxImage: " + maxImages);
+            }
+            mMaxImages = maxImages;
+            return this;
+        }
+
+        /**
+         * Set the primary image index.
+         *
+         * @param primaryIndex Index of the image that should be marked as primary, must be within
+         *                     range [0, maxImages - 1] inclusive. Default is 0.
+         * @return this Builder object.
+         */
+        public Builder setPrimaryIndex(int primaryIndex) {
+            if (primaryIndex < 0) {
+                throw new IllegalArgumentException("Invalid primaryIndex: " + primaryIndex);
+            }
+            mPrimaryIndex = primaryIndex;
+            return this;
+        }
+
+        /**
+         * Provide a handler for the HeifWriter to use.
+         *
+         * @param handler If not null, client will receive all callbacks on the handler's looper.
+         *                Otherwise, client will receive callbacks on a looper created by the
+         *                writer. Default is null.
+         * @return this Builder object.
+         */
+        public Builder setHandler(@Nullable Handler handler) {
+            mHandler = handler;
+            return this;
+        }
+
+        /**
+         * Build a HeifWriter object.
+         *
+         * @return a HeifWriter object built according to the specifications.
+         * @throws IOException if failed to create the writer, possibly due to failure to create
+         *                     {@link android.media.MediaMuxer} or {@link android.media.MediaCodec}.
+         */
+        public HeifWriter build() throws IOException {
+            return new HeifWriter(mPath, mFd, mWidth, mHeight, mRotation, mGridEnabled, mQuality,
+                    mMaxImages, mPrimaryIndex, mInputMode, mHandler);
+        }
     }
 
-    /**
-     * Construct a heif writer that writes to a file specified by file descriptor.
-     *
-     * @param fd File descriptor of the file to be written.
-     * @param width Width of the image.
-     * @param height Height of the image.
-     * @param useGrid Whether to encode image into tiles. If enabled, the tile size will be
-     *                automatically chosen.
-     * @param quality A number between 0 and 100 (inclusive), with 100 indicating the best quality
-     *                supported by this implementation (which often results in larger file size).
-     * @param numImages Max number of images to write. Frames exceeding this number will not be
-     *                  written to file. The writing can be stopped earlier before this number of
-     *                  images are written by {@link #stop(long)}, except for the input mode of
-     *                  {@link #INPUT_MODE_SURFACE}, where the EOS timestamp must be specified (via
-     *                 {@link #setInputEndOfStreamTimestamp(long)} and reached.
-     * @param primaryIndex Index of the image that should be marked as primary, must be within range
-     *                     [0, numImages - 1] inclusive.
-     * @param inputMode Input mode for this writer, must be one of {@link #INPUT_MODE_BUFFER},
-     *                  {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
-     * @param handler If not null, client will receive all callbacks on the handler's looper.
-     *                Otherwise, client will receive callbacks on a looper created by the writer.
-     *
-     * @throws IOException if failed to construct MediaMuxer or HeifEncoder.
-     */
     @SuppressLint("WrongConstant")
-    public HeifWriter(@NonNull FileDescriptor fd,
-                      int width, int height, boolean useGrid,
-                      int quality, int numImages, int primaryIndex,
-                      @InputMode int inputMode,
-                      @Nullable Handler handler) throws IOException {
-        this(width, height, useGrid, quality, numImages, primaryIndex, inputMode, handler,
-                new MediaMuxer(fd, MUXER_OUTPUT_HEIF));
-    }
-
-    private HeifWriter(int width, int height, boolean useGrid,
-                       int quality, int numImages, int primaryIndex,
+    private HeifWriter(@NonNull String path,
+                       @NonNull FileDescriptor fd,
+                       int width,
+                       int height,
+                       int rotation,
+                       boolean gridEnabled,
+                       int quality,
+                       int maxImages,
+                       int primaryIndex,
                        @InputMode int inputMode,
-                       @Nullable Handler handler,
-                       @NonNull MediaMuxer muxer) throws IOException {
-        if (numImages <= 0 || primaryIndex < 0 || primaryIndex >= numImages) {
+                       @Nullable Handler handler) throws IOException {
+        if (primaryIndex >= maxImages) {
             throw new IllegalArgumentException(
-                    "Invalid numImages (" + numImages + ") or primaryIndex (" + primaryIndex + ")");
+                    "Invalid maxImages (" + maxImages + ") or primaryIndex (" + primaryIndex + ")");
+        }
+
+        if (DEBUG) {
+            Log.d(TAG, "width: " + width
+                    + ", height: " + height
+                    + ", rotation: " + rotation
+                    + ", gridEnabled: " + gridEnabled
+                    + ", quality: " + quality
+                    + ", maxImages: " + maxImages
+                    + ", primaryIndex: " + primaryIndex
+                    + ", inputMode: " + inputMode);
         }
 
         MediaFormat format = MediaFormat.createVideoFormat(
                 MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC, width, height);
 
-        if (DEBUG) {
-            Log.d(TAG, "format: " + format + ", inputMode: " + inputMode +
-                    ", numImage: " + numImages + ", primaryIndex: " + primaryIndex);
-        }
-
         // set to 1 initially, and wait for output format to know for sure
         mNumTiles = 1;
 
+        mRotation = rotation;
         mInputMode = inputMode;
-        mNumImages = numImages;
+        mMaxImages = maxImages;
         mPrimaryIndex = primaryIndex;
 
         Looper looper = (handler != null) ? handler.getLooper() : null;
@@ -222,9 +328,10 @@ public final class HeifWriter implements AutoCloseable {
         }
         mHandler = new Handler(looper);
 
-        mMuxer = muxer;
+        mMuxer = (path != null) ? new MediaMuxer(path, MUXER_OUTPUT_HEIF)
+                                : new MediaMuxer(fd, MUXER_OUTPUT_HEIF);
 
-        mHeifEncoder = new HeifEncoder(width, height, useGrid, quality,
+        mHeifEncoder = new HeifEncoder(width, height, gridEnabled, quality,
                 mInputMode, mHandler, new HeifCallback());
     }
 
@@ -400,19 +507,23 @@ public final class HeifWriter implements AutoCloseable {
 
             try {
                 int gridRows = format.getInteger(MediaFormat.KEY_GRID_ROWS);
-                int gridCols = format.getInteger(MediaFormat.KEY_GRID_COLS);
+                int gridCols = format.getInteger(MediaFormat.KEY_GRID_COLUMNS);
                 mNumTiles = gridRows * gridCols;
             } catch (NullPointerException | ClassCastException  e) {
                 mNumTiles = 1;
             }
 
-            // add mNumImages image tracks of the same format
-            mTrackIndexArray = new int[mNumImages];
+            // add mMaxImages image tracks of the same format
+            mTrackIndexArray = new int[mMaxImages];
+
+            // set rotation angle
+            if (mRotation > 0) {
+                Log.d(TAG, "setting rotation: " + mRotation);
+                mMuxer.setOrientationHint(mRotation);
+            }
             for (int i = 0; i < mTrackIndexArray.length; i++) {
                 // mark primary
-                if (i == mPrimaryIndex) {
-                    format.setInteger(MediaFormat.KEY_IS_DEFAULT, 1);
-                }
+                format.setInteger(MediaFormat.KEY_IS_DEFAULT, (i == mPrimaryIndex) ? 1 : 0);
                 mTrackIndexArray[i] = mMuxer.addTrack(format);
             }
             mMuxer.start();
@@ -436,7 +547,7 @@ public final class HeifWriter implements AutoCloseable {
                 return;
             }
 
-            if (mOutputIndex < mNumImages * mNumTiles) {
+            if (mOutputIndex < mMaxImages * mNumTiles) {
                 MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
                 info.set(byteBuffer.position(), byteBuffer.remaining(), 0, 0);
                 mMuxer.writeSampleData(
@@ -446,7 +557,7 @@ public final class HeifWriter implements AutoCloseable {
             mOutputIndex++;
 
             // post EOS if reached max number of images allowed.
-            if (mOutputIndex == mNumImages * mNumTiles) {
+            if (mOutputIndex == mMaxImages * mNumTiles) {
                 stopAndNotify(null);
             }
         }

@@ -17,14 +17,9 @@
 package androidx.heifwriter;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.opengl.GLES20;
-import android.opengl.GLUtils;
-import android.os.Looper;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.media.Image;
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
@@ -32,12 +27,18 @@ import android.media.MediaCodec.CodecException;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaFormat;
+import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
 import android.util.Range;
 import android.view.Surface;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -179,24 +180,28 @@ public final class HeifEncoder implements AutoCloseable,
             throw new IllegalArgumentException("invalid encoder inputs");
         }
 
-        mEncoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+        // Disable grid if the image is too small
+        useGrid &= (width > GRID_WIDTH || height > GRID_HEIGHT);
 
-        mWidth = width;
-        mHeight = height;
-
-        if (useGrid) {
-            mGridWidth = GRID_WIDTH;
-            mGridHeight = GRID_HEIGHT;
-            mGridRows = (height + GRID_HEIGHT - 1) / GRID_HEIGHT;
-            mGridCols = (width + GRID_WIDTH - 1) / GRID_WIDTH;
-        } else {
-            mGridWidth = mWidth;
-            mGridHeight = mHeight;
-            mGridRows = 1;
-            mGridCols = 1;
+        boolean useHeicEncoder = false;
+        MediaCodecInfo.CodecCapabilities caps = null;
+        try {
+            mEncoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
+            caps = mEncoder.getCodecInfo().getCapabilitiesForType(
+                    MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
+            // If the HEIC encoder can't support the size, fall back to HEVC encoder.
+            if (!caps.getVideoCapabilities().isSizeSupported(width, height)) {
+                mEncoder.release();
+                mEncoder = null;
+                throw new Exception();
+            }
+            useHeicEncoder = true;
+        } catch (Exception e) {
+            mEncoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+            caps = mEncoder.getCodecInfo().getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+            // Always enable grid if the size is too large for the HEVC encoder
+            useGrid |= !caps.getVideoCapabilities().isSizeSupported(width, height);
         }
-
-        mNumTiles = mGridRows * mGridCols;
 
         mInputMode = inputMode;
 
@@ -217,18 +222,59 @@ public final class HeifEncoder implements AutoCloseable,
         int colorFormat = useSurfaceInternally ? CodecCapabilities.COLOR_FormatSurface :
                 CodecCapabilities.COLOR_FormatYUV420Flexible;
 
-        // TODO: determine how to set bitrate and framerate, or use constant quality
-        MediaFormat codecFormat = MediaFormat.createVideoFormat(
-                MediaFormat.MIMETYPE_VIDEO_HEVC, mGridWidth, mGridHeight);
+        mWidth = width;
+        mHeight = height;
+
+        int gridWidth, gridHeight, gridRows, gridCols;
+
+        if (useGrid) {
+            gridWidth = GRID_WIDTH;
+            gridHeight = GRID_HEIGHT;
+            gridRows = (height + GRID_HEIGHT - 1) / GRID_HEIGHT;
+            gridCols = (width + GRID_WIDTH - 1) / GRID_WIDTH;
+        } else {
+            gridWidth = mWidth;
+            gridHeight = mHeight;
+            gridRows = 1;
+            gridCols = 1;
+        }
+
+        MediaFormat codecFormat;
+        if (useHeicEncoder) {
+            codecFormat = MediaFormat.createVideoFormat(
+                    MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC, mWidth, mHeight);
+        } else {
+            codecFormat = MediaFormat.createVideoFormat(
+                    MediaFormat.MIMETYPE_VIDEO_HEVC, gridWidth, gridHeight);
+        }
+
+        if (useGrid) {
+            codecFormat.setInteger(MediaFormat.KEY_TILE_WIDTH, gridWidth);
+            codecFormat.setInteger(MediaFormat.KEY_TILE_HEIGHT, gridHeight);
+            codecFormat.setInteger(MediaFormat.KEY_GRID_COLUMNS, gridCols);
+            codecFormat.setInteger(MediaFormat.KEY_GRID_ROWS, gridRows);
+        }
+
+        if (useHeicEncoder) {
+            mGridWidth = width;
+            mGridHeight = height;
+            mGridRows = 1;
+            mGridCols = 1;
+        } else {
+            mGridWidth = gridWidth;
+            mGridHeight = gridHeight;
+            mGridRows = gridRows;
+            mGridCols = gridCols;
+        }
+        mNumTiles = mGridRows * mGridCols;
+
         codecFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 0);
         codecFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
-
-        MediaCodecInfo.CodecCapabilities caps =
-                mEncoder.getCodecInfo().getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
-        MediaCodecInfo.EncoderCapabilities encoderCaps = caps.getEncoderCapabilities();
-
         codecFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mNumTiles);
         codecFormat.setInteger(MediaFormat.KEY_CAPTURE_RATE, mNumTiles * 30);
+
+        MediaCodecInfo.EncoderCapabilities encoderCaps = caps.getEncoderCapabilities();
+
         if (encoderCaps.isBitrateModeSupported(
                 MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ)) {
             Log.d(TAG, "Setting bitrate mode to constant quality");
@@ -240,14 +286,14 @@ public final class HeifEncoder implements AutoCloseable,
                             (qualityRange.getUpper() - qualityRange.getLower()) * quality / 100.0));
         } else {
             if (encoderCaps.isBitrateModeSupported(
-                    MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR)) {
-                Log.d(TAG, "Setting bitrate mode to variable bitrate");
-                codecFormat.setInteger(MediaFormat.KEY_BITRATE_MODE,
-                        MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR);
-            } else { // assume CBR
+                    MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR)) {
                 Log.d(TAG, "Setting bitrate mode to constant bitrate");
                 codecFormat.setInteger(MediaFormat.KEY_BITRATE_MODE,
                         MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR);
+            } else { // assume VBR
+                Log.d(TAG, "Setting bitrate mode to variable bitrate");
+                codecFormat.setInteger(MediaFormat.KEY_BITRATE_MODE,
+                        MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR);
             }
             // Calculate the bitrate based on image dimension, max compression ratio and quality.
             // Note that we set the frame rate to the number of tiles, so the bitrate would be the
@@ -262,34 +308,36 @@ public final class HeifEncoder implements AutoCloseable,
         if (useSurfaceInternally) {
             mEncoderSurface = mEncoder.createInputSurface();
 
-            boolean useGLCopy = (mNumTiles > 1) || (inputMode == INPUT_MODE_BITMAP);
-            mEOSTracker = new SurfaceEOSTracker(useGLCopy);
+            boolean copyTiles = (mNumTiles > 1);
+            mEOSTracker = new SurfaceEOSTracker(copyTiles);
 
-            if (useGLCopy) {
-                mEncoderEglSurface = new EglWindowSurface(mEncoderSurface);
-                mEncoderEglSurface.makeCurrent();
+            if (inputMode == INPUT_MODE_SURFACE) {
+                if (copyTiles) {
+                    mEncoderEglSurface = new EglWindowSurface(mEncoderSurface);
+                    mEncoderEglSurface.makeCurrent();
 
-                mRectBlt = new EglRectBlt(
-                        new Texture2dProgram((inputMode == INPUT_MODE_BITMAP) ?
-                                Texture2dProgram.TEXTURE_2D :
-                                Texture2dProgram.TEXTURE_EXT),
-                        mWidth, mHeight);
+                    mRectBlt = new EglRectBlt(
+                            new Texture2dProgram((inputMode == INPUT_MODE_BITMAP)
+                                    ? Texture2dProgram.TEXTURE_2D
+                                    : Texture2dProgram.TEXTURE_EXT),
+                            mWidth, mHeight);
 
-                mTextureId = mRectBlt.createTextureObject();
+                    mTextureId = mRectBlt.createTextureObject();
 
-                if (inputMode == INPUT_MODE_SURFACE) {
-                    // use single buffer mode to block on input
-                    mInputTexture = new SurfaceTexture(mTextureId, true);
-                    mInputTexture.setOnFrameAvailableListener(this);
-                    mInputTexture.setDefaultBufferSize(mWidth, mHeight);
-                    mInputSurface = new Surface(mInputTexture);
+                    if (inputMode == INPUT_MODE_SURFACE) {
+                        // use single buffer mode to block on input
+                        mInputTexture = new SurfaceTexture(mTextureId, true);
+                        mInputTexture.setOnFrameAvailableListener(this);
+                        mInputTexture.setDefaultBufferSize(mWidth, mHeight);
+                        mInputSurface = new Surface(mInputTexture);
+                    }
+
+                    // make uncurrent since onFrameAvailable could be called on arbituray thread.
+                    // making the context current on a different thread will cause error.
+                    mEncoderEglSurface.makeUnCurrent();
+                } else {
+                    mInputSurface = mEncoderSurface;
                 }
-
-                // make uncurrent since the onFrameAvailable could be called on arbituray thread.
-                // making the context current on a different thread will cause error.
-                mEncoderEglSurface.makeUnCurrent();
-            } else {
-                mInputSurface = mEncoderSurface;
             }
         } else {
             for (int i = 0; i < INPUT_BUFFER_POOL_SIZE; i++) {
@@ -321,7 +369,20 @@ public final class HeifEncoder implements AutoCloseable,
                     computePresentationTime(mInputIndex + mNumTiles - 1));
 
             if (takeFrame) {
-                copyTilesGL(mTmpMatrix);
+                // Copies from surface texture to encoder inputs using GL.
+                GLES20.glViewport(0, 0, mGridWidth, mGridHeight);
+
+                for (int row = 0; row < mGridRows; row++) {
+                    for (int col = 0; col < mGridCols; col++) {
+                        int left = col * mGridWidth;
+                        int top = row * mGridHeight;
+                        mSrcRect.set(left, top, left + mGridWidth, top + mGridHeight);
+                        mRectBlt.copyRect(mTextureId, mTmpMatrix, mSrcRect);
+                        mEncoderEglSurface.setPresentationTime(
+                                1000 * computePresentationTime(mInputIndex++));
+                        mEncoderEglSurface.swapBuffers();
+                    }
+                }
             }
 
             surfaceTexture.releaseTexImage();
@@ -407,21 +468,16 @@ public final class HeifEncoder implements AutoCloseable,
         if (!takeFrame) return;
 
         synchronized (this) {
-            if (mEncoderEglSurface == null) {
-                return;
+            for (int row = 0; row < mGridRows; row++) {
+                for (int col = 0; col < mGridCols; col++) {
+                    int left = col * mGridWidth;
+                    int top = row * mGridHeight;
+                    mSrcRect.set(left, top, left + mGridWidth, top + mGridHeight);
+                    Canvas canvas = mEncoderSurface.lockCanvas(null);
+                    canvas.drawBitmap(bitmap, mSrcRect, mDstRect, null);
+                    mEncoderSurface.unlockCanvasAndPost(canvas);
+                }
             }
-
-            mEncoderEglSurface.makeCurrent();
-
-            // load the bitmap to texture
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureId);
-            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-
-            copyTilesGL(Texture2dProgram.V_FLIP_MATRIX);
-
-            // make uncurrent since the onFrameAvailable could be called on arbituray thread.
-            // making the context current on a different thread will cause error.
-            mEncoderEglSurface.makeUnCurrent();
         }
     }
 
@@ -594,28 +650,6 @@ public final class HeifEncoder implements AutoCloseable,
     }
 
     /**
-     * Copies from source frame to encoder inputs using GL. The source could be either
-     * client's input surface, or the input bitmap loaded to texture.
-     *
-     * @param texMatrix The texture matrix to use. See the shader program in
-     * {@link Texture2dProgram} as well as {@link SurfaceTexture} for more details.
-     */
-    private void copyTilesGL(float[] texMatrix) {
-        GLES20.glViewport(0, 0, mGridWidth, mGridHeight);
-
-        for (int row = 0; row < mGridRows; row++) {
-            for (int col = 0; col < mGridCols; col++) {
-                int left = col * mGridWidth;
-                int top = row * mGridHeight;
-                mSrcRect.set(left, top, left + mGridWidth, top + mGridHeight);
-                mRectBlt.copyRect(mTextureId, texMatrix, mSrcRect);
-                mEncoderEglSurface.setPresentationTime(1000 * computePresentationTime(mInputIndex++));
-                mEncoderEglSurface.swapBuffers();
-            }
-        }
-    }
-
-    /**
      * Routine to release all resources. Must be run on the same looper that
      * handles the MediaCodec callbacks.
      */
@@ -677,7 +711,7 @@ public final class HeifEncoder implements AutoCloseable,
     private class SurfaceEOSTracker {
         private static final boolean DEBUG_EOS = false;
 
-        final boolean mUseGLCopy;
+        final boolean mCopyTiles;
         long mInputEOSTimeNs = -1;
         long mLastInputTimeNs = -1;
         long mEncoderEOSTimeUs = -1;
@@ -685,14 +719,14 @@ public final class HeifEncoder implements AutoCloseable,
         long mLastOutputTimeUs = -1;
         boolean mSignaled;
 
-        SurfaceEOSTracker(boolean useGLCopy) {
-            mUseGLCopy = useGLCopy;
+        SurfaceEOSTracker(boolean copyTiles) {
+            mCopyTiles = copyTiles;
         }
 
         synchronized void updateInputEOSTime(long timestampNs) {
             if (DEBUG_EOS) Log.d(TAG, "updateInputEOSTime: " + timestampNs);
 
-            if (mUseGLCopy) {
+            if (mCopyTiles) {
                 if (mInputEOSTimeNs < 0) {
                     mInputEOSTimeNs = timestampNs;
                 }
@@ -773,15 +807,18 @@ public final class HeifEncoder implements AutoCloseable,
 
             if (DEBUG) Log.d(TAG, "onOutputFormatChanged: " + format);
 
-            format.setString(MediaFormat.KEY_MIME, MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
-            format.setInteger(MediaFormat.KEY_WIDTH, mWidth);
-            format.setInteger(MediaFormat.KEY_HEIGHT, mHeight);
+            if (!MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC.equals(
+                    format.getString(MediaFormat.KEY_MIME))) {
+                format.setString(MediaFormat.KEY_MIME, MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
+                format.setInteger(MediaFormat.KEY_WIDTH, mWidth);
+                format.setInteger(MediaFormat.KEY_HEIGHT, mHeight);
 
-            if (mNumTiles > 1) {
-                format.setInteger(MediaFormat.KEY_GRID_WIDTH, mGridWidth);
-                format.setInteger(MediaFormat.KEY_GRID_HEIGHT, mGridHeight);
-                format.setInteger(MediaFormat.KEY_GRID_ROWS, mGridRows);
-                format.setInteger(MediaFormat.KEY_GRID_COLS, mGridCols);
+                if (mNumTiles > 1) {
+                    format.setInteger(MediaFormat.KEY_TILE_WIDTH, mGridWidth);
+                    format.setInteger(MediaFormat.KEY_TILE_HEIGHT, mGridHeight);
+                    format.setInteger(MediaFormat.KEY_GRID_ROWS, mGridRows);
+                    format.setInteger(MediaFormat.KEY_GRID_COLUMNS, mGridCols);
+                }
             }
 
             mCallback.onOutputFormatChanged(HeifEncoder.this, format);
@@ -800,8 +837,12 @@ public final class HeifEncoder implements AutoCloseable,
         public void onOutputBufferAvailable(MediaCodec codec, int index, BufferInfo info) {
             if (codec != mEncoder || mOutputEOS) return;
 
-            if (DEBUG) Log.d(TAG, "onInputBufferAvailable: " + index + ", time "
-                    + info.presentationTimeUs + ", size " + info.size + ", flags " + info.flags);
+            if (DEBUG) {
+                Log.d(TAG, "onOutputBufferAvailable: " + index
+                        + ", time " + info.presentationTimeUs
+                        + ", size " + info.size
+                        + ", flags " + info.flags);
+            }
 
             if ((info.size > 0) && ((info.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) == 0)) {
                 ByteBuffer outputBuffer = codec.getOutputBuffer(index);

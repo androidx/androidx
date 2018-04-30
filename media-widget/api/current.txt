@@ -1,0 +1,39 @@
+package androidx.media.widget {
+
+  public class MediaControlView2 extends android.view.ViewGroup {
+    ctor public MediaControlView2(android.content.Context);
+    ctor public MediaControlView2(android.content.Context, android.util.AttributeSet);
+    ctor public MediaControlView2(android.content.Context, android.util.AttributeSet, int);
+    method public void onMeasure(int, int);
+    method public void requestPlayButtonFocus();
+    method public void setOnFullScreenListener(androidx.media.widget.MediaControlView2.OnFullScreenListener);
+  }
+
+  public static abstract interface MediaControlView2.OnFullScreenListener {
+    method public abstract void onFullScreen(android.view.View, boolean);
+  }
+
+  public class VideoView2 extends android.view.ViewGroup {
+    ctor public VideoView2(android.content.Context);
+    ctor public VideoView2(android.content.Context, android.util.AttributeSet);
+    ctor public VideoView2(android.content.Context, android.util.AttributeSet, int);
+    method public androidx.media.widget.MediaControlView2 getMediaControlView2();
+    method public float getSpeed();
+    method public int getViewType();
+    method public boolean isSubtitleEnabled();
+    method public void onAttachedToWindow();
+    method public void onDetachedFromWindow();
+    method public void onMeasure(int, int);
+    method public void setAudioAttributes(android.media.AudioAttributes);
+    method public void setAudioFocusRequest(int);
+    method public void setMediaControlView2(androidx.media.widget.MediaControlView2, long);
+    method public void setSpeed(float);
+    method public void setSubtitleEnabled(boolean);
+    method public void setVideoUri(android.net.Uri, java.util.Map<java.lang.String, java.lang.String>);
+    method public void setViewType(int);
+    field public static final int VIEW_TYPE_SURFACEVIEW = 0; // 0x0
+    field public static final int VIEW_TYPE_TEXTUREVIEW = 1; // 0x1
+  }
+
+}
+

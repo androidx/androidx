@@ -21,7 +21,6 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.SUBTYPE_MAX;
-import static android.app.slice.Slice.SUBTYPE_TOGGLE;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -38,7 +37,6 @@ import static androidx.slice.widget.EventInfo.ROW_TYPE_LIST;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_TOGGLE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
-import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
@@ -47,6 +45,7 @@ import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -63,13 +62,11 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -93,7 +90,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private TextView mSecondaryText;
     private TextView mLastUpdatedText;
     private View mDivider;
-    private ArrayList<SliceActionView> mToggles = new ArrayList<>();
+    private ArrayMap<SliceActionImpl, SliceActionView> mToggles = new ArrayMap<>();
     private LinearLayout mEndContainer;
     private ProgressBar mRangeBar;
     private View mSeeMoreView;
@@ -218,17 +215,12 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
     }
 
-    @Override
-    public void setSlice(Slice slice) {
-        // Nothing to do
-    }
-
     /**
      * This is called when RowView is being used as a component in a large template.
      */
     @Override
     public void setSliceItem(SliceItem slice, boolean isHeader, int index,
-            SliceView.OnSliceActionListener observer) {
+            int rowCount, SliceView.OnSliceActionListener observer) {
         setSliceActionListener(observer);
         mRowIndex = index;
         mIsHeader = ListContent.isValidHeader(slice);
@@ -247,9 +239,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (contentDescr != null) {
             mContent.setContentDescription(contentDescr);
         }
-        boolean showStart = false;
         final SliceItem startItem = mRowContent.getStartItem();
-        if (startItem != null) {
+        boolean showStart = startItem != null && mRowIndex > 0;
+        if (showStart) {
             showStart = addItem(startItem, mTintColor, true /* isStart */);
         }
         mStartContainer.setVisibility(showStart ? View.VISIBLE : View.GONE);
@@ -270,11 +262,12 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         addSubtitle(subtitleItem);
 
         SliceItem primaryAction = mRowContent.getPrimaryAction();
-        if (primaryAction != null) {
+        if (primaryAction != null && primaryAction != startItem) {
             mRowAction = new SliceActionImpl(primaryAction);
             if (mRowAction.isToggle()) {
                 // If primary action is a toggle, add it and we're done
                 addAction(mRowAction, mTintColor, mEndContainer, false /* isStart */);
+                // TODO: if start item is tappable, touch feedback should exclude it
                 setViewClickable(mRootView, true);
                 return;
             }
@@ -291,42 +284,21 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
         // If we're here we can can show end items; check for top level actions first
         List<SliceItem> endItems = mRowContent.getEndItems();
-        String desiredFormat = FORMAT_ACTION;
         if (mHeaderActions != null && mHeaderActions.size() > 0) {
             // Use these if we have them instead
             endItems = mHeaderActions;
-        } else if (!endItems.isEmpty()) {
-            // Prefer to show actions as end items if possible; fall back to the first format type.
-            SliceItem firstEndItem = endItems.get(0);
-            desiredFormat = mRowContent.endItemsContainAction()
-                    ? FORMAT_ACTION : firstEndItem.getSlice().getItems().get(0).getFormat();
         }
-        boolean hasRowAction = mRowAction != null;
-        if (endItems.isEmpty()) {
-            if (hasRowAction) setViewClickable(mRootView, true);
-            return;
-        }
-
         // If we're here we might be able to show end items
         int itemCount = 0;
         boolean firstItemIsADefaultToggle = false;
+        boolean hasEndItemAction = false;
         for (int i = 0; i < endItems.size(); i++) {
             final SliceItem endItem = endItems.get(i);
-            final String endFormat = endItem.hasHint(HINT_SHORTCUT)
-                    ? FORMAT_ACTION
-                    : endItem.getSlice().getItems().get(0).getFormat();
-            // Only show one type of format at the end of the slice, use whatever is first
-            if (itemCount < MAX_END_ITEMS
-                    && (desiredFormat.equals(endFormat)
-                    || FORMAT_TIMESTAMP.equals(endFormat))) {
-
-                final EventInfo info = new EventInfo(getMode(),
-                        EventInfo.ACTION_TYPE_BUTTON,
-                        EventInfo.ROW_TYPE_LIST, mRowIndex);
-                info.setPosition(EventInfo.POSITION_END, i,
-                        Math.min(endItems.size(), MAX_END_ITEMS));
-
+            if (itemCount < MAX_END_ITEMS) {
                 if (addItem(endItem, mTintColor, false /* isStart */)) {
+                    if (SliceQuery.find(endItem, FORMAT_ACTION) != null) {
+                        hasEndItemAction = true;
+                    }
                     itemCount++;
                     if (itemCount == 1) {
                         firstItemIsADefaultToggle = !mToggles.isEmpty()
@@ -336,21 +308,22 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             }
         }
 
-        boolean hasEndItemAction = FORMAT_ACTION.contentEquals(desiredFormat);
         // If there is a row action and the first end item is a default toggle, show the divider.
-        mDivider.setVisibility(hasRowAction && firstItemIsADefaultToggle
+        mDivider.setVisibility(mRowAction != null && firstItemIsADefaultToggle
                 ? View.VISIBLE : View.GONE);
-        if (hasRowAction) {
-            if (itemCount > 0 && hasEndItemAction) {
-                setViewClickable(mContent, true);
+        boolean hasStartAction = startItem != null
+                && SliceQuery.find(startItem, FORMAT_ACTION) != null;
+
+        if (mRowAction != null) {
+            // If there are outside actions make only the content bit clickable
+            // TODO: if start item is an image touch feedback should include it
+            setViewClickable((hasEndItemAction || hasStartAction) ? mContent : mRootView, true);
+        } else if (hasEndItemAction != hasStartAction && (itemCount == 1 || hasStartAction)) {
+            // Single action; make whole row clickable for it
+            if (!mToggles.isEmpty()) {
+                mRowAction = mToggles.keySet().iterator().next();
             } else {
-                setViewClickable(mRootView, true);
-            }
-        } else if (mRowContent.endItemsContainAction() && itemCount == 1) {
-            // If the only end item is an action, make the whole row clickable.
-            SliceItem unwrappedActionItem = endItems.get(0).getSlice().getItems().get(0);
-            if (!SUBTYPE_TOGGLE.equals(unwrappedActionItem.getSubType())) {
-                mRowAction = new SliceActionImpl(endItems.get(0));
+                mRowAction = new SliceActionImpl(hasEndItemAction ? endItems.get(0) : startItem);
             }
             setViewClickable(mRootView, true);
         }
@@ -358,7 +331,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     private void addSubtitle(final SliceItem subtitleItem) {
         CharSequence subtitleTimeString = null;
-        if (mShowLastUpdated) {
+        if (mShowLastUpdated && mLastUpdated != -1) {
             subtitleTimeString = getResources().getString(R.string.abc_slice_updated,
                     SliceViewUtil.getRelativeTimeString(mLastUpdated));
         }
@@ -371,6 +344,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                     ? mHeaderSubtitleSize
                     : mSubtitleSize);
             mSecondaryText.setTextColor(mSubtitleColor);
+            int verticalPadding = mIsHeader ? mVerticalHeaderTextPadding : mVerticalTextPadding;
+            mSecondaryText.setPadding(0, verticalPadding, 0, 0);
         }
         if (subtitleTimeString != null) {
             if (!TextUtils.isEmpty(subtitle)) {
@@ -415,7 +390,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         addView(progressBar);
         mRangeBar = progressBar;
         if (isSeekBar) {
-            SliceItem thumb = SliceQuery.find(range, FORMAT_IMAGE);
+            SliceItem thumb = mRowContent.getInputRangeThumb();
             SeekBar seekBar = (SeekBar) mRangeBar;
             if (thumb != null) {
                 seekBar.setThumb(thumb.getIcon().loadDrawable(getContext()));
@@ -431,10 +406,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     progress += finalMinValue;
                     try {
-                        PendingIntent pi = range.getAction();
-                        Intent i = new Intent().putExtra(EXTRA_RANGE_VALUE, progress);
                         // TODO: sending this PendingIntent should be rate limited.
-                        pi.send(getContext(), 0, i, null, null);
+                        range.fireAction(getContext(),
+                                new Intent().putExtra(EXTRA_RANGE_VALUE, progress));
                     } catch (CanceledException e) { }
                 }
 
@@ -463,9 +437,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             info.setPosition(EventInfo.POSITION_START, 0, 1);
         }
         sav.setAction(actionContent, info, mObserver, color);
-
         if (isToggle) {
-            mToggles.add(sav);
+            mToggles.put(actionContent, sav);
         }
     }
 
@@ -478,7 +451,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         int imageMode = 0;
         SliceItem timeStamp = null;
         ViewGroup container = isStart ? mStartContainer : mEndContainer;
-        if (FORMAT_SLICE.equals(sliceItem.getFormat())) {
+        if (FORMAT_SLICE.equals(sliceItem.getFormat())
+                || FORMAT_ACTION.equals(sliceItem.getFormat())) {
             if (sliceItem.hasHint(HINT_SHORTCUT)) {
                 addAction(new SliceActionImpl(sliceItem), color, container, isStart);
                 return true;
@@ -532,7 +506,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                                 EventInfo.ROW_TYPE_LIST, mRowIndex);
                         mObserver.onSliceAction(info, mRowContent.getSlice());
                     }
-                    mRowContent.getSlice().getAction().send();
+                    mRowContent.getSlice().fireAction(null, null);
                 } catch (CanceledException e) {
                     Log.e(TAG, "PendingIntent for slice cannot be sent", e);
                 }
@@ -547,21 +521,25 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        if (mRowAction != null && mRowAction.getAction() != null && !mRowAction.isToggle()) {
-            // Check for a row action
-            try {
-                mRowAction.getAction().send();
-                if (mObserver != null) {
-                    EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
-                            EventInfo.ROW_TYPE_LIST, mRowIndex);
-                    mObserver.onSliceAction(info, mRowAction.getSliceItem());
+        if (mRowAction != null && mRowAction.getActionItem() != null) {
+            // Check if it's a row click for a toggle, in this case need to update the UI
+            if (mRowAction.isToggle() && !(view instanceof SliceActionView)) {
+                SliceActionView sav = mToggles.get(mRowAction);
+                if (sav != null) {
+                    sav.toggle();
                 }
-            } catch (CanceledException e) {
-                Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+            } else {
+                try {
+                    mRowAction.getActionItem().fireAction(null, null);
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
+                                EventInfo.ROW_TYPE_LIST, mRowIndex);
+                        mObserver.onSliceAction(info, mRowAction.getSliceItem());
+                    }
+                } catch (CanceledException e) {
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+                }
             }
-        } else if (mToggles.size() == 1) {
-            // If there is only one toggle and no row action, just toggle it.
-            mToggles.get(0).toggle();
         }
     }
 
@@ -575,16 +553,18 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     public void resetView() {
-        mRootView.setVisibility(View.VISIBLE);
+        mRootView.setVisibility(VISIBLE);
         setViewClickable(mRootView, false);
         setViewClickable(mContent, false);
         mStartContainer.removeAllViews();
         mEndContainer.removeAllViews();
         mPrimaryText.setText(null);
         mSecondaryText.setText(null);
+        mLastUpdatedText.setText(null);
+        mLastUpdatedText.setVisibility(GONE);
         mToggles.clear();
         mRowAction = null;
-        mDivider.setVisibility(View.GONE);
+        mDivider.setVisibility(GONE);
         if (mRangeBar != null) {
             removeView(mRangeBar);
         }

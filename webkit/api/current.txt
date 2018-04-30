@@ -1,0 +1,118 @@
+package androidx.webkit {
+
+  public abstract class SafeBrowsingResponseCompat {
+    method public abstract void backToSafety(boolean);
+    method public abstract void proceed(boolean);
+    method public abstract void showInterstitial(boolean);
+  }
+
+  public abstract class ServiceWorkerClientCompat {
+    ctor public ServiceWorkerClientCompat();
+    method public abstract android.webkit.WebResourceResponse shouldInterceptRequest(android.webkit.WebResourceRequest);
+  }
+
+  public abstract class ServiceWorkerControllerCompat {
+    method public static androidx.webkit.ServiceWorkerControllerCompat getInstance();
+    method public abstract androidx.webkit.ServiceWorkerWebSettingsCompat getServiceWorkerWebSettings();
+    method public abstract void setServiceWorkerClient(androidx.webkit.ServiceWorkerClientCompat);
+  }
+
+  public abstract class ServiceWorkerWebSettingsCompat {
+    method public abstract boolean getAllowContentAccess();
+    method public abstract boolean getAllowFileAccess();
+    method public abstract boolean getBlockNetworkLoads();
+    method public abstract int getCacheMode();
+    method public abstract void setAllowContentAccess(boolean);
+    method public abstract void setAllowFileAccess(boolean);
+    method public abstract void setBlockNetworkLoads(boolean);
+    method public abstract void setCacheMode(int);
+  }
+
+  public class WebMessageCompat {
+    ctor public WebMessageCompat(java.lang.String);
+    ctor public WebMessageCompat(java.lang.String, androidx.webkit.WebMessagePortCompat[]);
+    method public java.lang.String getData();
+    method public androidx.webkit.WebMessagePortCompat[] getPorts();
+  }
+
+  public abstract class WebMessagePortCompat {
+    method public abstract void close();
+    method public abstract void postMessage(androidx.webkit.WebMessageCompat);
+    method public abstract void setWebMessageCallback(androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
+    method public abstract void setWebMessageCallback(android.os.Handler, androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
+  }
+
+  public static abstract class WebMessagePortCompat.WebMessageCallbackCompat {
+    ctor public WebMessagePortCompat.WebMessageCallbackCompat();
+    method public void onMessage(androidx.webkit.WebMessagePortCompat, androidx.webkit.WebMessageCompat);
+  }
+
+  public abstract class WebResourceErrorCompat {
+    method public abstract java.lang.CharSequence getDescription();
+    method public abstract int getErrorCode();
+  }
+
+  public class WebResourceRequestCompat {
+    method public static boolean isRedirect(android.webkit.WebResourceRequest);
+  }
+
+  public class WebSettingsCompat {
+    method public static int getDisabledActionModeMenuItems(android.webkit.WebSettings);
+    method public static boolean getOffscreenPreRaster(android.webkit.WebSettings);
+    method public static boolean getSafeBrowsingEnabled(android.webkit.WebSettings);
+    method public static void setDisabledActionModeMenuItems(android.webkit.WebSettings, int);
+    method public static void setOffscreenPreRaster(android.webkit.WebSettings, boolean);
+    method public static void setSafeBrowsingEnabled(android.webkit.WebSettings, boolean);
+  }
+
+  public class WebViewClientCompat extends android.webkit.WebViewClient {
+    ctor public WebViewClientCompat();
+    method public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError);
+    method public void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, androidx.webkit.WebResourceErrorCompat);
+    method public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, android.webkit.SafeBrowsingResponse);
+    method public void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, androidx.webkit.SafeBrowsingResponseCompat);
+  }
+
+  public class WebViewCompat {
+    method public static androidx.webkit.WebMessagePortCompat[] createWebMessageChannel(android.webkit.WebView);
+    method public static android.content.pm.PackageInfo getCurrentWebViewPackage(android.content.Context);
+    method public static android.net.Uri getSafeBrowsingPrivacyPolicyUrl();
+    method public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
+    method public static void postWebMessage(android.webkit.WebView, androidx.webkit.WebMessageCompat, android.net.Uri);
+    method public static void setSafeBrowsingWhitelist(java.util.List<java.lang.String>, android.webkit.ValueCallback<java.lang.Boolean>);
+    method public static void startSafeBrowsing(android.content.Context, android.webkit.ValueCallback<java.lang.Boolean>);
+  }
+
+  public static abstract interface WebViewCompat.VisualStateCallback {
+    method public abstract void onComplete(long);
+  }
+
+  public class WebViewFeature {
+    method public static boolean isFeatureSupported(java.lang.String);
+    field public static final java.lang.String DISABLED_ACTION_MODE_MENU_ITEMS = "DISABLED_ACTION_MODE_MENU_ITEMS";
+    field public static final java.lang.String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
+    field public static final java.lang.String RECEIVE_HTTP_ERROR = "RECEIVE_HTTP_ERROR";
+    field public static final java.lang.String RECEIVE_WEB_RESOURCE_ERROR = "RECEIVE_WEB_RESOURCE_ERROR";
+    field public static final java.lang.String SAFE_BROWSING_ENABLE = "SAFE_BROWSING_ENABLE";
+    field public static final java.lang.String SAFE_BROWSING_HIT = "SAFE_BROWSING_HIT";
+    field public static final java.lang.String SAFE_BROWSING_PRIVACY_POLICY_URL = "SAFE_BROWSING_PRIVACY_POLICY_URL";
+    field public static final java.lang.String SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY = "SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY";
+    field public static final java.lang.String SAFE_BROWSING_RESPONSE_PROCEED = "SAFE_BROWSING_RESPONSE_PROCEED";
+    field public static final java.lang.String SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL = "SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL";
+    field public static final java.lang.String SAFE_BROWSING_WHITELIST = "SAFE_BROWSING_WHITELIST";
+    field public static final java.lang.String SERVICE_WORKER_BASIC_USAGE = "SERVICE_WORKER_BASIC_USAGE";
+    field public static final java.lang.String SERVICE_WORKER_BLOCK_NETWORK_LOADS = "SERVICE_WORKER_BLOCK_NETWORK_LOADS";
+    field public static final java.lang.String SERVICE_WORKER_CACHE_MODE = "SERVICE_WORKER_CACHE_MODE";
+    field public static final java.lang.String SERVICE_WORKER_CONTENT_ACCESS = "SERVICE_WORKER_CONTENT_ACCESS";
+    field public static final java.lang.String SERVICE_WORKER_FILE_ACCESS = "SERVICE_WORKER_FILE_ACCESS";
+    field public static final java.lang.String SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST = "SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST";
+    field public static final java.lang.String SHOULD_OVERRIDE_WITH_REDIRECTS = "SHOULD_OVERRIDE_WITH_REDIRECTS";
+    field public static final java.lang.String START_SAFE_BROWSING = "START_SAFE_BROWSING";
+    field public static final java.lang.String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
+    field public static final java.lang.String WEB_RESOURCE_ERROR_GET_CODE = "WEB_RESOURCE_ERROR_GET_CODE";
+    field public static final java.lang.String WEB_RESOURCE_ERROR_GET_DESCRIPTION = "WEB_RESOURCE_ERROR_GET_DESCRIPTION";
+    field public static final java.lang.String WEB_RESOURCE_REQUEST_IS_REDIRECT = "WEB_RESOURCE_REQUEST_IS_REDIRECT";
+  }
+
+}
+

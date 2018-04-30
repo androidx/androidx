@@ -16,18 +16,17 @@
 
 package androidx.media;
 
-import android.util.ArrayMap;
-
 import androidx.annotation.NonNull;
+import androidx.collection.ArrayMap;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 /**
- * A mock implementation of {@link MediaPlayerBase} for testing.
+ * A mock implementation of {@link MediaPlayerInterface} for testing.
  */
-public class MockPlayer extends MediaPlayerBase {
+public class MockPlayer extends MediaPlayerInterface {
     public final CountDownLatch mCountDownLatch;
 
     public boolean mPlayCalled;
@@ -42,6 +41,7 @@ public class MockPlayer extends MediaPlayerBase {
     public float mPlaybackSpeed = 1.0f;
     public @PlayerState int mLastPlayerState;
     public @BuffState int mLastBufferingState;
+    public long mDuration;
 
     public ArrayMap<PlayerEventCallback, Executor> mCallbacks = new ArrayMap<>();
 
@@ -128,6 +128,11 @@ public class MockPlayer extends MediaPlayerBase {
     }
 
     @Override
+    public long getDuration() {
+        return mDuration;
+    }
+
+    @Override
     public void registerPlayerEventCallback(@NonNull Executor executor,
             @NonNull PlayerEventCallback callback) {
         if (callback == null || executor == null) {
@@ -150,21 +155,6 @@ public class MockPlayer extends MediaPlayerBase {
                 @Override
                 public void run() {
                     callback.onPlayerStateChanged(MockPlayer.this, state);
-                }
-            });
-        }
-    }
-
-    public void notifyBufferingState(final MediaItem2 item, final int bufferingState) {
-        mLastBufferingState = bufferingState;
-        for (int i = 0; i < mCallbacks.size(); i++) {
-            final PlayerEventCallback callback = mCallbacks.keyAt(i);
-            final Executor executor = mCallbacks.valueAt(i);
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    callback.onBufferingStateChanged(
-                            MockPlayer.this, item.getDataSourceDesc(), bufferingState);
                 }
             });
         }
@@ -218,6 +208,19 @@ public class MockPlayer extends MediaPlayerBase {
                 @Override
                 public void run() {
                     callback.onPlaybackSpeedChanged(MockPlayer.this, speed);
+                }
+            });
+        }
+    }
+
+    public void notifySeekCompleted(final long position) {
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            final PlayerEventCallback callback = mCallbacks.keyAt(i);
+            final Executor executor = mCallbacks.valueAt(i);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onSeekCompleted(MockPlayer.this, position);
                 }
             });
         }

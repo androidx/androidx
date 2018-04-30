@@ -20,6 +20,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -121,7 +122,11 @@ abstract class MediaSession2TestBase {
             if (sHandler == null) {
                 return;
             }
-            sHandler.getLooper().quitSafely();
+            if (Build.VERSION.SDK_INT >= 18) {
+                sHandler.getLooper().quitSafely();
+            } else {
+                sHandler.getLooper().quit();
+            }
             sHandler = null;
             sHandlerExecutor = null;
         }

@@ -38,14 +38,17 @@ android {
         // Allow compiling the WebView support library boundary interfaces from this project.
         main.java.srcDirs += new File(webviewBoundaryInterfacesDir, "src").getAbsolutePath()
     }
+
+    buildTypes.all {
+        consumerProguardFiles new File(webviewBoundaryInterfacesDir, "proguard.flags") , 'proguard-rules.pro'
+    }
 }
 
 supportLibrary {
     name = "WebView Support Library"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.WEBKIT
     inceptionYear = "2017"
     description = "The WebView Support Library is a static library you can add to your Android application in order to use android.webkit APIs that are not available for older platform versions."
-    minSdkVersion = 21
 }

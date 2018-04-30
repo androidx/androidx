@@ -30,6 +30,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.app.Notification;
 import android.content.Context;
@@ -528,6 +529,29 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @Test
+    public void testMessagingStyle_nullPerson() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name");
+        messagingStyle.addMessage("text", 200, (Person) null);
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .setStyle(messagingStyle)
+                .build();
+
+        List<Message> result = NotificationCompat.MessagingStyle
+                .extractMessagingStyleFromNotification(notification)
+                .getMessages();
+
+        assertEquals(1, result.size());
+        assertEquals("text", result.get(0).getText());
+        assertEquals(200, result.get(0).getTimestamp());
+        assertNull(result.get(0).getPerson());
+        assertNull(result.get(0).getSender());
+    }
+
+    @Test
     public void testMessagingStyle_message() {
         NotificationCompat.MessagingStyle messagingStyle =
                 new NotificationCompat.MessagingStyle("self name");
@@ -557,6 +581,16 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         assertEquals("test name 2", result.get(1).getPerson().getName());
         assertEquals("key 2", result.get(1).getPerson().getKey());
         assertTrue(result.get(1).getPerson().isImportant());
+    }
+
+    @Test
+    public void testMessagingStyle_requiresNonEmptyUserName() {
+        try {
+            new NotificationCompat.MessagingStyle(new Person.Builder().build());
+            fail("Expected IllegalArgumentException about a non-empty user name.");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 
     @Test
@@ -683,19 +717,113 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         assertTrue(result.isGroupConversation());
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
-    public void testMessagingStyle_extras() {
+    public void testMessagingStyle_applyNoTitleAndNotGroup() {
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("test name")
+                new NotificationCompat.MessagingStyle("self name")
+                        .setGroupConversation(false)
+                        .addMessage(
+                                new Message(
+                                        "body",
+                                        1,
+                                        new Person.Builder().setName("example name").build()))
+                        .addMessage(new Message("body 2", 2, (Person) null));
+
+        Notification resultNotification = new NotificationCompat.Builder(mContext, "test id")
+                .setStyle(messagingStyle)
+                .build();
+        NotificationCompat.MessagingStyle resultCompatMessagingStyle =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(resultNotification);
+
+        // SDK >= 28 applies no title when none is provided to MessagingStyle.
+        assertNull(resultCompatMessagingStyle.getConversationTitle());
+        assertFalse(resultCompatMessagingStyle.isGroupConversation());
+    }
+
+    @SdkSuppress(minSdkVersion = 24, maxSdkVersion = 27)
+    @Test
+    public void testMessagingStyle_applyNoTitleAndNotGroup_legacy() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name")
+                        .setGroupConversation(false)
+                        .addMessage(
+                                new Message(
+                                        "body",
+                                        1,
+                                        new Person.Builder().setName("example name").build()))
+                        .addMessage(new Message("body 2", 2, (Person) null));
+
+        Notification resultNotification = new NotificationCompat.Builder(mContext, "test id")
+                .setStyle(messagingStyle)
+                .build();
+        NotificationCompat.MessagingStyle resultCompatMessagingStyle =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(resultNotification);
+
+        // SDK [24, 27] applies first incoming message sender name as Notification content title.
+        assertEquals("example name", NotificationCompat.getContentTitle(resultNotification));
+        assertNull(resultCompatMessagingStyle.getConversationTitle());
+        assertFalse(resultCompatMessagingStyle.isGroupConversation());
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void testMessagingStyle_applyConversationTitleAndNotGroup() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name")
+                        .setGroupConversation(false)
+                        .setConversationTitle("test title");
+
+        Notification resultNotification = new NotificationCompat.Builder(mContext, "test id")
+                .setStyle(messagingStyle)
+                .build();
+        NotificationCompat.MessagingStyle resultMessagingStyle =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(resultNotification);
+
+        // SDK >= 28 applies provided title to MessagingStyle.
+        assertEquals("test title", resultMessagingStyle.getConversationTitle());
+        assertFalse(resultMessagingStyle.isGroupConversation());
+    }
+
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 27)
+    @Test
+    public void testMessagingStyle_applyConversationTitleAndNotGroup_legacy() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("self name")
+                        .setGroupConversation(false)
+                        .setConversationTitle("test title");
+
+        Notification resultNotification = new NotificationCompat.Builder(mContext, "test id")
+                .setStyle(messagingStyle)
+                .build();
+        NotificationCompat.MessagingStyle resultMessagingStyle =
+                NotificationCompat.MessagingStyle
+                        .extractMessagingStyleFromNotification(resultNotification);
+
+        // SDK <= 27 applies MessagingStyle title as Notification content title.
+        assertEquals("test title", NotificationCompat.getContentTitle(resultNotification));
+        assertEquals("test title", resultMessagingStyle.getConversationTitle());
+        assertFalse(resultMessagingStyle.isGroupConversation());
+    }
+
+    @Test
+    public void testMessagingStyle_restoreFromCompatExtras() {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("test name").build())
                         .setGroupConversation(true);
         Bundle bundle = new Bundle();
         messagingStyle.addCompatExtras(bundle);
 
         NotificationCompat.MessagingStyle resultMessagingStyle =
-                new NotificationCompat.MessagingStyle("test name");
+                new NotificationCompat.MessagingStyle(new Person.Builder().setName("temp").build());
         resultMessagingStyle.restoreFromCompatExtras(bundle);
 
         assertTrue(resultMessagingStyle.isGroupConversation());
+        assertEquals("test name", resultMessagingStyle.getUser().getName());
     }
 
     @Test
@@ -761,6 +889,16 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .extend(carExtender)
                 .build();
         verifyInvisibleActionExists(notification);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void getContentTitle() {
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setContentTitle("example title")
+                .build();
+
+        assertEquals("example title", NotificationCompat.getContentTitle(notification));
     }
 
     private static void verifyInvisibleActionExists(Notification notification) {

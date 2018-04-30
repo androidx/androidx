@@ -81,14 +81,10 @@ public class BuildCompat {
     /**
      * Checks if the device is running on a pre-release version of Android P or newer.
      * <p>
-     * <strong>Note:</strong> This method will return {@code false} on devices running release
-     * versions of Android. When Android P is finalized for release, this method will be deprecated
-     * and all calls should be replaced with {@code Build.SDK_INT >= Build.VERSION_CODES.P}.
-     *
      * @return {@code true} if P APIs are available for use, {@code false} otherwise
      */
     public static boolean isAtLeastP() {
-        return VERSION.CODENAME.equals("P") || VERSION.CODENAME.equals("Q");
+        return VERSION.SDK_INT >= 28;
     }
 
     /**
@@ -101,6 +97,8 @@ public class BuildCompat {
      * @return {@code true} if Q APIs are available for use, {@code false} otherwise
      */
     public static boolean isAtLeastQ() {
-        return VERSION.CODENAME.equals("Q");
+        return VERSION.CODENAME.length() == 1
+            && VERSION.CODENAME.charAt(0) >= 'Q'
+            && VERSION.CODENAME.charAt(0) <= 'Z';
     }
 }

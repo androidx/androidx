@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.media.session.MediaSessionManager;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
@@ -38,7 +37,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
- * Represents an ongoing {@link MediaSession2}.
+ * Represents an ongoing {@link MediaSession2} or a {@link MediaSessionService2}.
+ * If it's representing a session service, it may not be ongoing.
  * <p>
  * This may be passed to apps by the session owner to allow them to create a
  * {@link MediaController2} to communicate with the session.
@@ -65,15 +65,13 @@ public final class SessionToken2 {
     public static final int TYPE_SESSION = 0;
 
     /**
-     * @hide
+     * Type for {@link MediaSessionService2}.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int TYPE_SESSION_SERVICE = 1;
 
     /**
-     * @hide
+     * Type for {@link MediaLibraryService2}.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static final int TYPE_LIBRARY_SERVICE = 2;
 
     //private final SessionToken2Provider mProvider;
@@ -97,14 +95,12 @@ public final class SessionToken2 {
     private final ComponentName mComponentName;
 
     /**
-     * @hide
      * Constructor for the token. You can only create token for session service or library service
      * to use by {@link MediaController2} or {@link MediaBrowser2}.
      *
      * @param context The context.
      * @param serviceComponent The component name of the media browser service.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public SessionToken2(@NonNull Context context, @NonNull ComponentName serviceComponent) {
         this(context, serviceComponent, UID_UNKNOWN);
     }
@@ -242,6 +238,8 @@ public final class SessionToken2 {
     /**
      * @return type of the token
      * @see #TYPE_SESSION
+     * @see #TYPE_SESSION_SERVICE
+     * @see #TYPE_LIBRARY_SERVICE
      */
     public @TokenType int getType() {
         return mType;
