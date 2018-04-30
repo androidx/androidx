@@ -26,9 +26,9 @@ object Log {
         currentLevel = when (level) {
             "info" -> LogLevel.INFO
             "error" -> LogLevel.ERROR
-            "debug" -> LogLevel.DEBUG
+            "warning" -> LogLevel.WARNING
             "verbose" -> LogLevel.VERBOSE
-            else -> LogLevel.ERROR
+            else -> LogLevel.WARNING
         }
     }
 
@@ -38,9 +38,9 @@ object Log {
         }
     }
 
-    fun d(tag: String, message: String, vararg args: Any?) {
-        if (currentLevel >= LogLevel.DEBUG) {
-            logConsumer.debug("[$tag] $message".format(*args))
+    fun w(tag: String, message: String, vararg args: Any?) {
+        if (currentLevel >= LogLevel.WARNING) {
+            logConsumer.warning("[$tag] $message".format(*args))
         }
     }
 

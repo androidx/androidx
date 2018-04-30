@@ -18,7 +18,8 @@ package com.android.tools.build.jetifier.core.utils
 
 enum class LogLevel(val priority: Int) {
     ERROR(0),
-    INFO(1),
-    VERBOSE(2),
-    DEBUG(3),
+    WARNING(1),
+    INFO(2),
+    VERBOSE(3),
+    DEBUG(4),
 }
