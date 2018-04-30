@@ -175,9 +175,11 @@ public class WebViewClientCompatTest {
     }
 
     @Test
-    public void testOnSafeBrowsingHit() throws Throwable {
+    public void testOnSafeBrowsingHitBackToSafety() throws Throwable {
         Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_HIT));
         Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE));
+        Assume.assumeTrue(WebViewFeature.isFeatureSupported(
+                WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY));
         Assume.assumeTrue(
                 WebViewFeature.isFeatureSupported(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE));
 
@@ -191,41 +193,52 @@ public class WebViewClientCompatTest {
         mWebViewOnUiThread.loadDataAndWaitForCompletion(data, "text/html", null);
         final String originalUrl = mWebViewOnUiThread.getUrl();
 
-        // Note: Safe Browsing depends on user opt-in as well, so we can't assume it's actually
-        // enabled. #getSafeBrowsingEnabled will tell us the true state of whether Safe Browsing is
-        // enabled.
-        if (WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings())) {
-            Assert.assertNull(backToSafetyWebViewClient.getOnReceivedResourceError());
-            mWebViewOnUiThread.loadUrlAndWaitForCompletion(TEST_SAFE_BROWSING_URL);
+        enableSafeBrowsingAndLoadUnsafePage(backToSafetyWebViewClient);
 
-            Assert.assertEquals(TEST_SAFE_BROWSING_URL,
-                    backToSafetyWebViewClient.getOnSafeBrowsingHitRequest().getUrl().toString());
-            Assert.assertTrue(
-                    backToSafetyWebViewClient.getOnSafeBrowsingHitRequest().isForMainFrame());
+        // Back to safety should produce a network error
+        Assert.assertNotNull(backToSafetyWebViewClient.getOnReceivedResourceError());
+        Assert.assertEquals(WebViewClient.ERROR_UNSAFE_RESOURCE,
+                backToSafetyWebViewClient.getOnReceivedResourceError().getErrorCode());
 
-            // Back to safety should produce a network error
-            Assert.assertNotNull(backToSafetyWebViewClient.getOnReceivedResourceError());
-            Assert.assertEquals(WebViewClient.ERROR_UNSAFE_RESOURCE,
-                    backToSafetyWebViewClient.getOnReceivedResourceError().getErrorCode());
+        // Check that we actually navigated backward
+        Assert.assertEquals(originalUrl, mWebViewOnUiThread.getUrl());
+    }
 
-            // Check that we actually navigated backward
-            Assert.assertEquals(originalUrl, mWebViewOnUiThread.getUrl());
-        }
+    @Test
+    public void testOnSafeBrowsingHitProceed() throws Throwable {
+        Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_HIT));
+        Assume.assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE));
+        Assume.assumeTrue(WebViewFeature.isFeatureSupported(
+                WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED));
 
         final SafeBrowsingProceedClient proceedWebViewClient = new SafeBrowsingProceedClient();
         mWebViewOnUiThread.setWebViewClient(proceedWebViewClient);
+        WebSettingsCompat.setSafeBrowsingEnabled(mWebViewOnUiThread.getSettings(), true);
 
-        if (WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings())) {
-            Assert.assertNull(proceedWebViewClient.getOnReceivedResourceError());
-            mWebViewOnUiThread.loadUrlAndWaitForCompletion(TEST_SAFE_BROWSING_URL);
+        // Load any page
+        String data = "<html><body>some safe page</body></html>";
+        mWebViewOnUiThread.loadDataAndWaitForCompletion(data, "text/html", null);
 
-            Assert.assertEquals(TEST_SAFE_BROWSING_URL,
-                    proceedWebViewClient.getOnSafeBrowsingHitRequest().getUrl().toString());
-            Assert.assertTrue(proceedWebViewClient.getOnSafeBrowsingHitRequest().isForMainFrame());
+        enableSafeBrowsingAndLoadUnsafePage(proceedWebViewClient);
 
-            // Check that we actually proceeded
-            Assert.assertEquals(TEST_SAFE_BROWSING_URL, mWebViewOnUiThread.getUrl());
-        }
+        // Check that we actually proceeded
+        Assert.assertEquals(TEST_SAFE_BROWSING_URL, mWebViewOnUiThread.getUrl());
+    }
+
+    private void enableSafeBrowsingAndLoadUnsafePage(SafeBrowsingClient client) throws Throwable {
+        // Note: Safe Browsing depends on user opt-in as well, so we can't assume it's actually
+        // enabled. #getSafeBrowsingEnabled will tell us the true state of whether Safe Browsing is
+        // enabled.
+        boolean deviceSupportsSafeBrowsing =
+                WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings());
+        Assume.assumeTrue(deviceSupportsSafeBrowsing);
+
+        Assert.assertNull(client.getOnReceivedResourceError());
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion(TEST_SAFE_BROWSING_URL);
+
+        Assert.assertEquals(TEST_SAFE_BROWSING_URL,
+                client.getOnSafeBrowsingHitRequest().getUrl().toString());
+        Assert.assertTrue(client.getOnSafeBrowsingHitRequest().isForMainFrame());
     }
 
     @Test
@@ -327,7 +340,7 @@ public class WebViewClientCompatTest {
         }
     }
 
-    private class SafeBrowsingBackToSafetyClient extends MockWebViewClient {
+    private class SafeBrowsingClient extends MockWebViewClient {
         private WebResourceRequest mOnSafeBrowsingHitRequest;
         private int mOnSafeBrowsingHitThreatType;
 
@@ -335,38 +348,37 @@ public class WebViewClientCompatTest {
             return mOnSafeBrowsingHitRequest;
         }
 
+        public void setOnSafeBrowsingHitRequest(WebResourceRequest request) {
+            mOnSafeBrowsingHitRequest = request;
+        }
+
         public int getOnSafeBrowsingHitThreatType() {
             return mOnSafeBrowsingHitThreatType;
         }
 
+        public void setOnSafeBrowsingHitThreatType(int type) {
+            mOnSafeBrowsingHitThreatType = type;
+        }
+    }
+
+    private class SafeBrowsingBackToSafetyClient extends SafeBrowsingClient {
         @Override
         public void onSafeBrowsingHit(WebView view, WebResourceRequest request,
                 int threatType, SafeBrowsingResponseCompat response) {
             // Immediately go back to safety to return the network error code
-            mOnSafeBrowsingHitRequest = request;
-            mOnSafeBrowsingHitThreatType = threatType;
+            setOnSafeBrowsingHitRequest(request);
+            setOnSafeBrowsingHitThreatType(threatType);
             response.backToSafety(/* report */ true);
         }
     }
 
-    private class SafeBrowsingProceedClient extends MockWebViewClient {
-        private WebResourceRequest mOnSafeBrowsingHitRequest;
-        private int mOnSafeBrowsingHitThreatType;
-
-        public WebResourceRequest getOnSafeBrowsingHitRequest() {
-            return mOnSafeBrowsingHitRequest;
-        }
-
-        public int getOnSafeBrowsingHitThreatType() {
-            return mOnSafeBrowsingHitThreatType;
-        }
-
+    private class SafeBrowsingProceedClient extends SafeBrowsingClient {
         @Override
         public void onSafeBrowsingHit(WebView view, WebResourceRequest request,
                 int threatType, SafeBrowsingResponseCompat response) {
             // Proceed through Safe Browsing warnings
-            mOnSafeBrowsingHitRequest = request;
-            mOnSafeBrowsingHitThreatType = threatType;
+            setOnSafeBrowsingHitRequest(request);
+            setOnSafeBrowsingHitThreatType(threatType);
             response.proceed(/* report */ true);
         }
     }
