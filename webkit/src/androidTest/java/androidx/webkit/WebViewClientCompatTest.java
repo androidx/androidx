@@ -102,14 +102,22 @@ public class WebViewClientCompatTest {
         Assume.assumeTrue(
                 WebViewFeature.isFeatureSupported(WebViewFeature.WEB_RESOURCE_REQUEST_IS_REDIRECT));
 
-        final MockWebViewClient webViewClient = new MockWebViewClient();
-        mWebViewOnUiThread.setWebViewClient(webViewClient);
-        mWebViewOnUiThread.getSettings().setJavaScriptEnabled(true);
         String data = "<html><body>"
                 + "<a href=\"" + TEST_URL + "\" id=\"link\">new page</a>"
                 + "</body></html>";
         mWebViewOnUiThread.loadDataAndWaitForCompletion(data, "text/html", null);
+        final CountDownLatch pageFinishedLatch = new CountDownLatch(1);
+        final MockWebViewClient webViewClient = new MockWebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                pageFinishedLatch.countDown();
+            }
+        };
+        mWebViewOnUiThread.setWebViewClient(webViewClient);
+        mWebViewOnUiThread.getSettings().setJavaScriptEnabled(true);
         clickOnLinkUsingJs("link", mWebViewOnUiThread);
+        pageFinishedLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS);
         Assert.assertEquals(TEST_URL,
                 webViewClient.getLastShouldOverrideResourceRequest().getUrl().toString());
 
