@@ -32,7 +32,7 @@ package androidx.slice {
     method public androidx.slice.core.SliceAction getPrimaryAction();
     method public androidx.core.util.Pair<java.lang.Integer, java.lang.Integer> getRange();
     method public int getRangeValue();
-    method public java.util.List<androidx.slice.SliceItem> getSliceActions();
+    method public java.util.List<androidx.slice.core.SliceAction> getSliceActions();
     method public java.util.List<java.lang.String> getSliceKeywords();
     method public java.util.List<androidx.slice.core.SliceAction> getToggles();
     method public boolean hasLargeMode();
@@ -117,7 +117,8 @@ package androidx.slice.widget {
     ctor public SliceView(android.content.Context, android.util.AttributeSet, int, int);
     method public int getMode();
     method public androidx.slice.Slice getSlice();
-    method public java.util.List<androidx.slice.SliceItem> getSliceActions();
+    method public java.util.List<androidx.slice.core.SliceAction> getSliceActions();
+    method public boolean isScrollable();
     method public void onChanged(androidx.slice.Slice);
     method public void onClick(android.view.View);
     method public void setAccentColor(int);
@@ -125,7 +126,7 @@ package androidx.slice.widget {
     method public void setOnSliceActionListener(androidx.slice.widget.SliceView.OnSliceActionListener);
     method public void setScrollable(boolean);
     method public void setSlice(androidx.slice.Slice);
-    method public void setSliceActions(java.util.List<androidx.slice.SliceItem>);
+    method public void setSliceActions(java.util.List<androidx.slice.core.SliceAction>);
     method public deprecated void setTint(int);
     field public static final int MODE_LARGE = 2; // 0x2
     field public static final int MODE_SHORTCUT = 3; // 0x3

@@ -38,6 +38,7 @@ import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -67,7 +68,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     private AttributeSet mAttrs;
     private int mDefStyleAttr;
     private int mDefStyleRes;
-    private List<SliceItem> mSliceActions;
+    private List<SliceAction> mSliceActions;
     private boolean mShowLastUpdated;
     private long mLastUpdated;
     private SliceView mParent;
@@ -96,7 +97,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     /**
      * Sets the actions to display for this slice, this adjusts what's displayed in the header item.
      */
-    public void setSliceActions(List<SliceItem> actions) {
+    public void setSliceActions(List<SliceAction> actions) {
         mSliceActions = actions;
         notifyHeaderChanged();
     }

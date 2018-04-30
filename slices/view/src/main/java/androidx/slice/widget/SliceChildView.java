@@ -25,6 +25,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceAction;
 import androidx.slice.view.R;
 
 import java.util.List;
@@ -86,7 +87,7 @@ public abstract class SliceChildView extends FrameLayout {
     /**
      * Sets the slice actions for this view.
      */
-    public void setSliceActions(List<SliceItem> actions) {
+    public void setSliceActions(List<SliceAction> actions) {
         // Do nothing
     }
 

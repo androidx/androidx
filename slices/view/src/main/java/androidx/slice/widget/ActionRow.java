@@ -24,7 +24,6 @@ import static androidx.slice.core.SliceHints.ICON_IMAGE;
 
 import android.app.PendingIntent.CanceledException;
 import android.app.RemoteInput;
-import android.app.slice.Slice;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -45,6 +44,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.widget.ImageViewCompat;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 
@@ -109,37 +109,38 @@ public class ActionRow extends FrameLayout {
     /**
      * Set the actions and color for this action row.
      */
-    public void setActions(@NonNull List<SliceItem> actions, int color) {
+    public void setActions(@NonNull List<SliceAction> actions, int color) {
         removeAllViews();
         mActionsGroup.removeAllViews();
         addView(mActionsGroup);
         if (color != -1) {
             setColor(color);
         }
-        for (final SliceItem action : actions) {
+        for (final SliceAction action : actions) {
             if (mActionsGroup.getChildCount() >= MAX_ACTIONS) {
                 return;
             }
-            final SliceItem input = SliceQuery.find(action, FORMAT_REMOTE_INPUT);
-            final SliceItem image = SliceQuery.find(action, FORMAT_IMAGE);
+            final SliceItem sliceItem = ((SliceActionImpl) action).getSliceItem();
+            final SliceItem actionItem = ((SliceActionImpl) action).getActionItem();
+            final SliceItem input = SliceQuery.find(sliceItem, FORMAT_REMOTE_INPUT);
+            final SliceItem image = SliceQuery.find(sliceItem, FORMAT_IMAGE);
             if (input != null && image != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    handleSetRemoteInputActions(input, image, action);
+                    handleSetRemoteInputActions(input, image, actionItem);
                 } else {
                     Log.w(TAG, "Received RemoteInput on API <20 " + input);
                 }
-            } else if (action.hasHint(Slice.HINT_SHORTCUT)) {
-                final SliceActionImpl ac = new SliceActionImpl(action);
-                IconCompat iconItem = ac.getIcon();
-                if (iconItem != null && ac.getActionItem() != null) {
-                    boolean tint = ac.getImageMode() == ICON_IMAGE;
+            } else if (action.getIcon() != null) {
+                IconCompat iconItem = action.getIcon();
+                if (iconItem != null && actionItem != null) {
+                    boolean tint = action.getImageMode() == ICON_IMAGE;
                     addAction(iconItem, tint).setOnClickListener(
                             new OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     try {
                                         // TODO - should log events here
-                                        ac.getActionItem().fireAction(null, null);
+                                        actionItem.fireAction(null, null);
                                     } catch (CanceledException e) {
                                         e.printStackTrace();
                                     }

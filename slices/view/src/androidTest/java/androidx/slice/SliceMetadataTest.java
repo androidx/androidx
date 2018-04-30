@@ -46,7 +46,6 @@ import androidx.core.util.Pair;
 import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.SliceAction;
-import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceHints;
 import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.EventInfo;
@@ -109,10 +108,10 @@ public class SliceMetadataTest {
         expectedActions.add(action3);
 
         SliceMetadata sliceMetadata = SliceMetadata.from(mContext, lb.build());
-        List<SliceItem> actions = sliceMetadata.getSliceActions();
+        List<androidx.slice.core.SliceAction> actions = sliceMetadata.getSliceActions();
 
         for (int i = 0; i < expectedActions.size(); i++) {
-            assertEquivalent(expectedActions.get(i), new SliceActionImpl(actions.get(i)));
+            assertEquivalent(expectedActions.get(i), actions.get(i));
         }
     }
 
