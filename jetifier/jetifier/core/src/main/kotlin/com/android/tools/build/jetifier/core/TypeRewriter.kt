@@ -58,7 +58,6 @@ class TypeRewriter(private val config: Config, private val useFallback: Boolean)
             return rulesResult
         }
 
-        Log.e(TAG, "No mapping for: " + type)
         return null
     }
 

@@ -99,7 +99,7 @@ class Archive(
         val out = ZipOutputStream(outputStream)
 
         for (file in files) {
-            Log.d(TAG, "Writing file: %s", file.relativePath)
+            Log.v(TAG, "Writing file: %s", file.relativePath)
 
             val entry = ZipEntry(file.relativePath.toString())
             out.putNextEntry(entry)
@@ -156,7 +156,7 @@ class Archive(
 
         @Throws(IOException::class)
         private fun extractFile(zipIn: ZipInputStream, relativePath: Path): ArchiveFile {
-            Log.d(TAG, "Extracting archive: %s", relativePath)
+            Log.v(TAG, "Extracting archive: %s", relativePath)
 
             val data = zipIn.readBytes()
             return ArchiveFile(relativePath, data)
