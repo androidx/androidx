@@ -93,7 +93,7 @@ public class SliceMetadata {
     private ListContent mListContent;
     private SliceItem mHeaderItem;
     private SliceActionImpl mPrimaryAction;
-    private List<SliceItem> mSliceActions;
+    private List<SliceAction> mSliceActions;
     private @EventInfo.SliceRowType int mTemplateType;
 
     /**
@@ -127,11 +127,11 @@ public class SliceMetadata {
         if (updatedItem != null) {
             mLastUpdated = updatedItem.getTimestamp();
         }
-        mSliceActions = getSliceActions(mSlice);
 
         mListContent = new ListContent(context, slice, null, 0, 0);
         mHeaderItem = mListContent.getHeaderItem();
         mTemplateType = mListContent.getHeaderTemplateType();
+        mSliceActions = mListContent.getSliceActions();
 
         SliceItem action = mListContent.getPrimaryAction();
         if (action != null) {
@@ -143,7 +143,7 @@ public class SliceMetadata {
      * @return the group of actions associated with this slice, if they exist.
      */
     @Nullable
-    public List<SliceItem> getSliceActions() {
+    public List<SliceAction> getSliceActions() {
         return mSliceActions;
     }
 
@@ -185,7 +185,7 @@ public class SliceMetadata {
             toggles.add(mPrimaryAction);
         } else if (mSliceActions != null && mSliceActions.size() > 0) {
             for (int i = 0; i < mSliceActions.size(); i++) {
-                SliceAction action = new SliceActionImpl(mSliceActions.get(i));
+                SliceAction action = mSliceActions.get(i);
                 if (action.isToggle()) {
                     toggles.add(action);
                 }
@@ -333,16 +333,25 @@ public class SliceMetadata {
     }
 
     /**
-     * @return the group of actions associated with the provided slice, if they exist.
+     * @return the group of slice actions associated with the provided slice, if they exist.
      * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static List<SliceItem> getSliceActions(@NonNull Slice slice) {
+    public static List<SliceAction> getSliceActions(@NonNull Slice slice) {
         SliceItem actionGroup = SliceQuery.find(slice, FORMAT_SLICE, HINT_ACTIONS, null);
         String[] hints = new String[] {HINT_ACTIONS, HINT_SHORTCUT};
-        return (actionGroup != null)
+        List<SliceItem> items =  (actionGroup != null)
                 ? SliceQuery.findAll(actionGroup, FORMAT_SLICE, hints, null)
                 : null;
+        if (items != null) {
+            List<SliceAction> actions = new ArrayList<>(items.size());
+            for (int i = 0; i < items.size(); i++) {
+                SliceItem item = items.get(i);
+                actions.add(new SliceActionImpl(item));
+            }
+            return actions;
+        }
+        return null;
     }
 }
