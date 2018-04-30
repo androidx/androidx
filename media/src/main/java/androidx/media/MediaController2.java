@@ -916,9 +916,11 @@ public class MediaController2 implements AutoCloseable {
          * Called when a property of the indicated media route has changed.
          *
          * @param controller the controller for this event
-         * @param routes The list of Bundle from MediaRouteDescriptor.asBundle().
-         *              See MediaRouteDescriptor.fromBundle(Bundle bundle) to get
-         *              MediaRouteDescriptor object from the {@code routes}
+         * @param routes The list of Bundle from {@link
+         *               androidx.mediarouter.media.MediaRouter.RouteInfo
+         *               #getUniqueRouteDescriptorBundle RouteInfo}.
+         * @see androidx.mediarouter.media.MediaRouter.RouteInfo#getUniqueRouteDescriptorBundle
+         * @see androidx.mediarouter.media.MediaRouter#getRoute
          */
         public void onRoutesInfoChanged(@NonNull MediaController2 controller,
                 @Nullable List<Bundle> routes) { }
