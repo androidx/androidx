@@ -352,6 +352,7 @@ package androidx.tvprovider.media.tv {
     field public static final java.lang.String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
     field public static final java.lang.String COLUMN_TITLE = "title";
     field public static final java.lang.String COLUMN_TRANSIENT = "transient";
+    field public static final java.lang.String COLUMN_TV_SERIES_ITEM_TYPE = "tv_series_item_type";
     field public static final java.lang.String COLUMN_TYPE = "type";
     field public static final java.lang.String COLUMN_VERSION_NUMBER = "version_number";
     field public static final java.lang.String COLUMN_VIDEO_HEIGHT = "video_height";
@@ -370,6 +371,8 @@ package androidx.tvprovider.media.tv {
     field public static final int REVIEW_RATING_STYLE_PERCENTAGE = 2; // 0x2
     field public static final int REVIEW_RATING_STYLE_STARS = 0; // 0x0
     field public static final int REVIEW_RATING_STYLE_THUMBS_UP_DOWN = 1; // 0x1
+    field public static final int TV_SERIES_ITEM_TYPE_CHAPTER = 1; // 0x1
+    field public static final int TV_SERIES_ITEM_TYPE_EPISODE = 0; // 0x0
     field public static final int TYPE_ALBUM = 8; // 0x8
     field public static final int TYPE_ARTIST = 9; // 0x9
     field public static final int TYPE_CHANNEL = 6; // 0x6
@@ -546,6 +549,7 @@ package androidx.tvprovider.media.tv {
     field public static final java.lang.String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
     field public static final java.lang.String COLUMN_TITLE = "title";
     field public static final java.lang.String COLUMN_TRANSIENT = "transient";
+    field public static final java.lang.String COLUMN_TV_SERIES_ITEM_TYPE = "tv_series_item_type";
     field public static final java.lang.String COLUMN_TYPE = "type";
     field public static final java.lang.String COLUMN_VERSION_NUMBER = "version_number";
     field public static final java.lang.String COLUMN_VIDEO_HEIGHT = "video_height";
@@ -564,6 +568,8 @@ package androidx.tvprovider.media.tv {
     field public static final int REVIEW_RATING_STYLE_PERCENTAGE = 2; // 0x2
     field public static final int REVIEW_RATING_STYLE_STARS = 0; // 0x0
     field public static final int REVIEW_RATING_STYLE_THUMBS_UP_DOWN = 1; // 0x1
+    field public static final int TV_SERIES_ITEM_TYPE_CHAPTER = 1; // 0x1
+    field public static final int TV_SERIES_ITEM_TYPE_EPISODE = 0; // 0x0
     field public static final int TYPE_ALBUM = 8; // 0x8
     field public static final int TYPE_ARTIST = 9; // 0x9
     field public static final int TYPE_CHANNEL = 6; // 0x6
