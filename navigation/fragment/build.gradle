@@ -38,7 +38,7 @@ dependencies {
 
 supportLibrary {
     name = "Android Navigation Fragment"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
