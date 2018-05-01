@@ -186,7 +186,7 @@ public class RowContent {
             if ((FORMAT_ACTION.equals(format)
                     && SliceQuery.find(possibleStartItems.get(0), FORMAT_IMAGE) != null)
                     || FORMAT_SLICE.equals(format)
-                    || FORMAT_TIMESTAMP.equals(format)
+                    || FORMAT_LONG.equals(format)
                     || FORMAT_IMAGE.equals(format)) {
                 mStartItem = possibleStartItems.get(0);
             }
