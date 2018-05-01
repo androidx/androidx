@@ -28,35 +28,35 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class SupportActivityTest extends BaseInstrumentationTestCase<TestSupportActivity> {
-    private SupportActivity mSupportActivity;
+public class ComponentActivityTest extends BaseInstrumentationTestCase<TestComponentActivity> {
+    private ComponentActivity mComponentActivity;
     private TestExtraData mTestExtraData;
 
-    public SupportActivityTest() {
-        super(TestSupportActivity.class);
+    public ComponentActivityTest() {
+        super(TestComponentActivity.class);
     }
 
     @Before
     public void setUp() {
-        mSupportActivity = mActivityTestRule.getActivity();
+        mComponentActivity = mActivityTestRule.getActivity();
         mTestExtraData = new TestExtraData();
-        mSupportActivity.putExtraData(mTestExtraData);
+        mComponentActivity.putExtraData(mTestExtraData);
     }
 
     @Test
     public void testGetExtraData_returnsNullForNotAdded() {
-        assertNull(mSupportActivity.getExtraData(NeverAddedExtraData.class));
+        assertNull(mComponentActivity.getExtraData(NeverAddedExtraData.class));
     }
 
     @Test
     public void testGetExtraData() {
-        assertEquals(mTestExtraData, mSupportActivity.getExtraData(TestExtraData.class));
+        assertEquals(mTestExtraData, mComponentActivity.getExtraData(TestExtraData.class));
     }
 
-    public class NeverAddedExtraData extends SupportActivity.ExtraData {
+    public class NeverAddedExtraData extends ComponentActivity.ExtraData {
     }
 
-    public class TestExtraData extends SupportActivity.ExtraData {
+    public class TestExtraData extends ComponentActivity.ExtraData {
     }
 }
 
