@@ -62,7 +62,7 @@ tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarDe
 
 supportLibrary {
     name = 'Android Navigation TypeSafe Arguments Generator'
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = '2017'
