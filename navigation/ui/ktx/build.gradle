@@ -43,7 +43,7 @@ dependencies {
 
 supportLibrary {
     name = "Android Navigation UI Kotlin Extensions"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"

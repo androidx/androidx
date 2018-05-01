@@ -70,7 +70,7 @@ gradlePlugin {
 
 supportLibrary {
     name = "Android Navigation TypeSafe Arguments Gradle Plugin"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"

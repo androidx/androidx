@@ -36,7 +36,7 @@ dependencies {
 
 supportLibrary {
     name = "Android Navigation Testing"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
