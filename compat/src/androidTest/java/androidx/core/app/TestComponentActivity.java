@@ -21,7 +21,7 @@ import android.view.WindowManager;
 
 import androidx.core.test.R;
 
-public class TestSupportActivity extends SupportActivity {
+public class TestComponentActivity extends ComponentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

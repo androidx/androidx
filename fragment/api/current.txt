@@ -149,7 +149,7 @@ package androidx.fragment.app {
     field public static final android.os.Parcelable.Creator<androidx.fragment.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends androidx.core.app.SupportActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator androidx.lifecycle.ViewModelStoreOwner {
+  public class FragmentActivity extends androidx.core.app.ComponentActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator androidx.lifecycle.ViewModelStoreOwner {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();

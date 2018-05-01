@@ -45,7 +45,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
-import androidx.core.app.SupportActivity;
+import androidx.core.app.ComponentActivity;
 import androidx.media.VolumeProviderCompat;
 
 import java.lang.ref.WeakReference;
@@ -131,7 +131,7 @@ public final class MediaControllerCompat {
     public static final String COMMAND_ARGUMENT_INDEX =
             "android.support.v4.media.session.command.ARGUMENT_INDEX";
 
-    private static class MediaControllerExtraData extends SupportActivity.ExtraData {
+    private static class MediaControllerExtraData extends ComponentActivity.ExtraData {
         private final MediaControllerCompat mMediaController;
 
         MediaControllerExtraData(MediaControllerCompat mediaController) {
@@ -161,8 +161,8 @@ public final class MediaControllerCompat {
      */
     public static void setMediaController(@NonNull Activity activity,
             MediaControllerCompat mediaController) {
-        if (activity instanceof SupportActivity) {
-            ((SupportActivity) activity).putExtraData(
+        if (activity instanceof ComponentActivity) {
+            ((ComponentActivity) activity).putExtraData(
                     new MediaControllerExtraData(mediaController));
         }
         if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -187,9 +187,9 @@ public final class MediaControllerCompat {
      * @see #setMediaController(Activity, MediaControllerCompat)
      */
     public static MediaControllerCompat getMediaController(@NonNull Activity activity) {
-        if (activity instanceof SupportActivity) {
+        if (activity instanceof ComponentActivity) {
             MediaControllerExtraData extraData =
-                    ((SupportActivity) activity).getExtraData(MediaControllerExtraData.class);
+                    ((ComponentActivity) activity).getExtraData(MediaControllerExtraData.class);
             return extraData != null ? extraData.getMediaController() : null;
         } else if (android.os.Build.VERSION.SDK_INT >= 21) {
             Object controllerObj = MediaControllerCompatApi21.getMediaController(activity);

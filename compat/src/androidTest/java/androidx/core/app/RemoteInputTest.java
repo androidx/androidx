@@ -37,12 +37,12 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class RemoteInputTest extends BaseInstrumentationTestCase<TestSupportActivity> {
+public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
     private static final String RESULT_KEY = "result_key";  // value doesn't matter
     private static final String MIME_TYPE = "mimeType";  // value doesn't matter
 
     public RemoteInputTest() {
-        super(TestSupportActivity.class);
+        super(TestActivity.class);
     }
 
     @Test

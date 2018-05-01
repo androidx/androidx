@@ -39,10 +39,10 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class ActivityCompatTest extends BaseInstrumentationTestCase<TestSupportActivity> {
+public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity> {
 
     public ActivityCompatTest() {
-        super(TestSupportActivity.class);
+        super(TestActivity.class);
     }
 
     private Activity getActivity() {

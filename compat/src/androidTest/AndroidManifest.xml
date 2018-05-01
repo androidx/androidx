@@ -45,8 +45,10 @@
 
         <activity android:name="androidx.core.view.ViewCompatActivity"/>
 
-        <activity android:name="androidx.core.app.TestSupportActivity"
+        <activity android:name="androidx.core.app.TestActivity"
                   android:icon="@drawable/test_drawable_blue"/>
+
+        <activity android:name="androidx.core.app.TestComponentActivity"/>
 
         <activity android:name="androidx.core.view.DragStartHelperTestActivity"/>
 
