@@ -41,13 +41,13 @@ import org.junit.runner.RunWith;
 @SmallTest
 public class TestSchedulerTest {
 
-    private TestDriver mWorkManagerInTest;
+    private TestDriver mTestDriver;
 
     @Before
     public void setUp() {
         Context context = InstrumentationRegistry.getTargetContext();
         WorkManagerTestInitHelper.initializeTestWorkManager(context);
-        mWorkManagerInTest = WorkManagerTestInitHelper.getTestDriver();
+        mTestDriver = WorkManagerTestInitHelper.getTestDriver();
     }
 
     @Test
@@ -92,7 +92,7 @@ public class TestSchedulerTest {
         workManager.enqueue(request);
         WorkStatus requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
         assertThat(requestStatus.getState().isFinished(), is(false));
-        mWorkManagerInTest.setAllConstraintsMet(request.getId());
+        mTestDriver.setAllConstraintsMet(request.getId());
         requestStatus = workManager.synchronous().getStatusByIdSync(request.getId());
         assertThat(requestStatus.getState().isFinished(), is(true));
     }
