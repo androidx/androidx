@@ -32,7 +32,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.PointerIcon;
 import android.view.VelocityTracker;
@@ -53,15 +55,21 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
+import androidx.core.R;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -3380,5 +3388,323 @@ public class ViewCompat {
         }
     }
 
+    /**
+     * Adds a listener which will receive unhandled {@link KeyEvent}s. This must be called on the
+     * UI thread.
+     *
+     * @param listener a receiver of unhandled {@link KeyEvent}s.
+     * @see #removeOnUnhandledKeyEventListener
+     */
+    public static void addOnUnhandledKeyEventListener(@NonNull View v,
+            @NonNull OnUnhandledKeyEventListenerCompat listener) {
+        if (BuildCompat.isAtLeastP()) {
+            Map<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
+                    viewListeners = (Map<OnUnhandledKeyEventListenerCompat,
+                            View.OnUnhandledKeyEventListener>)
+                            v.getTag(R.id.tag_unhandled_key_listeners);
+            if (viewListeners == null) {
+                viewListeners = new ArrayMap<>();
+                v.setTag(R.id.tag_unhandled_key_listeners, viewListeners);
+            }
+            View.OnUnhandledKeyEventListener fwListener =
+                    new OnUnhandledKeyEventListenerWrapper(listener);
+            viewListeners.put(listener, fwListener);
+            v.addOnUnhandledKeyEventListener(fwListener);
+            return;
+        }
+        ArrayList<OnUnhandledKeyEventListenerCompat> viewListeners =
+                (ArrayList<OnUnhandledKeyEventListenerCompat>)
+                        v.getTag(R.id.tag_unhandled_key_listeners);
+        if (viewListeners == null) {
+            viewListeners = new ArrayList<>();
+            v.setTag(R.id.tag_unhandled_key_listeners, viewListeners);
+        }
+        viewListeners.add(listener);
+        if (viewListeners.size() == 1) {
+            UnhandledKeyEventManager.registerListeningView(v);
+        }
+    }
+
+    /**
+     * Removes a listener which will receive unhandled {@link KeyEvent}s. This must be called on the
+     * UI thread.
+     *
+     * @param listener a receiver of unhandled {@link KeyEvent}s.
+     * @see #addOnUnhandledKeyEventListener
+     */
+    public static void removeOnUnhandledKeyEventListener(@NonNull View v,
+            @NonNull OnUnhandledKeyEventListenerCompat listener) {
+        if (BuildCompat.isAtLeastP()) {
+            Map<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
+                    viewListeners =
+                    (Map<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>)
+                            v.getTag(R.id.tag_unhandled_key_listeners);
+            if (viewListeners == null) {
+                return;
+            }
+            View.OnUnhandledKeyEventListener fwListener = viewListeners.get(listener);
+            if (fwListener != null) {
+                v.removeOnUnhandledKeyEventListener(fwListener);
+            }
+            return;
+        }
+        ArrayList<OnUnhandledKeyEventListenerCompat> viewListeners =
+                (ArrayList<OnUnhandledKeyEventListenerCompat>)
+                        v.getTag(R.id.tag_unhandled_key_listeners);
+        if (viewListeners != null) {
+            viewListeners.remove(listener);
+            if (viewListeners.size() == 0) {
+                UnhandledKeyEventManager.unregisterListeningView(v);
+            }
+        }
+    }
+
     protected ViewCompat() {}
+
+    /**
+     * Interface definition for a callback to be invoked when a hardware key event hasn't
+     * been handled by the view hierarchy.
+     */
+    public interface OnUnhandledKeyEventListenerCompat {
+        /**
+         * Called when a hardware key is dispatched to a view after being unhandled during normal
+         * {@link KeyEvent} dispatch.
+         *
+         * @param v The view the key has been dispatched to.
+         * @param event The KeyEvent object containing information about the event.
+         * @return {@code true} if the listener has consumed the event, {@code false} otherwise.
+         */
+        boolean onUnhandledKeyEvent(View v, KeyEvent event);
+    }
+
+    @RequiresApi(28)
+    private static class OnUnhandledKeyEventListenerWrapper
+            implements View.OnUnhandledKeyEventListener {
+        private OnUnhandledKeyEventListenerCompat mCompatListener;
+        OnUnhandledKeyEventListenerWrapper(OnUnhandledKeyEventListenerCompat listener) {
+            mCompatListener = listener;
+        }
+        @Override
+        public boolean onUnhandledKeyEvent(View v, KeyEvent event) {
+            return mCompatListener.onUnhandledKeyEvent(v, event);
+        }
+    }
+
+    /**
+     * @see {@link #dispatchUnhandledKeyEventPost}
+     */
+    public static boolean dispatchUnhandledKeyEventPre(View root, KeyEvent evt) {
+        if (BuildCompat.isAtLeastP()) {
+            return false;
+        }
+        return UnhandledKeyEventManager.at(root).hasFocus()
+                && UnhandledKeyEventManager.at(root).dispatch(root, evt);
+    }
+
+    /**
+     * If not using AppCompatDelegate, override {@link android.app.Activity#dispatchKeyEvent} like:
+     * <pre>
+     * {@code
+     * {@literal @}Override
+     * public boolean dispatchKeyEvent(KeyEvent event) {
+     *     View root = getWindow().getDecorView();
+     *     return ViewCompat.preDispatchUnhandledKeyEvent(root, event)
+     *             || super.dispatchKeyEvent(event)
+     *             || ViewCompat.postDispatchUnhandledKeyEvent(root, event);
+     * }
+     * </pre>
+     * By doing this, dispatch order won't be exactly the same as if using delegate, but it will
+     * be pretty close.
+     */
+    public static boolean dispatchUnhandledKeyEventPost(View root, KeyEvent evt) {
+        if (BuildCompat.isAtLeastP()) {
+            return false;
+        }
+        return UnhandledKeyEventManager.at(root).dispatch(root, evt);
+    }
+
+    static class UnhandledKeyEventManager {
+        // The number of views with listeners is usually much fewer than the number of views.
+        // This means it should be faster to only check parent chains of views with listeners than
+        // to check every view for listeners.
+        private static ArrayList<WeakReference<View>> sViewsWithListeners = null;
+
+        // This is a cache (per keypress) of all the views which either have listeners or
+        // contain a view with listeners.
+        private static WeakHashMap<View, Boolean> sViewsContainingListeners = null;
+
+        private static Object sLock = new Object();
+
+        private SparseBooleanArray mCapturedKeys = null;
+        private WeakReference<View> mCurrentReceiver = null;
+
+        private static ArrayList<WeakReference<View>> getViewsWithListeners() {
+            if (sViewsWithListeners == null) {
+                synchronized (sLock) {
+                    if (sViewsWithListeners == null) {
+                        sViewsWithListeners = new ArrayList<>();
+                    }
+                }
+            }
+            return sViewsWithListeners;
+        }
+
+        private static WeakHashMap<View, Boolean> getViewsContainingListeners() {
+            if (sViewsContainingListeners == null) {
+                synchronized (sLock) {
+                    if (sViewsContainingListeners == null) {
+                        sViewsContainingListeners = new WeakHashMap<>();
+                    }
+                }
+            }
+            return sViewsContainingListeners;
+        }
+
+        private SparseBooleanArray getCapturedKeys() {
+            if (mCapturedKeys == null) {
+                mCapturedKeys = new SparseBooleanArray();
+            }
+            return mCapturedKeys;
+        }
+
+        static UnhandledKeyEventManager at(View root) {
+            UnhandledKeyEventManager manager = (UnhandledKeyEventManager)
+                    root.getTag(R.id.tag_unhandled_key_event_manager);
+            if (manager == null) {
+                manager = new UnhandledKeyEventManager();
+                root.setTag(R.id.tag_unhandled_key_event_manager, manager);
+            }
+            return manager;
+        }
+
+        private void updateCaptureState(KeyEvent event) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                getCapturedKeys().append(event.getKeyCode(), true);
+            } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                getCapturedKeys().delete(event.getKeyCode());
+            }
+        }
+
+        boolean dispatch(View root, KeyEvent event) {
+            updateCaptureState(event);
+
+            if (mCurrentReceiver != null) {
+                View target = mCurrentReceiver.get();
+                if (getCapturedKeys().size() == 0) {
+                    mCurrentReceiver = null;
+                }
+                if (target != null && ViewCompat.isAttachedToWindow(target)) {
+                    return onUnhandledKeyEvent(target, event);
+                }
+                // consume anyways so that we don't feed uncaptured key events to other views
+                return true;
+            }
+
+            if (event.getAction() == KeyEvent.ACTION_DOWN && getCapturedKeys().size() == 1) {
+                recalcViewsWithUnhandled();
+            }
+
+            View consumer = dispatchInOrder(root, event);
+            if (consumer != null) {
+                mCurrentReceiver = new WeakReference<>(consumer);
+            }
+            return consumer != null;
+        }
+
+        View dispatchInOrder(View view, KeyEvent event) {
+            if (!sViewsContainingListeners.containsKey(view)) {
+                return null;
+            }
+            if (view instanceof ViewGroup) {
+                ViewGroup vg = (ViewGroup) view;
+                // No access to internal ViewGroup ordering here, so just use child order.
+                for (int i = vg.getChildCount() - 1; i >= 0; --i) {
+                    View v = vg.getChildAt(i);
+                    View consumer = dispatchInOrder(v, event);
+                    if (consumer != null) {
+                        return consumer;
+                    }
+                }
+            }
+            if (onUnhandledKeyEvent(view, event)) {
+                return view;
+            }
+            return null;
+        }
+
+        boolean hasFocus() {
+            return mCurrentReceiver != null;
+        }
+
+        boolean onUnhandledKeyEvent(@NonNull View v, @NonNull KeyEvent event) {
+            @SuppressWarnings("unchecked")
+            ArrayList<OnUnhandledKeyEventListenerCompat> viewListeners =
+                    (ArrayList<OnUnhandledKeyEventListenerCompat>)
+                            v.getTag(R.id.tag_unhandled_key_listeners);
+            if (viewListeners != null) {
+                for (int i = viewListeners.size() - 1; i >= 0; --i) {
+                    if (viewListeners.get(i).onUnhandledKeyEvent(v, event)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        static void registerListeningView(View v) {
+            ArrayList<WeakReference<View>> views = getViewsWithListeners();
+            synchronized (sLock) {
+                for (WeakReference<View> wv : views) {
+                    if (wv.get() == v) {
+                        return;
+                    }
+                }
+                views.add(new WeakReference<>(v));
+            }
+        }
+
+        static void unregisterListeningView(View v) {
+            ArrayList<WeakReference<View>> views = getViewsWithListeners();
+            synchronized (sLock) {
+                for (int i = 0; i < views.size(); ++i) {
+                    if (views.get(i).get() == v) {
+                        if (i < views.size() - 1) {
+                            views.set(i,
+                                    views.remove(views.size() - 1));
+                        } else {
+                            views.remove(i);
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+
+        void recalcViewsWithUnhandled() {
+            synchronized (sLock) {
+                WeakHashMap<View, Boolean> containing = getViewsContainingListeners();
+                ArrayList<WeakReference<View>> views = getViewsWithListeners();
+                containing.clear();
+                for (int i = views.size() - 1; i >= 0; --i) {
+                    WeakReference<View> vw = views.get(i);
+                    View v = vw.get();
+                    if (v == null) {
+                        if (i < views.size() - 1) {
+                            views.set(i,
+                                    views.remove(views.size() - 1));
+                        } else {
+                            views.remove(i);
+                        }
+                    } else {
+                        containing.put(v, Boolean.TRUE);
+                        ViewParent nxt = v.getParent();
+                        while (nxt instanceof View) {
+                            containing.put((View) nxt, Boolean.TRUE);
+                            nxt = nxt.getParent();
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
