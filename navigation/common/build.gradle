@@ -47,7 +47,7 @@ android.libraryVariants.all { variant ->
 
 supportLibrary {
     name = "Android Navigation Common"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
