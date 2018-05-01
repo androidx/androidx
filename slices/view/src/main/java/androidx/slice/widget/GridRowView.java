@@ -386,7 +386,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         } else if (FORMAT_IMAGE.equals(prevItem.getFormat())) {
             return mTextPadding;
         } else if (FORMAT_TEXT.equals(prevItem.getFormat())
-                || FORMAT_TIMESTAMP.equals(prevItem.getFormat())) {
+                || FORMAT_LONG.equals(prevItem.getFormat())) {
             return mVerticalGridTextPadding;
         }
         return 0;
