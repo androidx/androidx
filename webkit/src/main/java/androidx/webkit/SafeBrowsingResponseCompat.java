@@ -18,15 +18,8 @@ package androidx.webkit;
 
 import android.webkit.SafeBrowsingResponse;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresFeature;
-import androidx.webkit.internal.WebViewFeatureInternal;
-
-import org.chromium.support_lib_boundary.SafeBrowsingResponseBoundaryInterface;
-import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
-
-import java.lang.reflect.InvocationHandler;
+import androidx.annotation.RestrictTo;
 
 /**
  * Compatibility version of {@link SafeBrowsingResponse}.
@@ -60,88 +53,10 @@ public abstract class SafeBrowsingResponseCompat {
     public abstract void backToSafety(boolean report);
 
     /**
-     * This class cannot be created by applications. The support library should instantiate this
-     * with {@link #fromInvocationHandler} or {@link #fromSafeBrowsingResponse}.
+     * This class cannot be created by applications.
+     * @hide
      */
-    private SafeBrowsingResponseCompat() {
-    }
-
-    /**
-     * Conversion helper to create a SafeBrowsingResponseCompat which delegates calls to {@param
-     * handler}. The InvocationHandler must be created by {@link
-     * BoundaryInterfaceReflectionUtil#createInvocationHandlerFor} using {@link
-     * SafeBrowsingResponseBoundaryInterface}.
-     *
-     * @param handler The InvocationHandler that chromium passed in the callback.
-     */
-    @NonNull
-    /* package */ static SafeBrowsingResponseCompat fromInvocationHandler(
-            @NonNull InvocationHandler handler) {
-        final SafeBrowsingResponseBoundaryInterface responseDelegate =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        SafeBrowsingResponseBoundaryInterface.class, handler);
-        return new SafeBrowsingResponseCompat() {
-            @Override
-            public void showInterstitial(boolean allowReporting) {
-                final WebViewFeatureInternal webViewFeature =
-                        WebViewFeatureInternal.getFeature(
-                                WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL);
-                if (!webViewFeature.isSupportedByWebView()) {
-                    throw WebViewFeatureInternal.getUnsupportedOperationException();
-                }
-                responseDelegate.showInterstitial(allowReporting);
-            }
-
-            @Override
-            public void proceed(boolean report) {
-                final WebViewFeatureInternal webViewFeature =
-                        WebViewFeatureInternal.getFeature(
-                                WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED);
-                if (!webViewFeature.isSupportedByWebView()) {
-                    throw WebViewFeatureInternal.getUnsupportedOperationException();
-                }
-                responseDelegate.proceed(report);
-            }
-
-            @Override
-            public void backToSafety(boolean report) {
-                final WebViewFeatureInternal webViewFeature =
-                        WebViewFeatureInternal.getFeature(
-                                WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY);
-                if (!webViewFeature.isSupportedByWebView()) {
-                    throw WebViewFeatureInternal.getUnsupportedOperationException();
-                }
-                responseDelegate.backToSafety(report);
-            }
-        };
-    }
-
-    /**
-     * Conversion helper to create a SafeBrowsingResponseCompat which delegates calls to {@param
-     * response}.
-     *
-     * @param response The SafeBrowsingResponse that chromium passed in the callback.
-     */
-    @NonNull
-    @RequiresApi(27)
-    /* package */ static SafeBrowsingResponseCompat fromSafeBrowsingResponse(
-            @NonNull final SafeBrowsingResponse response) {
-        // Frameworks support is implied by the API level.
-        return new SafeBrowsingResponseCompat() {
-            @Override
-            public void showInterstitial(boolean allowReporting) {
-                response.showInterstitial(allowReporting);
-            }
-
-            @Override
-            public void proceed(boolean report) {
-                response.proceed(report);
-            }
-
-            @Override
-            public void backToSafety(boolean report) {
-                response.backToSafety(report);
-            }
-        };
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public SafeBrowsingResponseCompat() {
     }
 }
