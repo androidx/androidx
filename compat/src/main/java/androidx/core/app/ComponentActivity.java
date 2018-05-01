@@ -31,12 +31,16 @@ import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
 
 /**
- * Base class for composing together compatibility functionality
+ * Base class for activities that enables composition of higher level components.
+ * <p>
+ * Rather than all functionality being built directly into this class, only the minimal set of
+ * lower level building blocks are included. Higher level components can then be used as needed
+ * without enforcing a deep Activity class hierarchy or strong coupling between components.
  *
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public class SupportActivity extends Activity implements LifecycleOwner {
+public class ComponentActivity extends Activity implements LifecycleOwner {
     /**
      * Storage for {@link ExtraData} instances.
      *
