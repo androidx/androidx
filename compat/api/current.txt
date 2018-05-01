@@ -1821,6 +1821,7 @@ package androidx.core.view {
   public class ViewCompat {
     ctor protected ViewCompat();
     method public static void addKeyboardNavigationClusters(android.view.View, java.util.Collection<android.view.View>, int);
+    method public static void addOnUnhandledKeyEventListener(android.view.View, androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat);
     method public static androidx.core.view.ViewPropertyAnimatorCompat animate(android.view.View);
     method public static deprecated boolean canScrollHorizontally(android.view.View, int);
     method public static deprecated boolean canScrollVertically(android.view.View, int);
@@ -1835,6 +1836,8 @@ package androidx.core.view {
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[]);
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[], int);
     method public static void dispatchStartTemporaryDetach(android.view.View);
+    method public static boolean dispatchUnhandledKeyEventPost(android.view.View, android.view.KeyEvent);
+    method public static boolean dispatchUnhandledKeyEventPre(android.view.View, android.view.KeyEvent);
     method public static int generateViewId();
     method public static int getAccessibilityLiveRegion(android.view.View);
     method public static androidx.core.view.accessibility.AccessibilityNodeProviderCompat getAccessibilityNodeProvider(android.view.View);
@@ -1908,6 +1911,7 @@ package androidx.core.view {
     method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);
     method public static void postOnAnimation(android.view.View, java.lang.Runnable);
     method public static void postOnAnimationDelayed(android.view.View, java.lang.Runnable, long);
+    method public static void removeOnUnhandledKeyEventListener(android.view.View, androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat);
     method public static void requestApplyInsets(android.view.View);
     method public static <T extends android.view.View> T requireViewById(android.view.View, int);
     method public static deprecated int resolveSizeAndState(int, int, int);
@@ -1995,6 +1999,10 @@ package androidx.core.view {
     field public static final int SCROLL_INDICATOR_TOP = 1; // 0x1
     field public static final int TYPE_NON_TOUCH = 1; // 0x1
     field public static final int TYPE_TOUCH = 0; // 0x0
+  }
+
+  public static abstract interface ViewCompat.OnUnhandledKeyEventListenerCompat {
+    method public abstract boolean onUnhandledKeyEvent(android.view.View, android.view.KeyEvent);
   }
 
   public final class ViewConfigurationCompat {
