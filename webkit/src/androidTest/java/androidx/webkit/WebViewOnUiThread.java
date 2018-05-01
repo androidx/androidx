@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
@@ -114,24 +113,6 @@ class WebViewOnUiThread {
             @Override
             public void run() {
                 mWebView.setWebViewClient(webviewClient);
-            }
-        });
-    }
-
-    public WebMessagePortCompat[] createWebMessageChannelCompat() {
-        return getValue(new ValueGetter<WebMessagePortCompat[]>() {
-            @Override
-            public WebMessagePortCompat[] capture() {
-                return WebViewCompat.createWebMessageChannel(mWebView);
-            }
-        });
-    }
-
-    public void postWebMessageCompat(final WebMessageCompat message, final Uri targetOrigin) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                WebViewCompat.postWebMessage(mWebView, message, targetOrigin);
             }
         });
     }
