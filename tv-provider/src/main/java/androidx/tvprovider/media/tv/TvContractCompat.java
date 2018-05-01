@@ -1016,6 +1016,20 @@ public final class TvContractCompat {
         int TYPE_GAME = 12;
 
         /**
+         * The TV series item type for episode.
+         *
+         * @see #COLUMN_TV_SERIES_ITEM_TYPE
+         */
+        int TV_SERIES_ITEM_TYPE_EPISODE = 0;
+
+        /**
+         * The TV series item type for chapter.
+         *
+         * @see #COLUMN_TV_SERIES_ITEM_TYPE
+         */
+        int TV_SERIES_ITEM_TYPE_CHAPTER = 1;
+
+        /**
          * The aspect ratio for 16:9.
          *
          * @see #COLUMN_POSTER_ART_ASPECT_RATIO
@@ -1172,6 +1186,18 @@ public final class TvContractCompat {
          * <p>Type: INTEGER
          */
         String COLUMN_TYPE = "type";
+
+        /**
+         * The TV series item type. Can be one of the followings:
+         * {@link #TV_SERIES_ITEM_TYPE_EPISODE},
+         * {@link #TV_SERIES_ITEM_TYPE_CHAPTER}
+         *
+         * <p>This is used to indicate whether a TV season has the sub-division as episode
+         * or chapter. If this is not set, it is default to {@link #TV_SERIES_ITEM_TYPE_EPISODE}
+         *
+         * <p>Type: INTEGER
+         */
+        String COLUMN_TV_SERIES_ITEM_TYPE = "tv_series_item_type";
 
         /**
          * The aspect ratio of the poster art for this TV program.

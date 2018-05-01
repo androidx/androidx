@@ -133,6 +133,15 @@ public abstract class BasePreviewProgram extends BaseProgram {
     @RestrictTo(LIBRARY_GROUP)
     public @interface InteractionType {}
 
+    /** @hide */
+    @IntDef({
+            PreviewProgramColumns.TV_SERIES_ITEM_TYPE_EPISODE,
+            PreviewProgramColumns.TV_SERIES_ITEM_TYPE_CHAPTER
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface TvSeriesItemType {}
+
     /**
      * The unknown interaction type.
      */
@@ -212,6 +221,14 @@ public abstract class BasePreviewProgram extends BaseProgram {
     public @Type int getType() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_TYPE);
         return i == null ? TYPE_UNKNOWN : i;
+    }
+
+    /**
+     * @return The TV series item type for the program.
+     * @see TvContractCompat.PreviewProgramColumns#COLUMN_TV_SERIES_ITEM_TYPE
+     */
+    public @TvSeriesItemType int getTvSeriesItemType() {
+        return mValues.getAsInteger(PreviewProgramColumns.COLUMN_TV_SERIES_ITEM_TYPE);
     }
 
     /**
@@ -434,6 +451,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             values.remove(PreviewProgramColumns.COLUMN_START_TIME_UTC_MILLIS);
             values.remove(PreviewProgramColumns.COLUMN_END_TIME_UTC_MILLIS);
             values.remove(PreviewProgramColumns.COLUMN_PREVIEW_AUDIO_URI);
+            values.remove(PreviewProgramColumns.COLUMN_TV_SERIES_ITEM_TYPE);
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || !includeProtectedFields) {
             values.remove(PreviewProgramColumns.COLUMN_BROWSABLE);
@@ -563,6 +581,10 @@ public abstract class BasePreviewProgram extends BaseProgram {
                     && !cursor.isNull(index)) {
                 builder.setPreviewAudioUri(Uri.parse(cursor.getString(index)));
             }
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_TV_SERIES_ITEM_TYPE))
+                    >= 0 && !cursor.isNull(index)) {
+                builder.setTvSeriesItemType(cursor.getInt(index));
+            }
         }
     }
 
@@ -594,6 +616,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
                 PreviewProgramColumns.COLUMN_START_TIME_UTC_MILLIS,
                 PreviewProgramColumns.COLUMN_END_TIME_UTC_MILLIS,
                 PreviewProgramColumns.COLUMN_PREVIEW_AUDIO_URI,
+                PreviewProgramColumns.COLUMN_TV_SERIES_ITEM_TYPE
         };
         return CollectionUtils.concatAll(BaseProgram.PROJECTION, oColumns);
     }
@@ -1034,6 +1057,19 @@ public abstract class BasePreviewProgram extends BaseProgram {
         public T setPreviewAudioUri(Uri previewAudioUri) {
             mValues.put(PreviewPrograms.COLUMN_PREVIEW_AUDIO_URI,
                     previewAudioUri == null ? null : previewAudioUri.toString());
+            return (T) this;
+        }
+
+        /**
+         * Set the TV series item type for this program.
+         *
+         * @param type the TV series item type
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewProgramColumns#TV_SERIES_ITEM_TYPE_EPISODE
+         * @see PreviewProgramColumns#TV_SERIES_ITEM_TYPE_CHAPTER
+         */
+        public T setTvSeriesItemType(@TvSeriesItemType int type) {
+            mValues.put(PreviewPrograms.COLUMN_TV_SERIES_ITEM_TYPE, type);
             return (T) this;
         }
     }
