@@ -28,6 +28,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.webkit.internal.SafeBrowsingResponseImpl;
 import androidx.webkit.internal.WebResourceErrorImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
 
@@ -208,8 +209,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     public final void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
             @SafeBrowsingThreat int threatType,
             /* SafeBrowsingResponse */ @NonNull InvocationHandler handler) {
-        onSafeBrowsingHit(view, request, threatType,
-                SafeBrowsingResponseCompat.fromInvocationHandler(handler));
+        onSafeBrowsingHit(view, request, threatType, new SafeBrowsingResponseImpl(handler));
     }
 
     /**
@@ -225,8 +225,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     @RequiresApi(27)
     public final void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
             @SafeBrowsingThreat int threatType, @NonNull SafeBrowsingResponse response) {
-        onSafeBrowsingHit(view, request, threatType,
-                SafeBrowsingResponseCompat.fromSafeBrowsingResponse(response));
+        onSafeBrowsingHit(view, request, threatType, new SafeBrowsingResponseImpl(response));
     }
 
     /**

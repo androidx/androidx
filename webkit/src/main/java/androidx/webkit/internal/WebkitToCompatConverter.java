@@ -16,12 +16,14 @@
 
 package androidx.webkit.internal;
 
+import android.webkit.SafeBrowsingResponse;
 import android.webkit.ServiceWorkerWebSettings;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 
 import androidx.annotation.RequiresApi;
+import androidx.webkit.SafeBrowsingResponseCompat;
 import androidx.webkit.WebResourceErrorCompat;
 
 import org.chromium.support_lib_boundary.ServiceWorkerWebSettingsBoundaryInterface;
@@ -102,5 +104,25 @@ public class WebkitToCompatConverter {
     WebResourceError convertWebResourceError(
             /* SupportLibWebResourceError */ InvocationHandler webResourceError) {
         return (WebResourceError) mImpl.convertWebResourceError(webResourceError);
+    }
+
+    /**
+     * Return an {@link InvocationHandler} linked to the given
+     * {@link SafeBrowsingResponse} such that calls on either of those objects affect the other
+     * object.
+     */
+    InvocationHandler convertSafeBrowsingResponse(SafeBrowsingResponse safeBrowsingResponse) {
+        return mImpl.convertSafeBrowsingResponse(safeBrowsingResponse);
+    }
+
+
+    /**
+     * Convert from an {@link InvocationHandler} representing a {@link SafeBrowsingResponseCompat}
+     * into a {@link SafeBrowsingResponse}.
+     */
+    @RequiresApi(27)
+    SafeBrowsingResponse convertSafeBrowsingResponse(
+            /* SupportLibSafeBrowsingResponse */ InvocationHandler safeBrowsingResponse) {
+        return (SafeBrowsingResponse) mImpl.convertSafeBrowsingResponse(safeBrowsingResponse);
     }
 }
