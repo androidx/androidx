@@ -19,7 +19,8 @@ package androidx.room.ext
 import me.eugeniomarletti.kotlin.metadata.KotlinClassMetadata
 import me.eugeniomarletti.kotlin.metadata.KotlinMetadataUtils
 import me.eugeniomarletti.kotlin.metadata.jvm.getJvmConstructorSignature
-import org.jetbrains.kotlin.serialization.ProtoBuf
+import me.eugeniomarletti.kotlin.metadata.shadow.metadata.ProtoBuf
+import me.eugeniomarletti.kotlin.metadata.shadow.serialization.deserialization.getName
 import javax.lang.model.element.ExecutableElement
 
 /**

@@ -21,7 +21,7 @@ package androidx.room.ext
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import org.jetbrains.kotlin.load.java.JvmAbi
+import me.eugeniomarletti.kotlin.metadata.shadow.load.java.JvmAbi
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
