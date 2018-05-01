@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.core.os.BuildCompat;
-import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.internal.WebViewProviderAdapter;
@@ -331,57 +330,6 @@ public class WebViewCompat {
 
     private static WebViewProviderAdapter getProvider(WebView webview) {
         return new WebViewProviderAdapter(createProvider(webview));
-    }
-
-    /**
-     * Creates a message channel to communicate with JS and returns the message
-     * ports that represent the endpoints of this message channel. The HTML5 message
-     * channel functionality is described
-     * <a href="https://html.spec.whatwg.org/multipage/comms.html#messagechannel">here
-     * </a>
-     *
-     * <p>The returned message channels are entangled and already in started state.
-     *
-     * @return an array of size two, containing the two message ports that form the message channel.
-     */
-    public static @NonNull WebMessagePortCompat[] createWebMessageChannel(
-            @NonNull WebView webview) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return WebMessagePortImpl.portsToCompat(webview.createWebMessageChannel());
-        } else { // TODO(gsennton) add reflection-based implementation
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
-    }
-
-    /**
-     * Post a message to main frame. The embedded application can restrict the
-     * messages to a certain target origin. See
-     * <a href="https://html.spec.whatwg.org/multipage/comms.html#posting-messages">
-     * HTML5 spec</a> for how target origin can be used.
-     * <p>
-     * A target origin can be set as a wildcard ("*"). However this is not recommended.
-     * See the page above for security issues.
-     *
-     * @param message the WebMessage
-     * @param targetOrigin the target origin.
-     */
-    public static void postWebMessage(@NonNull WebView webview, @NonNull WebMessageCompat message,
-            @NonNull Uri targetOrigin) {
-        // The wildcard ("*") Uri was first supported in WebView 60, see
-        // crrev/5ec5b67cbab33cea51b0ee11a286c885c2de4d5d, so on some Android versions using "*"
-        // won't work. WebView has always supported using an empty Uri "" as a wildcard - so convert
-        // "*" into "" here.
-        if (WILDCARD_URI.equals(targetOrigin)) {
-            targetOrigin = EMPTY_URI;
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            webview.postWebMessage(
-                    WebMessagePortImpl.compatToFrameworkMessage(message),
-                    targetOrigin);
-        } else { // TODO(gsennton) add reflection-based implementation
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
     }
 
     private static WebViewProviderFactory getFactory() {
