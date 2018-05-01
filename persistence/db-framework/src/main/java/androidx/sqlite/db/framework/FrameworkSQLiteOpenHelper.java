@@ -73,6 +73,8 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
          */
         final FrameworkSQLiteDatabase[] mDbRef;
         final Callback mCallback;
+        // see b/78359448
+        private boolean mMigrated;
 
         OpenHelper(Context context, String name, final FrameworkSQLiteDatabase[] dbRef,
                 final Callback callback) {
@@ -90,13 +92,25 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
             mDbRef = dbRef;
         }
 
-        SupportSQLiteDatabase getWritableSupportDatabase() {
+        synchronized SupportSQLiteDatabase getWritableSupportDatabase() {
+            mMigrated = false;
             SQLiteDatabase db = super.getWritableDatabase();
+            if (mMigrated) {
+                // there might be a connection w/ stale structure, we should re-open.
+                close();
+                return getWritableSupportDatabase();
+            }
             return getWrappedDb(db);
         }
 
-        SupportSQLiteDatabase getReadableSupportDatabase() {
+        synchronized SupportSQLiteDatabase getReadableSupportDatabase() {
+            mMigrated = false;
             SQLiteDatabase db = super.getReadableDatabase();
+            if (mMigrated) {
+                // there might be a connection w/ stale structure, we should re-open.
+                close();
+                return getReadableSupportDatabase();
+            }
             return getWrappedDb(db);
         }
 
@@ -116,6 +130,7 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
 
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+            mMigrated = true;
             mCallback.onUpgrade(getWrappedDb(sqLiteDatabase), oldVersion, newVersion);
         }
 
@@ -126,6 +141,7 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
 
         @Override
         public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            mMigrated = true;
             mCallback.onDowngrade(getWrappedDb(db), oldVersion, newVersion);
         }
 
