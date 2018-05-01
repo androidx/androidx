@@ -122,6 +122,30 @@ class ProGuardTypesMapperTest {
             .getsRewrittenTo("test.Activity\$InnerClass")
     }
 
+    @Test fun proGuard_typeMapper_innerWithStar() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity"
+            )
+            .testThatGivenType("support.Activity\$*")
+            .getsRewrittenTo("test.Activity\$*")
+    }
+
+    @Test fun proGuard_typeMapper_innerWithDoubleStar() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity"
+            )
+            .testThatGivenType("support.Activity\$**")
+            .getsRewrittenTo("test.Activity\$**")
+    }
+
     @Test fun proGuard_typeMapper_innerClass_wildcard() {
         ProGuardTester()
             .forGivenPrefixes(
@@ -217,5 +241,102 @@ class ProGuardTypesMapperTest {
             )
             .testThatGivenType("support.v7.Activity")
             .getsRewrittenTo("support.v7.Activity")
+    }
+
+    @Test fun proGuard_solver_wildcard_shouldRewrite() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/v7/preference/Preference" to "test/preference/Preference",
+                "support/v4/preference/PreferenceDialog" to "test/preference/PreferenceDialog",
+                "support/v4/preference/SomethingElse" to "test/preference/SomethingElse",
+                "support/v7/Random" to "test/Random"
+            )
+            .testThatGivenType("support.v?.preference.**")
+            .getsRewrittenTo("test.preference.**")
+    }
+
+    @Test fun proGuard_solver_wildcard2_shouldRewrite() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/v7/preference/Preference" to "test/preference/Preference",
+                "support/v4/preference/SomethingElse" to "test/preference/SomethingElse",
+                "support/v7/Random" to "test/Random"
+            )
+            .testThatGivenType("support.*.preference.**")
+            .getsRewrittenTo("test.preference.**")
+    }
+
+    @Test fun proGuard_solver_wildcard3_shouldRewrite() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/v7/preference/Preference" to "test/preference/Preference",
+                "support/v4/preference/SomethingElse" to "test/preference/SomethingElse",
+                "support/v4/preference/internal/Something" to "test/preference/internal/Something",
+                "support/v7/Random" to "test/Random"
+            )
+            .testThatGivenType("support.*.preference.**")
+            .getsRewrittenTo("test.preference.**")
+    }
+
+    @Test fun proGuard_solver_wildcard4_shouldRewrite() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/v7/preference/Preference" to "test/preference/Preference",
+                "support/v4/preference/PreferenceDialog" to "test/preference/PreferenceDialog",
+                "support/v7/Random" to "test2/Random"
+            )
+            .testThatGivenType("support.**")
+            .getsRewrittenTo("test.**", "test2.**")
+    }
+
+    @Test fun proGuard_solver_wildcard_needToMapPartOfClass_shouldRewrite() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/v7/preference/Preference" to "test/preference/Preference",
+                "support/v4/preference/PreferenceDialog" to "test/preference/PreferenceDialog",
+                "support/v4/preference/SomethingElse" to "test/preference/SomethingElse"
+            )
+            .testThatGivenType("support.v7.preference.Preference*")
+            .getsRewrittenTo("test.preference.Preference*")
+    }
+
+    @Test fun proGuard_solver_wildcard_oneToOne_shouldRewrite() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/v7/preference/Preference" to "test/preference/Preference",
+                "support/v4/preference/PreferenceDialog" to "test/preference/PreferenceDialog"
+            )
+            .testThatGivenType("support.v?.preference.Preference")
+            .getsRewrittenTo("test.preference.Preference")
+    }
+
+    @Test fun proGuard_solver_wildcard_oneToOneStar_shouldRewrite() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/v7/preference/Preference" to "test/preference/Preference"
+            )
+            .testThatGivenType("support.v?.preference.Preference*")
+            .getsRewrittenTo("test.preference.Preference*")
     }
 }

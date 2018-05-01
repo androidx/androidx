@@ -41,7 +41,7 @@ class ReplacersRunner(val replacers: List<GroupsReplacer>) {
                 }
 
                 val result = replacer.runReplacements(matcher)
-                sb.append(result)
+                sb.append(result.joinToString(System.lineSeparator()))
                 lastSeenChar = matcher.end()
             }
 

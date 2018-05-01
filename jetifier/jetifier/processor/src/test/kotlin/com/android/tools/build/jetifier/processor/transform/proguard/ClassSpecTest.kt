@@ -195,4 +195,39 @@ class ClassSpecTest {
                 "-keep \t @test.Annotation \t public  class  *  extends test.Activity"
             )
     }
+
+    @Test fun proGuard_classSpec_multipleResults() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenProGuardMapSet(
+                "support.**" to setOf("support.**", "androidx.**"))
+            .testThatGivenProGuard(
+                "-keep class support.**"
+            )
+            .rewritesTo(
+                "-keep class support.**\n" +
+                "-keep class androidx.**"
+            )
+    }
+
+    @Test fun proGuard_classSpec_annotation_multipleResults() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenProGuardMapSet(
+                "support.Activity*" to setOf("test.Activity1*", "test.Activity2*"),
+                "support.Annotation*" to setOf("test.Annotation1*", "test.Annotation2*"))
+            .testThatGivenProGuard(
+                "-keep @support.Annotation* public class * extends support.Activity*"
+            )
+            .rewritesTo(
+                "-keep @test.Annotation1* public class * extends test.Activity1*\n" +
+                "-keep @test.Annotation2* public class * extends test.Activity1*\n" +
+                "-keep @test.Annotation1* public class * extends test.Activity2*\n" +
+                "-keep @test.Annotation2* public class * extends test.Activity2*"
+            )
+    }
 }

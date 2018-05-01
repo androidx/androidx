@@ -105,4 +105,25 @@ class ClassSpecTest_FieldsSelector {
                 "}"
             )
     }
+
+    @Test fun proGuard_fieldsSelector_multiple() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenProGuardMapSet("support.**" to setOf("support.**", "androidx.**"))
+            .testThatGivenProGuard(
+                "-keep public class * extends support.** { \n" +
+                "  <fields>; \n" +
+                "}"
+            )
+            .rewritesTo(
+                "-keep public class * extends support.** { \n" +
+                "  <fields>; \n" +
+                "}\n" +
+                "-keep public class * extends androidx.** { \n" +
+                "  <fields>; \n" +
+                "}"
+            )
+    }
 }

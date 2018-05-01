@@ -101,7 +101,7 @@ class Processor private constructor(
                     slRules = config.slRules,
                     pomRewriteRules = config.pomRewriteRules.map { it.getReversed() }.toSet(),
                     typesMap = config.typesMap.reverseMapOrDie(),
-                    proGuardMap = config.proGuardMap.reverseMapOrDie(),
+                    proGuardMap = config.proGuardMap.reverseMap(),
                     packageMap = config.packageMap.reverse()
                 )
             }
@@ -155,9 +155,10 @@ class Processor private constructor(
         if (context.errorsTotal() > 0) {
             if (context.isInReversedMode && context.rewritingSupportLib) {
                 throw IllegalArgumentException("There were ${context.errorsTotal()} errors found " +
-                        "during the de-jetification. You have probably added new types into " +
-                        "support library and dejetifier doesn't know where to move them. Please " +
-                        "update default.config and regenerate default.generated.config")
+                    "during the de-jetification. You have probably added new androidx types " +
+                    "into support library and dejetifier doesn't know where to move them. " +
+                    "Please update default.config and regenerate default.generated.config via" +
+                    "jetifier/jetifier/preprocessor/scripts/processDefaultConfig.sh")
             }
 
             throw IllegalArgumentException("There were ${context.errorsTotal()}" +

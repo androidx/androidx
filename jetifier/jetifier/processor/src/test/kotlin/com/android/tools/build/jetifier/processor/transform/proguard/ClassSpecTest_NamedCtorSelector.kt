@@ -163,4 +163,31 @@ class ClassSpecTest_NamedCtorSelector {
                 "}"
             )
     }
+
+    @Test fun proGuard_ctorSelector_multiple() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+                .forGivenProGuardMapSet("support.**" to setOf("support.**", "androidx.**"))
+            .testThatGivenProGuard(
+                "-keep public class * { \n" +
+                "  support.**(support.**); \n" +
+                "}"
+            )
+            .rewritesTo(
+                "-keep public class * { \n" +
+                "  support.**(support.**); \n" +
+                "}\n" +
+                "-keep public class * { \n" +
+                "  androidx.**(support.**); \n" +
+                "}\n" +
+                "-keep public class * { \n" +
+                "  support.**(androidx.**); \n" +
+                "}\n" +
+                "-keep public class * { \n" +
+                "  androidx.**(androidx.**); \n" +
+                "}"
+            )
+    }
 }
