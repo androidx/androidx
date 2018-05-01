@@ -35,7 +35,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.core.app.TestSupportActivity;
+import androidx.core.app.TestActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.test.R;
@@ -67,7 +67,7 @@ public class ShortcutInfoCompatTest {
     @Test
     public void testAddToIntent_noBadge() {
         Intent intent = new Intent();
-        mBuilder.setActivity(new ComponentName(mContext, TestSupportActivity.class))
+        mBuilder.setActivity(new ComponentName(mContext, TestActivity.class))
                 .build()
                 .addToIntent(intent);
 
@@ -79,7 +79,7 @@ public class ShortcutInfoCompatTest {
     @Test
     public void testAddToIntent_badgeActivity() {
         Intent intent = new Intent();
-        mBuilder.setActivity(new ComponentName(mContext, TestSupportActivity.class))
+        mBuilder.setActivity(new ComponentName(mContext, TestActivity.class))
                 .setAlwaysBadged()
                 .build()
                 .addToIntent(intent);
