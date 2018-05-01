@@ -44,9 +44,8 @@ zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
 buildServerAnchorTask.dependsOn createDiffArchive
 buildServerAnchorTask.dependsOn createArchive
 rootProject.tasks.whenTaskAdded { task ->
-    if (CheckExternalDependencyLicensesTask.ROOT_TASK_NAME.equals(task.name)
-            || "dejetifyArchive".equals(task.name)) {
-        buildServerAnchorTask.dependsOn task
+    if ("dejetifyArchive".equals(task.name)) {
+        task.enabled = false
     }
 }
 
