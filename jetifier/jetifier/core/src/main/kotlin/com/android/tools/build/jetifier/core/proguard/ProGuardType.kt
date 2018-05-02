@@ -17,12 +17,27 @@
 package com.android.tools.build.jetifier.core.proguard
 
 import com.android.tools.build.jetifier.core.type.JavaType
+import java.util.regex.Pattern
 
 /**
  * Represents a type reference in ProGuard file. This type is similar to the regular java type but
  * can also contain wildcards (*,**,?).
+ *
+ * ProGuard can also contain token {any}. This comes from the configuration and is simply used as
+ * a shortcut for multiple different wildcards (such as. "*", "**", "***", "*.*", "**.*").
  */
 data class ProGuardType(val value: String) {
+
+    companion object {
+        val EXPANSION_TOKENS = listOf("*", "**", "***", "*/*", "**/*")
+
+        val TRIVIAL_SELECTOR_MATCHER: Pattern = Pattern.compile("^[/?*]*$")
+
+        /** Creates the type reference from notation where packages are separated using '.' */
+        fun fromDotNotation(type: String): ProGuardType {
+            return ProGuardType(type.replace('.', '/'))
+        }
+    }
 
     init {
         if (value.contains('.')) {
@@ -30,23 +45,24 @@ data class ProGuardType(val value: String) {
         }
     }
 
-    companion object {
-        /** Creates the type reference from notation where packages are separated using '.' */
-        fun fromDotNotation(type: String): ProGuardType {
-            return ProGuardType(type.replace('.', '/'))
-        }
-    }
-
     /**
      * Whether the type reference is trivial such as "*".
      */
-    fun isTrivial() = value == "*" || value == "**" || value == "***" || value == "%"
+    fun isTrivial() = TRIVIAL_SELECTOR_MATCHER.matcher(value).matches()
 
     fun toJavaType(): JavaType? {
         if (value.contains('*') || value.contains('?')) {
             return null
         }
         return JavaType(value)
+    }
+
+    fun needsExpansion(): Boolean {
+        return value.contains("{any}")
+    }
+
+    fun expandWith(token: String): ProGuardType {
+        return ProGuardType(value.replace("{any}", token))
     }
 
     /** Returns the type reference as a string where packages are separated using '.' */
