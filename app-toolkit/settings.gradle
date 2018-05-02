@@ -103,6 +103,7 @@ includeProject(":navigation:navigation-safe-args-generator", new File(supportRoo
 includeProject(":navigation:navigation-safe-args-gradle-plugin", new File(supportRoot, "navigation/safe-args-gradle-plugin"))
 
 includeProject(":work:work-runtime", new File(supportRoot, "work/workmanager"))
+includeProject(":work:work-runtime-ktx", new File(supportRoot, "work/workmanager-ktx"))
 includeProject(":work:work-firebase", new File(supportRoot, "work/workmanager-firebase"))
 includeProject(":work:work-testing", new File(supportRoot, "work/workmanager-test"))
 includeProject(":work:integration-tests:testapp", new File(supportRoot, "work/integration-tests/testapp"))
