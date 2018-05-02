@@ -26,13 +26,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import androidx.navigation.test.R;
 import androidx.navigation.testing.TestNavigatorProvider;
+
+import org.junit.Before;
+import org.junit.Test;
 
 @SmallTest
 public class NavInflaterTest {
@@ -96,7 +97,7 @@ public class NavInflaterTest {
     public void testDefaultArgumentsReference() {
         Bundle defaultArguments = inflateDefaultArgumentsFromGraph();
         Context context = InstrumentationRegistry.getTargetContext();
-        int expectedValue = context.getColor(R.color.test_reference_arg);
+        int expectedValue = ContextCompat.getColor(context, R.color.test_reference_arg);
 
         assertThat(defaultArguments.getInt("test_reference"), is(expectedValue));
     }
