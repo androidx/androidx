@@ -48,6 +48,7 @@
         style="@style/CarListVerticalDivider"/>
     <ImageView
         android:id="@+id/supplemental_icon"
+        android:background="@drawable/car_button_ripple_background"
         android:layout_centerVertical="true"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
