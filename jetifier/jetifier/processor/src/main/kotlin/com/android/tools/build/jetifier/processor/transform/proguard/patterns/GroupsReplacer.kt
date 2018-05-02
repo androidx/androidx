@@ -21,19 +21,23 @@ import java.util.regex.Pattern
 
 /**
  * Applies replacements on a matched string using the given [pattern] and its groups. Each group is
- * mapped using a lambda from [groupsMap].
+ * mapped using a lambda from [groupsMap]. If there is more results for each group it expands into
+ * all possible replacements (Cartesian product) and returns multiple results.
  */
 class GroupsReplacer(
-    val pattern: Pattern,
-    private val groupsMap: List<(String) -> String>
+        val pattern: Pattern,
+        private val groupsMap: List<(String) -> List<String>>
 ) {
 
     /**
      * Takes the given [matcher] and replace its matched groups using mapping functions given in
      * [groupsMap].
      */
-    fun runReplacements(matcher: Matcher): String {
-        var result = matcher.group(0)
+    fun runReplacements(matcher: Matcher): List<String> {
+        val start = matcher.group(0)
+
+        var results = mutableListOf<String>(start)
+        var tempResults = mutableListOf<String>()
 
         // We go intentionally backwards to replace using indexes
         for (i in groupsMap.size - 1 downTo 0) {
@@ -41,11 +45,23 @@ class GroupsReplacer(
             val localStart = matcher.start(i + 1) - matcher.start()
             val localEnd = matcher.end(i + 1) - matcher.start()
 
-            result = result.replaceRange(
-                startIndex = localStart,
-                endIndex = localEnd,
-                replacement = groupsMap[i].invoke(groupVal))
+            val replacements = groupsMap[i].invoke(groupVal)
+
+            tempResults.clear()
+            results.forEach {
+                result -> replacements.forEach {
+                    tempResults.add(
+                        result.replaceRange(
+                            startIndex = localStart,
+                            endIndex = localEnd,
+                            replacement = it
+                        )
+                    )
+                }
+            }
+
+            results = tempResults.also { tempResults = results } // Swap
         }
-        return result
+        return results.toList()
     }
 }

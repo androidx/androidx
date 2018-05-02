@@ -36,7 +36,7 @@ class ProGuardTester {
 
     private var javaTypes = emptyList<Pair<String, String>>()
     private var rewriteRules = emptyList<Pair<String, String>>()
-    private var proGuardTypes = emptyList<Pair<ProGuardType, ProGuardType>>()
+    private var proGuardTypes = emptyList<Pair<ProGuardType, Set<ProGuardType>>>()
     private var prefixes = emptySet<String>()
 
     fun forGivenPrefixes(vararg prefixes: String): ProGuardTester {
@@ -55,9 +55,14 @@ class ProGuardTester {
     }
 
     fun forGivenProGuardMap(vararg rules: Pair<String, String>): ProGuardTester {
+        return forGivenProGuardMapSet(*(rules.map { it.first to setOf(it.second) }.toTypedArray()))
+    }
+
+    fun forGivenProGuardMapSet(vararg rules: Pair<String, Set<String>>): ProGuardTester {
         this.proGuardTypes = rules.map {
-            ProGuardType.fromDotNotation(it.first) to ProGuardType.fromDotNotation(it.second)
-        }.toList()
+            ProGuardType.fromDotNotation(it.first) to it.second.map {
+                ProGuardType.fromDotNotation(it) }
+            .toSet() }.toList()
         return this
     }
 
@@ -104,12 +109,12 @@ class ProGuardTester {
 
     class ProGuardTesterForType(private val config: Config, private val given: String) {
 
-        fun getsRewrittenTo(expectedType: String) {
+        fun getsRewrittenTo(vararg expectedType: String) {
             val context = TransformationContext(config, useFallbackIfTypeIsMissing = false)
             val mapper = ProGuardTypesMapper(context)
             val result = mapper.replaceType(given)
 
-            Truth.assertThat(result).isEqualTo(expectedType)
+            Truth.assertThat(result).containsExactlyElementsIn(expectedType.toSet())
             Truth.assertThat(context.errorsTotal()).isEqualTo(0)
         }
     }
@@ -121,7 +126,8 @@ class ProGuardTester {
             val mapper = ProGuardTypesMapper(context)
             val result = mapper.replaceMethodArgs(given)
 
-            Truth.assertThat(result).isEqualTo(expectedArguments)
+            Truth.assertThat(result.size).isEqualTo(1)
+            Truth.assertThat(result.first()).isEqualTo(expectedArguments)
             Truth.assertThat(context.errorsTotal()).isEqualTo(0)
         }
     }

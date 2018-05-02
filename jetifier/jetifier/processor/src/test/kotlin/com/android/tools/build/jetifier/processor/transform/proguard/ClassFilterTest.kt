@@ -89,4 +89,22 @@ class ClassFilterTest {
                 "  -adaptclassstrings !test.Activity, !test.Fragment, !keep.Me"
             )
     }
+
+    @Test fun proGuard_classFilter_multiple_shouldMerge() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenProGuardMapSet(
+                "support/Activity*" to setOf("test/Activity1*", "test/Activity2*"),
+                "support/Annotation*" to setOf("test/Annotation1*", "test/Annotation2*")
+            )
+            .testThatGivenProGuard(
+                "-adaptclassstrings support.Activity*, support.Annotation*, keep.Me"
+            )
+            .rewritesTo(
+                "-adaptclassstrings test.Activity1*, test.Activity2*, test.Annotation1*, " +
+                "test.Annotation2*, keep.Me"
+            )
+    }
 }
