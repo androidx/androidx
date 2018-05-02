@@ -23,6 +23,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DataTest {
     private static final String KEY1 = "key1";
     private static final String KEY2 = "key2";
@@ -107,5 +110,39 @@ public class DataTest {
         } finally {
             assertThat(caughtIllegalStateException, is(true));
         }
+    }
+
+    @Test
+    public void testPutAll() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("int", 1);
+        map.put("String", "two");
+        map.put("long array", new long[] { 1L, 2L, 3L });
+        map.put("null", null);
+        Data.Builder dataBuilder = new Data.Builder();
+        dataBuilder.putAll(map);
+        Data data = dataBuilder.build();
+        assertThat(data.getInt("int", 0), is(1));
+        assertThat(data.getString("String", null), is("two"));
+        long[] longArray = data.getLongArray("long array");
+        assertThat(longArray, is(notNullValue()));
+        assertThat(longArray.length, is(3));
+        assertThat(longArray[0], is(1L));
+        assertThat(longArray[1], is(2L));
+        assertThat(longArray[2], is(3L));
+        assertThat(data.getString("null", "dummy"), is("dummy"));
+    }
+
+    @Test
+    public void testPutAllWithInvalidTypes() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("key", new Object());
+        boolean caughtIllegalArgumentException = false;
+        try {
+            new Data.Builder().putAll(map);
+        } catch (IllegalArgumentException e) {
+            caughtIllegalArgumentException = true;
+        }
+        assertThat(caughtIllegalArgumentException, is(true));
     }
 }
