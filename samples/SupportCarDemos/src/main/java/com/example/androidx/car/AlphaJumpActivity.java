@@ -24,13 +24,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import androidx.car.widget.AlphaJumpBucketer;
 import androidx.car.widget.IAlphaJumpAdapter;
 import androidx.car.widget.PagedListView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * An activity with a long list of cheeses, initially in a random order but you can use alpha jump

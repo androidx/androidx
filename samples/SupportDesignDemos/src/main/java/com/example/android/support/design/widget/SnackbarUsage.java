@@ -17,7 +17,6 @@
 package com.example.android.support.design.widget;
 
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -25,6 +24,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.android.support.design.R;
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * This demonstrates idiomatic usage of the snackbar

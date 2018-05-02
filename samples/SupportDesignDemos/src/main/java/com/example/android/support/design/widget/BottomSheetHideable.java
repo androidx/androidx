@@ -17,7 +17,6 @@
 package com.example.android.support.design.widget;
 
 import android.os.Bundle;
-import android.support.design.widget.BottomSheetBehavior;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -26,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.android.support.design.R;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 
 /**

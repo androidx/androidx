@@ -31,19 +31,19 @@
             app:contentInsetStart="72dp"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
-    <android.support.design.widget.TabLayout
+    <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:background="?attr/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <android.support.design.widget.TabItem
+        <com.google.android.material.tabs.TabItem
                 android:text="@string/tab_text"/>
 
-        <android.support.design.widget.TabItem
+        <com.google.android.material.tabs.TabItem
                 android:icon="@drawable/ic_android"/>
 
-    </android.support.design.widget.TabLayout>
+    </com.google.android.material.tabs.TabLayout>
 
 </LinearLayout>

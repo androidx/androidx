@@ -16,7 +16,7 @@
 
 package com.example.android.support.design.widget;
 
-import android.support.design.widget.BottomSheetDialogFragment;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 /**
  * This demonstrates basic usage of {@link BottomSheetDialogFragment}.
