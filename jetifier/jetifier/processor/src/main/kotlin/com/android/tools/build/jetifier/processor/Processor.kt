@@ -256,7 +256,6 @@ class Processor private constructor(
         Log.i(TAG, "Started new transformation")
         Log.i(TAG, "- Input file: %s", archive.relativePath)
 
-        context.libraryName = archive.fileName
         archive.accept(this)
     }
 

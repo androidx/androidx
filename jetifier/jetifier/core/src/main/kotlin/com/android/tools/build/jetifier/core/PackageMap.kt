@@ -323,25 +323,20 @@ class PackageMap(private val rules: List<PackageRule>) {
      */
     fun reverse(): PackageMap {
         return PackageMap(rules
-            .map { PackageRule(from = it.to, to = it.from, filePrefix = it.filePrefix) }
+            .map { PackageRule(from = it.to, to = it.from) }
             .toList())
     }
 
     /**
-     * Returns a new package name for the given [fromPackage] defined in artifact being called
-     * [libraryName].
+     * Returns a new package name for the given [fromPackage].
      */
-    fun getPackageFor(fromPackage: PackageName, libraryName: String): PackageName? {
-        val rule = rules.find {
-            it.from == fromPackage.fullName
-                && (it.filePrefix == null
-                || libraryName.startsWith(it.filePrefix, ignoreCase = true))
-        }
+    fun getPackageFor(fromPackage: PackageName): PackageName? {
+        val rule = rules.find { it.from == fromPackage.fullName }
         if (rule != null) {
             return PackageName(rule.to)
         }
         return null
     }
 
-    data class PackageRule(val from: String, val to: String, val filePrefix: String? = null)
+    data class PackageRule(val from: String, val to: String)
 }
