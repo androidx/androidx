@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
  * through a {@link ListView}.
  */
 public class ListViewAutoScrollHelper extends AutoScrollHelper {
+    @SuppressWarnings("HidingField")
     private final ListView mTarget;
 
     public ListViewAutoScrollHelper(@NonNull ListView target) {

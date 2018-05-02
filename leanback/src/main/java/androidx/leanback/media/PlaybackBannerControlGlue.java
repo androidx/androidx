@@ -206,7 +206,6 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
 
     private final int[] mFastForwardSpeeds;
     private final int[] mRewindSpeeds;
-    private PlaybackControlsRow.PlayPauseAction mPlayPauseAction;
     private PlaybackControlsRow.SkipNextAction mSkipNextAction;
     private PlaybackControlsRow.SkipPreviousAction mSkipPreviousAction;
     private PlaybackControlsRow.FastForwardAction mFastForwardAction;
