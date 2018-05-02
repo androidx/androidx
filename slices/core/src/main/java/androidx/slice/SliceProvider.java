@@ -147,6 +147,10 @@ public abstract class SliceProvider extends ContentProvider implements
      */
     public abstract boolean onCreateSliceProvider();
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public Object getWrapper() {
         if (BuildCompat.isAtLeastP()) {
