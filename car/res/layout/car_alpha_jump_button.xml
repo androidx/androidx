@@ -16,7 +16,7 @@
   -->
 
 <!-- This is sized in code, so we'll set it to 0dp for now. -->
-<android.support.v7.widget.CardView
+<androidx.cardview.widget.CardView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:grid="http://schemas.android.com/apk/res-auto"
         android:layout_width="0dp"
@@ -32,4 +32,4 @@
         android:background="@drawable/car_card_ripple_background"
         android:id="@+id/button"
         android:gravity="center"/>
-</android.support.v7.widget.CardView>
+</androidx.cardview.widget.CardView>

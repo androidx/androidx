@@ -1,18 +1,11 @@
+import static androidx.build.dependencies.DependenciesKt.SUPPORT_DESIGN
+
 plugins {
     id("SupportAndroidTestAppPlugin")
 }
 
 dependencies {
-    api "com.android.temp.support:design:28.0.0-alpha1", {
-        exclude group: 'androidx.annotation'
-        exclude group: 'androidx.core'
-        exclude group: 'androidx.legacy'
-        exclude group: 'androidx.fragment'
-        exclude group: 'androidx.transition'
-        exclude group: 'androidx.appcompat'
-        exclude group: 'androidx.recyclerview'
-        exclude group: 'androidx.cardview'
-    }
+    implementation(SUPPORT_DESIGN, libs.exclude_for_material)
     implementation(project(":transition"))
     implementation(project(":recyclerview"))
     implementation(project(":appcompat"))
@@ -21,8 +14,6 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 14
         vectorDrawables.useSupportLibrary = true
     }
 }
-

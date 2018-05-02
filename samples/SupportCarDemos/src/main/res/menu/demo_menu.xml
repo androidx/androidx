@@ -15,7 +15,9 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      tools:ignore="AppCompatResource"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
@@ -30,7 +32,7 @@
         app:showAsAction="always|withText"/>
 
     <item
-        android:id="@+id/action_overflow"
-        android:title="Action3"
-        app:showAsAction="never"/>
+            android:id="@+id/action_overflow2"
+            android:title="Action3"
+            app:showAsAction="never" />
 </menu>

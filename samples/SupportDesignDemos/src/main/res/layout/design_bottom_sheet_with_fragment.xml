@@ -43,7 +43,7 @@
 
     <fragment
             android:id="@+id/bottom_sheet"
-            class="com.example.android.support.design.widget.BottomSheetWithFragment$BottomSheetFragment"
+            class="com.example.com.google.android.material.bottomsheet.BottomSheetWithFragment$BottomSheetFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/bottom_sheet_behavior"
