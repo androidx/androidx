@@ -27,25 +27,25 @@ import androidx.media.subtitle.SubtitleController.Anchor;
 import androidx.media.subtitle.SubtitleTrack.RenderingWidget;
 
 @RequiresApi(21)
-class SubtitleView extends BaseLayout implements Anchor {
-    private static final String TAG = "SubtitleView";
+class SubtitleAnchorView extends BaseLayout implements Anchor {
+    private static final String TAG = "SubtitleAnchorView";
 
     private RenderingWidget mSubtitleWidget;
     private RenderingWidget.OnChangedListener mSubtitlesChangedListener;
 
-    SubtitleView(Context context) {
+    SubtitleAnchorView(Context context) {
         this(context, null);
     }
 
-    SubtitleView(Context context, @Nullable AttributeSet attrs) {
+    SubtitleAnchorView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    SubtitleView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    SubtitleAnchorView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
-    SubtitleView(
+    SubtitleAnchorView(
             Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
@@ -139,6 +139,6 @@ class SubtitleView extends BaseLayout implements Anchor {
 
     @Override
     public CharSequence getAccessibilityClassName() {
-        return SubtitleView.class.getName();
+        return SubtitleAnchorView.class.getName();
     }
 }
