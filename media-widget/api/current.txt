@@ -24,8 +24,7 @@ package androidx.media.widget {
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
     method public void onMeasure(int, int);
-    method public void setAudioAttributes(android.media.AudioAttributes);
-    method public void setAudioFocusRequest(int);
+    method public void setAudioAttributes(androidx.media.AudioAttributesCompat);
     method public void setMediaControlView2(androidx.media.widget.MediaControlView2, long);
     method public void setSpeed(float);
     method public void setSubtitleEnabled(boolean);
