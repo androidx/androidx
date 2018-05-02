@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import android.database.sqlite.SQLiteConstraintException
+import android.support.test.filters.SdkSuppress
 import android.support.test.filters.SmallTest
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.room.integration.kotlintestapp.vo.Author
@@ -50,6 +51,7 @@ class BooksDaoTest : TestDatabaseTest() {
         assertThat(booksDao.getBook(TestUtil.BOOK_1.bookId), `is`<Book>(TestUtil.BOOK_1))
     }
 
+    @SdkSuppress(minSdkVersion = 24)
     @Test
     fun bookByIdJavaOptional() {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
@@ -61,6 +63,7 @@ class BooksDaoTest : TestDatabaseTest() {
                 `is`<java.util.Optional<Book>>(java.util.Optional.of(TestUtil.BOOK_1)))
     }
 
+    @SdkSuppress(minSdkVersion = 24)
     @Test
     fun bookByIdJavaOptionalEmpty() {
         assertThat(
