@@ -267,7 +267,7 @@ class AsyncPagedListDifferTest {
                 fail("not expected")
             }
 
-            override fun onChanged(position: Int, count: Int, payload: Any) {
+            override fun onChanged(position: Int, count: Int, payload: Any?) {
                 fail("not expected")
             }
         }
@@ -336,7 +336,7 @@ class AsyncPagedListDifferTest {
 
             override fun onMoved(fromPosition: Int, toPosition: Int) {}
 
-            override fun onChanged(position: Int, count: Int, payload: Any) {}
+            override fun onChanged(position: Int, count: Int, payload: Any?) {}
         }
     }
 }
