@@ -232,7 +232,7 @@ public class SliceRenderer {
                                         mLayout.draw(new Canvas(b[0]));
                                         l.countDown();
                                     }
-                                }, 10);
+                                }, 60);
                             }
                         });
                     }

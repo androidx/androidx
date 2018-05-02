@@ -47,7 +47,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceActionImpl;
-import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
@@ -69,7 +68,7 @@ public class GridContent {
     private SliceItem mSeeMoreItem;
     private int mMaxCellLineCount;
     private boolean mHasImage;
-    private @SliceHints.ImageMode int mLargestImageMode;
+    private int mLargestImageMode = -1;
     private SliceItem mContentDescr;
 
     private int mBigPicMinHeight;
@@ -230,6 +229,13 @@ public class GridContent {
      */
     public boolean isAllImages() {
         return mAllImages;
+    }
+
+    /**
+     * @return the largest image size in this row, if there are images.
+     */
+    public int getLargestImageMode() {
+        return mLargestImageMode;
     }
 
     /**
