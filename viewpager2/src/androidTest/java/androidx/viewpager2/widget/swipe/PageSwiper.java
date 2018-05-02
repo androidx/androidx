@@ -30,6 +30,7 @@ import android.support.test.espresso.action.ViewActions;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.test.R;
+import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -37,9 +38,17 @@ import java.util.concurrent.TimeUnit;
 public class PageSwiper {
     private CountDownLatch mStableAfterSwipe;
     private final int mLastPageIx;
+    private final ViewAction mActionPrevious;
+    private final ViewAction mActionNext;
 
-    public PageSwiper(int totalPages, RecyclerView recyclerView) {
+    public PageSwiper(int totalPages, RecyclerView recyclerView,
+            @ViewPager2.Orientation int orientation) {
         mLastPageIx = checkArgumentNonnegative(totalPages - 1);
+
+        mActionPrevious = orientation == ViewPager2.Orientation.HORIZONTAL
+                ? ViewActions.swipeRight() : ViewActions.swipeDown();
+        mActionNext = orientation == ViewPager2.Orientation.HORIZONTAL
+                ? ViewActions.swipeLeft() : ViewActions.swipeUp();
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -59,11 +68,11 @@ public class PageSwiper {
 
         if (currentPageIx == nextPageIx) { // dedicated for testing edge behaviour
             if (nextPageIx == 0) {
-                swipeRight(); // bounce off the left edge
+                swipePrevious(); // bounce off the "left" edge
                 return;
             }
-            if (nextPageIx == mLastPageIx) { // bounce off the right edge
-                swipeLeft();
+            if (nextPageIx == mLastPageIx) { // bounce off the "right" edge
+                swipeNext();
                 return;
             }
             throw new IllegalArgumentException(
@@ -76,18 +85,18 @@ public class PageSwiper {
         }
 
         if (nextPageIx > currentPageIx) {
-            swipeLeft();
+            swipeNext();
         } else {
-            swipeRight();
+            swipePrevious();
         }
     }
 
-    private void swipeLeft() throws InterruptedException {
-        swipe(ViewActions.swipeLeft());
+    private void swipeNext() throws InterruptedException {
+        swipe(mActionNext);
     }
 
-    private void swipeRight() throws InterruptedException {
-        swipe(ViewActions.swipeRight());
+    private void swipePrevious() throws InterruptedException {
+        swipe(mActionPrevious);
     }
 
     private void swipe(ViewAction swipeAction) throws InterruptedException {
