@@ -24,6 +24,9 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.view.View.OVER_SCROLL_NEVER;
 
+import static androidx.viewpager2.widget.ViewPager2.Orientation.HORIZONTAL;
+import static androidx.viewpager2.widget.ViewPager2.Orientation.VERTICAL;
+
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -135,31 +138,33 @@ public class SwipeTest {
 
         for (Class<? extends BaseActivity> activityClass : TEST_ACTIVITIES_ALL) {
             tests.add(new TestConfig("full pass", asList(1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0),
-                    NO_CONFIG_CHANGES, NO_MUTATIONS, 8, activityClass));
+                    NO_CONFIG_CHANGES, NO_MUTATIONS, 8, activityClass, HORIZONTAL));
 
+            tests.add(new TestConfig("basic vertical", asList(0, 1, 2, 3, 3, 2, 1, 0, 0),
+                    NO_CONFIG_CHANGES, NO_MUTATIONS, 4, activityClass, VERTICAL));
             tests.add(new TestConfig("swipe beyond edge pages",
                     asList(0, 0, 1, 2, 3, 3, 3, 2, 1, 0, 0, 0), NO_CONFIG_CHANGES, NO_MUTATIONS, 4,
-                    activityClass));
+                    activityClass, HORIZONTAL));
 
             tests.add(new TestConfig("config change", asList(1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0),
-                    asList(3, 5, 7), NO_MUTATIONS, 7, activityClass));
+                    asList(3, 5, 7), NO_MUTATIONS, 7, activityClass, HORIZONTAL));
 
             tests.add(
                     new TestConfig("regression1", asList(1, 2, 3, 2, 1, 2, 3, 4), NO_CONFIG_CHANGES,
-                            NO_MUTATIONS, 10, activityClass));
+                            NO_MUTATIONS, 10, activityClass, HORIZONTAL));
 
             tests.add(new TestConfig("regression2", asList(1, 2, 3, 4, 3, 2, 1, 2, 3, 4, 5),
-                    NO_CONFIG_CHANGES, NO_MUTATIONS, 10, activityClass));
+                    NO_CONFIG_CHANGES, NO_MUTATIONS, 10, activityClass, HORIZONTAL));
 
             tests.add(new TestConfig("regression3", asList(1, 2, 3, 2, 1, 2, 3, 2, 1, 0),
-                    NO_CONFIG_CHANGES, NO_MUTATIONS, 10, activityClass));
+                    NO_CONFIG_CHANGES, NO_MUTATIONS, 10, activityClass, HORIZONTAL));
         }
 
         // mutations only apply to Fragment state persistence
         tests.add(new TestConfig("mutations", asList(1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0),
                 singletonList(8),
                 asList(Pair.create(0, 999), Pair.create(1, 100), Pair.create(3, 300),
-                        Pair.create(5, 500)), 7, FragmentAdapterActivity.class));
+                        Pair.create(5, 500)), 7, FragmentAdapterActivity.class, HORIZONTAL));
 
         return checkTestNamesUnique(tests);
     }
@@ -228,7 +233,7 @@ public class SwipeTest {
         }
 
         return new TestConfig("random_" + id, pageSequence, configChanges, stepToNewValue,
-                totalPages, activityClass);
+                totalPages, activityClass, HORIZONTAL);
     }
 
     private static List<TestConfig> checkTestNamesUnique(List<TestConfig> configs) {
@@ -241,15 +246,22 @@ public class SwipeTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Log.i(getClass().getSimpleName(), mTestConfig.toFullSpecString());
 
         mActivityTestRule = new ActivityTestRule<>(mTestConfig.mActivityClass, true, false);
         mActivityTestRule.launchActivity(BaseActivity.createIntent(mTestConfig.mTotalPages));
 
-        ViewPager2 viewPager = mActivityTestRule.getActivity().findViewById(R.id.view_pager);
+        final ViewPager2 viewPager = mActivityTestRule.getActivity().findViewById(R.id.view_pager);
         RecyclerView recyclerView = (RecyclerView) viewPager.getChildAt(0); // HACK
-        mSwiper = new PageSwiper(mTestConfig.mTotalPages, recyclerView);
+        mSwiper = new PageSwiper(mTestConfig.mTotalPages, recyclerView, mTestConfig.mOrientation);
+
+        mActivityTestRule.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                viewPager.setOrientation(mTestConfig.mOrientation);
+            }
+        });
 
         // Disabling edge animations on API < 16. Espresso discourages animations altogether, but
         // keeping them for now where they work - as closer to the real environment.
@@ -268,6 +280,7 @@ public class SwipeTest {
         final Map<Integer, Integer> mStepToNewValue;
         final int mTotalPages;
         final Class<? extends BaseActivity> mActivityClass;
+        final @ViewPager2.Orientation int mOrientation;
 
         /**
          * @param stepToNewValue {@link Pair#first} = step, {@link Pair#second} = new value
@@ -276,13 +289,15 @@ public class SwipeTest {
                 Collection<Integer> configChangeSteps,
                 List<Pair<Integer, Integer>> stepToNewValue,
                 int totalPages,
-                Class<? extends BaseActivity> activityClass) {
+                Class<? extends BaseActivity> activityClass,
+                int orientation) {
             mMessage = message;
             mPageSequence = pageSequence;
             mConfigChangeSteps = new HashSet<>(configChangeSteps);
             mStepToNewValue = mapFromPairList(stepToNewValue);
             mTotalPages = totalPages;
             mActivityClass = activityClass;
+            mOrientation = orientation;
         }
 
         private static Map<Integer, Integer> mapFromPairList(List<Pair<Integer, Integer>> list) {
