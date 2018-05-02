@@ -158,14 +158,10 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
         }
 
         if (matchesPrefix) {
-            if (context.useFallbackIfTypeIsMissing) {
-                Log.i(TAG, "No mapping found for '%s' - using identity",
-                        dependency.toStringNotation())
-            } else {
-                // Report error
-                Log.e(TAG, "No mapping found for '%s'", dependency.toStringNotation())
-                context.reportNoPackageMappingFoundFailure()
-            }
+            context.reportNoPackageMappingFoundFailure(
+                TAG,
+                dependency.toStringNotation(),
+                file.relativePath.toString())
         }
 
         // No rule to rewrite => keep it
