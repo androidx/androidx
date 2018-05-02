@@ -41,8 +41,6 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         const val TAG = "XmlResourcesTransformer"
 
         const val PATTERN_TYPE_GROUP = 1
-
-        const val MANIFEST_FILE_NAME = "AndroidManifest.xml"
     }
 
     /**
@@ -57,36 +55,23 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
      * much about comments.
      */
     private val patterns = listOf(
-        Pattern.compile("</?([a-zA-Z0-9.]+)"),
-        Pattern.compile("<view[^>]*class=\"([a-zA-Z0-9.\$_]+)\"[^>]*>"),
-        Pattern.compile("<application[^>]*android:appComponentFactory=\"([a-zA-Z0-9.\$_]+)\"[^>]*>")
-    )
-
-    /**
-     * List of regular expression patterns used to find support library package references in
-     * manifest files.
-     *
-     * Matches xml tag in form of:
-     * 1. <manifest package="package.name" ...>
-     */
-    private val packagePatterns = listOf(
-        Pattern.compile("<manifest[^>]*package=\"([a-zA-Z0-9._]+)\"[^>]*>")
+        Pattern.compile("</?([a-zA-Z0-9.]+)"), // </{candidate} or <{candidate}
+        Pattern.compile("[a-zA-Z0-9:]+=\"([a-zA-Z0-9.\$_]+)\""), // any="{candidate}"
+        Pattern.compile(">\\s*([a-zA-Z0-9.\$_]+)<") // >{candidate}<
     )
 
     override fun canTransform(file: ArchiveFile) = file.isXmlFile() && !file.isPomFile()
 
     override fun runTransform(file: ArchiveFile) {
-        val isManifestFile = file.fileName.equals(MANIFEST_FILE_NAME, ignoreCase = true)
+        if (file.fileName == "maven-metadata.xml") {
+            // Dejetification is picking this file and we don't want to deal with it.
+            return
+        }
+
         val charset = getCharset(file.data)
         val sb = StringBuilder(file.data.toString(charset))
 
-        var changesDone = replaceWithPatterns(sb, patterns, { rewriteType(it) })
-
-        if (isManifestFile && context.rewritingSupportLib) {
-            changesDone = replaceWithPatterns(sb, packagePatterns,
-                { rewritePackage(it, context.libraryName) }) || changesDone
-        }
-
+        val changesDone = replaceWithPatterns(sb, patterns, file.relativePath.toString())
         if (changesDone) {
             file.setNewData(sb.toString().toByteArray(charset))
         }
@@ -114,7 +99,7 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
     private fun replaceWithPatterns(
         sb: StringBuilder,
         patterns: List<Pattern>,
-        mappingFunction: (String) -> String
+        fileName: String
     ): Boolean {
         var changesDone = false
 
@@ -131,7 +116,11 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
 
                 val toReplace = matcher.group(PATTERN_TYPE_GROUP)
                 val matched = matcher.group(0)
-                val replacement = mappingFunction(toReplace)
+                val replacement = if (isPackage(toReplace)) {
+                    rewritePackage(toReplace, fileName)
+                } else {
+                    rewriteType(toReplace)
+                }
                 changesDone = changesDone || replacement != toReplace
 
                 val localStart = matcher.start(PATTERN_TYPE_GROUP) - matcher.start()
@@ -154,6 +143,10 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         return changesDone
     }
 
+    private fun isPackage(token: String): Boolean {
+        return !token.any { it.isUpperCase() }
+    }
+
     private fun rewriteType(typeName: String): String {
         val type = JavaType.fromDotVersion(typeName)
         val result = context.typeRewriter.rewriteType(type)
@@ -165,20 +158,18 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
         return typeName
     }
 
-    private fun rewritePackage(packageName: String, archiveName: String): String {
+    private fun rewritePackage(packageName: String, fileName: String): String {
         val pckg = PackageName.fromDotVersion(packageName)
-        val result = context.config.packageMap.getPackageFor(pckg, archiveName)
-        if (result != null) {
-            return result.toDotNotation()
-        }
-        if (context.useFallbackIfTypeIsMissing) {
-            Log.i(TAG, "No mapping for package: '%s' in artifact: '%s' - using identity",
-                    pckg, archiveName)
+        if (!context.config.isEligibleForRewrite(pckg)) {
             return packageName
         }
 
-        context.reportNoPackageMappingFoundFailure()
-        Log.e(TAG, "No mapping for package: '%s' in artifact: '%s'", pckg, archiveName)
+        val result = context.config.packageMap.getPackageFor(pckg)
+        if (result != null) {
+            return result.toDotNotation()
+        }
+
+        context.reportNoPackageMappingFoundFailure(TAG, packageName, fileName)
         return packageName
     }
 }

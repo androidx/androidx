@@ -18,11 +18,15 @@ package com.android.tools.build.jetifier.core.config
 
 import com.android.tools.build.jetifier.core.PackageMap
 import com.android.tools.build.jetifier.core.pom.PomRewriteRule
+import com.android.tools.build.jetifier.core.proguard.ProGuardType
 import com.android.tools.build.jetifier.core.proguard.ProGuardTypesMap
 import com.android.tools.build.jetifier.core.rule.RewriteRule
 import com.android.tools.build.jetifier.core.rule.RewriteRulesMap
+import com.android.tools.build.jetifier.core.type.JavaType
+import com.android.tools.build.jetifier.core.type.PackageName
 import com.android.tools.build.jetifier.core.type.TypesMap
 import com.google.gson.annotations.SerializedName
+import java.util.regex.Pattern
 
 /**
  * The main and only one configuration that is used by the tool and all its transformers.
@@ -57,6 +61,10 @@ data class Config(
         }
     }
 
+    // Merges all packages prefixes into one regEx pattern
+    val packagePrefixPattern = Pattern.compile(
+            "^(" + restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$")
+
     val restrictToPackagePrefixesWithDots: List<String> = restrictToPackagePrefixes
             .map { it.replace("/", ".") }
 
@@ -78,6 +86,59 @@ data class Config(
     fun setNewMap(mappings: TypesMap): Config {
         return Config(restrictToPackagePrefixes, rulesMap, slRules, pomRewriteRules,
             mappings, proGuardMap)
+    }
+
+    /**
+     * Returns whether the given type is eligible for rewrite.
+     *
+     * If not, the transformers should ignore it.
+     */
+    fun isEligibleForRewrite(type: JavaType): Boolean {
+        if (!isEligibleForRewriteInternal(type.fullName)) {
+            return false
+        }
+
+        val isIgnored = rulesMap.runtimeIgnoreRules
+            .any { it.apply(type) == RewriteRule.TypeRewriteResult.IGNORED }
+        return !isIgnored
+    }
+
+    /**
+     * Returns whether the given ProGuard type reference is eligible for rewrite.
+     *
+     * Keep in mind that his has limited capabilities - mainly when * is used as a prefix. Rules
+     * like *.v7 are not matched by prefix support.v7. So don't rely on it and use
+     * the [ProGuardTypesMap] as first.
+     */
+    fun isEligibleForRewrite(type: ProGuardType): Boolean {
+        if (!isEligibleForRewriteInternal(type.value)) {
+            return false
+        }
+
+        val isIgnored = rulesMap.runtimeIgnoreRules.any { it.doesThisIgnoreProGuard(type) }
+        return !isIgnored
+    }
+
+    fun isEligibleForRewrite(type: PackageName): Boolean {
+        if (!type.fullName.contains('/')) {
+            return false
+        }
+
+        if (!isEligibleForRewriteInternal(type.fullName)) {
+            return false
+        }
+
+        val javaType = JavaType(type.fullName + "/")
+        val isIgnored = rulesMap.runtimeIgnoreRules
+            .any { it.apply(javaType) == RewriteRule.TypeRewriteResult.IGNORED }
+        return !isIgnored
+    }
+
+    private fun isEligibleForRewriteInternal(type: String): Boolean {
+        if (restrictToPackagePrefixes.isEmpty()) {
+            return false
+        }
+        return packagePrefixPattern.matcher(type).matches()
     }
 
     /** Returns JSON data model of this class */

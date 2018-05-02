@@ -17,11 +17,8 @@
 package com.android.tools.build.jetifier.core
 
 import com.android.tools.build.jetifier.core.config.Config
-import com.android.tools.build.jetifier.core.proguard.ProGuardType
-import com.android.tools.build.jetifier.core.rule.RewriteRule
 import com.android.tools.build.jetifier.core.type.JavaType
 import com.android.tools.build.jetifier.core.utils.Log
-import java.util.regex.Pattern
 
 /**
  * Wraps capabilities of [TypesMap] and [RewriteRulesMap] into one place.
@@ -32,12 +29,8 @@ class TypeRewriter(private val config: Config, private val useFallback: Boolean)
         private const val TAG = "TypeRewriter"
     }
 
-    // Merges all packages prefixes into one regEx pattern
-    private val packagePrefixPattern = Pattern.compile(
-            "^(" + config.restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$")
-
     fun rewriteType(type: JavaType): JavaType? {
-        if (!isEligibleForRewrite(type)) {
+        if (!config.isEligibleForRewrite(type)) {
             return type
         }
 
@@ -59,43 +52,5 @@ class TypeRewriter(private val config: Config, private val useFallback: Boolean)
         }
 
         return null
-    }
-
-    /**
-     * Returns whether the given type is eligible for rewrite.
-     *
-     * If not, the transformers should ignore it.
-     */
-    fun isEligibleForRewrite(type: JavaType): Boolean {
-        if (!isEligibleForRewriteInternal(type.fullName)) {
-            return false
-        }
-
-        val isIgnored = config.rulesMap.runtimeIgnoreRules
-            .any { it.apply(type) == RewriteRule.TypeRewriteResult.IGNORED }
-        return !isIgnored
-    }
-
-    /**
-    * Returns whether the given ProGuard type reference is eligible for rewrite.
-    *
-    * Keep in mind that his has limited capabilities - mainly when * is used as a prefix. Rules
-    * like *.v7 are not matched by prefix support.v7. So don't rely on it and use
-    * the [ProGuardTypesMap] as first.
-    */
-    fun isEligibleForRewrite(type: ProGuardType): Boolean {
-        if (!isEligibleForRewriteInternal(type.value)) {
-            return false
-        }
-
-        val isIgnored = config.rulesMap.runtimeIgnoreRules.any { it.doesThisIgnoreProGuard(type) }
-        return !isIgnored
-    }
-
-    private fun isEligibleForRewriteInternal(type: String): Boolean {
-        if (config.restrictToPackagePrefixes.isEmpty()) {
-            return false
-        }
-        return packagePrefixPattern.matcher(type).matches()
     }
 }

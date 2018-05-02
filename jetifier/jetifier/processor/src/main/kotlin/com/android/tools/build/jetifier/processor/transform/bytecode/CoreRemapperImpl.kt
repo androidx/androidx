@@ -56,13 +56,8 @@ class CoreRemapperImpl(
     }
 
     override fun rewriteString(value: String): String {
-        val startsWithAndroidX = context.isInReversedMode && value.startsWith("androidx")
-
         val type = JavaType.fromDotVersion(value)
-        if (!context.typeRewriter.isEligibleForRewrite(type)) {
-            if (startsWithAndroidX) {
-                Log.i(TAG, "Found & ignored string '%s'", value)
-            }
+        if (!context.config.isEligibleForRewrite(type)) {
             return value
         }
 
@@ -99,10 +94,6 @@ class CoreRemapperImpl(
     }
 
     fun rewritePath(path: Path): Path {
-        if (!context.rewritingSupportLib) {
-            return path
-        }
-
         val owner = path.toFile().path.replace('\\', '/').removeSuffix(".class")
         val type = JavaType(owner)
 
