@@ -26,8 +26,8 @@ plugins {
 
 dependencies {
     compile project(':jetifier-core')
-    compile("org.ow2.asm:asm:5.2")
-    compile("org.ow2.asm:asm-commons:5.2")
+    compile("org.ow2.asm:asm:6.1.1")
+    compile("org.ow2.asm:asm-commons:6.1.1")
     compile("org.jdom:jdom2:2.0.6")
     compile(KOTLIN_STDLIB)
     testCompile("junit:junit:4.12")
