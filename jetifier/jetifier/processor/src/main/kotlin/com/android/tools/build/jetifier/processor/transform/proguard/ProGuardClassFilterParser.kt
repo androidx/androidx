@@ -33,7 +33,7 @@ class ProGuardClassFilterParser(private val mapper: ProGuardTypesMapper) {
     val replacer = GroupsReplacer(
         pattern = PatternHelper.build("^ *-$RULES ｟[^-]+｠ *$", Pattern.MULTILINE),
         groupsMap = listOf(
-            { filter: String -> rewriteClassFilter(filter) }
+            { filter: String -> listOf(rewriteClassFilter(filter)) }
         )
     )
 
@@ -44,15 +44,24 @@ class ProGuardClassFilterParser(private val mapper: ProGuardTypesMapper) {
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .map { replaceTypeInClassFilter(it) }
+            .flatten()
+            .distinct()
             .joinToString(separator = ", ")
     }
 
-    private fun replaceTypeInClassFilter(type: String): String {
+    /**
+     * Given a package name matcher that matches several pre-renamed class names, returns several
+     * package name matches that collectively match all of the possible pos-renamed names of those
+     * classes.
+     */
+    private fun replaceTypeInClassFilter(type: String): List<String> {
         if (!type.startsWith('!')) {
             return mapper.replaceType(type)
         }
 
         val withoutNegation = type.substring(1, type.length)
-        return '!' + mapper.replaceType(withoutNegation)
+        return mapper.replaceType(withoutNegation)
+            .map { '!' + it }
+            .toList()
     }
 }

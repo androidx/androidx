@@ -141,4 +141,31 @@ class ClassSpecTest_FieldTypeSelector {
                 "}"
             )
     }
+
+    @Test fun proGuard_fieldTypeSelector_multiple() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenProGuardMapSet("support.**" to setOf("support.**", "androidx.**"))
+            .testThatGivenProGuard(
+                "-keep public class support.** { \n" +
+                "  public support.** height; \n" +
+                "}"
+            )
+            .rewritesTo(
+                "-keep public class support.** { \n" +
+                "  public support.** height; \n" +
+                "}\n" +
+                "-keep public class androidx.** { \n" +
+                "  public support.** height; \n" +
+                "}\n" +
+                "-keep public class support.** { \n" +
+                "  public androidx.** height; \n" +
+                "}\n" +
+                "-keep public class androidx.** { \n" +
+                "  public androidx.** height; \n" +
+                "}"
+            )
+    }
 }
