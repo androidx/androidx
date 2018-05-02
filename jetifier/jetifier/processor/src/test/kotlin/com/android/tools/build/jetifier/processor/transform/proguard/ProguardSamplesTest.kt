@@ -256,7 +256,8 @@ class ProguardSamplesTest {
                 "  public not.related.Type width; public support.Fragment width; \n" +
                 "  ignoreMe; \n" +
                 "  @support.Annotation public support.Fragment get(); \n" +
-                "}"
+                "}\n" +
+                "-dontwarn support.**"
             )
             .rewritesTo(
                 "-keep public class * extends test.Activity { \n" +
@@ -267,7 +268,8 @@ class ProguardSamplesTest {
                 "  public not.related.Type width; public test.Fragment width; \n" +
                 "  ignoreMe; \n" +
                 "  @test.Annotation public test.Fragment get(); \n" +
-                "}"
+                "}\n" +
+                "-dontwarn test.**"
             )
     }
 }

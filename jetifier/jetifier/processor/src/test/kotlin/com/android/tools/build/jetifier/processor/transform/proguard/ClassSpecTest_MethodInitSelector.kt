@@ -232,4 +232,31 @@ class ClassSpecTest_MethodInitSelector {
                 "}"
             )
     }
+
+    @Test fun proGuard_methodInitSelector_multiple() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenProGuardMapSet("support.**" to setOf("support.**", "androidx.**"))
+            .testThatGivenProGuard(
+                "-keep public class * { \n" +
+                "  <init>(support.**, support.**); \n" +
+                "}"
+            )
+            .rewritesTo(
+                "-keep public class * { \n" +
+                "  <init>(support.**, support.**); \n" +
+                "}\n" +
+                "-keep public class * { \n" +
+                "  <init>(androidx.**, support.**); \n" +
+                "}\n" +
+                "-keep public class * { \n" +
+                "  <init>(support.**, androidx.**); \n" +
+                "}\n" +
+                "-keep public class * { \n" +
+                "  <init>(androidx.**, androidx.**); \n" +
+                "}"
+            )
+    }
 }

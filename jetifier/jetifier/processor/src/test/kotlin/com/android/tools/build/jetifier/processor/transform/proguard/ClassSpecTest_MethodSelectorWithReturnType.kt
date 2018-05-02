@@ -287,4 +287,31 @@ class ClassSpecTest_MethodSelectorWithReturnType {
                 "}"
             )
     }
+
+    @Test fun proGuard_methodReturnTypeSelector_multiple() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenProGuardMapSet("support.**" to setOf("support.**", "androidx.**"))
+            .testThatGivenProGuard(
+                "-keep public class * { \n" +
+                "  support.** get(support.**); \n" +
+                "}"
+            )
+            .rewritesTo(
+                "-keep public class * { \n" +
+                "  support.** get(support.**); \n" +
+                "}\n" +
+                "-keep public class * { \n" +
+                "  androidx.** get(support.**); \n" +
+                "}\n" +
+                "-keep public class * { \n" +
+                "  support.** get(androidx.**); \n" +
+                "}\n" +
+                "-keep public class * { \n" +
+                "  androidx.** get(androidx.**); \n" +
+                "}"
+            )
+    }
 }
