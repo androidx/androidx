@@ -16,6 +16,7 @@
 
 package com.android.tools.build.jetifier.processor.transform.proguard
 
+import com.android.tools.build.jetifier.processor.cartesianProduct
 import com.android.tools.build.jetifier.processor.transform.proguard.patterns.GroupsReplacer
 import com.android.tools.build.jetifier.processor.transform.proguard.patterns.PatternHelper
 
@@ -117,9 +118,9 @@ class ProGuardClassSpecParser(private val mapper: ProGuardTypesMapper) {
         ))
     )
 
-    private fun rewriteBodyGroup(bodyGroup: String): String {
+    private fun rewriteBodyGroup(bodyGroup: String): List<String> {
         if (bodyGroup == "*" || bodyGroup == "**") {
-            return bodyGroup
+            return listOf(bodyGroup)
         }
 
         return bodyGroup
@@ -131,8 +132,10 @@ class ProGuardClassSpecParser(private val mapper: ProGuardTypesMapper) {
                         return@map replacer.runReplacements(matcher)
                     }
                 }
-                return@map it
+                return@map listOf(it)
             }
-            .joinToString(";")
+            .cartesianProduct()
+            .map { it.joinToString(separator = ";") }
+            .toList()
     }
 }

@@ -47,7 +47,7 @@ class ConfigParserTest {
             "    ],\n" +
             "   proGuardMap: {\n" +
             "       rules: {\n" +
-            "           \"android/support/**\": \"androidx/**\"\n" +
+            "           \"android/support/**\": [\"androidx/**\"]\n" +
             "       }\n" +
             "    }" +
             "}"
@@ -57,7 +57,7 @@ class ConfigParserTest {
         Truth.assertThat(config).isNotNull()
         Truth.assertThat(config!!.restrictToPackagePrefixes.first()).isEqualTo("android/support/")
         Truth.assertThat(config.rulesMap.rewriteRules.size).isEqualTo(2)
-        Truth.assertThat(config.proGuardMap.rules.size).isEqualTo(1)
+        Truth.assertThat(config.proGuardMap.toJson().rules.size).isEqualTo(1)
     }
 
     @Test(expected = IllegalArgumentException::class)

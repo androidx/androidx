@@ -21,7 +21,7 @@ import com.android.tools.build.jetifier.core.utils.Log
 /**
  * Contains custom mappings to map support library types referenced in ProGuard to new ones.
  */
-data class ProGuardTypesMap(val rules: Map<ProGuardType, ProGuardType>) {
+data class ProGuardTypesMap(private val rules: Map<ProGuardType, Set<ProGuardType>>) {
 
     companion object {
         const val TAG = "ProGuardTypesMap"
@@ -29,43 +29,68 @@ data class ProGuardTypesMap(val rules: Map<ProGuardType, ProGuardType>) {
         val EMPTY = ProGuardTypesMap(emptyMap())
     }
 
+    private val expandedRules: Map<ProGuardType, Set<ProGuardType>> by lazy {
+        val expandedMap = mutableMapOf<ProGuardType, Set<ProGuardType>>()
+        rules.forEach { (from, to) ->
+            if (from.needsExpansion() || to.any { it.needsExpansion() }) {
+                ProGuardType.EXPANSION_TOKENS.forEach {
+                    t -> expandedMap.put(from.expandWith(t), to.map { it.expandWith(t) }.toSet())
+                }
+            } else {
+                expandedMap.put(from, to)
+            }
+        }
+        expandedMap
+    }
+
+    constructor(vararg rules: Pair<ProGuardType, ProGuardType>)
+        : this(rules.map { it.first to setOf(it.second) }.toMap())
+
     /** Returns JSON data model of this class */
     fun toJson(): JsonData {
-        return JsonData(rules.map { it.key.value to it.value.value }.toMap())
+        return JsonData(rules.map { it.key.value to it.value.map { it.value }.toList() }.toMap())
+    }
+
+    fun mapType(type: ProGuardType): Set<ProGuardType>? {
+        return expandedRules[type]
     }
 
     /**
      * JSON data model for [ProGuardTypesMap].
      */
-    data class JsonData(val rules: Map<String, String>) {
+    data class JsonData(val rules: Map<String, List<String>>) {
 
         /** Creates instance of [ProGuardTypesMap] */
         fun toMappings(): ProGuardTypesMap {
-            return ProGuardTypesMap(
-                rules.map { ProGuardType(it.key) to ProGuardType(it.value) }.toMap())
+            return ProGuardTypesMap(rules
+                .map { ProGuardType(it.key) to it.value.map { ProGuardType(it) }.toSet() }
+                .toMap())
         }
     }
 
     /**
-     * Creates reversed version of this map (values become keys). Throws exception if the map does
-     * not satisfy that.
+     * Creates reversed version of this map (values become keys). If there are multiple keys mapped
+     * to the same value only the first value is used and warning message is printed.
      */
-    fun reverseMapOrDie(): ProGuardTypesMap {
+    fun reverseMap(): ProGuardTypesMap {
         val reversed = mutableMapOf<ProGuardType, ProGuardType>()
         for ((from, to) in rules) {
-            val conflictFrom = reversed[to]
-            if (conflictFrom != null) {
-                Log.e(TAG, "Conflict: %s -> (%s, %s)", to, from, conflictFrom)
+            if (to.size > 1) {
+                // Skip reversal of a set
                 continue
             }
-            reversed[to] = from
+
+            val conflictFrom = reversed[to.single()]
+            if (conflictFrom != null) {
+                // Conflict - skip
+                Log.w(TAG, "Conflict: %s -> (%s, %s)", to, from, conflictFrom)
+                continue
+            }
+            reversed[to.single()] = from
         }
 
-        if (rules.size != reversed.size || rules.size != reversed.size) {
-            throw IllegalArgumentException("Types map is not reversible as conflicts were found! " +
-                "See the log for more details.")
-        }
-
-        return ProGuardTypesMap(reversed)
+        return ProGuardTypesMap(reversed
+            .map { it.key to setOf(it.value) }
+            .toMap())
     }
 }
