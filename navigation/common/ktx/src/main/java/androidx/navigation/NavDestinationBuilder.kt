@@ -83,7 +83,7 @@ open class NavDestinationBuilder<out D : NavDestination>(
             deepLinks.forEach { deepLink ->
                 destination.addDeepLink(deepLink)
             }
-            actions.forEach { actionId, action ->
+            actions.forEach { (actionId, action) ->
                 destination.putAction(actionId, action)
             }
         }
