@@ -1194,6 +1194,11 @@ package androidx.core.os {
     ctor public OperationCanceledException(java.lang.String);
   }
 
+  public final class ParcelCompat {
+    method public static boolean readBoolean(android.os.Parcel);
+    method public static void writeBoolean(android.os.Parcel, boolean);
+  }
+
   public final deprecated class ParcelableCompat {
     method public static deprecated <T> android.os.Parcelable.Creator<T> newCreator(androidx.core.os.ParcelableCompatCreatorCallbacks<T>);
   }
