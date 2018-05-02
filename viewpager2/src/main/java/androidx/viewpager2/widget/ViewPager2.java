@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Parcel;
@@ -48,6 +49,7 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import androidx.viewpager2.R;
 
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
@@ -65,37 +67,37 @@ public class ViewPager2 extends ViewGroup {
     private final Rect mTmpChildRect = new Rect();
 
     private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLayoutManager;
 
     public ViewPager2(Context context) {
         super(context);
-        initialize(context);
+        initialize(context, null);
     }
 
     public ViewPager2(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
+        initialize(context, attrs);
     }
 
     public ViewPager2(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initialize(context);
+        initialize(context, attrs);
     }
 
     @RequiresApi(21)
     public ViewPager2(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         // TODO(b/70663531): handle attrs, defStyleAttr, defStyleRes
         super(context, attrs, defStyleAttr, defStyleRes);
-        initialize(context);
+        initialize(context, attrs);
     }
 
-    private void initialize(Context context) {
+    private void initialize(Context context, AttributeSet attrs) {
         mRecyclerView = new RecyclerView(context);
         mRecyclerView.setId(ViewCompat.generateViewId());
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-        // TODO(b/69103581): add support for vertical layout
-        // TODO(b/69398856): add support for RTL
-        layoutManager.setOrientation(RecyclerView.HORIZONTAL);
-        mRecyclerView.setLayoutManager(layoutManager);
+        mLayoutManager = new LinearLayoutManager(context);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        setOrientation(context, attrs);
 
         mRecyclerView.setLayoutParams(
                 new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -104,6 +106,15 @@ public class ViewPager2 extends ViewGroup {
         new PagerSnapHelper().attachToRecyclerView(mRecyclerView);
 
         attachViewToParent(mRecyclerView, 0, mRecyclerView.getLayoutParams());
+    }
+
+    private void setOrientation(Context context, AttributeSet attrs) {
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ViewPager2);
+        try {
+            setOrientation(a.getInt(R.styleable.ViewPager2_orientation, Orientation.HORIZONTAL));
+        } finally {
+            a.recycle();
+        }
     }
 
     @Nullable
@@ -492,5 +503,23 @@ public class ViewPager2 extends ViewGroup {
         Gravity.apply(Gravity.TOP | Gravity.START, width, height, mTmpContainerRect, mTmpChildRect);
         mRecyclerView.layout(mTmpChildRect.left, mTmpChildRect.top, mTmpChildRect.right,
                 mTmpChildRect.bottom);
+    }
+
+    @Retention(CLASS)
+    @IntDef({Orientation.HORIZONTAL, Orientation.VERTICAL})
+    public @interface Orientation {
+        int HORIZONTAL = RecyclerView.HORIZONTAL;
+        int VERTICAL = RecyclerView.VERTICAL;
+    }
+
+    /**
+     * @param orientation @{link {@link ViewPager2.Orientation}}
+     */
+    public void setOrientation(@Orientation int orientation) {
+        mLayoutManager.setOrientation(orientation);
+    }
+
+    public @Orientation int getOrientation() {
+        return mLayoutManager.getOrientation();
     }
 }
