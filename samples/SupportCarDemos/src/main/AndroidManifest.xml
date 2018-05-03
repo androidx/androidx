@@ -22,7 +22,8 @@
             android:icon="@drawable/app_sample_code"
             android:theme="@style/CarTheme">
 
-        <activity android:name=".SupportCarDemoActivity">
+        <activity android:name=".SupportCarDemoActivity"
+            android:theme="@style/CarListTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
