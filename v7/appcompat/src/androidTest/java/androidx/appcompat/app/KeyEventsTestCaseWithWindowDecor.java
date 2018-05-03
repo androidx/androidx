@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
+import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.view.KeyEvent;
@@ -41,12 +42,31 @@ public class KeyEventsTestCaseWithWindowDecor extends BaseKeyEventsTestCase<Wind
     public void testUnhandledKeys() throws Throwable {
         final ViewGroup container = mActivityTestRule.getActivity().findViewById(R.id.test_content);
         final MockUnhandledKeyListener listener = new MockUnhandledKeyListener();
-        final View mockView1 = new View(mActivityTestRule.getActivity());
+        final View mockView1 = new HandlerView(mActivityTestRule.getActivity());
+        final HandlerView mockView2 = new HandlerView(mActivityTestRule.getActivity());
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+
+        // Sanity check: should work before any unhandled stuff is used. This just needs to run
+        // without causing a crash
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                container.addView(mockView2);
+                mockView2.setFocusableInTouchMode(true);
+                mockView2.requestFocus();
+            }
+        });
+        instrumentation.waitForIdleSync();
+        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B);
+        // check that we're fine if a view consumes a down but not an up.
+        mockView2.respondToDown = true;
+        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B);
+        assertTrue(mockView2.gotDown);
+        mockView2.respondToDown = false;
 
         ViewCompat.addOnUnhandledKeyEventListener(mockView1, listener);
 
         // Before the view is attached, it shouldn't respond to anything
-        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B);
         assertFalse(listener.fired());
 
@@ -95,6 +115,27 @@ public class KeyEventsTestCaseWithWindowDecor extends BaseKeyEventsTestCase<Wind
         }
         public boolean fired() {
             return mLastView != null && mGotUp;
+        }
+    }
+
+    /**
+     * A View which can be set to consume or not consume key events.
+     */
+    private static class HandlerView extends View {
+        HandlerView(Context ctx) {
+            super(ctx);
+        }
+
+        public boolean respondToDown = false;
+        public boolean gotDown = false;
+
+        @Override
+        public boolean dispatchKeyEvent(KeyEvent evt) {
+            if (evt.getAction() == KeyEvent.ACTION_DOWN && respondToDown) {
+                gotDown = true;
+                return true;
+            }
+            return super.dispatchKeyEvent(evt);
         }
     }
 }

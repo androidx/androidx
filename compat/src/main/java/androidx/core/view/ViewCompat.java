@@ -55,6 +55,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.collection.ArrayMap;
 import androidx.core.R;
 import androidx.core.os.BuildCompat;
@@ -3493,6 +3494,7 @@ public class ViewCompat {
     /**
      * @see {@link #dispatchUnhandledKeyEventPost}
      */
+    @UiThread
     public static boolean dispatchUnhandledKeyEventPre(View root, KeyEvent evt) {
         if (BuildCompat.isAtLeastP()) {
             return false;
@@ -3516,6 +3518,7 @@ public class ViewCompat {
      * By doing this, dispatch order won't be exactly the same as if using delegate, but it will
      * be pretty close.
      */
+    @UiThread
     public static boolean dispatchUnhandledKeyEventPost(View root, KeyEvent evt) {
         if (BuildCompat.isAtLeastP()) {
             return false;
@@ -3527,40 +3530,15 @@ public class ViewCompat {
         // The number of views with listeners is usually much fewer than the number of views.
         // This means it should be faster to only check parent chains of views with listeners than
         // to check every view for listeners.
-        private static ArrayList<WeakReference<View>> sViewsWithListeners = null;
+        private static final ArrayList<WeakReference<View>> sViewsWithListeners = new ArrayList<>();
 
         // This is a cache (per keypress) of all the views which either have listeners or
-        // contain a view with listeners.
-        private static WeakHashMap<View, Boolean> sViewsContainingListeners = null;
-
-        private static Object sLock = new Object();
+        // contain a view with listeners. This is only accessed on the UI thread.
+        @Nullable
+        private WeakHashMap<View, Boolean> mViewsContainingListeners = null;
 
         private SparseBooleanArray mCapturedKeys = null;
         private WeakReference<View> mCurrentReceiver = null;
-
-        @SuppressWarnings("DoubleCheckedLocking") // b/79212437
-        private static ArrayList<WeakReference<View>> getViewsWithListeners() {
-            if (sViewsWithListeners == null) {
-                synchronized (sLock) {
-                    if (sViewsWithListeners == null) {
-                        sViewsWithListeners = new ArrayList<>();
-                    }
-                }
-            }
-            return sViewsWithListeners;
-        }
-
-        @SuppressWarnings("DoubleCheckedLocking") // b/79212437
-        private static WeakHashMap<View, Boolean> getViewsContainingListeners() {
-            if (sViewsContainingListeners == null) {
-                synchronized (sLock) {
-                    if (sViewsContainingListeners == null) {
-                        sViewsContainingListeners = new WeakHashMap<>();
-                    }
-                }
-            }
-            return sViewsContainingListeners;
-        }
 
         private SparseBooleanArray getCapturedKeys() {
             if (mCapturedKeys == null) {
@@ -3613,8 +3591,9 @@ public class ViewCompat {
             return consumer != null;
         }
 
-        View dispatchInOrder(View view, KeyEvent event) {
-            if (!sViewsContainingListeners.containsKey(view)) {
+        @Nullable
+        private View dispatchInOrder(View view, KeyEvent event) {
+            if (mViewsContainingListeners == null || !mViewsContainingListeners.containsKey(view)) {
                 return null;
             }
             if (view instanceof ViewGroup) {
@@ -3653,55 +3632,53 @@ public class ViewCompat {
             return false;
         }
 
+        /**
+         * Registers that a view has at least one {@link OnUnhandledKeyEventListenerCompat}. Does
+         * nothing if the view is already registered.
+         */
         static void registerListeningView(View v) {
-            ArrayList<WeakReference<View>> views = getViewsWithListeners();
-            synchronized (sLock) {
-                for (WeakReference<View> wv : views) {
+            synchronized (sViewsWithListeners) {
+                for (WeakReference<View> wv : sViewsWithListeners) {
                     if (wv.get() == v) {
                         return;
                     }
                 }
-                views.add(new WeakReference<>(v));
+                sViewsWithListeners.add(new WeakReference<>(v));
             }
         }
 
         static void unregisterListeningView(View v) {
-            ArrayList<WeakReference<View>> views = getViewsWithListeners();
-            synchronized (sLock) {
-                for (int i = 0; i < views.size(); ++i) {
-                    if (views.get(i).get() == v) {
-                        if (i < views.size() - 1) {
-                            views.set(i,
-                                    views.remove(views.size() - 1));
-                        } else {
-                            views.remove(i);
-                        }
+            synchronized (sViewsWithListeners) {
+                for (int i = 0; i < sViewsWithListeners.size(); ++i) {
+                    if (sViewsWithListeners.get(i).get() == v) {
+                        sViewsWithListeners.remove(i);
                         return;
                     }
                 }
             }
         }
 
-        void recalcViewsWithUnhandled() {
-            synchronized (sLock) {
-                WeakHashMap<View, Boolean> containing = getViewsContainingListeners();
-                ArrayList<WeakReference<View>> views = getViewsWithListeners();
-                containing.clear();
-                for (int i = views.size() - 1; i >= 0; --i) {
-                    WeakReference<View> vw = views.get(i);
+        private void recalcViewsWithUnhandled() {
+            if (mViewsContainingListeners != null) {
+                mViewsContainingListeners.clear();
+            }
+            if (sViewsWithListeners.isEmpty()) {
+                return;
+            }
+            synchronized (sViewsWithListeners) {
+                if (mViewsContainingListeners == null) {
+                    mViewsContainingListeners = new WeakHashMap<>();
+                }
+                for (int i = sViewsWithListeners.size() - 1; i >= 0; --i) {
+                    WeakReference<View> vw = sViewsWithListeners.get(i);
                     View v = vw.get();
                     if (v == null) {
-                        if (i < views.size() - 1) {
-                            views.set(i,
-                                    views.remove(views.size() - 1));
-                        } else {
-                            views.remove(i);
-                        }
+                        sViewsWithListeners.remove(i);
                     } else {
-                        containing.put(v, Boolean.TRUE);
+                        mViewsContainingListeners.put(v, Boolean.TRUE);
                         ViewParent nxt = v.getParent();
                         while (nxt instanceof View) {
-                            containing.put((View) nxt, Boolean.TRUE);
+                            mViewsContainingListeners.put((View) nxt, Boolean.TRUE);
                             nxt = nxt.getParent();
                         }
                     }
