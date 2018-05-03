@@ -18,7 +18,6 @@ package com.example.android.support.design.widget;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.BottomSheetDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.support.design.Cheeses;
 import com.example.android.support.design.R;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 abstract class BottomSheetModalBase extends AppCompatActivity {
 

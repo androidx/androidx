@@ -15,13 +15,13 @@
  */
 package com.example.android.support.design.widget;
 
-import android.support.design.widget.BaseTransientBottomBar;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.example.android.support.design.R;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 
 /**
  * Sample code for a custom snackbar that shows two separate text views and two images

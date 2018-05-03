@@ -17,12 +17,12 @@
 package com.example.android.support.design.widget;
 
 import android.os.Bundle;
-import android.support.design.widget.TextInputLayout;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.android.support.design.R;
+import com.google.android.material.textfield.TextInputLayout;
 
 /**
  * This demonstrates idiomatic usage of {@code TextInputLayout}

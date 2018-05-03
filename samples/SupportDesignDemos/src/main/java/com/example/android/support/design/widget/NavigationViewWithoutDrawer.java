@@ -16,10 +16,10 @@
 
 package com.example.android.support.design.widget;
 
-import android.support.design.widget.NavigationView;
 import android.view.MenuItem;
 
 import com.example.android.support.design.R;
+import com.google.android.material.navigation.NavigationView;
 
 /**
  * This demonstrates basic usage of NavigationView

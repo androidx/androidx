@@ -24,7 +24,6 @@ dependencies {
     implementation(project(":slice-view"))
     implementation(project(":slice-builders"))
     implementation(project(":slice-core"))
-    implementation("com.android.support:design:28.0.0-SNAPSHOT", { transitive = false })
     implementation(project(":transition"))
     implementation(project(":recyclerview"))
     implementation(project(":appcompat"))
