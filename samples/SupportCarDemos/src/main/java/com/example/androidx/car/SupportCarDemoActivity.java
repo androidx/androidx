@@ -119,11 +119,9 @@ public class SupportCarDemoActivity extends ListActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_1,
-                        parent, false);
-                convertView.setTag(convertView.findViewById(android.R.id.text1));
+                convertView = getLayoutInflater().inflate(R.layout.main_list_item, parent, false);
             }
-            TextView tv = (TextView) convertView.getTag();
+            TextView tv = convertView.findViewById(R.id.title);
             tv.setText(mItems.get(position).mName);
             return convertView;
         }
