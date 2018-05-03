@@ -26,7 +26,7 @@ android-support-collections,androidx.collection_collection
 android-support-compat,androidx.core_core
 android-support-constraint-layout,androidx-constraintlayout_constraintlayout
 android-support-constraint-layout-solver,androidx-constraintlayout_constraintlayout-solver
-android-support-contentpaging,androidx.contentpaging_contentpaging
+android-support-contentpaging,androidx.contentpager_contentpager
 android-support-coordinatorlayout,androidx.coordinatorlayout_coordinatorlayout
 android-support-core-ui,androidx.legacy_legacy-support-core-ui
 android-support-core-utils,androidx.legacy_legacy-support-core-utils
