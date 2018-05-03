@@ -3538,6 +3538,7 @@ public class ViewCompat {
         private SparseBooleanArray mCapturedKeys = null;
         private WeakReference<View> mCurrentReceiver = null;
 
+        @SuppressWarnings("DoubleCheckedLocking") // b/79212437
         private static ArrayList<WeakReference<View>> getViewsWithListeners() {
             if (sViewsWithListeners == null) {
                 synchronized (sLock) {
@@ -3549,6 +3550,7 @@ public class ViewCompat {
             return sViewsWithListeners;
         }
 
+        @SuppressWarnings("DoubleCheckedLocking") // b/79212437
         private static WeakHashMap<View, Boolean> getViewsContainingListeners() {
             if (sViewsContainingListeners == null) {
                 synchronized (sLock) {
