@@ -18,7 +18,6 @@ package com.example.android.support.design.widget;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.support.design.widget.BottomNavigationView;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -28,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.android.support.design.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /**
  * This demonstrates idiomatic usage of the bottom navigation widget.

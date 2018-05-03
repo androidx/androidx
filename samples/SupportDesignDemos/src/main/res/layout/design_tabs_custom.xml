@@ -31,7 +31,7 @@
             app:contentInsetStart="72dp"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
-    <android.support.design.widget.TabLayout
+    <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"

@@ -17,7 +17,6 @@
 package com.example.android.support.design.widget;
 
 import android.os.Bundle;
-import android.support.design.widget.BottomSheetBehavior;
 import android.text.TextUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.android.support.design.R;
 import com.example.android.support.design.Shakespeare;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 /**
  * This demonstrates basic usage of {@link BottomSheetBehavior}.
