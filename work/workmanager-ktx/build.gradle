@@ -47,7 +47,7 @@ dependencies {
 
 supportLibrary {
     name = "Android WorkManager Kotlin Extensions"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.WORKMANAGER
     mavenGroup = LibraryGroups.WORKMANAGER
     inceptionYear = "2018"
