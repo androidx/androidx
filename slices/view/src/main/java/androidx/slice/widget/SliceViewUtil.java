@@ -31,6 +31,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.format.DateUtils;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -197,6 +198,18 @@ public class SliceViewUtil {
     public static CharSequence getRelativeTimeString(long time) {
         return DateUtils.getRelativeTimeSpanString(time, Calendar.getInstance().getTimeInMillis(),
                 DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
+    }
+
+    /**
+     */
+    public static int resolveLayoutDirection(int layoutDir) {
+        if (layoutDir == View.LAYOUT_DIRECTION_INHERIT
+                || layoutDir == View.LAYOUT_DIRECTION_LOCALE
+                || layoutDir == View.LAYOUT_DIRECTION_RTL
+                || layoutDir == View.LAYOUT_DIRECTION_LTR) {
+            return layoutDir;
+        }
+        return -1;
     }
 
     private SliceViewUtil() {

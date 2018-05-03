@@ -274,6 +274,17 @@ public class GridRowBuilder extends TemplateSliceBuilder {
     }
 
     /**
+     * Sets the desired layout direction for the content in this row.
+     *
+     * @param layoutDirection the layout direction to set.
+     */
+    @NonNull
+    public GridRowBuilder setLayoutDirection(@ListBuilder.LayoutDirection int layoutDirection) {
+        mImpl.setLayoutDirection(layoutDirection);
+        return this;
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(LIBRARY)

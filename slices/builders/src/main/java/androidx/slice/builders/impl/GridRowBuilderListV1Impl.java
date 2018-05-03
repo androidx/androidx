@@ -23,6 +23,7 @@ import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
+import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
@@ -118,6 +119,13 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
     @Override
     public void setContentDescription(CharSequence description) {
         getBuilder().addText(description, SUBTYPE_CONTENT_DESCRIPTION);
+    }
+
+    /**
+     */
+    @Override
+    public void setLayoutDirection(int layoutDirection) {
+        getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
     }
 
     /**

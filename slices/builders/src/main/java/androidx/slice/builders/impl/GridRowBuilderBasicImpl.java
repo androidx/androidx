@@ -89,6 +89,13 @@ public class GridRowBuilderBasicImpl extends TemplateBuilderImpl implements Grid
     /**
      */
     @Override
+    public void setLayoutDirection(int layoutDirection) {
+
+    }
+
+    /**
+     */
+    @Override
     public void apply(Slice.Builder builder) {
 
     }

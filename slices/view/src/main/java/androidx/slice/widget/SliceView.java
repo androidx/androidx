@@ -606,6 +606,12 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         boolean expired = expiry != 0 && expiry != SliceHints.INFINITY && now > expiry;
         mCurrentView.setShowLastUpdated(mShowLastUpdated && expired);
 
+        if (mListContent.getLayoutDirItem() != null) {
+            mCurrentView.setLayoutDirection(mListContent.getLayoutDirItem().getInt());
+        } else {
+            mCurrentView.setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT);
+        }
+
         // Set the slice
         mCurrentView.setSliceContent(mListContent);
         updateActions();

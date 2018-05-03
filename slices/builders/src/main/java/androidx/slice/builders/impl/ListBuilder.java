@@ -114,6 +114,11 @@ public interface ListBuilder {
     void setIsError(boolean isError);
 
     /**
+     * Sets the desired layout direction for the content in this slice.
+     */
+    void setLayoutDirection(int layoutDirection);
+
+    /**
      * Create a builder that implements {@link RowBuilder}.
      */
     TemplateBuilderImpl createRowBuilder();
@@ -180,6 +185,11 @@ public interface ListBuilder {
          * Sets the content description.
          */
         void setContentDescription(CharSequence description);
+
+        /**
+         * Sets the layout direction for this row.
+         */
+        void setLayoutDirection(int layoutDirection);
     }
 
     /**
@@ -322,6 +332,11 @@ public interface ListBuilder {
          * Sets the content description for this row.
          */
         void setContentDescription(CharSequence description);
+
+        /**
+         * Sets the desired layout direction for the content in this row.
+         */
+        void setLayoutDirection(int layoutDirection);
     }
 
 
@@ -357,6 +372,11 @@ public interface ListBuilder {
          * Sets the content description for the header.
          */
         void setContentDescription(CharSequence description);
+
+        /**
+         * Sets the desired layout direction for the content in this row.
+         */
+        void setLayoutDirection(int layoutDirection);
     }
 }
 

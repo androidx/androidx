@@ -80,6 +80,11 @@ public interface GridRowBuilder {
     void setContentDescription(CharSequence description);
 
     /**
+     * Sets the desired layout direction for the content in this row.
+     */
+    void setLayoutDirection(int layoutDirection);
+
+    /**
      */
     interface CellBuilder {
         /**
