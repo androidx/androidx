@@ -23,7 +23,7 @@ dependencies {
     implementation(project(":transition"))
     implementation(project(":recyclerview"))
     implementation(project(":appcompat"))
-    implementation(project(":contentpaging"))
+    implementation(project(":contentpager"))
 }
 
 android {
