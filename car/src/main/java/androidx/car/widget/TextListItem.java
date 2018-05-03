@@ -721,7 +721,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param listener the callback that will run when icon is clicked.
      */
     public void setSupplementalIcon(Drawable drawable, boolean showDivider,
-                                    View.OnClickListener listener) {
+            View.OnClickListener listener) {
         mSupplementalActionType = SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON;
 
         mSupplementalIconDrawable = drawable;
