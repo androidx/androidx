@@ -582,6 +582,12 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
 
             mSupplementalIcon = itemView.findViewById(R.id.supplemental_icon);
             mSupplementalIconDivider = itemView.findViewById(R.id.supplemental_icon_divider);
+
+            int minTouchSize = itemView.getContext().getResources()
+                    .getDimensionPixelSize(R.dimen.car_touch_target_size);
+
+            MinTouchTargetHelper.ensureThat(mSupplementalIcon)
+                    .hasMinTouchSize(minTouchSize);
         }
 
         @Override
