@@ -64,15 +64,15 @@ public class CarAlertDialog extends Dialog {
     private Button mNegativeButton;
     private ButtonPanelTouchDelegate mButtonPanelTouchDelegate;
 
-    private CarAlertDialog(Context context, Builder data) {
+    private CarAlertDialog(Context context, Builder builder) {
         super(context, getDialogTheme(context));
 
-        mTitle = data.mTitle;
-        mBody = data.mBody;
-        mPositiveButtonText = data.mPositiveButtonText;
-        mPositiveButtonListener = data.mPositiveButtonListener;
-        mNegativeButtonText = data.mNegativeButtonText;
-        mNegativeButtonListener = data.mNegativeButtonListener;
+        mTitle = builder.mTitle;
+        mBody = builder.mBody;
+        mPositiveButtonText = builder.mPositiveButtonText;
+        mPositiveButtonListener = builder.mPositiveButtonListener;
+        mNegativeButtonText = builder.mNegativeButtonText;
+        mNegativeButtonListener = builder.mNegativeButtonListener;
 
         Resources res = context.getResources();
         mTopPadding = res.getDimensionPixelSize(R.dimen.car_padding_4);

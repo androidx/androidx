@@ -55,7 +55,7 @@ public abstract class PollingCheck {
             try {
                 Thread.sleep(TIME_SLICE);
             } catch (InterruptedException e) {
-                Assert.fail("unexpected InterruptedException");
+                throw new AssertionError("unexpected InterruptedException");
             }
 
             if (check()) {
