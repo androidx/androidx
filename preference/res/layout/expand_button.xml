@@ -35,6 +35,7 @@
         android:orientation="horizontal"
         android:layout_marginStart="-4dp"
         android:minWidth="60dp"
+        android:paddingStart="4dp"
         android:paddingEnd="12dp"
         android:paddingTop="4dp"
         android:paddingBottom="4dp">
