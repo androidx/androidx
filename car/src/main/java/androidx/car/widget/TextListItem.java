@@ -858,6 +858,12 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             mAction1Divider = itemView.findViewById(R.id.action1_divider);
             mAction2 = itemView.findViewById(R.id.action2);
             mAction2Divider = itemView.findViewById(R.id.action2_divider);
+
+            int minTouchSize = itemView.getContext().getResources()
+                    .getDimensionPixelSize(R.dimen.car_touch_target_size);
+
+            MinTouchTargetHelper.ensureThat(mSupplementalIcon)
+                    .hasMinTouchSize(minTouchSize);
         }
 
         /**

@@ -54,6 +54,7 @@
     <!-- Supplemental action. -->
     <ImageView
         android:id="@+id/supplemental_icon"
+        android:background="@drawable/car_button_ripple_background"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
         android:scaleType="fitCenter"/>
