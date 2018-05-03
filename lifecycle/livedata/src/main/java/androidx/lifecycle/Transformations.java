@@ -22,13 +22,12 @@ import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
 
 /**
- * Transformations for a {@link LiveData} class.
+ * Transformation methods for {@link LiveData}.
  * <p>
- * You can use transformation methods to carry information across the observer's lifecycle. The
- * transformations aren't calculated unless an observer is observing the returned LiveData object.
- * <p>
- * Because the transformations are calculated lazily, lifecycle-related behavior is implicitly
- * passed down without requiring additional explicit calls or dependencies.
+ * These methods permit functional composition and delegation of {@link LiveData} instances. The
+ * transformations are calculated lazily, and will run only when the returned {@link LiveData} is
+ * observed. Lifecycle behavior is propagated from the input {@code source} {@link LiveData} to the
+ * returned one.
  */
 @SuppressWarnings("WeakerAccess")
 public class Transformations {
@@ -37,100 +36,109 @@ public class Transformations {
     }
 
     /**
-     * Applies the given function on the main thread to each value emitted by {@code source}
-     * LiveData and returns LiveData, which emits resulting values.
+     * Returns a {@code LiveData} mapped from the input {@code source} {@code LiveData} by applying
+     * {@code mapFunction} to each value set on {@code source}.
      * <p>
-     * The given function {@code func} will be executed on the main thread.
+     * This method is analogous to {@link io.reactivex.Observable#map}.
      * <p>
-     * Suppose that you have a LiveData, named {@code userLiveData}, that contains user data and you
-     * need to display the user name, created by concatenating the first and the last
-     * name of the user. You can define a function that handles the name creation, that will be
-     * applied to every value emitted by {@code useLiveData}.
+     * {@code transform} will be executed on the main thread.
+     * <p>
+     * Here is an example mapping a simple {@code User} struct in a {@code LiveData} to a
+     * {@code LiveData} containing their full name as a {@code String}.
      *
      * <pre>
      * LiveData<User> userLiveData = ...;
-     * LiveData<String> userName = Transformations.map(userLiveData, user -> {
-     *      return user.firstName + " " + user.lastName
+     * LiveData<String> userFullNameLiveData =
+     *     Transformations.map(
+     *         userLiveData,
+     *         user -> user.firstName + user.lastName);
      * });
      * </pre>
      *
-     * @param source a {@code LiveData} to listen to
-     * @param func   a function to apply
-     * @param <X>    a type of {@code source} LiveData
-     * @param <Y>    a type of resulting LiveData.
-     * @return a LiveData which emits resulting values
+     * @param source      the {@code LiveData} to map from
+     * @param mapFunction a function to apply to each value set on {@code source} in order to set
+     *                    it
+     *                    on the output {@code LiveData}
+     * @param <X>         the generic type parameter of {@code source}
+     * @param <Y>         the generic type parameter of the returned {@code LiveData}
+     * @return a LiveData mapped from {@code source} to type {@code <Y>} by applying
+     * {@code mapFunction} to each value set.
      */
     @MainThread
-    public static <X, Y> LiveData<Y> map(@NonNull LiveData<X> source,
-            @NonNull final Function<X, Y> func) {
+    public static <X, Y> LiveData<Y> map(
+            @NonNull LiveData<X> source,
+            @NonNull final Function<X, Y> mapFunction) {
         final MediatorLiveData<Y> result = new MediatorLiveData<>();
         result.addSource(source, new Observer<X>() {
             @Override
             public void onChanged(@Nullable X x) {
-                result.setValue(func.apply(x));
+                result.setValue(mapFunction.apply(x));
             }
         });
         return result;
     }
 
     /**
-     * Creates a LiveData, let's name it {@code swLiveData}, which follows next flow:
-     * it reacts on changes of {@code trigger} LiveData, applies the given function to new value of
-     * {@code trigger} LiveData and sets resulting LiveData as a "backing" LiveData
-     * to {@code swLiveData}.
-     * "Backing" LiveData means, that all events emitted by it will retransmitted
-     * by {@code swLiveData}.
+     * Returns a {@code LiveData} mapped from the input {@code source} {@code LiveData} by applying
+     * {@code switchMapFunction} to each value set on {@code source}.
      * <p>
-     * If the given function returns null, then {@code swLiveData} is not "backed" by any other
-     * LiveData.
-     *
+     * The returned {@code LiveData} delegates to the most recent {@code LiveData} created by
+     * calling {@code switchMapFunction} with the most recent value set to {@code source}, without
+     * changing the reference. In this way, {@code switchMapFunction} can change the 'backing'
+     * {@code LiveData} transparently to any observer registered to the {@code LiveData} returned
+     * by {@code switchMap()}.
      * <p>
-     * The given function {@code func} will be executed on the main thread.
-     *
+     * Note that when the backing {@code LiveData} is switched, no further values from the older
+     * {@code LiveData} will be set to the output {@code LiveData}. In this way, the method is
+     * analogous to {@link io.reactivex.Observable#switchMap}.
      * <p>
-     * Consider the case where you have a LiveData containing a user id. Every time there's a new
-     * user id emitted, you want to trigger a request to get the user object corresponding to that
-     * id, from a repository that also returns a LiveData.
+     * {@code switchMapFunction} will be executed on the main thread.
      * <p>
-     * The {@code userIdLiveData} is the trigger and the LiveData returned by the {@code
-     * repository.getUserById} is the "backing" LiveData.
+     * Here is an example class that holds a typed-in name of a user
+     * {@code String} (such as from an {@code EditText}) in a {@link MutableLiveData} and
+     * returns a {@code LiveData} containing a List of {@code User} objects for users that have
+     * that name. It populates that {@code LiveData} by requerying a repository-pattern object
+     * each time the typed name changes.
      * <p>
-     * In a scenario where the repository contains User(1, "Jane") and User(2, "John"), when the
-     * userIdLiveData value is set to "1", the {@code switchMap} will call {@code getUser(1)},
-     * that will return a LiveData containing the value User(1, "Jane"). So now, the userLiveData
-     * will emit User(1, "Jane"). When the user in the repository gets updated to User(1, "Sarah"),
-     * the {@code userLiveData} gets automatically notified and will emit User(1, "Sarah").
-     * <p>
-     * When the {@code setUserId} method is called with userId = "2", the value of the {@code
-     * userIdLiveData} changes and automatically triggers a request for getting the user with id
-     * "2" from the repository. So, the {@code userLiveData} emits User(2, "John"). The LiveData
-     * returned by {@code repository.getUserById(1)} is removed as a source.
+     * This {@code ViewModel} would permit the observing UI to update "live" as the user ID text
+     * changes.
      *
      * <pre>
-     * MutableLiveData<String> userIdLiveData = ...;
-     * LiveData<User> userLiveData = Transformations.switchMap(userIdLiveData, id ->
-     *     repository.getUserById(id));
+     * class UserViewModel extends AndroidViewModel {
+     *     MutableLiveData<String> nameQueryLiveData = ...
      *
-     * void setUserId(String userId) {
-     *      this.userIdLiveData.setValue(userId);
+     *     LiveData<List<String>> getUsersWithNameLiveData() {
+     *         return Transformations.switchMap(
+     *             nameQueryLiveData,
+     *                 name -> myDataSource.getUsersWithNameLiveData(name));
+     *     }
+     *
+     *     void setNameQuery(String name) {
+     *         this.nameQueryLiveData.setValue(name);
+     *     }
      * }
      * </pre>
      *
-     * @param trigger a {@code LiveData} to listen to
-     * @param func    a function which creates "backing" LiveData
-     * @param <X>     a type of {@code source} LiveData
-     * @param <Y>     a type of resulting LiveData
+     * @param source            the {@code LiveData} to map from
+     * @param switchMapFunction a function to apply to each value set on {@code source} to create a
+     *                          new delegate {@code LiveData} for the returned one
+     * @param <X>               the generic type parameter of {@code source}
+     * @param <Y>               the generic type parameter of the returned {@code LiveData}
+     * @return a LiveData mapped from {@code source} to type {@code <Y>} by delegating
+     * to the LiveData returned by applying {@code switchMapFunction} to each
+     * value set
      */
     @MainThread
-    public static <X, Y> LiveData<Y> switchMap(@NonNull LiveData<X> trigger,
-            @NonNull final Function<X, LiveData<Y>> func) {
+    public static <X, Y> LiveData<Y> switchMap(
+            @NonNull LiveData<X> source,
+            @NonNull final Function<X, LiveData<Y>> switchMapFunction) {
         final MediatorLiveData<Y> result = new MediatorLiveData<>();
-        result.addSource(trigger, new Observer<X>() {
+        result.addSource(source, new Observer<X>() {
             LiveData<Y> mSource;
 
             @Override
             public void onChanged(@Nullable X x) {
-                LiveData<Y> newLiveData = func.apply(x);
+                LiveData<Y> newLiveData = switchMapFunction.apply(x);
                 if (mSource == newLiveData) {
                     return;
                 }
