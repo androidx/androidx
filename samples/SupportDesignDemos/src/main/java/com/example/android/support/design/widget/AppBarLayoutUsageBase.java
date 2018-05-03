@@ -18,9 +18,6 @@ package com.example.android.support.design.widget;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.TabLayout;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +32,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.android.support.design.Cheeses;
 import com.example.android.support.design.R;
 import com.example.android.support.design.Shakespeare;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.Random;
 
