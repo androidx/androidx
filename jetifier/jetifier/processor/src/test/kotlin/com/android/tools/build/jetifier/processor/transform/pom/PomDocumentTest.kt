@@ -119,7 +119,7 @@ class PomDocumentTest {
                     )
                 )
             ),
-            versionsMap = DependencyVersionsMap(slVersion = "1.0.0-test", archVersion = "")
+            versionsMap = DependencyVersionsMap(slVersion = "1.0.0-test")
         )
     }
 
