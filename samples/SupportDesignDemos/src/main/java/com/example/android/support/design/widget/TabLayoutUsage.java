@@ -17,7 +17,6 @@
 package com.example.android.support.design.widget;
 
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +32,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.android.support.design.Cheeses;
 import com.example.android.support.design.R;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Random;

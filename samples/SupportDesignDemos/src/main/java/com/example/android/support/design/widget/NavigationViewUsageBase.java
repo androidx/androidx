@@ -17,7 +17,6 @@
 package com.example.android.support.design.widget;
 
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +25,7 @@ import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.android.support.design.R;
+import com.google.android.material.navigation.NavigationView;
 
 public abstract class NavigationViewUsageBase extends AppCompatActivity {
 

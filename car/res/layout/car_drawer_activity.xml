@@ -38,7 +38,7 @@ limitations under the License.
             layout="@layout/car_drawer" />
     </androidx.drawerlayout.widget.DrawerLayout>
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -52,5 +52,5 @@ limitations under the License.
             android:layout_gravity="center_vertical"
             android:minHeight="@dimen/car_app_bar_height"
             style="@style/Widget.Car.Toolbar" />
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
