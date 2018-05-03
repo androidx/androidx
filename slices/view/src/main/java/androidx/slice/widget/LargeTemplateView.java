@@ -29,6 +29,7 @@ import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceAction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -148,7 +149,7 @@ public class LargeTemplateView extends SliceChildView {
     }
 
     @Override
-    public void setSliceActions(List<SliceItem> actions) {
+    public void setSliceActions(List<SliceAction> actions) {
         mAdapter.setSliceActions(actions);
     }
 
