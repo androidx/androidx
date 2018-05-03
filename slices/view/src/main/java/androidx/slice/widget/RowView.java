@@ -63,6 +63,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
@@ -99,7 +100,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private RowContent mRowContent;
     private SliceActionImpl mRowAction;
     private boolean mIsHeader;
-    private List<SliceItem> mHeaderActions;
+    private List<SliceAction> mHeaderActions;
     private boolean mIsSingleItem;
 
     private int mImageSize;
@@ -170,7 +171,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     }
 
     @Override
-    public void setSliceActions(List<SliceItem> actions) {
+    public void setSliceActions(List<SliceAction> actions) {
         mHeaderActions = actions;
         if (mRowContent != null) {
             populateViews();
@@ -283,24 +284,26 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
 
         // If we're here we can can show end items; check for top level actions first
-        List<SliceItem> endItems = mRowContent.getEndItems();
+        List endItems = mRowContent.getEndItems();
         if (mHeaderActions != null && mHeaderActions.size() > 0) {
             // Use these if we have them instead
             endItems = mHeaderActions;
         }
         // If we're here we might be able to show end items
-        int itemCount = 0;
+        int endItemCount = 0;
         boolean firstItemIsADefaultToggle = false;
-        boolean hasEndItemAction = false;
+        SliceItem endAction = null;
         for (int i = 0; i < endItems.size(); i++) {
-            final SliceItem endItem = endItems.get(i);
-            if (itemCount < MAX_END_ITEMS) {
+            final SliceItem endItem = (endItems.get(i) instanceof SliceItem)
+                    ? (SliceItem) endItems.get(i)
+                    : ((SliceActionImpl) endItems.get(i)).getSliceItem();
+            if (endItemCount < MAX_END_ITEMS) {
                 if (addItem(endItem, mTintColor, false /* isStart */)) {
-                    if (SliceQuery.find(endItem, FORMAT_ACTION) != null) {
-                        hasEndItemAction = true;
+                    if (endAction == null && SliceQuery.find(endItem, FORMAT_ACTION) != null) {
+                        endAction = endItem;
                     }
-                    itemCount++;
-                    if (itemCount == 1) {
+                    endItemCount++;
+                    if (endItemCount == 1) {
                         firstItemIsADefaultToggle = !mToggles.isEmpty()
                                 && SliceQuery.find(endItem.getSlice(), FORMAT_IMAGE) == null;
                     }
@@ -313,17 +316,18 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 ? View.VISIBLE : View.GONE);
         boolean hasStartAction = startItem != null
                 && SliceQuery.find(startItem, FORMAT_ACTION) != null;
+        boolean hasEndItemAction = endAction != null;
 
         if (mRowAction != null) {
             // If there are outside actions make only the content bit clickable
             // TODO: if start item is an image touch feedback should include it
             setViewClickable((hasEndItemAction || hasStartAction) ? mContent : mRootView, true);
-        } else if (hasEndItemAction != hasStartAction && (itemCount == 1 || hasStartAction)) {
+        } else if (hasEndItemAction != hasStartAction && (endItemCount == 1 || hasStartAction)) {
             // Single action; make whole row clickable for it
             if (!mToggles.isEmpty()) {
                 mRowAction = mToggles.keySet().iterator().next();
             } else {
-                mRowAction = new SliceActionImpl(hasEndItemAction ? endItems.get(0) : startItem);
+                mRowAction = new SliceActionImpl(endAction != null ? endAction : startItem);
             }
             setViewClickable(mRootView, true);
         }

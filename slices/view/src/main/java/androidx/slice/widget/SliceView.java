@@ -42,6 +42,7 @@ import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceMetadata;
+import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
@@ -129,7 +130,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private Slice mCurrentSlice;
     private ListContent mListContent;
     private SliceChildView mCurrentView;
-    private List<SliceItem> mActions;
+    private List<SliceAction> mActions;
     private ActionRow mActionRow;
 
     private boolean mShowActions = false;
@@ -400,15 +401,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      * content see {@link SliceLiveData}.
      */
     public void setSlice(@Nullable Slice slice) {
-        if (slice != null) {
-            if (mCurrentSlice == null || !mCurrentSlice.getUri().equals(slice.getUri())) {
+        if (slice != null && (mCurrentSlice == null
+                || !mCurrentSlice.getUri().equals(slice.getUri()))) {
                 mCurrentView.resetView();
-            }
-        } else {
-            // No slice, no actions
-            mActions = null;
         }
-        mActions = SliceMetadata.getSliceActions(slice);
         mCurrentSlice = slice;
         reinflate();
     }
@@ -428,7 +424,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      * set on the view have been adjusted using {@link #setSliceActions(List)}.
      */
     @Nullable
-    public List<SliceItem> getSliceActions() {
+    public List<SliceAction> getSliceActions() {
         return mActions;
     }
 
@@ -442,12 +438,12 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      * available for the slice set on this view (i.e. the action is not returned by
      * {@link SliceMetadata#getSliceActions()} this will throw {@link IllegalArgumentException}.
      */
-    public void setSliceActions(@Nullable List<SliceItem> newActions) {
+    public void setSliceActions(@Nullable List<SliceAction> newActions) {
         // Check that these actions are part of available set
         if (mCurrentSlice == null) {
             throw new IllegalStateException("Trying to set actions on a view without a slice");
         }
-        List<SliceItem> availableActions = SliceMetadata.getSliceActions(mCurrentSlice);
+        List<SliceAction> availableActions = mListContent.getSliceActions();
         if (availableActions != null && newActions != null) {
             for (int i = 0; i < newActions.size(); i++) {
                 if (!availableActions.contains(newActions.get(i))) {
@@ -473,6 +469,13 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     public void setScrollable(boolean isScrollable) {
         mIsScrollable = isScrollable;
         reinflate();
+    }
+
+    /**
+     * Whether this view should allow scrollable content when presenting in {@link #MODE_LARGE}.
+     */
+    public boolean isScrollable() {
+        return mIsScrollable;
     }
 
     /**
@@ -548,12 +551,14 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     private void reinflate() {
         if (mCurrentSlice == null) {
+            mActions = null;
             mCurrentView.resetView();
             updateActions();
             return;
         }
         mListContent = new ListContent(getContext(), mCurrentSlice, mAttrs, mDefStyleAttr,
                 mDefStyleRes);
+        mActions = mListContent.getSliceActions();
         if (!mListContent.isValid()) {
             mCurrentView.resetView();
             updateActions();

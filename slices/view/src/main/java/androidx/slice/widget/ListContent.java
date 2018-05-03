@@ -63,7 +63,7 @@ public class ListContent {
     private SliceItem mColorItem;
     private SliceItem mSeeMoreItem;
     private ArrayList<SliceItem> mRowItems = new ArrayList<>();
-    private List<SliceItem> mSliceActions;
+    private List<SliceAction> mSliceActions;
     private Context mContext;
 
     private int mHeaderTitleSize;
@@ -266,7 +266,7 @@ public class ListContent {
     }
 
     @Nullable
-    public List<SliceItem> getSliceActions() {
+    public List<SliceAction> getSliceActions() {
         return mSliceActions;
     }
 
@@ -304,7 +304,7 @@ public class ListContent {
      * @return the type of template the provided row item represents.
      */
     public static int getRowType(Context context, SliceItem rowItem, boolean isHeader,
-                                 List<SliceItem> actions) {
+                                 List<SliceAction> actions) {
         if (rowItem != null) {
             if (rowItem.hasHint(HINT_HORIZONTAL)) {
                 return EventInfo.ROW_TYPE_GRID;
@@ -323,7 +323,7 @@ public class ListContent {
                     return EventInfo.ROW_TYPE_TOGGLE;
                 } else if (isHeader && actions != null) {
                     for (int i = 0; i < actions.size(); i++) {
-                        if (new SliceActionImpl(actions.get(i)).isToggle()) {
+                        if (actions.get(i).isToggle()) {
                             return EventInfo.ROW_TYPE_TOGGLE;
                         }
                     }
