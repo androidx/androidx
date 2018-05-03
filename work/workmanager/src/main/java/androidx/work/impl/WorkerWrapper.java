@@ -16,7 +16,7 @@
 
 package androidx.work.impl;
 
-import static androidx.work.State.CANCELLED;
+import static androidx.work.State.CANCELED;
 import static androidx.work.State.ENQUEUED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
@@ -279,7 +279,7 @@ public class WorkerWrapper implements Runnable {
         }
 
         // Don't fail already cancelled work.
-        if (mWorkSpecDao.getState(workSpecId) != CANCELLED) {
+        if (mWorkSpecDao.getState(workSpecId) != CANCELED) {
             mWorkSpecDao.setState(FAILED, workSpecId);
         }
     }
