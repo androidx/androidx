@@ -2332,6 +2332,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized void releaseDrm() throws MediaPlayer.NoDrmSchemeException {
+            getCurrentPlayer().stop();
             getCurrentPlayer().releaseDrm();
         }
 
