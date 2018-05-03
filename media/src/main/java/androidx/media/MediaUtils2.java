@@ -382,17 +382,17 @@ class MediaUtils2 {
 
     static int createPlaybackStateCompatState(int playerState, int bufferingState) {
         switch (playerState) {
-            case MediaPlayerInterface.PLAYER_STATE_PLAYING:
+            case BaseMediaPlayer.PLAYER_STATE_PLAYING:
                 switch (bufferingState) {
-                    case MediaPlayerInterface.BUFFERING_STATE_BUFFERING_AND_STARVED:
+                    case BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED:
                         return PlaybackStateCompat.STATE_BUFFERING;
                 }
                 return PlaybackStateCompat.STATE_PLAYING;
-            case MediaPlayerInterface.PLAYER_STATE_PAUSED:
+            case BaseMediaPlayer.PLAYER_STATE_PAUSED:
                 return PlaybackStateCompat.STATE_PAUSED;
-            case MediaPlayerInterface.PLAYER_STATE_IDLE:
+            case BaseMediaPlayer.PLAYER_STATE_IDLE:
                 return PlaybackStateCompat.STATE_NONE;
-            case MediaPlayerInterface.PLAYER_STATE_ERROR:
+            case BaseMediaPlayer.PLAYER_STATE_ERROR:
                 return PlaybackStateCompat.STATE_ERROR;
         }
         // For unknown value
@@ -402,13 +402,13 @@ class MediaUtils2 {
     static int toPlayerState(int playbackStateCompatState) {
         switch (playbackStateCompatState) {
             case PlaybackStateCompat.STATE_ERROR:
-                return MediaPlayerInterface.PLAYER_STATE_ERROR;
+                return BaseMediaPlayer.PLAYER_STATE_ERROR;
             case PlaybackStateCompat.STATE_NONE:
-                return MediaPlayerInterface.PLAYER_STATE_IDLE;
+                return BaseMediaPlayer.PLAYER_STATE_IDLE;
             case PlaybackStateCompat.STATE_PAUSED:
             case PlaybackStateCompat.STATE_STOPPED:
             case PlaybackStateCompat.STATE_BUFFERING: // means paused for buffering.
-                return MediaPlayerInterface.PLAYER_STATE_PAUSED;
+                return BaseMediaPlayer.PLAYER_STATE_PAUSED;
             case PlaybackStateCompat.STATE_FAST_FORWARDING:
             case PlaybackStateCompat.STATE_PLAYING:
             case PlaybackStateCompat.STATE_REWINDING:
@@ -416,9 +416,9 @@ class MediaUtils2 {
             case PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS:
             case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
             case PlaybackStateCompat.STATE_CONNECTING: // Note: there's no perfect match for this.
-                return MediaPlayerInterface.PLAYER_STATE_PLAYING;
+                return BaseMediaPlayer.PLAYER_STATE_PLAYING;
         }
-        return MediaPlayerInterface.PLAYER_STATE_ERROR;
+        return BaseMediaPlayer.PLAYER_STATE_ERROR;
     }
 
     static boolean isDefaultLibraryRootHint(Bundle bundle) {

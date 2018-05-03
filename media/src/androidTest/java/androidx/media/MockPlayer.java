@@ -24,9 +24,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 /**
- * A mock implementation of {@link MediaPlayerInterface} for testing.
+ * A mock implementation of {@link BaseMediaPlayer} for testing.
  */
-public class MockPlayer extends MediaPlayerInterface {
+public class MockPlayer extends BaseMediaPlayer {
     public final CountDownLatch mCountDownLatch;
 
     public boolean mPlayCalled;

@@ -85,7 +85,7 @@ import java.util.concurrent.Executor;
  *         <li>Calling {@link #setDataSource(DataSourceDesc)} and {@link #prepare()} transfers a
  *         MediaPlayer2 object in the <strong>Idle</strong> state to the <strong>Paused</strong>
  *         state. It is good programming practice to register a event callback for
- *         {@link MediaPlayer2EventCallback#onCallCompleted} and
+ *         {@link EventCallback#onCallCompleted} and
  *         look out for {@link #CALL_STATUS_BAD_VALUE} and {@link #CALL_STATUS_ERROR_IO} that may be
  *         caused from {@link #setDataSource}.
  *         </li>
@@ -106,8 +106,8 @@ import java.util.concurrent.Executor;
  *         these circumstances. Sometimes, due to programming errors, invoking a playback
  *         control operation in an invalid state may also occur. Under all these
  *         error conditions, the player goes to <strong>Error</strong> state and invokes a user
- *         supplied {@link MediaPlayer2EventCallback#onError}} method if an event callback has been
- *         registered beforehand via {@link #setMediaPlayer2EventCallback}.
+ *         supplied {@link EventCallback#onError}} method if an event callback has been
+ *         registered beforehand via {@link #setEventCallback}.
  *         <ul>
  *         <li>It is important to note that once an error occurs, the
  *         MediaPlayer2 object enters the <strong>Error</strong> state (except as noted
@@ -117,9 +117,9 @@ import java.util.concurrent.Executor;
  *         {@link #reset()} can be called to restore the object to its <strong>Idle</strong>
  *         state.</li>
  *         <li>It is good programming practice to have your application
- *         register a {@link MediaPlayer2EventCallback} to look out for error callbacks from
+ *         register an {@link EventCallback} to look out for error callbacks from
  *         the internal player engine.</li>
- *         <li> {@link MediaPlayer2EventCallback#onCallCompleted} is called with
+ *         <li> {@link EventCallback#onCallCompleted} is called with
  *         {@link #CALL_STATUS_INVALID_OPERATION} on programming errors such as calling
  *         {@link #prepare()} and {@link #setDataSource(DataSourceDesc)} methods in an invalid
  *         state. </li>
@@ -131,15 +131,15 @@ import java.util.concurrent.Executor;
  *         <li>The <strong>Paused</strong> state can be reached by calling {@link #prepare()}. Note
  *         that {@link #prepare()} is asynchronous. When the preparation completes,
  *         the internal player engine then calls a user supplied callback method,
- *         {@link MediaPlayer2EventCallback#onInfo} interface with {@link #MEDIA_INFO_PREPARED},
- *         if a MediaPlayer2EventCallback is registered beforehand via
- *         {@link #setMediaPlayer2EventCallback(Executor, MediaPlayer2EventCallback)}.</li>
+ *         {@link EventCallback#onInfo} interface with {@link #MEDIA_INFO_PREPARED},
+ *         if a EventCallback is registered beforehand via
+ *         {@link #setEventCallback(Executor, EventCallback)}.</li>
  *         <li>The player also goes to <strong>Paused</strong> state when {@link #pause()} is called
  *         to pause the ongoing playback. Note that {@link #pause()} is asynchronous. Once
  *         {@link #pause()} is processed successfully by the internal media engine,
  *         <strong>Paused</strong> state will be notified with
- *         {@link MediaPlayerInterface.PlayerEventCallback#onPlayerStateChanged} callback.
- *         In addition to the callback, {@link #getMediaPlayer2State()} can also be used to test
+ *         {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged} callback.
+ *         In addition to the callback, {@link #getState()} can also be used to test
  *         whether the MediaPlayer2 object is in the <strong>Paused</strong> state.
  *         </li>
  *         <li>While in the <em>Paused</em> state, properties such as audio/sound volume, looping
@@ -148,16 +148,16 @@ import java.util.concurrent.Executor;
  *         </li>
  *     <li>To start the playback, {@link #play()} must be called. Once {@link #play()} is processed
  *         successfully by the internal media engine, <strong>Playing</strong> state will be
- *         notified with {@link MediaPlayerInterface.PlayerEventCallback#onPlayerStateChanged}
+ *         notified with {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged}
  *         callback.
- *         In addition to the callback, {@link #getMediaPlayer2State()} can be called to test
+ *         In addition to the callback, {@link #getState()} can be called to test
  *         whether the MediaPlayer2 object is in the <strong>Started</strong> state.
  *         <ul>
  *         <li>While in the <strong>Playing</strong> state, the internal player engine calls
- *         a user supplied callback method MediaPlayer2EventCallback.onInfo() with
- *         {@link #MEDIA_INFO_BUFFERING_UPDATE} if an MediaPlayer2EventCallback has been
+ *         a user supplied callback method EventCallback.onInfo() with
+ *         {@link #MEDIA_INFO_BUFFERING_UPDATE} if an EventCallback has been
  *         registered beforehand via
- *         {@link #setMediaPlayer2EventCallback(Executor, MediaPlayer2EventCallback)}.
+ *         {@link #setEventCallback(Executor, EventCallback)}.
  *         This callback allows applications to keep track of the buffering status
  *         while streaming audio/video.</li>
  *         <li>Calling {@link #play()} has not effect
@@ -170,10 +170,10 @@ import java.util.concurrent.Executor;
  *         the actual seek operation may take a while to
  *         finish, especially for audio/video being streamed. When the actual
  *         seek operation completes, the internal player engine calls a user
- *         supplied MediaPlayer2EventCallback.onCallCompleted() with
+ *         supplied EventCallback.onCallCompleted() with
  *         {@link #CALL_COMPLETED_SEEK_TO}
- *         if an MediaPlayer2EventCallback has been registered beforehand via
- *         {@link #setMediaPlayer2EventCallback(Executor, MediaPlayer2EventCallback)}.</li>
+ *         if an EventCallback has been registered beforehand via
+ *         {@link #setEventCallback(Executor, EventCallback)}.</li>
  *         <li>Please note that {@link #seekTo(long, int)} can also be called in
  *         <strong>Paused</strong> state. When {@link #seekTo(long, int)} is called in those states,
  *         one video frame will be displayed if the stream has video and the requested
@@ -191,9 +191,9 @@ import java.util.concurrent.Executor;
  *         the MediaPlayer2 object shall remain in the <strong>Playing</strong> state.</li>
  *         <li>If the looping mode was set to <var>false
  *         </var>, the player engine calls a user supplied callback method,
- *         {@link MediaPlayer2EventCallback#onInfo} with {@link #MEDIA_INFO_PLAYBACK_COMPLETE},
- *         if an MediaPlayer2EventCallback is registered beforehand via
- *         {@link #setMediaPlayer2EventCallback(Executor, MediaPlayer2EventCallback)}.
+ *         {@link EventCallback#onInfo} with {@link #MEDIA_INFO_PLAYBACK_COMPLETE},
+ *         if an EventCallback is registered beforehand via
+ *         {@link #setEventCallback(Executor, EventCallback)}.
  *         The invoke of the callback signals that the object is now in the <strong>Paused</strong>
  *         state.</li>
  *         <li>While in the <strong>Paused</strong> state, calling {@link #play()} can restart the
@@ -212,7 +212,7 @@ import java.util.concurrent.Executor;
  * possible runtime errors during playback or streaming. Registration for
  * these events is done by properly setting the appropriate listeners (via calls
  * to
- * {@link #setMediaPlayer2EventCallback(Executor, MediaPlayer2EventCallback)},
+ * {@link #setEventCallback(Executor, EventCallback)},
  * {@link #setDrmEventCallback(Executor, DrmEventCallback)}).
  * In order to receive the respective callback
  * associated with these listeners, applications are required to create
@@ -238,10 +238,10 @@ public abstract class MediaPlayer2 {
     public MediaPlayer2() { }
 
     /**
-     * Returns a {@link MediaPlayerInterface} implementation which runs based on
+     * Returns a {@link BaseMediaPlayer} implementation which runs based on
      * this MediaPlayer2 instance.
      */
-    public abstract MediaPlayerInterface getMediaPlayerInterface();
+    public abstract BaseMediaPlayer getMediaPlayerInterface();
 
     /**
      * Releases the resources held by this {@code MediaPlayer2} object.
@@ -340,7 +340,7 @@ public abstract class MediaPlayer2 {
      *
      * @return the current MediaPlayer2 state.
      */
-    public abstract @MediaPlayer2State int getMediaPlayer2State();
+    public abstract @MediaPlayer2State int getState();
 
     /**
      * Sets the audio attributes for this MediaPlayer2.
@@ -457,10 +457,10 @@ public abstract class MediaPlayer2 {
     /**
      * Insert a task in the command queue to help the client to identify whether a batch
      * of commands has been finished. When this command is processed, a notification
-     * {@code MediaPlayer2EventCallback.onCommandLabelReached} will be fired with the
+     * {@link EventCallback#onCommandLabelReached} will be fired with the
      * given {@code label}.
      *
-     * @see MediaPlayer2EventCallback#onCommandLabelReached
+     * @see EventCallback#onCommandLabelReached
      *
      * @param label An application specific Object used to help to identify the completeness
      * of a batch of commands.
@@ -516,9 +516,9 @@ public abstract class MediaPlayer2 {
      *
      * @return the width of the video, or 0 if there is no video,
      * no display surface was set, or the width has not been determined
-     * yet. The {@code MediaPlayer2EventCallback} can be registered via
-     * {@link #setMediaPlayer2EventCallback(Executor, MediaPlayer2EventCallback)} to provide a
-     * notification {@code MediaPlayer2EventCallback.onVideoSizeChanged} when the width
+     * yet. The {@link EventCallback} can be registered via
+     * {@link #setEventCallback(Executor, EventCallback)} to provide a
+     * notification {@link EventCallback#onVideoSizeChanged} when the width
      * is available.
      */
     public abstract int getVideoWidth();
@@ -528,9 +528,9 @@ public abstract class MediaPlayer2 {
      *
      * @return the height of the video, or 0 if there is no video,
      * no display surface was set, or the height has not been determined
-     * yet. The {@code MediaPlayer2EventCallback} can be registered via
-     * {@link #setMediaPlayer2EventCallback(Executor, MediaPlayer2EventCallback)} to provide a
-     * notification {@code MediaPlayer2EventCallback.onVideoSizeChanged} when the height is
+     * yet. The {@link EventCallback} can be registered via
+     * {@link #setEventCallback(Executor, EventCallback)} to provide a
+     * notification {@link EventCallback#onVideoSizeChanged} when the height is
      * available.
      */
     public abstract int getVideoHeight();
@@ -640,7 +640,7 @@ public abstract class MediaPlayer2 {
      * Moves the media to specified time position by considering the given mode.
      * <p>
      * When seekTo is finished, the user will be notified via
-     * {@link MediaPlayer2EventCallback#onInfo} with {@link #CALL_COMPLETED_SEEK_TO}.
+     * {@link EventCallback#onInfo} with {@link #CALL_COMPLETED_SEEK_TO}.
      * There is at most one active seekTo processed at any time. If there is a to-be-completed
      * seekTo, new seekTo requests will be queued in such a way that only the last request
      * is kept. When current seekTo is completed, the queued request will be processed if
@@ -819,7 +819,7 @@ public abstract class MediaPlayer2 {
      * Selects a track.
      * <p>
      * If a MediaPlayer2 is in invalid state, {@link #CALL_STATUS_INVALID_OPERATION} will be
-     * reported with {@link MediaPlayer2EventCallback#onCallCompleted}.
+     * reported with {@link EventCallback#onCallCompleted}.
      * If a MediaPlayer2 is in <em>Playing</em> state, the selected track is presented immediately.
      * If a MediaPlayer2 is not in Started state, it just marks the track to be played.
      * </p>
@@ -864,7 +864,7 @@ public abstract class MediaPlayer2 {
      * Interface definition for callbacks to be invoked when the player has the corresponding
      * events.
      */
-    public abstract static class MediaPlayer2EventCallback {
+    public abstract static class EventCallback {
         /**
          * Called to indicate the video size
          *
@@ -983,14 +983,14 @@ public abstract class MediaPlayer2 {
      * @param executor the executor through which the callback should be invoked
      */
     // This is a synchronous call.
-    public abstract void setMediaPlayer2EventCallback(
-            @NonNull Executor executor, @NonNull MediaPlayer2EventCallback eventCallback);
+    public abstract void setEventCallback(
+            @NonNull Executor executor, @NonNull EventCallback eventCallback);
 
     /**
-     * Clears the {@link MediaPlayer2EventCallback}.
+     * Clears the {@link EventCallback}.
      */
     // This is a synchronous call.
-    public abstract void clearMediaPlayer2EventCallback();
+    public abstract void clearEventCallback();
 
     /**
      * MediaPlayer2 has not been prepared or just has been reset.
@@ -1036,14 +1036,14 @@ public abstract class MediaPlayer2 {
      * in include/media/mediaplayer2.h!
      */
     /** Unspecified media player error.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onError
+     * @see EventCallback#onError
      */
     public static final int MEDIA_ERROR_UNKNOWN = 1;
 
     /** The video is streamed and its container is not valid for progressive
      * playback i.e the video's index (e.g moov atom) is not at the start of the
      * file.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onError
+     * @see EventCallback#onError
      */
     public static final int MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK = 200;
 
@@ -1059,7 +1059,7 @@ public abstract class MediaPlayer2 {
 
     /** Unspecified low-level system error. This value originated from UNKNOWN_ERROR in
      * system/core/include/utils/Errors.h
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onError
+     * @see EventCallback#onError
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -1085,64 +1085,64 @@ public abstract class MediaPlayer2 {
      * in include/media/mediaplayer2.h!
      */
     /** Unspecified media player info.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_UNKNOWN = 1;
 
     /** The player switched to this datas source because it is the
      * next-to-be-played in the playlist.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public static final int MEDIA_INFO_STARTED_AS_NEXT = 2;
 
     /** The player just pushed the very first video frame for rendering.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_VIDEO_RENDERING_START = 3;
 
     /** The player just rendered the very first audio sample.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_AUDIO_RENDERING_START = 4;
 
     /** The player just completed the playback of this data source.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_PLAYBACK_COMPLETE = 5;
 
     /** The player just completed the playback of the full playlist.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_PLAYLIST_END = 6;
 
     /** The player just prepared a data source.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_PREPARED = 100;
 
     /** The video is too complex for the decoder: it can't decode frames fast
      *  enough. Possibly only the audio plays fine at this stage.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_VIDEO_TRACK_LAGGING = 700;
 
     /** MediaPlayer2 is temporarily pausing playback internally in order to
      * buffer more data.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_BUFFERING_START = 701;
 
     /** MediaPlayer2 is resuming playback after filling buffers.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_BUFFERING_END = 702;
 
     /** Estimated network bandwidth information (kbps) is available; currently this event fires
      * simultaneously as {@link #MEDIA_INFO_BUFFERING_START} and {@link #MEDIA_INFO_BUFFERING_END}
      * when playing network files.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -1155,26 +1155,26 @@ public abstract class MediaPlayer2 {
      * has already been played indicates that the next 30 percent of the
      * content to play has been buffered.
      *
-     * The {@code extra} parameter in {@code MediaPlayer2EventCallback.onInfo} is the
+     * The {@code extra} parameter in {@link EventCallback#onInfo} is the
      * percentage (0-100) of the content that has been buffered or played thus far.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_BUFFERING_UPDATE = 704;
 
     /** Bad interleaving means that a media has been improperly interleaved or
      * not interleaved at all, e.g has all the video samples first then all the
      * audio ones. Video is playing but a lot of disk seeks may be happening.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_BAD_INTERLEAVING = 800;
 
     /** The media cannot be seeked (e.g live stream)
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_NOT_SEEKABLE = 801;
 
     /** A new set of metadata is available.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_METADATA_UPDATE = 802;
 
@@ -1187,30 +1187,30 @@ public abstract class MediaPlayer2 {
 
     /** Informs that audio is not playing. Note that playback of the video
      * is not interrupted.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_AUDIO_NOT_PLAYING = 804;
 
     /** Informs that video is not playing. Note that playback of the audio
      * is not interrupted.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_VIDEO_NOT_PLAYING = 805;
 
     /** Failed to handle timed text track properly.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      * {@hide}
      */
     @RestrictTo(LIBRARY_GROUP)
     public static final int MEDIA_INFO_TIMED_TEXT_ERROR = 900;
 
     /** Subtitle track was not supported by the media framework.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_UNSUPPORTED_SUBTITLE = 901;
 
     /** Reading the subtitle track takes too long.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onInfo
+     * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_SUBTITLE_TIMED_OUT = 902;
 
@@ -1246,107 +1246,107 @@ public abstract class MediaPlayer2 {
 
     //--------------------------------------------------------------------------
     /** The player just completed a call {@link #attachAuxEffect}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_ATTACH_AUX_EFFECT = 1;
 
     /** The player just completed a call {@link #deselectTrack}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_DESELECT_TRACK = 2;
 
     /** The player just completed a call {@link #loopCurrent}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_LOOP_CURRENT = 3;
 
     /** The player just completed a call {@link #pause}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_PAUSE = 4;
 
     /** The player just completed a call {@link #play}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_PLAY = 5;
 
     /** The player just completed a call {@link #prepare}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_PREPARE = 6;
 
     /** The player just completed a call {@link #seekTo}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SEEK_TO = 14;
 
     /** The player just completed a call {@link #selectTrack}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SELECT_TRACK = 15;
 
     /** The player just completed a call {@link #setAudioAttributes}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_AUDIO_ATTRIBUTES = 16;
 
     /** The player just completed a call {@link #setAudioSessionId}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_AUDIO_SESSION_ID = 17;
 
     /** The player just completed a call {@link #setAuxEffectSendLevel}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_AUX_EFFECT_SEND_LEVEL = 18;
 
     /** The player just completed a call {@link #setDataSource}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_DATA_SOURCE = 19;
 
     /** The player just completed a call {@link #setNextDataSource}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_NEXT_DATA_SOURCE = 22;
 
     /** The player just completed a call {@link #setNextDataSources}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_NEXT_DATA_SOURCES = 23;
 
     /** The player just completed a call {@link #setPlaybackParams}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_PLAYBACK_PARAMS = 24;
 
     /** The player just completed a call {@link #setPlaybackSpeed}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_PLAYBACK_SPEED = 25;
 
     /** The player just completed a call {@link #setPlayerVolume}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_PLAYER_VOLUME = 26;
 
     /** The player just completed a call {@link #setSurface}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_SURFACE = 27;
 
     /** The player just completed a call {@link #setSyncParams}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_SYNC_PARAMS = 28;
 
     /** The player just completed a call {@link #skipToNext}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SKIP_TO_NEXT = 29;
 
     /** The player just completed a call {@code notifyWhenCommandLabelReached}.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCommandLabelReached
+     * @see EventCallback#onCommandLabelReached
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -1383,32 +1383,32 @@ public abstract class MediaPlayer2 {
     public @interface CallCompleted {}
 
     /** Status code represents that call is completed without an error.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_NO_ERROR = 0;
 
     /** Status code represents that call is ended with an unknown error.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_ERROR_UNKNOWN = Integer.MIN_VALUE;
 
     /** Status code represents that the player is not in valid state for the operation.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_INVALID_OPERATION = 1;
 
     /** Status code represents that the argument is illegal.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_BAD_VALUE = 2;
 
     /** Status code represents that the operation is not allowed.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_PERMISSION_DENIED = 3;
 
     /** Status code represents a file or network related operation error.
-     * @see MediaPlayer2.MediaPlayer2EventCallback#onCallCompleted
+     * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_ERROR_IO = 4;
 

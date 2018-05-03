@@ -48,9 +48,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
-import androidx.media.MediaPlayerInterface.BuffState;
-import androidx.media.MediaPlayerInterface.PlayerEventCallback;
-import androidx.media.MediaPlayerInterface.PlayerState;
+import androidx.media.BaseMediaPlayer.BuffState;
+import androidx.media.BaseMediaPlayer.PlayerEventCallback;
+import androidx.media.BaseMediaPlayer.PlayerState;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -126,11 +126,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR);
 
         sStateMap = new ArrayMap<>();
-        sStateMap.put(MEDIAPLAYER2_STATE_IDLE, MediaPlayerInterface.PLAYER_STATE_IDLE);
-        sStateMap.put(MEDIAPLAYER2_STATE_PREPARED, MediaPlayerInterface.PLAYER_STATE_PAUSED);
-        sStateMap.put(MEDIAPLAYER2_STATE_PAUSED, MediaPlayerInterface.PLAYER_STATE_PAUSED);
-        sStateMap.put(MEDIAPLAYER2_STATE_PLAYING, MediaPlayerInterface.PLAYER_STATE_PLAYING);
-        sStateMap.put(MEDIAPLAYER2_STATE_ERROR, MediaPlayerInterface.PLAYER_STATE_ERROR);
+        sStateMap.put(MEDIAPLAYER2_STATE_IDLE, BaseMediaPlayer.PLAYER_STATE_IDLE);
+        sStateMap.put(MEDIAPLAYER2_STATE_PREPARED, BaseMediaPlayer.PLAYER_STATE_PAUSED);
+        sStateMap.put(MEDIAPLAYER2_STATE_PAUSED, BaseMediaPlayer.PLAYER_STATE_PAUSED);
+        sStateMap.put(MEDIAPLAYER2_STATE_PLAYING, BaseMediaPlayer.PLAYER_STATE_PLAYING);
+        sStateMap.put(MEDIAPLAYER2_STATE_ERROR, BaseMediaPlayer.PLAYER_STATE_ERROR);
     }
 
     private MediaPlayerSourceQueue mPlayer;
@@ -147,11 +147,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     private final Object mLock = new Object();
     //--- guarded by |mLock| start
     private AudioAttributesCompat mAudioAttributes;
-    private Pair<Executor, MediaPlayer2EventCallback> mMp2EventCallbackRecord;
+    private Pair<Executor, EventCallback> mMp2EventCallbackRecord;
     private ArrayMap<PlayerEventCallback, Executor> mPlayerEventCallbackMap =
             new ArrayMap<>();
     private Pair<Executor, DrmEventCallback> mDrmEventCallbackRecord;
-    private MediaPlayerInterfaceImpl mMediaPlayerInterfaceImpl;
+    private BaseMediaPlayerImpl mBaseMediaPlayerImpl;
     //--- guarded by |mLock| end
 
     private void handleDataSourceError(final DataSourceError err) {
@@ -160,7 +160,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
         notifyMediaPlayer2Event(new Mp2EventNotifier() {
             @Override
-            public void notify(MediaPlayer2EventCallback callback) {
+            public void notify(EventCallback callback) {
                 callback.onError(MediaPlayer2Impl.this, err.mDSD, err.mWhat, err.mExtra);
             }
         });
@@ -185,16 +185,16 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     /**
-     * Returns a {@link MediaPlayerInterface} implementation which runs based on
+     * Returns a {@link BaseMediaPlayer} implementation which runs based on
      * this MediaPlayer2 instance.
      */
     @Override
-    public MediaPlayerInterface getMediaPlayerInterface() {
+    public BaseMediaPlayer getMediaPlayerInterface() {
         synchronized (mLock) {
-            if (mMediaPlayerInterfaceImpl == null) {
-                mMediaPlayerInterfaceImpl = new MediaPlayerInterfaceImpl();
+            if (mBaseMediaPlayerImpl == null) {
+                mBaseMediaPlayerImpl = new BaseMediaPlayerImpl();
             }
-            return mMediaPlayerInterfaceImpl;
+            return mBaseMediaPlayerImpl;
         }
     }
 
@@ -340,11 +340,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * @return the current MediaPlayer2 state.
      */
     @Override
-    public @MediaPlayer2State int getMediaPlayer2State() {
+    public @MediaPlayer2State int getState() {
         return mPlayer.getMediaPlayer2State();
     }
 
-    private @MediaPlayerInterface.PlayerState int getPlayerState() {
+    private @BaseMediaPlayer.PlayerState int getPlayerState() {
         return mPlayer.getPlayerState();
     }
 
@@ -353,7 +353,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * During buffering, see {@link #getBufferedPosition()} for the quantifying the amount already
      * buffered.
      */
-    private @MediaPlayerInterface.BuffState int getBufferingState() {
+    private @BaseMediaPlayer.BuffState int getBufferingState() {
         return  mPlayer.getBufferingState();
     }
 
@@ -590,7 +590,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             void process() {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
-                    public void notify(MediaPlayer2EventCallback cb) {
+                    public void notify(EventCallback cb) {
                         cb.onCommandLabelReached(MediaPlayer2Impl.this, label);
                     }
                 });
@@ -710,7 +710,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * @return the width of the video, or 0 if there is no video,
      * no display surface was set, or the width has not been determined
      * yet. The {@code MediaPlayer2EventCallback} can be registered via
-     * {@link #setMediaPlayer2EventCallback(Executor, MediaPlayer2EventCallback)} to provide a
+     * {@link #setEventCallback(Executor, EventCallback)} to provide a
      * notification {@code MediaPlayer2EventCallback.onVideoSizeChanged} when the width
      * is available.
      */
@@ -725,7 +725,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * @return the height of the video, or 0 if there is no video,
      * no display surface was set, or the height has not been determined
      * yet. The {@code MediaPlayer2EventCallback} can be registered via
-     * {@link #setMediaPlayer2EventCallback(Executor, MediaPlayer2EventCallback)} to provide a
+     * {@link #setEventCallback(Executor, EventCallback)} to provide a
      * notification {@code MediaPlayer2EventCallback.onVideoSizeChanged} when the height
      * is available.
      */
@@ -1150,14 +1150,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * @param executor the executor through which the callback should be invoked
      */
     @Override
-    public void setMediaPlayer2EventCallback(@NonNull Executor executor,
-            @NonNull MediaPlayer2EventCallback eventCallback) {
+    public void setEventCallback(@NonNull Executor executor,
+            @NonNull EventCallback eventCallback) {
         if (eventCallback == null) {
-            throw new IllegalArgumentException("Illegal null MediaPlayer2EventCallback");
+            throw new IllegalArgumentException("Illegal null EventCallback");
         }
         if (executor == null) {
             throw new IllegalArgumentException(
-                    "Illegal null Executor for the MediaPlayer2EventCallback");
+                    "Illegal null Executor for the EventCallback");
         }
         synchronized (mLock) {
             mMp2EventCallbackRecord = new Pair(executor, eventCallback);
@@ -1165,10 +1165,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     /**
-     * Clears the {@link MediaPlayer2EventCallback}.
+     * Clears the {@link EventCallback}.
      */
     @Override
-    public void clearMediaPlayer2EventCallback() {
+    public void clearEventCallback() {
         synchronized (mLock) {
             mMp2EventCallbackRecord = null;
         }
@@ -1207,11 +1207,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     public void setDrmEventCallback(@NonNull Executor executor,
                                     @NonNull DrmEventCallback eventCallback) {
         if (eventCallback == null) {
-            throw new IllegalArgumentException("Illegal null MediaPlayer2EventCallback");
+            throw new IllegalArgumentException("Illegal null EventCallback");
         }
         if (executor == null) {
             throw new IllegalArgumentException(
-                    "Illegal null Executor for the MediaPlayer2EventCallback");
+                    "Illegal null Executor for the EventCallback");
         }
         synchronized (mLock) {
             mDrmEventCallbackRecord = new Pair(executor, eventCallback);
@@ -1458,14 +1458,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             notifyPlayerEvent(new PlayerEventNotifier() {
                 @Override
                 public void notify(PlayerEventCallback cb) {
-                    cb.onPlaybackSpeedChanged(mMediaPlayerInterfaceImpl, params.getSpeed());
+                    cb.onPlaybackSpeedChanged(mBaseMediaPlayerImpl, params.getSpeed());
                 }
             });
         }
     }
 
     private void notifyMediaPlayer2Event(final Mp2EventNotifier notifier) {
-        final Pair<Executor, MediaPlayer2EventCallback> record;
+        final Pair<Executor, EventCallback> record;
         synchronized (mLock) {
             record = mMp2EventCallbackRecord;
         }
@@ -1513,7 +1513,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     private interface Mp2EventNotifier {
-        void notify(MediaPlayer2EventCallback callback);
+        void notify(EventCallback callback);
     }
 
     private interface PlayerEventNotifier {
@@ -1561,7 +1561,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         handleDataSourceError(mPlayer.onPrepared(mp));
                         notifyMediaPlayer2Event(new Mp2EventNotifier() {
                             @Override
-                            public void notify(MediaPlayer2EventCallback callback) {
+                            public void notify(EventCallback callback) {
                                 MediaPlayer2Impl mp2 = MediaPlayer2Impl.this;
                                 DataSourceDesc dsd = src.getDSD();
                                 callback.onInfo(mp2, dsd, MEDIA_INFO_PREPARED, 0);
@@ -1570,7 +1570,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         notifyPlayerEvent(new PlayerEventNotifier() {
                             @Override
                             public void notify(PlayerEventCallback cb) {
-                                cb.onMediaPrepared(mMediaPlayerInterfaceImpl, src.getDSD());
+                                cb.onMediaPrepared(mBaseMediaPlayerImpl, src.getDSD());
                             }
                         });
                         synchronized (mTaskLock) {
@@ -1602,7 +1602,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             public void onVideoSizeChanged(MediaPlayer mp, final int width, final int height) {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
-                    public void notify(MediaPlayer2EventCallback cb) {
+                    public void notify(EventCallback cb) {
                         cb.onVideoSizeChanged(MediaPlayer2Impl.this, src.getDSD(), width, height);
                     }
                 });
@@ -1615,7 +1615,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     case MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
                         notifyMediaPlayer2Event(new Mp2EventNotifier() {
                             @Override
-                            public void notify(MediaPlayer2EventCallback cb) {
+                            public void notify(EventCallback cb) {
                                 cb.onInfo(MediaPlayer2Impl.this, src.getDSD(),
                                         MEDIA_INFO_VIDEO_RENDERING_START, 0);
                             }
@@ -1623,11 +1623,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         break;
                     case MediaPlayer.MEDIA_INFO_BUFFERING_START:
                         mPlayer.setBufferingState(
-                                mp, MediaPlayerInterface.BUFFERING_STATE_BUFFERING_AND_STARVED);
+                                mp, BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED);
                         break;
                     case MediaPlayer.MEDIA_INFO_BUFFERING_END:
                         mPlayer.setBufferingState(
-                                mp, MediaPlayerInterface.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
+                                mp, BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
                         break;
                 }
                 return false;
@@ -1640,7 +1640,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         handleDataSourceError(mPlayer.onCompletion(mp));
                         notifyMediaPlayer2Event(new Mp2EventNotifier() {
                             @Override
-                            public void notify(MediaPlayer2EventCallback cb) {
+                            public void notify(EventCallback cb) {
                                 MediaPlayer2Impl mp2 = MediaPlayer2Impl.this;
                                 DataSourceDesc dsd = src.getDSD();
                                 cb.onInfo(mp2, dsd, MEDIA_INFO_PLAYBACK_COMPLETE, 0);
@@ -1655,7 +1655,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 mPlayer.onError(mp);
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
-                    public void notify(MediaPlayer2EventCallback cb) {
+                    public void notify(EventCallback cb) {
                         int w = sErrorEventMap.getOrDefault(what, MEDIA_ERROR_UNKNOWN);
                         cb.onError(MediaPlayer2Impl.this, src.getDSD(), w, extra);
                     }
@@ -1688,7 +1688,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     public void notify(PlayerEventCallback cb) {
                         // TODO: The actual seeked position might be different from the
                         // requested position. Clarify which one is expected here.
-                        cb.onSeekCompleted(mMediaPlayerInterfaceImpl, seekPos);
+                        cb.onSeekCompleted(mBaseMediaPlayerImpl, seekPos);
                     }
                 });
             }
@@ -1699,7 +1699,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     public void onTimedMetaDataAvailable(MediaPlayer mp, final TimedMetaData data) {
                         notifyMediaPlayer2Event(new Mp2EventNotifier() {
                             @Override
-                            public void notify(MediaPlayer2EventCallback cb) {
+                            public void notify(EventCallback cb) {
                                 cb.onTimedMetaDataAvailable(
                                         MediaPlayer2Impl.this, src.getDSD(), data);
                             }
@@ -1711,7 +1711,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             public boolean onInfo(MediaPlayer mp, final int what, final int extra) {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
-                    public void notify(MediaPlayer2EventCallback cb) {
+                    public void notify(EventCallback cb) {
                         int w = sInfoEventMap.getOrDefault(what, MEDIA_INFO_UNKNOWN);
                         cb.onInfo(MediaPlayer2Impl.this, src.getDSD(), w, extra);
                     }
@@ -1724,12 +1724,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             public void onBufferingUpdate(MediaPlayer mp, final int percent) {
                 if (percent >= 100) {
                     mPlayer.setBufferingState(
-                            mp, MediaPlayerInterface.BUFFERING_STATE_BUFFERING_COMPLETE);
+                            mp, BaseMediaPlayer.BUFFERING_STATE_BUFFERING_COMPLETE);
                 }
                 src.mBufferedPercentage.set(percent);
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
-                    public void notify(MediaPlayer2EventCallback cb) {
+                    public void notify(EventCallback cb) {
                         cb.onInfo(MediaPlayer2Impl.this, src.getDSD(),
                                 MEDIA_INFO_BUFFERING_UPDATE, percent);
                     }
@@ -1743,7 +1743,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                             MediaPlayer mp, final MediaTimestamp timestamp) {
                         notifyMediaPlayer2Event(new Mp2EventNotifier() {
                             @Override
-                            public void notify(MediaPlayer2EventCallback cb) {
+                            public void notify(EventCallback cb) {
                                 cb.onMediaTimeDiscontinuity(
                                         MediaPlayer2Impl.this, src.getDSD(), timestamp);
                             }
@@ -1756,7 +1756,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             public  void onSubtitleData(MediaPlayer mp, final SubtitleData data) {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
-                    public void notify(MediaPlayer2EventCallback cb) {
+                    public void notify(EventCallback cb) {
                         cb.onSubtitleData(MediaPlayer2Impl.this, src.getDSD(), data);
                     }
                 });
@@ -2013,7 +2013,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             }
             notifyMediaPlayer2Event(new Mp2EventNotifier() {
                 @Override
-                public void notify(MediaPlayer2EventCallback cb) {
+                public void notify(EventCallback cb) {
                     cb.onCallCompleted(
                             MediaPlayer2Impl.this, mDSD, mMediaCallType, status);
                 }
@@ -2041,8 +2041,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         final AtomicInteger mBufferedPercentage = new AtomicInteger(0);
         int mSourceState = SOURCE_STATE_INIT;
         @MediaPlayer2State int mMp2State = MEDIAPLAYER2_STATE_IDLE;
-        @BuffState int mBufferingState = MediaPlayerInterface.BUFFERING_STATE_UNKNOWN;
-        @PlayerState int mPlayerState = MediaPlayerInterface.PLAYER_STATE_IDLE;
+        @BuffState int mBufferingState = BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
+        @PlayerState int mPlayerState = BaseMediaPlayer.PLAYER_STATE_IDLE;
         boolean mPlayPending;
 
         MediaPlayerSource(final DataSourceDesc dsd) {
@@ -2128,7 +2128,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         synchronized void prepareAsync() {
             MediaPlayer mp = getCurrentPlayer();
             mp.prepareAsync();
-            setBufferingState(mp, MediaPlayerInterface.BUFFERING_STATE_BUFFERING_AND_STARVED);
+            setBufferingState(mp, BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED);
         }
 
         synchronized void pause() {
@@ -2169,7 +2169,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     }
                     src.mSourceState = SOURCE_STATE_PREPARED;
                     setBufferingState(src.mPlayer,
-                            MediaPlayerInterface.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
+                            BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
                     return prepareAt(i + 1);
                 }
             }
@@ -2184,7 +2184,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     final DataSourceDesc dsd = mQueue.get(0).getDSD();
                     notifyMediaPlayer2Event(new Mp2EventNotifier() {
                         @Override
-                        public void notify(MediaPlayer2EventCallback callback) {
+                        public void notify(EventCallback callback) {
                             callback.onInfo(MediaPlayer2Impl.this, dsd, MEDIA_INFO_PLAYLIST_END, 0);
                         }
                     });
@@ -2206,14 +2206,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 notifyPlayerEvent(new PlayerEventNotifier() {
                     @Override
                     public void notify(PlayerEventCallback cb) {
-                        cb.onPlayerStateChanged(mMediaPlayerInterfaceImpl, src2.mPlayerState);
+                        cb.onPlayerStateChanged(mBaseMediaPlayerImpl, src2.mPlayerState);
                     }
                 });
             }
             notifyPlayerEvent(new PlayerEventNotifier() {
                 @Override
                 public void notify(PlayerEventCallback cb) {
-                    cb.onCurrentDataSourceChanged(mMediaPlayerInterfaceImpl, src2.mDSD);
+                    cb.onCurrentDataSourceChanged(mBaseMediaPlayerImpl, src2.mDSD);
                 }
             });
         }
@@ -2228,7 +2228,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 src.mPlayer.start();
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
-                    public void notify(MediaPlayer2EventCallback callback) {
+                    public void notify(EventCallback callback) {
                         callback.onInfo(MediaPlayer2Impl.this, src.getDSD(),
                                 MEDIA_INFO_STARTED_AS_NEXT, 0);
                     }
@@ -2245,13 +2245,13 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         synchronized void onError(MediaPlayer mp) {
             setMp2State(mp, MEDIAPLAYER2_STATE_ERROR);
-            setBufferingState(mp, MediaPlayerInterface.BUFFERING_STATE_UNKNOWN);
+            setBufferingState(mp, BaseMediaPlayer.BUFFERING_STATE_UNKNOWN);
         }
 
         synchronized DataSourceError prepareAt(int n) {
             if (n >= mQueue.size()
                     || mQueue.get(n).mSourceState != SOURCE_STATE_INIT
-                    || getPlayerState() == MediaPlayerInterface.PLAYER_STATE_IDLE) {
+                    || getPlayerState() == BaseMediaPlayer.PLAYER_STATE_IDLE) {
                 // There is no next source or it's in preparing or prepared state.
                 return null;
             }
@@ -2276,7 +2276,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             }
             final MediaPlayerSource src = mQueue.get(0);
             moveToNext();
-            if (src.mPlayerState == MediaPlayerInterface.PLAYER_STATE_PLAYING) {
+            if (src.mPlayerState == BaseMediaPlayer.PLAYER_STATE_PLAYING) {
                 playCurrent();
             }
         }
@@ -2337,7 +2337,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             src.mBufferedPercentage.set(0);
             mVolume = 1.0f;
             setMp2State(src.mPlayer, MEDIAPLAYER2_STATE_IDLE);
-            setBufferingState(src.mPlayer, MediaPlayerInterface.BUFFERING_STATE_UNKNOWN);
+            setBufferingState(src.mPlayer, BaseMediaPlayer.BUFFERING_STATE_UNKNOWN);
         }
 
         synchronized MediaTimestamp getTimestamp() {
@@ -2440,7 +2440,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 notifyPlayerEvent(new PlayerEventNotifier() {
                     @Override
                     public void notify(PlayerEventCallback cb) {
-                        cb.onPlayerStateChanged(mMediaPlayerInterfaceImpl, playerState);
+                        cb.onPlayerStateChanged(mBaseMediaPlayerImpl, playerState);
                     }
                 });
                 return;
@@ -2460,7 +2460,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     @Override
                     public void notify(PlayerEventCallback cb) {
                         DataSourceDesc dsd = src.getDSD();
-                        cb.onBufferingStateChanged(mMediaPlayerInterfaceImpl, dsd, state);
+                        cb.onBufferingStateChanged(mBaseMediaPlayerImpl, dsd, state);
                     }
                 });
                 return;
@@ -2489,7 +2489,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    private class MediaPlayerInterfaceImpl extends MediaPlayerInterface {
+    private class BaseMediaPlayerImpl extends BaseMediaPlayer {
         @Override
         public void play() {
             MediaPlayer2Impl.this.play();
