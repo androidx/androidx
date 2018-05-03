@@ -2125,6 +2125,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             if (!mQueue.isEmpty() && mp == getCurrentPlayer()) {
                 if (mQueue.size() == 1) {
                     setMp2State(mp, MEDIAPLAYER2_STATE_PAUSED);
+
+                    final DataSourceDesc dsd = mQueue.get(0).getDSD();
+                    notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                        @Override
+                        public void notify(MediaPlayer2EventCallback callback) {
+                            callback.onInfo(MediaPlayer2Impl.this, dsd, MEDIA_INFO_PLAYLIST_END, 0);
+                        }
+                    });
                     return null;
                 }
                 moveToNext();

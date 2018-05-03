@@ -857,6 +857,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         final Monitor onCompletion1Called = new Monitor();
         final Monitor onCompletion2Called = new Monitor();
+        final Monitor onPlaylistEndCalled = new Monitor();
         MediaPlayer2.MediaPlayer2EventCallback ecb = new MediaPlayer2.MediaPlayer2EventCallback() {
             @Override
             public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
@@ -871,6 +872,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                     } else {
                         mOnCompletionCalled.signal();
                     }
+                } else if (what == MediaPlayer2.MEDIA_INFO_PLAYLIST_END) {
+                    onPlaylistEndCalled.signal();
                 }
             }
         };
@@ -881,6 +884,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnCompletionCalled.reset();
         onCompletion1Called.reset();
         onCompletion2Called.reset();
+        onPlaylistEndCalled.reset();
 
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
@@ -900,6 +904,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             assertFalse("first dsd completed", mOnCompletionCalled.isSignalled());
             assertFalse("second dsd completed", onCompletion2Called.isSignalled());
         }
+        onPlaylistEndCalled.waitForSignal();
 
         mPlayer.reset();
     }
