@@ -120,7 +120,7 @@ class SliceXml {
         return b.build();
     }
 
-    @SuppressLint("WrongConstant")
+    @SuppressLint("DefaultCharset")
     private static void parseItem(Context context, Slice.Builder b,
             XmlPullParser parser, final SliceUtils.SliceActionListener listener)
             throws IOException, XmlPullParserException, SliceUtils.SliceParseException {
@@ -132,7 +132,7 @@ class SliceXml {
         String iconType = parser.getAttributeValue(NAMESPACE, ATTR_ICON_TYPE);
         String pkg = parser.getAttributeValue(NAMESPACE, ATTR_ICON_PACKAGE);
         String resType = parser.getAttributeValue(NAMESPACE, ATTR_ICON_RES_TYPE);
-        String[] hints = hints(hintStr);
+        @Slice.SliceHint String[] hints = hints(hintStr);
         String v;
         while ((type = parser.next()) != XmlPullParser.END_DOCUMENT
                 && (type != XmlPullParser.END_TAG || parser.getDepth() > outerDepth)) {
@@ -203,6 +203,7 @@ class SliceXml {
         }
     }
 
+    @Slice.SliceHint
     private static String[] hints(String hintStr) {
         return TextUtils.isEmpty(hintStr) ? new String[0] : hintStr.split(",");
     }
@@ -240,6 +241,7 @@ class SliceXml {
         serializer.endTag(NAMESPACE, isAction ? TAG_ACTION : TAG_SLICE);
     }
 
+    @SuppressWarnings("DefaultCharset")
     private static void serialize(SliceItem item, Context context,
             SliceUtils.SerializeOptions options, XmlSerializer serializer) throws IOException {
         String format = item.getFormat();
@@ -333,6 +335,7 @@ class SliceXml {
         serializer.text(icon.getUri().toString());
     }
 
+    @SuppressWarnings("DefaultCharset")
     private static void serializeIcon(XmlSerializer serializer, IconCompat icon,
             Context context, SliceUtils.SerializeOptions options) throws IOException {
         Drawable d = icon.loadDrawable(context);
