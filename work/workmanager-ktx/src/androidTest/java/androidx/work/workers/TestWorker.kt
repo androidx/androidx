@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.work.ktx
+package androidx.work.workers
 
-import androidx.work.Data
+import androidx.work.Worker
 
-/**
- * Converts a [Map] to a [Data] object.
- */
-inline fun <V> Map<String, V>.toWorkData(): Data {
-    val dataBuilder = Data.Builder()
-    dataBuilder.putAll(this)
-    return dataBuilder.build()
+class TestWorker : Worker() {
+    override fun doWork(): WorkerResult {
+        return WorkerResult.SUCCESS
+    }
 }
