@@ -32,7 +32,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
-import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -63,7 +62,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@LargeTest
 @SdkSuppress(minSdkVersion = 16)
 public class WriteAheadLoggingTest {
 

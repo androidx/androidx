@@ -30,7 +30,6 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.util.Pair;
 
-import androidx.annotation.RequiresApi;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
@@ -170,7 +169,7 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public Cursor query(final SupportSQLiteQuery supportQuery,
             CancellationSignal cancellationSignal) {
         return mDelegate.rawQueryWithFactory(new SQLiteDatabase.CursorFactory() {
@@ -279,7 +278,7 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void setForeignKeyConstraintsEnabled(boolean enable) {
         mDelegate.setForeignKeyConstraintsEnabled(enable);
     }
@@ -290,13 +289,13 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void disableWriteAheadLogging() {
         mDelegate.disableWriteAheadLogging();
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public boolean isWriteAheadLoggingEnabled() {
         return mDelegate.isWriteAheadLoggingEnabled();
     }
