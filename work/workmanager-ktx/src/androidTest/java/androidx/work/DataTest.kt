@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.work.ktx
+package androidx.work
 
 import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-
 import org.junit.Test
 import org.junit.runner.RunWith
 

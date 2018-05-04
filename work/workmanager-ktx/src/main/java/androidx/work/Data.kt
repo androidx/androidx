@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.work.ktx
-
-import android.support.annotation.NonNull
-import androidx.work.InputMerger
-import androidx.work.OneTimeWorkRequest
-import androidx.work.Worker
-import kotlin.reflect.KClass
+package androidx.work
 
 /**
- * Creates a [OneTimeWorkRequest] with the given [Worker].
+ * Converts a [Map] to a [Data] object.
  */
-inline fun <reified W : Worker> OneTimeWorkRequestBuilder() =
-        OneTimeWorkRequest.Builder(W::class.java)
-
-/**
- * Sets an [InputMerger] on the [OneTimeWorkRequest.Builder].
- */
-inline fun OneTimeWorkRequest.Builder.setInputMerger(
-        @NonNull inputMerger: KClass<out InputMerger>) = setInputMerger(inputMerger.java)
+inline fun <V> Map<String, V>.toWorkData(): Data {
+    val dataBuilder = Data.Builder()
+    dataBuilder.putAll(this)
+    return dataBuilder.build()
+}
