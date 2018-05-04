@@ -18,7 +18,10 @@
           package="androidx.media.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
-    <application>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application android:usesCleartextTraffic="true">
         <activity android:name="androidx.media.MediaStubActivity"
                   android:label="MediaStubActivity"
                   android:screenOrientation="nosensor"
