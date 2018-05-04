@@ -17,7 +17,7 @@
 package androidx.work.impl;
 
 import static androidx.work.State.BLOCKED;
-import static androidx.work.State.CANCELLED;
+import static androidx.work.State.CANCELED;
 import static androidx.work.State.ENQUEUED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
@@ -161,7 +161,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testCancelled() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setInitialState(CANCELLED)
+                .setInitialState(CANCELED)
                 .build();
         insertWork(work);
         new WorkerWrapper.Builder(mContext, mDatabase, work.getStringId())
@@ -169,7 +169,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .build()
                 .run();
         verify(mMockListener).onExecuted(work.getStringId(), false, false);
-        assertThat(mWorkSpecDao.getState(work.getStringId()), is(CANCELLED));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(CANCELED));
     }
 
     @Test
@@ -406,7 +406,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .setInitialState(BLOCKED)
                 .build();
         OneTimeWorkRequest cancelledWork = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setInitialState(CANCELLED)
+                .setInitialState(CANCELED)
                 .build();
         Dependency dependency1 = new Dependency(work.getStringId(), prerequisiteWork.getStringId());
         Dependency dependency2 =
@@ -430,7 +430,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         assertThat(mWorkSpecDao.getState(prerequisiteWork.getStringId()), is(FAILED));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
-        assertThat(mWorkSpecDao.getState(cancelledWork.getStringId()), is(CANCELLED));
+        assertThat(mWorkSpecDao.getState(cancelledWork.getStringId()), is(CANCELED));
     }
 
     @Test
