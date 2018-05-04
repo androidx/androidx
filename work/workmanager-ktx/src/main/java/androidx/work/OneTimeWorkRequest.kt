@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.work.ktx.workers
+package androidx.work
 
-import androidx.work.Worker
+import android.support.annotation.NonNull
+import kotlin.reflect.KClass
 
-class TestWorker : Worker() {
-    override fun doWork(): WorkerResult {
-        return WorkerResult.SUCCESS
-    }
-}
+/**
+ * Creates a [OneTimeWorkRequest] with the given [Worker].
+ */
+inline fun <reified W : Worker> OneTimeWorkRequestBuilder() =
+        OneTimeWorkRequest.Builder(W::class.java)
+
+/**
+ * Sets an [InputMerger] on the [OneTimeWorkRequest.Builder].
+ */
+inline fun OneTimeWorkRequest.Builder.setInputMerger(
+        @NonNull inputMerger: KClass<out InputMerger>) = setInputMerger(inputMerger.java)
