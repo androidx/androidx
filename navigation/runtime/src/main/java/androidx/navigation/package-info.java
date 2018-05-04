@@ -33,8 +33,10 @@
  *     {@link androidx.navigation.NavController#popBackStack()}, and
  *     {@link androidx.navigation.NavController#navigateUp()} into the appropriate operations.
  *     </li>
- *     <li>{@link androidx.navigation.NavHost}:
- *     {@link androidx.navigation.NavController},
+ *     <li>{@link androidx.navigation.NavHost}: The container that hosts a
+ *     {@link androidx.navigation.NavController} and provides support for one or more specific
+ *     types of {@link androidx.navigation.NavDestination destinations}. For example,
+ *     {@link androidx.navigation.fragment.NavHostFragment} allows you to use
  *     {@link androidx.navigation.fragment.FragmentNavigator.Destination fragment destinations}.
  *     </li>
  * </ul>
@@ -46,13 +48,13 @@
  *   // that should navigate the user to a destination
  *   Button b = view.findViewById(R.id.view_details);
  *
- *   // Retrieve the NavController from any View within a NavHost
- *   final NavController navController = Navigation.findNavController(this);
+ *   b.setOnClickListener(v -> {
+ *       // Retrieve the NavController from any View within a NavHost
+ *       NavController navController = Navigation.findNavController(v);
+ *       navController.navigate(R.id.details));
+ *   }
  *
- *   // And set the listener
- *   b.setOnClickListener(() -%gt; navController.navigate(R.id.details));
- *
- *   // Or use the convenience method in Navigation to combine all of the previous steps
+ *   // Or use the convenience method in Navigation to combine the previous steps
  *   b.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.details));
  * }
  * </pre>
