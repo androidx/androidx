@@ -77,8 +77,13 @@ class PluginTest {
         buildFile = File(projectRoot(), "build.gradle")
         buildFile.createNewFile()
         // copy local.properties
-        File("../../app-toolkit/local.properties").copyTo(File(projectRoot(),
-                "local.properties"), overwrite = true)
+        val appToolkitProperties = File("../../app-toolkit/local.properties")
+        if (appToolkitProperties.exists()) {
+            appToolkitProperties.copyTo(File(projectRoot(), "local.properties"), overwrite = true)
+        } else {
+            File("../../local.properties").copyTo(
+                    File(projectRoot(), "local.properties"), overwrite = true)
+        }
         val stream = PluginTest::class.java.classLoader.getResourceAsStream("sdk.prop")
         val properties = Properties()
         properties.load(stream)
