@@ -31,7 +31,7 @@
  *       android:name="com.example.HomeFragment"&gt;
  *     &lt;action android:id="{@literal @}+id/details"
  *       app:destination="{@literal @}+id/details_fragment" /&gt;
- *   &lt;fragment /&gt;
+ *   &lt;/fragment&gt;
  *   &lt;fragment android:id="{@literal @}+id/details_fragment"
  *       android:name="com.example.DetailsFragment"/&gt;
  * &lt;navigation /&gt;
@@ -59,7 +59,7 @@
  *   final NavController viewNavController = Navigation.findNavController(button);
  *
  *   // And set the listener
- *   button.setOnClickListener(() -%gt; navController.navigate(R.id.details));
+ *   button.setOnClickListener(() -> navController.navigate(R.id.details));
  *
  *   // Or use the convenience method in Navigation to combine all of the previous steps
  *   button.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.details));
