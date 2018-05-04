@@ -24,10 +24,10 @@ plugins {
 
 dependencies {
     implementation(project(":slice-core"))
-    implementation(project(":slice-builders"))
     implementation(project(":recyclerview"))
     api(ARCH_LIFECYCLE_LIVEDATA_CORE, libs.exclude_annotations_transitive)
 
+    androidTestImplementation(project(":slice-builders"))
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
     androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
