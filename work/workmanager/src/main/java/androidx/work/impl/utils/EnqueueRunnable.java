@@ -19,7 +19,7 @@ package androidx.work.impl.utils;
 import static androidx.work.ExistingWorkPolicy.APPEND;
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.State.BLOCKED;
-import static androidx.work.State.CANCELED;
+import static androidx.work.State.CANCELLED;
 import static androidx.work.State.ENQUEUED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
@@ -177,7 +177,7 @@ public class EnqueueRunnable implements Runnable {
                 hasCompletedAllPrerequisites &= (prerequisiteState == SUCCEEDED);
                 if (prerequisiteState == FAILED) {
                     hasFailedPrerequisites = true;
-                } else if (prerequisiteState == CANCELED) {
+                } else if (prerequisiteState == CANCELLED) {
                     hasCancelledPrerequisites = true;
                 }
             }
@@ -203,7 +203,7 @@ public class EnqueueRunnable implements Runnable {
                             hasCompletedAllPrerequisites &= (idAndState.state == SUCCEEDED);
                             if (idAndState.state == FAILED) {
                                 hasFailedPrerequisites = true;
-                            } else if (idAndState.state == CANCELED) {
+                            } else if (idAndState.state == CANCELLED) {
                                 hasCancelledPrerequisites = true;
                             }
                             newPrerequisiteIds.add(idAndState.id);
@@ -241,7 +241,7 @@ public class EnqueueRunnable implements Runnable {
                 if (hasFailedPrerequisites) {
                     workSpec.state = FAILED;
                 } else if (hasCancelledPrerequisites) {
-                    workSpec.state = CANCELED;
+                    workSpec.state = CANCELLED;
                 } else {
                     workSpec.state = BLOCKED;
                 }

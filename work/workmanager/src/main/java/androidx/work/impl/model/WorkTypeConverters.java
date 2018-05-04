@@ -19,7 +19,7 @@ package androidx.work.impl.model;
 import static androidx.work.BackoffPolicy.EXPONENTIAL;
 import static androidx.work.BackoffPolicy.LINEAR;
 import static androidx.work.State.BLOCKED;
-import static androidx.work.State.CANCELED;
+import static androidx.work.State.CANCELLED;
 import static androidx.work.State.ENQUEUED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
@@ -102,7 +102,7 @@ public class WorkTypeConverters {
             case BLOCKED:
                 return StateIds.BLOCKED;
 
-            case CANCELED:
+            case CANCELLED:
                 return StateIds.CANCELLED;
 
             default:
@@ -136,7 +136,7 @@ public class WorkTypeConverters {
                 return BLOCKED;
 
             case StateIds.CANCELLED:
-                return CANCELED;
+                return CANCELLED;
 
             default:
                 throw new IllegalArgumentException(
