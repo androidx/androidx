@@ -50,14 +50,14 @@ public enum State {
     /**
      * The status for work that has been cancelled and will not execute
      */
-    CANCELED;
+    CANCELLED;
 
     /**
      * Returns {@code true} if this State is considered finished.
      *
-     * @return {@code true} for {@link #SUCCEEDED}, {@link #FAILED}, and {@link #CANCELED} States
+     * @return {@code true} for {@link #SUCCEEDED}, {@link #FAILED}, and {@link #CANCELLED} States
      */
     public boolean isFinished() {
-        return (this == SUCCEEDED || this == FAILED || this == CANCELED);
+        return (this == SUCCEEDED || this == FAILED || this == CANCELLED);
     }
 }
