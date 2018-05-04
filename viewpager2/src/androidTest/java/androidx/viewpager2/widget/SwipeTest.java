@@ -16,8 +16,6 @@
 
 package androidx.viewpager2.widget;
 
-import static android.view.View.OVER_SCROLL_NEVER;
-
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
@@ -34,15 +32,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
-import android.os.Build;
 import android.util.Log;
 import android.util.Pair;
 
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.FragmentActivityUtils;
 import androidx.viewpager2.test.R;
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeListener;
+import androidx.viewpager2.widget.setup.TestSetup;
 import androidx.viewpager2.widget.swipe.BaseActivity;
 import androidx.viewpager2.widget.swipe.FragmentAdapterActivity;
 import androidx.viewpager2.widget.swipe.PageSwiper;
@@ -62,6 +60,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @LargeTest
 @RunWith(Parameterized.class)
@@ -74,6 +74,7 @@ public class SwipeTest {
 
     private final TestConfig mTestConfig;
     private ActivityTestRule<? extends BaseActivity> mActivityTestRule;
+    private ViewPager2 mViewPager;
     private PageSwiper mSwiper;
 
     public SwipeTest(TestConfig testConfig) {
@@ -106,10 +107,44 @@ public class SwipeTest {
             }
 
             // page swipe
-            mSwiper.swipe(currentPage, nextPage);
+            swipeToCompletion(currentPage, nextPage);
             currentPage = nextPage;
             assertStateCorrect(expectedValues[currentPage], activity);
         }
+    }
+
+    private void swipeToCompletion(int currentPage, final int targetPage)
+            throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(2);
+        OnPageChangeListener listener = new OnPageChangeListener() {
+            boolean mFinalScrollFired = false;
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset,
+                    int positionOffsetPixels) {
+                if (position == targetPage && positionOffsetPixels == 0) {
+                    mFinalScrollFired = true;
+                    latch.countDown();
+                }
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager2.ScrollState.IDLE && mFinalScrollFired) {
+                    latch.countDown();
+                }
+            }
+        };
+
+        mViewPager.addOnPageChangeListener(listener);
+        mSwiper.swipe(currentPage, targetPage);
+        latch.await(1, TimeUnit.SECONDS);
+        mViewPager.removeOnPageChangeListener(listener);
     }
 
     private static void updatePage(final int pageIx, final int newValue,
@@ -252,22 +287,16 @@ public class SwipeTest {
         mActivityTestRule = new ActivityTestRule<>(mTestConfig.mActivityClass, true, false);
         mActivityTestRule.launchActivity(BaseActivity.createIntent(mTestConfig.mTotalPages));
 
-        final ViewPager2 viewPager = mActivityTestRule.getActivity().findViewById(R.id.view_pager);
-        RecyclerView recyclerView = (RecyclerView) viewPager.getChildAt(0); // HACK
-        mSwiper = new PageSwiper(mTestConfig.mTotalPages, recyclerView, mTestConfig.mOrientation);
+        mViewPager = mActivityTestRule.getActivity().findViewById(R.id.view_pager);
+        new TestSetup(mViewPager).applyWorkarounds();
+        mSwiper = new PageSwiper(mTestConfig.mTotalPages, mTestConfig.mOrientation);
 
         mActivityTestRule.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                viewPager.setOrientation(mTestConfig.mOrientation);
+                mViewPager.setOrientation(mTestConfig.mOrientation);
             }
         });
-
-        // Disabling edge animations on API < 16. Espresso discourages animations altogether, but
-        // keeping them for now where they work - as closer to the real environment.
-        if (Build.VERSION.SDK_INT < 16) {
-            recyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
-        }
 
         onView(withId(R.id.view_pager)).check(matches(isDisplayed()));
     }

@@ -79,7 +79,7 @@ public class BasicTest {
     }
 
     @Test
-    public void test_childrenNotAllowed() throws Exception {
+    public void test_childrenNotAllowed() {
         mExpectedException.expect(IllegalStateException.class);
         mExpectedException.expectMessage("ViewPager2 does not support direct child views");
 
@@ -89,7 +89,7 @@ public class BasicTest {
     }
 
     @Test
-    public void test_saveStateParcel_createRestore() throws Throwable {
+    public void test_saveStateParcel_createRestore() {
         // given
         Bundle superState = createIntBundle(42);
         ViewPager2.SavedState state = new ViewPager2.SavedState(superState);
