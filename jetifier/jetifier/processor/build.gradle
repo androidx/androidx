@@ -29,7 +29,7 @@ dependencies {
     compile("org.ow2.asm:asm:6.0")
     compile("org.ow2.asm:asm-commons:6.0")
     compile("org.jdom:jdom2:2.0.6")
-    compile(KOTLIN_STDLIB)
+    compile("org.jetbrains.kotlin:kotlin-stdlib:1.2.20")
     testCompile("junit:junit:4.12")
     testCompile("com.google.truth:truth:0.34")
 }
