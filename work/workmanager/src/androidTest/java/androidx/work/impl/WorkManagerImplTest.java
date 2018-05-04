@@ -22,7 +22,7 @@ import static androidx.work.ExistingWorkPolicy.REPLACE;
 import static androidx.work.NetworkType.METERED;
 import static androidx.work.NetworkType.NOT_REQUIRED;
 import static androidx.work.State.BLOCKED;
-import static androidx.work.State.CANCELED;
+import static androidx.work.State.CANCELLED;
 import static androidx.work.State.ENQUEUED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.RUNNING;
@@ -275,17 +275,17 @@ public class WorkManagerImplTest {
     @SmallTest
     public void testEnqueue_insertWithCancelledDependencies_isStatusCancelled() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setInitialState(CANCELED)
+                .setInitialState(CANCELLED)
                 .build();
 
         WorkContinuation workContinuation = mWorkManagerImpl.beginWith(work1);
         workContinuation.synchronous().enqueueSync();
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELED));
+        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
 
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         workContinuation.then(work2).synchronous().enqueueSync();
-        assertThat(workSpecDao.getState(work2.getStringId()), is(CANCELED));
+        assertThat(workSpecDao.getState(work2.getStringId()), is(CANCELLED));
     }
 
     @Test
@@ -989,8 +989,8 @@ public class WorkManagerImplTest {
         insertWorkSpecAndTags(work1);
 
         mWorkManagerImpl.synchronous().cancelWorkByIdSync(work0.getId());
-        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELED));
-        assertThat(workSpecDao.getState(work1.getStringId()), is(not(CANCELED)));
+        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getStringId()), is(not(CANCELLED)));
     }
 
     @Test
@@ -1008,8 +1008,8 @@ public class WorkManagerImplTest {
 
         mWorkManagerImpl.synchronous().cancelWorkByIdSync(work0.getId());
 
-        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELED));
-        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELED));
+        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
     }
 
     @Test
@@ -1030,7 +1030,7 @@ public class WorkManagerImplTest {
         mWorkManagerImpl.synchronous().cancelWorkByIdSync(work0.getId());
 
         assertThat(workSpecDao.getState(work0.getStringId()), is(SUCCEEDED));
-        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELED));
+        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
     }
 
     @Test
@@ -1060,10 +1060,10 @@ public class WorkManagerImplTest {
 
         mWorkManagerImpl.synchronous().cancelAllWorkByTagSync(tagToClear);
 
-        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELED));
-        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELED));
-        assertThat(workSpecDao.getState(work2.getStringId()), is(not(CANCELED)));
-        assertThat(workSpecDao.getState(work3.getStringId()), is(not(CANCELED)));
+        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work2.getStringId()), is(not(CANCELLED)));
+        assertThat(workSpecDao.getState(work3.getStringId()), is(not(CANCELLED)));
     }
 
     @Test
@@ -1104,11 +1104,11 @@ public class WorkManagerImplTest {
         mWorkManagerImpl.synchronous().cancelAllWorkByTagSync(tag);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELED));
-        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELED));
-        assertThat(workSpecDao.getState(work2.getStringId()), is(CANCELED));
-        assertThat(workSpecDao.getState(work3.getStringId()), is(not(CANCELED)));
-        assertThat(workSpecDao.getState(work4.getStringId()), is(CANCELED));
+        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work2.getStringId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work3.getStringId()), is(not(CANCELLED)));
+        assertThat(workSpecDao.getState(work4.getStringId()), is(CANCELLED));
     }
 
     @Test
@@ -1123,8 +1123,8 @@ public class WorkManagerImplTest {
         mWorkManagerImpl.synchronous().cancelUniqueWorkSync(testName);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELED));
-        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELED));
+        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
     }
 
     @Test
@@ -1142,7 +1142,7 @@ public class WorkManagerImplTest {
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getState(work0.getStringId()), is(SUCCEEDED));
-        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELED));
+        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
     }
 
     @Test
@@ -1155,7 +1155,7 @@ public class WorkManagerImplTest {
         assertThat(workSpecDao.getState(work.getStringId()), is(ENQUEUED));
 
         mWorkManagerImpl.synchronous().cancelWorkByIdSync(work.getId());
-        assertThat(mWorkManagerImpl.getStatusByIdSync(work.getId()).getState(), is(CANCELED));
+        assertThat(mWorkManagerImpl.getStatusByIdSync(work.getId()).getState(), is(CANCELLED));
     }
 
     @Test
