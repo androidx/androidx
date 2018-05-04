@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.work.ktx
+package androidx.work
 
-import androidx.work.PeriodicWorkRequest
-import androidx.work.Worker
 import java.util.concurrent.TimeUnit
 
 /**
