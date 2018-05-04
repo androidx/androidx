@@ -23,10 +23,12 @@ import android.content.res.TypedArray;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.ActionMode;
 import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
+import androidx.core.widget.TextViewCompat;
 
 /**
  * Used by dialogs to change the font size and number of lines to try to fit
@@ -78,5 +80,15 @@ public class DialogTitle extends TextView {
                 }
             }
         }
+    }
+
+    /**
+     * See
+     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        super.setCustomSelectionActionModeCallback(TextViewCompat
+                .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }
 }

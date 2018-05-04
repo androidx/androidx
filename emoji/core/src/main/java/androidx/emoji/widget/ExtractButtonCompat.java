@@ -21,10 +21,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.ActionMode;
 import android.widget.Button;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.widget.TextViewCompat;
 
 /**
  * Support library implementation for ExtractButton. Used by {@link EmojiExtractViewHelper} while
@@ -58,5 +60,15 @@ public class ExtractButtonCompat extends Button {
     @Override
     public boolean hasWindowFocus() {
         return isEnabled() && getVisibility() == VISIBLE ? true : false;
+    }
+
+    /**
+     * See
+     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        super.setCustomSelectionActionModeCallback(TextViewCompat
+                .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }
 }

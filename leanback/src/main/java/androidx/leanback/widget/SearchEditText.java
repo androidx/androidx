@@ -18,6 +18,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import androidx.core.widget.TextViewCompat;
 import androidx.leanback.R;
 
 /**

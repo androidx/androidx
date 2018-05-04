@@ -35,6 +35,7 @@ import android.text.TextUtils;
 import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
 import android.util.Property;
+import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
@@ -43,6 +44,7 @@ import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.R;
@@ -50,6 +52,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.text.AllCapsTransformationMethod;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.widget.TextViewCompat;
 
 /**
  * SwitchCompat is a version of the Switch widget which on devices back to API v7. It does not
@@ -1404,6 +1407,16 @@ public class SwitchCompat extends CompoundButton {
                 info.setText(newText);
             }
         }
+    }
+
+    /**
+     * See
+     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        super.setCustomSelectionActionModeCallback(TextViewCompat
+                .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }
 
     /**

@@ -23,6 +23,7 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.ActionMode;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
@@ -356,5 +357,15 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
         if (mTextHelper != null) {
             mTextHelper.setAllCaps(allCaps);
         }
+    }
+
+    /**
+     * See
+     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        super.setCustomSelectionActionModeCallback(TextViewCompat
+                .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }
 }

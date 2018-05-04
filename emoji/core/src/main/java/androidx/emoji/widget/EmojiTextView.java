@@ -19,9 +19,11 @@ import android.content.Context;
 import android.os.Build;
 import android.text.InputFilter;
 import android.util.AttributeSet;
+import android.view.ActionMode;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.widget.TextViewCompat;
 
 /**
  * TextView widget enhanced with emoji capability by using {@link EmojiTextViewHelper}. When used
@@ -80,5 +82,15 @@ public class EmojiTextView extends TextView {
             mEmojiTextViewHelper = new EmojiTextViewHelper(this);
         }
         return mEmojiTextViewHelper;
+    }
+
+    /**
+     * See
+     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     */
+    @Override
+    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+        super.setCustomSelectionActionModeCallback(TextViewCompat
+                .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }
 }

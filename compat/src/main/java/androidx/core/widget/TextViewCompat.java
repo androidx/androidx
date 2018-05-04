@@ -465,7 +465,7 @@ public final class TextViewCompat {
     /**
      * Sets a selection action mode callback on a TextView.
      *
-     * Also this method can be used to fix a bug in framework SDK 26. On these affected devices,
+     * Also this method can be used to fix a bug in framework SDK 26/27. On these affected devices,
      * the bug causes the menu containing the options for handling ACTION_PROCESS_TEXT after text
      * selection to miss a number of items. This method can be used to fix this wrong behaviour for
      * a text view, by passing any custom callback implementation. If no custom callback is desired,
@@ -486,16 +486,30 @@ public final class TextViewCompat {
      */
     public static void setCustomSelectionActionModeCallback(@NonNull final TextView textView,
                 @NonNull final ActionMode.Callback callback) {
-        if (Build.VERSION.SDK_INT < 26 || Build.VERSION.SDK_INT > 27) {
-            textView.setCustomSelectionActionModeCallback(callback);
-            return;
-        }
+        textView.setCustomSelectionActionModeCallback(
+                wrapCustomSelectionActionModeCallback(textView, callback));
+    }
 
+    /**
+     * @see #setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    public static ActionMode.Callback wrapCustomSelectionActionModeCallback(
+            @NonNull final TextView textView,
+            @NonNull final ActionMode.Callback callback) {
+        if (Build.VERSION.SDK_INT < 26 || Build.VERSION.SDK_INT > 27
+                || callback instanceof OreoCallback) {
+            // If the bug does not affect the current SDK version, or if
+            // the callback was already wrapped, no need to wrap it.
+            return callback;
+        }
         // A bug in O and O_MR1 causes a number of options for handling the ACTION_PROCESS_TEXT
         // intent after selection to not be displayed in the menu, although they should be.
         // Here we fix this, by removing the menu items created by the framework code, and
         // adding them (and the missing ones) back correctly.
-        textView.setCustomSelectionActionModeCallback(new OreoCallback(callback, textView));
+        return new OreoCallback(callback, textView);
     }
 
     @TargetApi(26) // TODO was anonymous but https://issuetracker.google.com/issues/76458979

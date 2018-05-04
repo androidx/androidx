@@ -29,6 +29,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -50,6 +51,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.TextViewCompat;
 import androidx.slice.SliceItem;
 import androidx.slice.view.R;
 
@@ -414,6 +416,17 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
                 setBackground(null);
             }
 
+        }
+
+        /**
+         * See
+         * {@link TextViewCompat
+         * #setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+         */
+        @Override
+        public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
+            super.setCustomSelectionActionModeCallback(TextViewCompat
+                    .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
         }
     }
 
