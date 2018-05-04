@@ -26,7 +26,7 @@ plugins {
 
 dependencies {
     compile project(':jetifier-processor')
-    compile(KOTLIN_STDLIB)
+    compile("org.jetbrains.kotlin:kotlin-stdlib:1.2.20")
     compileOnly gradleApi()
 }
 
