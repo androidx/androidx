@@ -16,7 +16,7 @@
 
 package androidx.work.impl.utils;
 
-import static androidx.work.State.CANCELLED;
+import static androidx.work.State.CANCELED;
 import static androidx.work.State.FAILED;
 import static androidx.work.State.SUCCEEDED;
 
@@ -72,7 +72,7 @@ public abstract class CancelWorkRunnable implements Runnable {
 
         State state = workSpecDao.getState(workSpecId);
         if (state != SUCCEEDED && state != FAILED) {
-            workSpecDao.setState(CANCELLED, workSpecId);
+            workSpecDao.setState(CANCELED, workSpecId);
         }
     }
 
