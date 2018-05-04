@@ -147,12 +147,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     private final Object mLock = new Object();
     //--- guarded by |mLock| start
     private AudioAttributesCompat mAudioAttributes;
-    private ArrayList<Pair<Executor, MediaPlayer2EventCallback>> mMp2EventCallbackRecords =
-            new ArrayList<>();
+    private Pair<Executor, MediaPlayer2EventCallback> mMp2EventCallbackRecord;
     private ArrayMap<PlayerEventCallback, Executor> mPlayerEventCallbackMap =
             new ArrayMap<>();
-    private ArrayList<Pair<Executor, DrmEventCallback>> mDrmEventCallbackRecords =
-            new ArrayList<>();
+    private Pair<Executor, DrmEventCallback> mDrmEventCallbackRecord;
     private MediaPlayerInterfaceImpl mMediaPlayerInterfaceImpl;
     //--- guarded by |mLock| end
 
@@ -882,9 +880,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         mPlayer.reset();
         synchronized (mLock) {
             mAudioAttributes = null;
-            mMp2EventCallbackRecords.clear();
+            mMp2EventCallbackRecord = null;
             mPlayerEventCallbackMap.clear();
-            mDrmEventCallbackRecords.clear();
+            mDrmEventCallbackRecord = null;
         }
     }
 
@@ -1162,7 +1160,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     "Illegal null Executor for the MediaPlayer2EventCallback");
         }
         synchronized (mLock) {
-            mMp2EventCallbackRecords.add(new Pair(executor, eventCallback));
+            mMp2EventCallbackRecord = new Pair(executor, eventCallback);
         }
     }
 
@@ -1172,7 +1170,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @Override
     public void clearMediaPlayer2EventCallback() {
         synchronized (mLock) {
-            mMp2EventCallbackRecords.clear();
+            mMp2EventCallbackRecord = null;
         }
     }
 
@@ -1216,7 +1214,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     "Illegal null Executor for the MediaPlayer2EventCallback");
         }
         synchronized (mLock) {
-            mDrmEventCallbackRecords.add(new Pair(executor, eventCallback));
+            mDrmEventCallbackRecord = new Pair(executor, eventCallback);
         }
     }
 
@@ -1226,7 +1224,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @Override
     public void clearDrmEventCallback() {
         synchronized (mLock) {
-            mDrmEventCallbackRecords.clear();
+            mDrmEventCallbackRecord = null;
         }
     }
 
@@ -1467,11 +1465,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     private void notifyMediaPlayer2Event(final Mp2EventNotifier notifier) {
-        List<Pair<Executor, MediaPlayer2EventCallback>> records;
+        final Pair<Executor, MediaPlayer2EventCallback> record;
         synchronized (mLock) {
-            records = new ArrayList<>(mMp2EventCallbackRecords);
+            record = mMp2EventCallbackRecord;
         }
-        for (final Pair<Executor, MediaPlayer2EventCallback> record : records) {
+        if (record != null) {
             record.first.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1500,11 +1498,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     private void notifyDrmEvent(final DrmEventNotifier notifier) {
-        List<Pair<Executor, DrmEventCallback>> records;
+        final Pair<Executor, DrmEventCallback> record;
         synchronized (mLock) {
-            records = new ArrayList<>(mDrmEventCallbackRecords);
+            record = mDrmEventCallbackRecord;
         }
-        for (final Pair<Executor, DrmEventCallback> record : records) {
+        if (record != null) {
             record.first.execute(new Runnable() {
                 @Override
                 public void run() {
