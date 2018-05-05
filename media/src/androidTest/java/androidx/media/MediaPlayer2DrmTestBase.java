@@ -45,7 +45,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
 import androidx.media.MediaPlayer2.DrmInfo;
-import androidx.media.MediaPlayer2TestBase.Monitor;
+import androidx.media.TestUtils.Monitor;
 
 import org.json.JSONArray;
 import org.json.JSONException;

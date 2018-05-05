@@ -180,4 +180,56 @@ public final class TestUtils {
             }
         }
     }
+
+    public static class Monitor {
+        private int mNumSignal;
+
+        public synchronized void reset() {
+            mNumSignal = 0;
+        }
+
+        public synchronized void signal() {
+            mNumSignal++;
+            notifyAll();
+        }
+
+        public synchronized boolean waitForSignal() throws InterruptedException {
+            return waitForCountedSignals(1) > 0;
+        }
+
+        public synchronized int waitForCountedSignals(int targetCount) throws InterruptedException {
+            while (mNumSignal < targetCount) {
+                wait();
+            }
+            return mNumSignal;
+        }
+
+        public synchronized boolean waitForSignal(long timeoutMs) throws InterruptedException {
+            return waitForCountedSignals(1, timeoutMs) > 0;
+        }
+
+        public synchronized int waitForCountedSignals(int targetCount, long timeoutMs)
+                throws InterruptedException {
+            if (timeoutMs == 0) {
+                return waitForCountedSignals(targetCount);
+            }
+            long deadline = System.currentTimeMillis() + timeoutMs;
+            while (mNumSignal < targetCount) {
+                long delay = deadline - System.currentTimeMillis();
+                if (delay <= 0) {
+                    break;
+                }
+                wait(delay);
+            }
+            return mNumSignal;
+        }
+
+        public synchronized boolean isSignalled() {
+            return mNumSignal >= 1;
+        }
+
+        public synchronized int getNumSignal() {
+            return mNumSignal;
+        }
+    }
 }
