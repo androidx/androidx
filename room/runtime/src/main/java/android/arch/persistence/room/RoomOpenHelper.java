@@ -57,6 +57,11 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
         mLegacyHash = legacyHash;
     }
 
+    public RoomOpenHelper(@NonNull DatabaseConfiguration configuration, @NonNull Delegate delegate,
+            @NonNull String legacyHash) {
+        this(configuration, delegate, "", legacyHash);
+    }
+
     @Override
     public void onConfigure(SupportSQLiteDatabase db) {
         super.onConfigure(db);
@@ -114,7 +119,7 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
     }
 
     private void checkIdentity(SupportSQLiteDatabase db) {
-        String identityHash = "";
+        String identityHash = null;
         if (hasRoomMasterTable(db)) {
             Cursor cursor = db.query(new SimpleSQLiteQuery(RoomMasterTable.READ_QUERY));
             //noinspection TryFinallyCanBeTryWithResources
