@@ -31,20 +31,21 @@ import java.util.UUID;
  * WorkManager is a library used to enqueue work that is guaranteed to execute after its constraints
  * are met.  WorkManager allows observation of work status and the ability to create complex chains
  * of work.
- *
+ * <p>
  * WorkManager uses an underlying job dispatching service when available based on the following
  * criteria:
- *
- * * Uses JobScheduler for API 23+
- * * For API 14-22
- *   * If using Firebase JobDispatcher in the app and the optional Firebase dependency, uses
+ * <p><ul>
+ * <li>Uses JobScheduler for API 23+
+ * <li>For API 14-22
+ * <ul>
+ *   <li>If using Firebase JobDispatcher in the app and the optional Firebase dependency, uses
  *     Firebase JobDispatcher
- *   * Otherwise, uses a custom AlarmManager + BroadcastReceiver implementation
- *
- * All work must have a corresponding {@link Worker} to perform the computations.  Work is
+ *   <li>Otherwise, uses a custom AlarmManager + BroadcastReceiver implementation
+ * </ul></ul>
+ * <p></p>All work must have a corresponding {@link Worker} to perform the computations.  Work is
  * performed in the background thread.
  *
- * There are two types of work supported by WorkManager: {@link OneTimeWorkRequest} and
+ * <p>There are two types of work supported by WorkManager: {@link OneTimeWorkRequest} and
  * {@link PeriodicWorkRequest}.  You can enqueue requests using WorkManager as follows:
  *
  * <pre>
@@ -110,8 +111,8 @@ import java.util.UUID;
  * uniquely-identifiable name (see
  * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest...)}).
  *
- * By default, WorkManager runs its operations on a background thread.  If you are already running
- * on a background thread and have need for synchronous (blocking) calls to WorkManager, use
+ * <p>By default, WorkManager runs its operations on a background thread.  If you are already
+ * running on a background thread and have need for synchronous (blocking) calls to WorkManager, use
  * {@link #synchronous()} to access such methods.
  */
 public abstract class WorkManager {
