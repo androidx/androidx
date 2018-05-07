@@ -1326,6 +1326,7 @@ package androidx.core.text {
     method public int getSpanFlags(java.lang.Object);
     method public int getSpanStart(java.lang.Object);
     method public <T> T[] getSpans(int, int, java.lang.Class<T>);
+    method public static java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat> getTextFuture(java.lang.CharSequence, androidx.core.text.PrecomputedTextCompat.Params, java.util.concurrent.Executor);
     method public int length();
     method public int nextSpanTransition(int, int, java.lang.Class);
     method public void removeSpan(java.lang.Object);

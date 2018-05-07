@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -37,20 +38,29 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
+import android.text.PrecomputedText;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.GuardedBy;
 import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.os.BuildCompat;
+import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * In addition to all tinting-related tests done by the base class, this class provides
@@ -59,6 +69,10 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 public class AppCompatTextViewTest
         extends AppCompatBaseViewTest<AppCompatTextViewActivity, AppCompatTextView> {
+    private static final String SAMPLE_TEXT_1 = "Hello, World!";
+    private static final String SAMPLE_TEXT_2 = "Hello, Android!";
+    private static final int UNLIMITED_MEASURE_SPEC = View.MeasureSpec.makeMeasureSpec(0,
+            View.MeasureSpec.UNSPECIFIED);
 
     public AppCompatTextViewTest() {
         super(AppCompatTextViewActivity.class);
@@ -383,5 +397,181 @@ public class AppCompatTextViewTest
         assertEquals(lastBaselineToBottomHeight,
                 TextViewCompat.getLastBaselineToBottomHeight(textView));
         assertEquals(lineHeight, textView.getLineHeight());
+    }
+
+    private static class ManualExecutor implements Executor {
+        private static final int TIMEOUT_MS = 5000;
+        private final Lock mLock = new ReentrantLock();
+        private final Condition mCond = mLock.newCondition();
+
+        @GuardedBy("mLock")
+        ArrayList<Runnable> mRunnables = new ArrayList<>();
+
+        @Override
+        public void execute(Runnable command) {
+            mLock.lock();
+            try {
+                mRunnables.add(command);
+                mCond.signal();
+            } finally {
+                mLock.unlock();
+            }
+        }
+
+        /**
+         * Synchronously execute the i-th runnable
+         * @param i
+         */
+        public void doExecution(int i) {
+            getRunnableAt(i).run();
+        }
+
+        private Runnable getRunnableAt(int i) {
+            mLock.lock();
+            try {
+                long remainingNanos = TimeUnit.MILLISECONDS.toNanos(TIMEOUT_MS);
+                while (mRunnables.size() <= i) {
+                    try {
+                        remainingNanos = mCond.awaitNanos(remainingNanos);
+                        if (remainingNanos <= 0) {
+                            throw new RuntimeException("Timeout during waiting runnables.");
+                        }
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                }
+                return mRunnables.get(i);
+            } finally {
+                mLock.unlock();
+            }
+        }
+    }
+
+    @Test
+    public void testSetTextFuture() throws Throwable {
+        final ManualExecutor executor = new ManualExecutor();
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
+                tv.setText(""); // Make the measured width to be zero.
+                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
+            }
+        });
+
+        executor.doExecution(0);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
+                tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
+
+                // 0 is a initial value of the text view width of this test. setTextFuture should
+                // block and set text inside measure method. So, the result of measurment should not
+                // be zero
+                assertNotEquals(0.0f, tv.getMeasuredWidth());
+                // setText may wrap the given text with SpannedString. Check the contents by casting
+                // to String.
+                assertEquals(SAMPLE_TEXT_1, tv.getText().toString());
+                if (BuildCompat.isAtLeastP()) {
+                    assertTrue(tv.getText() instanceof PrecomputedText);
+                }
+            }
+        });
+    }
+
+    @Test
+    public void testSetTextAsync_getTextBlockingTest() throws Throwable {
+        final ManualExecutor executor = new ManualExecutor();
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
+                tv.setText(""); // Make the measured width to be zero.
+                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
+                tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
+                assertNotEquals(0.0f, tv.getMeasuredWidth());
+                assertEquals(SAMPLE_TEXT_1, tv.getText().toString());
+                if (BuildCompat.isAtLeastP()) {
+                    assertTrue(tv.getText() instanceof PrecomputedText);
+                }
+            }
+        });
+        executor.doExecution(0);
+    }
+
+    @Test
+    public void testSetTextAsync_executionOrder() throws Throwable {
+        final ManualExecutor executor = new ManualExecutor();
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
+                tv.setText(""); // Make the measured width to be zero.
+                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
+                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                        SAMPLE_TEXT_2, tv.getTextMetricsParamsCompat(), executor));
+            }
+        });
+        executor.doExecution(1);  // Do execution of 2nd runnable.
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
+                tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
+                assertNotEquals(0.0f, tv.getMeasuredWidth());
+                // setText may wrap the given text with SpannedString. Check the contents by casting
+                // to String.
+                assertEquals(SAMPLE_TEXT_2, tv.getText().toString());
+                if (BuildCompat.isAtLeastP()) {
+                    assertTrue(tv.getText() instanceof PrecomputedText);
+                }
+            }
+        });
+        executor.doExecution(0);  // Do execution of 1st runnable.
+        // Even the previous setTextAsync finishes after the next setTextAsync, the last one should
+        // be displayed.
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
+                // setText may wrap the given text with SpannedString. Check the contents by casting
+                // to String.
+                assertEquals(SAMPLE_TEXT_2, tv.getText().toString());
+                if (BuildCompat.isAtLeastP()) {
+                    assertTrue(tv.getText() instanceof PrecomputedText);
+                }
+            }
+        });
+    }
+
+    @Test
+    public void testSetTextAsync_throwExceptionAfterSetTextFuture() throws Throwable {
+        final ManualExecutor executor = new ManualExecutor();
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
+                tv.setText(""); // Make the measured width to be zero.
+                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
+                tv.setTextSize(tv.getTextSize() * 2.0f + 1.0f);
+                executor.doExecution(0);
+
+                // setText may wrap the given text with SpannedString. Check the contents by casting
+                // to String.
+                try {
+                    tv.getText();
+                    fail();
+                } catch (IllegalArgumentException e) {
+                    // pass
+                }
+            }
+        });
     }
 }

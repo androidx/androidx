@@ -30,16 +30,23 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.MetricAffectingSpan;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 /**
  * A text which has the character metrics data.
@@ -61,6 +68,9 @@ import java.util.ArrayList;
  */
 public class PrecomputedTextCompat implements Spannable {
     private static final char LINE_FEED = '\n';
+
+    private static final Object sLock = new Object();
+    @GuardedBy("sLock") private static @NonNull Executor sExecutor = null;
 
     /**
      * The information required for building {@link PrecomputedTextCompat}.
@@ -539,6 +549,109 @@ public class PrecomputedTextCompat implements Spannable {
                 "pos must be less than " + mParagraphEnds[mParagraphEnds.length - 1]
                         + ", gave " + pos);
     }
+
+    /**
+     * A helper class for computing text layout in background
+     */
+    private static class PrecomputedTextFutureTask extends FutureTask<PrecomputedTextCompat> {
+        private static class PrecomputedTextCallback implements Callable<PrecomputedTextCompat> {
+            private PrecomputedTextCompat.Params mParams;
+            private CharSequence mText;
+
+            PrecomputedTextCallback(@NonNull final PrecomputedTextCompat.Params params,
+                    @NonNull final CharSequence cs) {
+                mParams = params;
+                mText = cs;
+            }
+
+            @Override
+            public PrecomputedTextCompat call() throws Exception {
+                return PrecomputedTextCompat.create(mText, mParams);
+            }
+        }
+
+        PrecomputedTextFutureTask(@NonNull final PrecomputedTextCompat.Params params,
+                @NonNull final CharSequence text) {
+            super(new PrecomputedTextCallback(params, text));
+        }
+    }
+
+    /**
+     * Helper for PrecomputedText that returns a future to be used with
+     * {@link androidx.appcompat.widget.AppCompatTextView#setTextFuture}.
+     *
+     * PrecomputedText is suited to compute on a background thread, but when TextView properties are
+     * dynamic, it's common to configure text properties and text at the same time, when binding a
+     * View. For example, in a RecyclerView Adapter:
+     * <pre>
+     *     void onBindViewHolder(ViewHolder vh, int position) {
+     *         ItemData data = getData(position);
+     *
+     *         vh.textView.setTextSize(...);
+     *         vh.textView.setFontVariationSettings(...);
+     *         vh.textView.setText(data.text);
+     *     }
+     * </pre>
+     * In such cases, using PrecomputedText is difficult, since it isn't safe to defer the setText()
+     * code arbitrarily - a layout pass may happen before computation finishes, and will be
+     * incorrect if the text isn't ready yet.
+     * <p>
+     * With {@code getTextFuture()}, you can block on the result of the precomputation safely
+     * before the result is needed. AppCompatTextView provides
+     * {@link androidx.appcompat.widget.AppCompatTextView#setTextFuture} for exactly this
+     * use case. With the following code, the app's layout work is largely done on a background
+     * thread:
+     * <pre>
+     *     void onBindViewHolder(ViewHolder vh, int position) {
+     *         ItemData data = getData(position);
+     *
+     *         vh.textView.setTextSize(...);
+     *         vh.textView.setFontVariationSettings(...);
+     *
+     *         // start precompute
+     *         Future<PrecomputedTextCompat> future = PrecomputedTextCompat.getTextFuture(
+     *                 data.text, vh.textView.getTextMetricsParamsCompat(), myExecutor);
+     *
+     *         // and pass future to TextView, which awaits result before measuring
+     *         vh.textView.setTextFuture(future);
+     *     }
+     * </pre>
+     * Because RecyclerView
+     * {@link androidx.recyclerview.widget.RecyclerView.LayoutManager#isItemPrefetchEnabled
+     * prefetches} bind multiple frames in advance while scrolling, the text work generally has
+     * plenty of time to complete before measurement occurs.
+     * </p>
+     * <p class="note">
+     *     <strong>Note:</strong> all TextView layout properties must be set before creating the
+     *     Params object. If they are changed during the precomputation, this can cause a
+     *     {@link IllegalArgumentException} when the precomputed value is consumed during measure,
+     *     and doesn't reflect the TextView's current state.
+     * </p>
+     * @param charSequence the text to be displayed
+     * @param params the parameters to be used for displaying text
+     * @param executor the executor to be process the text layout. If null is passed, the default
+     *                single threaded pool will be used.
+     * @return a future of the precomputed text
+     *
+     * @see androidx.appcompat.widget.AppCompatTextView#setTextFuture
+     */
+    @UiThread
+    public static Future<PrecomputedTextCompat> getTextFuture(
+            @NonNull final CharSequence charSequence, @NonNull PrecomputedTextCompat.Params params,
+            @Nullable Executor executor) {
+        PrecomputedTextFutureTask task = new PrecomputedTextFutureTask(params, charSequence);
+        if (executor == null) {
+            synchronized (sLock) {
+                if (sExecutor == null) {
+                    sExecutor = Executors.newFixedThreadPool(1);
+                }
+                executor = sExecutor;
+            }
+        }
+        executor.execute(task);
+        return task;
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Spannable overrides
