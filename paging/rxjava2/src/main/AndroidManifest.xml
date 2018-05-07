@@ -15,5 +15,5 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.arch.paging.rxjava2">
+          package="androidx.paging.rxjava2">
 </manifest>
