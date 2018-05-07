@@ -39,7 +39,7 @@ public class MediaPlayerAdapter extends PlayerAdapter {
         @Override
         public void run() {
             getCallback().onCurrentPositionChanged(MediaPlayerAdapter.this);
-            mHandler.postDelayed(this, getUpdatePeriod());
+            mHandler.postDelayed(this, getProgressUpdatingInterval());
         }
     };;
     final Handler mHandler = new Handler();
@@ -271,10 +271,14 @@ public class MediaPlayerAdapter extends PlayerAdapter {
         if (!enabled) {
             return;
         }
-        mHandler.postDelayed(mRunnable, getUpdatePeriod());
+        mHandler.postDelayed(mRunnable, getProgressUpdatingInterval());
     }
 
-    int getUpdatePeriod() {
+    /**
+     * Return updating interval of progress UI in milliseconds. Subclass may override.
+     * @return Update interval of progress UI in milliseconds.
+     */
+    public int getProgressUpdatingInterval() {
         return 16;
     }
 
@@ -363,6 +367,25 @@ public class MediaPlayerAdapter extends PlayerAdapter {
         notifyBufferingStartEnd();
         mPlayer.prepareAsync();
         getCallback().onPlayStateChanged(MediaPlayerAdapter.this);
+    }
+
+    /**
+     * Return the MediaPlayer associated with the MediaPlayerAdapter. App can use the instance
+     * to config DRM or control volumes, etc. Warning: App should not use the following seven
+     * listeners as they are controlled by MediaPlayerAdapter. If that's the case, app should write
+     * its own PlayerAdapter class.
+     * {@link MediaPlayer#setOnPreparedListener}
+     * {@link MediaPlayer#setOnVideoSizeChangedListener}
+     * {@link MediaPlayer#setOnErrorListener}
+     * {@link MediaPlayer#setOnSeekCompleteListener}
+     * {@link MediaPlayer#setOnCompletionListener}
+     * {@link MediaPlayer#setOnInfoListener}
+     * {@link MediaPlayer#setOnBufferingUpdateListener}
+     *
+     * @return The MediaPlayer associated with the MediaPlayerAdapter.
+     */
+    public final MediaPlayer getMediaPlayer() {
+        return mPlayer;
     }
 
     /**
