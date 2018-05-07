@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -64,7 +65,7 @@ public class FirebaseJobServiceTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testOnStopJob_ResetsWorkStatus() throws InterruptedException {
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(FirebaseInfiniteTestWorker.class).build();
