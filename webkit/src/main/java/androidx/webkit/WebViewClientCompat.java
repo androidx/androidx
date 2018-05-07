@@ -116,7 +116,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     /**
      * Invoked by chromium (for WebView APks 67+) for the {@code onReceivedError} event.
      * Applications are not meant to override this, and should instead override the non-final {@link
-     * onReceivedError(WebView, WebResourceRequest, WebResourceErrorCompat)} method.
+     * #onReceivedError(WebView, WebResourceRequest, WebResourceErrorCompat)} method.
      *
      * @hide
      */
@@ -129,13 +129,12 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     }
 
     /**
-     * Invoked by chromium (in legacy WebView APKs) for the {@code onReceivedError} event on {@link
-     * Build.VERSION_CODES.M} and above. Applications are not meant to override this, and should
-     * instead override the non-final {@link onReceivedError(WebView, WebResourceRequest,
-     * WebResourceErrorCompat)} method.
-     *
-     * @hide
+     * Applications are not meant to override this, and should instead override the non-final {@link
+     * #onReceivedError(WebView, WebResourceRequest, WebResourceErrorCompat)} method.
      */
+    // Invoked by chromium (in legacy, pre-67 WebView APKs) for the {@code onReceivedError} event on
+    // {@link Build.VERSION_CODES.M} and above. This delegates the callback to the non-final method,
+    // which the app may have overridden.
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     @RequiresApi(23)
@@ -200,7 +199,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     /**
      * Invoked by chromium (for WebView APks 67+) for the {@code onSafeBrowsingHit} event.
      * Applications are not meant to override this, and should instead override the non-final {@link
-     * onSafeBrowsingHit(WebView, WebResourceRequest, int, SafeBrowsingResponseCompat)} method.
+     * #onSafeBrowsingHit(WebView, WebResourceRequest, int, SafeBrowsingResponseCompat)} method.
      *
      * @hide
      */
@@ -213,13 +212,12 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     }
 
     /**
-     * Invoked by chromium (in legacy WebView APKs) for the {@code onSafeBrowsingHit} event on
-     * {@link Build.VERSION_CODES.O_MR1} and above. Applications are not meant to override this, and
-     * should instead override the non-final {@link onSafeBrowsingHit(WebView, WebResourceRequest,
-     * int, SafeBrowsingResponseCompat)} method.
-     *
-     * @hide
+     * Applications are not meant to override this, and should instead override the non-final {@link
+     * #onSafeBrowsingHit(WebView, WebResourceRequest, int, SafeBrowsingResponseCompat)} method.
      */
+    // Invoked by chromium (in legacy, pre-67 WebView APKs) for the {@code onSafeBrowsingHit} event
+    // on {@link Build.VERSION_CODES.O_MR1} and above. This delegates the callback to the non-final
+    // method, which the app may have overridden.
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     @RequiresApi(27)
