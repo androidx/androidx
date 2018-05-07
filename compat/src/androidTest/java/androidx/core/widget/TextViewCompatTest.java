@@ -29,6 +29,7 @@ import static android.support.v4.testutils.TextViewActions.setTextAppearance;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,6 +54,8 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.testutils.TestUtils;
+import android.text.Layout;
+import android.text.TextDirectionHeuristics;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,6 +65,7 @@ import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.test.R;
+import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.ViewCompat;
 
 import org.junit.Before;
@@ -695,5 +699,91 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
     @Test(expected = IllegalArgumentException.class)
     public void testSetLineHeight_negative() {
         TextViewCompat.setLineHeight(mTextView, -1);
+    }
+
+    @UiThreadTest
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void testGetSetTextMetricsParams_API23() {
+        PrecomputedTextCompat.Params params = TextViewCompat.getTextMetricsParams(mTextView);
+        assertNotNull(params);
+
+        // set different params to text view for checking setTextMetricsParams overwrite the params.
+        mTextView.setBreakStrategy(
+                params.getBreakStrategy() == Layout.BREAK_STRATEGY_SIMPLE
+                        ? Layout.BREAK_STRATEGY_HIGH_QUALITY : Layout.BREAK_STRATEGY_SIMPLE
+        );
+        PrecomputedTextCompat.Params params2 = TextViewCompat.getTextMetricsParams(mTextView);
+        TextViewCompat.setTextMetricsParams(mTextView, params);
+        PrecomputedTextCompat.Params params3 = TextViewCompat.getTextMetricsParams(mTextView);
+        assertNotEquals(params.getBreakStrategy(), params2.getBreakStrategy());
+        assertEquals(params.getBreakStrategy(), params3.getBreakStrategy());
+
+        mTextView.setHyphenationFrequency(
+                params.getHyphenationFrequency() == Layout.HYPHENATION_FREQUENCY_NONE
+                        ? Layout.HYPHENATION_FREQUENCY_FULL : Layout.HYPHENATION_FREQUENCY_NONE
+        );
+        params2 = TextViewCompat.getTextMetricsParams(mTextView);
+        TextViewCompat.setTextMetricsParams(mTextView, params);
+        params3 = TextViewCompat.getTextMetricsParams(mTextView);
+        assertNotEquals(params.getHyphenationFrequency(), params2.getHyphenationFrequency());
+        assertEquals(params.getHyphenationFrequency(), params3.getHyphenationFrequency());
+    }
+
+    @UiThreadTest
+    @Test
+    @SdkSuppress(minSdkVersion = 18)
+    public void testSetGetTextMetricsParams_API18() {
+        PrecomputedTextCompat.Params params = TextViewCompat.getTextMetricsParams(mTextView);
+        assertNotNull(params);
+
+        // set different params to text view for checking setTextMetricsParams overwrite the params.
+        mTextView.setTextDirection(
+                params.getTextDirection() == TextDirectionHeuristics.LTR
+                        ? View.TEXT_DIRECTION_ANY_RTL : View.TEXT_DIRECTION_LTR
+        );
+        PrecomputedTextCompat.Params params2 = TextViewCompat.getTextMetricsParams(mTextView);
+        TextViewCompat.setTextMetricsParams(mTextView, params);
+        PrecomputedTextCompat.Params params3 = TextViewCompat.getTextMetricsParams(mTextView);
+        assertNotEquals(params.getTextDirection(), params2.getTextDirection());
+        assertEquals(params.getTextDirection(), params3.getTextDirection());
+    }
+
+    @UiThreadTest
+    @Test
+    public void testSetGetTextMetricsParams() {
+        PrecomputedTextCompat.Params params = TextViewCompat.getTextMetricsParams(mTextView);
+        assertNotNull(params);
+
+        // set different params to text view for checking setTextMetricsParams overwrite the params.
+        mTextView.setTextScaleX(params.getTextPaint().getTextScaleX() * 2.0f + 1.0f);
+        PrecomputedTextCompat.Params params2 = TextViewCompat.getTextMetricsParams(mTextView);
+        TextViewCompat.setTextMetricsParams(mTextView, params);
+        PrecomputedTextCompat.Params params3 = TextViewCompat.getTextMetricsParams(mTextView);
+        assertNotEquals(params.getTextPaint().getTextScaleX(),
+                params2.getTextPaint().getTextScaleX());
+        assertEquals(params.getTextPaint().getTextScaleX(),
+                params3.getTextPaint().getTextScaleX(), 0.0f);
+    }
+
+    @UiThreadTest
+    @Test
+    public void setPrecomputedText() {
+        PrecomputedTextCompat.Params params = TextViewCompat.getTextMetricsParams(mTextView);
+        PrecomputedTextCompat precomptued = PrecomputedTextCompat.create("Hello, world", params);
+        assertNotNull(precomptued);
+
+        TextViewCompat.setPrecomputedText(mTextView, precomptued);
+    }
+
+    @UiThreadTest
+    @Test(expected = IllegalArgumentException.class)
+    public void setPrecomputedText_incompatible() {
+        PrecomputedTextCompat.Params params = TextViewCompat.getTextMetricsParams(mTextView);
+        PrecomputedTextCompat precomptued = PrecomputedTextCompat.create("Hello, world", params);
+        assertNotNull(precomptued);
+        // set different params to text view for checking IlleaglArgumentException.
+        mTextView.setTextScaleX(params.getTextPaint().getTextScaleX() * 2.0f + 1.0f);
+        TextViewCompat.setPrecomputedText(mTextView, precomptued);
     }
 }

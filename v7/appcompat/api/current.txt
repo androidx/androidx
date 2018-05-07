@@ -596,12 +596,15 @@ package androidx.appcompat.widget {
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet, int);
     method public android.content.res.ColorStateList getSupportBackgroundTintList();
     method public android.graphics.PorterDuff.Mode getSupportBackgroundTintMode();
+    method public androidx.core.text.PrecomputedTextCompat.Params getTextMetricsParamsCompat();
     method public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int) throws java.lang.IllegalArgumentException;
     method public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int) throws java.lang.IllegalArgumentException;
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setPrecomputedText(androidx.core.text.PrecomputedTextCompat);
     method public void setSupportBackgroundTintList(android.content.res.ColorStateList);
     method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
     method public void setTextAppearance(android.content.Context, int);
+    method public void setTextMetricsParamsCompat(androidx.core.text.PrecomputedTextCompat.Params);
   }
 
   public class LinearLayoutCompat extends android.view.ViewGroup {
