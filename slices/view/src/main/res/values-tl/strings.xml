@@ -22,8 +22,8 @@
     <string name="abc_slice_show_more" msgid="1567717014004692768">"Magpakita pa"</string>
     <string name="abc_slice_updated" msgid="8155085405396453848">"Na-update noong <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="6996334305156847955">
-      <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> minuto ang nakalipas</item>
-      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> na minuto ang nakalipas</item>
+      <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> min ang nakalipas</item>
+      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> na min ang nakalipas</item>
     </plurals>
     <plurals name="abc_slice_duration_years" formatted="false" msgid="6212691832333991589">
       <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> taon ang nakalipas</item>
