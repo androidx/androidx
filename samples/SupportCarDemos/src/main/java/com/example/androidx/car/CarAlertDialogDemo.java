@@ -39,6 +39,7 @@ public class CarAlertDialogDemo extends FragmentActivity {
 
         CheckBox hasTitleView = findViewById(R.id.has_title);
         CheckBox hasBodyText = findViewById(R.id.has_body_text);
+        CheckBox hasSingleLineBody = findViewById(R.id.has_single_line_body);
         CheckBox hasAction1 = findViewById(R.id.has_action_1);
         CheckBox hasAction2 = findViewById(R.id.has_action_2);
 
@@ -46,6 +47,7 @@ public class CarAlertDialogDemo extends FragmentActivity {
             AlertDialogFragment alertDialog = AlertDialogFragment.newInstance(
                     hasTitleView.isChecked(),
                     hasBodyText.isChecked(),
+                    hasSingleLineBody.isChecked(),
                     hasAction1.isChecked(),
                     hasAction2.isChecked());
 
@@ -57,14 +59,17 @@ public class CarAlertDialogDemo extends FragmentActivity {
     public static class AlertDialogFragment extends DialogFragment {
         private static final String HAS_TITLE_KEY = "has_title_key";
         private static final String HAS_BODY_KEY = "has_body_key";
+        private static final String HAS_SINGLE_LINE_BODY_KEY = "has_single_line_body_key";
         private static final String HAS_ACTION_1_KEY = "has_action_1_key";
         private static final String HAS_ACTION_2_KEY = "has_action_2_key";
 
         static AlertDialogFragment newInstance(boolean hasTitle,
-                boolean hasBody, boolean hasAction1, boolean hasAction2) {
+                boolean hasBody, boolean hasSingleLineBody, boolean hasAction1,
+                boolean hasAction2) {
             Bundle args = new Bundle();
             args.putBoolean(HAS_TITLE_KEY, hasTitle);
             args.putBoolean(HAS_BODY_KEY, hasBody);
+            args.putBoolean(HAS_SINGLE_LINE_BODY_KEY, hasSingleLineBody);
             args.putBoolean(HAS_ACTION_1_KEY, hasAction1);
             args.putBoolean(HAS_ACTION_2_KEY, hasAction2);
 
@@ -85,6 +90,10 @@ public class CarAlertDialogDemo extends FragmentActivity {
 
             if (args.getBoolean(HAS_BODY_KEY)) {
                 builder.setBody(context.getString(R.string.alert_dialog_body));
+            }
+
+            if (args.getBoolean(HAS_SINGLE_LINE_BODY_KEY)) {
+                builder.setBody(context.getString(R.string.alert_dialog_body_single_line));
             }
 
             if (args.getBoolean(HAS_ACTION_1_KEY)) {
