@@ -58,12 +58,14 @@
     <!-- Strings for CarAlertDialog Demo. -->
     <string name="alert_dialog_checkbox_title">Title</string>
     <string name="alert_dialog_checkbox_body">Body</string>
+    <string name="alert_dialog_checkbox_single_line_body">Single Line Body</string>
     <string name="alert_dialog_checkbox_action1">Action 1</string>
     <string name="alert_dialog_checkbox_action2">Action 2</string>
     <string name="create_alert_dialog_button">Create CarAlertDialog</string>
 
     <string name="alert_dialog_title">Title</string>
     <string name="alert_dialog_body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec fringilla orci id nulla facilisis, sed luctus massa consectetur. Vivamus sagittis leo eget ultrices malesuada. Duis hendrerit nibh non pretium tincidunt.</string>
+    <string name="alert_dialog_body_single_line">Lorem ipsum dolor sit amet, consectetur adipiscing.</string>
     <string name="alert_dialog_action1">Action 1</string>
     <string name="alert_dialog_action2">Action 2</string>
 
