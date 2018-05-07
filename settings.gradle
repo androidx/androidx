@@ -81,6 +81,7 @@ includeProject(":lifecycle:lifecycle-reactivestreams", "lifecycle/reactivestream
 includeProject(":lifecycle:lifecycle-runtime", "lifecycle/runtime")
 includeProject(":lifecycle:lifecycle-service", "lifecycle/service")
 includeProject(":lifecycle:lifecycle-viewmodel", "lifecycle/viewmodel")
+includeProject(":lifecycle:lifecycle-viewmodel-ktx", "lifecycle/viewmodel/ktx")
 includeProject(":loader", "loader")
 includeProject(":localbroadcastmanager", "localbroadcastmanager")
 includeProject(":media", "media")
