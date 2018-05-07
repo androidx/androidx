@@ -28,7 +28,10 @@
     <integer name="lb_playback_rows_fade_in_ms">150</integer>
     <integer name="lb_playback_rows_fade_out_ms">250</integer>
     <integer name="lb_playback_rows_fade_delay_ms">100</integer>
+    <!-- Timeout to hide controls when media start playing -->
     <integer name="lb_playback_controls_show_time_ms">3000</integer>
+    <!-- Timeout to hide controls when user does not interact with UI, default value is 0 (disabled) -->
+    <integer name="lb_playback_controls_tickle_timeout_ms">0</integer>
     <integer name="lb_onboarding_header_title_delay">33</integer>
     <integer name="lb_onboarding_header_description_delay">33</integer>
 

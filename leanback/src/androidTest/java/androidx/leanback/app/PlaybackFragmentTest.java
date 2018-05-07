@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -59,12 +60,17 @@ import org.mockito.Mockito;
 public class PlaybackFragmentTest extends SingleFragmentTestBase {
 
     private static final String TAG = "PlaybackFragmentTest";
-    private static final long TRANSITION_LENGTH = 1000;
+    private static final long ACTIVITY_LOAD_MS = 1000;
+
+    private static final long WAIT_FOR_NO_EVENT_MS = 500;
+
+    private static final float MINIMAL_FADEOUT_TRANSLATION = 50f;
+    private static final float DELTA = 1f;
 
     @Test
     public void testDetachCalledWhenDestroyFragment() throws Throwable {
         final SingleFragmentTestActivity activity =
-                launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+                launchAndWaitActivity(PlaybackTestFragment.class, ACTIVITY_LOAD_MS);
         final PlaybackTestFragment fragment = (PlaybackTestFragment) activity.getTestFragment();
         PlaybackGlue glue = fragment.getGlue();
         activityTestRule.runOnUiThread(new Runnable() {
@@ -85,7 +91,7 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
     @Test
     public void testSelectedListener() throws Throwable {
         SingleFragmentTestActivity activity =
-                launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+                launchAndWaitActivity(PlaybackTestFragment.class, ACTIVITY_LOAD_MS);
         PlaybackTestFragment fragment = (PlaybackTestFragment) activity.getTestFragment();
 
         assertTrue(fragment.getView().hasFocus());
@@ -153,7 +159,7 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
     @Test
     public void testClickedListener() throws Throwable {
         SingleFragmentTestActivity activity =
-                launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+                launchAndWaitActivity(PlaybackTestFragment.class, ACTIVITY_LOAD_MS);
         PlaybackTestFragment fragment = (PlaybackTestFragment) activity.getTestFragment();
 
         assertTrue(fragment.getView().hasFocus());
@@ -236,7 +242,7 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
     @Test
     public void alignmentRowToBottom() throws Throwable {
         SingleFragmentTestActivity activity =
-                launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+                launchAndWaitActivity(PlaybackTestFragment.class, ACTIVITY_LOAD_MS);
         final PlaybackTestFragment fragment = (PlaybackTestFragment) activity.getTestFragment();
 
         assertTrue(fragment.getAdapter().size() > 2);
@@ -244,7 +250,7 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
         View playRow = fragment.getVerticalGridView().getChildAt(0);
         assertTrue(playRow.hasFocus());
         assertEquals(playRow.getResources().getDimensionPixelSize(
-                androidx.leanback.test.R.dimen.lb_playback_controls_padding_bottom),
+                androidx.leanback.R.dimen.lb_playback_controls_padding_bottom),
                 fragment.getVerticalGridView().getHeight() - playRow.getBottom());
 
         activityTestRule.runOnUiThread(new Runnable() {
@@ -262,7 +268,7 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
                 fragment.getVerticalGridView().getChildAdapterPosition(lastRow));
         assertTrue(lastRow.hasFocus());
         assertEquals(lastRow.getResources().getDimensionPixelSize(
-                androidx.leanback.test.R.dimen.lb_playback_controls_padding_bottom),
+                androidx.leanback.R.dimen.lb_playback_controls_padding_bottom),
                 fragment.getVerticalGridView().getHeight() - lastRow.getBottom());
     }
 
@@ -287,7 +293,7 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
     @Test
     public void setupRowAndPresenterWithoutGlue() {
         SingleFragmentTestActivity activity =
-                launchAndWaitActivity(PurePlaybackFragment.class, 1000);
+                launchAndWaitActivity(PurePlaybackFragment.class, ACTIVITY_LOAD_MS);
         final PurePlaybackFragment fragment = (PurePlaybackFragment)
                 activity.getTestFragment();
 
@@ -295,7 +301,7 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
         View playRow = fragment.getVerticalGridView().getChildAt(0);
         assertTrue(playRow.hasFocus());
         assertEquals(playRow.getResources().getDimensionPixelSize(
-                androidx.leanback.test.R.dimen.lb_playback_controls_padding_bottom),
+                androidx.leanback.R.dimen.lb_playback_controls_padding_bottom),
                 fragment.getVerticalGridView().getHeight() - playRow.getBottom());
     }
 
@@ -359,7 +365,7 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
     @Test
     public void setupWithControlGlue() throws Throwable {
         SingleFragmentTestActivity activity =
-                launchAndWaitActivity(ControlGlueFragment.class, 1000);
+                launchAndWaitActivity(ControlGlueFragment.class, ACTIVITY_LOAD_MS);
         final ControlGlueFragment fragment = (ControlGlueFragment)
                 activity.getTestFragment();
 
@@ -368,7 +374,142 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
         View playRow = fragment.getVerticalGridView().getChildAt(0);
         assertTrue(playRow.hasFocus());
         assertEquals(playRow.getResources().getDimensionPixelSize(
-                androidx.leanback.test.R.dimen.lb_playback_controls_padding_bottom),
+                androidx.leanback.R.dimen.lb_playback_controls_padding_bottom),
                 fragment.getVerticalGridView().getHeight() - playRow.getBottom());
+    }
+
+    public static class AutohidePlaybackFragment extends PlaybackFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            PlaybackControlsRow row = new PlaybackControlsRow();
+            SparseArrayObjectAdapter primaryAdapter = new SparseArrayObjectAdapter(
+                    new ControlButtonPresenterSelector());
+            row.setPrimaryActionsAdapter(primaryAdapter);
+            row.setSecondaryActionsAdapter(null);
+            setPlaybackRow(row);
+            setPlaybackRowPresenter(new PlaybackControlsRowPresenter());
+        }
+    }
+
+    @Test
+    public void autohideAfterPlaying() throws Throwable {
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(AutohidePlaybackFragment.class, ACTIVITY_LOAD_MS);
+        final AutohidePlaybackFragment fragment = (AutohidePlaybackFragment)
+                activity.getTestFragment();
+
+        assertTrue(fragment.getAdapter().size() == 1);
+        fragment.mAutohideTimerAfterPlayingInMs = 100;
+        fragment.mAutohideTimerAfterTickleInMs = 0;
+
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                fragment.setControlsOverlayAutoHideEnabled(true);
+            }
+        });
+        waitForSlideOut(fragment);
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                fragment.setControlsOverlayAutoHideEnabled(false);
+            }
+        });
+        waitForSlideIn(fragment);
+
+    }
+
+    @Test
+    public void noAutohideWhenControlsOverlayAutoHideDisabled() throws Throwable {
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(AutohidePlaybackFragment.class, ACTIVITY_LOAD_MS);
+        final AutohidePlaybackFragment fragment = (AutohidePlaybackFragment)
+                activity.getTestFragment();
+
+        assertEquals(1, fragment.getAdapter().size());
+        // by default it's enabled when fragment is resumed
+        assertTrue(fragment.isControlsOverlayAutoHideEnabled());
+        fragment.mAutohideTimerAfterPlayingInMs = 100;
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                fragment.setControlsOverlayAutoHideEnabled(false);
+            }
+        });
+        assertNoSlideOut(fragment);
+    }
+
+    @Test
+    public void noAutohideAfterTickle() throws Throwable {
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(AutohidePlaybackFragment.class, ACTIVITY_LOAD_MS);
+        final AutohidePlaybackFragment fragment = (AutohidePlaybackFragment)
+                activity.getTestFragment();
+
+        assertTrue(fragment.getAdapter().size() == 1);
+        fragment.mAutohideTimerAfterPlayingInMs = 100;
+        // When mAutohideTimerAfterTickleInMs is 0, no autohide after tickle
+        fragment.mAutohideTimerAfterTickleInMs = 0;
+
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                fragment.tickle();
+            }
+        });
+        assertNoSlideOut(fragment);
+    }
+
+    @Test
+    public void autohideAfterTickle() throws Throwable {
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(AutohidePlaybackFragment.class, ACTIVITY_LOAD_MS);
+        final AutohidePlaybackFragment fragment = (AutohidePlaybackFragment)
+                activity.getTestFragment();
+
+        assertTrue(fragment.getAdapter().size() == 1);
+        fragment.mAutohideTimerAfterPlayingInMs = 100;
+        // When mAutohideTimerAfterTickleInMs > 0, autohide after tickle
+        fragment.mAutohideTimerAfterTickleInMs = 100;
+
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                fragment.tickle();
+            }
+        });
+        waitForSlideOut(fragment);
+    }
+
+    private static void waitForSlideOut(final PlaybackFragment fragment) {
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return fragment.getVerticalGridView().findViewHolderForAdapterPosition(0)
+                        .itemView.getTranslationY() > MINIMAL_FADEOUT_TRANSLATION;
+            }
+        });
+    }
+
+    private static void waitForSlideIn(final PlaybackFragment fragment) {
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return fragment.getVerticalGridView().findViewHolderForAdapterPosition(0)
+                        .itemView.getTranslationY() < DELTA;
+            }
+        });
+    }
+
+    private static void assertNoSlideOut(final PlaybackFragment fragment) {
+        try {
+            PollingCheck.waitFor(WAIT_FOR_NO_EVENT_MS, new PollingCheck.PollingCheckCondition() {
+                @Override
+                public boolean canProceed() {
+                    return fragment.getVerticalGridView().findViewHolderForAdapterPosition(0)
+                            .itemView.getTranslationY() > DELTA;
+                }
+            });
+        } catch (AssertionError error) {
+            // if timeout, then we are good
+            return;
+        }
+        fail("unexpected faded out");
     }
 }

@@ -31,8 +31,8 @@ cls = ['BrowseTest', 'Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Erro
 for w in files:
     print "copy {}SupportFragment to {}Fragment".format(w, w)
 
-    file = open('java/android/support/v17/leanback/app/{}SupportFragment.java'.format(w), 'r')
-    outfile = open('java/android/support/v17/leanback/app/{}Fragment.java'.format(w), 'w')
+    file = open('java/androidx/leanback/app/{}SupportFragment.java'.format(w), 'r')
+    outfile = open('java/androidx/leanback/app/{}Fragment.java'.format(w), 'w')
 
     outfile.write("// CHECKSTYLE:OFF Generated code\n")
     outfile.write("/* This file is auto-generated from {}SupportFragment.java.  DO NOT MODIFY. */\n\n".format(w))
@@ -54,8 +54,8 @@ testcls = ['GuidedStep', 'Single']
 for w in testcls:
     print "copy {}SupportFrgamentTestBase to {}FragmentTestBase".format(w, w)
 
-    file = open('java/android/support/v17/leanback/app/{}SupportFragmentTestBase.java'.format(w), 'r')
-    outfile = open('java/android/support/v17/leanback/app/{}FragmentTestBase.java'.format(w), 'w')
+    file = open('java/androidx/leanback/app/{}SupportFragmentTestBase.java'.format(w), 'r')
+    outfile = open('java/androidx/leanback/app/{}FragmentTestBase.java'.format(w), 'w')
 
     outfile.write("// CHECKSTYLE:OFF Generated code\n")
     outfile.write("/* This file is auto-generated from {}SupportFrgamentTestBase.java.  DO NOT MODIFY. */\n\n".format(w))
@@ -80,8 +80,8 @@ testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Playback', 'Video', 'Details
 for w in testcls:
     print "copy {}SupporFrgamentTest to {}tFragmentTest".format(w, w)
 
-    file = open('java/android/support/v17/leanback/app/{}SupportFragmentTest.java'.format(w), 'r')
-    outfile = open('java/android/support/v17/leanback/app/{}FragmentTest.java'.format(w), 'w')
+    file = open('java/androidx/leanback/app/{}SupportFragmentTest.java'.format(w), 'r')
+    outfile = open('java/androidx/leanback/app/{}FragmentTest.java'.format(w), 'w')
 
     outfile.write("// CHECKSTYLE:OFF Generated code\n")
     outfile.write("/* This file is auto-generated from {}SupportFragmentTest.java.  DO NOT MODIFY. */\n\n".format(w))
@@ -111,8 +111,8 @@ testcls = ['Browse', 'GuidedStep', 'Single']
 
 for w in testcls:
     print "copy {}SupportFragmentTestActivity to {}FragmentTestActivity".format(w, w)
-    file = open('java/android/support/v17/leanback/app/{}SupportFragmentTestActivity.java'.format(w), 'r')
-    outfile = open('java/android/support/v17/leanback/app/{}FragmentTestActivity.java'.format(w), 'w')
+    file = open('java/androidx/leanback/app/{}SupportFragmentTestActivity.java'.format(w), 'r')
+    outfile = open('java/androidx/leanback/app/{}FragmentTestActivity.java'.format(w), 'w')
     outfile.write("// CHECKSTYLE:OFF Generated code\n")
     outfile.write("/* This file is auto-generated from {}SupportFragmentTestActivity.java.  DO NOT MODIFY. */\n\n".format(w))
     for line in file:
@@ -129,8 +129,8 @@ for w in testcls:
 ####### generate Float parallax test #######
 
 print "copy ParallaxIntEffectTest to ParallaxFloatEffectTest"
-file = open('java/android/support/v17/leanback/widget/ParallaxIntEffectTest.java', 'r')
-outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatEffectTest.java', 'w')
+file = open('java/androidx/leanback/widget/ParallaxIntEffectTest.java', 'r')
+outfile = open('java/androidx/leanback/widget/ParallaxFloatEffectTest.java', 'w')
 outfile.write("// CHECKSTYLE:OFF Generated code\n")
 outfile.write("/* This file is auto-generated from ParallaxIntEffectTest.java.  DO NOT MODIFY. */\n\n")
 for line in file:
@@ -149,8 +149,8 @@ outfile.close()
 
 
 print "copy ParallaxIntTest to ParallaxFloatTest"
-file = open('java/android/support/v17/leanback/widget/ParallaxIntTest.java', 'r')
-outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatTest.java', 'w')
+file = open('java/androidx/leanback/widget/ParallaxIntTest.java', 'r')
+outfile = open('java/androidx/leanback/widget/ParallaxFloatTest.java', 'w')
 outfile.write("// CHECKSTYLE:OFF Generated code\n")
 outfile.write("/* This file is auto-generated from ParallaxIntTest.java.  DO NOT MODIFY. */\n\n")
 for line in file:

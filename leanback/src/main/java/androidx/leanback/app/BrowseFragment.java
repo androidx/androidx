@@ -18,10 +18,6 @@ package androidx.leanback.app;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentManager.BackStackEntry;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -36,6 +32,11 @@ import android.view.ViewTreeObserver;
 
 import androidx.annotation.ColorInt;
 import androidx.core.view.ViewCompat;
+import android.app.Fragment;
+import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentManager.BackStackEntry;
+import android.app.FragmentTransaction;
 import androidx.leanback.R;
 import androidx.leanback.transition.TransitionHelper;
 import androidx.leanback.transition.TransitionListener;
@@ -74,7 +75,7 @@ import java.util.Map;
  * <p>
  * By default the BrowseFragment includes support for returning to the headers
  * when the user presses Back. For Activities that customize {@link
- * android.app.Activity#onBackPressed()}, you must disable this default Back key support by
+ * Activity#onBackPressed()}, you must disable this default Back key support by
  * calling {@link #setHeadersTransitionOnBackEnabled(boolean)} with false and
  * use {@link BrowseFragment.BrowseTransitionListener} and
  * {@link #startHeadersTransition(boolean)}.

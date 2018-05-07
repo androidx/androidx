@@ -19,7 +19,6 @@ package androidx.leanback.app;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import android.Manifest;
-import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -33,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.CompletionInfo;
 import android.widget.FrameLayout;
 
+import android.app.Fragment;
 import androidx.leanback.R;
 import androidx.leanback.widget.ObjectAdapter;
 import androidx.leanback.widget.ObjectAdapter.DataObserver;
@@ -237,8 +237,8 @@ public class SearchFragment extends Fragment {
             new SearchBar.SearchBarPermissionListener() {
         @Override
         public void requestAudioPermission() {
-            PermissionHelper.requestPermissions(SearchFragment.this,
-                    new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_PERMISSION_REQUEST_CODE);
+            PermissionHelper.requestPermissions(SearchFragment.this, new String[]{Manifest.permission.RECORD_AUDIO},
+                    AUDIO_PERMISSION_REQUEST_CODE);
         }
     };
 
