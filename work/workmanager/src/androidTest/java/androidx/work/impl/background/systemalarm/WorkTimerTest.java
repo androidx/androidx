@@ -62,7 +62,7 @@ public class WorkTimerTest {
         TestTimeLimitExceededListener listenerSpy = spy(mListener);
         mWorkTimer.startTimer(WORKSPEC_ID_1, 100, listenerSpy);
         mWorkTimer.stopTimer(WORKSPEC_ID_1);
-        Thread.sleep(100);
+        Thread.sleep(200);
         verify(listenerSpy, times(0)).onTimeLimitExceeded(WORKSPEC_ID_1);
         assertThat(mWorkTimer.getTimerMap().size(), is(0));
         assertThat(mWorkTimer.getListeners().size(), is(0));
