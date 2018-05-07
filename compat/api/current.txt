@@ -2754,6 +2754,7 @@ package androidx.core.widget {
     method public static int getLastBaselineToBottomHeight(android.widget.TextView);
     method public static int getMaxLines(android.widget.TextView);
     method public static int getMinLines(android.widget.TextView);
+    method public static androidx.core.text.PrecomputedTextCompat.Params getTextMetricsParams(android.widget.TextView);
     method public static void setAutoSizeTextTypeUniformWithConfiguration(android.widget.TextView, int, int, int, int) throws java.lang.IllegalArgumentException;
     method public static void setAutoSizeTextTypeUniformWithPresetSizes(android.widget.TextView, int[], int) throws java.lang.IllegalArgumentException;
     method public static void setAutoSizeTextTypeWithDefaults(android.widget.TextView, int);
@@ -2764,7 +2765,9 @@ package androidx.core.widget {
     method public static void setFirstBaselineToTopHeight(android.widget.TextView, int);
     method public static void setLastBaselineToBottomHeight(android.widget.TextView, int);
     method public static void setLineHeight(android.widget.TextView, int);
+    method public static void setPrecomputedText(android.widget.TextView, androidx.core.text.PrecomputedTextCompat);
     method public static void setTextAppearance(android.widget.TextView, int);
+    method public static void setTextMetricsParams(android.widget.TextView, androidx.core.text.PrecomputedTextCompat.Params);
     field public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0; // 0x0
     field public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1; // 0x1
   }

@@ -16,6 +16,8 @@
 
 package androidx.core.text;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.os.Build;
 import android.text.Layout;
 import android.text.PrecomputedText;
@@ -32,6 +34,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
@@ -470,7 +473,21 @@ public class PrecomputedTextCompat implements Spannable {
     }
 
     /**
-     * Returns the layout parameters used to measure this text.
+     * Returns the underlying original text if the text is PrecomputedText.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @RequiresApi(28)
+    public @Nullable PrecomputedText getPrecomputedText() {
+        if (mText instanceof PrecomputedText) {
+            return (PrecomputedText) mText;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the parameters used to measure this text.
      */
     public @NonNull Params getParams() {
         return mParams;

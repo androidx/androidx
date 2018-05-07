@@ -36,6 +36,7 @@ import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.os.BuildCompat;
+import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.AutoSizeableTextView;
 import androidx.core.widget.TextViewCompat;
@@ -418,5 +419,39 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
         super.setCustomSelectionActionModeCallback(TextViewCompat
                 .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
+    }
+
+    /**
+     * Gets the parameters for text layout precomputation, for use with
+     * {@link PrecomputedTextCompat}.
+     *
+     * @return a current {@link PrecomputedTextCompat.Params}
+     * @see PrecomputedTextCompat
+     */
+    public @NonNull PrecomputedTextCompat.Params getTextMetricsParamsCompat() {
+        return TextViewCompat.getTextMetricsParams(this);
+    }
+
+    /**
+     * Apply the text layout parameter.
+     *
+     * Update the TextView parameters to be compatible with {@link PrecomputedTextCompat.Params}.
+     * @see PrecomputedTextCompat
+     */
+    public void setTextMetricsParamsCompat(@NonNull PrecomputedTextCompat.Params params) {
+        TextViewCompat.setTextMetricsParams(this, params);
+    }
+
+    /**
+     * Sets the PrecomputedTextCompat to the TextView
+     *
+     * If the given PrecomputeTextCompat is not compatible with textView, throws an
+     * IllegalArgumentException.
+     *
+     * @param precomputed the precomputed text
+     * @throws IllegalArgumentException if precomputed text is not compatible with textView.
+     */
+    public void setPrecomputedText(@NonNull PrecomputedTextCompat precomputed) {
+        TextViewCompat.setPrecomputedText(this, precomputed);
     }
 }
