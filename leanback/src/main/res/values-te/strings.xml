@@ -55,5 +55,5 @@ limitations under the License.
     <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"కొనసాగించండి"</string>
     <string name="lb_media_player_error" msgid="8748646000835486516">"MediaPlayer ఎర్రర్ కోడ్ %1$d అదనంగా %2$d"</string>
     <string name="lb_onboarding_get_started" msgid="7674487829030291492">"ప్రారంభించు"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"తదుపరి"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"తర్వాత"</string>
 </resources>

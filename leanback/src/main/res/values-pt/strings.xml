@@ -41,8 +41,8 @@ limitations under the License.
     <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"Não repetir"</string>
     <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"Repetir tudo"</string>
     <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"Repetir um item"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"Ativar reprodução aleatória"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"Desativar reprodução aleatória"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"Ativar ordem aleatória"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"Desativar ordem aleatória"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"Ativar alta qualidade"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"Desativar alta qualidade"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"Ativar closed captioning"</string>
