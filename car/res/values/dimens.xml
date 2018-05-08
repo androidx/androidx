@@ -132,6 +132,7 @@ limitations under the License.
     <dimen name="car_dialog_header_height">@dimen/car_card_header_height</dimen>
     <dimen name="car_dialog_action_bar_height">@dimen/car_card_action_bar_height</dimen>
     <dimen name="car_dialog_elevation">16dp</dimen>
+    <dimen name="car_list_dialog_title_elevation">16dp</dimen>
 
     <!-- Slide Up Menu -->
     <dimen name="car_slide_up_menu_initial_height">76dp</dimen>
