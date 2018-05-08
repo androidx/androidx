@@ -139,7 +139,12 @@ public class WorkerWrapper implements Runnable {
                 return;
             }
 
-            Worker.WorkerResult result = mWorker.doWork();
+            Worker.WorkerResult result;
+            try {
+                result = mWorker.doWork();
+            } catch (Exception | Error e) {
+                result = Worker.WorkerResult.FAILURE;
+            }
 
             try {
                 mWorkDatabase.beginTransaction();
