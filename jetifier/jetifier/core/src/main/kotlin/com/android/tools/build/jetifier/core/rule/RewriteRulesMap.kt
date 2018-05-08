@@ -46,7 +46,7 @@ class RewriteRulesMap(val rewriteRules: List<RewriteRule>) {
             if (typeRewriteResult.result == null) {
                 continue
             }
-            return typeRewriteResult.result!!
+            return typeRewriteResult.result
         }
 
         return null
