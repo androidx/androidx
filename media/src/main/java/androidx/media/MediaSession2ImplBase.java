@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.media.MediaPlayerInterface.BUFFERING_STATE_UNKNOWN;
+import static androidx.media.BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.MediaSession2.ControllerCb;
 import static androidx.media.MediaSession2.ControllerInfo;
 import static androidx.media.MediaSession2.ErrorCode;
@@ -51,8 +51,8 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
+import androidx.media.BaseMediaPlayer.PlayerEventCallback;
 import androidx.media.MediaController2.PlaybackInfo;
-import androidx.media.MediaPlayerInterface.PlayerEventCallback;
 import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
 
 import java.lang.ref.WeakReference;
@@ -79,12 +79,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private final SessionCallback mCallback;
     private final SessionToken2 mSessionToken;
     private final AudioManager mAudioManager;
-    private final MediaPlayerInterface.PlayerEventCallback mPlayerEventCallback;
+    private final BaseMediaPlayer.PlayerEventCallback mPlayerEventCallback;
     private final MediaPlaylistAgent.PlaylistEventCallback mPlaylistEventCallback;
     private final MediaSession2 mInstance;
 
     @GuardedBy("mLock")
-    private MediaPlayerInterface mPlayer;
+    private BaseMediaPlayer mPlayer;
     @GuardedBy("mLock")
     private MediaPlaylistAgent mPlaylistAgent;
     @GuardedBy("mLock")
@@ -97,7 +97,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private PlaybackInfo mPlaybackInfo;
 
     MediaSession2ImplBase(Context context, MediaSessionCompat sessionCompat, String id,
-            MediaPlayerInterface player, MediaPlaylistAgent playlistAgent,
+            BaseMediaPlayer player, MediaPlaylistAgent playlistAgent,
             VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
             Executor callbackExecutor, SessionCallback callback) {
         mContext = context;
@@ -140,7 +140,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     @Override
-    public void updatePlayer(@NonNull MediaPlayerInterface player,
+    public void updatePlayer(@NonNull BaseMediaPlayer player,
             @Nullable MediaPlaylistAgent playlistAgent,
             @Nullable VolumeProviderCompat volumeProvider) {
         if (player == null) {
@@ -149,7 +149,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         final boolean hasPlayerChanged;
         final boolean hasAgentChanged;
         final boolean hasPlaybackInfoChanged;
-        final MediaPlayerInterface oldPlayer;
+        final BaseMediaPlayer oldPlayer;
         final MediaPlaylistAgent oldAgent;
         final PlaybackInfo info = createPlaybackInfo(volumeProvider, player.getAudioAttributes());
         synchronized (mLock) {
@@ -277,7 +277,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     @Override
-    public @NonNull MediaPlayerInterface getPlayer() {
+    public @NonNull BaseMediaPlayer getPlayer() {
         synchronized (mLock) {
             return mPlayer;
         }
@@ -380,7 +380,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void play() {
-        MediaPlayerInterface player;
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -393,7 +393,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void pause() {
-        MediaPlayerInterface player;
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -406,7 +406,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void reset() {
-        MediaPlayerInterface player;
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -419,7 +419,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void prepare() {
-        MediaPlayerInterface player;
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -432,7 +432,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void seekTo(long pos) {
-        MediaPlayerInterface player;
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -475,8 +475,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     @Override
-    public @MediaPlayerInterface.PlayerState int getPlayerState() {
-        MediaPlayerInterface player;
+    public @BaseMediaPlayer.PlayerState int getPlayerState() {
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -485,12 +485,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
-        return MediaPlayerInterface.PLAYER_STATE_ERROR;
+        return BaseMediaPlayer.PLAYER_STATE_ERROR;
     }
 
     @Override
     public long getCurrentPosition() {
-        MediaPlayerInterface player;
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -499,12 +499,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
-        return MediaPlayerInterface.UNKNOWN_TIME;
+        return BaseMediaPlayer.UNKNOWN_TIME;
     }
 
     @Override
     public long getDuration() {
-        MediaPlayerInterface player;
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -515,12 +515,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
-        return MediaPlayerInterface.UNKNOWN_TIME;
+        return BaseMediaPlayer.UNKNOWN_TIME;
     }
 
     @Override
     public long getBufferedPosition() {
-        MediaPlayerInterface player;
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -529,12 +529,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
-        return MediaPlayerInterface.UNKNOWN_TIME;
+        return BaseMediaPlayer.UNKNOWN_TIME;
     }
 
     @Override
-    public @MediaPlayerInterface.BuffState int getBufferingState() {
-        MediaPlayerInterface player;
+    public @BaseMediaPlayer.BuffState int getBufferingState() {
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -548,7 +548,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public float getPlaybackSpeed() {
-        MediaPlayerInterface player;
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -562,7 +562,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
     @Override
     public void setPlaybackSpeed(float speed) {
-        MediaPlayerInterface player;
+        BaseMediaPlayer player;
         synchronized (mLock) {
             player = mPlayer;
         }
@@ -1019,7 +1019,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
     }
 
-    private void notifyPlayerUpdatedNotLocked(MediaPlayerInterface oldPlayer) {
+    private void notifyPlayerUpdatedNotLocked(BaseMediaPlayer oldPlayer) {
         // Always forcefully send the player state and buffered state to send the current position
         // and buffered position.
         final int playerState = getPlayerState();
@@ -1170,7 +1170,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
 
         @Override
-        public void onCurrentDataSourceChanged(final MediaPlayerInterface player,
+        public void onCurrentDataSourceChanged(final BaseMediaPlayer player,
                 final DataSourceDesc dsd) {
             final MediaSession2ImplBase session = getSession();
             if (session == null) {
@@ -1204,7 +1204,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
 
         @Override
-        public void onMediaPrepared(final MediaPlayerInterface mpb, final DataSourceDesc dsd) {
+        public void onMediaPrepared(final BaseMediaPlayer mpb, final DataSourceDesc dsd) {
             final MediaSession2ImplBase session = getSession();
             if (session == null || dsd == null) {
                 return;
@@ -1267,7 +1267,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
 
         @Override
-        public void onPlayerStateChanged(final MediaPlayerInterface player, final int state) {
+        public void onPlayerStateChanged(final BaseMediaPlayer player, final int state) {
             final MediaSession2ImplBase session = getSession();
             if (session == null) {
                 return;
@@ -1288,7 +1288,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
 
         @Override
-        public void onBufferingStateChanged(final MediaPlayerInterface mpb,
+        public void onBufferingStateChanged(final BaseMediaPlayer mpb,
                 final DataSourceDesc dsd, final int state) {
             final MediaSession2ImplBase session = getSession();
             if (session == null || dsd == null) {
@@ -1314,7 +1314,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
 
         @Override
-        public void onPlaybackSpeedChanged(final MediaPlayerInterface mpb, final float speed) {
+        public void onPlaybackSpeedChanged(final BaseMediaPlayer mpb, final float speed) {
             final MediaSession2ImplBase session = getSession();
             if (session == null) {
                 return;
@@ -1334,7 +1334,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
 
         @Override
-        public void onSeekCompleted(final MediaPlayerInterface mpb, final long position) {
+        public void onSeekCompleted(final BaseMediaPlayer mpb, final long position) {
             final MediaSession2ImplBase session = getSession();
             if (session == null) {
                 return;
@@ -1429,7 +1429,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     abstract static class BuilderBase
             <T extends MediaSession2, C extends SessionCallback> {
         final Context mContext;
-        MediaPlayerInterface mPlayer;
+        BaseMediaPlayer mPlayer;
         String mId;
         Executor mCallbackExecutor;
         C mCallback;
@@ -1446,7 +1446,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             mId = TAG;
         }
 
-        void setPlayer(@NonNull MediaPlayerInterface player) {
+        void setPlayer(@NonNull BaseMediaPlayer player) {
             if (player == null) {
                 throw new IllegalArgumentException("player shouldn't be null");
             }

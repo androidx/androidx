@@ -88,7 +88,7 @@ public class MediaPlayer2DrmTestBase {
     protected Instrumentation mInstrumentation;
 
     protected ExecutorService mExecutor;
-    protected MediaPlayer2.MediaPlayer2EventCallback mECb = null;
+    protected MediaPlayer2.EventCallback mECb = null;
 
     @Rule
     public ActivityTestRule<MediaStubActivity> mActivityRule =
@@ -270,7 +270,7 @@ public class MediaPlayer2DrmTestBase {
         mAudioOnly = (width == 0);
 
         mCallStatus = MediaPlayer2.CALL_STATUS_NO_ERROR;
-        mECb = new MediaPlayer2.MediaPlayer2EventCallback() {
+        mECb = new MediaPlayer2.EventCallback() {
                 @Override
                 public void onVideoSizeChanged(MediaPlayer2 mp, DataSourceDesc dsd, int w, int h) {
                     Log.v(TAG, "VideoSizeChanged" + " w:" + w + " h:" + h);
@@ -302,7 +302,7 @@ public class MediaPlayer2DrmTestBase {
                 }
             };
 
-        mPlayer.setMediaPlayer2EventCallback(mExecutor, mECb);
+        mPlayer.setEventCallback(mExecutor, mECb);
         Log.v(TAG, "playLoadedVideo: setDataSource()");
         mPlayer.setDataSource(new DataSourceDesc.Builder().setDataSource(mContext, file).build());
         mSetDataSourceCallCompleted.waitForSignal();
@@ -555,7 +555,7 @@ public class MediaPlayer2DrmTestBase {
             Log.v(TAG, "playLoadedVideo: round " + round);
 
             try {
-                mPlayer.setMediaPlayer2EventCallback(mExecutor, mECb);
+                mPlayer.setEventCallback(mExecutor, mECb);
 
                 Log.v(TAG, "playLoadedVideo: setDataSource()");
                 mPlayer.setDataSource(
