@@ -44,4 +44,11 @@ public class TestItemDetailsLookup extends ItemDetailsLookup<String> {
         mItem = doc;
         return doc;
     }
+
+    /**
+     * Resets to initial state.
+     */
+    public void reset() {
+        mItem = null;
+    }
 }
