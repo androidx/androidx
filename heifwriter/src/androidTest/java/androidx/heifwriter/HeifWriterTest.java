@@ -19,7 +19,10 @@ package androidx.heifwriter;
 import static android.support.test.InstrumentationRegistry.getContext;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
@@ -66,19 +69,32 @@ public class HeifWriterTest {
     private static final boolean DEBUG = false;
     private static final boolean DUMP_YUV_INPUT = false;
 
-    private static byte[][] TEST_COLORS = {
+    private static final byte[][] TEST_YUV_COLORS = {
             {(byte) 255, (byte) 0, (byte) 0},
             {(byte) 255, (byte) 0, (byte) 255},
             {(byte) 255, (byte) 255, (byte) 255},
             {(byte) 255, (byte) 255, (byte) 0},
     };
+    private static final Color COLOR_BLOCK =
+            Color.valueOf(1.0f, 1.0f, 1.0f);
+    private static final Color[] COLOR_BARS = {
+            Color.valueOf(0.0f, 0.0f, 0.0f),
+            Color.valueOf(0.0f, 0.0f, 0.64f),
+            Color.valueOf(0.0f, 0.64f, 0.0f),
+            Color.valueOf(0.0f, 0.64f, 0.64f),
+            Color.valueOf(0.64f, 0.0f, 0.0f),
+            Color.valueOf(0.64f, 0.0f, 0.64f),
+            Color.valueOf(0.64f, 0.64f, 0.0f),
+    };
+    private static final float MAX_DELTA = 0.025f;
+    private static final int BORDER_WIDTH = 16;
 
-    private static final String TEST_HEIC = "test.heic";
+    private static final String HEIFWRITER_INPUT = "heifwriter_input.heic";
     private static final int[] IMAGE_RESOURCES = new int[] {
-            R.raw.test
+            R.raw.heifwriter_input
     };
     private static final String[] IMAGE_FILENAMES = new String[] {
-            TEST_HEIC
+            HEIFWRITER_INPUT
     };
     private static final String OUTPUT_FILENAME = "output.heic";
 
@@ -260,7 +276,7 @@ public class HeifWriterTest {
         final boolean mUseGrid;
         final boolean mUseHandler;
         final int mMaxNumImages;
-        final int mNumImages;
+        final int mActualNumImages;
         final int mWidth;
         final int mHeight;
         final int mRotation;
@@ -270,14 +286,14 @@ public class HeifWriterTest {
         final Bitmap[] mBitmaps;
 
         TestConfig(int inputMode, boolean useGrid, boolean useHandler,
-                   int maxNumImages, int numImages, int width, int height,
+                   int maxNumImages, int actualNumImages, int width, int height,
                    int rotation, int quality,
                    String inputPath, String outputPath, Bitmap[] bitmaps) {
             mInputMode = inputMode;
             mUseGrid = useGrid;
             mUseHandler = useHandler;
             mMaxNumImages = maxNumImages;
-            mNumImages = numImages;
+            mActualNumImages = actualNumImages;
             mWidth = width;
             mHeight = height;
             mRotation = rotation;
@@ -380,7 +396,7 @@ public class HeifWriterTest {
                     + ", mUseGrid " + mUseGrid
                     + ", mUseHandler " + mUseHandler
                     + ", mMaxNumImages " + mMaxNumImages
-                    + ", mNumImages " + mNumImages
+                    + ", mNumImages " + mActualNumImages
                     + ", mWidth " + mWidth
                     + ", mHeight " + mHeight
                     + ", mRotation " + mRotation
@@ -390,10 +406,10 @@ public class HeifWriterTest {
         }
     }
 
-    private void doTest(TestConfig config) throws Exception {
-        int width = config.mWidth;
-        int height = config.mHeight;
-        int numImages = config.mNumImages;
+    private void doTest(final TestConfig config) throws Exception {
+        final int width = config.mWidth;
+        final int height = config.mHeight;
+        final int actualNumImages = config.mActualNumImages;
 
         mInputIndex = 0;
         HeifWriter heifWriter = null;
@@ -431,7 +447,7 @@ public class HeifWriterTest {
                     outputStream = new FileOutputStream(outputFile);
                 }
 
-                for (int i = 0; i < numImages; i++) {
+                for (int i = 0; i < actualNumImages; i++) {
                     if (DEBUG) Log.d(TAG, "fillYuvBuffer: " + i);
                     fillYuvBuffer(i, data, width, height, inputStream);
                     if (DUMP_YUV_INPUT) {
@@ -446,15 +462,15 @@ public class HeifWriterTest {
                 // how fast MediaCodec processes them, which is further dependent on how fast the
                 // MediaCodec callbacks are handled. We can't put draws on the same looper that
                 // handles MediaCodec callback, it will cause deadlock.
-                for (int i = 0; i < numImages; i++) {
+                for (int i = 0; i < actualNumImages; i++) {
                     if (DEBUG) Log.d(TAG, "drawFrame: " + i);
                     drawFrame(width, height);
                 }
                 heifWriter.setInputEndOfStreamTimestamp(
-                        1000 * computePresentationTime(numImages - 1));
+                        1000 * computePresentationTime(actualNumImages - 1));
             } else if (config.mInputMode == INPUT_MODE_BITMAP) {
                 Bitmap[] bitmaps = config.mBitmaps;
-                for (int i = 0; i < Math.min(bitmaps.length, numImages); i++) {
+                for (int i = 0; i < Math.min(bitmaps.length, actualNumImages); i++) {
                     if (DEBUG) Log.d(TAG, "addBitmap: " + i);
                     heifWriter.addBitmap(bitmaps[i]);
                     bitmaps[i].recycle();
@@ -462,8 +478,18 @@ public class HeifWriterTest {
             }
 
             heifWriter.stop(3000);
-            verifyResult(config.mOutputPath, width, height, config.mRotation, config.mUseGrid,
-                    Math.min(numImages, config.mMaxNumImages));
+            // The test sets the primary index to the last image.
+            // However, if we're testing early abort, the last image will not be
+            // present and the muxer is supposed to set it to 0 by default.
+            int expectedPrimary = config.mMaxNumImages - 1;
+            int expectedImageCount = config.mMaxNumImages;
+            if (actualNumImages < config.mMaxNumImages) {
+                expectedPrimary = 0;
+                expectedImageCount = actualNumImages;
+            }
+            verifyResult(config.mOutputPath, width, height, config.mRotation,
+                    expectedImageCount, expectedPrimary, config.mUseGrid,
+                    config.mInputMode == INPUT_MODE_SURFACE);
             if (DEBUG) Log.d(TAG, "finished: PASS");
         } finally {
             try {
@@ -496,7 +522,7 @@ public class HeifWriterTest {
         if (inputStream != null) {
             inputStream.read(data);
         } else {
-            byte[] color = TEST_COLORS[frameIndex % TEST_COLORS.length];
+            byte[] color = TEST_YUV_COLORS[frameIndex % TEST_YUV_COLORS.length];
             int sizeY = width * height;
             Arrays.fill(data, 0, sizeY, color[0]);
             Arrays.fill(data, sizeY, sizeY * 5 / 4, color[1]);
@@ -512,41 +538,56 @@ public class HeifWriterTest {
         mInputIndex++;
     }
 
-    private void generateSurfaceFrame(int frameIndex, int width, int height) {
-        frameIndex %= 4;
+    private static Rect getColorBarRect(int index, int width, int height) {
+        int barWidth = (width - BORDER_WIDTH * 2) / COLOR_BARS.length;
+        return new Rect(BORDER_WIDTH + barWidth * index, BORDER_WIDTH,
+                BORDER_WIDTH + barWidth * (index + 1), height - BORDER_WIDTH);
+    }
 
+    private static Rect getColorBlockRect(int index, int width, int height) {
+        int blockCenterX = (width / 5) * (index % 4 + 1);
+        return new Rect(blockCenterX - width / 10, height / 6,
+                        blockCenterX + width / 10, height / 3);
+    }
+
+    private void generateSurfaceFrame(int frameIndex, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
         GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
         GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
 
-        int startX, startY;
-        int borderWidth = 16;
-        for (int i = 0; i < 7; i++) {
-            startX = (width - borderWidth * 2) * i / 7 + borderWidth;
-            GLES20.glScissor(startX, borderWidth,
-                    (width - borderWidth * 2) / 7, height - borderWidth * 2);
-            GLES20.glClearColor(((7 - i) & 0x4) * 0.16f,
-                    ((7 - i) & 0x2) * 0.32f,
-                    ((7 - i) & 0x1) * 0.64f,
-                    1.0f);
+        for (int i = 0; i < COLOR_BARS.length; i++) {
+            Rect r = getColorBarRect(i, width, height);
+
+            GLES20.glScissor(r.left, r.top, r.width(), r.height());
+            final Color color = COLOR_BARS[i];
+            GLES20.glClearColor(color.red(), color.green(), color.blue(), 1.0f);
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         }
 
-        startX = (width / 6) + (width / 6) * frameIndex;
-        startY = height / 4;
-        GLES20.glScissor(startX, startY, width / 6, height / 3);
+        Rect r = getColorBlockRect(frameIndex, width, height);
+        GLES20.glScissor(r.left, r.top, r.width(), r.height());
         GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glScissor(startX + borderWidth, startY + borderWidth,
-                width / 6 - borderWidth * 2, height / 3 - borderWidth * 2);
-        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        r.inset(BORDER_WIDTH, BORDER_WIDTH);
+        GLES20.glScissor(r.left, r.top, r.width(), r.height());
+        GLES20.glClearColor(COLOR_BLOCK.red(), COLOR_BLOCK.green(), COLOR_BLOCK.blue(), 1.0f);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     }
 
+    /**
+     * Determines if two color values are approximately equal.
+     */
+    private static boolean approxEquals(Color expected, Color actual) {
+        return (Math.abs(expected.red() - actual.red()) <= MAX_DELTA)
+            && (Math.abs(expected.green() - actual.green()) <= MAX_DELTA)
+            && (Math.abs(expected.blue() - actual.blue()) <= MAX_DELTA);
+    }
+
     private void verifyResult(
-            String filename, int width, int height, int rotation, boolean useGrid, int numImages)
+            String filename, int width, int height, int rotation,
+            int imageCount, int primary, boolean useGrid, boolean checkColor)
             throws Exception {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(filename);
@@ -554,9 +595,6 @@ public class HeifWriterTest {
         if (!"yes".equals(hasImage)) {
             throw new Exception("No images found in file " + filename);
         }
-        assertEquals("Wrong image count", numImages,
-                Integer.parseInt(retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_IMAGE_COUNT)));
         assertEquals("Wrong width", width,
                 Integer.parseInt(retriever.extractMetadata(
                     MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH)));
@@ -566,21 +604,41 @@ public class HeifWriterTest {
         assertEquals("Wrong rotation", rotation,
                 Integer.parseInt(retriever.extractMetadata(
                     MediaMetadataRetriever.METADATA_KEY_IMAGE_ROTATION)));
+        assertEquals("Wrong image count", imageCount,
+                Integer.parseInt(retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_IMAGE_COUNT)));
+        assertEquals("Wrong primary index", primary,
+                Integer.parseInt(retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_IMAGE_PRIMARY)));
         retriever.release();
 
         if (useGrid) {
             MediaExtractor extractor = new MediaExtractor();
             extractor.setDataSource(filename);
             MediaFormat format = extractor.getTrackFormat(0);
-            int gridWidth = format.getInteger(MediaFormat.KEY_TILE_WIDTH);
-            int gridHeight = format.getInteger(MediaFormat.KEY_TILE_HEIGHT);
+            int tileWidth = format.getInteger(MediaFormat.KEY_TILE_WIDTH);
+            int tileHeight = format.getInteger(MediaFormat.KEY_TILE_HEIGHT);
             int gridRows = format.getInteger(MediaFormat.KEY_GRID_ROWS);
             int gridCols = format.getInteger(MediaFormat.KEY_GRID_COLUMNS);
-            assertTrue("Wrong grid width or cols",
-                    ((width + gridWidth - 1) / gridWidth) == gridCols);
-            assertTrue("Wrong grid height or rows",
-                    ((height + gridHeight - 1) / gridHeight) == gridRows);
+            assertTrue("Wrong tile width or grid cols",
+                    ((width + tileWidth - 1) / tileWidth) == gridCols);
+            assertTrue("Wrong tile height or grid rows",
+                    ((height + tileHeight - 1) / tileHeight) == gridRows);
             extractor.release();
+        }
+
+        if (checkColor) {
+            Bitmap bitmap = BitmapFactory.decodeFile(filename);
+
+            for (int i = 0; i < COLOR_BARS.length; i++) {
+                Rect r = getColorBarRect(i, width, height);
+                assertTrue("Color bar " + i + " doesn't match", approxEquals(COLOR_BARS[i],
+                        Color.valueOf(bitmap.getPixel(r.centerX(), r.centerY()))));
+            }
+
+            Rect r = getColorBlockRect(primary, width, height);
+            assertTrue("Color block doesn't match", approxEquals(COLOR_BLOCK,
+                    Color.valueOf(bitmap.getPixel(r.centerX(), height - r.centerY()))));
         }
     }
 }

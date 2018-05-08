@@ -18,6 +18,6 @@ supportLibrary {
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.HEIFWRITER
     inceptionYear = "2018"
-    minSdkVersion = 'P'
+    minSdkVersion = 28
     description = "Android Support HeifWriter for writing HEIF still images"
 }
