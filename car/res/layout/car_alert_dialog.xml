@@ -55,7 +55,6 @@ limitations under the License.
             android:id="@+id/button_panel"
             android:layout_width="match_parent"
             android:layout_height="@dimen/car_dialog_action_bar_height"
-            android:layout_marginTop="@dimen/car_padding_2"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:visibility="gone">
