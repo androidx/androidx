@@ -16,6 +16,7 @@
 
 package androidx.car.app;
 
+import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,6 +42,7 @@ import androidx.car.widget.ListItemProvider;
 import androidx.car.widget.PagedListView;
 import androidx.car.widget.PagedScrollBarView;
 import androidx.car.widget.TextListItem;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -58,14 +60,18 @@ import java.util.List;
  */
 public class CarListDialog extends Dialog {
     private static final String TAG = "CarListDialog";
+    private static final int ANIMATION_DURATION_MS = 100;
 
     @Nullable
     private final CharSequence mTitle;
+    private TextView mTitleView;
 
     private ListItemAdapter mAdapter;
     private final int mInitialPosition;
     private PagedListView mList;
     private PagedScrollBarView mScrollBarView;
+
+    private final float mTitleElevation;
 
     @Nullable
     private final DialogInterface.OnClickListener mOnClickListener;
@@ -89,6 +95,8 @@ public class CarListDialog extends Dialog {
         mInitialPosition = builder.mInitialPosition;
         mOnClickListener = builder.mOnClickListener;
         mTitle = builder.mTitle;
+        mTitleElevation =
+                context.getResources().getDimension(R.dimen.car_list_dialog_title_elevation);
         initializeAdapter(builder.mItems);
     }
 
@@ -131,12 +139,61 @@ public class CarListDialog extends Dialog {
         initializeTitle();
         initializeList();
         initializeScrollbar();
+
+        // Need to set this elevation listener last because the title and list need to be
+        // initialized first.
+        initializeTitleElevationListener();
     }
 
     private void initializeTitle() {
-        TextView titleView = getWindow().findViewById(R.id.title);
-        titleView.setText(mTitle);
-        titleView.setVisibility(!TextUtils.isEmpty(mTitle) ? View.VISIBLE : View.GONE);
+        mTitleView = getWindow().findViewById(R.id.title);
+        mTitleView.setText(mTitle);
+        mTitleView.setVisibility(!TextUtils.isEmpty(mTitle) ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * Initializes a listener on the scrolling of the list in this dialog that will update
+     * the elevation of the title text.
+     *
+     * <p>If the list is not at the top position, there will be elevation. Otherwise, the
+     * elevation is zero.
+     */
+    private void initializeTitleElevationListener() {
+        if (mTitleView.getVisibility() == View.GONE) {
+            return;
+        }
+
+        mList.setOnScrollListener(new PagedListView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                // The PagedListView is a vertically scrolling list, so it will be using a
+                // LinearLayoutManager.
+                LinearLayoutManager layoutManager =
+                        (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
+                    // Need to remove elevation with animation so it is not jarring.
+                    removeTitleElevationWithAnimation();
+                } else {
+                    // Note that elevation can be added without any elevation because the list
+                    // scroll will hide the fact that it pops in.
+                    mTitleView.setElevation(mTitleElevation);
+                }
+            }
+        });
+    }
+
+    /** Animates the removal of elevation from the title view. */
+    private void removeTitleElevationWithAnimation() {
+        ValueAnimator elevationAnimator =
+                ValueAnimator.ofFloat(mTitleView.getElevation(), 0f);
+        elevationAnimator
+                .setDuration(ANIMATION_DURATION_MS)
+                .addUpdateListener(
+                        animation -> mTitleView.setElevation((float) animation.getAnimatedValue()));
+        elevationAnimator.start();
     }
 
     @Override
@@ -372,6 +429,9 @@ public class CarListDialog extends Dialog {
         /**
          * Sets the initial position in the list that the {@code CarListDialog} will start at. When
          * the dialog is created, the list will animate to the given position.
+         *
+         * <p>The position uses zero-based indexing. So, to scroll to the fifth item in the list,
+         * a value of four should be passed.
          *
          * @param initialPosition The initial position in the list to display.
          * @return This {@code Builder} object to allow for chaining of calls.

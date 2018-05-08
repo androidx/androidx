@@ -39,12 +39,14 @@ limitations under the License.
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Note: the title needs a background in order for elevation to show up. -->
             <TextView
                 android:id="@+id/title"
+                android:background="?attr/dialogBackgroundColor"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/car_dialog_header_height"
-                android:layout_marginStart="@dimen/car_keyline_1"
-                android:layout_marginEnd="@dimen/car_keyline_1"
+                android:paddingStart="@dimen/car_keyline_1"
+                android:paddingEnd="@dimen/car_keyline_1"
                 android:gravity="center_vertical|start"
                 android:visibility="gone"
                 style="?attr/dialogTitleStyle" />
