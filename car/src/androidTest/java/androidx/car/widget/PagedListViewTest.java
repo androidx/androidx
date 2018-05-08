@@ -40,7 +40,6 @@ import static org.junit.Assert.assertThat;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.Espresso;
@@ -49,15 +48,18 @@ import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.OrientationHelper;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.car.test.R;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.OrientationHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -71,8 +73,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.car.test.R;
 
 /** Unit tests for {@link PagedListView}. */
 @RunWith(AndroidJUnit4.class)
@@ -338,8 +338,16 @@ public final class PagedListViewTest {
         final int color = R.color.car_teal_700;
         mPagedListView.setScrollbarColor(color);
 
-        for (int style : new int[] {DayNightStyle.AUTO, DayNightStyle.AUTO_INVERSE,
-                DayNightStyle.FORCE_NIGHT, DayNightStyle.FORCE_DAY}) {
+        int[] styles = new int[] {
+                DayNightStyle.AUTO,
+                DayNightStyle.AUTO_INVERSE,
+                DayNightStyle.ALWAYS_LIGHT,
+                DayNightStyle.ALWAYS_DARK,
+                DayNightStyle.FORCE_DAY,
+                DayNightStyle.FORCE_NIGHT,
+        };
+
+        for (int style : styles) {
             mPagedListView.setDayNightStyle(style);
 
             assertThat(mPagedListView.mScrollBarView.getScrollbarThumbColor(),
