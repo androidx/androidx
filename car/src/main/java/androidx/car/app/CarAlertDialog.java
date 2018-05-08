@@ -50,6 +50,7 @@ public class CarAlertDialog extends Dialog {
     private final OnClickListener mNegativeButtonListener;
 
     private final int mTopPadding;
+    private final int mButtonPanelTopMargin;
     private final int mBottomPadding;
     private final int mButtonMinWidth;
     private final int mButtonSpacing;
@@ -75,6 +76,7 @@ public class CarAlertDialog extends Dialog {
 
         Resources res = context.getResources();
         mTopPadding = res.getDimensionPixelSize(R.dimen.car_padding_4);
+        mButtonPanelTopMargin = res.getDimensionPixelSize(R.dimen.car_padding_2);
         mBottomPadding = res.getDimensionPixelSize(R.dimen.car_padding_4);
         mButtonMinWidth = res.getDimensionPixelSize(R.dimen.car_button_min_width);
         mButtonSpacing = res.getDimensionPixelSize(R.dimen.car_padding_4);
@@ -129,6 +131,7 @@ public class CarAlertDialog extends Dialog {
     private void setBody(CharSequence body) {
         mBodyView.setText(body);
         mBodyView.setVisibility(TextUtils.isEmpty(body) ? View.GONE : View.VISIBLE);
+        updateButtonPanelTopMargin();
     }
 
     private void setPositiveButton(CharSequence text) {
@@ -149,6 +152,24 @@ public class CarAlertDialog extends Dialog {
         updateTargetTargetForButton(mNegativeButton);
         updateButtonPanelVisibility();
         updateButtonSpacing();
+    }
+
+    /**
+     * Updates the top margin of the button panel depending on if there's body text. If there is,
+     * then separate the body text from the button panel with margin specified by
+     * {@link #mButtonPanelTopMargin}. Otherwise, no margin.
+     */
+    private void updateButtonPanelTopMargin() {
+        boolean hasBody = mBodyView.getVisibility() == View.VISIBLE;
+
+        ViewGroup.MarginLayoutParams layoutParams =
+                (ViewGroup.MarginLayoutParams) mButtonPanel.getLayoutParams();
+
+        // Separate the action panel with a top margin if there's body text. Otherwise, do not have
+        // any margin.
+        layoutParams.topMargin = hasBody ? mButtonPanelTopMargin : 0;
+
+        mButtonPanel.requestLayout();
     }
 
     /**
