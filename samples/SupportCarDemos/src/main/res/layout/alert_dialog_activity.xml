@@ -42,6 +42,15 @@
         android:text="@string/alert_dialog_checkbox_body" />
 
     <CheckBox
+        android:id="@+id/has_single_line_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/car_padding_4"
+        android:checked="false"
+        android:textSize="@dimen/car_body1_size"
+        android:text="@string/alert_dialog_checkbox_single_line_body" />
+
+    <CheckBox
         android:id="@+id/has_action_1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
