@@ -72,6 +72,7 @@
     <!-- Strings for CarListDialog Demo. -->
     <string name="list_dialog_checkbox_title">Title</string>
     <string name="list_dialog_title">Title</string>
+    <string name="list_dialog_num_of_sections_hint">Number of Sections</string>
     <string name="list_dialog_num_of_items_hint">Number of Items</string>
     <string name="list_dialog_initial_position_hint">Initial Position</string>
     <string name="create_list_dialog_button">Create CarListDialog</string>
