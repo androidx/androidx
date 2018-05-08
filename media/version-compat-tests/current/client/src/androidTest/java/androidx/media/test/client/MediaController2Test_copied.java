@@ -43,12 +43,12 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.BaseMediaPlayer;
 import androidx.media.MediaController2;
 import androidx.media.MediaController2.ControllerCallback;
 import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
-import androidx.media.MediaPlayerInterface;
 import androidx.media.MediaPlaylistAgent;
 import androidx.media.MediaSession2;
 import androidx.media.MediaSession2.ControllerInfo;
@@ -222,8 +222,8 @@ public class MediaController2Test_copied extends MediaSession2TestBase {
     @Test
     public void testGettersAfterConnected() throws InterruptedException {
         prepareLooper();
-        final int state = MediaPlayerInterface.PLAYER_STATE_PLAYING;
-        final int bufferingState = MediaPlayerInterface.BUFFERING_STATE_BUFFERING_COMPLETE;
+        final int state = BaseMediaPlayer.PLAYER_STATE_PLAYING;
+        final int bufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_COMPLETE;
         final long position = 150000;
         final long bufferedPosition = 900000;
         final float speed = 0.5f;
@@ -250,7 +250,7 @@ public class MediaController2Test_copied extends MediaSession2TestBase {
     @Test
     public void testUpdatePlayer() throws InterruptedException {
         prepareLooper();
-        final int testState = MediaPlayerInterface.PLAYER_STATE_PLAYING;
+        final int testState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
         final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
         final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_RING).build();
@@ -503,7 +503,7 @@ public class MediaController2Test_copied extends MediaSession2TestBase {
         prepareLooper();
         final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
         final MediaItem2 testItem = testPlaylist.get(0);
-        final int testBufferingState = MediaPlayerInterface.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
+        final int testBufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
@@ -529,7 +529,7 @@ public class MediaController2Test_copied extends MediaSession2TestBase {
     @Test
     public void testControllerCallback_onPlayerStateChanged() throws InterruptedException {
         prepareLooper();
-        final int testPlayerState = MediaPlayerInterface.PLAYER_STATE_PLAYING;
+        final int testPlayerState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
         final long testPosition = 500;
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
@@ -1187,7 +1187,7 @@ public class MediaController2Test_copied extends MediaSession2TestBase {
             testHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    final int state = MediaPlayerInterface.PLAYER_STATE_ERROR;
+                    final int state = BaseMediaPlayer.PLAYER_STATE_ERROR;
                     for (int i = 0; i < 100; i++) {
                         // triggers call from session to controller.
                         player.notifyPlaybackState(state);

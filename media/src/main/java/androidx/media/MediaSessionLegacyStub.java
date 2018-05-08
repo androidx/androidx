@@ -481,7 +481,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onBufferingStateChanged(MediaItem2 item, int state) throws RemoteException {
             // Note: buffered position should be also sent to the controller here. It's to
-            // follow the behavior of MediaPlayerInterface.PlayerEventCallback.
+            // follow the behavior of BaseMediaPlayer.PlayerEventCallback.
             Bundle bundle = new Bundle();
             bundle.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
             bundle.putInt(ARGUMENT_BUFFERING_STATE, state);

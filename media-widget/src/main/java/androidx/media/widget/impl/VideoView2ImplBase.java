@@ -63,7 +63,6 @@ import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.MediaPlayer2;
-import androidx.media.MediaPlayer2.MediaPlayer2EventCallback;
 import androidx.media.SessionToken2;
 import androidx.media.subtitle.ClosedCaptionRenderer;
 import androidx.media.subtitle.SubtitleController;
@@ -833,7 +832,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     private boolean isPlaying() {
         return mMediaPlayer != null
-                && mMediaPlayer.getMediaPlayer2State() == MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING;
+                && mMediaPlayer.getState() == MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING;
     }
 
     private boolean isWaitingPlayback() {
@@ -920,7 +919,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     runnable.run();
                 }
             };
-            mMediaPlayer.setMediaPlayer2EventCallback(executor, mMediaPlayer2Callback);
+            mMediaPlayer.setEventCallback(executor, mMediaPlayer2Callback);
 
             mCurrentBufferPercentage = -1;
             mMediaPlayer.setDataSource(dsd);
@@ -1268,8 +1267,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mInstance.addView(mMusicView, 0);
     }
 
-    MediaPlayer2EventCallback mMediaPlayer2Callback =
-            new MediaPlayer2EventCallback() {
+    MediaPlayer2.EventCallback mMediaPlayer2Callback =
+            new MediaPlayer2.EventCallback() {
                 @Override
                 public void onVideoSizeChanged(
                         MediaPlayer2 mp, DataSourceDesc dsd, int width, int height) {
