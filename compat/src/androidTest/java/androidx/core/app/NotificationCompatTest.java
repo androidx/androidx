@@ -33,6 +33,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.media.AudioAttributes;
@@ -597,7 +599,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testMessagingStyle_isGroupConversation() {
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.P;
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("self name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("self name").build())
                         .setGroupConversation(true)
                         .setConversationTitle("test conversation title");
         Notification notification = new NotificationCompat.Builder(mContext, "test id")
@@ -617,7 +620,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void testMessagingStyle_isGroupConversation_noConversationTitle() {
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.P;
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("self name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("self name").build())
                         .setGroupConversation(true)
                         .setConversationTitle(null);
         Notification notification = new NotificationCompat.Builder(mContext, "test id")
@@ -638,7 +642,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         // In legacy (version < P), isGroupConversation is controlled by conversationTitle.
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.O;
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("self name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("self name").build())
                         .setConversationTitle("test conversation title");
         Notification notification = new NotificationCompat.Builder(mContext, "test id")
                 .setSmallIcon(1)
@@ -658,7 +663,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         // In legacy (version < P), isGroupConversation is controlled by conversationTitle.
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.O;
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("self name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("self name").build())
                         .setConversationTitle(null);
         Notification notification = new NotificationCompat.Builder(mContext, "test id")
                 .setSmallIcon(1)
@@ -679,7 +685,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         // title shouldn't affect #isGroupConversation.
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.O;
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("self name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("self name").build())
                         .setGroupConversation(false)
                         .setConversationTitle("test conversation title");
         Notification notification = new NotificationCompat.Builder(mContext, "test id")
@@ -701,7 +708,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         // title shouldn't affect #isGroupConversation.
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.O;
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("self name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("self name").build())
                         .setGroupConversation(true)
                         .setConversationTitle(null);
         Notification notification = new NotificationCompat.Builder(mContext, "test id")
@@ -721,7 +729,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void testMessagingStyle_applyNoTitleAndNotGroup() {
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("self name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("self name").build())
                         .setGroupConversation(false)
                         .addMessage(
                                 new Message(
@@ -746,7 +755,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void testMessagingStyle_applyNoTitleAndNotGroup_legacy() {
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("self name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("self name").build())
                         .setGroupConversation(false)
                         .addMessage(
                                 new Message(
@@ -772,7 +782,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void testMessagingStyle_applyConversationTitleAndNotGroup() {
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("self name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("self name").build())
                         .setGroupConversation(false)
                         .setConversationTitle("test title");
 
@@ -792,7 +803,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void testMessagingStyle_applyConversationTitleAndNotGroup_legacy() {
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle("self name")
+                new NotificationCompat.MessagingStyle(
+                        new Person.Builder().setName("self name").build())
                         .setGroupConversation(false)
                         .setConversationTitle("test title");
 
@@ -804,7 +816,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                         .extractMessagingStyleFromNotification(resultNotification);
 
         // SDK <= 27 applies MessagingStyle title as Notification content title.
-        assertEquals("test title", NotificationCompat.getContentTitle(resultNotification));
         assertEquals("test title", resultMessagingStyle.getConversationTitle());
         assertFalse(resultMessagingStyle.isGroupConversation());
     }
@@ -899,6 +910,48 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .build();
 
         assertEquals("example title", NotificationCompat.getContentTitle(notification));
+    }
+
+    // Add the @Test annotation to enable this test. This test is disabled by default as it's not a
+    // unit test. This will simply create 4 MessagingStyle notifications so a developer may see what
+    // the end result will look like on a physical device (or emulator).
+    public void makeMessagingStyleNotifications() {
+        NotificationManager notificationManager =
+                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel =
+                    new NotificationChannel("id", "name", NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("Lol a description");
+            channel.enableLights(true);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        notificationManager.notify(2, newMsNotification(false, false));
+        notificationManager.notify(3, newMsNotification(false, true));
+        notificationManager.notify(4, newMsNotification(true, false));
+        notificationManager.notify(5, newMsNotification(true, true));
+    }
+
+    private Notification newMsNotification(boolean isGroup, boolean hasTitle) {
+        NotificationCompat.MessagingStyle ms =
+                new NotificationCompat.MessagingStyle(new Person.Builder().setName("Name").build());
+        String message = "isGroup? " + Boolean.toString(isGroup)
+                + "; hasTitle? " + Boolean.toString(hasTitle);
+        ms.addMessage(new Message(message, 40, new Person.Builder().setName("John").build()));
+        ms.addMessage(new Message("Heyo", 41, (Person) null));
+        ms.setGroupConversation(isGroup);
+        ms.setConversationTitle(hasTitle ? "My Conversation Title" : null);
+
+        NotificationCompat.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new NotificationCompat.Builder(mContext, "id");
+        } else {
+            builder = new NotificationCompat.Builder(mContext);
+        }
+        builder.setSmallIcon(androidx.testutils.R.drawable.notification_icon_background);
+        builder.setStyle(ms);
+        return builder.build();
     }
 
     private static void verifyInvisibleActionExists(Notification notification) {
