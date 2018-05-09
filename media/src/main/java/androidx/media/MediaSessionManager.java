@@ -117,7 +117,7 @@ public final class MediaSessionManager {
          * Used by {@link #getPackageName()} when the session is connected to the legacy controller
          * whose exact package name cannot be obtained.
          */
-        public static String LEGACY_CONTROLLER = "android.media.session.MediaController";
+        public static final String LEGACY_CONTROLLER = "android.media.session.MediaController";
 
         RemoteUserInfoImpl mImpl;
 

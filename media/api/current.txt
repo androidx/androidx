@@ -1301,7 +1301,7 @@ package androidx.media {
     method public java.lang.String getPackageName();
     method public int getPid();
     method public int getUid();
-    field public static java.lang.String LEGACY_CONTROLLER;
+    field public static final java.lang.String LEGACY_CONTROLLER = "android.media.session.MediaController";
   }
 
   public abstract class MediaSessionService2 extends android.app.Service {
