@@ -36,33 +36,7 @@ class DependencyMappingTest {
             rules = setOf(
                 PomRewriteRule(
                     from = PomDependency(groupId = "hello", artifactId = "world"),
-                    to = setOf(
-                        PomDependency(groupId = "hi", artifactId = "all", version = "2.0.0")
-                    )
-                ))
-        )
-    }
-
-    @Test fun mapTest_oneToNone_shouldMapToEmpty() {
-        MappingTester.testRewrite(
-            from = "hello:world:1.0.0",
-            to = null,
-            rules = setOf(
-                PomRewriteRule(
-                    from = PomDependency(groupId = "hello", artifactId = "world"),
-                    to = setOf()
-                ))
-        )
-    }
-
-    @Test fun mapTest_oneToNull_ruleNotFound_returnNull() {
-        MappingTester.testRewrite(
-            from = "hello:world:1.0.0",
-            to = null,
-            rules = setOf(
-                PomRewriteRule(
-                    from = PomDependency(groupId = "hello", artifactId = "me", version = "1.0"),
-                    to = setOf()
+                    to = PomDependency(groupId = "hi", artifactId = "all", version = "2.0.0")
                 ))
         )
     }

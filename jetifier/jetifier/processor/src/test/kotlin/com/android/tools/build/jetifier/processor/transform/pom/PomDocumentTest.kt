@@ -79,11 +79,9 @@ class PomDocumentTest {
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
                         version = "4.0"),
-                    setOf(
-                        PomDependency(
-                            groupId = "testGroup", artifactId = "testArtifact",
-                            version = "1.0")
-                    )
+                    PomDependency(
+                        groupId = "testGroup", artifactId = "testArtifact",
+                        version = "1.0")
                 )
             )
         )
@@ -112,40 +110,12 @@ class PomDocumentTest {
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
                         version = "4.0"),
-                    setOf(
-                        PomDependency(
-                            groupId = "testGroup", artifactId = "testArtifact",
-                            version = "{newSlVersion}")
-                    )
+                    PomDependency(
+                        groupId = "testGroup", artifactId = "testArtifact",
+                        version = "{newSlVersion}")
                 )
             ),
             versionsMap = DependencyVersionsMap(newSlVersion = "1.0.0-test")
-        )
-    }
-
-    @Test fun pom_oneRule_shouldSkipTestScopedRule() {
-        testRewriteToTheSame(
-            givenAndExpectedXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "      <scope>test</scope>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
-            rules = setOf(
-                PomRewriteRule(
-                    PomDependency(
-                        groupId = "supportGroup", artifactId = "supportArtifact",
-                        version = "4.0"),
-                    setOf(
-                        PomDependency(
-                            groupId = "testGroup", artifactId = "testArtifact",
-                            version = "1.0")
-                    )
-                )
-            )
         )
     }
 
@@ -164,11 +134,9 @@ class PomDocumentTest {
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact2",
                         version = "4.0"),
-                    setOf(
-                        PomDependency(
-                            groupId = "testGroup", artifactId = "testArtifact",
-                            version = "1.0")
-                    )
+                    PomDependency(
+                        groupId = "testGroup", artifactId = "testArtifact",
+                        version = "1.0")
                 )
             )
         )
@@ -211,109 +179,9 @@ class PomDocumentTest {
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
                         version = "4.0"),
-                    setOf(
-                        PomDependency(
-                            groupId = "testGroup", artifactId = "testArtifact",
-                            version = "1.0")
-                    )
-                )
-            )
-        )
-    }
-
-    @Test fun pom_multipleTargets_shouldApplyAll() {
-        testRewrite(
-            givenXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
-            expectedXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>testGroup</groupId>\n" +
-            "      <artifactId>testArtifact</artifactId>\n" +
-            "      <version>1.0</version>\n" +
-            "    </dependency>\n" +
-            "    <dependency>\n" +
-            "      <groupId>testGroup2</groupId>\n" +
-            "      <artifactId>testArtifact2</artifactId>\n" +
-            "      <version>2.0</version>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
-            rules = setOf(
-                PomRewriteRule(
                     PomDependency(
-                        groupId = "supportGroup", artifactId = "supportArtifact",
-                        version = "4.0"),
-                    setOf(
-                        PomDependency(
-                            groupId = "testGroup", artifactId = "testArtifact",
-                            version = "1.0"),
-                        PomDependency(
-                            groupId = "testGroup2", artifactId = "testArtifact2",
-                            version = "2.0"))
-                )
-            )
-        )
-    }
-
-    @Test fun pom_multipleRulesAndTargets_shouldApplyAll_distinct() {
-        testRewrite(
-            givenXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "    </dependency>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact2</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
-            expectedXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>testGroup</groupId>\n" +
-            "      <artifactId>testArtifact</artifactId>\n" +
-            "      <version>1.0</version>\n" +
-            "    </dependency>\n" +
-            "    <dependency>\n" +
-            "      <groupId>testGroup2</groupId>\n" +
-            "      <artifactId>testArtifact2</artifactId>\n" +
-            "      <version>2.0</version>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
-            rules = setOf(
-                PomRewriteRule(
-                    PomDependency(
-                        groupId = "supportGroup", artifactId = "supportArtifact",
-                        version = "4.0"),
-                    setOf(
-                        PomDependency(
-                            groupId = "testGroup", artifactId = "testArtifact",
-                            version = "1.0"),
-                        PomDependency(
-                            groupId = "testGroup2", artifactId = "testArtifact2",
-                            version = "2.0")
-                    )
-                ),
-                PomRewriteRule(
-                    PomDependency(
-                        groupId = "supportGroup", artifactId = "supportArtifact2",
-                        version = "4.0"),
-                    setOf(
-                        PomDependency(
-                            groupId = "testGroup", artifactId = "testArtifact",
-                            version = "1.0"),
-                        PomDependency(
-                            groupId = "testGroup2", artifactId = "testArtifact2",
-                            version = "2.0"))
+                        groupId = "testGroup", artifactId = "testArtifact",
+                        version = "1.0")
                 )
             )
         )
@@ -352,11 +220,9 @@ class PomDocumentTest {
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
                         version = "4.0"),
-                    setOf(
-                        PomDependency(
-                            groupId = "testGroup", artifactId = "testArtifact",
-                            version = "1.0")
-                    )
+                    PomDependency(
+                        groupId = "testGroup", artifactId = "testArtifact",
+                        version = "1.0")
                 )
             )
         )

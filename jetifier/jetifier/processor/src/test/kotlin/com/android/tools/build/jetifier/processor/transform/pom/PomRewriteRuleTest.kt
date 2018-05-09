@@ -127,7 +127,7 @@ class PomRewriteRuleTest {
         val from = PomDependency(groupId = "g", artifactId = "a", version = ruleVersion)
         val pom = PomDependency(groupId = "g", artifactId = "a", version = pomVersion)
 
-        val rule = PomRewriteRule(from, setOf(from))
+        val rule = PomRewriteRule(from, from)
 
         Truth.assertThat(rule.validateVersion(pom)).isTrue()
     }
@@ -136,7 +136,7 @@ class PomRewriteRuleTest {
         val from = PomDependency(groupId = "g", artifactId = "a", version = ruleVersion)
         val pom = PomDependency(groupId = "g", artifactId = "a", version = pomVersion)
 
-        val rule = PomRewriteRule(from, setOf(from))
+        val rule = PomRewriteRule(from, from)
 
         Truth.assertThat(rule.validateVersion(pom)).isFalse()
     }
