@@ -21,6 +21,9 @@ package androidx.leanback.media;
  * {@link PlaybackTransportControlGlue} is bound to a PlayerAdapter.
  * This class is intended to be subclassed, {@link MediaPlayerAdapter} is a concrete subclass
  * using {@link android.media.MediaPlayer}.
+ * ExoPlayer also provides a leanback extension that implements PlayerAdapter. Please see
+ * <a href="https://developer.android.com/guide/topics/media/exoplayer">ExoPlayer</a>
+ * https://developer.android.com/guide/topics/media/exoplayer
  */
 public abstract class PlayerAdapter {
 

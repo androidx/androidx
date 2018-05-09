@@ -1031,6 +1031,8 @@ package androidx.leanback.media {
 
   public class MediaPlayerAdapter extends androidx.leanback.media.PlayerAdapter {
     ctor public MediaPlayerAdapter(android.content.Context);
+    method public final android.media.MediaPlayer getMediaPlayer();
+    method public int getProgressUpdatingInterval();
     method protected boolean onError(int, int);
     method protected boolean onInfo(int, int);
     method protected void onSeekComplete();
