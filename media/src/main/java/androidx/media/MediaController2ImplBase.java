@@ -253,29 +253,19 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                 // Prevent re-enterance from the ControllerCallback.onDisconnected()
                 return;
             }
-            mHandler.removeCallbacksAndMessages(null);
-
-            if (Build.VERSION.SDK_INT >= 18) {
-                mHandlerThread.quitSafely();
-            } else {
-                mHandlerThread.quit();
-            }
-
             mIsReleased = true;
 
-            // Send command before the unregister callback to use mIControllerCallback in the
-            // callback.
-            sendCommand(CONTROLLER_COMMAND_DISCONNECT);
-            if (mControllerCompat != null) {
-                mControllerCompat.unregisterCallback(mControllerCompatCallback);
+            // When the controller is closed before getting extra binder (IMediaControllerCallback)
+            // from session, cleaning up MediaControllerCompat is postponed until the extra binder
+            // arrives. This is because the MediaControllerCompat is needed to tell session that
+            // this controller is closed.
+            if (mControllerCompatCallback != null
+                    && mControllerCompatCallback.getIControllerCallback() != null) {
+                cleanUpControllerCompatLocked(true /* sendDisconnectCommand */);
             }
             if (mBrowserCompat != null) {
                 mBrowserCompat.disconnect();
                 mBrowserCompat = null;
-            }
-            if (mControllerCompat != null) {
-                mControllerCompat.unregisterCallback(mControllerCompatCallback);
-                mControllerCompat = null;
             }
             mConnected = false;
         }
@@ -285,6 +275,28 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                 mCallback.onDisconnected(mInstance);
             }
         });
+    }
+
+    private void cleanUpControllerCompatLocked(boolean sendDisconnectCommand) {
+        mHandler.removeCallbacksAndMessages(null);
+        if (Build.VERSION.SDK_INT >= 18) {
+            mHandlerThread.quitSafely();
+        } else {
+            mHandlerThread.quit();
+        }
+
+        // Send command before the unregister callback to use mIControllerCallback in the
+        // callback.
+        if (sendDisconnectCommand) {
+            sendCommand(CONTROLLER_COMMAND_DISCONNECT);
+        }
+
+        synchronized (mLock) {
+            if (mControllerCompat != null) {
+                mControllerCompat.unregisterCallback(mControllerCompatCallback);
+                mControllerCompat = null;
+            }
+        }
     }
 
     @Override
@@ -980,9 +992,22 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                     }
                     switch (resultCode) {
                         case CONNECT_RESULT_CONNECTED:
+                            synchronized (mLock) {
+                                if (mIsReleased) {
+                                    cleanUpControllerCompatLocked(true /* sendDisconnectCommand */);
+                                    return;
+                                }
+                            }
                             onConnectedNotLocked(resultData);
                             break;
                         case CONNECT_RESULT_DISCONNECTED:
+                            synchronized (mLock) {
+                                if (mIsReleased) {
+                                    cleanUpControllerCompatLocked(
+                                            false /* sendDisconnectCommand */);
+                                    return;
+                                }
+                            }
                             mCallbackExecutor.execute(new Runnable() {
                                 @Override
                                 public void run() {
