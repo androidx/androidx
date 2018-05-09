@@ -41,6 +41,7 @@ final class GestureSelectionHelper implements OnItemTouchListener {
     private static final String TAG = "GestureSelectionHelper";
 
     private final SelectionTracker<?> mSelectionMgr;
+    private final ItemDetailsLookup<?> mDetailsLookup;
     private final AutoScroller mScroller;
     private final ViewDelegate mView;
     private final OperationMonitor mLock;
@@ -55,16 +56,19 @@ final class GestureSelectionHelper implements OnItemTouchListener {
      */
     GestureSelectionHelper(
             @NonNull SelectionTracker<?> selectionTracker,
+            @NonNull ItemDetailsLookup<?> detailsLookup,
             @NonNull ViewDelegate view,
             @NonNull AutoScroller scroller,
             @NonNull OperationMonitor lock) {
 
         checkArgument(selectionTracker != null);
+        checkArgument(detailsLookup != null);
         checkArgument(view != null);
         checkArgument(scroller != null);
         checkArgument(lock != null);
 
         mSelectionMgr = selectionTracker;
+        mDetailsLookup = detailsLookup;
         mView = view;
         mScroller = scroller;
         mLock = lock;
@@ -142,6 +146,11 @@ final class GestureSelectionHelper implements OnItemTouchListener {
     // Called when an ACTION_DOWN event is intercepted.
     // If down event happens on an item, we mark that item's position as last started.
     private boolean handleInterceptedDownEvent(@NonNull MotionEvent e) {
+        // Ignore events where details provider doesn't return details.
+        // These objects don't participate in selection.
+        if (mDetailsLookup.getItemDetails(e) == null) {
+            return false;
+        }
         mLastStartedItemPos = mView.getItemUnder(e);
         return mLastStartedItemPos != RecyclerView.NO_POSITION;
     }
@@ -210,13 +219,15 @@ final class GestureSelectionHelper implements OnItemTouchListener {
      * Returns a new instance of GestureSelectionHelper.
      */
     static GestureSelectionHelper create(
-            @NonNull SelectionTracker selectionMgr,
+            @NonNull SelectionTracker<?> selectionMgr,
+            @NonNull ItemDetailsLookup<?> detailsLookup,
             @NonNull RecyclerView recyclerView,
             @NonNull AutoScroller scroller,
             @NonNull OperationMonitor lock) {
 
         return new GestureSelectionHelper(
                 selectionMgr,
+                detailsLookup,
                 new RecyclerViewDelegate(recyclerView),
                 scroller,
                 lock);

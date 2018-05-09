@@ -688,8 +688,8 @@ public abstract class SelectionTracker<K> {
             // GestureSelectionHelper provides logic that interprets a combination
             // of motions and gestures in order to provide gesture driven selection support
             // when used in conjunction with RecyclerView.
-            final GestureSelectionHelper gestureHelper =
-                    GestureSelectionHelper.create(tracker, mRecyclerView, scroller, mMonitor);
+            final GestureSelectionHelper gestureHelper = GestureSelectionHelper.create(
+                    tracker, mDetailsLookup, mRecyclerView, scroller, mMonitor);
 
             // Finally hook the framework up to listening to recycle view events.
             mRecyclerView.addOnItemTouchListener(eventRouter);
