@@ -39,6 +39,7 @@ import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_DIRECTION;
 import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_VALUE;
 import static androidx.media.test.lib.MediaController2Constants.ADD_PLAYLIST_ITEM;
 import static androidx.media.test.lib.MediaController2Constants.ADJUST_VOLUME;
+import static androidx.media.test.lib.MediaController2Constants.CLOSE;
 import static androidx.media.test.lib.MediaController2Constants.FAST_FORWARD;
 import static androidx.media.test.lib.MediaController2Constants.PAUSE;
 import static androidx.media.test.lib.MediaController2Constants.PLAY;
@@ -132,13 +133,38 @@ public class TestHelperService extends Service {
 
     private class ServiceBinder extends IClientAppTestHelperService.Stub {
         @Override
-        public void createMediaController2(String testName, Bundle tokenBundle)
+        public void createMediaController2(Bundle tokenBundle, boolean waitForConnection)
                 throws RemoteException {
             tokenBundle.setClassLoader(MediaSession2.class.getClassLoader());
-            SessionToken2 token = SessionToken2.fromBundle(tokenBundle);
+            final SessionToken2 token = SessionToken2.fromBundle(tokenBundle);
+            final TestControllerCallback callback = new TestControllerCallback();
 
-            // TODO: Use different callback according to the test name.
-            createController2(token, new TestControllerCallback());
+            try {
+                mHandler.postAndSync(new Runnable() {
+                    @Override
+                    public void run() {
+                        mController2 = new MediaController2(
+                                TestHelperService.this, token, mExecutor, callback);
+                    }
+                });
+            } catch (Exception ex) {
+                Log.e(TAG, "Exception occurred while creating MediaController2.", ex);
+            }
+
+            if (!waitForConnection) {
+                return;
+            }
+
+            boolean connected = false;
+            try {
+                connected = callback.mConnectionLatch.await(3000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ex) {
+                Log.e(TAG, "InterruptedException occurred while waiting for connection", ex);
+            }
+
+            if (!connected) {
+                Log.e(TAG, "Could not connect to the given session2.");
+            }
         }
 
         @Override
@@ -168,7 +194,7 @@ public class TestHelperService extends Service {
                     mController2.setPlaybackSpeed(speed);
                     break;
                 } case SET_PLAYLIST: {
-                    List<MediaItem2> playlist = MediaTestUtils.fromParcelableList(
+                    List<MediaItem2> playlist = MediaTestUtils.playlistFromParcelableList(
                             args.getParcelableArrayList(KEY_PLAYLIST));
                     MediaMetadata2 metadata = MediaMetadata2.fromBundle(
                             args.getBundle(KEY_PLAYLIST_METADATA));
@@ -279,33 +305,10 @@ public class TestHelperService extends Service {
                     Bundle route = args.getBundle(KEY_ROUTE);
                     mController2.selectRoute(route);
                     break;
+                } case CLOSE: {
+                    mController2.close();
+                    break;
                 }
-            }
-        }
-
-        private void createController2(final SessionToken2 token,
-                final TestControllerCallback callback) {
-            try {
-                mHandler.postAndSync(new Runnable() {
-                    @Override
-                    public void run() {
-                        mController2 = new MediaController2(
-                                TestHelperService.this, token, mExecutor, callback);
-                    }
-                });
-            } catch (Exception ex) {
-                Log.e(TAG, "Exception occurred while waiting for connection", ex);
-            }
-
-            boolean connected = false;
-            try {
-                connected = callback.mConnectionLatch.await(3000, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException ex) {
-                Log.e(TAG, "InterruptedException occurred while waiting for connection", ex);
-            }
-
-            if (!connected) {
-                Log.e(TAG, "Could not connect to the given session2.");
             }
         }
 

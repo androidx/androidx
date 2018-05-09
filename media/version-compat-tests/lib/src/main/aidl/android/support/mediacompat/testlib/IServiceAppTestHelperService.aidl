@@ -20,9 +20,9 @@ import android.os.Bundle;
 
 interface IServiceAppTestHelperService {
 
-    Bundle createSession2(String sessionId);
-    void closeSession2();
+    Bundle createMediaSession2(String sessionId);
+    void closeMediaSession2();
     void callMediaSession2Method(int method, in Bundle args);
-    void callMediaPlayerInterfaceMethod(int method, in Bundle args);
+    void callBaseMediaPlayerMethod(int method, in Bundle args);
     void callMediaPlaylistAgentMethod(int method, in Bundle args);
 }

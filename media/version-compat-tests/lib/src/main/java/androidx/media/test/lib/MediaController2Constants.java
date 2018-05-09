@@ -53,6 +53,7 @@ public class MediaController2Constants {
     public static final int SUBSCRIBE_ROUTES_INFO = 1029;
     public static final int UNSUBSCRIBE_ROUTES_INFO = 1030;
     public static final int SELECT_ROUTE = 1031;
+    public static final int CLOSE = 1032;
 
     private MediaController2Constants() {
     }
