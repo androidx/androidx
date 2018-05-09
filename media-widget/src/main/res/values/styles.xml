@@ -167,12 +167,12 @@
         <item name="android:contentDescription">@string/mcv2_full_screen_button_desc</item>
     </style>
 
-    <style name="BottomBarButton.OverflowRight">
+    <style name="BottomBarButton.OverflowShow">
         <item name="android:src">@drawable/ic_chevron_right</item>
         <item name="android:contentDescription">@string/mcv2_overflow_right_button_desc</item>
     </style>
 
-    <style name="BottomBarButton.OverflowLeft">
+    <style name="BottomBarButton.OverflowHide">
         <item name="android:src">@drawable/ic_chevron_left</item>
         <item name="android:contentDescription">@string/mcv2_overflow_left_button_desc</item>
     </style>
