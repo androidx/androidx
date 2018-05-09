@@ -53,37 +53,24 @@ import java.util.concurrent.Executor;
  *
  * <p>Topics covered here are:
  * <ol>
- * <li><a href="#StateDiagram">State Diagram</a>
+ * <li><a href="#PlayerStates">Player states</a>
  * <li><a href="#Permissions">Permissions</a>
  * <li><a href="#Callbacks">Register informational and error callbacks</a>
  * </ol>
  *
- * <a name="StateDiagram"></a>
- * <h3>State Diagram</h3>
+ * <a name="PlayerStates"></a>
+ * <h3>Player states</h3>
  *
  * <p>Playback control of audio/video files and streams is managed as a state
- * machine. The following diagram shows the life cycle and the states of a
- * MediaPlayer2 object driven by the supported playback control operations.
- * The ovals represent the states a MediaPlayer2 object may reside
- * in. The arcs represent the playback control operations that drive the object
- * state transition. There are two types of arcs. The arcs with a single arrow
- * head represent synchronous method calls, while those with
- * a double arrow head represent asynchronous method calls.</p>
- *
- * <p><img src="../../../images/mediaplayer_state_diagram.gif"
- *         alt="MediaPlayer State diagram"
- *         border="0" /></p>
- *
- * <p>From this state diagram, one can see that a MediaPlayer2 object has the
- *    following states:</p>
+ * machine. MediaPlayer2 object has the following states:</p>
  * <ul>
- *     <li>When a MediaPlayer2 object is just created using {@link #create()} or
- *         after {@link #reset()} is called, it is in the <strong>Idle</strong> state; and Once
- *         {@link #close()} is called, it can no longer be used and there is no way to bring it
- *         back to any other state.
+ *     <li>{@link #MEDIAPLAYER2_STATE_IDLE}: When a MediaPlayer2 object is just created using
+ *         {@link #create()} or after {@link #reset()} is called, it is in the <strong>Idle</strong>
+ *         state; and Once {@link #close()} is called, it can no longer be used and there is no way
+ *         to bring it back to any other state.
  *         <ul>
  *         <li>Calling {@link #setDataSource(DataSourceDesc)} and {@link #prepare()} transfers a
- *         MediaPlayer2 object in the <strong>Idle</strong> state to the <strong>Paused</strong>
+ *         MediaPlayer2 object in the <strong>Idle</strong> state to the <strong>Prepared</strong>
  *         state. It is good programming practice to register a event callback for
  *         {@link EventCallback#onCallCompleted} and
  *         look out for {@link #CALL_STATUS_BAD_VALUE} and {@link #CALL_STATUS_ERROR_IO} that may be
@@ -99,7 +86,8 @@ import java.util.concurrent.Executor;
  *         altogether. </li>
  *         </ul>
  *         </li>
- *     <li>In general, some playback control operation may fail due to various
+ *     <li>{@link #MEDIAPLAYER2_STATE_ERROR}: In general, some playback control operation may fail
+ *         due to various
  *         reasons, such as unsupported audio/video format, poorly interleaved
  *         audio/video, resolution too high, streaming timeout, and the like.
  *         Thus, error reporting and recovery is an important concern under
@@ -125,28 +113,22 @@ import java.util.concurrent.Executor;
  *         state. </li>
  *         </ul>
  *         </li>
- *     <li>A MediaPlayer2 object must first enter the <strong>Paused</strong> state
- *         before playback can be started.
+ *     <li>{@link #MEDIAPLAYER2_STATE_PREPARED}: A MediaPlayer object must first enter the
+ *         <strong>Prepared</strong> state before playback can be started.
  *         <ul>
  *         <li>The <strong>Paused</strong> state can be reached by calling {@link #prepare()}. Note
  *         that {@link #prepare()} is asynchronous. When the preparation completes,
  *         the internal player engine then calls a user supplied callback method,
  *         {@link EventCallback#onInfo} interface with {@link #MEDIA_INFO_PREPARED},
- *         if a EventCallback is registered beforehand via
+ *         if a MediaPlayer2EventCallback is registered beforehand via
  *         {@link #setEventCallback(Executor, EventCallback)}.</li>
- *         <li>The player also goes to <strong>Paused</strong> state when {@link #pause()} is called
- *         to pause the ongoing playback. Note that {@link #pause()} is asynchronous. Once
- *         {@link #pause()} is processed successfully by the internal media engine,
- *         <strong>Paused</strong> state will be notified with
- *         {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged} callback.
- *         In addition to the callback, {@link #getState()} can also be used to test
- *         whether the MediaPlayer2 object is in the <strong>Paused</strong> state.
- *         </li>
- *         <li>While in the <em>Paused</em> state, properties such as audio/sound volume, looping
- *         can be adjusted by invoking the corresponding set methods.</li>
+ *         <li>While in the <em>Prepared</em> state, properties
+ *         such as audio/sound volume, screenOnWhilePlaying, looping can be
+ *         adjusted by invoking the corresponding set methods.</li>
  *         </ul>
  *         </li>
- *     <li>To start the playback, {@link #play()} must be called. Once {@link #play()} is processed
+ *     <li>{@link #MEDIAPLAYER2_STATE_PLAYING}: To start the playback, {@link #play()} must be
+ *         called. Once {@link #play()} is processed
  *         successfully by the internal media engine, <strong>Playing</strong> state will be
  *         notified with {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged}
  *         callback.
@@ -164,6 +146,21 @@ import java.util.concurrent.Executor;
  *         on a MediaPlayer2 object that is already in the <strong>Playing</strong> state.</li>
  *         </ul>
  *         </li>
+ *     <li>{@link #MEDIAPLAYER2_STATE_PAUSED}: Playback can be paused via {@link #pause()}. Note
+ *         that {@link #pause()} is asynchronous. Once {@link #pause()} is processed successfully by
+ *         the internal media engine, <strong>Paused</strong> state will be notified with
+ *         {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged} callback.
+ *         In addition to the callback, {@link #getState()} can also be used to test
+ *         whether the MediaPlayer2 object is in the <strong>Paused</strong> state.
+ *         <ul>
+ *         <li>Calling {@link #play()} to resume playback for a paused
+ *         MediaPlayer object, and the resumed playback
+ *         position is the same as where it was paused. When {@link #play()} is processed
+ *         successfully, the paused MediaPlayer object goes back to the <em>Playing</em> state.</li>
+ *         <li>Calling {@link #pause()} has no effect on
+ *         a MediaPlayer object that is already in the <em>Paused</em> state.</li>
+ *         </ul>
+ *         </li>
  *     <li>The playback position can be adjusted with a call to {@link #seekTo}.
  *         <ul>
  *         <li>Although the asynchronous {@link #seekTo} call returns right away,
@@ -175,7 +172,8 @@ import java.util.concurrent.Executor;
  *         if an EventCallback has been registered beforehand via
  *         {@link #setEventCallback(Executor, EventCallback)}.</li>
  *         <li>Please note that {@link #seekTo(long, int)} can also be called in
- *         <strong>Paused</strong> state. When {@link #seekTo(long, int)} is called in those states,
+ *         <strong>Prepared</strong> and <strong>Paused</strong> state.
+ *         When {@link #seekTo(long, int)} is called in those states,
  *         one video frame will be displayed if the stream has video and the requested
  *         position is valid.
  *         </li>
