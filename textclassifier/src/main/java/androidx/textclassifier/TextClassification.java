@@ -16,12 +16,18 @@
 
 package androidx.textclassifier;
 
+import static androidx.textclassifier.ConvertUtils.buildZonedDateTimeFromCalendar;
+import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
+
+import android.app.RemoteAction;
 import android.os.Bundle;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.app.RemoteActionCompat;
 import androidx.core.os.LocaleListCompat;
@@ -63,6 +69,12 @@ public final class TextClassification {
     private static final String EXTRA_ACTIONS = "actions";
     private static final String EXTRA_ENTITY_CONFIDENCE = "entity_conf";
     private static final String EXTRA_ID = "id";
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    static final TextClassification EMPTY = new TextClassification.Builder().build();
 
     @Nullable private final String mText;
     @NonNull private final List<RemoteActionCompat> mActions;
@@ -174,6 +186,41 @@ public final class TextClassification {
             builder.addAction(action);
         }
         return builder.build();
+    }
+
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(28)
+    static final class Convert {
+
+        private Convert() {
+        }
+
+        @NonNull
+        static TextClassification fromPlatform(
+                @NonNull android.view.textclassifier.TextClassification textClassification) {
+            Preconditions.checkNotNull(textClassification);
+
+            Builder builder = new TextClassification.Builder()
+                    .setText(textClassification.getText())
+                    .setId(textClassification.getId());
+
+            final int entityCount = textClassification.getEntityCount();
+            for (int i = 0; i < entityCount; i++) {
+                String entity = textClassification.getEntity(i);
+                builder.setEntityType(entity, textClassification.getConfidenceScore(entity));
+            }
+
+            List<RemoteAction> actions = textClassification.getActions();
+            for (RemoteAction action: actions) {
+                builder.addAction(RemoteActionCompat.createFromRemoteAction(action));
+            }
+
+            return builder.build();
+        }
     }
 
     /**
@@ -325,6 +372,29 @@ public final class TextClassification {
         @Nullable
         public Calendar getReferenceTime() {
             return mReferenceTime;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
+        static final class Convert {
+
+            private Convert() {
+            }
+
+            @NonNull
+            static android.view.textclassifier.TextClassification.Request toPlatform(
+                    @NonNull Request request) {
+                Preconditions.checkNotNull(request);
+
+                return new android.view.textclassifier.TextClassification.Request.Builder(
+                        request.mText, request.mStartIndex, request.mEndIndex)
+                        .setDefaultLocales(unwrapLocalListCompat(request.getDefaultLocales()))
+                        .setReferenceTime(buildZonedDateTimeFromCalendar(request.mReferenceTime))
+                        .build();
+            }
         }
 
         /**

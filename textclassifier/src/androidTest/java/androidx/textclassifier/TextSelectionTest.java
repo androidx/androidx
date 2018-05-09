@@ -16,8 +16,11 @@
 
 package androidx.textclassifier;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -30,32 +33,40 @@ import org.junit.runner.RunWith;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class TextSelectionTest {
+    private static final float EPSILON = 1e-7f;
+
+    private static final String TEXT = "This is an apple";
+    private static final int START_INDEX = 2;
+    private static final int END_INDEX = 5;
+    private static final String ID = "id";
+    private static final float ADDRESS_SCORE = 0.7f;
+    private static final float PHONE_SCORE = 0.3f;
+    private static final float URL_SCORE = 0.1f;
+
+    private static final LocaleListCompat LOCALE_LIST =
+            LocaleListCompat.forLanguageTags("en-US,de-DE");
+
     @Test
     public void testParcel() {
-        final int startIndex = 13;
-        final int endIndex = 37;
-        final String id = "id";
-        final TextSelection reference = new TextSelection.Builder(startIndex, endIndex)
-                .setEntityType(TextClassifier.TYPE_ADDRESS, 0.3f)
-                .setEntityType(TextClassifier.TYPE_PHONE, 0.7f)
-                .setEntityType(TextClassifier.TYPE_URL, 0.1f)
-                .setId(id)
-                .build();
+        TextSelection reference = createTextSelection();
 
         // Serialize/deserialize.
         final TextSelection result = TextSelection.createFromBundle(reference.toBundle());
 
-        assertEquals(startIndex, result.getSelectionStartIndex());
-        assertEquals(endIndex, result.getSelectionEndIndex());
-        assertEquals(id, result.getId());
+        assertEquals(START_INDEX, result.getSelectionStartIndex());
+        assertEquals(END_INDEX, result.getSelectionEndIndex());
+        assertEquals(ID, result.getId());
 
-        assertEquals(3, result.getEntityCount());
-        assertEquals(TextClassifier.TYPE_PHONE, result.getEntity(0));
-        assertEquals(TextClassifier.TYPE_ADDRESS, result.getEntity(1));
-        assertEquals(TextClassifier.TYPE_URL, result.getEntity(2));
-        assertEquals(0.7f, result.getConfidenceScore(TextClassifier.TYPE_PHONE), 1e-7f);
-        assertEquals(0.3f, result.getConfidenceScore(TextClassifier.TYPE_ADDRESS), 1e-7f);
-        assertEquals(0.1f, result.getConfidenceScore(TextClassifier.TYPE_URL), 1e-7f);
+        assertThat(result.getEntityCount()).isEqualTo(3);
+        assertThat(result.getEntity(0)).isEqualTo(TextClassifier.TYPE_ADDRESS);
+        assertThat(result.getEntity(1)).isEqualTo(TextClassifier.TYPE_PHONE);
+        assertThat(result.getEntity(2)).isEqualTo(TextClassifier.TYPE_URL);
+        assertThat(result.getConfidenceScore(TextClassifier.TYPE_ADDRESS))
+                .isWithin(EPSILON).of(ADDRESS_SCORE);
+        assertThat(result.getConfidenceScore(TextClassifier.TYPE_PHONE))
+                .isWithin(EPSILON).of(PHONE_SCORE);
+        assertThat(result.getConfidenceScore(TextClassifier.TYPE_URL))
+                .isWithin(EPSILON).of(URL_SCORE);
     }
 
     @Test
@@ -63,7 +74,6 @@ public final class TextSelectionTest {
         final String text = "text";
         final int startIndex = 2;
         final int endIndex = 4;
-        final String callingPackageName = "packageName";
         TextSelection.Request reference =
                 new TextSelection.Request.Builder(text, startIndex, endIndex)
                         .setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"))
@@ -76,5 +86,57 @@ public final class TextSelectionTest {
         assertEquals(startIndex, result.getStartIndex());
         assertEquals(endIndex, result.getEndIndex());
         assertEquals("en-US,de-DE", result.getDefaultLocales().toLanguageTags());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void testRequestToPlatform() {
+        TextSelection.Request request = new TextSelection.Request.Builder(TEXT, START_INDEX,
+                END_INDEX)
+                .setDefaultLocales(LOCALE_LIST)
+                .build();
+
+        android.view.textclassifier.TextSelection.Request platformRequest =
+                TextSelection.Request.Convert.toPlatform(request);
+
+        assertThat(platformRequest.getStartIndex()).isEqualTo(START_INDEX);
+        assertThat(platformRequest.getEndIndex()).isEqualTo(END_INDEX);
+        assertThat(platformRequest.getText()).isEqualTo(TEXT);
+        assertThat(platformRequest.getDefaultLocales().toLanguageTags())
+                .isEqualTo(LOCALE_LIST.toLanguageTags());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void testFromPlatform() {
+        android.view.textclassifier.TextSelection platformTextSelection =
+                new android.view.textclassifier.TextSelection.Builder(START_INDEX, END_INDEX)
+                        .setId(ID)
+                        .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
+                        .setEntityType(TextClassifier.TYPE_PHONE, PHONE_SCORE)
+                        .setEntityType(TextClassifier.TYPE_URL, URL_SCORE)
+                        .build();
+
+        TextSelection textSelection = TextSelection.Convert.fromPlatform(platformTextSelection);
+
+        assertThat(textSelection.getEntityCount()).isEqualTo(3);
+        assertThat(textSelection.getEntity(0)).isEqualTo(TextClassifier.TYPE_ADDRESS);
+        assertThat(textSelection.getEntity(1)).isEqualTo(TextClassifier.TYPE_PHONE);
+        assertThat(textSelection.getEntity(2)).isEqualTo(TextClassifier.TYPE_URL);
+        assertThat(textSelection.getConfidenceScore(TextClassifier.TYPE_ADDRESS))
+                .isWithin(EPSILON).of(ADDRESS_SCORE);
+        assertThat(textSelection.getConfidenceScore(TextClassifier.TYPE_PHONE))
+                .isWithin(EPSILON).of(PHONE_SCORE);
+        assertThat(textSelection.getConfidenceScore(TextClassifier.TYPE_URL))
+                .isWithin(EPSILON).of(URL_SCORE);
+    }
+
+    private TextSelection createTextSelection() {
+        return new TextSelection.Builder(START_INDEX, END_INDEX)
+                .setId(ID)
+                .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
+                .setEntityType(TextClassifier.TYPE_PHONE, PHONE_SCORE)
+                .setEntityType(TextClassifier.TYPE_URL, URL_SCORE)
+                .build();
     }
 }

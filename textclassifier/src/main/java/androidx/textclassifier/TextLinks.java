@@ -16,6 +16,9 @@
 
 package androidx.textclassifier;
 
+import static androidx.textclassifier.ConvertUtils.toPlatformEntityConfig;
+import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
+
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.style.ClickableSpan;
@@ -25,9 +28,12 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
+import androidx.textclassifier.TextClassifier.EntityConfig;
 import androidx.textclassifier.TextClassifier.EntityType;
 
 import java.lang.annotation.Retention;
@@ -61,7 +67,7 @@ public final class TextLinks {
     public static final int STATUS_DIFFERENT_TEXT = 3;
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {
             STATUS_LINKS_APPLIED,
@@ -79,7 +85,7 @@ public final class TextLinks {
     public static final int APPLY_STRATEGY_REPLACE = 1;
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({APPLY_STRATEGY_IGNORE, APPLY_STRATEGY_REPLACE})
     public @interface ApplyStrategy {}
@@ -283,12 +289,12 @@ public final class TextLinks {
 
         private final CharSequence mText;
         @Nullable private final LocaleListCompat mDefaultLocales;
-        @Nullable private final TextClassifier.EntityConfig mEntityConfig;
+        @Nullable private final EntityConfig mEntityConfig;
 
         private Request(
                 CharSequence text,
                 LocaleListCompat defaultLocales,
-                TextClassifier.EntityConfig entityConfig) {
+                EntityConfig entityConfig) {
             mText = text;
             mDefaultLocales = defaultLocales;
             mEntityConfig = entityConfig;
@@ -313,10 +319,10 @@ public final class TextLinks {
 
         /**
          * @return The config representing the set of entities to look for
-         * @see Builder#setEntityConfig(TextClassifier.EntityConfig)
+         * @see Builder#setEntityConfig(EntityConfig)
          */
         @Nullable
-        public TextClassifier.EntityConfig getEntityConfig() {
+        public EntityConfig getEntityConfig() {
             return mEntityConfig;
         }
 
@@ -328,7 +334,7 @@ public final class TextLinks {
             private final CharSequence mText;
 
             @Nullable private LocaleListCompat mDefaultLocales;
-            @Nullable private TextClassifier.EntityConfig mEntityConfig;
+            @Nullable private EntityConfig mEntityConfig;
 
             public Builder(@NonNull CharSequence text) {
                 mText = Preconditions.checkNotNull(text);
@@ -355,7 +361,7 @@ public final class TextLinks {
              * @return this builder
              */
             @NonNull
-            public Builder setEntityConfig(@Nullable TextClassifier.EntityConfig entityConfig) {
+            public Builder setEntityConfig(@Nullable EntityConfig entityConfig) {
                 mEntityConfig = entityConfig;
                 return this;
             }
@@ -390,10 +396,30 @@ public final class TextLinks {
         public static Request createFromBundle(@NonNull Bundle bundle) {
             Builder builder = new Builder(bundle.getCharSequence(EXTRA_TEXT))
                     .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES))
-                    .setEntityConfig(TextClassifier.EntityConfig.createFromBundle(
+                    .setEntityConfig(EntityConfig.createFromBundle(
                             bundle.getBundle(EXTRA_ENTITY_CONFIG)));
             Request request = builder.build();
             return request;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
+        static final class Convert {
+
+            private Convert() {
+            }
+
+            @NonNull
+            static android.view.textclassifier.TextLinks.Request toPlatform(
+                    @NonNull Request request) {
+                Preconditions.checkNotNull(request);
+
+                return new android.view.textclassifier.TextLinks.Request.Builder(request.getText())
+                        .setDefaultLocales(unwrapLocalListCompat(request.getDefaultLocales()))
+                        .setEntityConfig(toPlatformEntityConfig(request.getEntityConfig()))
+                        .build();
+            }
         }
     }
 
@@ -480,6 +506,46 @@ public final class TextLinks {
         @NonNull
         public TextLinks build() {
             return new TextLinks(mFullText, mLinks);
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(28)
+    static final class Convert {
+
+        private Convert() {
+        }
+
+        // TODO: In Q, we should make getText public and use it here.
+        @NonNull
+        static TextLinks fromPlatform(
+                @NonNull android.view.textclassifier.TextLinks textLinks,
+                @NonNull CharSequence requestText) {
+            Preconditions.checkNotNull(textLinks);
+            Preconditions.checkNotNull(requestText);
+
+            Collection<android.view.textclassifier.TextLinks.TextLink> links = textLinks.getLinks();
+            TextLinks.Builder builder = new TextLinks.Builder(requestText.toString());
+            for (android.view.textclassifier.TextLinks.TextLink link : links) {
+                builder.addLink(link.getStart(), link.getEnd(),
+                        constructFloatMapFromTextLinks(link));
+            }
+            return builder.build();
+        }
+
+        @NonNull
+        private static Map<String, Float> constructFloatMapFromTextLinks(
+                @NonNull android.view.textclassifier.TextLinks.TextLink textLink) {
+            Preconditions.checkNotNull(textLink);
+
+            final int entityCount = textLink.getEntityCount();
+            Map<String, Float> floatMap = new ArrayMap<>();
+            for (int i = 0; i < entityCount; i++) {
+                String entity = textLink.getEntity(i);
+                floatMap.put(entity, textLink.getConfidenceScore(entity));
+            }
+            return floatMap;
         }
     }
 }

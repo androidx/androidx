@@ -18,6 +18,7 @@ package androidx.textclassifier;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -78,5 +79,39 @@ public class TextClassifierTest {
         assertThat(entityConfig.shouldIncludeDefaultEntityTypes()).isFalse();
         assertThat(entityConfigFromBundle.resolveEntityTypes(
                 Arrays.asList("default"))).containsExactly("included");
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void testEntityConfig_toPlatform_explicit() {
+        TextClassifier.EntityConfig entityConfig = new Builder()
+                .setIncludeDefaultEntityTypes(false)
+                .setIncludedEntityTypes(Arrays.asList("included", "excluded"))
+                .setExcludedEntityTypes(Arrays.asList("excluded"))
+                .build();
+
+        android.view.textclassifier.TextClassifier.EntityConfig platformEntityConfig =
+                TextClassifier.EntityConfig.Convert.toPlatform(entityConfig);
+
+        assertThat(platformEntityConfig.getHints().isEmpty());
+        assertThat(platformEntityConfig.resolveEntityListModifications(Arrays.asList("extra")))
+                .containsExactly("included");
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void testEntityConfig_toPlatform_withDefault() {
+        TextClassifier.EntityConfig entityConfig = new Builder()
+                .setIncludedEntityTypes(Arrays.asList("included", "excluded"))
+                .setExcludedEntityTypes(Arrays.asList("excluded"))
+                .setHints(Arrays.asList("hint"))
+                .build();
+
+        android.view.textclassifier.TextClassifier.EntityConfig platformEntityConfig =
+                TextClassifier.EntityConfig.Convert.toPlatform(entityConfig);
+
+        assertThat(platformEntityConfig.getHints()).containsExactly("hint");
+        assertThat(platformEntityConfig.resolveEntityListModifications(Arrays.asList("extra")))
+                .containsExactly("included", "extra");
     }
 }
