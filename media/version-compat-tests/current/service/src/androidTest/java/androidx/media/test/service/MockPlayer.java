@@ -149,7 +149,7 @@ public class MockPlayer extends BaseMediaPlayer {
         mCallbacks.remove(callback);
     }
 
-    public void notifyPlaybackState(final int state) {
+    public void notifyPlayerStateChanged(final int state) {
         mLastPlayerState = state;
         for (int i = 0; i < mCallbacks.size(); i++) {
             final PlayerEventCallback callback = mCallbacks.keyAt(i);

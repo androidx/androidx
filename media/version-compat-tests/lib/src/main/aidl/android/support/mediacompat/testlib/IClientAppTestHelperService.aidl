@@ -16,10 +16,8 @@
 
 package android.support.mediacompat.testlib;
 
-import android.os.Bundle;
+interface IClientAppTestHelperService {
 
-interface ITestHelperForServiceApp {
-
-    Bundle getSessionToken2(String testName);
-    void callMediaSession2Method(int method, in Bundle args);
+    void createMediaController2(String testName, in Bundle token);
+    void callMediaController2Method(int method, in Bundle args);
 }

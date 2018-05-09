@@ -23,5 +23,12 @@
                 <action android:name="android.support.mediacompat.service.action.CALL_TRANSPORT_CONTROLS_METHOD"/>
             </intent-filter>
         </receiver>
+
+        <service android:name="androidx.media.test.client.TestHelperService">
+            <intent-filter>
+                <!-- Keep sync with CommonConstants.java -->
+                <action android:name="androidx.media.test.action.TEST_HELPER" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

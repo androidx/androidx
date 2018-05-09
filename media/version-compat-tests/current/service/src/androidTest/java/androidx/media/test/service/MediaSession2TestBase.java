@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.test.client;
+package androidx.media.test.service;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -69,7 +69,7 @@ abstract class MediaSession2TestBase {
     static Executor sHandlerExecutor;
 
     Context mContext;
-    ClientTestHelper mTestHelper;
+    ServiceTestHelper mTestHelper;
     private List<MediaController2> mControllers = new ArrayList<>();
 
     interface TestControllerInterface {
@@ -143,9 +143,9 @@ abstract class MediaSession2TestBase {
     @CallSuper
     public void setUp() throws Exception {
         mContext = InstrumentationRegistry.getTargetContext();
-        mTestHelper = new ClientTestHelper(mContext);
+        mTestHelper = new ServiceTestHelper(mContext);
         if (!mTestHelper.connect(WAIT_TIME_MS)) {
-            fail("Failed to connect to TestHelperService.");
+            fail("Failed to connect to client's TestHelperService.");
         }
     }
 
@@ -154,7 +154,7 @@ abstract class MediaSession2TestBase {
         for (int i = 0; i < mControllers.size(); i++) {
             mControllers.get(i).close();
         }
-        mTestHelper.disconnect(true);
+        mTestHelper.disconnect();
     }
 
     final MediaController2 createController(SessionToken2 token) throws InterruptedException {
@@ -225,7 +225,7 @@ abstract class MediaSession2TestBase {
     }
 
     // TODO(jaewan): (Can be Post-P): Deprecate this
-    public static class TestControllerCallback extends MediaController2.ControllerCallback
+    public static class TestControllerCallback extends ControllerCallback
             implements TestControllerCallbackInterface {
         public final ControllerCallback mCallbackProxy;
         public final CountDownLatch connectLatch = new CountDownLatch(1);

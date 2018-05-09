@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.media.test.client;
+package android.support.mediacompat.testlib;
 
-import android.app.Activity;
+import android.os.Bundle;
 
-public class MockActivity extends Activity {
+interface IServiceAppTestHelperService {
+
+    Bundle createSession2(String sessionId);
+    void closeSession2();
+    void callMediaSession2Method(int method, in Bundle args);
+    void callMediaPlayerInterfaceMethod(int method, in Bundle args);
+    void callMediaPlaylistAgentMethod(int method, in Bundle args);
 }

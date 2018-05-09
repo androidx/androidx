@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.test.client;
+package androidx.media.test.service;
 
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
