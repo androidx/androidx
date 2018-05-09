@@ -27,6 +27,7 @@ import androidx.recyclerview.selection.testing.SelectionProbe;
 import androidx.recyclerview.selection.testing.SelectionTrackers;
 import androidx.recyclerview.selection.testing.TestAutoScroller;
 import androidx.recyclerview.selection.testing.TestEvents;
+import androidx.recyclerview.selection.testing.TestItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.junit.Before;
@@ -54,6 +55,7 @@ public class GestureSelectionHelperTest {
 
     private GestureSelectionHelper mHelper;
     private SelectionTracker<String> mSelectionTracker;
+    private TestItemDetailsLookup mDetailsLookup;
     private SelectionProbe mSelection;
     private OperationMonitor mMonitor;
     private TestViewDelegate mView;
@@ -61,19 +63,26 @@ public class GestureSelectionHelperTest {
     @Before
     public void setUp() {
         mSelectionTracker = SelectionTrackers.createStringTracker("gesture-selection-test", 100);
+        mDetailsLookup = new TestItemDetailsLookup();
+        mDetailsLookup.initAt(3);
         mSelection = new SelectionProbe(mSelectionTracker);
         mMonitor = new OperationMonitor();
         mView = new TestViewDelegate();
         mHelper = new GestureSelectionHelper(
-                mSelectionTracker, mView, new TestAutoScroller(), mMonitor);
+                mSelectionTracker, mDetailsLookup, mView, new TestAutoScroller(), mMonitor);
     }
 
     @Test
-    public void testIgnoresDownOnNoPosition() {
+    public void testIgnoresDown_NoPosition() {
         mView.mNextPosition = RecyclerView.NO_POSITION;
         assertFalse(mHelper.onInterceptTouchEvent(null, DOWN));
     }
 
+    @Test
+    public void testIgnoresDown_NoItemDetails() {
+        mDetailsLookup.reset();
+        assertFalse(mHelper.onInterceptTouchEvent(null, DOWN));
+    }
 
     @Test
     public void testNoStartOnIllegalPosition() {
