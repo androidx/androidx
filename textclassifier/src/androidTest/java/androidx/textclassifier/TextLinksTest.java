@@ -16,10 +16,16 @@
 
 package androidx.textclassifier;
 
+import static androidx.textclassifier.TextClassifier.EntityConfig;
+import static androidx.textclassifier.TextClassifier.TYPE_ADDRESS;
+import static androidx.textclassifier.TextClassifier.TYPE_OTHER;
+import static androidx.textclassifier.TextClassifier.TYPE_PHONE;
+
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.text.Spannable;
@@ -65,89 +71,83 @@ public final class TextLinksTest {
         }
     }
 
-    private TextClassifier mClassifier;
     private Map<String, Float> mDummyEntityScores;
 
     @Before
     public void setup() {
-        mClassifier = new TextClassifier();
         mDummyEntityScores = new ArrayMap<>();
-        mDummyEntityScores.put(TextClassifier.TYPE_ADDRESS, 0.2f);
-        mDummyEntityScores.put(TextClassifier.TYPE_PHONE, 0.7f);
-        mDummyEntityScores.put(TextClassifier.TYPE_OTHER, 0.3f);
+        mDummyEntityScores.put(TYPE_ADDRESS, 0.2f);
+        mDummyEntityScores.put(TYPE_PHONE, 0.7f);
+        mDummyEntityScores.put(TYPE_OTHER, 0.3f);
     }
 
     private Map<String, Float> getEntityScores(float address, float phone, float other) {
         final Map<String, Float> result = new ArrayMap<>();
         if (address > 0.f) {
-            result.put(TextClassifier.TYPE_ADDRESS, address);
+            result.put(TYPE_ADDRESS, address);
         }
         if (phone > 0.f) {
-            result.put(TextClassifier.TYPE_PHONE, phone);
+            result.put(TYPE_PHONE, phone);
         }
         if (other > 0.f) {
-            result.put(TextClassifier.TYPE_OTHER, other);
+            result.put(TYPE_OTHER, other);
         }
         return result;
     }
 
     @Test
-    public void testParcel() {
+    public void testBundle() {
         final String fullText = "this is just a test";
         final TextLinks reference = new TextLinks.Builder(fullText)
                 .addLink(0, 4, getEntityScores(0.f, 0.f, 1.f))
                 .addLink(5, 12, getEntityScores(.8f, .1f, .5f))
                 .build();
 
-        // Parcel and unparcel.
-        final Parcel parcel = Parcel.obtain();
-        reference.writeToParcel(parcel, reference.describeContents());
-        parcel.setDataPosition(0);
-        final TextLinks result = TextLinks.CREATOR.createFromParcel(parcel);
+        // Serialize/deserialize.
+        final TextLinks result = TextLinks.createFromBundle(reference.toBundle());
         final List<TextLinks.TextLink> resultList = new ArrayList<>(result.getLinks());
 
+        final float epsilon = 1e-7f;
         assertEquals(2, resultList.size());
         assertEquals(0, resultList.get(0).getStart());
         assertEquals(4, resultList.get(0).getEnd());
         assertEquals(1, resultList.get(0).getEntityCount());
-        assertEquals(TextClassifier.TYPE_OTHER, resultList.get(0).getEntity(0));
-        assertEquals(1.f, resultList.get(0).getConfidenceScore(TextClassifier.TYPE_OTHER),
-                1e-7f);
+        assertEquals(TYPE_OTHER, resultList.get(0).getEntity(0));
+        assertEquals(1.f, resultList.get(0).getConfidenceScore(TYPE_OTHER), epsilon);
         assertEquals(5, resultList.get(1).getStart());
         assertEquals(12, resultList.get(1).getEnd());
         assertEquals(3, resultList.get(1).getEntityCount());
-        assertEquals(TextClassifier.TYPE_ADDRESS, resultList.get(1).getEntity(0));
-        assertEquals(TextClassifier.TYPE_OTHER, resultList.get(1).getEntity(1));
-        assertEquals(TextClassifier.TYPE_PHONE, resultList.get(1).getEntity(2));
-        assertEquals(.8f, resultList.get(1).getConfidenceScore(TextClassifier.TYPE_ADDRESS), 1e-7f);
-        assertEquals(.5f, resultList.get(1).getConfidenceScore(TextClassifier.TYPE_OTHER), 1e-7f);
-        assertEquals(.1f, resultList.get(1).getConfidenceScore(TextClassifier.TYPE_PHONE), 1e-7f);
+        assertEquals(TYPE_ADDRESS, resultList.get(1).getEntity(0));
+        assertEquals(TYPE_OTHER, resultList.get(1).getEntity(1));
+        assertEquals(TYPE_PHONE, resultList.get(1).getEntity(2));
+        assertEquals(.8f, resultList.get(1).getConfidenceScore(TYPE_ADDRESS), epsilon);
+        assertEquals(.5f, resultList.get(1).getConfidenceScore(TYPE_OTHER), epsilon);
+        assertEquals(.1f, resultList.get(1).getConfidenceScore(TYPE_PHONE), epsilon);
     }
 
     @Test
-    public void testParcelOptions() {
-        TextClassifier.EntityConfig entityConfig = new TextClassifier.EntityConfig(
-                TextClassifier.ENTITY_PRESET_NONE);
-        entityConfig.includeEntities("a", "b", "c");
-        entityConfig.excludeEntities("b");
-        final String callingPackageName = "packageName";
-        TextLinks.Options reference = new TextLinks.Options()
+    public void testBundleRequest() {
+        EntityConfig entityConfig = new EntityConfig.Builder()
+                .setIncludedEntityTypes(Arrays.asList("included"))
+                .setExcludedEntityTypes(Arrays.asList("excluded"))
+                .setHints(Arrays.asList("hints"))
+                .build();
+
+        final String text = "text";
+        TextLinks.Request reference = new TextLinks.Request.Builder(text)
                 .setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"))
                 .setEntityConfig(entityConfig)
-                .setApplyStrategy(TextLinks.APPLY_STRATEGY_REPLACE)
-                .setSpanFactory(new CustomSpanFactory())
-                .setCallingPackageName(callingPackageName);
+                .build();
 
-        final Parcel parcel = Parcel.obtain();
-        reference.writeToParcel(parcel, reference.describeContents());
-        parcel.setDataPosition(0);
-        TextLinks.Options result = TextLinks.Options.CREATOR.createFromParcel(parcel);
+        // Serialize/deserialize.
+        TextLinks.Request result = TextLinks.Request.createFromBundle(reference.toBundle());
 
+        assertEquals(text, result.getText());
         assertEquals("en-US,de-DE", result.getDefaultLocales().toLanguageTags());
-        assertEquals(Arrays.asList("a", "c"), result.getEntityConfig().getEntities(mClassifier));
-        assertEquals(TextLinks.APPLY_STRATEGY_REPLACE, result.getApplyStrategy());
-        assertEquals(null, result.getSpanFactory());
-        assertEquals(callingPackageName, result.getCallingPackageName());
+        assertThat(result.getEntityConfig().getHints()).containsExactly("hints");
+        assertThat(result.getEntityConfig().resolveEntityTypes(
+                Arrays.asList("default", "excluded")))
+                .containsExactly("included", "default");
     }
 
     @Test

@@ -18,7 +18,6 @@ package androidx.textclassifier;
 
 import static org.junit.Assert.assertEquals;
 
-import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -35,22 +34,20 @@ public final class TextSelectionTest {
     public void testParcel() {
         final int startIndex = 13;
         final int endIndex = 37;
-        final String signature = "signature";
+        final String id = "id";
         final TextSelection reference = new TextSelection.Builder(startIndex, endIndex)
                 .setEntityType(TextClassifier.TYPE_ADDRESS, 0.3f)
                 .setEntityType(TextClassifier.TYPE_PHONE, 0.7f)
                 .setEntityType(TextClassifier.TYPE_URL, 0.1f)
-                .setSignature(signature)
+                .setId(id)
                 .build();
 
-        final Parcel parcel = Parcel.obtain();
-        reference.writeToParcel(parcel, reference.describeContents());
-        parcel.setDataPosition(0);
-        final TextSelection result = TextSelection.CREATOR.createFromParcel(parcel);
+        // Serialize/deserialize.
+        final TextSelection result = TextSelection.createFromBundle(reference.toBundle());
 
         assertEquals(startIndex, result.getSelectionStartIndex());
         assertEquals(endIndex, result.getSelectionEndIndex());
-        assertEquals(signature, result.getSignature());
+        assertEquals(id, result.getId());
 
         assertEquals(3, result.getEntityCount());
         assertEquals(TextClassifier.TYPE_PHONE, result.getEntity(0));
@@ -62,20 +59,22 @@ public final class TextSelectionTest {
     }
 
     @Test
-    public void testParcelOptions() {
+    public void testParcelRequest() {
+        final String text = "text";
+        final int startIndex = 2;
+        final int endIndex = 4;
         final String callingPackageName = "packageName";
-        TextSelection.Options reference = new TextSelection.Options()
-                .setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"))
-                .setCallingPackageName(callingPackageName);
+        TextSelection.Request reference =
+                new TextSelection.Request.Builder(text, startIndex, endIndex)
+                        .setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"))
+                        .build();
 
-        // Parcel and unparcel.
-        final Parcel parcel = Parcel.obtain();
-        reference.writeToParcel(parcel, reference.describeContents());
-        parcel.setDataPosition(0);
-        TextSelection.Options result = TextSelection.Options.CREATOR.createFromParcel(
-                parcel);
+        // Serialize/deserialize.
+        TextSelection.Request result = TextSelection.Request.createFromBundle(reference.toBundle());
 
+        assertEquals(text, result.getText());
+        assertEquals(startIndex, result.getStartIndex());
+        assertEquals(endIndex, result.getEndIndex());
         assertEquals("en-US,de-DE", result.getDefaultLocales().toLanguageTags());
-        assertEquals(callingPackageName, result.getCallingPackageName());
     }
 }

@@ -16,20 +16,14 @@
 
 package androidx.textclassifier;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Bundle;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
+import androidx.core.app.RemoteActionCompat;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
 import androidx.textclassifier.TextClassifier.EntityType;
@@ -44,67 +38,46 @@ import java.util.Map;
  * Information for generating a widget to handle classified text.
  *
  * <p>A TextClassification object contains icons, labels, and intents that may be used to build a
- * widget that can be used to act on classified text. There is the concept of a <i>primary
- * action</i> and other <i>secondary actions</i>.
+ * widget that can be used to act on classified text.
  *
- * <p>e.g. building a view that, when clicked, shares the classified text with the preferred app:
+ * <p>e.g. building a menu that allows the user how to act on a piece of text:
  *
  * <pre>{@code
  *   // Called preferably outside the UiThread.
  *   TextClassification classification = textClassifier.classifyText(allText, 10, 25);
  *
  *   // Called on the UiThread.
- *   Button button = new Button(context);
- *   button.setCompoundDrawablesWithIntrinsicBounds(classification.getIcon(), null, null, null);
- *   button.setText(classification.getLabel());
- *   button.setOnClickListener(v -> context.startActivity(classification.getIntent()));
+ *   for (RemoteActionCompat action : classification.getActions()) {
+ *       MenuItem item = menu.add(action.getTitle());
+ *       item.setContentDescription(action.getContentDescription());
+ *       item.setOnMenuItemClickListener(v -> action.getActionIntent().send());
+ *       if (action.shouldShowIcon()) {
+ *           item.setIcon(action.getIcon().loadDrawable(context));
+ *       }
+ *   }
  * }</pre>
- *
- * TODO: describe how to start action mode for classified text.
  */
-public final class TextClassification implements Parcelable {
+public final class TextClassification {
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    static final TextClassification EMPTY = new TextClassification.Builder().build();
-
-    // TODO: investigate a way to derive this based on device properties.
-    private static final int MAX_PRIMARY_ICON_SIZE = 192;
-    private static final int MAX_SECONDARY_ICON_SIZE = 144;
+    private static final String EXTRA_TEXT = "text";
+    private static final String EXTRA_ACTIONS = "actions";
+    private static final String EXTRA_ENTITY_CONFIDENCE = "entity_conf";
+    private static final String EXTRA_ID = "id";
 
     @Nullable private final String mText;
-    @Nullable private final Drawable mPrimaryIcon;
-    @Nullable private final String mPrimaryLabel;
-    @Nullable private final Intent mPrimaryIntent;
-    @NonNull private final List<Drawable> mSecondaryIcons;
-    @NonNull private final List<String> mSecondaryLabels;
-    @NonNull private final List<Intent> mSecondaryIntents;
+    @NonNull private final List<RemoteActionCompat> mActions;
     @NonNull private final EntityConfidence mEntityConfidence;
-    @NonNull private final String mSignature;
+    @Nullable private final String mId;
 
     private TextClassification(
             @Nullable String text,
-            @Nullable Drawable primaryIcon,
-            @Nullable String primaryLabel,
-            @Nullable Intent primaryIntent,
-            @NonNull List<Drawable> secondaryIcons,
-            @NonNull List<String> secondaryLabels,
-            @NonNull List<Intent> secondaryIntents,
-            @NonNull Map<String, Float> entityConfidence,
-            @NonNull String signature) {
-        Preconditions.checkArgument(secondaryLabels.size() == secondaryIntents.size());
-        Preconditions.checkArgument(secondaryIcons.size() == secondaryIntents.size());
+            @NonNull List<RemoteActionCompat> actions,
+            @NonNull EntityConfidence entityConfidence,
+            @Nullable String id) {
         mText = text;
-        mPrimaryIcon = primaryIcon;
-        mPrimaryLabel = primaryLabel;
-        mPrimaryIntent = primaryIntent;
-        mSecondaryIcons = secondaryIcons;
-        mSecondaryLabels = secondaryLabels;
-        mSecondaryIntents = secondaryIntents;
-        mEntityConfidence = new EntityConfidence(entityConfidence);
-        mSignature = signature;
+        mActions = actions;
+        mEntityConfidence = entityConfidence;
+        mId = id;
     }
 
     /**
@@ -146,233 +119,61 @@ public final class TextClassification implements Parcelable {
     }
 
     /**
-     * Returns the number of <i>secondary</i> actions that are available to act on the classified
-     * text.
-     *
-     * <p><strong>Note: </strong> that there may or may not be a <i>primary</i> action.
-     *
-     * @see #getSecondaryIntent(int)
-     * @see #getSecondaryLabel(int)
-     * @see #getSecondaryIcon(int)
-     */
-    @IntRange(from = 0)
-    public int getSecondaryActionsCount() {
-        return mSecondaryIntents.size();
-    }
-
-    /**
-     * Returns one of the <i>secondary</i> icons that maybe rendered on a widget used to act on the
-     * classified text.
-     *
-     * @param index Index of the action to get the icon for.
-     * @throws IndexOutOfBoundsException if the specified index is out of range.
-     * @see #getSecondaryActionsCount() for the number of actions available.
-     * @see #getSecondaryIntent(int)
-     * @see #getSecondaryLabel(int)
-     * @see #getIcon()
-     */
-    @Nullable
-    public Drawable getSecondaryIcon(int index) {
-        return mSecondaryIcons.get(index);
-    }
-
-    /**
-     * Returns an icon for the <i>primary</i> intent that may be rendered on a widget used to act
-     * on the classified text.
-     *
-     * @see #getSecondaryIcon(int)
-     */
-    @Nullable
-    public Drawable getIcon() {
-        return mPrimaryIcon;
-    }
-
-    /**
-     * Returns one of the <i>secondary</i> labels that may be rendered on a widget used to act on
-     * the classified text.
-     *
-     * @param index Index of the action to get the label for.
-     * @throws IndexOutOfBoundsException if the specified index is out of range.
-     * @see #getSecondaryActionsCount()
-     * @see #getSecondaryIntent(int)
-     * @see #getSecondaryIcon(int)
-     * @see #getLabel()
-     */
-    @Nullable
-    public CharSequence getSecondaryLabel(int index) {
-        return mSecondaryLabels.get(index);
-    }
-
-    /**
-     * Returns a label for the <i>primary</i> intent that may be rendered on a widget used to act
-     * on the classified text.
-     *
-     * @see #getSecondaryLabel(int)
-     */
-    @Nullable
-    public CharSequence getLabel() {
-        return mPrimaryLabel;
-    }
-
-    /**
-     * Returns one of the <i>secondary</i> intents that may be fired to act on the classified text.
-     *
-     * @param index Index of the action to get the intent for.
-     * @throws IndexOutOfBoundsException if the specified index is out of range.
-     * @see #getSecondaryActionsCount()
-     * @see #getSecondaryLabel(int)
-     * @see #getSecondaryIcon(int)
-     * @see #getIntent()
-     */
-    @Nullable
-    public Intent getSecondaryIntent(int index) {
-        return mSecondaryIntents.get(index);
-    }
-
-    /**
-     * Returns the <i>primary</i> intent that may be fired to act on the classified text.
-     *
-     * @see #getSecondaryIntent(int)
-     */
-    @Nullable
-    public Intent getIntent() {
-        return mPrimaryIntent;
-    }
-
-    /**
-     * Returns the signature for this object.
-     * The TextClassifier that generates this object may use it as a way to internally identify
-     * this object.
+     * Returns a list of actions that may be performed on the text. The list is ordered based on
+     * the likelihood that a user will use the action, with the most likely action appearing first.
      */
     @NonNull
-    public String getSignature() {
-        return mSignature;
+    public List<RemoteActionCompat> getActions() {
+        return mActions;
+    }
+
+    /**
+     * Returns the id for this object.
+     */
+    @Nullable
+    public String getId() {
+        return mId;
     }
 
     @Override
     public String toString() {
-        return String.format(Locale.US, "TextClassification {"
-                        + "text=%s, entities=%s, "
-                        + "primaryLabel=%s, secondaryLabels=%s, "
-                        + "primaryIntent=%s, secondaryIntents=%s, "
-                        + "signature=%s}",
-                mText, mEntityConfidence,
-                mPrimaryLabel, mSecondaryLabels,
-                mPrimaryIntent, mSecondaryIntents,
-                mSignature);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mText);
-        final Bitmap primaryIconBitmap = drawableToBitmap(mPrimaryIcon, MAX_PRIMARY_ICON_SIZE);
-        dest.writeInt(primaryIconBitmap != null ? 1 : 0);
-        if (primaryIconBitmap != null) {
-            primaryIconBitmap.writeToParcel(dest, flags);
-        }
-        dest.writeString(mPrimaryLabel);
-        dest.writeInt(mPrimaryIntent != null ? 1 : 0);
-        if (mPrimaryIntent != null) {
-            mPrimaryIntent.writeToParcel(dest, flags);
-        }
-        dest.writeTypedList(drawablesToBitmaps(mSecondaryIcons, MAX_SECONDARY_ICON_SIZE));
-        dest.writeStringList(mSecondaryLabels);
-        dest.writeTypedList(mSecondaryIntents);
-        mEntityConfidence.writeToParcel(dest, flags);
-        dest.writeString(mSignature);
-    }
-
-    public static final Parcelable.Creator<TextClassification> CREATOR =
-            new Parcelable.Creator<TextClassification>() {
-                @Override
-                public TextClassification createFromParcel(Parcel in) {
-                    return new TextClassification(in);
-                }
-
-                @Override
-                public TextClassification[] newArray(int size) {
-                    return new TextClassification[size];
-                }
-            };
-
-    private TextClassification(Parcel in) {
-        mText = in.readString();
-        mPrimaryIcon = in.readInt() == 0
-                ? null : new BitmapDrawable(null, Bitmap.CREATOR.createFromParcel(in));
-        mPrimaryLabel = in.readString();
-        mPrimaryIntent = in.readInt() == 0 ? null : Intent.CREATOR.createFromParcel(in);
-        mSecondaryIcons = bitmapsToDrawables(in.createTypedArrayList(Bitmap.CREATOR));
-        mSecondaryLabels = in.createStringArrayList();
-        mSecondaryIntents = in.createTypedArrayList(Intent.CREATOR);
-        mEntityConfidence = EntityConfidence.CREATOR.createFromParcel(in);
-        mSignature = in.readString();
+        return String.format(Locale.US,
+                "TextClassification {text=%s, entities=%s, actions=%s, id=%s}",
+                mText, mEntityConfidence, mActions, mId);
     }
 
     /**
-     * Returns a Bitmap representation of the Drawable
-     *
-     * @param drawable The drawable to convert.
-     * @param maxDims The maximum edge length of the resulting bitmap (in pixels).
+     * Adds this classification to a Bundle that can be read back with the same parameters
+     * to {@link #createFromBundle(Bundle)}.
      */
-    @Nullable
-    private static Bitmap drawableToBitmap(@Nullable Drawable drawable, int maxDims) {
-        if (drawable == null) {
-            return null;
-        }
-        final int actualWidth = Math.max(1, drawable.getIntrinsicWidth());
-        final int actualHeight = Math.max(1, drawable.getIntrinsicHeight());
-        final double scaleWidth = ((double) maxDims) / actualWidth;
-        final double scaleHeight = ((double) maxDims) / actualHeight;
-        final double scale = Math.min(1.0, Math.min(scaleWidth, scaleHeight));
-        final int width = (int) (actualWidth * scale);
-        final int height = (int) (actualHeight * scale);
-        if (drawable instanceof BitmapDrawable) {
-            final BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
-            if (actualWidth != width || actualHeight != height) {
-                return Bitmap.createScaledBitmap(
-                        bitmapDrawable.getBitmap(), width, height, /*filter=*/false);
-            } else {
-                return bitmapDrawable.getBitmap();
-            }
-        } else {
-            final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            final Canvas canvas = new Canvas(bitmap);
-            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            drawable.draw(canvas);
-            return bitmap;
-        }
+    @NonNull
+    public Bundle toBundle() {
+        final Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_TEXT, mText);
+        BundleUtils.putRemoteActionList(bundle, EXTRA_ACTIONS, mActions);
+        BundleUtils.putMap(bundle, EXTRA_ENTITY_CONFIDENCE, mEntityConfidence.getConfidenceMap());
+        bundle.putString(EXTRA_ID, mId);
+        return bundle;
     }
 
     /**
-     * Returns a list of drawables converted to Bitmaps
-     *
-     * @param drawables The drawables to convert.
-     * @param maxDims The maximum edge length of the resulting bitmaps (in pixels).
+     * Extracts a classification from a bundle that was added using {@link #toBundle()}.
+     * @throws IllegalArgumentException
      */
-    private static List<Bitmap> drawablesToBitmaps(List<Drawable> drawables, int maxDims) {
-        final List<Bitmap> bitmaps = new ArrayList<>(drawables.size());
-        for (Drawable drawable : drawables) {
-            bitmaps.add(drawableToBitmap(drawable, maxDims));
+    @NonNull
+    public static TextClassification createFromBundle(@NonNull Bundle bundle) {
+        final Builder builder = new Builder()
+                .setText(bundle.getString(EXTRA_TEXT))
+                .setId(bundle.getString(EXTRA_ID));
+        for (Map.Entry<String, Float> entityConfidence : BundleUtils.getFloatStringMapOrThrow(
+                bundle, EXTRA_ENTITY_CONFIDENCE).entrySet()) {
+            builder.setEntityType(entityConfidence.getKey(), entityConfidence.getValue());
         }
-        return bitmaps;
-    }
-
-    /** Returns a list of drawable wrappers for a list of bitmaps. */
-    private static List<Drawable> bitmapsToDrawables(List<Bitmap> bitmaps) {
-        final List<Drawable> drawables = new ArrayList<>(bitmaps.size());
-        for (Bitmap bitmap : bitmaps) {
-            if (bitmap != null) {
-                drawables.add(new BitmapDrawable(null, bitmap));
-            } else {
-                drawables.add(null);
-            }
+        for (RemoteActionCompat action : BundleUtils.getRemoteActionListOrThrow(
+                bundle, EXTRA_ACTIONS)) {
+            builder.addAction(action);
         }
-        return drawables;
+        return builder.build();
     }
 
     /**
@@ -385,23 +186,17 @@ public final class TextClassification implements Parcelable {
      *          .setText(classifiedText)
      *          .setEntityType(TextClassifier.TYPE_EMAIL, 0.9)
      *          .setEntityType(TextClassifier.TYPE_OTHER, 0.1)
-     *          .setPrimaryAction(intent, label, icon)
-     *          .addSecondaryAction(intent1, label1, icon1)
-     *          .addSecondaryAction(intent2, label2, icon2)
+     *          .addAction(remoteAction1)
+     *          .addAction(remoteAction2)
      *          .build();
      * }</pre>
      */
     public static final class Builder {
 
-        @NonNull private String mText;
-        @NonNull private final List<Drawable> mSecondaryIcons = new ArrayList<>();
-        @NonNull private final List<String> mSecondaryLabels = new ArrayList<>();
-        @NonNull private final List<Intent> mSecondaryIntents = new ArrayList<>();
+        @Nullable private String mText;
+        @NonNull private List<RemoteActionCompat> mActions = new ArrayList<>();
         @NonNull private final Map<String, Float> mEntityConfidence = new ArrayMap<>();
-        @Nullable Drawable mPrimaryIcon;
-        @Nullable String mPrimaryLabel;
-        @Nullable Intent mPrimaryIntent;
-        @NonNull private String mSignature = "";
+        @Nullable private String mId = "";
 
         /**
          * Sets the classified text.
@@ -428,147 +223,90 @@ public final class TextClassification implements Parcelable {
         }
 
         /**
-         * Adds an <i>secondary</i> action that may be performed on the classified text.
-         * Secondary actions are in addition to the <i>primary</i> action which may or may not
-         * exist.
-         *
-         * <p>The label and icon are used for rendering of widgets that offer the intent.
-         * Actions should be added in order of priority.
-         *
-         * <p><stong>Note: </stong> If all input parameters are set to null, this method will be a
-         * no-op.
-         *
-         * @see #setPrimaryAction(Intent, String, Drawable)
+         * Adds an action that may be performed on the classified text. Actions should be added in
+         * order of likelihood that the user will use them, with the most likely action being added
+         * first.
          */
-        public Builder addSecondaryAction(
-                @Nullable Intent intent, @Nullable String label, @Nullable Drawable icon) {
-            if (intent != null || label != null || icon != null) {
-                mSecondaryIntents.add(intent);
-                mSecondaryLabels.add(label);
-                mSecondaryIcons.add(icon);
-            }
+        @NonNull
+        public Builder addAction(@NonNull RemoteActionCompat action) {
+            Preconditions.checkArgument(action != null);
+            mActions.add(action);
             return this;
         }
 
         /**
-         * Removes all the <i>secondary</i> actions.
+         * Sets an id for the TextClassification object.
          */
-        public Builder clearSecondaryActions() {
-            mSecondaryIntents.clear();
-            mSecondaryLabels.clear();
-            mSecondaryIcons.clear();
-            return this;
-        }
-
-        /**
-         * Sets the <i>primary</i> action that may be performed on the classified text. This is
-         * equivalent to calling {@code setIntent(intent).setLabel(label).setIcon(icon)}.
-         *
-         * <p><strong>Note: </strong>If all input parameters are null, there will be no
-         * <i>primary</i> action but there may still be <i>secondary</i> actions.
-         *
-         * @see #addSecondaryAction(Intent, String, Drawable)
-         */
-        public Builder setPrimaryAction(
-                @Nullable Intent intent, @Nullable String label, @Nullable Drawable icon) {
-            return setIntent(intent).setLabel(label).setIcon(icon);
-        }
-
-        /**
-         * Sets the icon for the <i>primary</i> action that may be rendered on a widget used to act
-         * on the classified text.
-         *
-         * @see #setPrimaryAction(Intent, String, Drawable)
-         */
-        public Builder setIcon(@Nullable Drawable icon) {
-            mPrimaryIcon = icon;
-            return this;
-        }
-
-        /**
-         * Sets the label for the <i>primary</i> action that may be rendered on a widget used to
-         * act on the classified text.
-         *
-         * @see #setPrimaryAction(Intent, String, Drawable)
-         */
-        public Builder setLabel(@Nullable String label) {
-            mPrimaryLabel = label;
-            return this;
-        }
-
-        /**
-         * Sets the intent for the <i>primary</i> action that may be fired to act on the classified
-         * text.
-         *
-         * @see #setPrimaryAction(Intent, String, Drawable)
-         */
-        public Builder setIntent(@Nullable Intent intent) {
-            mPrimaryIntent = intent;
-            return this;
-        }
-
-        /**
-         * Sets a signature for the TextClassification object.
-         * The TextClassifier that generates the TextClassification object may use it as a way to
-         * internally identify the TextClassification object.
-         */
-        public Builder setSignature(@NonNull String signature) {
-            mSignature = Preconditions.checkNotNull(signature);
+        @NonNull
+        public Builder setId(@Nullable String id) {
+            mId = id;
             return this;
         }
 
         /**
          * Builds and returns a {@link TextClassification} object.
          */
+        @NonNull
         public TextClassification build() {
             return new TextClassification(
-                    mText,
-                    mPrimaryIcon, mPrimaryLabel, mPrimaryIntent,
-                    mSecondaryIcons, mSecondaryLabels, mSecondaryIntents,
-                    mEntityConfidence, mSignature);
+                    mText, mActions, new EntityConfidence(mEntityConfidence), mId);
         }
     }
 
     /**
-     * Optional input parameters for generating TextClassification.
+     * A request object for generating TextClassification.
      */
-    public static final class Options implements Parcelable {
+    public static final class Request {
 
-        private @Nullable LocaleListCompat mDefaultLocales;
-        private @Nullable Calendar mReferenceTime;
-        private @Nullable String mCallingPackageName;
+        private static final String EXTRA_TEXT = "text";
+        private static final String EXTRA_START_INDEX = "start";
+        private static final String EXTRA_END_INDEX = "end";
+        private static final String EXTRA_DEFAULT_LOCALES = "locales";
+        private static final String EXTRA_REFERENCE_TIME = "reftime";
+        private static final String EXTRA_CALLING_PACKAGE_NAME = "calling_package";
 
-        public Options() {}
+        private final CharSequence mText;
+        private final int mStartIndex;
+        private final int mEndIndex;
+        @Nullable private final LocaleListCompat mDefaultLocales;
+        @Nullable private final Calendar mReferenceTime;
 
-        /**
-         * @param defaultLocales ordered list of locale preferences that may be used to disambiguate
-         *      the provided text. If no locale preferences exist, set this to null or an empty
-         *      locale list.
-         */
-        public Options setDefaultLocales(@Nullable LocaleListCompat defaultLocales) {
+        private Request(
+                CharSequence text,
+                int startIndex,
+                int endIndex,
+                LocaleListCompat defaultLocales,
+                Calendar referenceTime) {
+            mText = text;
+            mStartIndex = startIndex;
+            mEndIndex = endIndex;
             mDefaultLocales = defaultLocales;
-            return this;
-        }
-
-        /**
-         * @param referenceTime reference time based on which relative dates (e.g. "tomorrow" should
-         *      be interpreted. This should usually be the time when the text was originally
-         *      composed. If no reference time is set, now is used.
-         */
-        public Options setReferenceTime(Calendar referenceTime) {
             mReferenceTime = referenceTime;
-            return this;
         }
 
         /**
-         * @param packageName name of the package from which the call was made.
-         *
-         * @hide
+         * Returns the text providing context for the text to classify (which is specified
+         *      by the sub sequence starting at startIndex and ending at endIndex)
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public Options setCallingPackageName(@Nullable String packageName) {
-            mCallingPackageName = packageName;
-            return this;
+        @NonNull
+        public CharSequence getText() {
+            return mText;
+        }
+
+        /**
+         * Returns start index of the text to classify.
+         */
+        @IntRange(from = 0)
+        public int getStartIndex() {
+            return mStartIndex;
+        }
+
+        /**
+         * Returns end index of the text to classify.
+         */
+        @IntRange(from = 0)
+        public int getEndIndex() {
+            return mEndIndex;
         }
 
         /**
@@ -590,52 +328,98 @@ public final class TextClassification implements Parcelable {
         }
 
         /**
-         * @return name of the package from which the call was made.
+         * A builder for building TextClassification requests.
          */
-        @Nullable
-        public String getCallingPackageName() {
-            return mCallingPackageName;
+        public static final class Builder {
+
+            private final CharSequence mText;
+            private final int mStartIndex;
+            private final int mEndIndex;
+
+            @Nullable private LocaleListCompat mDefaultLocales;
+            @Nullable private Calendar mReferenceTime;
+
+            /**
+             * @param text text providing context for the text to classify (which is specified
+             *      by the sub sequence starting at startIndex and ending at endIndex)
+             * @param startIndex start index of the text to classify
+             * @param endIndex end index of the text to classify
+             */
+            public Builder(
+                    @NonNull CharSequence text,
+                    @IntRange(from = 0) int startIndex,
+                    @IntRange(from = 0) int endIndex) {
+                Preconditions.checkArgument(text != null);
+                Preconditions.checkArgument(startIndex >= 0);
+                Preconditions.checkArgument(endIndex <= text.length());
+                Preconditions.checkArgument(endIndex > startIndex);
+                mText = text;
+                mStartIndex = startIndex;
+                mEndIndex = endIndex;
+            }
+
+            /**
+             * @param defaultLocales ordered list of locale preferences that may be used to
+             *      disambiguate the provided text. If no locale preferences exist, set this to null
+             *      or an empty locale list.
+             *
+             * @return this builder
+             */
+            @NonNull
+            public Builder setDefaultLocales(@Nullable LocaleListCompat defaultLocales) {
+                mDefaultLocales = defaultLocales;
+                return this;
+            }
+
+            /**
+             * @param referenceTime reference time based on which relative dates (e.g. "tomorrow"
+             *      should be interpreted. This should usually be the time when the text was
+             *      originally composed. If no reference time is set, now is used.
+             *
+             * @return this builder
+             */
+            @NonNull
+            public Builder setReferenceTime(@Nullable Calendar referenceTime) {
+                mReferenceTime = referenceTime;
+                return this;
+            }
+
+            /**
+             * Builds and returns the request object.
+             */
+            @NonNull
+            public Request build() {
+                return new Request(mText, mStartIndex, mEndIndex, mDefaultLocales, mReferenceTime);
+            }
         }
 
-        @Override
-        public int describeContents() {
-            return 0;
+        /**
+         * Adds this Request to a Bundle that can be read back with the same parameters
+         * to {@link #createFromBundle(Bundle)}.
+         */
+        @NonNull
+        public Bundle toBundle() {
+            final Bundle bundle = new Bundle();
+            bundle.putCharSequence(EXTRA_TEXT, mText);
+            bundle.putInt(EXTRA_START_INDEX, mStartIndex);
+            bundle.putInt(EXTRA_END_INDEX, mEndIndex);
+            BundleUtils.putLocaleList(bundle, EXTRA_DEFAULT_LOCALES, mDefaultLocales);
+            BundleUtils.putCalendar(bundle, EXTRA_REFERENCE_TIME, mReferenceTime);
+            return bundle;
         }
 
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(mDefaultLocales != null ? 1 : 0);
-            if (mDefaultLocales != null) {
-                dest.writeString(mDefaultLocales.toLanguageTags());
-            }
-            dest.writeInt(mReferenceTime != null ? 1 : 0);
-            if (mReferenceTime != null) {
-                dest.writeSerializable(mReferenceTime);
-            }
-            dest.writeString(mCallingPackageName);
-        }
-
-        public static final Parcelable.Creator<Options> CREATOR =
-                new Parcelable.Creator<Options>() {
-                    @Override
-                    public Options createFromParcel(Parcel in) {
-                        return new Options(in);
-                    }
-
-                    @Override
-                    public Options[] newArray(int size) {
-                        return new Options[size];
-                    }
-                };
-
-        private Options(Parcel in) {
-            if (in.readInt() > 0) {
-                mDefaultLocales = LocaleListCompat.forLanguageTags(in.readString());
-            }
-            if (in.readInt() > 0) {
-                mReferenceTime = (Calendar) in.readSerializable();
-            }
-            mCallingPackageName = in.readString();
+        /**
+         * Extracts a Request from a bundle that was added using {@link #toBundle()}.
+         */
+        public static Request createFromBundle(@NonNull Bundle bundle) {
+            final Builder builder = new Builder(
+                    bundle.getString(EXTRA_TEXT),
+                    bundle.getInt(EXTRA_START_INDEX),
+                    bundle.getInt(EXTRA_END_INDEX))
+                    .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES))
+                    .setReferenceTime(BundleUtils.getCalendar(bundle, EXTRA_REFERENCE_TIME));
+            final Request request = builder.build();
+            return request;
         }
     }
 }
