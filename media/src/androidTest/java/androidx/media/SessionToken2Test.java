@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class SessionToken2Test {
+public class SessionToken2Test extends MediaTestBase {
     private Context mContext;
 
     @Before

@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class MediaMetadata2Test {
+public class MediaMetadata2Test extends MediaTestBase {
     @Test
     public void testBuilder() {
         final Bundle extras = new Bundle();
