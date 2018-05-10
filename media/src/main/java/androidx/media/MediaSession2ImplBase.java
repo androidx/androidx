@@ -32,7 +32,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -74,13 +73,13 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private final MediaSessionCompat mSessionCompat;
     private final MediaSession2Stub mSession2Stub;
     private final MediaSessionLegacyStub mSessionLegacyStub;
-    private final String mId;
     private final Executor mCallbackExecutor;
     private final SessionCallback mCallback;
     private final SessionToken2 mSessionToken;
     private final AudioManager mAudioManager;
     private final BaseMediaPlayer.PlayerEventCallback mPlayerEventCallback;
     private final MediaPlaylistAgent.PlaylistEventCallback mPlaylistEventCallback;
+    private final AudioFocusHandler mAudioFocusHandler;
     private final MediaSession2 mInstance;
 
     @GuardedBy("mLock")
@@ -112,13 +111,13 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         mSessionCompat.setCallback(mSession2Stub, mHandler);
         mSessionCompat.setSessionActivity(sessionActivity);
 
-        mId = id;
         mCallback = callback;
         mCallbackExecutor = callbackExecutor;
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         mPlayerEventCallback = new MyPlayerEventCallback(this);
         mPlaylistEventCallback = new MyPlaylistEventCallback(this);
+        mAudioFocusHandler = new AudioFocusHandler(getInstance());
 
         // Infer type from the id and package name.
         String libraryService = getServiceName(context, MediaLibraryService2.SERVICE_INTERFACE, id);
@@ -262,6 +261,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             if (mPlayer == null) {
                 return;
             }
+            mAudioFocusHandler.close();
             mPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
             mPlayer = null;
             mSessionCompat.release();
@@ -305,10 +305,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @Override
     public @NonNull List<ControllerInfo> getConnectedControllers() {
         return mSession2Stub.getConnectedControllers();
-    }
-
-    @Override
-    public void setAudioFocusRequest(@Nullable AudioFocusRequest afr) {
     }
 
     @Override
@@ -385,7 +381,11 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             player = mPlayer;
         }
         if (player != null) {
-            player.play();
+            if (mAudioFocusHandler.onPlayRequested()) {
+                player.play();
+            } else {
+                Log.w(TAG, "play() wouldn't be called because of the failure in audio focus");
+            }
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
@@ -398,7 +398,11 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             player = mPlayer;
         }
         if (player != null) {
-            player.pause();
+            if (mAudioFocusHandler.onPauseRequested()) {
+                player.pause();
+            } else {
+                Log.w(TAG, "pause() wouldn't be called of the failure in audio focus");
+            }
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
@@ -899,6 +903,11 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     @Override
+    AudioFocusHandler getAudioFocusHandler() {
+        return mAudioFocusHandler;
+    }
+
+    @Override
     boolean isClosed() {
         return !mHandlerThread.isAlive();
     }
@@ -1275,6 +1284,9 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             session.getCallbackExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
+                    // Order is important here. AudioFocusHandler should be called at the first
+                    // for testing purpose.
+                    session.mAudioFocusHandler.onPlayerStateChanged(state);
                     session.getCallback().onPlayerStateChanged(
                             session.getInstance(), player, state);
                     session.notifyToAllControllers(new NotifyRunnable() {

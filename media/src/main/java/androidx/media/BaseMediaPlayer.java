@@ -182,6 +182,8 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
 
     /**
      * Sets the {@link AudioAttributesCompat} to be used during the playback of the media.
+     * You must call this method before {@link #prepare()} in order for the audio attributes to
+     * become effective thereafter.
      *
      * @param attributes non-null <code>AudioAttributes</code>.
      */

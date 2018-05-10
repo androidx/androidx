@@ -23,7 +23,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.ResultReceiver;
 import android.support.test.InstrumentationRegistry;
 
@@ -51,7 +50,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * For all subclasses, all individual tests should begin with the {@link #prepareLooper()}. See
  * {@link #prepareLooper} for details.
  */
-abstract class MediaSession2TestBase {
+abstract class MediaSession2TestBase extends MediaTestBase {
     // Expected success
     static final int WAIT_TIME_MS = 1000;
 
@@ -72,23 +71,6 @@ abstract class MediaSession2TestBase {
         void waitForConnect(boolean expect) throws InterruptedException;
         void waitForDisconnect(boolean expect) throws InterruptedException;
         void setRunnableForOnCustomCommand(Runnable runnable);
-    }
-
-    /**
-     * All tests methods should start with this.
-     * <p>
-     * MediaControllerCompat, which is wrapped by the MediaSession2, can be only created by the
-     * thread whose Looper is prepared. However, when the presubmit tests runs on the server,
-     * test runs with the {@link org.junit.internal.runners.statements.FailOnTimeout} which creates
-     * dedicated thread for running test methods while methods annotated with @After or @Before
-     * runs on the different thread. This ensures that the current Looper is prepared.
-     * <p>
-     * To address the issue .
-     */
-    public static void prepareLooper() {
-        if (Looper.myLooper() == null) {
-            Looper.prepare();
-        }
     }
 
     @BeforeClass
@@ -211,7 +193,6 @@ abstract class MediaSession2TestBase {
         return controller.get();
     }
 
-    // TODO(jaewan): (Can be Post-P): Deprecate this
     public static class TestControllerCallback extends MediaController2.ControllerCallback
             implements TestControllerCallbackInterface {
         public final ControllerCallback mCallbackProxy;

@@ -22,7 +22,6 @@ import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioFocusRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -65,18 +64,46 @@ import java.util.concurrent.Executor;
  * instead. With it, your playback can be revived even after playback is finished. See
  * {@link MediaSessionService2} for details.
  * <p>
+ * Topic covered here:
+ * <ol>
+ * <li><a href="#SessionLifecycle">Session Lifecycle</a>
+ * <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
+ * <li><a href="#Thread">Thread</a>
+ * </ol>
+ * <a name="SessionLifecycle"></a>
+ * <h3>Session Lifecycle</h3>
+ * <p>
  * A session can be obtained by {@link Builder}. The owner of the session may pass its session token
  * to other processes to allow them to create a {@link MediaController2} to interact with the
  * session.
  * <p>
  * When a session receive transport control commands, the session sends the commands directly to
- * the the underlying media player set by {@link Builder} or
- * {@link #updatePlayer}.
+ * the the underlying media player set by {@link Builder} or {@link #updatePlayer}.
  * <p>
  * When an app is finished performing playback it must call {@link #close()} to clean up the session
  * and notify any controllers.
  * <p>
- * {@link MediaSession2} objects should be used on the thread on the looper.
+ * <a name="AudioFocusAndNoisyIntent"></a>
+ * <h3>Audio focus and noisy intent</h3>
+ * <p>
+ * MediaSession2 automatically handles audio focus and noisy intent if a
+ * {@link AudioAttributesCompat} is set to the underlying {@link BaseMediaPlayer} before the
+ * session is created, and playback started with the session. Whenever the audio attribute is
+ * changed, call {@link #updatePlayer} to tell changes.
+ * <p>
+ * For information about the detailed behavior, read following developers guide.
+ * <ol>
+ * <li><a href="{@docRoot}guide/topics/media-apps/audio-app/mediasession-callbacks.html">Audio app
+ * guide for media callbacks</a></li>
+ * <li><a href="{@docRoot}guide/topics/media-apps/video-app/mediasession-callbacks.html">Video app
+ * guide for media callbacks</a></li>
+ * <li><a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a></li>
+ * </ol>
+ * <p>
+ * <a name="Thread"></a>
+ * <h3>Thread</h3>
+ * <p>
+ * {@link MediaSession2} objects are thread safe, but should be used on the thread on the looper.
  *
  * @see MediaSessionService2
  */
@@ -244,6 +271,10 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         return mImpl.getCallback();
     }
 
+    @NonNull AudioFocusHandler getAudioFocusHandler() {
+        return mImpl.getAudioFocusHandler();
+    }
+
     /**
      * Returns the list of connected controller.
      *
@@ -251,15 +282,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      */
     public @NonNull List<ControllerInfo> getConnectedControllers() {
         return mImpl.getConnectedControllers();
-    }
-
-    /**
-     * Set the {@link AudioFocusRequest} to obtain the audio focus
-     *
-     * @param afr the full request parameters
-     */
-    public void setAudioFocusRequest(@Nullable AudioFocusRequest afr) {
-        mImpl.setAudioFocusRequest(afr);
     }
 
     /**
@@ -1549,7 +1571,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         abstract @NonNull SessionToken2 getToken();
         abstract @NonNull List<ControllerInfo> getConnectedControllers();
 
-        abstract void setAudioFocusRequest(@Nullable AudioFocusRequest afr);
         abstract void setCustomLayout(@NonNull ControllerInfo controller,
                 @NonNull List<CommandButton> layout);
         abstract void setAllowedCommands(@NonNull ControllerInfo controller,
@@ -1578,6 +1599,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         abstract boolean isClosed();
         abstract PlaybackStateCompat getPlaybackStateCompat();
         abstract PlaybackInfo getPlaybackInfo();
+        abstract AudioFocusHandler getAudioFocusHandler();
     }
 
     /**
@@ -1615,8 +1637,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
                 throw new IllegalArgumentException("context shouldn't be null");
             }
             mContext = context;
-            // Ensure non-null
-            mId = "";
         }
 
         /**

@@ -28,6 +28,7 @@ import java.util.concurrent.Executor;
  */
 public class MockPlayer extends BaseMediaPlayer {
     public final CountDownLatch mCountDownLatch;
+    public final boolean mChangePlayerStateWithTransportControl;
 
     public boolean mPlayCalled;
     public boolean mPauseCalled;
@@ -42,6 +43,7 @@ public class MockPlayer extends BaseMediaPlayer {
     public @PlayerState int mLastPlayerState;
     public @BuffState int mLastBufferingState;
     public long mDuration;
+    public float mVolume;
 
     public ArrayMap<PlayerEventCallback, Executor> mCallbacks = new ArrayMap<>();
 
@@ -49,6 +51,14 @@ public class MockPlayer extends BaseMediaPlayer {
 
     public MockPlayer(int count) {
         mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
+        mVolume = getMaxPlayerVolume();
+        mChangePlayerStateWithTransportControl = false;
+    }
+
+    public MockPlayer(boolean changePlayerStateWithTransportControl) {
+        mCountDownLatch = null;
+        mVolume = getMaxPlayerVolume();
+        mChangePlayerStateWithTransportControl = changePlayerStateWithTransportControl;
     }
 
     @Override
@@ -62,6 +72,9 @@ public class MockPlayer extends BaseMediaPlayer {
         if (mCountDownLatch != null) {
             mCountDownLatch.countDown();
         }
+        if (mChangePlayerStateWithTransportControl) {
+            notifyPlaybackState(PLAYER_STATE_IDLE);
+        }
     }
 
     @Override
@@ -69,6 +82,9 @@ public class MockPlayer extends BaseMediaPlayer {
         mPlayCalled = true;
         if (mCountDownLatch != null) {
             mCountDownLatch.countDown();
+        }
+        if (mChangePlayerStateWithTransportControl) {
+            notifyPlaybackState(PLAYER_STATE_PLAYING);
         }
     }
 
@@ -78,6 +94,9 @@ public class MockPlayer extends BaseMediaPlayer {
         if (mCountDownLatch != null) {
             mCountDownLatch.countDown();
         }
+        if (mChangePlayerStateWithTransportControl) {
+            notifyPlaybackState(PLAYER_STATE_PAUSED);
+        }
     }
 
     @Override
@@ -85,6 +104,9 @@ public class MockPlayer extends BaseMediaPlayer {
         mPrepareCalled = true;
         if (mCountDownLatch != null) {
             mCountDownLatch.countDown();
+        }
+        if (mChangePlayerStateWithTransportControl) {
+            notifyPlaybackState(PLAYER_STATE_PAUSED);
         }
     }
 
@@ -281,13 +303,20 @@ public class MockPlayer extends BaseMediaPlayer {
     }
 
     @Override
+    public float getMaxPlayerVolume() {
+        return 1.0f;
+    }
+
+    @Override
     public void setPlayerVolume(float volume) {
-        // TODO: implement this
+        mVolume = volume;
+        if (mCountDownLatch != null) {
+            mCountDownLatch.countDown();
+        }
     }
 
     @Override
     public float getPlayerVolume() {
-        // TODO: implement this
-        return -1;
+        return mVolume;
     }
 }
