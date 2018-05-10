@@ -28,7 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import android.app.Activity;
-import android.support.test.filters.SmallTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 
 import androidx.core.util.Pair;
@@ -45,7 +45,7 @@ import org.junit.runners.Parameterized;
 
 import java.util.List;
 
-@SmallTest
+@LargeTest
 @RunWith(Parameterized.class)
 public class ActivityFullLifecycleTest {
     @Rule
