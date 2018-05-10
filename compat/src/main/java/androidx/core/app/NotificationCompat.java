@@ -398,7 +398,7 @@ public class NotificationCompat {
 
     /**
      * Notification key: a {@link String} to be displayed as the title to a conversation
-     * represented by a {@link MessagingStyle}
+     * represented by a {@link MessagingStyle}.
      */
     public static final String EXTRA_CONVERSATION_TITLE = "android.conversationTitle";
 
@@ -413,6 +413,13 @@ public class NotificationCompat {
      * represents a group conversation.
      */
     public static final String EXTRA_IS_GROUP_CONVERSATION = "android.isGroupConversation";
+
+    /**
+     * Key for compat's {@link MessagingStyle#getConversationTitle()}. This allows backwards support
+     * for conversation titles as SDK < P uses the title to denote group status. This hidden title
+     * doesn't appear in the notification shade.
+     */
+    public static final String EXTRA_HIDDEN_CONVERSATION_TITLE = "android.hiddenConversationTitle";
 
     /**
      * Keys into the {@link #getExtras} Bundle: the audio contents of this notification.
@@ -2384,12 +2391,9 @@ public class NotificationCompat {
                 // notifications, we should only set base Android's MessagingStyle conversation
                 // title if it's a group conversation OR SDK >= 28. Otherwise we set the
                 // Notification content title so Android won't think it's a group conversation.
-                if (isGroupConversation() || Build.VERSION.SDK_INT >= 28) {
+                if (mIsGroupConversation || Build.VERSION.SDK_INT >= 28) {
                     // If group or non-legacy, set MessagingStyle#mConversationTitle.
                     style.setConversationTitle(mConversationTitle);
-                } else {
-                    // Otherwise set Notification#mContentTitle.
-                    builder.getBuilder().setContentTitle(mConversationTitle);
                 }
 
                 // For SDK >= 28, we can simply denote the group conversation status regardless of
@@ -2415,7 +2419,7 @@ public class NotificationCompat {
             } else {
                 MessagingStyle.Message latestIncomingMessage = findLatestIncomingMessage();
                 // Set the title
-                if (mConversationTitle != null) {
+                if (mConversationTitle != null && mIsGroupConversation) {
                     builder.getBuilder().setContentTitle(mConversationTitle);
                 } else if (latestIncomingMessage != null) {
                     builder.getBuilder().setContentTitle("");
@@ -2513,7 +2517,8 @@ public class NotificationCompat {
             extras.putCharSequence(EXTRA_SELF_DISPLAY_NAME, mUser.getName());
             extras.putBundle(EXTRA_MESSAGING_STYLE_USER, mUser.toBundle());
 
-            if (mConversationTitle != null) {
+            extras.putCharSequence(EXTRA_HIDDEN_CONVERSATION_TITLE, mConversationTitle);
+            if (mConversationTitle != null && mIsGroupConversation) {
                 extras.putCharSequence(EXTRA_CONVERSATION_TITLE, mConversationTitle);
             }
             if (!mMessages.isEmpty()) {
@@ -2543,7 +2548,10 @@ public class NotificationCompat {
                         .build();
             }
 
-            mConversationTitle = extras.getString(EXTRA_CONVERSATION_TITLE);
+            mConversationTitle = extras.getCharSequence(EXTRA_CONVERSATION_TITLE);
+            if (mConversationTitle == null) {
+                mConversationTitle = extras.getCharSequence(EXTRA_HIDDEN_CONVERSATION_TITLE);
+            }
             Parcelable[] parcelables = extras.getParcelableArray(EXTRA_MESSAGES);
             if (parcelables != null) {
                 mMessages.addAll(Message.getMessagesFromBundleArray(parcelables));
