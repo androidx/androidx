@@ -121,6 +121,7 @@ public class ListContent {
      * @return whether this row has content that is valid to display.
      */
     private boolean populate(Slice slice) {
+        if (slice == null) return false;
         mColorItem = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
         // Find slice actions
         mSliceActions = SliceMetadata.getSliceActions(slice);
