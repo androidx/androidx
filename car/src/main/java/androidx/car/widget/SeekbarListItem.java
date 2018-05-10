@@ -98,6 +98,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
 
     @PrimaryActionType private int mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
     private Drawable mPrimaryActionIconDrawable;
+    private View.OnClickListener mPrimaryActionIconOnClickListener;
 
     private String mText;
 
@@ -116,28 +117,6 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
      */
     public static ViewHolder createViewHolder(View itemView) {
         return new ViewHolder(itemView);
-    }
-
-    /**
-     * Creates a SeekbarListItem.
-     *
-     * @param context context
-     * @param max the upper range of the SeekBar.
-     * @param progress the current progress of the specified value.
-     * @param listener listener to receive notification of changes to progress level.
-     * @param text displays a text on top of the SeekBar.
-     *
-     * @deprecated use {@link #SeekbarListItem(Context)} and individual field setters instead.
-     */
-    @Deprecated
-    public SeekbarListItem(Context context, int max, int progress,
-            SeekBar.OnSeekBarChangeListener listener, String text) {
-        this(context);
-
-        setMax(max);
-        setProgress(progress);
-        setOnSeekBarChangeListener(listener);
-        setText(text);
     }
 
     public SeekbarListItem(Context context) {
@@ -310,6 +289,10 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
                 mBinders.add(vh -> {
                     vh.getPrimaryIcon().setVisibility(View.VISIBLE);
                     vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
+                    vh.getPrimaryIcon().setOnClickListener(
+                            mPrimaryActionIconOnClickListener);
+                    vh.getPrimaryIcon().setClickable(
+                            mPrimaryActionIconOnClickListener != null);
                 });
                 break;
             default:
@@ -494,6 +477,16 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     }
 
     /**
+     * Sets an {@code OnClickListener} for the icon representing the {@code Primary Action}.
+     *
+     * @param onClickListener the listener to be set for the primary action icon.
+     */
+    public void setPrimaryActionIconListener(View.OnClickListener onClickListener) {
+        mPrimaryActionIconOnClickListener = onClickListener;
+        markDirty();
+    }
+
+    /**
      * Sets {@code Primary Action} to be empty icon.
      *
      * {@code Seekbar} would have a start margin as if {@code Primary Action} were set as icon.
@@ -508,30 +501,45 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
      * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
      */
     public void setSupplementalIcon(@DrawableRes int iconResId,
-                                    boolean showSupplementalIconDivider) {
-        setSupplementalIcon(mContext.getDrawable(iconResId), showSupplementalIconDivider, null);
-    }
-
-    /**
-     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
-     */
-    public void setSupplementalIcon(@DrawableRes int iconResId, boolean showSupplementalIconDivider,
-                                    @Nullable View.OnClickListener listener) {
-        setSupplementalIcon(mContext.getDrawable(iconResId), showSupplementalIconDivider, listener);
+            boolean showSupplementalIconDivider) {
+        setSupplementalIconInfo(mContext.getDrawable(iconResId), showSupplementalIconDivider);
     }
 
     /**
      * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
      */
     public void setSupplementalIcon(Drawable drawable, boolean showSupplementalIconDivider) {
-        setSupplementalIcon(drawable, showSupplementalIconDivider, null);
+        setSupplementalIconInfo(drawable, showSupplementalIconDivider);
+    }
+
+    /**
+     * Sets {@code OnClickListener} for a {@code Supplemental Icon}.
+     */
+    public void setSupplementalIconListener(View.OnClickListener listener) {
+        mSupplementalIconOnClickListener = listener;
+
+        markDirty();
+    }
+
+    private void setSupplementalIconInfo(Drawable drawable, boolean showSupplementalIconDivider) {
+        mSupplementalActionType = SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON;
+
+        mSupplementalIconDrawable = drawable;
+        mShowSupplementalIconDivider = showSupplementalIconDivider;
+
+        markDirty();
     }
 
     /**
      * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
+     *
+     * @deprecated use either {@link #setSupplementalIcon(Drawable, boolean)} or
+     * {@link #setSupplementalIcon(int, boolean)} and
+     * {@link #setSupplementalIconListener(android.view.View.OnClickListener)}.
      */
+    @Deprecated
     public void setSupplementalIcon(Drawable drawable, boolean showSupplementalIconDivider,
-                                    @Nullable  View.OnClickListener listener) {
+            @Nullable  View.OnClickListener listener) {
         mSupplementalActionType = SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON;
 
         mSupplementalIconDrawable = drawable;

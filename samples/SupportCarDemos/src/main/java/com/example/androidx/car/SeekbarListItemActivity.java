@@ -88,13 +88,16 @@ public class SeekbarListItemActivity extends Activity {
             subheaderItem = new SubheaderListItem(mContext, "Slider Only");
             mItems.add(subheaderItem);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item = initSeekbarListItem();
+            item.setText(null);
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item = initSeekbarListItem();
+            item.setText("one line text");
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item = initSeekbarListItem();
+            item.setText(longText);
             mItems.add(item);
 
 
@@ -102,55 +105,73 @@ public class SeekbarListItemActivity extends Activity {
             subheaderItem = new SubheaderListItem(mContext, "With Primary Action");
             mItems.add(subheaderItem);
             // Only slider. No text.
-            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item = initSeekbarListItem();
+            item.setText(null);
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             mItems.add(item);
 
             // One line text.
-            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item = initSeekbarListItem();
+            item.setText("one line text");
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             mItems.add(item);
 
             // Long text.
-            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item = initSeekbarListItem();
+            item.setText(longText);
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            mItems.add(item);
+
+            // Clickable PrimaryActionIcon.
+            item = initSeekbarListItem();
+            item.setText("with clickable Primary icon");
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            item.setPrimaryActionIconListener(v -> Toast.makeText(mContext,
+                    "Primary icon clicked!", Toast.LENGTH_SHORT).show());
             mItems.add(item);
 
             // End icon with divider.
             subheaderItem = new SubheaderListItem(mContext, "With Supplemental Action");
             mItems.add(subheaderItem);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item = initSeekbarListItem();
+            item.setText(null);
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item = initSeekbarListItem();
+            item.setText("one line text");
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item = initSeekbarListItem();
+            item.setText(longText);
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, "with clickable icon");
-            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true,
-                    v -> Toast.makeText(mContext, "Supplemental icon clicked!", Toast.LENGTH_SHORT)
-                            .show());
+            item = initSeekbarListItem();
+            item.setText("with clickable icon");
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
+            item.setSupplementalIconListener(v -> Toast.makeText(mContext,
+                    "Supplemental icon clicked!", Toast.LENGTH_SHORT).show());
             mItems.add(item);
 
             // Empty end icon with divider.
             subheaderItem = new SubheaderListItem(mContext, "With Empty Icon");
             mItems.add(subheaderItem);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item = initSeekbarListItem();
+            item.setText(null);
             item.setSupplementalEmptyIcon(true);
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item = initSeekbarListItem();
+            item.setText("one line text");
             item.setSupplementalEmptyIcon(true);
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item = initSeekbarListItem();
+            item.setText(longText);
             item.setSupplementalEmptyIcon(true);
             mItems.add(item);
 
@@ -158,15 +179,18 @@ public class SeekbarListItemActivity extends Activity {
             subheaderItem = new SubheaderListItem(mContext, "Without Supplemental Action Divider");
             mItems.add(subheaderItem);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item = initSeekbarListItem();
+            item.setText(null);
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item = initSeekbarListItem();
+            item.setText("one line text");
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item = initSeekbarListItem();
+            item.setText(longText);
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
             mItems.add(item);
 
@@ -174,15 +198,18 @@ public class SeekbarListItemActivity extends Activity {
             subheaderItem = new SubheaderListItem(mContext, "With Empty Icon No Divider");
             mItems.add(subheaderItem);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, null);
+            item = initSeekbarListItem();
+            item.setText(null);
             item.setSupplementalEmptyIcon(false);
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, "one line text");
+            item = initSeekbarListItem();
+            item.setText("one line text");
             item.setSupplementalEmptyIcon(false);
             mItems.add(item);
 
-            item = new SeekbarListItem(mContext, 100, 0, mListener, longText);
+            item = initSeekbarListItem();
+            item.setText(longText);
             item.setSupplementalEmptyIcon(false);
             mItems.add(item);
 
@@ -190,7 +217,10 @@ public class SeekbarListItemActivity extends Activity {
             subheaderItem = new SubheaderListItem(mContext, "Secondary Progress");
             mItems.add(subheaderItem);
 
-            item = new SeekbarListItem(mContext, 100, 0, new SeekBar.OnSeekBarChangeListener() {
+            item = new SeekbarListItem(mContext);
+            item.setMax(100);
+            item.setProgress(0);
+            item.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     seekBar.setSecondaryProgress(progress + 10);
@@ -203,10 +233,18 @@ public class SeekbarListItemActivity extends Activity {
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
                 }
-            }, null);
+            });
             mItems.add(item);
 
             mListProvider = new ListItemProvider.ListProvider(mItems);
+        }
+
+        private SeekbarListItem initSeekbarListItem() {
+            SeekbarListItem item = new SeekbarListItem(mContext);
+            item.setMax(100);
+            item.setProgress(0);
+            item.setOnSeekBarChangeListener(mListener);
+            return item;
         }
 
         @Override
