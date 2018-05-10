@@ -280,6 +280,7 @@ public class MediaControlView2 extends BaseLayout {
     private boolean mIsAdvertisement;
     private boolean mIsMute;
     private boolean mNeedUxUpdate;
+    private boolean mNeedToHideBars;
 
     // Relating to Title Bar View
     private ViewGroup mRoot;
@@ -629,6 +630,33 @@ public class MediaControlView2 extends BaseLayout {
         if (mProgress != null) {
             mProgress.setEnabled(enabled);
         }
+        if (mSubtitleButton != null) {
+            mSubtitleButton.setEnabled(enabled);
+        }
+        if (mFullScreenButton != null) {
+            mFullScreenButton.setEnabled(enabled);
+        }
+        if (mOverflowShowButton != null) {
+            mOverflowShowButton.setEnabled(enabled);
+        }
+        if (mOverflowHideButton != null) {
+            mOverflowHideButton.setEnabled(enabled);
+        }
+        if (mMuteButton != null) {
+            mMuteButton.setEnabled(enabled);
+        }
+        if (mVideoQualityButton != null) {
+            mVideoQualityButton.setEnabled(enabled);
+        }
+        if (mSettingsButton != null) {
+            mSettingsButton.setEnabled(enabled);
+        }
+        if (mBackButton != null) {
+            mBackButton.setEnabled(enabled);
+        }
+        if (mRouteButton != null) {
+            mRouteButton.setEnabled(enabled);
+        }
         disableUnsupportedButtons();
     }
 
@@ -837,6 +865,7 @@ public class MediaControlView2 extends BaseLayout {
                 R.dimen.mcv2_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
                 LayoutParams.WRAP_CONTENT, true);
+        mSettingsWindow.setOnDismissListener(mSettingsDismissListener);
 
         int titleBarTranslateY =
                 (-1) * mResources.getDimensionPixelSize(R.dimen.mcv2_title_bar_height);
@@ -912,7 +941,14 @@ public class MediaControlView2 extends BaseLayout {
         mHideMainBarsAnimator.getChildAnimations().get(0).addListener(
                 new AnimatorListenerAdapter() {
                     @Override
+                    public void onAnimationStart(Animator animation) {
+                        setEnabled(false);
+                        mUxState = UX_STATE_ANIMATING;
+                    }
+
+                    @Override
                     public void onAnimationEnd(Animator animation) {
+                        setEnabled(true);
                         mUxState = UX_STATE_PROGRESS_BAR_ONLY;
                     }
                 });
@@ -927,7 +963,14 @@ public class MediaControlView2 extends BaseLayout {
         mHideProgressBarAnimator.getChildAnimations().get(0).addListener(
                 new AnimatorListenerAdapter() {
                     @Override
+                    public void onAnimationStart(Animator animation) {
+                        setEnabled(false);
+                        mUxState = UX_STATE_ANIMATING;
+                    }
+
+                    @Override
                     public void onAnimationEnd(Animator animation) {
+                        setEnabled(true);
                         mUxState = UX_STATE_EMPTY;
                     }
                 });
@@ -944,7 +987,14 @@ public class MediaControlView2 extends BaseLayout {
         mHideAllBarsAnimator.setDuration(HIDE_TIME_MS);
         mHideAllBarsAnimator.getChildAnimations().get(0).addListener(new AnimatorListenerAdapter() {
             @Override
+            public void onAnimationStart(Animator animation) {
+                setEnabled(false);
+                mUxState = UX_STATE_ANIMATING;
+            }
+
+            @Override
             public void onAnimationEnd(Animator animation) {
+                setEnabled(true);
                 mUxState = UX_STATE_EMPTY;
             }
         });
@@ -962,7 +1012,14 @@ public class MediaControlView2 extends BaseLayout {
         mShowMainBarsAnimator.getChildAnimations().get(0).addListener(
                 new AnimatorListenerAdapter() {
                     @Override
+                    public void onAnimationStart(Animator animation) {
+                        setEnabled(false);
+                        mUxState = UX_STATE_ANIMATING;
+                    }
+
+                    @Override
                     public void onAnimationEnd(Animator animation) {
+                        setEnabled(true);
                         mUxState = UX_STATE_FULL;
                     }
                 });
@@ -979,7 +1036,14 @@ public class MediaControlView2 extends BaseLayout {
         mShowAllBarsAnimator.setDuration(SHOW_TIME_MS);
         mShowAllBarsAnimator.getChildAnimations().get(0).addListener(new AnimatorListenerAdapter() {
             @Override
+            public void onAnimationStart(Animator animation) {
+                setEnabled(false);
+                mUxState = UX_STATE_ANIMATING;
+            }
+
+            @Override
             public void onAnimationEnd(Animator animation) {
+                setEnabled(true);
                 mUxState = UX_STATE_FULL;
             }
         });
@@ -1192,7 +1256,6 @@ public class MediaControlView2 extends BaseLayout {
     private final Runnable mShowAllBars = new Runnable() {
         @Override
         public void run() {
-            mUxState = UX_STATE_ANIMATING;
             mShowAllBarsAnimator.start();
             if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
                 postDelayed(mHideMainBars, mShowControllerIntervalMs);
@@ -1203,7 +1266,6 @@ public class MediaControlView2 extends BaseLayout {
     private final Runnable mShowMainBars = new Runnable() {
         @Override
         public void run() {
-            mUxState = UX_STATE_ANIMATING;
             mShowMainBarsAnimator.start();
             postDelayed(mHideMainBars, mShowControllerIntervalMs);
         }
@@ -1212,7 +1274,6 @@ public class MediaControlView2 extends BaseLayout {
     private final Runnable mHideAllBars = new Runnable() {
         @Override
         public void run() {
-            mUxState = UX_STATE_ANIMATING;
             mHideAllBarsAnimator.start();
         }
     };
@@ -1223,7 +1284,6 @@ public class MediaControlView2 extends BaseLayout {
             if (mPlaybackState.getState() != PlaybackStateCompat.STATE_PLAYING) {
                 return;
             }
-            mUxState = UX_STATE_ANIMATING;
             mHideMainBarsAnimator.start();
             postDelayed(mHideProgressBar, mShowControllerIntervalMs);
         }
@@ -1235,7 +1295,6 @@ public class MediaControlView2 extends BaseLayout {
             if (mPlaybackState.getState() != PlaybackStateCompat.STATE_PLAYING) {
                 return;
             }
-            mUxState = UX_STATE_ANIMATING;
             mHideProgressBarAnimator.start();
         }
     };
@@ -1320,6 +1379,7 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mPlayPauseListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            resetHideCallbacks();
             togglePausePlayState();
         }
     };
@@ -1327,6 +1387,7 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mRewListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            resetHideCallbacks();
             int pos = getCurrentPosition() - REWIND_TIME_MS;
             mControls.seekTo(pos);
             setProgress();
@@ -1336,6 +1397,7 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mFfwdListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            resetHideCallbacks();
             int pos = getCurrentPosition() + FORWARD_TIME_MS;
             mControls.seekTo(pos);
             setProgress();
@@ -1345,6 +1407,7 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mNextListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            resetHideCallbacks();
             mControls.skipToNext();
         }
     };
@@ -1352,6 +1415,7 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mPrevListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            resetHideCallbacks();
             mControls.skipToPrevious();
         }
     };
@@ -1370,6 +1434,9 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mSubtitleListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            removeCallbacks(mHideMainBars);
+            removeCallbacks(mHideProgressBar);
+
             mSettingsMode = SETTINGS_MODE_SUBTITLE_TRACK;
             mSubSettingsAdapter.setTexts(mSubtitleDescriptionsList);
             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex);
@@ -1380,6 +1447,9 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mVideoQualityListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            removeCallbacks(mHideMainBars);
+            removeCallbacks(mHideProgressBar);
+
             mSettingsMode = SETTINGS_MODE_VIDEO_QUALITY;
             mSubSettingsAdapter.setTexts(mVideoQualityList);
             mSubSettingsAdapter.setCheckPosition(mSelectedVideoQualityIndex);
@@ -1390,6 +1460,8 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mFullScreenListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            resetHideCallbacks();
+
             if (mOnFullScreenListener == null) {
                 return;
             }
@@ -1411,12 +1483,9 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mOverflowShowListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            resetHideCallbacks();
+
             mOverflowIsShowing = true;
-
-            removeCallbacks(mHideMainBars);
-            removeCallbacks(mHideProgressBar);
-            postDelayed(mHideMainBars, mShowControllerIntervalMs);
-
             mOverflowShowAnimator.start();
         }
     };
@@ -1424,12 +1493,9 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mOverflowHideListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            resetHideCallbacks();
+
             mOverflowIsShowing = false;
-
-            removeCallbacks(mHideMainBars);
-            removeCallbacks(mHideProgressBar);
-            postDelayed(mHideMainBars, mShowControllerIntervalMs);
-
             mOverflowHideAnimator.start();
         }
     };
@@ -1437,6 +1503,8 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mMuteButtonListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            resetHideCallbacks();
+
             if (!mIsMute) {
                 mMuteButton.setImageDrawable(
                         mResources.getDrawable(R.drawable.ic_mute, null));
@@ -1458,6 +1526,9 @@ public class MediaControlView2 extends BaseLayout {
     private final OnClickListener mSettingsButtonListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            removeCallbacks(mHideMainBars);
+            removeCallbacks(mHideProgressBar);
+
             mSettingsMode = SETTINGS_MODE_MAIN;
             mSettingsAdapter.setSubTexts(mSettingsSubTextsList);
             displaySettingsWindow(mSettingsAdapter);
@@ -1479,7 +1550,7 @@ public class MediaControlView2 extends BaseLayout {
                         mSubSettingsAdapter.setCheckPosition(mSelectedSpeedIndex);
                         mSettingsMode = SETTINGS_MODE_PLAYBACK_SPEED;
                     } else if (position == SETTINGS_MODE_HELP) {
-                        mSettingsWindow.dismiss();
+                        dismissSettingsWindow();
                         return;
                     }
                     displaySettingsWindow(mSubSettingsAdapter);
@@ -1495,7 +1566,7 @@ public class MediaControlView2 extends BaseLayout {
                         mSettingsSubTextsList.set(SETTINGS_MODE_AUDIO_TRACK,
                                 mSubSettingsAdapter.getMainText(position));
                     }
-                    mSettingsWindow.dismiss();
+                    dismissSettingsWindow();
                     break;
                 case SETTINGS_MODE_PLAYBACK_SPEED:
                     if (position != mSelectedSpeedIndex) {
@@ -1506,7 +1577,7 @@ public class MediaControlView2 extends BaseLayout {
                         mSettingsSubTextsList.set(SETTINGS_MODE_PLAYBACK_SPEED,
                                 mSubSettingsAdapter.getMainText(position));
                     }
-                    mSettingsWindow.dismiss();
+                    dismissSettingsWindow();
                     break;
                 case SETTINGS_MODE_HELP:
                     break;
@@ -1531,15 +1602,25 @@ public class MediaControlView2 extends BaseLayout {
                             mSubtitleIsEnabled = false;
                         }
                     }
-                    mSettingsWindow.dismiss();
+                    dismissSettingsWindow();
                     break;
                 case SETTINGS_MODE_VIDEO_QUALITY:
                     mSelectedVideoQualityIndex = position;
-                    mSettingsWindow.dismiss();
+                    dismissSettingsWindow();
                     break;
             }
         }
     };
+
+    private PopupWindow.OnDismissListener mSettingsDismissListener =
+            new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    if (mNeedToHideBars) {
+                        postDelayed(mHideMainBars, mShowControllerIntervalMs);
+                    }
+                }
+            };
 
     private void updateDuration() {
         if (mMetadata != null) {
@@ -1894,11 +1975,23 @@ public class MediaControlView2 extends BaseLayout {
                 ? mEmbeddedSettingsItemWidth : mFullSettingsItemWidth;
         mSettingsWindow.setWidth(itemWidth);
 
-        // Calculate height of window and show
+        // Calculate height of window
+        int maxHeight = getMeasuredHeight() + mSettingsWindowMargin * 2;
         int totalHeight = adapter.getCount() * mSettingsItemHeight;
+        int height = (totalHeight < maxHeight) ? totalHeight : maxHeight;
+        mSettingsWindow.setHeight(height);
+
+        // Show window
+        mNeedToHideBars = false;
         mSettingsWindow.dismiss();
         mSettingsWindow.showAsDropDown(this, mSettingsWindowMargin,
-                mSettingsWindowMargin - totalHeight, Gravity.BOTTOM | Gravity.RIGHT);
+                mSettingsWindowMargin - height, Gravity.BOTTOM | Gravity.RIGHT);
+        mNeedToHideBars = true;
+    }
+
+    private void dismissSettingsWindow() {
+        mNeedToHideBars = true;
+        mSettingsWindow.dismiss();
     }
 
     private void animateOverflow(ValueAnimator animation) {
@@ -1929,6 +2022,12 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
+    private void resetHideCallbacks() {
+        removeCallbacks(mHideMainBars);
+        removeCallbacks(mHideProgressBar);
+        postDelayed(mHideMainBars, mShowControllerIntervalMs);
+    }
+
     private class MediaControllerCallback extends MediaControllerCompat.Callback {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
@@ -1946,10 +2045,9 @@ public class MediaControlView2 extends BaseLayout {
                         mPlayPauseButton.setContentDescription(
                                 mResources.getString(R.string.mcv2_pause_button_desc));
                         removeCallbacks(mUpdateProgress);
-                        removeCallbacks(mHideMainBars);
-                        removeCallbacks(mHideProgressBar);
                         post(mUpdateProgress);
-                        postDelayed(mHideMainBars, mShowControllerIntervalMs);
+                        resetHideCallbacks();
+                        mIsStopped = false;
                         break;
                     case PlaybackStateCompat.STATE_PAUSED:
                         mPlayPauseButton.setImageDrawable(
