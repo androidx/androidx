@@ -74,6 +74,84 @@ public class SliceMetadataTest {
     }
 
     @Test
+    public void testGetTitleFromGrid() {
+        Uri uri = Uri.parse("content://pkg/slice");
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        GridRowBuilder gb = new GridRowBuilder(lb);
+        gb.addCell(new GridRowBuilder.CellBuilder(gb).addText("Text").addTitleText("Title"));
+        gb.addCell(new GridRowBuilder.CellBuilder(gb).addTitleText("Title2"));
+        lb.addGridRow(gb);
+
+        SliceMetadata sliceMetadata = SliceMetadata.from(mContext, lb.build());
+        assertEquals("Title", sliceMetadata.getTitle());
+    }
+
+    @Test
+    public void testGetTitleFromGridFromPrimaryAction() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        SliceAction primaryAction = new SliceAction(getIntent(""), icon, "Action");
+        GridRowBuilder gb = new GridRowBuilder(lb);
+        gb.setPrimaryAction(primaryAction);
+        gb.addCell(new GridRowBuilder.CellBuilder(gb).addImage(icon, ICON_IMAGE));
+        gb.addCell(new GridRowBuilder.CellBuilder(gb).addImage(icon, ICON_IMAGE));
+        lb.addGridRow(gb);
+
+        SliceMetadata sliceMetadata = SliceMetadata.from(mContext, lb.build());
+        assertEquals("Action", sliceMetadata.getTitle());
+    }
+
+    @Test
+    public void testGetTitle() {
+        Uri uri = Uri.parse("content://pkg/slice");
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
+        rb.setTitle("Title");
+        rb.setSubtitle("Subtitle");
+        lb.addRow(rb);
+
+        SliceMetadata sliceMetadata = SliceMetadata.from(mContext, lb.build());
+        assertEquals("Title", sliceMetadata.getTitle());
+    }
+
+    @Test
+    public void testGetTitleFromPrimaryAction() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        SliceAction primaryAction = new SliceAction(getIntent(""), icon, "Action");
+        ListBuilder.HeaderBuilder hb = new ListBuilder.HeaderBuilder(lb);
+        hb.setPrimaryAction(primaryAction);
+        lb.setHeader(hb);
+
+        SliceMetadata sliceMetadata = SliceMetadata.from(mContext, lb.build());
+        assertEquals("Action", sliceMetadata.getTitle());
+    }
+
+    @Test
+    public void testGetSubtitle() {
+        Uri uri = Uri.parse("content://pkg/slice");
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
+        rb.setTitle("Title");
+        rb.setSubtitle("Subtitle");
+        lb.addRow(rb);
+
+        SliceMetadata sliceMetadata = SliceMetadata.from(mContext, lb.build());
+        assertEquals("Subtitle", sliceMetadata.getSubtitle());
+    }
+
+    @Test
     public void testGetSliceActionsNull() {
         Uri uri = Uri.parse("content://pkg/slice");
 

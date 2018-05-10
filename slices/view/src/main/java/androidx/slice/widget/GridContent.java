@@ -44,6 +44,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
+import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
@@ -74,6 +75,7 @@ public class GridContent {
     private int mImageTextHeight;
     private int mMaxHeight;
     private int mMinHeight;
+    private SliceItem mTitleItem;
 
     public GridContent(Context context, SliceItem gridItem) {
         populate(gridItem);
@@ -131,6 +133,9 @@ public class GridContent {
 
     private void processContent(CellContent cc) {
         if (cc.isValid()) {
+            if ((mTitleItem == null && cc.getTitleItem() != null)) {
+                mTitleItem = cc.getTitleItem();
+            }
             mGridContent.add(cc);
             if (!cc.isImageOnly()) {
                 mAllImages = false;
@@ -139,6 +144,19 @@ public class GridContent {
             mHasImage |= cc.hasImage();
             mLargestImageMode = Math.max(mLargestImageMode, cc.getImageMode());
         }
+    }
+
+    /**
+     * @return the title of this grid row, if it exists.
+     */
+    @Nullable
+    public CharSequence getTitle() {
+        if (mTitleItem != null) {
+            return mTitleItem.getText();
+        } else if (mPrimaryAction != null) {
+            return new SliceActionImpl(mPrimaryAction).getTitle();
+        }
+        return null;
     }
 
     /**
@@ -277,6 +295,7 @@ public class GridContent {
         private int mTextCount;
         private boolean mHasImage;
         private int mImageMode = -1;
+        private SliceItem mTitleItem;
 
         public CellContent(SliceItem cellItem) {
             populate(cellItem);
@@ -310,6 +329,10 @@ public class GridContent {
                             || FORMAT_LONG.equals(itemFormat))) {
                         mTextCount++;
                         mCellItems.add(item);
+                        if (mTitleItem == null
+                                || (!mTitleItem.hasHint(HINT_TITLE) && item.hasHint(HINT_TITLE))) {
+                            mTitleItem = item;
+                        }
                     } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
                         if (item.hasHint(Slice.HINT_NO_TINT)) {
                             mImageMode = item.hasHint(Slice.HINT_LARGE)
@@ -327,6 +350,14 @@ public class GridContent {
                 mCellItems.add(cellItem);
             }
             return isValid();
+        }
+
+        /**
+         * @return title text slice item if this cell has one.
+         */
+        @Nullable
+        public SliceItem getTitleItem() {
+            return mTitleItem;
         }
 
         /**
