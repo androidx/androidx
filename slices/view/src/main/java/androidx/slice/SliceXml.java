@@ -49,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -246,7 +247,6 @@ class SliceXml {
         serializer.endTag(NAMESPACE, isAction ? TAG_ACTION : TAG_SLICE);
     }
 
-    @SuppressWarnings("DefaultCharset")
     private static void serialize(SliceItem item, Context context,
             SliceUtils.SerializeOptions options, XmlSerializer serializer) throws IOException {
         String format = item.getFormat();
@@ -308,14 +308,16 @@ class SliceXml {
                     String text = Html.toHtml((Spanned) item.getText());
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
                         // 19-21 don't allow special characters in XML, so we base64 encode it.
-                        text = Base64.encodeToString(text.getBytes(), Base64.NO_WRAP);
+                        text = Base64.encodeToString(
+                                text.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
                     }
                     serializer.text(text);
                 } else {
                     String text = String.valueOf(item.getText());
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
                         // 19-21 don't allow special characters in XML, so we base64 encode it.
-                        text = Base64.encodeToString(text.getBytes(), Base64.NO_WRAP);
+                        text = Base64.encodeToString(
+                                text.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
                     }
                     serializer.text(text);
                 }
@@ -350,7 +352,6 @@ class SliceXml {
         serializer.text(icon.getUri().toString());
     }
 
-    @SuppressWarnings("DefaultCharset")
     private static void serializeIcon(XmlSerializer serializer, IconCompat icon,
             Context context, SliceUtils.SerializeOptions options) throws IOException {
         Drawable d = icon.loadDrawable(context);
@@ -374,7 +375,8 @@ class SliceXml {
         b.recycle();
 
         serializer.attribute(NAMESPACE, ATTR_ICON_TYPE, ICON_TYPE_DEFAULT);
-        serializer.text(new String(Base64.encode(outputStream.toByteArray(), Base64.NO_WRAP)));
+        serializer.text(new String(
+                Base64.encode(outputStream.toByteArray(), Base64.NO_WRAP), StandardCharsets.UTF_8));
     }
 
     private static String hintStr(List<String> hints) {
