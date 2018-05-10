@@ -215,6 +215,7 @@ package androidx.core.app {
     field public static final java.lang.String EXTRA_BIG_TEXT = "android.bigText";
     field public static final java.lang.String EXTRA_COMPACT_ACTIONS = "android.compactActions";
     field public static final java.lang.String EXTRA_CONVERSATION_TITLE = "android.conversationTitle";
+    field public static final java.lang.String EXTRA_HIDDEN_CONVERSATION_TITLE = "android.hiddenConversationTitle";
     field public static final java.lang.String EXTRA_INFO_TEXT = "android.infoText";
     field public static final java.lang.String EXTRA_IS_GROUP_CONVERSATION = "android.isGroupConversation";
     field public static final java.lang.String EXTRA_LARGE_ICON = "android.largeIcon";
