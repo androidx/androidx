@@ -140,6 +140,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private int mMinLargeHeight;
     private int mMaxLargeHeight;
     private int mActionRowHeight;
+    private int mMinScrollHeight;
 
     private AttributeSet mAttrs;
     private int mDefStyleAttr;
@@ -194,6 +195,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         mMaxLargeHeight = getResources().getDimensionPixelSize(R.dimen.abc_slice_max_large_height);
         mActionRowHeight = getResources().getDimensionPixelSize(
                 R.dimen.abc_slice_action_row_height);
+        mMinScrollHeight = getResources().getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
 
         mCurrentView = new LargeTemplateView(getContext());
         mCurrentView.setMode(getMode());
@@ -343,10 +345,12 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             if (heightMode != MeasureSpec.EXACTLY) {
                 if (!mIsScrollable) {
                     height = Math.min(mMaxLargeHeight, sliceHeight);
+                } else if (sliceHeight > mMinLargeHeight) {
+                    boolean bigEnoughToScroll =
+                            sliceHeight - mMinLargeHeight >= mMinScrollHeight;
+                    height = bigEnoughToScroll ? mMinLargeHeight : sliceHeight;
                 } else {
-                    // If we want to be bigger than max, then we can be a good scrollable at min
-                    // large height, if it's not larger lets just use its desired height
-                    height = sliceHeight > mMaxLargeHeight ? mMinLargeHeight : sliceHeight;
+                    height = sliceHeight;
                 }
             }
         } else {
