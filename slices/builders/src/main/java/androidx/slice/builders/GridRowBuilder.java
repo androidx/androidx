@@ -313,7 +313,7 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      * @see ListBuilder#SMALL_IMAGE
      * @see ListBuilder#ICON_IMAGE
      */
-    public static final class CellBuilder extends TemplateSliceBuilder {
+    public static class CellBuilder extends TemplateSliceBuilder {
         private androidx.slice.builders.impl.GridRowBuilder.CellBuilder mImpl;
 
         /**

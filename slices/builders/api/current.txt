@@ -47,7 +47,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.GridRowBuilder setSeeMoreCell(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
   }
 
-  public static final class GridRowBuilder.CellBuilder extends androidx.slice.builders.TemplateSliceBuilder {
+  public static class GridRowBuilder.CellBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor public GridRowBuilder.CellBuilder(androidx.slice.builders.GridRowBuilder);
     ctor public GridRowBuilder.CellBuilder(androidx.slice.builders.GridRowBuilder, android.net.Uri);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat, int);
