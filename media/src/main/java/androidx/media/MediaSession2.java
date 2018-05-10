@@ -430,8 +430,9 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      * Notify routes information to a connected controller
      *
      * @param controller controller information
-     * @param routes The routes information. Each bundle should be from
-     *              MediaRouteDescritor.asBundle().
+     * @param routes The routes information. Each bundle should be from {@link
+     *               androidx.mediarouter.media.MediaRouter.RouteInfo#getUniqueRouteDescriptorBundle
+     *               RouteInfo}.
      */
     public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
             @Nullable List<Bundle> routes) {
@@ -1063,8 +1064,12 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * Called when a controller called {@link MediaController2#selectRoute(Bundle)}.
          * @param session the session for this event
          * @param controller controller information
-         * @param route The route bundle which may be from MediaRouteDescritor.asBundle().
+         * @param route The route bundle from {@link
+         *              androidx.mediarouter.media.MediaRouter.RouteInfo
+         *              #getUniqueRouteDescriptorBundle RouteInfo}
          * @see SessionCommand2#COMMAND_CODE_SESSION_SELECT_ROUTE
+         * @see androidx.mediarouter.media.MediaRouter.RouteInfo#getUniqueRouteDescriptorBundle
+         * @see androidx.mediarouter.media.MediaRouter#getRoute
          */
         public void onSelectRoute(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull Bundle route) { }

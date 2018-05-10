@@ -304,6 +304,7 @@ package androidx.mediarouter.media {
     method public static androidx.mediarouter.media.MediaRouter getInstance(android.content.Context);
     method public android.support.v4.media.session.MediaSessionCompat.Token getMediaSessionToken();
     method public java.util.List<androidx.mediarouter.media.MediaRouter.ProviderInfo> getProviders();
+    method public androidx.mediarouter.media.MediaRouter.RouteInfo getRoute(android.os.Bundle);
     method public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo> getRoutes();
     method public androidx.mediarouter.media.MediaRouter.RouteInfo getSelectedRoute();
     method public boolean isRouteAvailable(androidx.mediarouter.media.MediaRouteSelector, int);
@@ -370,6 +371,7 @@ package androidx.mediarouter.media {
     method public android.view.Display getPresentationDisplay();
     method public androidx.mediarouter.media.MediaRouter.ProviderInfo getProvider();
     method public android.content.IntentSender getSettingsIntent();
+    method public android.os.Bundle getUniqueRouteDescriptorBundle();
     method public int getVolume();
     method public int getVolumeHandling();
     method public int getVolumeMax();

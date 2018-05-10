@@ -276,6 +276,22 @@ public final class MediaRouter {
     }
 
     /**
+     * Gets the {@link MediaRouter.RouteInfo routes} from a uniqueRouteDescriptorBundle.
+     *
+     * @param uniqueRouteDescriptorBundle a bundle created by
+     *            {@link RouteInfo#getUniqueRouteDescriptorBundle()}
+     * @return A route for the given {@code uniqueRouteDescriptorBundle} if exist, otherwise null.
+     * @see androidx.media.MediaSession2#notifyRoutesInfoChanged
+     * @see androidx.media.MediaController2#ControllerCallback#onRoutesInfoChanged
+     */
+    public @Nullable RouteInfo getRoute(Bundle uniqueRouteDescriptorBundle) {
+        if (uniqueRouteDescriptorBundle == null) {
+            return null;
+        }
+        return sGlobal.getRoute(uniqueRouteDescriptorBundle.getString(MediaRouteDescriptor.KEY_ID));
+    }
+
+    /**
      * Gets information about the {@link MediaRouter.ProviderInfo route providers}
      * currently known to this media router.
      */
@@ -1277,6 +1293,20 @@ public final class MediaRouter {
             return mDeviceType;
         }
 
+        /**
+         * Gets the bundle of {@link MediaRouteDescriptor} with a global unique route id
+         * associated with this route.
+         *
+         * @return the bundle of {@link MediaRouteDescriptor} with a global unique route id
+         * associated with this route.
+         * @see androidx.media.MediaSession2#notifyRoutesInfoChanged
+         * @see androidx.media.MediaController2.ControllerCallback#onRoutesInfoChanged
+         */
+        public @NonNull Bundle getUniqueRouteDescriptorBundle() {
+            Bundle bundle = mDescriptor.asBundle();
+            bundle.putString(MediaRouteDescriptor.KEY_ID, mUniqueId);
+            return bundle;
+        }
 
         /**
          * @hide
