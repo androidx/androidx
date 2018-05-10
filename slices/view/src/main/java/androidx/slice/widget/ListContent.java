@@ -34,6 +34,7 @@ import static androidx.slice.widget.SliceView.MODE_LARGE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
@@ -78,6 +79,10 @@ public class ListContent {
     private int mGridTopPadding;
     private int mGridBottomPadding;
 
+    public ListContent(Context context, Slice slice) {
+        this(context, slice, null, 0, 0);
+    }
+
     public ListContent(Context context, Slice slice, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         mSlice = slice;
@@ -85,33 +90,40 @@ public class ListContent {
 
         // TODO: duplicated code from SliceChildView; could do something better
         // Some of this information will impact the size calculations for slice content.
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
-                defStyleAttr, defStyleRes);
-        try {
-            mHeaderTitleSize = (int) a.getDimension(
-                    R.styleable.SliceView_headerTitleSize, 0);
-            mHeaderSubtitleSize = (int) a.getDimension(
-                    R.styleable.SliceView_headerSubtitleSize, 0);
-            mVerticalHeaderTextPadding = (int) a.getDimension(
-                    R.styleable.SliceView_headerTextVerticalPadding, 0);
+        if (context != null) {
+            Resources.Theme theme = context.getTheme();
+            if (theme != null) {
+                TypedArray a = theme.obtainStyledAttributes(attrs, R.styleable.SliceView,
+                        defStyleAttr, defStyleRes);
+                try {
+                    mHeaderTitleSize = (int) a.getDimension(
+                            R.styleable.SliceView_headerTitleSize, 0);
+                    mHeaderSubtitleSize = (int) a.getDimension(
+                            R.styleable.SliceView_headerSubtitleSize, 0);
+                    mVerticalHeaderTextPadding = (int) a.getDimension(
+                            R.styleable.SliceView_headerTextVerticalPadding, 0);
 
-            mTitleSize = (int) a.getDimension(R.styleable.SliceView_titleSize, 0);
-            mSubtitleSize = (int) a.getDimension(
-                    R.styleable.SliceView_subtitleSize, 0);
-            mVerticalTextPadding = (int) a.getDimension(
-                    R.styleable.SliceView_textVerticalPadding, 0);
+                    mTitleSize = (int) a.getDimension(R.styleable.SliceView_titleSize, 0);
+                    mSubtitleSize = (int) a.getDimension(
+                            R.styleable.SliceView_subtitleSize, 0);
+                    mVerticalTextPadding = (int) a.getDimension(
+                            R.styleable.SliceView_textVerticalPadding, 0);
 
-            mGridTitleSize = (int) a.getDimension(R.styleable.SliceView_gridTitleSize, 0);
-            mGridSubtitleSize = (int) a.getDimension(
-                    R.styleable.SliceView_gridSubtitleSize, 0);
-            int defaultVerticalGridPadding = context.getResources().getDimensionPixelSize(
-                    R.dimen.abc_slice_grid_text_inner_padding);
-            mVerticalGridTextPadding = (int) a.getDimension(
-                    R.styleable.SliceView_gridTextVerticalPadding, defaultVerticalGridPadding);
-            mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
-            mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
-        } finally {
-            a.recycle();
+                    mGridTitleSize = (int) a.getDimension(R.styleable.SliceView_gridTitleSize, 0);
+                    mGridSubtitleSize = (int) a.getDimension(
+                            R.styleable.SliceView_gridSubtitleSize, 0);
+                    int defaultVerticalGridPadding = context.getResources().getDimensionPixelSize(
+                            R.dimen.abc_slice_grid_text_inner_padding);
+                    mVerticalGridTextPadding = (int) a.getDimension(
+                            R.styleable.SliceView_gridTextVerticalPadding,
+                            defaultVerticalGridPadding);
+                    mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
+                    mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding,
+                            0);
+                } finally {
+                    a.recycle();
+                }
+            }
         }
 
         populate(slice);
