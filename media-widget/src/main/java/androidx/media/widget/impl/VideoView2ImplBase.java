@@ -64,6 +64,7 @@ import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.MediaPlayer2;
 import androidx.media.SessionToken2;
+import androidx.media.subtitle.Cea708CaptionRenderer;
 import androidx.media.subtitle.ClosedCaptionRenderer;
 import androidx.media.subtitle.SubtitleController;
 import androidx.media.subtitle.SubtitleTrack;
@@ -100,7 +101,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     private static final int SIZE_TYPE_EMBEDDED = 0;
     private static final int SIZE_TYPE_FULL = 1;
-    private static final int SIZE_TYPE_MINIMAL = 2;
 
     private AccessibilityManager mAccessibilityManager;
     private AudioManager mAudioManager;
@@ -117,8 +117,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     private MediaPlayer2 mMediaPlayer;
     private DataSourceDesc mDsd;
-    private Uri mUri;
-    private Map<String, String> mHeaders;
     private MediaControlView2 mMediaControlView;
     private MediaSessionCompat mMediaSession;
     private MediaControllerCompat mMediaController;
@@ -129,7 +127,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private String mTitle;
 
     private WindowManager mManager;
-    private Resources mResources;
     private View mMusicView;
     private Drawable mMusicAlbumDrawable;
     private String mMusicTitleText;
@@ -161,12 +158,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private int mSelectedAudioTrackIndex;
     private int mSelectedSubtitleTrackIndex;
 
-    private SubtitleView mSubtitleView;
+    private SubtitleAnchorView mSubtitleAnchorView;
     private boolean mSubtitleEnabled;
 
     private float mSpeed;
     private float mFallbackSpeed;  // keep the original speed before 'pause' is called.
-    private float mVolumeLevelFloat;
     private int mVolumeLevel;
     private VideoView2 mInstance;
 
@@ -226,7 +222,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 });
                 // Start remote playback (if necessary)
                 // TODO: b/77556429
-                mRoutePlayer.openVideo(mUri);
+                mRoutePlayer.openVideo(mDsd.getUri());
             }
         }
 
@@ -284,10 +280,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mInstance.addView(mTextureView);
         mInstance.addView(mSurfaceView);
 
-        mSubtitleView = new SubtitleView(context);
-        mSubtitleView.setLayoutParams(params);
-        mSubtitleView.setBackgroundColor(0);
-        mInstance.addView(mSubtitleView);
+        mSubtitleAnchorView = new SubtitleAnchorView(context);
+        mSubtitleAnchorView.setLayoutParams(params);
+        mSubtitleAnchorView.setBackgroundColor(0);
+        mInstance.addView(mSubtitleAnchorView);
 
         boolean enableControlView = (attrs == null) || attrs.getAttributeBooleanValue(
                 "http://schemas.android.com/apk/res/android",
@@ -417,7 +413,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      */
     @Override
     public void setSubtitleEnabled(boolean enable) {
-        // No-op on API < 28
+        if (enable != mSubtitleEnabled) {
+            selectOrDeselectSubtitle(enable);
+        }
+        mSubtitleEnabled = enable;
     }
 
     /**
@@ -427,8 +426,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      */
     @Override
     public boolean isSubtitleEnabled() {
-        // Not supported on API < 28
-        return false;
+        return mSubtitleEnabled;
     }
 
     /**
@@ -912,7 +910,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             final Context context = mInstance.getContext();
             mSubtitleController = new SubtitleController(context);
             mSubtitleController.registerRenderer(new ClosedCaptionRenderer(context));
-            mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleView);
+            mSubtitleController.registerRenderer(new Cea708CaptionRenderer(context));
+            mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleAnchorView);
             Executor executor = new Executor() {
                 @Override
                 public void execute(Runnable runnable) {
@@ -1105,13 +1104,13 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 mSelectedSubtitleTrackIndex = mSubtitleTrackIndices.get(0).first;
                 mSubtitleController.selectTrack(mSubtitleTrackIndices.get(0).second);
                 mMediaPlayer.selectTrack(mSelectedSubtitleTrackIndex);
-                mSubtitleView.setVisibility(View.VISIBLE);
+                mSubtitleAnchorView.setVisibility(View.VISIBLE);
             }
         } else {
             if (mSelectedSubtitleTrackIndex != INVALID_TRACK_INDEX) {
                 mMediaPlayer.deselectTrack(mSelectedSubtitleTrackIndex);
                 mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
-                mSubtitleView.setVisibility(View.GONE);
+                mSubtitleAnchorView.setVisibility(View.GONE);
             }
         }
     }
@@ -1181,7 +1180,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             return;
         }
 
-        mResources = mInstance.getResources();
+        Resources resources = mInstance.getResources();
         mManager = (WindowManager) mInstance.getContext().getApplicationContext()
                 .getSystemService(Context.WINDOW_SERVICE);
 
@@ -1201,21 +1200,21 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 }
             });
         } else {
-            mMusicAlbumDrawable = mResources.getDrawable(R.drawable.ic_default_album_image);
+            mMusicAlbumDrawable = resources.getDrawable(R.drawable.ic_default_album_image);
         }
 
         String title = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         if (title != null) {
             mMusicTitleText = title;
         } else {
-            mMusicTitleText = mResources.getString(R.string.mcv2_music_title_unknown_text);
+            mMusicTitleText = resources.getString(R.string.mcv2_music_title_unknown_text);
         }
 
         String artist = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
         if (artist != null) {
             mMusicArtistText = artist;
         } else {
-            mMusicArtistText = mResources.getString(R.string.mcv2_music_artist_unknown_text);
+            mMusicArtistText = resources.getString(R.string.mcv2_music_artist_unknown_text);
         }
 
         // Send title and artist string to MediaControlView2

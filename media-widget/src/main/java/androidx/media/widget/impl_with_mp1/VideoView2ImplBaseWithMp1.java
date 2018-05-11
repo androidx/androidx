@@ -97,7 +97,6 @@ class VideoView2ImplBaseWithMp1
 
     private static final int SIZE_TYPE_EMBEDDED = 0;
     private static final int SIZE_TYPE_FULL = 1;
-    private static final int SIZE_TYPE_MINIMAL = 2;
 
     private AccessibilityManager mAccessibilityManager;
     private AudioManager mAudioManager;
@@ -113,7 +112,6 @@ class VideoView2ImplBaseWithMp1
     private VideoSurfaceViewWithMp1 mSurfaceView;
 
     protected MediaPlayer mMediaPlayer;
-    private DataSourceDesc mDsd;
     private Uri mUri;
     private Map<String, String> mHeaders;
     private MediaControlView2 mMediaControlView;
@@ -126,7 +124,6 @@ class VideoView2ImplBaseWithMp1
     private String mTitle;
 
     private WindowManager mManager;
-    private Resources mResources;
     private View mMusicView;
     private Drawable mMusicAlbumDrawable;
     private String mMusicTitleText;
@@ -156,7 +153,6 @@ class VideoView2ImplBaseWithMp1
 
     private float mSpeed;
     private float mFallbackSpeed;  // keep the original speed before 'pause' is called.
-    private float mVolumeLevelFloat;
     private int mVolumeLevel;
     protected VideoView2 mInstance;
 
@@ -1112,7 +1108,7 @@ class VideoView2ImplBaseWithMp1
             return;
         }
 
-        mResources = mInstance.getResources();
+        Resources resources = mInstance.getResources();
         mManager = (WindowManager) mInstance.getContext().getApplicationContext()
                 .getSystemService(Context.WINDOW_SERVICE);
 
@@ -1132,21 +1128,21 @@ class VideoView2ImplBaseWithMp1
                 }
             });
         } else {
-            mMusicAlbumDrawable = mResources.getDrawable(R.drawable.ic_default_album_image);
+            mMusicAlbumDrawable = resources.getDrawable(R.drawable.ic_default_album_image);
         }
 
         String title = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         if (title != null) {
             mMusicTitleText = title;
         } else {
-            mMusicTitleText = mResources.getString(R.string.mcv2_music_title_unknown_text);
+            mMusicTitleText = resources.getString(R.string.mcv2_music_title_unknown_text);
         }
 
         String artist = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
         if (artist != null) {
             mMusicArtistText = artist;
         } else {
-            mMusicArtistText = mResources.getString(R.string.mcv2_music_artist_unknown_text);
+            mMusicArtistText = resources.getString(R.string.mcv2_music_artist_unknown_text);
         }
 
         // Send title and artist string to MediaControlView2
