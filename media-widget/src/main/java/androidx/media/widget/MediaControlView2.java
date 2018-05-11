@@ -18,9 +18,15 @@ package androidx.media.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -33,6 +39,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityManager;
+import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
@@ -220,12 +228,19 @@ public class MediaControlView2 extends BaseLayout {
     private static final int SIZE_TYPE_FULL = 1;
     private static final int SIZE_TYPE_MINIMAL = 2;
 
+    private static final int UX_STATE_FULL = 0;
+    private static final int UX_STATE_PROGRESS_BAR_ONLY = 1;
+    private static final int UX_STATE_EMPTY = 2;
+    private static final int UX_STATE_ANIMATING = 3;
+
     private static final int MAX_PROGRESS = 1000;
     private static final int DEFAULT_PROGRESS_UPDATE_TIME_MS = 1000;
     private static final int REWIND_TIME_MS = 10000;
     private static final int FORWARD_TIME_MS = 30000;
     private static final int AD_SKIP_WAIT_TIME_MS = 5000;
     private static final int RESOURCE_NON_EXISTENT = -1;
+    private static final int HIDE_TIME_MS = 250;
+    private static final int SHOW_TIME_MS = 250;
     private static final String RESOURCE_EMPTY = "";
 
     private Resources mResources;
@@ -234,10 +249,10 @@ public class MediaControlView2 extends BaseLayout {
     private PlaybackStateCompat mPlaybackState;
     private MediaMetadataCompat mMetadata;
     private OnFullScreenListener mOnFullScreenListener;
+    private AccessibilityManager mAccessibilityManager;
     private int mDuration;
     private int mPrevState;
     private int mPrevWidth;
-    private int mPrevHeight;
     private int mOriginalLeftBarWidth;
     private int mVideoTrackCount;
     private int mAudioTrackCount;
@@ -253,8 +268,9 @@ public class MediaControlView2 extends BaseLayout {
     private int mSettingsWindowMargin;
     private int mMediaType;
     private int mSizeType;
-    private int mOrientation;
+    private int mUxState;
     private long mPlaybackActions;
+    private long mShowControllerIntervalMs;
     private boolean mDragging;
     private boolean mIsFullScreen;
     private boolean mOverflowExpanded;
@@ -263,7 +279,7 @@ public class MediaControlView2 extends BaseLayout {
     private boolean mSeekAvailable;
     private boolean mIsAdvertisement;
     private boolean mIsMute;
-    private boolean mNeedUXUpdate;
+    private boolean mNeedUxUpdate;
 
     // Relating to Title Bar View
     private ViewGroup mRoot;
@@ -287,6 +303,7 @@ public class MediaControlView2 extends BaseLayout {
     private LinearLayout mMinimalExtraView;
 
     // Relating to Progress Bar View
+    private View mProgressBar;
     private ProgressBar mProgress;
     private View mProgressBuffer;
 
@@ -330,6 +347,12 @@ public class MediaControlView2 extends BaseLayout {
     private List<String> mPlaybackSpeedTextList;
     private List<Float> mPlaybackSpeedList;
 
+    private AnimatorSet mHideMainBarsAnimator;
+    private AnimatorSet mHideProgressBarAnimator;
+    private AnimatorSet mHideAllBarsAnimator;
+    private AnimatorSet mShowMainBarsAnimator;
+    private AnimatorSet mShowAllBarsAnimator;
+
     public MediaControlView2(@NonNull Context context) {
         this(context, null);
     }
@@ -346,6 +369,9 @@ public class MediaControlView2 extends BaseLayout {
         // Inflate MediaControlView2 from XML
         mRoot = makeControllerView();
         addView(mRoot);
+
+        mAccessibilityManager = (AccessibilityManager) context.getSystemService(
+                Context.ACCESSIBILITY_SERVICE);
     }
 
     /**
@@ -491,12 +517,22 @@ public class MediaControlView2 extends BaseLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        return false;
+        if (ev.getAction() == MotionEvent.ACTION_UP) {
+            if (mMediaType != MEDIA_TYPE_MUSIC || mSizeType != SIZE_TYPE_FULL) {
+                toggleMediaControlViewVisibility();
+            }
+        }
+        return true;
     }
 
     @Override
     public boolean onTrackballEvent(MotionEvent ev) {
-        return false;
+        if (ev.getAction() == MotionEvent.ACTION_UP) {
+            if (mMediaType != MEDIA_TYPE_MUSIC || mSizeType != SIZE_TYPE_FULL) {
+                toggleMediaControlViewVisibility();
+            }
+        }
+        return true;
     }
 
     @Override
@@ -504,8 +540,7 @@ public class MediaControlView2 extends BaseLayout {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         // Update layout when this view's width changes in order to avoid any UI overlap between
         // transport controls.
-        if (mPrevWidth != getMeasuredWidth()
-                || mPrevHeight != getMeasuredHeight() || mNeedUXUpdate) {
+        if (mPrevWidth != getMeasuredWidth() || mNeedUxUpdate) {
             // Dismiss SettingsWindow if it is showing.
             mSettingsWindow.dismiss();
 
@@ -531,7 +566,7 @@ public class MediaControlView2 extends BaseLayout {
                         screenHeight);
 
             } else if (mMediaType == MEDIA_TYPE_MUSIC) {
-                if (mNeedUXUpdate) {
+                if (mNeedUxUpdate) {
                     // One-time operation for Music media type
                     mBasicControls.removeView(mMuteButton);
                     mExtraControls.addView(mMuteButton, 0);
@@ -543,7 +578,7 @@ public class MediaControlView2 extends BaseLayout {
                         mRewButton.setVisibility(View.GONE);
                     }
                 }
-                mNeedUXUpdate = false;
+                mNeedUxUpdate = false;
 
                 // Max number of icons inside BottomBarRightView for Music mode is 3.
                 int maxIconCount = 3;
@@ -551,7 +586,6 @@ public class MediaControlView2 extends BaseLayout {
                         screenHeight);
             }
             mPrevWidth = currWidth;
-            mPrevHeight = currHeight;
         }
         // Update title bar parameters in order to avoid overlap between title view and the right
         // side of the title bar.
@@ -605,6 +639,10 @@ public class MediaControlView2 extends BaseLayout {
             mRouteButton.setRouteSelector(MediaRouteSelector.EMPTY);
             mRouteButton.setVisibility(View.GONE);
         }
+    }
+
+    void setShowControllerInterval(long interval) {
+        mShowControllerIntervalMs = interval;
     }
 
     ///////////////////////////////////////////////////
@@ -706,6 +744,7 @@ public class MediaControlView2 extends BaseLayout {
         mMinimalExtraView.setVisibility(View.GONE);
 
         // Relating to Progress Bar View
+        mProgressBar = v.findViewById(R.id.progress_bar);
         mProgress = v.findViewById(R.id.progress);
         if (mProgress != null) {
             if (mProgress instanceof SeekBar) {
@@ -784,6 +823,152 @@ public class MediaControlView2 extends BaseLayout {
                 R.dimen.mcv2_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
                 LayoutParams.WRAP_CONTENT, true);
+
+        int titleBarTranslateY =
+                (-1) * mResources.getDimensionPixelSize(R.dimen.mcv2_title_bar_height);
+        int bottomBarHeight = mResources.getDimensionPixelSize(R.dimen.mcv2_bottom_bar_height);
+        int progressThumbHeight = mResources.getDimensionPixelSize(
+                R.dimen.mcv2_custom_progress_thumb_size);
+        int progressBarHeight = mResources.getDimensionPixelSize(
+                R.dimen.mcv2_custom_progress_max_size);
+        int bottomBarTranslateY = bottomBarHeight + progressThumbHeight / 2 - progressBarHeight / 2;
+
+        ValueAnimator fadeOutAnimator = ValueAnimator.ofFloat(1.0f, 0.0f);
+        fadeOutAnimator.setInterpolator(new LinearInterpolator());
+        fadeOutAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float alpha = (float) animation.getAnimatedValue();
+                SeekBar seekBar = (SeekBar) mProgress;
+                GradientDrawable thumb = (GradientDrawable)
+                        mResources.getDrawable(R.drawable.custom_progress_thumb);
+                int newSize = (int) (mResources.getDimensionPixelSize(
+                        R.dimen.mcv2_custom_progress_thumb_size) * alpha);
+                thumb.setSize(newSize, newSize);
+                seekBar.setThumb(thumb);
+
+                mTransportControls.setAlpha(alpha);
+                if (mSizeType == SIZE_TYPE_MINIMAL) {
+                    mFullScreenButton.setAlpha(alpha);
+                }
+                if (alpha == 0.0f) {
+                    mTransportControls.setVisibility(View.GONE);
+                } else if (alpha == 1.0f) {
+                    setEnabled(false);
+                }
+            }
+        });
+
+        ValueAnimator fadeInAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
+        fadeInAnimator.setInterpolator(new LinearInterpolator());
+        fadeInAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float alpha = (float) animation.getAnimatedValue();
+                SeekBar seekBar = (SeekBar) mProgress;
+                GradientDrawable thumb =
+                        (GradientDrawable) mResources.getDrawable(R.drawable.custom_progress_thumb);
+                int newSize = (int) (mResources.getDimensionPixelSize(
+                        R.dimen.mcv2_custom_progress_thumb_size) * alpha);
+                thumb.setSize(newSize, newSize);
+                seekBar.setThumb(thumb);
+
+                mTransportControls.setAlpha(alpha);
+                if (mSizeType == SIZE_TYPE_MINIMAL) {
+                    mFullScreenButton.setAlpha(alpha);
+                }
+                if (alpha == 0.0f) {
+                    mTransportControls.setVisibility(View.VISIBLE);
+                } else if (alpha == 1.0f) {
+                    setEnabled(true);
+                }
+            }
+        });
+
+        mHideMainBarsAnimator = new AnimatorSet();
+        mHideMainBarsAnimator
+                .play(ObjectAnimator.ofFloat(mTitleBar, "translationY",
+                        0, titleBarTranslateY))
+                .with(ObjectAnimator.ofFloat(mBottomBar, "translationY",
+                        0, bottomBarTranslateY))
+                .with(ObjectAnimator.ofFloat(mProgressBar, "translationY",
+                        0, bottomBarTranslateY))
+                .with(fadeOutAnimator);
+        mHideMainBarsAnimator.setDuration(HIDE_TIME_MS);
+        mHideMainBarsAnimator.getChildAnimations().get(0).addListener(
+                new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mUxState = UX_STATE_PROGRESS_BAR_ONLY;
+                    }
+                });
+
+        mHideProgressBarAnimator = new AnimatorSet();
+        mHideProgressBarAnimator
+                .play(ObjectAnimator.ofFloat(mBottomBar, "translationY",
+                        bottomBarTranslateY, bottomBarTranslateY + progressBarHeight))
+                .with(ObjectAnimator.ofFloat(mProgressBar, "translationY",
+                        bottomBarTranslateY, bottomBarTranslateY + progressBarHeight));
+        mHideProgressBarAnimator.setDuration(HIDE_TIME_MS);
+        mHideProgressBarAnimator.getChildAnimations().get(0).addListener(
+                new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mUxState = UX_STATE_EMPTY;
+                    }
+                });
+
+        mHideAllBarsAnimator = new AnimatorSet();
+        mHideAllBarsAnimator
+                .play(ObjectAnimator.ofFloat(mTitleBar, "translationY",
+                        0, titleBarTranslateY))
+                .with(ObjectAnimator.ofFloat(mBottomBar, "translationY",
+                        0, bottomBarTranslateY + progressBarHeight))
+                .with(ObjectAnimator.ofFloat(mProgressBar, "translationY",
+                        0, bottomBarTranslateY + progressBarHeight))
+                .with(fadeOutAnimator);
+        mHideAllBarsAnimator.setDuration(HIDE_TIME_MS);
+        mHideAllBarsAnimator.getChildAnimations().get(0).addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mUxState = UX_STATE_EMPTY;
+            }
+        });
+
+        mShowMainBarsAnimator = new AnimatorSet();
+        mShowMainBarsAnimator
+                .play(ObjectAnimator.ofFloat(mTitleBar, "translationY",
+                        titleBarTranslateY, 0))
+                .with(ObjectAnimator.ofFloat(mBottomBar, "translationY",
+                        bottomBarTranslateY, 0))
+                .with(ObjectAnimator.ofFloat(mProgressBar, "translationY",
+                        bottomBarTranslateY, 0))
+                .with(fadeInAnimator);
+        mShowMainBarsAnimator.setDuration(SHOW_TIME_MS);
+        mShowMainBarsAnimator.getChildAnimations().get(0).addListener(
+                new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mUxState = UX_STATE_FULL;
+                    }
+                });
+
+        mShowAllBarsAnimator = new AnimatorSet();
+        mShowAllBarsAnimator
+                .play(ObjectAnimator.ofFloat(mTitleBar, "translationY",
+                        titleBarTranslateY, 0))
+                .with(ObjectAnimator.ofFloat(mBottomBar, "translationY",
+                        bottomBarTranslateY + progressBarHeight, 0))
+                .with(ObjectAnimator.ofFloat(mProgressBar, "translationY",
+                        bottomBarTranslateY + progressBarHeight, 0))
+                .with(fadeInAnimator);
+        mShowAllBarsAnimator.setDuration(SHOW_TIME_MS);
+        mShowAllBarsAnimator.getChildAnimations().get(0).addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mUxState = UX_STATE_FULL;
+            }
+        });
     }
 
     /**
@@ -861,7 +1046,6 @@ public class MediaControlView2 extends BaseLayout {
 
         if (mEndTime != null) {
             mEndTime.setText(stringForTime(mDuration));
-
         }
         if (mCurrentTime != null) {
             mCurrentTime.setText(stringForTime(currentPosition));
@@ -916,6 +1100,81 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
+    private void toggleMediaControlViewVisibility() {
+        if ((mMediaType == MEDIA_TYPE_MUSIC && mSizeType == SIZE_TYPE_FULL)
+                || mShowControllerIntervalMs == 0
+                || mAccessibilityManager.isTouchExplorationEnabled()
+                || mUxState == UX_STATE_ANIMATING) {
+            return;
+        }
+
+        removeCallbacks(mHideMainBars);
+        removeCallbacks(mHideProgressBar);
+
+        switch (mUxState) {
+            case UX_STATE_EMPTY:
+                post(mShowAllBars);
+                break;
+            case UX_STATE_PROGRESS_BAR_ONLY:
+                post(mShowMainBars);
+                break;
+            case UX_STATE_FULL:
+                post(mHideAllBars);
+                break;
+        }
+    }
+
+    private final Runnable mShowAllBars = new Runnable() {
+        @Override
+        public void run() {
+            mUxState = UX_STATE_ANIMATING;
+            mShowAllBarsAnimator.start();
+            if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+                postDelayed(mHideMainBars, mShowControllerIntervalMs);
+            }
+        }
+    };
+
+    private final Runnable mShowMainBars = new Runnable() {
+        @Override
+        public void run() {
+            mUxState = UX_STATE_ANIMATING;
+            mShowMainBarsAnimator.start();
+            postDelayed(mHideMainBars, mShowControllerIntervalMs);
+        }
+    };
+
+    private final Runnable mHideAllBars = new Runnable() {
+        @Override
+        public void run() {
+            mUxState = UX_STATE_ANIMATING;
+            mHideAllBarsAnimator.start();
+        }
+    };
+
+    private final Runnable mHideMainBars = new Runnable() {
+        @Override
+        public void run() {
+            if (mPlaybackState.getState() != PlaybackStateCompat.STATE_PLAYING) {
+                return;
+            }
+            mUxState = UX_STATE_ANIMATING;
+            mHideMainBarsAnimator.start();
+            postDelayed(mHideProgressBar, mShowControllerIntervalMs);
+        }
+    };
+
+    private final Runnable mHideProgressBar = new Runnable() {
+        @Override
+        public void run() {
+            if (mPlaybackState.getState() != PlaybackStateCompat.STATE_PLAYING) {
+                return;
+            }
+            mUxState = UX_STATE_ANIMATING;
+            mHideProgressBarAnimator.start();
+        }
+    };
+
     // There are two scenarios that can trigger the seekbar listener to trigger:
     //
     // The first is the user using the touchpad to adjust the posititon of the
@@ -942,6 +1201,8 @@ public class MediaControlView2 extends BaseLayout {
             // we will post one of these messages to the queue again and
             // this ensures that there will be exactly one message queued up.
             removeCallbacks(mUpdateProgress);
+            removeCallbacks(mHideMainBars);
+            removeCallbacks(mHideProgressBar);
 
             // Check if playback is currently stopped. In this case, update the pause button to
             // show the play image instead of the replay image.
@@ -987,6 +1248,7 @@ public class MediaControlView2 extends BaseLayout {
             // the call to show() does not guarantee this because it is a
             // no-op if we are already showing.
             post(mUpdateProgress);
+            postDelayed(mHideMainBars, mShowControllerIntervalMs);
         }
     };
 
@@ -1271,7 +1533,7 @@ public class MediaControlView2 extends BaseLayout {
             mTitleView.setText(titleText + " - " + artistText);
 
             // Set to true to update layout inside onMeasure()
-            mNeedUXUpdate = true;
+            mNeedUxUpdate = true;
         }
     }
 
@@ -1322,6 +1584,9 @@ public class MediaControlView2 extends BaseLayout {
                 updateLayoutForSizeChange(SIZE_TYPE_FULL);
                 if (mMediaType == MEDIA_TYPE_MUSIC) {
                     mTitleView.setVisibility(View.GONE);
+                } else {
+                    mUxState = UX_STATE_EMPTY;
+                    toggleMediaControlViewVisibility();
                 }
             }
         } else if (embeddedWidth <= currWidth) {
@@ -1571,7 +1836,10 @@ public class MediaControlView2 extends BaseLayout {
                         mPlayPauseButton.setContentDescription(
                                 mResources.getString(R.string.mcv2_pause_button_desc));
                         removeCallbacks(mUpdateProgress);
+                        removeCallbacks(mHideMainBars);
+                        removeCallbacks(mHideProgressBar);
                         post(mUpdateProgress);
+                        postDelayed(mHideMainBars, mShowControllerIntervalMs);
                         break;
                     case PlaybackStateCompat.STATE_PAUSED:
                         mPlayPauseButton.setImageDrawable(
