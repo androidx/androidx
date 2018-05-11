@@ -62,11 +62,9 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
-class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
+class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     static final String TAG = "MS2ImplBase";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
-    private final Object mLock = new Object();
 
     private final Context mContext;
     private final HandlerThread mHandlerThread;
@@ -83,6 +81,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private final AudioFocusHandler mAudioFocusHandler;
     private final MediaSession2 mInstance;
     private final PendingIntent mSessionActivity;
+
+    final Object mLock = new Object();
 
     @GuardedBy("mLock")
     private BaseMediaPlayer mPlayer;
@@ -834,97 +834,50 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     ///////////////////////////////////////////////////
-    // LibrarySession Methods
-    ///////////////////////////////////////////////////
-
-    @Override
-    void notifyChildrenChanged(ControllerInfo controller, final String parentId,
-            final int itemCount, final Bundle extras,
-            List<MediaSessionManager.RemoteUserInfo> subscribingBrowsers) {
-        if (controller == null) {
-            throw new IllegalArgumentException("controller shouldn't be null");
-        }
-        if (TextUtils.isEmpty(parentId)) {
-            throw new IllegalArgumentException("query shouldn't be empty");
-        }
-
-        // Notify controller only if it has subscribed the parentId.
-        for (MediaSessionManager.RemoteUserInfo info : subscribingBrowsers) {
-            if (info.getPackageName().equals(controller.getPackageName())
-                    && info.getUid() == controller.getUid()) {
-                notifyToController(controller, new NotifyRunnable() {
-                    @Override
-                    public void run(ControllerCb callback) throws RemoteException {
-                        callback.onChildrenChanged(parentId, itemCount, extras);
-                    }
-                });
-                return;
-            }
-        }
-    }
-
-    @Override
-    void notifySearchResultChanged(ControllerInfo controller, final String query,
-            final int itemCount, final Bundle extras) {
-        if (controller == null) {
-            throw new IllegalArgumentException("controller shouldn't be null");
-        }
-        if (TextUtils.isEmpty(query)) {
-            throw new IllegalArgumentException("query shouldn't be empty");
-        }
-        notifyToController(controller, new NotifyRunnable() {
-            @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onSearchResultChanged(query, itemCount, extras);
-            }
-        });
-    }
-
-    ///////////////////////////////////////////////////
     // package private and private methods
     ///////////////////////////////////////////////////
     @Override
-    @NonNull MediaSession2 getInstance() {
+    public @NonNull MediaSession2 getInstance() {
         return mInstance;
     }
 
     @Override
-    @NonNull IBinder getSessionBinder() {
+    public @NonNull IBinder getSessionBinder() {
         return mSession2Stub.asBinder();
     }
 
     @Override
-    Context getContext() {
+    public Context getContext() {
         return mContext;
     }
 
     @Override
-    Executor getCallbackExecutor() {
+    public Executor getCallbackExecutor() {
         return mCallbackExecutor;
     }
 
     @Override
-    SessionCallback getCallback() {
+    public SessionCallback getCallback() {
         return mCallback;
     }
 
     @Override
-    MediaSessionCompat getSessionCompat() {
+    public MediaSessionCompat getSessionCompat() {
         return mSessionCompat;
     }
 
     @Override
-    AudioFocusHandler getAudioFocusHandler() {
+    public AudioFocusHandler getAudioFocusHandler() {
         return mAudioFocusHandler;
     }
 
     @Override
-    boolean isClosed() {
+    public boolean isClosed() {
         return !mHandlerThread.isAlive();
     }
 
     @Override
-    PlaybackStateCompat getPlaybackStateCompat() {
+    public PlaybackStateCompat getPlaybackStateCompat() {
         synchronized (mLock) {
             int state = MediaUtils2.createPlaybackStateCompatState(getPlayerState(),
                     getBufferingState());
@@ -954,14 +907,14 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     }
 
     @Override
-    PlaybackInfo getPlaybackInfo() {
+    public PlaybackInfo getPlaybackInfo() {
         synchronized (mLock) {
             return mPlaybackInfo;
         }
     }
 
     @Override
-    PendingIntent getSessionActivity() {
+    public PendingIntent getSessionActivity() {
         return mSessionActivity;
     }
 
@@ -1148,7 +1101,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         });
     }
 
-    private void notifyToController(@NonNull final ControllerInfo controller,
+    void notifyToController(@NonNull final ControllerInfo controller,
             @NonNull NotifyRunnable runnable) {
         if (controller == null) {
             return;
@@ -1176,7 +1129,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
         }
     }
 
-    private void notifyToAllControllers(@NonNull NotifyRunnable runnable) {
+    void notifyToAllControllers(@NonNull NotifyRunnable runnable) {
         List<ControllerInfo> controllers = getConnectedControllers();
         for (int i = 0; i < controllers.size(); i++) {
             notifyToController(controllers.get(i), runnable);
@@ -1187,7 +1140,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     // Inner classes
     ///////////////////////////////////////////////////
     @FunctionalInterface
-    private interface NotifyRunnable {
+    interface NotifyRunnable {
         void run(ControllerCb callback) throws RemoteException;
     }
 

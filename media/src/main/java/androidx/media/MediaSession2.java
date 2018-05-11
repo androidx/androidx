@@ -110,7 +110,7 @@ import java.util.concurrent.RejectedExecutionException;
  * @see MediaSessionService2
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
-public class MediaSession2 extends MediaInterface2.SessionPlayer implements AutoCloseable {
+public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseable {
     /**
      * @hide
      */
@@ -1592,54 +1592,56 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         abstract void onRepeatModeChanged(@MediaPlaylistAgent.RepeatMode int repeatMode)
                 throws RemoteException;
         abstract void onRoutesInfoChanged(@Nullable List<Bundle> routes) throws RemoteException;
-        abstract void onChildrenChanged(@NonNull  String parentId, int itemCount,
+        abstract void onDisconnected() throws RemoteException;
+
+        // Mostly matched with the methods in MediaBrowser2.BrowserCallback.
+        abstract void onGetLibraryRootDone(@Nullable Bundle rootHints, @Nullable String rootMediaId,
+                @Nullable Bundle rootExtra) throws RemoteException;
+        abstract void onChildrenChanged(@NonNull String parentId, int itemCount,
                 @Nullable Bundle extras) throws RemoteException;
+        abstract void onGetChildrenDone(@NonNull String parentId, int page, int pageSize,
+                @Nullable List<MediaItem2> result, @Nullable Bundle extras) throws RemoteException;
+        abstract void onGetItemDone(@NonNull String mediaId, @Nullable MediaItem2 result)
+                throws RemoteException;
         abstract void onSearchResultChanged(@NonNull String query, int itemCount,
                 @Nullable Bundle extras) throws RemoteException;
-        abstract void onDisconnected() throws RemoteException;
+        abstract void onGetSearchResultDone(@NonNull String query, int page, int pageSize,
+                @Nullable List<MediaItem2> result, @Nullable Bundle extras) throws RemoteException;
     }
 
-    abstract static class SupportLibraryImpl extends MediaInterface2.SessionPlayer
-            implements AutoCloseable {
-        abstract void updatePlayer(@NonNull BaseMediaPlayer player,
+    interface SupportLibraryImpl extends MediaInterface2.SessionPlayer, AutoCloseable {
+        void updatePlayer(@NonNull BaseMediaPlayer player,
                 @Nullable MediaPlaylistAgent playlistAgent,
                 @Nullable VolumeProviderCompat volumeProvider);
-        abstract @NonNull BaseMediaPlayer getPlayer();
-        abstract @NonNull MediaPlaylistAgent getPlaylistAgent();
-        abstract @Nullable VolumeProviderCompat getVolumeProvider();
-        abstract @NonNull SessionToken2 getToken();
-        abstract @NonNull List<ControllerInfo> getConnectedControllers();
+        @NonNull BaseMediaPlayer getPlayer();
+        @NonNull MediaPlaylistAgent getPlaylistAgent();
+        @Nullable VolumeProviderCompat getVolumeProvider();
+        @NonNull SessionToken2 getToken();
+        @NonNull List<ControllerInfo> getConnectedControllers();
 
-        abstract void setCustomLayout(@NonNull ControllerInfo controller,
+        void setCustomLayout(@NonNull ControllerInfo controller,
                 @NonNull List<CommandButton> layout);
-        abstract void setAllowedCommands(@NonNull ControllerInfo controller,
+        void setAllowedCommands(@NonNull ControllerInfo controller,
                 @NonNull SessionCommandGroup2 commands);
-        abstract void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args);
-        abstract void sendCustomCommand(@NonNull ControllerInfo controller,
+        void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args);
+        void sendCustomCommand(@NonNull ControllerInfo controller,
                 @NonNull SessionCommand2 command, @Nullable Bundle args,
                 @Nullable ResultReceiver receiver);
-        abstract void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
+        void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
                 @Nullable List<Bundle> routes);
 
-        // LibrarySession methods
-        abstract void notifyChildrenChanged(@NonNull ControllerInfo controller,
-                @NonNull String parentId, int itemCount, @Nullable Bundle extras,
-                @NonNull List<MediaSessionManager.RemoteUserInfo> subscribingBrowsers);
-        abstract void notifySearchResultChanged(@NonNull ControllerInfo controller,
-                @NonNull String query, int itemCount, @Nullable Bundle extras);
-
         // Internally used methods
-        abstract MediaSession2 getInstance();
-        abstract IBinder getSessionBinder();
-        abstract MediaSessionCompat getSessionCompat();
-        abstract Context getContext();
-        abstract Executor getCallbackExecutor();
-        abstract SessionCallback getCallback();
-        abstract boolean isClosed();
-        abstract PlaybackStateCompat getPlaybackStateCompat();
-        abstract PlaybackInfo getPlaybackInfo();
-        abstract AudioFocusHandler getAudioFocusHandler();
-        abstract PendingIntent getSessionActivity();
+        MediaSession2 getInstance();
+        IBinder getSessionBinder();
+        MediaSessionCompat getSessionCompat();
+        Context getContext();
+        Executor getCallbackExecutor();
+        SessionCallback getCallback();
+        boolean isClosed();
+        PlaybackStateCompat getPlaybackStateCompat();
+        PlaybackInfo getPlaybackInfo();
+        AudioFocusHandler getAudioFocusHandler();
+        PendingIntent getSessionActivity();
     }
 
     /**

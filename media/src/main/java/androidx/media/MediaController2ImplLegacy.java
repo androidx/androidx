@@ -29,7 +29,6 @@ import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
-import static androidx.media.MediaConstants2.ARGUMENT_ITEM_COUNT;
 import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ID;
 import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
@@ -61,7 +60,6 @@ import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
 import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CHILDREN_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
@@ -71,7 +69,6 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ROUTES_INFO_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEARCH_RESULT_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEEK_COMPLETED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
@@ -115,7 +112,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
@@ -157,15 +153,15 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     }
 
     private final Context mContext;
-    private final Object mLock = new Object();
 
     private final SessionToken2 mToken;
     private final ControllerCallback mCallback;
     private final Executor mCallbackExecutor;
-    private final IBinder.DeathRecipient mDeathRecipient;
 
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
+
+    final Object mLock = new Object();
 
     private MediaController2 mInstance;
 
@@ -207,7 +203,6 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     @GuardedBy("mLock")
     private volatile boolean mConnected;
 
-
     MediaController2ImplLegacy(@NonNull Context context, @NonNull MediaController2 instance,
             @NonNull SessionToken2 token, @NonNull Executor executor,
             @NonNull ControllerCallback callback) {
@@ -219,12 +214,6 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
         mToken = token;
         mCallback = callback;
         mCallbackExecutor = executor;
-        mDeathRecipient = new IBinder.DeathRecipient() {
-            @Override
-            public void binderDied() {
-                MediaController2ImplLegacy.this.close();
-            }
-        };
 
         if (mToken.getType() == SessionToken2.TYPE_SESSION) {
             synchronized (mLock) {
@@ -1227,33 +1216,6 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                         @Override
                         public void run() {
                             mCallback.onSeekCompleted(mInstance, position);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_CHILDREN_CHANGED: {
-                    String parentId = extras.getString(ARGUMENT_MEDIA_ID);
-                    if (parentId == null || !(mInstance instanceof MediaBrowser2)) {
-                        return;
-                    }
-                    int itemCount = extras.getInt(ARGUMENT_ITEM_COUNT, -1);
-                    Bundle childrenExtras = extras.getBundle(ARGUMENT_EXTRAS);
-                    ((MediaBrowser2.BrowserCallback) mCallback).onChildrenChanged(
-                            (MediaBrowser2) mInstance, parentId, itemCount, childrenExtras);
-                    break;
-                }
-                case SESSION_EVENT_ON_SEARCH_RESULT_CHANGED: {
-                    final String query = extras.getString(ARGUMENT_QUERY);
-                    if (query == null || !(mInstance instanceof MediaBrowser2)) {
-                        return;
-                    }
-                    final int itemCount = extras.getInt(ARGUMENT_ITEM_COUNT, -1);
-                    final Bundle searchExtras = extras.getBundle(ARGUMENT_EXTRAS);
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            ((MediaBrowser2.BrowserCallback) mCallback).onSearchResultChanged(
-                                    (MediaBrowser2) mInstance, query, itemCount, searchExtras);
                         }
                     });
                     break;

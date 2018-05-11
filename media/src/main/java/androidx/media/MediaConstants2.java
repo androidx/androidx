@@ -96,8 +96,6 @@ class MediaConstants2 {
     static final String ARGUMENT_ROUTE_BUNDLE = "androidx.media.argument.ROUTE_BUNDLE";
     static final String ARGUMENT_PLAYBACK_INFO = "androidx.media.argument.PLAYBACK_INFO";
     static final String ARGUMENT_ITEM_COUNT = "androidx.media.argument.ITEM_COUNT";
-    static final String ARGUMENT_PAGE = "androidx.media.argument.PAGE";
-    static final String ARGUMENT_PAGE_SIZE = "androidx.media.argument.PAGE_SIZE";
 
     static final String ARGUMENT_ICONTROLLER_CALLBACK =
             "androidx.media.argument.ICONTROLLER_CALLBACK";

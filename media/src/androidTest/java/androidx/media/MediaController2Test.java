@@ -52,7 +52,6 @@ import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1232,7 +1231,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         testConnectToService(MockMediaSessionService2.ID);
     }
 
-    @Ignore
     @Test
     public void testConnectToService_libraryService() throws InterruptedException {
         prepareLooper();
@@ -1389,7 +1387,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         testCloseFromService(MockMediaSessionService2.ID);
     }
 
-    @Ignore
     @Test
     public void testClose_libraryService() throws InterruptedException {
         prepareLooper();

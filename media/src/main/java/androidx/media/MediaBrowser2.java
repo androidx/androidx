@@ -16,29 +16,15 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
-import static androidx.media.MediaConstants2.ARGUMENT_PAGE;
-import static androidx.media.MediaConstants2.ARGUMENT_PAGE_SIZE;
-
 import android.content.Context;
-import android.os.BadParcelableException;
 import android.os.Bundle;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaBrowserCompat.ItemCallback;
-import android.support.v4.media.MediaBrowserCompat.MediaItem;
-import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.util.Log;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.media.MediaLibraryService2.MediaLibrarySession;
 import androidx.media.MediaSession2.ControllerInfo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -48,24 +34,6 @@ import java.util.concurrent.Executor;
 public class MediaBrowser2 extends MediaController2 {
     static final String TAG = "MediaBrowser2";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static final String EXTRA_ITEM_COUNT = "android.media.browse.extra.ITEM_COUNT";
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static final String MEDIA_BROWSER2_SUBSCRIBE = "androidx.media.MEDIA_BROWSER2_SUBSCRIBE";
-
-    private final Object mLock = new Object();
-    @GuardedBy("mLock")
-    private final HashMap<Bundle, MediaBrowserCompat> mBrowserCompats = new HashMap<>();
-    @GuardedBy("mLock")
-    private final HashMap<String, List<SubscribeCallback>> mSubscribeCallbacks = new HashMap<>();
 
     /**
      * Callback to listen events from {@link MediaLibraryService2}.
@@ -170,15 +138,25 @@ public class MediaBrowser2 extends MediaController2 {
     }
 
     @Override
-    public void close() {
-        synchronized (mLock) {
-            for (MediaBrowserCompat browser : mBrowserCompats.values()) {
-                browser.disconnect();
-            }
-            mBrowserCompats.clear();
-            // Ensure that ControllerCallback#onDisconnected() is called by super.close().
-            super.close();
+    SupportLibraryImpl createImpl(@NonNull Context context, @NonNull SessionToken2 token,
+            @NonNull Executor executor, @NonNull MediaController2.ControllerCallback callback) {
+        if (token.isLegacySession()) {
+            return new MediaBrowser2ImplLegacy(
+                    context, this, token, executor, (BrowserCallback) callback);
+        } else {
+            return new MediaBrowser2ImplBase(
+                    context, this, token, executor, (BrowserCallback) callback);
         }
+    }
+
+    @Override
+    SupportLibraryImpl getImpl() {
+        return (SupportLibraryImpl) super.getImpl();
+    }
+
+    @Override
+    BrowserCallback getCallback() {
+        return (BrowserCallback) super.getCallback();
     }
 
     /**
@@ -189,32 +167,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @see BrowserCallback#onGetLibraryRootDone(MediaBrowser2, Bundle, String, Bundle)
      */
     public void getLibraryRoot(@Nullable final Bundle extras) {
-        final MediaBrowserCompat browser = getBrowserCompat(extras);
-        if (browser != null) {
-            // Already connected with the given extras.
-            getCallbackExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    getCallback().onGetLibraryRootDone(MediaBrowser2.this, extras,
-                            browser.getRoot(), browser.getExtras());
-                }
-            });
-        } else {
-            getCallbackExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    // Do this on the callback executor to set the looper of MediaBrowserCompat's
-                    // callback handler to this looper.
-                    MediaBrowserCompat newBrowser = new MediaBrowserCompat(getContext(),
-                            getSessionToken().getComponentName(),
-                            new GetLibraryRootCallback(extras), extras);
-                    synchronized (mLock) {
-                        mBrowserCompats.put(extras, newBrowser);
-                    }
-                    newBrowser.connect();
-                }
-            });
-        }
+        getImpl().getLibraryRoot(extras);
     }
 
     /**
@@ -227,27 +180,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @param extras extra bundle
      */
     public void subscribe(@NonNull String parentId, @Nullable Bundle extras) {
-        if (parentId == null) {
-            throw new IllegalArgumentException("parentId shouldn't be null");
-        }
-        MediaBrowserCompat browser = getBrowserCompat();
-        if (browser == null) {
-            return;
-        }
-        SubscribeCallback callback = new SubscribeCallback();
-        synchronized (mLock) {
-            List<SubscribeCallback> list = mSubscribeCallbacks.get(parentId);
-            if (list == null) {
-                list = new ArrayList<>();
-                mSubscribeCallbacks.put(parentId, list);
-            }
-            list.add(callback);
-        }
-
-        Bundle options = new Bundle();
-        options.putBundle(ARGUMENT_EXTRAS, extras);
-        options.putBoolean(MEDIA_BROWSER2_SUBSCRIBE, true);
-        browser.subscribe(parentId, options, callback);
+        getImpl().subscribe(parentId, extras);
     }
 
     /**
@@ -260,24 +193,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @param parentId parent id
      */
     public void unsubscribe(@NonNull String parentId) {
-        if (parentId == null) {
-            throw new IllegalArgumentException("parentId shouldn't be null");
-        }
-        MediaBrowserCompat browser = getBrowserCompat();
-        if (browser == null) {
-            return;
-        }
-        // Note: don't use MediaBrowserCompat#unsubscribe(String) here, to keep the subscription
-        // callback for getChildren.
-        synchronized (mLock) {
-            List<SubscribeCallback> list = mSubscribeCallbacks.get(parentId);
-            if (list == null) {
-                return;
-            }
-            for (int i = 0; i < list.size(); i++) {
-                browser.unsubscribe(parentId, list.get(i));
-            }
-        }
+        getImpl().unsubscribe(parentId);
     }
 
     /**
@@ -291,21 +207,7 @@ public class MediaBrowser2 extends MediaController2 {
      */
     public void getChildren(@NonNull String parentId, int page, int pageSize,
             @Nullable Bundle extras) {
-        if (parentId == null) {
-            throw new IllegalArgumentException("parentId shouldn't be null");
-        }
-        if (page < 1 || pageSize < 1) {
-            throw new IllegalArgumentException("Neither page nor pageSize should be less than 1");
-        }
-        MediaBrowserCompat browser = getBrowserCompat();
-        if (browser == null) {
-            return;
-        }
-
-        Bundle options = MediaUtils2.createBundle(extras);
-        options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
-        options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
-        browser.subscribe(parentId, options, new GetChildrenCallback(parentId, page, pageSize));
+        getImpl().getChildren(parentId, page, pageSize, extras);
     }
 
     /**
@@ -315,32 +217,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @param mediaId media id for specifying the item
      */
     public void getItem(@NonNull final String mediaId) {
-        MediaBrowserCompat browser = getBrowserCompat();
-        if (browser == null) {
-            return;
-        }
-        browser.getItem(mediaId, new ItemCallback() {
-            @Override
-            public void onItemLoaded(final MediaItem item) {
-                getCallbackExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        getCallback().onGetItemDone(MediaBrowser2.this, mediaId,
-                                MediaUtils2.createMediaItem2(item));
-                    }
-                });
-            }
-
-            @Override
-            public void onError(String itemId) {
-                getCallbackExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        getCallback().onGetItemDone(MediaBrowser2.this, mediaId, null);
-                    }
-                });
-            }
-        });
+        getImpl().getItem(mediaId);
     }
 
     /**
@@ -353,28 +230,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @param extras extra bundle
      */
     public void search(@NonNull String query, @Nullable Bundle extras) {
-        MediaBrowserCompat browser = getBrowserCompat();
-        if (browser == null) {
-            return;
-        }
-        browser.search(query, extras, new MediaBrowserCompat.SearchCallback() {
-            @Override
-            public void onSearchResult(final String query, final Bundle extras,
-                    final List<MediaItem> items) {
-                getCallbackExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        getCallback().onSearchResultChanged(
-                                MediaBrowser2.this, query, items.size(), extras);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(final String query, final Bundle extras) {
-                // Currently no way to tell failures in MediaBrowser2#search().
-            }
-        });
+        getImpl().search(query, extras);
     }
 
     /**
@@ -389,196 +245,17 @@ public class MediaBrowser2 extends MediaController2 {
      */
     public void getSearchResult(final @NonNull String query, final int page, final int pageSize,
             final @Nullable Bundle extras) {
-        MediaBrowserCompat browser = getBrowserCompat();
-        if (browser == null) {
-            return;
-        }
-        Bundle options = MediaUtils2.createBundle(extras);
-        options.putInt(ARGUMENT_PAGE, page);
-        options.putInt(ARGUMENT_PAGE_SIZE, pageSize);
-        browser.search(query, options, new MediaBrowserCompat.SearchCallback() {
-            @Override
-            public void onSearchResult(final String query, final Bundle extrasSent,
-                    final List<MediaItem> items) {
-                getCallbackExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        List<MediaItem2> item2List = MediaUtils2.toMediaItem2List(items);
-                        getCallback().onGetSearchResultDone(
-                                MediaBrowser2.this, query, page, pageSize, item2List, extras);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(final String query, final Bundle extrasSent) {
-                getCallbackExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        getCallback().onGetSearchResultDone(
-                                MediaBrowser2.this, query, page, pageSize, null, extras);
-                    }
-                });
-            }
-        });
+        getImpl().getSearchResult(query, page, pageSize, extras);
     }
 
-    @Override
-    BrowserCallback getCallback() {
-        return (BrowserCallback) super.getCallback();
-    }
-
-    private MediaBrowserCompat getBrowserCompat(Bundle extras) {
-        synchronized (mLock) {
-            return mBrowserCompats.get(extras);
-        }
-    }
-
-    private Bundle getExtrasWithoutPagination(Bundle extras) {
-        if (extras == null) {
-            return null;
-        }
-        extras.setClassLoader(getContext().getClassLoader());
-        try {
-            extras.remove(MediaBrowserCompat.EXTRA_PAGE);
-            extras.remove(MediaBrowserCompat.EXTRA_PAGE_SIZE);
-        } catch (BadParcelableException e) {
-            // Pass through...
-        }
-        return extras;
-    }
-
-    private class GetLibraryRootCallback extends MediaBrowserCompat.ConnectionCallback {
-        private final Bundle mExtras;
-
-        GetLibraryRootCallback(Bundle extras) {
-            super();
-            mExtras = extras;
-        }
-
-        @Override
-        public void onConnected() {
-            getCallbackExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    MediaBrowserCompat browser;
-                    synchronized (mLock) {
-                        browser = mBrowserCompats.get(mExtras);
-                    }
-                    if (browser == null) {
-                        // Shouldn't be happen.
-                        return;
-                    }
-                    getCallback().onGetLibraryRootDone(MediaBrowser2.this,
-                            mExtras, browser.getRoot(), browser.getExtras());
-                }
-            });
-        }
-
-        @Override
-        public void onConnectionSuspended() {
-            close();
-        }
-
-        @Override
-        public void onConnectionFailed() {
-            close();
-        }
-    }
-
-    private class SubscribeCallback extends SubscriptionCallback {
-        @Override
-        public void onError(String parentId) {
-            onChildrenLoaded(parentId, null, null);
-        }
-
-        @Override
-        public void onError(String parentId, Bundle options) {
-            onChildrenLoaded(parentId, null, options);
-        }
-
-        @Override
-        public void onChildrenLoaded(String parentId, List<MediaItem> children) {
-            onChildrenLoaded(parentId, children, null);
-        }
-
-        @Override
-        public void onChildrenLoaded(final String parentId, List<MediaItem> children,
-                final Bundle options) {
-            final int itemCount;
-            if (options != null && options.containsKey(EXTRA_ITEM_COUNT)) {
-                itemCount = options.getInt(EXTRA_ITEM_COUNT);
-            } else if (children != null) {
-                itemCount = children.size();
-            } else {
-                // Currently no way to tell failures in MediaBrowser2#subscribe().
-                return;
-            }
-
-            final Bundle notifyChildrenChangedOptions =
-                    getBrowserCompat().getNotifyChildrenChangedOptions();
-            getCallbackExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    getCallback().onChildrenChanged(MediaBrowser2.this, parentId, itemCount,
-                            notifyChildrenChangedOptions);
-                }
-            });
-        }
-    }
-
-    private class GetChildrenCallback extends SubscriptionCallback {
-        private final String mParentId;
-        private final int mPage;
-        private final int mPageSize;
-
-        GetChildrenCallback(String parentId, int page, int pageSize) {
-            super();
-            mParentId = parentId;
-            mPage = page;
-            mPageSize = pageSize;
-        }
-
-        @Override
-        public void onError(String parentId) {
-            onChildrenLoaded(parentId, null, null);
-        }
-
-        @Override
-        public void onError(String parentId, Bundle options) {
-            onChildrenLoaded(parentId, null, options);
-        }
-
-        @Override
-        public void onChildrenLoaded(String parentId, List<MediaItem> children) {
-            onChildrenLoaded(parentId, children, null);
-        }
-
-        @Override
-        public void onChildrenLoaded(final String parentId, List<MediaItem> children,
-                Bundle options) {
-            final List<MediaItem2> items;
-            if (children == null) {
-                items = null;
-            } else {
-                items = new ArrayList<>();
-                for (int i = 0; i < children.size(); i++) {
-                    items.add(MediaUtils2.createMediaItem2(children.get(i)));
-                }
-            }
-            final Bundle extras = getExtrasWithoutPagination(options);
-            getCallbackExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    MediaBrowserCompat browser = getBrowserCompat();
-                    if (browser == null) {
-                        return;
-                    }
-                    getCallback().onGetChildrenDone(MediaBrowser2.this, parentId, mPage, mPageSize,
-                            items, extras);
-                    browser.unsubscribe(mParentId, GetChildrenCallback.this);
-                }
-            });
-        }
+    interface SupportLibraryImpl extends MediaController2.SupportLibraryImpl {
+        void getLibraryRoot(@Nullable Bundle extras);
+        void subscribe(@NonNull String parentId, @Nullable Bundle extras);
+        void unsubscribe(@NonNull String parentId);
+        void getChildren(@NonNull String parentId, int page, int pageSize, @Nullable Bundle extras);
+        void getItem(@NonNull String mediaId);
+        void search(@NonNull String query, @Nullable Bundle extras);
+        void getSearchResult(@NonNull String query, int page, int pageSize,
+                @Nullable Bundle extras);
     }
 }
