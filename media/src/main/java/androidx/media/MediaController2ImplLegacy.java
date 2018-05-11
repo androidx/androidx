@@ -623,7 +623,8 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     @Override
     public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
         Bundle args = new Bundle();
-        args.putParcelableArray(ARGUMENT_PLAYLIST, MediaUtils2.toMediaItem2ParcelableArray(list));
+        args.putParcelableArray(ARGUMENT_PLAYLIST,
+                MediaUtils2.convertMediaItem2ListToParcelableArray(list));
         args.putBundle(ARGUMENT_PLAYLIST_METADATA, metadata == null ? null : metadata.toBundle());
         sendCommand(COMMAND_CODE_PLAYLIST_SET_LIST, args);
     }
@@ -775,7 +776,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 ARGUMENT_PLAYBACK_STATE_COMPAT);
         final int repeatMode = data.getInt(ARGUMENT_REPEAT_MODE);
         final int shuffleMode = data.getInt(ARGUMENT_SHUFFLE_MODE);
-        final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
+        final List<MediaItem2> playlist = MediaUtils2.convertToMediaItem2List(
                 data.getParcelableArray(ARGUMENT_PLAYLIST));
         final PlaybackInfo playbackInfo =
                 PlaybackInfo.fromBundle(data.getBundle(ARGUMENT_PLAYBACK_INFO));
@@ -1050,7 +1051,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                     break;
                 }
                 case SESSION_EVENT_ON_ROUTES_INFO_CHANGED: {
-                    final List<Bundle> routes = MediaUtils2.toBundleList(
+                    final List<Bundle> routes = MediaUtils2.convertToBundleList(
                             extras.getParcelableArray(ARGUMENT_ROUTE_BUNDLE));
                     mCallbackExecutor.execute(new Runnable() {
                         @Override
@@ -1063,7 +1064,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 case SESSION_EVENT_ON_PLAYLIST_CHANGED: {
                     final MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
                             extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
-                    final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
+                    final List<MediaItem2> playlist = MediaUtils2.convertToMediaItem2List(
                             extras.getParcelableArray(ARGUMENT_PLAYLIST));
                     synchronized (mLock) {
                         mPlaylist = playlist;
@@ -1134,7 +1135,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                     break;
                 }
                 case SESSION_EVENT_SET_CUSTOM_LAYOUT: {
-                    final List<CommandButton> layout = MediaUtils2.fromCommandButtonParcelableArray(
+                    final List<CommandButton> layout = MediaUtils2.convertToCommandButtonList(
                             extras.getParcelableArray(ARGUMENT_COMMAND_BUTTONS));
                     if (layout == null) {
                         return;

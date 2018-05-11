@@ -59,7 +59,7 @@ class MediaUtils2 {
      * @param item2 an item.
      * @return The newly created media item.
      */
-    static MediaItem createMediaItem(MediaItem2 item2) {
+    static MediaItem convertToMediaItem(MediaItem2 item2) {
         if (item2 == null) {
             return null;
         }
@@ -100,44 +100,74 @@ class MediaUtils2 {
         return new MediaItem(descCompat, item2.getFlags());
     }
 
+    static List<MediaItem> convertToMediaItemList(List<MediaItem2> items) {
+        if (items == null) {
+            return null;
+        }
+        List<MediaItem> result = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            result.add(convertToMediaItem(items.get(i)));
+        }
+        return result;
+    }
+
     /**
      * Creates a {@link MediaItem2} from the {@link MediaItem}.
      *
      * @param item an item.
      * @return The newly created media item.
      */
-    static MediaItem2 createMediaItem2(MediaItem item) {
+    static MediaItem2 convertToMediaItem2(MediaItem item) {
         if (item == null || item.getMediaId() == null) {
             return null;
         }
 
-        MediaMetadata2 metadata2 = createMediaMetadata2(item.getDescription());
+        MediaMetadata2 metadata2 = convertToMediaMetadata2(item.getDescription());
         return new MediaItem2.Builder(item.getFlags())
                 .setMediaId(item.getMediaId())
                 .setMetadata(metadata2)
                 .build();
     }
 
-    static List<MediaItem> fromMediaItem2List(List<MediaItem2> items) {
-        if (items == null) {
-            return null;
+    static List<MediaItem2> convertToMediaItem2List(Parcelable[] itemParcelableList) {
+        List<MediaItem2> playlist = new ArrayList<>();
+        if (itemParcelableList != null) {
+            for (int i = 0; i < itemParcelableList.length; i++) {
+                if (!(itemParcelableList[i] instanceof Bundle)) {
+                    continue;
+                }
+                MediaItem2 item = MediaItem2.fromBundle((Bundle) itemParcelableList[i]);
+                if (item != null) {
+                    playlist.add(item);
+                }
+            }
         }
-        List<MediaItem> result = new ArrayList<>();
-        for (int i = 0; i < items.size(); i++) {
-            result.add(createMediaItem(items.get(i)));
-        }
-        return result;
+        return playlist;
     }
 
-    static List<MediaItem2> toMediaItem2List(List<MediaItem> items) {
+    static List<MediaItem2> convertMediaItemListToMediaItem2List(List<MediaItem> items) {
         if (items == null) {
             return null;
         }
         List<MediaItem2> result = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
-            result.add(createMediaItem2(items.get(i)));
+            result.add(convertToMediaItem2(items.get(i)));
         }
         return result;
+    }
+
+    static List<MediaItem2> convertBundleListToMediaItem2List(List<Bundle> itemBundleList) {
+        if (itemBundleList == null) {
+            return null;
+        }
+        List<MediaItem2> playlist = new ArrayList<>();
+        for (int i = 0; i < itemBundleList.size(); i++) {
+            final Bundle itemBundle = itemBundleList.get(i);
+            if (itemBundle != null) {
+                playlist.add(MediaItem2.fromBundle(itemBundle));
+            }
+        }
+        return playlist;
     }
 
     /**
@@ -146,7 +176,7 @@ class MediaUtils2 {
      * @param descCompat A {@link MediaDescriptionCompat} object.
      * @return The newly created {@link MediaMetadata2} object.
      */
-    static MediaMetadata2 createMediaMetadata2(MediaDescriptionCompat descCompat) {
+    static MediaMetadata2 convertToMediaMetadata2(MediaDescriptionCompat descCompat) {
         if (descCompat == null) {
             return null;
         }
@@ -198,7 +228,7 @@ class MediaUtils2 {
      * @param metadataCompat A {@link MediaMetadataCompat} object.
      * @return The newly created {@link MediaMetadata2} object.
      */
-    MediaMetadata2 createMediaMetadata2(MediaMetadataCompat metadataCompat) {
+    static MediaMetadata2 convertToMediaMetadata2(MediaMetadataCompat metadataCompat) {
         if (metadataCompat == null) {
             return null;
         }
@@ -211,7 +241,7 @@ class MediaUtils2 {
      * @param metadata2 A {@link MediaMetadata2} object.
      * @return The newly created {@link MediaMetadataCompat} object.
      */
-    MediaMetadataCompat createMediaMetadataCompat(MediaMetadata2 metadata2) {
+    static MediaMetadataCompat convertToMediaMetadataCompat(MediaMetadata2 metadata2) {
         if (metadata2 == null) {
             return null;
         }
@@ -225,7 +255,7 @@ class MediaUtils2 {
             if (value instanceof CharSequence) {
                 builder.putText(key, (CharSequence) value);
             } else if (value instanceof Rating2) {
-                builder.putRating(key, createRatingCompat((Rating2) value));
+                builder.putRating(key, convertToRatingCompat((Rating2) value));
             } else if (value instanceof Bitmap) {
                 builder.putBitmap(key, (Bitmap) value);
             } else if (value instanceof Long) {
@@ -256,7 +286,7 @@ class MediaUtils2 {
      * @param ratingCompat A {@link RatingCompat} object.
      * @return The newly created {@link Rating2} object.
      */
-    Rating2 createRating2(RatingCompat ratingCompat) {
+    static Rating2 convertToRating2(RatingCompat ratingCompat) {
         if (ratingCompat == null) {
             return null;
         }
@@ -287,7 +317,7 @@ class MediaUtils2 {
      * @param rating2 A {@link Rating2} object.
      * @return The newly created {@link RatingCompat} object.
      */
-    RatingCompat createRatingCompat(Rating2 rating2) {
+    static RatingCompat convertToRatingCompat(Rating2 rating2) {
         if (rating2 == null) {
             return null;
         }
@@ -312,7 +342,18 @@ class MediaUtils2 {
         }
     }
 
-    static List<Bundle> toMediaItem2BundleList(List<MediaItem2> playlist) {
+    static List<Bundle> convertToBundleList(Parcelable[] array) {
+        if (array == null) {
+            return null;
+        }
+        List<Bundle> bundleList = new ArrayList<>();
+        for (Parcelable p : array) {
+            bundleList.add((Bundle) p);
+        }
+        return bundleList;
+    }
+
+    static List<Bundle> convertMediaItem2ListToBundleList(List<MediaItem2> playlist) {
         if (playlist == null) {
             return null;
         }
@@ -329,21 +370,19 @@ class MediaUtils2 {
         return itemBundleList;
     }
 
-    static List<MediaItem2> fromMediaItem2BundleList(List<Bundle> itemBundleList) {
-        if (itemBundleList == null) {
-            return null;
-        }
-        List<MediaItem2> playlist = new ArrayList<>();
-        for (int i = 0; i < itemBundleList.size(); i++) {
-            final Bundle itemBundle = itemBundleList.get(i);
-            if (itemBundle != null) {
-                playlist.add(MediaItem2.fromBundle(itemBundle));
+    static List<Bundle> convertCommandButtonListToBundleList(
+            List<CommandButton> commandButtonList) {
+        List<Bundle> commandButtonBundleList = new ArrayList<>();
+        for (int i = 0; i < commandButtonList.size(); i++) {
+            Bundle bundle = commandButtonList.get(i).toBundle();
+            if (bundle != null) {
+                commandButtonBundleList.add(bundle);
             }
         }
-        return playlist;
+        return commandButtonBundleList;
     }
 
-    static Parcelable[] toMediaItem2ParcelableArray(List<MediaItem2> playlist) {
+    static Parcelable[] convertMediaItem2ListToParcelableArray(List<MediaItem2> playlist) {
         if (playlist == null) {
             return null;
         }
@@ -360,46 +399,7 @@ class MediaUtils2 {
         return parcelableList.toArray(new Parcelable[0]);
     }
 
-    static List<MediaItem2> fromMediaItem2ParcelableArray(Parcelable[] itemParcelableList) {
-        List<MediaItem2> playlist = new ArrayList<>();
-        if (itemParcelableList != null) {
-            for (int i = 0; i < itemParcelableList.length; i++) {
-                if (!(itemParcelableList[i] instanceof Bundle)) {
-                    continue;
-                }
-                MediaItem2 item = MediaItem2.fromBundle((Bundle) itemParcelableList[i]);
-                if (item != null) {
-                    playlist.add(item);
-                }
-            }
-        }
-        return playlist;
-    }
-
-    static List<Bundle> toCommandButtonBundleList(List<CommandButton> commandButtonList) {
-        List<Bundle> commandButtonBundleList = new ArrayList<>();
-        for (int i = 0; i < commandButtonList.size(); i++) {
-            Bundle bundle = commandButtonList.get(i).toBundle();
-            if (bundle != null) {
-                commandButtonBundleList.add(bundle);
-            }
-        }
-        return commandButtonBundleList;
-    }
-
-    static List<CommandButton> fromCommandButtonBundleList(List<Bundle> commandButtonBundleList) {
-        List<CommandButton> commandButtonList = new ArrayList<>();
-        for (int i = 0; i < commandButtonBundleList.size(); i++) {
-            Bundle bundle = commandButtonBundleList.get(i);
-            if (bundle != null) {
-                commandButtonList.add(CommandButton.fromBundle(bundle));
-            }
-        }
-        return commandButtonList;
-
-    }
-
-    static Parcelable[] toCommandButtonParcelableArray(List<CommandButton> layout) {
+    static Parcelable[] convertCommandButtonListToParcelableArray(List<CommandButton> layout) {
         if (layout == null) {
             return null;
         }
@@ -413,7 +413,20 @@ class MediaUtils2 {
         return layoutBundles.toArray(new Parcelable[0]);
     }
 
-    static List<CommandButton> fromCommandButtonParcelableArray(Parcelable[] list) {
+
+    static List<CommandButton> convertToCommandButtonList(List<Bundle> commandButtonBundleList) {
+        List<CommandButton> commandButtonList = new ArrayList<>();
+        for (int i = 0; i < commandButtonBundleList.size(); i++) {
+            Bundle bundle = commandButtonBundleList.get(i);
+            if (bundle != null) {
+                commandButtonList.add(CommandButton.fromBundle(bundle));
+            }
+        }
+        return commandButtonList;
+
+    }
+
+    static List<CommandButton> convertToCommandButtonList(Parcelable[] list) {
         List<CommandButton> layout = new ArrayList<>();
         if (layout != null) {
             for (int i = 0; i < list.length; i++) {
@@ -429,18 +442,7 @@ class MediaUtils2 {
         return layout;
     }
 
-    static List<Bundle> toBundleList(Parcelable[] array) {
-        if (array == null) {
-            return null;
-        }
-        List<Bundle> bundleList = new ArrayList<>();
-        for (Parcelable p : array) {
-            bundleList.add((Bundle) p);
-        }
-        return bundleList;
-    }
-
-    static int createPlaybackStateCompatState(int playerState, int bufferingState) {
+    static int convertToPlaybackStateCompatState(int playerState, int bufferingState) {
         switch (playerState) {
             case BaseMediaPlayer.PLAYER_STATE_PLAYING:
                 switch (bufferingState) {
@@ -459,7 +461,7 @@ class MediaUtils2 {
         return PlaybackStateCompat.STATE_ERROR;
     }
 
-    static int toPlayerState(int playbackStateCompatState) {
+    static int convertToPlayerState(int playbackStateCompatState) {
         switch (playbackStateCompatState) {
             case PlaybackStateCompat.STATE_ERROR:
                 return BaseMediaPlayer.PLAYER_STATE_ERROR;
