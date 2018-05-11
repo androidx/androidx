@@ -15,6 +15,9 @@
      limitations under the License.
 -->
 <resources>
+    <!-- Rounded corner radius for video subtitles. -->
+    <dimen name="subtitle_corner_radius">2dp</dimen>
+
     <!-- Shadow radius for video subtitles. -->
     <dimen name="subtitle_shadow_radius">2dp</dimen>
 

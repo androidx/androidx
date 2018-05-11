@@ -30,6 +30,7 @@ import android.view.ViewGroup.LayoutParams;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.media.subtitle.Cea708CaptionRenderer;
 import androidx.media.subtitle.ClosedCaptionRenderer;
 import androidx.media.subtitle.SubtitleController;
 import androidx.media.subtitle.SubtitleTrack;
@@ -54,7 +55,7 @@ class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
     // selected video/audio/subtitle track index as MediaPlayer returns
     private int mSelectedSubtitleTrackIndex;
 
-    private SubtitleView mSubtitleView;
+    private SubtitleAnchorView mSubtitleAnchorView;
     private boolean mSubtitleEnabled;
 
     @Override
@@ -66,10 +67,10 @@ class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
 
         LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT);
-        mSubtitleView = new SubtitleView(context);
-        mSubtitleView.setLayoutParams(params);
-        mSubtitleView.setBackgroundColor(0);
-        mInstance.addView(mSubtitleView);
+        mSubtitleAnchorView = new SubtitleAnchorView(context);
+        mSubtitleAnchorView.setLayoutParams(params);
+        mSubtitleAnchorView.setBackgroundColor(0);
+        mInstance.addView(mSubtitleAnchorView);
 
         mSubtitleEnabled = (attrs == null) || attrs.getAttributeBooleanValue(
                 "http://schemas.android.com/apk/res/android",
@@ -114,7 +115,8 @@ class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
 
         mSubtitleController = new SubtitleController(context);
         mSubtitleController.registerRenderer(new ClosedCaptionRenderer(context));
-        mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleView);
+        mSubtitleController.registerRenderer(new Cea708CaptionRenderer(context));
+        mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleAnchorView);
 
         mMediaPlayer.setOnSubtitleDataListener(mSubtitleListener);
     }
@@ -128,13 +130,13 @@ class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
                 mSelectedSubtitleTrackIndex = mSubtitleTrackIndices.get(0).first;
                 mSubtitleController.selectTrack(mSubtitleTrackIndices.get(0).second);
                 mMediaPlayer.selectTrack(mSelectedSubtitleTrackIndex);
-                mSubtitleView.setVisibility(View.VISIBLE);
+                mSubtitleAnchorView.setVisibility(View.VISIBLE);
             }
         } else {
             if (mSelectedSubtitleTrackIndex != INVALID_TRACK_INDEX) {
                 mMediaPlayer.deselectTrack(mSelectedSubtitleTrackIndex);
                 mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
-                mSubtitleView.setVisibility(View.GONE);
+                mSubtitleAnchorView.setVisibility(View.GONE);
             }
         }
     }
