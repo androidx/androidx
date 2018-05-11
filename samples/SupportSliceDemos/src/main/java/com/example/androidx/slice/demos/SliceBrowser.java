@@ -147,6 +147,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         mTypeMenu.add("Shortcut");
         mTypeMenu.add("Small");
         mTypeMenu.add("Large");
+        menu.add("Open");
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -168,6 +169,9 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
                 mTypeMenu.setIcon(R.drawable.ic_large);
                 mSelectedMode = SliceView.MODE_LARGE;
                 updateSliceModes();
+                return true;
+            case "Open":
+                SliceSelectionDialog.create(this, uri -> addSlice(uri));
                 return true;
         }
         return super.onOptionsItemSelected(item);

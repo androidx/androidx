@@ -237,7 +237,9 @@ public class SliceQuery {
      */
     public static Iterator<SliceItem> stream(Slice slice) {
         ArrayList<SliceItem> items = new ArrayList<>();
-        items.addAll(slice.getItems());
+        if (slice != null) {
+            items.addAll(slice.getItems());
+        }
         return getSliceItemStream(items);
     }
 
