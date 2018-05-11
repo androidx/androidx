@@ -49,9 +49,11 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.slice.Clock;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceSpec;
+import androidx.slice.SystemClock;
 import androidx.slice.builders.SliceAction;
 
 import java.util.ArrayList;
@@ -66,17 +68,21 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     private List<Slice> mSliceActions;
     private Slice mSliceHeader;
 
+    public ListBuilderV1Impl(Slice.Builder b, SliceSpec spec) {
+        this(b, spec, new SystemClock());
+    }
+
     /**
      */
-    public ListBuilderV1Impl(Slice.Builder b, SliceSpec spec) {
-        super(b, spec);
+    public ListBuilderV1Impl(Slice.Builder b, SliceSpec spec, Clock clock) {
+        super(b, spec, clock);
     }
 
     /**
      */
     @Override
     public void apply(Slice.Builder builder) {
-        builder.addLong(System.currentTimeMillis(), SUBTYPE_MILLIS, HINT_LAST_UPDATED);
+        builder.addLong(getClock().currentTimeMillis(), SUBTYPE_MILLIS, HINT_LAST_UPDATED);
         if (mSliceHeader != null) {
             builder.addSubSlice(mSliceHeader);
         }
@@ -290,7 +296,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @Override
     public void setTtl(long ttl) {
-        long expiry = ttl == INFINITY ? INFINITY : System.currentTimeMillis() + ttl;
+        long expiry = ttl == INFINITY ? INFINITY : getClock().currentTimeMillis() + ttl;
         getBuilder().addTimestamp(expiry, SUBTYPE_MILLIS, HINT_TTL);
     }
 
