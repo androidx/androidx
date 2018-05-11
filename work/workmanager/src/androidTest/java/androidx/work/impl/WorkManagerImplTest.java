@@ -58,7 +58,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Configuration;
@@ -71,7 +70,6 @@ import androidx.work.TestLifecycleOwner;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
-import androidx.work.impl.logger.InternalLogger;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkName;
@@ -100,10 +98,6 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest {
-
-    static {
-        InternalLogger.LOG_LEVEL = Log.DEBUG;
-    }
 
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
