@@ -16,13 +16,18 @@
 package android.arch.persistence.room.integration.testapp.migration;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.arch.core.executor.testing.CountingTaskExecutorRule;
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Room;
@@ -40,6 +45,7 @@ import android.text.TextUtils;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,6 +56,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * reproduces b/78359448
@@ -57,7 +66,11 @@ import java.util.UUID;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class JournalDbPostMigrationTest {
+    @Rule
+    public CountingTaskExecutorRule executorRule = new CountingTaskExecutorRule();
     private static final String DB_NAME = "journal-db";
+    private AtomicInteger mOnOpenCount = new AtomicInteger(0);
+    private AtomicInteger mOnCreateCount = new AtomicInteger(0);
 
     @Entity
     public static class User {
@@ -81,6 +94,12 @@ public class JournalDbPostMigrationTest {
     public interface UserDao {
         @Query("SELECT * FROM user")
         List<User> getAll();
+
+        @Query("SELECT * FROM user WHERE uid = :uid LIMIT 1")
+        LiveData<User> getUser(int uid);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insert(User user);
     }
 
     @Database(entities = {User.class}, version = 3, exportSchema = false)
@@ -117,6 +136,17 @@ public class JournalDbPostMigrationTest {
         return Room.databaseBuilder(InstrumentationRegistry.getTargetContext(),
                 AppDatabase.class, "journal-db")
                 .addMigrations(sMigrationV1toV2, sMigrationV2toV3)
+                .addCallback(new RoomDatabase.Callback() {
+                    @Override
+                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                        mOnCreateCount.incrementAndGet();
+                    }
+
+                    @Override
+                    public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                        mOnOpenCount.incrementAndGet();
+                    }
+                })
                 .setJournalMode(RoomDatabase.JournalMode.TRUNCATE).build();
     }
 
@@ -157,5 +187,33 @@ public class JournalDbPostMigrationTest {
     public void migrateAndRead() {
         List<User> users = getDb().userDao().getAll();
         assertThat(users.size(), is(10));
+    }
+
+    @Test
+    public void checkCallbacks() {
+        // trigger db open
+        getDb().userDao().getAll();
+        assertThat(mOnOpenCount.get(), is(1));
+        assertThat(mOnCreateCount.get(), is(0));
+    }
+
+    @Test
+    public void liveDataPostMigrations() throws TimeoutException, InterruptedException {
+        UserDao dao = getDb().userDao();
+        LiveData<User> liveData = dao.getUser(3);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                liveData.observeForever(user -> {
+                })
+        );
+        executorRule.drainTasks(1, TimeUnit.MINUTES);
+        assertThat(liveData.getValue(), notNullValue());
+        // update user
+        User user = new User();
+        user.uid = 3;
+        user.firstName = "foo-bar";
+        dao.insert(user);
+        executorRule.drainTasks(1, TimeUnit.MINUTES);
+        //noinspection ConstantConditions
+        assertThat(liveData.getValue().firstName, is("foo-bar"));
     }
 }
