@@ -121,7 +121,13 @@ public class Schedulers {
             }
         }
 
-        setComponentEnabled(context, FIREBASE_JOB_SERVICE_CLASSNAME, enableFirebaseJobService);
+        try {
+            Class firebaseJobServiceClass = Class.forName(FIREBASE_JOB_SERVICE_CLASSNAME);
+            setComponentEnabled(context, firebaseJobServiceClass, enableFirebaseJobService);
+        } catch (ClassNotFoundException e) {
+            // Do nothing.
+        }
+
         setComponentEnabled(context, SystemAlarmService.class, enableSystemAlarmService);
 
         return scheduler;
