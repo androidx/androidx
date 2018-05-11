@@ -17,5 +17,5 @@
 
 <resources>
     <!-- Fallback color for versions of the system where ?android:attr/colorAccent is not available -->
-    <color name="preference_fallback_accent_color">#ff80cbc4</color>
+    <color name="preference_fallback_accent_color">#ff008577</color>
 </resources>
