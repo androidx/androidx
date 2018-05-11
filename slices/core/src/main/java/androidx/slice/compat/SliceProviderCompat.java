@@ -210,12 +210,7 @@ public class SliceProviderCompat {
 
     private Collection<Uri> handleGetDescendants(Uri uri) {
         mCallback = "onGetSliceDescendants";
-        mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
-        try {
-            return mProvider.onGetSliceDescendants(uri);
-        } finally {
-            mHandler.removeCallbacks(mAnr);
-        }
+        return mProvider.onGetSliceDescendants(uri);
     }
 
     private void handleSlicePinned(final Uri sliceUri) {
