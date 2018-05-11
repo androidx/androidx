@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
@@ -890,6 +891,11 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @Override
     @NonNull MediaSession2 getInstance() {
         return mInstance;
+    }
+
+    @Override
+    @NonNull IBinder getSessionBinder() {
+        return mSession2Stub.asBinder();
     }
 
     @Override

@@ -781,6 +781,10 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         return mImpl.getSessionCompat();
     }
 
+    IBinder getSessionBinder() {
+        return mImpl.getSessionBinder();
+    }
+
     /**
      * Interface definition of a callback to be invoked when a {@link MediaItem2} in the playlist
      * didn't have a {@link DataSourceDesc} but it's needed now for preparing or playing it.
@@ -1610,6 +1614,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         // Internally used methods
         abstract MediaSession2 createInstance();
         abstract MediaSession2 getInstance();
+        abstract IBinder getSessionBinder();
         abstract MediaSessionCompat getSessionCompat();
         abstract Context getContext();
         abstract Executor getCallbackExecutor();
