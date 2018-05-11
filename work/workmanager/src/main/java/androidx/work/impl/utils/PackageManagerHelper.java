@@ -18,6 +18,7 @@ package androidx.work.impl.utils;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 /**
@@ -31,32 +32,28 @@ public class PackageManagerHelper {
     }
 
     /**
-     * Convenience method for {@link #setComponentEnabled(Context, String, boolean)}
-     */
-    public static void setComponentEnabled(Context context, Class klazz, boolean enabled) {
-        setComponentEnabled(context, klazz.getName(), enabled);
-    }
-
-    /**
      * Uses {@link PackageManager} to enable/disable a manifest-defined component
      *
      * @param context {@link Context}
-     * @param className {@link Class#getName()} name of component
+     * @param klazz The class of component
      * @param enabled {@code true} if component should be enabled
      */
-    public static void setComponentEnabled(Context context, String className, boolean enabled) {
+    public static void setComponentEnabled(
+            @NonNull Context context,
+            @NonNull Class klazz,
+            boolean enabled) {
         try {
             PackageManager packageManager = context.getPackageManager();
-            ComponentName componentName = new ComponentName(context, className);
+            ComponentName componentName = new ComponentName(context, klazz.getName());
             packageManager.setComponentEnabledSetting(componentName,
                     enabled
                             ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                             : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     PackageManager.DONT_KILL_APP);
 
-            Log.d(TAG, String.format("%s %s", className, (enabled ? "enabled" : "disabled")));
+            Log.d(TAG, String.format("%s %s", klazz.getName(), (enabled ? "enabled" : "disabled")));
         } catch (Exception exception) {
-            Log.d(TAG, String.format("%s could not be %s", className,
+            Log.d(TAG, String.format("%s could not be %s", klazz.getName(),
                     (enabled ? "enabled" : "disabled")), exception);
         }
     }
