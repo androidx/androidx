@@ -79,10 +79,14 @@ public class RowContent {
 
     public RowContent(Context context, SliceItem rowSlice, boolean isHeader) {
         populate(rowSlice, isHeader);
-        mMaxHeight = context.getResources().getDimensionPixelSize(R.dimen.abc_slice_row_max_height);
-        mMinHeight = context.getResources().getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
-        mRangeHeight = context.getResources().getDimensionPixelSize(
-                R.dimen.abc_slice_row_range_height);
+        if (context != null) {
+            mMaxHeight = context.getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_row_max_height);
+            mMinHeight = context.getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_row_min_height);
+            mRangeHeight = context.getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_row_range_height);
+        }
     }
 
     /**

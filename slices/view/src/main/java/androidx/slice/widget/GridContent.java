@@ -78,13 +78,15 @@ public class GridContent {
     public GridContent(Context context, SliceItem gridItem) {
         populate(gridItem);
 
-        Resources res = context.getResources();
-        mBigPicMinHeight = res.getDimensionPixelSize(R.dimen.abc_slice_big_pic_min_height);
-        mBigPicMaxHeight = res.getDimensionPixelSize(R.dimen.abc_slice_big_pic_max_height);
-        mAllImagesHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_image_only_height);
-        mImageTextHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_image_text_height);
-        mMinHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_min_height);
-        mMaxHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_max_height);
+        if (context != null) {
+            Resources res = context.getResources();
+            mBigPicMinHeight = res.getDimensionPixelSize(R.dimen.abc_slice_big_pic_min_height);
+            mBigPicMaxHeight = res.getDimensionPixelSize(R.dimen.abc_slice_big_pic_max_height);
+            mAllImagesHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_image_only_height);
+            mImageTextHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_image_text_height);
+            mMinHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_min_height);
+            mMaxHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_max_height);
+        }
     }
 
     /**
