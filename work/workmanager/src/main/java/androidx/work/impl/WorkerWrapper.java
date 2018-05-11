@@ -150,13 +150,15 @@ public class WorkerWrapper implements Runnable {
                 mWorkDatabase.beginTransaction();
                 if (!tryCheckForInterruptionAndNotify()) {
                     State state = mWorkSpecDao.getState(mWorkSpecId);
-                    if (state == RUNNING) {
-                        handleResult(result);
-                    } else if (state == null || !state.isFinished()) {
+                    if (state == null) {
                         // state can be null here with a REPLACE on beginUniqueWork().
                         // Treat it as a failure, and rescheduleAndNotify() will
                         // turn into a no-op. We still need to notify potential observers
                         // holding on to wake locks on our behalf.
+                        notifyListener(false, false);
+                    } else if (state == RUNNING) {
+                        handleResult(result);
+                    } else if (!state.isFinished()) {
                         rescheduleAndNotify();
                     }
                     mWorkDatabase.setTransactionSuccessful();
@@ -194,7 +196,13 @@ public class WorkerWrapper implements Runnable {
         if (mInterrupted) {
             Log.d(TAG, String.format("Work interrupted for %s", mWorkSpecId));
             State currentState = mWorkSpecDao.getState(mWorkSpecId);
-            notifyListener(currentState == SUCCEEDED, !currentState.isFinished());
+            if (currentState == null) {
+                // This can happen because of a beginUniqueWork(..., REPLACE, ...).  Notify the
+                // listeners so we can clean up any wake locks, etc.
+                notifyListener(false, false);
+            } else {
+                notifyListener(currentState == SUCCEEDED, !currentState.isFinished());
+            }
             return true;
         }
         return false;
