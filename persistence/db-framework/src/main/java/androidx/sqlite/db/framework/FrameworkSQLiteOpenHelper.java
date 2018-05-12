@@ -146,7 +146,10 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
 
         @Override
         public void onOpen(SQLiteDatabase db) {
-            mCallback.onOpen(getWrappedDb(db));
+            if (!mMigrated) {
+                // if we've migrated, we'll re-open the db so we  should not call the callback.
+                mCallback.onOpen(getWrappedDb(db));
+            }
         }
 
         @Override
