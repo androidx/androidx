@@ -364,6 +364,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
         mLastUpdatedText.setVisibility(TextUtils.isEmpty(subtitleTimeString) ? GONE : VISIBLE);
         mSecondaryText.setVisibility(subtitleExists ? VISIBLE : GONE);
+
+        // TODO: Consider refactoring layout structure to avoid this
+        // Need to request a layout to update the weights for these views when RV recycles them
+        mSecondaryText.requestLayout();
+        mLastUpdatedText.requestLayout();
     }
 
     private void addRange(final SliceItem range) {
