@@ -146,7 +146,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     private final Object mLock = new Object();
     //--- guarded by |mLock| start
-    private AudioAttributesCompat mAudioAttributes;
     private Pair<Executor, EventCallback> mMp2EventCallbackRecord;
     private ArrayMap<PlayerEventCallback, Executor> mPlayerEventCallbackMap =
             new ArrayMap<>();
@@ -370,21 +369,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         addTask(new Task(CALL_COMPLETED_SET_AUDIO_ATTRIBUTES, false) {
             @Override
             void process() {
-                AudioAttributes attr;
-                synchronized (mLock) {
-                    mAudioAttributes = attributes;
-                    attr = (AudioAttributes) mAudioAttributes.unwrap();
-                }
-                mPlayer.setAudioAttributes(attr);
+                mPlayer.setAudioAttributes(attributes);
             }
         });
     }
 
     @Override
     public @NonNull AudioAttributesCompat getAudioAttributes() {
-        synchronized (mLock) {
-            return mAudioAttributes;
-        }
+        return mPlayer.getAudioAttributes();
     }
 
     /**
@@ -879,7 +871,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     public void reset() {
         mPlayer.reset();
         synchronized (mLock) {
-            mAudioAttributes = null;
             mMp2EventCallbackRecord = null;
             mPlayerEventCallbackMap.clear();
             mDrmEventCallbackRecord = null;
@@ -2067,8 +2058,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     private class MediaPlayerSourceQueue {
 
         List<MediaPlayerSource> mQueue = new ArrayList<>();
-        float mVolume = 1.0f;
+        Float mVolume = 1.0f;
         Surface mSurface;
+        Integer mAuxEffect;
+        Float mAuxEffectSendLevel;
+        AudioAttributesCompat mAudioAttributes;
+        Integer mAudioSessionId;
+        SyncParams mSyncParams;
+        PlaybackParams mPlaybackParams;
 
         MediaPlayerSourceQueue() {
             mQueue.add(new MediaPlayerSource(null));
@@ -2160,8 +2157,15 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             return (long) src.mPlayer.getDuration() * src.mBufferedPercentage.get() / 100;
         }
 
-        synchronized void setAudioAttributes(AudioAttributes attributes) {
-            getCurrentPlayer().setAudioAttributes(attributes);
+        synchronized void setAudioAttributes(AudioAttributesCompat attributes) {
+            mAudioAttributes = attributes;
+            AudioAttributes attr = mAudioAttributes == null
+                    ? null : (AudioAttributes) mAudioAttributes.unwrap();
+            getCurrentPlayer().setAudioAttributes(attr);
+        }
+
+        synchronized AudioAttributesCompat getAudioAttributes() {
+            return mAudioAttributes;
         }
 
         synchronized DataSourceError onPrepared(MediaPlayer mp) {
@@ -2231,8 +2235,30 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         synchronized DataSourceError playCurrent() {
             DataSourceError err = null;
             final MediaPlayerSource src = mQueue.get(0);
-            src.mPlayer.setSurface(mSurface);
-            src.mPlayer.setVolume(mVolume, mVolume);
+
+            // Apply the properties to the next player instance.
+            if (mSurface != null) {
+                src.mPlayer.setSurface(mSurface);
+            }
+            if (mVolume != null) {
+                src.mPlayer.setVolume(mVolume, mVolume);
+            }
+            if (mAudioAttributes != null) {
+                src.mPlayer.setAudioAttributes((AudioAttributes) mAudioAttributes.unwrap());
+            }
+            if (mAuxEffect != null) {
+                src.mPlayer.attachAuxEffect(mAuxEffect);
+            }
+            if (mAuxEffectSendLevel != null) {
+                src.mPlayer.setAuxEffectSendLevel(mAuxEffectSendLevel);
+            }
+            if (mSyncParams != null) {
+                src.mPlayer.setSyncParams(mSyncParams);
+            }
+            if (mPlaybackParams != null) {
+                src.mPlayer.setPlaybackParams(mPlaybackParams);
+            }
+
             if (src.mSourceState == SOURCE_STATE_PREPARED) {
                 // start next source only when it's in prepared state.
                 src.mPlayer.start();
@@ -2268,6 +2294,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
             MediaPlayerSource src = mQueue.get(n);
             try {
+                // Apply audio session ID before calling setDataSource().
+                if (mAudioSessionId != null) {
+                    src.mPlayer.setAudioSessionId(mAudioSessionId);
+                }
                 src.mSourceState = SOURCE_STATE_PREPARING;
                 handleDataSource(src);
                 src.mPlayer.prepareAsync();
@@ -2297,6 +2327,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         synchronized void setPlaybackParams(PlaybackParams playbackParams) {
             getCurrentPlayer().setPlaybackParams(playbackParams);
+            mPlaybackParams = playbackParams;
         }
 
         synchronized float getVolume() {
@@ -2331,6 +2362,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         synchronized void setSyncParams(SyncParams params) {
             getCurrentPlayer().setSyncParams(params);
+            mSyncParams = params;
         }
 
         synchronized SyncParams getSyncParams() {
@@ -2346,6 +2378,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             src.mPlayer.reset();
             src.mBufferedPercentage.set(0);
             mVolume = 1.0f;
+            mSurface = null;
+            mAuxEffect = null;
+            mAuxEffectSendLevel = null;
+            mAudioAttributes = null;
+            mAudioSessionId = null;
+            mSyncParams = null;
+            mPlaybackParams = null;
+
             setMp2State(src.mPlayer, MEDIAPLAYER2_STATE_IDLE);
             setBufferingState(src.mPlayer, BaseMediaPlayer.BUFFERING_STATE_UNKNOWN);
         }
@@ -2364,10 +2404,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         synchronized void attachAuxEffect(int effectId) {
             getCurrentPlayer().attachAuxEffect(effectId);
+            mAuxEffect = Integer.valueOf(effectId);
         }
 
         synchronized void setAuxEffectSendLevel(float level) {
             getCurrentPlayer().setAuxEffectSendLevel(level);
+            mAuxEffectSendLevel = Float.valueOf(level);
         }
 
         synchronized MediaPlayer.TrackInfo[] getTrackInfo() {
