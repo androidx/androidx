@@ -34,6 +34,7 @@ import android.net.Uri;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -108,7 +109,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testOnStopJob_ResetsWorkStatus() throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         insertWork(work);
@@ -163,7 +164,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     @SdkSuppress(minSdkVersion = 24)
     public void testStartJob_PassesContentUriTriggers() throws InterruptedException {
         OneTimeWorkRequest work =
