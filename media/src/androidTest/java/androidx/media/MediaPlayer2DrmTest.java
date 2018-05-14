@@ -15,15 +15,18 @@
  */
 package androidx.media;
 
+import android.Manifest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
+import android.support.test.rule.GrantPermissionRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,6 +45,10 @@ import java.io.File;
 public class MediaPlayer2DrmTest extends MediaPlayer2DrmTestBase {
 
     private static final String LOG_TAG = "MediaPlayer2DrmTest";
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule =
+            GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     @Before
     @Override
