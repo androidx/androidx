@@ -514,7 +514,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         synchronized (mLock) {
             player = mPlayer;
         }
-        if (player != null) {
+        if (isInPlaybackState(player)) {
             return player.getCurrentPosition();
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
@@ -528,7 +528,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         synchronized (mLock) {
             player = mPlayer;
         }
-        if (player != null) {
+        if (isInPlaybackState(player)) {
             // Note: This should be the same as
             // getCurrentMediaItem().getMetadata().getLong(METADATA_KEY_DURATION)
             return player.getDuration();
@@ -544,7 +544,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         synchronized (mLock) {
             player = mPlayer;
         }
-        if (player != null) {
+        if (isInPlaybackState(player)) {
             return player.getBufferedPosition();
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
@@ -572,7 +572,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         synchronized (mLock) {
             player = mPlayer;
         }
-        if (player != null) {
+        if (isInPlaybackState(player)) {
             return player.getPlaybackSpeed();
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
@@ -946,6 +946,12 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             }
         }
         return serviceName;
+    }
+
+    private boolean isInPlaybackState(@Nullable BaseMediaPlayer player) {
+        return player != null
+                && player.getPlayerState() != BaseMediaPlayer.PLAYER_STATE_IDLE
+                && player.getPlayerState() != BaseMediaPlayer.PLAYER_STATE_ERROR;
     }
 
     private void notifyAgentUpdatedNotLocked(MediaPlaylistAgent oldAgent) {

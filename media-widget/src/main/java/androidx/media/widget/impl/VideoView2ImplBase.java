@@ -26,19 +26,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.AudioAttributes;
-import android.media.AudioFocusRequest;
-import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaControllerCompat.PlaybackInfo;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -48,7 +41,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
-import android.view.accessibility.AccessibilityManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -57,11 +49,14 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.BaseMediaPlayer;
 import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.MediaPlayer2;
-import androidx.media.PlaybackParams2;
+import androidx.media.MediaSession2;
+import androidx.media.SessionCommand2;
+import androidx.media.SessionCommandGroup2;
 import androidx.media.SessionToken2;
 import androidx.media.SubtitleData2;
 import androidx.media.subtitle.Cea708CaptionRenderer;
@@ -82,11 +77,10 @@ import java.util.concurrent.Executor;
 /**
  * Base implementation of VideoView2.
  */
-@RequiresApi(28) // TODO correct minSdk API use incompatibilities and remove before release.
+@RequiresApi(28)
 class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceListener {
     private static final String TAG = "VideoView2ImplBase";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-    private static final long DEFAULT_SHOW_CONTROLLER_INTERVAL_MS = 2000;
 
     private static final int STATE_ERROR = -1;
     private static final int STATE_IDLE = 0;
@@ -97,18 +91,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private static final int STATE_PLAYBACK_COMPLETED = 5;
 
     private static final int INVALID_TRACK_INDEX = -1;
-    private static final float INVALID_SPEED = 0f;
-
     private static final int SIZE_TYPE_EMBEDDED = 0;
     private static final int SIZE_TYPE_FULL = 1;
 
-    private AccessibilityManager mAccessibilityManager;
-    private AudioManager mAudioManager;
     private AudioAttributesCompat mAudioAttributes;
-    private int mAudioFocusType = AudioManager.AUDIOFOCUS_GAIN; // legacy focus gain
-    private boolean mAudioFocused = false;
 
-    private Pair<Executor, VideoView2.OnCustomActionListener> mCustomActionListenerRecord;
     private VideoView2.OnViewTypeChangedListener mViewTypeChangedListener;
 
     private VideoViewInterface mCurrentView;
@@ -116,15 +103,13 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private VideoSurfaceView mSurfaceView;
 
     private MediaPlayer2 mMediaPlayer;
-    private DataSourceDesc mDsd;
+    private MediaItem2 mMediaItem;
+    private List<MediaItem2> mPlayList;
     private MediaControlView2 mMediaControlView;
-    private MediaSessionCompat mMediaSession;
-    private MediaControllerCompat mMediaController;
-    private MediaMetadata2 mMediaMetadata;
+    private MediaSession2 mMediaSession;
     private MediaMetadataRetriever mRetriever;
-    private boolean mNeedUpdateMediaType;
-    private Bundle mMediaTypeData;
     private String mTitle;
+    private Executor mCallbackExecutor;
 
     private WindowManager mManager;
     private View mMusicView;
@@ -137,12 +122,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private int mDominantColor;
     private int mSizeType;
 
-    private PlaybackStateCompat.Builder mStateBuilder;
-    private List<PlaybackStateCompat.CustomAction> mCustomActionList;
-
     private int mTargetState = STATE_IDLE;
     private int mCurrentState = STATE_IDLE;
-    private int mCurrentBufferPercentage;
     private long mSeekWhenPrepared;  // recording the seek position while preparing
 
     private int mVideoWidth;
@@ -153,20 +134,14 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private ArrayList<Pair<Integer, SubtitleTrack>> mSubtitleTrackIndices;
     private SubtitleController mSubtitleController;
 
-    // selected video/audio/subtitle track index as MediaPlayer returns
-    private int mSelectedVideoTrackIndex;
+    // selected audio/subtitle track index as MediaPlayer returns
     private int mSelectedAudioTrackIndex;
     private int mSelectedSubtitleTrackIndex;
 
     private SubtitleAnchorView mSubtitleAnchorView;
     private boolean mSubtitleEnabled;
 
-    private float mSpeed;
-    private float mFallbackSpeed;  // keep the original speed before 'pause' is called.
-    private int mVolumeLevel;
     private VideoView2 mInstance;
-
-    private long mShowControllerIntervalMs;
 
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mRouteSelector;
@@ -184,6 +159,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 mRoutePlayer.setPlayerEventCallback(new RoutePlayer.PlayerEventCallback() {
                     @Override
                     public void onPlayerStateChanged(MediaItemStatus itemStatus) {
+                      /*
                         PlaybackStateCompat.Builder psBuilder = new PlaybackStateCompat.Builder();
                         psBuilder.setActions(RoutePlayer.PLAYBACK_ACTIONS);
                         long position = itemStatus.getContentPosition();
@@ -218,11 +194,17 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         mmBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
                                 itemStatus.getContentDuration());
                         mMediaSession.setMetadata(mmBuilder.build());
+                    */
                     }
                 });
                 // Start remote playback (if necessary)
                 // TODO: b/77556429
-                mRoutePlayer.openVideo(mDsd.getUri());
+                if (mMediaItem != null) {
+                    DataSourceDesc dsd = mMediaItem.getDataSourceDesc();
+                    if (dsd != null && dsd.getUri() != null) {
+                        mRoutePlayer.openVideo(dsd.getUri());
+                    }
+                }
             }
         }
 
@@ -238,7 +220,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
                 // TODO: Resume local playback  (if necessary)
                 // TODO: b/77556429
-                openVideo(mDsd);
+                openVideo();
             }
         }
     };
@@ -251,18 +233,13 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
         mVideoWidth = 0;
         mVideoHeight = 0;
-        mSpeed = 1.0f;
-        mFallbackSpeed = mSpeed;
         mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
-        mShowControllerIntervalMs = DEFAULT_SHOW_CONTROLLER_INTERVAL_MS;
 
-        mAccessibilityManager = (AccessibilityManager) context.getSystemService(
-                Context.ACCESSIBILITY_SERVICE);
-
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mAudioAttributes = new AudioAttributesCompat.Builder()
                 .setUsage(AudioAttributesCompat.USAGE_MEDIA)
                 .setContentType(AudioAttributesCompat.CONTENT_TYPE_MOVIE).build();
+
+        mCallbackExecutor = MainHandlerExecutor.getExecutor(context);
 
         mInstance.setFocusable(true);
         mInstance.setFocusableInTouchMode(true);
@@ -330,7 +307,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     @Override
     public void setMediaControlView2(MediaControlView2 mediaControlView, long intervalMs) {
         mMediaControlView = mediaControlView;
-        mShowControllerIntervalMs = intervalMs;
         mMediaControlView.setRouteSelector(mRouteSelector);
         mMediaControlView.setShowControllerInterval(intervalMs);
 
@@ -353,23 +329,21 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * if any.
      *
      * @param metadata a MediaMetadata2 instance.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setMediaMetadata(MediaMetadata2 metadata) {
-      //mProvider.setMediaMetadata_impl(metadata);
+        if (mMediaItem != null) {
+            mMediaItem.setMetadata(metadata);
+        }
     }
 
     /**
      * Returns MediaMetadata2 instance which is retrieved from MediaPlayer inside VideoView2 by
      * default or by {@link #setMediaMetadata} method.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public MediaMetadata2 getMediaMetadata() {
-        return mMediaMetadata;
+        return (mMediaItem != null) ? mMediaItem.getMetadata() : null;
     }
 
     /**
@@ -385,10 +359,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public MediaControllerCompat getMediaController() {
-        if (mMediaSession == null) {
-            throw new IllegalStateException("MediaSession instance is not available.");
-        }
-        return mMediaController;
+        return null;
     }
 
     /**
@@ -397,13 +368,12 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * VideoView2 is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public SessionToken2 getMediaSessionToken() {
-        //return mProvider.getMediaSessionToken_impl();
-        return null;
+        checkMediaSession();
+        return mMediaSession.getToken();
     }
 
     /**
@@ -445,11 +415,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             Log.e(TAG, "Unsupported speed (" + speed + ") is ignored.");
             return;
         }
-        mSpeed = speed;
-        if (isPlaying()) {
-            applySpeed();
-        }
-        updatePlaybackState();
+        checkMediaSession();
+        mMediaSession.setPlaybackSpeed(speed);
     }
 
     /**
@@ -460,34 +427,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      */
     @Override
     public float getSpeed() {
-        return mSpeed;
-    }
-
-    /**
-     * Sets which type of audio focus will be requested during the playback, or configures playback
-     * to not request audio focus. Valid values for focus requests are
-     * {@link AudioManager#AUDIOFOCUS_GAIN}, {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT},
-     * {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}, and
-     * {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}. Or use
-     * {@link AudioManager#AUDIOFOCUS_NONE} to express that audio focus should not be
-     * requested when playback starts. You can for instance use this when playing a silent animation
-     * through this class, and you don't want to affect other audio applications playing in the
-     * background.
-     *
-     * @param focusGain the type of audio focus gain that will be requested, or
-     *                  {@link AudioManager#AUDIOFOCUS_NONE} to disable the use audio focus during
-     *                  playback.
-     */
-    @Override
-    public void setAudioFocusRequest(int focusGain) {
-        if (focusGain != AudioManager.AUDIOFOCUS_NONE
-                && focusGain != AudioManager.AUDIOFOCUS_GAIN
-                && focusGain != AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
-                && focusGain != AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
-                && focusGain != AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE) {
-            throw new IllegalArgumentException("Illegal audio focus type " + focusGain);
-        }
-        mAudioFocusType = focusGain;
+        checkMediaSession();
+        return mMediaSession.getPlaybackSpeed();
     }
 
     /**
@@ -552,25 +493,37 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * @param mediaItem the MediaItem2 to play
      * @see #setDataSource
      *
-     * @hide
+     * @hide TODO unhide
      */
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setMediaItem(@NonNull MediaItem2 mediaItem) {
+        // TODO add an API such as "setPlayList(List<MediaItem2>)"
+        if (mPlayList != null) {
+            mPlayList.clear();
+        } else {
+            mPlayList = new ArrayList<MediaItem2>();
+        }
+        mPlayList.add(mediaItem);
+        mMediaItem = mediaItem;
+        mSeekWhenPrepared = 0;
+        openVideo();
     }
 
     /**
      * Sets {@link DataSourceDesc} object to render using VideoView2.
      * @param dataSource the {@link DataSourceDesc} object to play.
      * @see #setMediaItem
-     * @hide
+     *
+     * @hide TODO unhide
      */
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setDataSource(@NonNull DataSourceDesc dataSource) {
-        mDsd = dataSource;
-        mSeekWhenPrepared = 0;
-        openVideo(dataSource);
+        MediaItem2 mediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
+                .setDataSourceDesc(dataSource)
+                .build();
+        setMediaItem(mediaItem);
     }
 
     /**
@@ -614,28 +567,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     /**
-     * Sets custom actions which will be shown as custom buttons in {@link MediaControlView2}.
-     *
-     * @param actionList A list of {@link PlaybackStateCompat.CustomAction}. The return value of
-     *                   {@link PlaybackStateCompat.CustomAction#getIcon()} will be used to draw
-     *                   buttons in {@link MediaControlView2}.
-     * @param executor executor to run callbacks on.
-     * @param listener A listener to be called when a custom button is clicked.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    @Override
-    public void setCustomActions(List<PlaybackStateCompat.CustomAction> actionList,
-            Executor executor, VideoView2.OnCustomActionListener listener) {
-        mCustomActionList = actionList;
-        mCustomActionListenerRecord = new Pair<>(executor, listener);
-
-        // Create a new playback builder in order to clear existing the custom actions.
-        mStateBuilder = null;
-        updatePlaybackState();
-    }
-
-    /**
      * Registers a callback to be invoked when a view type change is done.
      * {@see #setViewType(int)}
      * @param l The callback that will be run
@@ -649,35 +580,45 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     @Override
     public void onAttachedToWindowImpl() {
-        // Create MediaSession
-        mMediaSession = new MediaSessionCompat(mInstance.getContext(), "VideoView2MediaSession");
-        mMediaSession.setCallback(new MediaSessionCallback());
-        mMediaSession.setActive(true);
-        mMediaController = mMediaSession.getController();
-        attachMediaControlView();
-        if (mCurrentState == STATE_PREPARED) {
-            extractTracks();
-            extractMetadata();
-            extractAudioMetadata();
-            if (mNeedUpdateMediaType) {
-                mMediaSession.sendSessionEvent(
-                        MediaControlView2.EVENT_UPDATE_MEDIA_TYPE_STATUS,
-                        mMediaTypeData);
-                mNeedUpdateMediaType = false;
+        // Note: MediaPlayer2 and MediaSession2 instances are created in onAttachedToWindow()
+        // and closed in onDetachedFromWindow().
+        if (mMediaPlayer == null) {
+            mMediaPlayer = MediaPlayer2.create();
+
+            mSurfaceView.setMediaPlayer(mMediaPlayer);
+            mTextureView.setMediaPlayer(mMediaPlayer);
+            mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer);
+
+            if (mMediaSession != null) {
+                mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(), null, null);
             }
         }
 
+        if (mMediaSession == null) {
+            final Context context = mInstance.getContext();
+            mMediaSession = new MediaSession2.Builder(context)
+                    .setPlayer(mMediaPlayer.getBaseMediaPlayer())
+                    .setId("VideoView2_" + mInstance.toString())
+                    .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
+                    .build();
+        }
+
+        attachMediaControlView();
         mMediaRouter = MediaRouter.getInstance(mInstance.getContext());
-        mMediaRouter.setMediaSessionCompat(mMediaSession);
+        /*
+        (b/79723218)
+        mMediaRouter.setMediaSession2(mMediaSession);
         mMediaRouter.addCallback(mRouteSelector, mRouterCallback,
                 MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+                */
     }
 
     @Override
     public void onDetachedFromWindowImpl() {
-        mMediaSession.release();
+        mMediaPlayer.close();
+        mMediaSession.close();
+        mMediaPlayer = null;
         mMediaSession = null;
-        mMediaController = null;
     }
 
     @Override
@@ -748,7 +689,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     + ", " + view.toString());
         }
         if (needToStart()) {
-            mMediaController.getTransportControls().play();
+            mMediaSession.play();
         }
     }
 
@@ -789,18 +730,24 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         if (mViewTypeChangedListener != null) {
             mViewTypeChangedListener.onViewTypeChanged(mInstance, view.getViewType());
         }
+
         if (needToStart()) {
-            mMediaController.getTransportControls().play();
+            mMediaSession.play();
         }
     }
 
     ///////////////////////////////////////////////////
     // Protected or private methods
     ///////////////////////////////////////////////////
+    private void checkMediaSession() {
+        if (mMediaSession == null) {
+            throw new IllegalStateException("MediaSession instance is not available.");
+        }
+    }
 
     private void attachMediaControlView() {
         // Get MediaController from MediaSession and set it inside MediaControlView
-        mMediaControlView.setController(mMediaSession.getController());
+        mMediaControlView.setMediaSessionToken(mMediaSession.getToken());
 
         LayoutParams params =
                 new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -808,133 +755,81 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     private boolean isInPlaybackState() {
-        return (mMediaPlayer != null || mRoutePlayer != null)
-                && mCurrentState != STATE_ERROR
-                && mCurrentState != STATE_IDLE
-                && mCurrentState != STATE_PREPARING;
+        return mMediaSession != null
+                && mMediaSession.getPlayerState() != BaseMediaPlayer.PLAYER_STATE_ERROR
+                && mMediaSession.getPlayerState() != BaseMediaPlayer.PLAYER_STATE_IDLE;
     }
 
     private boolean needToStart() {
-        return (mMediaPlayer != null || mRoutePlayer != null)
-                && isAudioGranted()
-                && isWaitingPlayback();
-    }
-
-    private boolean isPlaying() {
-        return mMediaPlayer != null
-                && mMediaPlayer.getState() == MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING;
+        return (mMediaPlayer != null || mRoutePlayer != null) && isWaitingPlayback();
     }
 
     private boolean isWaitingPlayback() {
         return mCurrentState != STATE_PLAYING && mTargetState == STATE_PLAYING;
     }
 
-    private boolean isAudioGranted() {
-        return mAudioFocused || mAudioFocusType == AudioManager.AUDIOFOCUS_NONE;
-    }
-
-    private AudioManager.OnAudioFocusChangeListener mAudioFocusListener =
-            new AudioManager.OnAudioFocusChangeListener() {
-        @Override
-        public void onAudioFocusChange(int focusChange) {
-            switch (focusChange) {
-                case AudioManager.AUDIOFOCUS_GAIN:
-                    mAudioFocused = true;
-                    if (needToStart()) {
-                        mMediaController.getTransportControls().play();
-                    }
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS:
-                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                    mAudioFocused = false;
-                    if (isInPlaybackState() && isPlaying()) {
-                        mMediaController.getTransportControls().pause();
-                    } else {
-                        mTargetState = STATE_PAUSED;
-                    }
-            }
-        }
-    };
-
-    @SuppressWarnings("deprecation")
-    private void requestAudioFocus(int focusType) {
-        int result;
-        if (android.os.Build.VERSION.SDK_INT >= 26) {
-            AudioFocusRequest focusRequest;
-            focusRequest = new AudioFocusRequest.Builder(focusType)
-                    .setAudioAttributes((AudioAttributes) mAudioAttributes.unwrap())
-                    .setOnAudioFocusChangeListener(mAudioFocusListener)
-                    .build();
-            result = mAudioManager.requestAudioFocus(focusRequest);
-        } else {
-            result = mAudioManager.requestAudioFocus(mAudioFocusListener,
-                    AudioManager.STREAM_MUSIC,
-                    focusType);
-        }
-        if (result == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
-            mAudioFocused = false;
-        } else if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            mAudioFocused = true;
-        } else if (result == AudioManager.AUDIOFOCUS_REQUEST_DELAYED) {
-            mAudioFocused = false;
-        }
-    }
-
     // Creates a MediaPlayer instance and prepare playback.
-    private void openVideo(DataSourceDesc dsd) {
-        Uri uri = dsd.getUri();
-        Map<String, String> headers = dsd.getUriHeaders();
-        resetPlayer();
-        if (isRemotePlayback()) {
-            // TODO: b/77556429
-            mRoutePlayer.openVideo(uri);
-            return;
+    private void openVideo() {
+        if (DEBUG) {
+            Log.d(TAG, "openVideo()");
+        }
+        DataSourceDesc dsd = mMediaItem.getDataSourceDesc();
+        Uri uri = null;
+        if (dsd != null) {
+            uri = dsd.getUri();
+            resetPlayer();
+            if (isRemotePlayback()) {
+                // TODO: b/77556429
+                mRoutePlayer.openVideo(uri);
+                return;
+            }
         }
 
         try {
-            Log.d(TAG, "openVideo(): creating new MediaPlayer instance.");
-            mMediaPlayer = MediaPlayer2.create();
+            if (mMediaPlayer == null) {
+                mMediaPlayer = MediaPlayer2.create();
+            }
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);
-            mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer);
+            if (!mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer)) {
+                Log.w(TAG, "failed to assign surface");
+            }
+            mMediaPlayer.setEventCallback(mCallbackExecutor, mMediaPlayer2Callback);
+            mMediaPlayer.setAudioAttributes(mAudioAttributes);
+
+            if (mMediaSession == null) {
+                final Context context = mInstance.getContext();
+                mMediaSession = new MediaSession2.Builder(context)
+                        .setPlayer(mMediaPlayer.getBaseMediaPlayer())
+                        .setId("VideoView2_" + mInstance.toString())
+                        .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
+                        .build();
+            } else {
+                mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(), null, null);
+            }
 
             final Context context = mInstance.getContext();
             mSubtitleController = new SubtitleController(context);
             mSubtitleController.registerRenderer(new ClosedCaptionRenderer(context));
             mSubtitleController.registerRenderer(new Cea708CaptionRenderer(context));
             mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleAnchorView);
-            Executor executor = new Executor() {
-                @Override
-                public void execute(Runnable runnable) {
-                    runnable.run();
-                }
-            };
-            mMediaPlayer.setEventCallback(executor, mMediaPlayer2Callback);
 
-            mCurrentBufferPercentage = -1;
-            mMediaPlayer.setDataSource(dsd);
-            mMediaPlayer.setAudioAttributes(mAudioAttributes);
+            mMediaSession.setPlaylist(mPlayList, null);
+
             // we don't set the target state here either, but preserve the
             // target state that was there before.
             mCurrentState = STATE_PREPARING;
-            mMediaPlayer.prepare();
+            mMediaSession.prepare();
 
             // Save file name as title since the file may not have a title Metadata.
-            mTitle = uri.getPath();
-            String scheme = uri.getScheme();
+            mTitle = uri != null ? uri.getPath() : null;
+            String scheme = uri != null ? uri.getScheme() : null;
             if (scheme != null && scheme.equals("file")) {
                 mTitle = uri.getLastPathSegment();
-                mRetriever = new MediaMetadataRetriever();
-                mRetriever.setDataSource(context, uri);
             }
 
-            if (DEBUG) {
-                Log.d(TAG, "openVideo(). mCurrentState=" + mCurrentState
-                        + ", mTargetState=" + mTargetState);
-            }
         } catch (IllegalArgumentException ex) {
-            Log.w(TAG, "Unable to open content: " + uri, ex);
+            Log.w(TAG, "Unable to open content: " + mMediaItem, ex);
             mCurrentState = STATE_ERROR;
             mTargetState = STATE_ERROR;
             mMediaPlayer2Callback.onError(mMediaPlayer, dsd,
@@ -945,115 +840,28 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     /*
      * Reset the media player in any state
      */
-    @SuppressWarnings("deprecation")
     private void resetPlayer() {
         if (mMediaPlayer != null) {
             final MediaPlayer2 player = mMediaPlayer;
             new AsyncTask<MediaPlayer2, Void, Void>() {
                 @Override
                 protected Void doInBackground(MediaPlayer2... players) {
-                    // TODO: Fix NPE while MediaPlayer2.close()
-                    //players[0].close();
+                    players[0].reset();
                     return null;
                 }
-            }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, player);
-            mMediaPlayer = null;
+            }.executeOnExecutor(mCallbackExecutor, player);
             mTextureView.setMediaPlayer(null);
             mSurfaceView.setMediaPlayer(null);
             mCurrentState = STATE_IDLE;
             mTargetState = STATE_IDLE;
-            if (mAudioFocusType != AudioManager.AUDIOFOCUS_NONE) {
-                mAudioManager.abandonAudioFocus(null);
-            }
         }
         mVideoWidth = 0;
         mVideoHeight = 0;
     }
 
-    private void updatePlaybackState() {
-        if (mStateBuilder == null) {
-            long playbackActions = PlaybackStateCompat.ACTION_PLAY
-                    | PlaybackStateCompat.ACTION_PAUSE
-                    | PlaybackStateCompat.ACTION_REWIND | PlaybackStateCompat.ACTION_FAST_FORWARD
-                    | PlaybackStateCompat.ACTION_SEEK_TO;
-            mStateBuilder = new PlaybackStateCompat.Builder();
-            mStateBuilder.setActions(playbackActions);
-
-            if (mCustomActionList != null) {
-                for (PlaybackStateCompat.CustomAction action : mCustomActionList) {
-                    mStateBuilder.addCustomAction(action);
-                }
-            }
-        }
-        mStateBuilder.setState(getCorrespondingPlaybackState(),
-                mMediaPlayer.getCurrentPosition(), mSpeed);
-        if (mCurrentState != STATE_ERROR
-                && mCurrentState != STATE_IDLE
-                && mCurrentState != STATE_PREPARING) {
-            if (mCurrentBufferPercentage == -1) {
-                mStateBuilder.setBufferedPosition(-1);
-            } else {
-                mStateBuilder.setBufferedPosition(
-                        (long) (mCurrentBufferPercentage / 100.0 * mMediaPlayer.getDuration()));
-            }
-        }
-
-        // Set PlaybackState for MediaSession
-        if (mMediaSession != null) {
-            PlaybackStateCompat state = mStateBuilder.build();
-            mMediaSession.setPlaybackState(state);
-        }
-    }
-
-    private int getCorrespondingPlaybackState() {
-        switch (mCurrentState) {
-            case STATE_ERROR:
-                return PlaybackStateCompat.STATE_ERROR;
-            case STATE_IDLE:
-                return PlaybackStateCompat.STATE_NONE;
-            case STATE_PREPARING:
-                return PlaybackStateCompat.STATE_CONNECTING;
-            case STATE_PREPARED:
-                return PlaybackStateCompat.STATE_PAUSED;
-            case STATE_PLAYING:
-                return PlaybackStateCompat.STATE_PLAYING;
-            case STATE_PAUSED:
-                return PlaybackStateCompat.STATE_PAUSED;
-            case STATE_PLAYBACK_COMPLETED:
-                return PlaybackStateCompat.STATE_STOPPED;
-            default:
-                return -1;
-        }
-    }
-
-    private void applySpeed() {
-        if (android.os.Build.VERSION.SDK_INT < 23) {
-            return;
-        }
-        PlaybackParams2 params = mMediaPlayer.getPlaybackParams();
-        if (mSpeed != params.getSpeed()) {
-            try {
-                mMediaPlayer.setPlaybackParams(
-                        new PlaybackParams2.Builder().setSpeed(mSpeed).build());
-                mFallbackSpeed = mSpeed;
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "PlaybackParams2 has unsupported value: " + e);
-                float fallbackSpeed = mMediaPlayer.getPlaybackParams().getSpeed();
-                if (fallbackSpeed > 0.0f) {
-                    mFallbackSpeed = fallbackSpeed;
-                }
-                mSpeed = mFallbackSpeed;
-            }
-        }
-    }
-
     private boolean isRemotePlayback() {
-        if (mMediaController == null) {
-            return false;
-        }
-        PlaybackInfo playbackInfo = mMediaController.getPlaybackInfo();
-        return playbackInfo != null
-                && playbackInfo.getPlaybackType() == PlaybackInfo.PLAYBACK_TYPE_REMOTE;
+        return mRoutePlayer != null
+                && mMediaSession != null && mMediaSession.getVolumeProvider() != null;
     }
 
     private void selectOrDeselectSubtitle(boolean select) {
@@ -1096,9 +904,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             }
         }
         // Select first tracks as default
-        if (mVideoTrackIndices.size() > 0) {
-            mSelectedVideoTrackIndex = 0;
-        }
         if (mAudioTrackIndices.size() > 0) {
             mSelectedAudioTrackIndex = 0;
         }
@@ -1113,34 +918,46 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         if (mSubtitleTrackIndices.size() > 0) {
             selectOrDeselectSubtitle(mSubtitleEnabled);
         }
-        mMediaSession.sendSessionEvent(MediaControlView2.EVENT_UPDATE_TRACK_STATUS, data);
+        mMediaSession.sendCustomCommand(
+                new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS, null), data);
     }
 
     private void extractMetadata() {
-        if (mRetriever == null) {
+        if (mMediaItem.getMetadata() != null) {
+            // If a MediaItem2 instance has its own metadata, then use it.
+            // TODO: merge metadata from metadata retriever
             return;
         }
-        // Get and set duration and title values as MediaMetadata for MediaControlView2
-        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+
+        DataSourceDesc dsd = mMediaItem.getDataSourceDesc();
+        Uri uri = dsd != null ? dsd.getUri() : null;
+        if (uri == null) {
+            // Something wrong.
+            return;
+        }
+
+        mRetriever = new MediaMetadataRetriever();
+        mRetriever.setDataSource(mInstance.getContext(), uri);
+
+        // Save file name as title since the file may not have a title Metadata.
+        String scheme = uri.getScheme();
+        if (scheme != null && scheme.equals("file")) {
+            mTitle = uri.getLastPathSegment();
+        } else {
+            mTitle = uri.getPath();
+        }
+
         String title = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         if (title != null) {
             mTitle = title;
         }
-        builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, mTitle);
-        builder.putLong(
-                MediaMetadataCompat.METADATA_KEY_DURATION, mMediaPlayer.getDuration());
 
-        if (mMediaSession != null) {
-            mMediaSession.setMetadata(builder.build());
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private void extractAudioMetadata() {
-        if (mRetriever == null || !mIsMusicMediaType) {
+        if (!mIsMusicMediaType) {
+            mRetriever.release();
             return;
         }
 
+        // From here, extract audio metadata for Music UI.
         Resources resources = mInstance.getResources();
         mManager = (WindowManager) mInstance.getContext().getApplicationContext()
                 .getSystemService(Context.WINDOW_SERVICE);
@@ -1164,7 +981,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mMusicAlbumDrawable = resources.getDrawable(R.drawable.ic_default_album_image);
         }
 
-        String title = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        title = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         if (title != null) {
             mMusicTitleText = title;
         } else {
@@ -1178,16 +995,31 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mMusicArtistText = resources.getString(R.string.mcv2_music_artist_unknown_text);
         }
 
-        // Send title and artist string to MediaControlView2
-        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
-        builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, mMusicTitleText);
-        builder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, mMusicArtistText);
-        mMediaSession.setMetadata(builder.build());
+        mRetriever.release();
 
         // Display Embedded mode as default
         mInstance.removeView(mSurfaceView);
         mInstance.removeView(mTextureView);
         inflateMusicView(R.layout.embedded_music);
+    }
+
+    private void sendMetadata() {
+        // Get and set duration and title values as MediaMetadata for MediaControlView2
+        MediaMetadata2.Builder builder = new MediaMetadata2.Builder();
+
+        if (mIsMusicMediaType) {
+            builder.putString(MediaMetadata2.METADATA_KEY_TITLE, mMusicTitleText);
+            builder.putString(MediaMetadata2.METADATA_KEY_ARTIST, mMusicArtistText);
+        } else {
+            builder.putString(MediaMetadata2.METADATA_KEY_TITLE, mTitle);
+        }
+        builder.putLong(
+                MediaMetadata2.METADATA_KEY_DURATION, mMediaSession.getDuration());
+        builder.putString(
+                MediaMetadata2.METADATA_KEY_MEDIA_ID, mMediaItem.getMediaId());
+        mMediaItem.setMetadata(builder.build());
+        mPlayList.set(0, mMediaItem);
+        mMediaSession.setPlaylist(mPlayList, null);
     }
 
     private int retrieveOrientation() {
@@ -1249,14 +1081,15 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 @Override
                 public void onInfo(
                         MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                    if (DEBUG) {
+                        Log.d(TAG, "onInfo()");
+                    }
                     if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
                         extractTracks();
                     } else if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                         this.onPrepared(mp, dsd);
                     } else if (what == MediaPlayer2.MEDIA_INFO_PLAYBACK_COMPLETE) {
                         this.onCompletion(mp, dsd);
-                    } else if (what == MediaPlayer2.MEDIA_INFO_BUFFERING_UPDATE) {
-                        this.onBufferingUpdate(mp, dsd, extra);
                     }
                 }
 
@@ -1268,18 +1101,9 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
                     mCurrentState = STATE_ERROR;
                     mTargetState = STATE_ERROR;
-                    updatePlaybackState();
 
                     if (mMediaControlView != null) {
                         mMediaControlView.setVisibility(View.GONE);
-                    }
-                }
-
-                @Override
-                public void onCallCompleted(
-                        MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
-                    if (what == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
-                        updatePlaybackState();
                     }
                 }
 
@@ -1293,11 +1117,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                                 + ", diff: "
                                 + (data.getStartTimeUs() / 1000 - mp.getCurrentPosition())
                                 + "ms, getDurationUs(): " + data.getDurationUs());
-
                     }
                     final int index = data.getTrackIndex();
                     if (index != mSelectedSubtitleTrackIndex) {
-                        Log.d(TAG, "onSubtitleData(): getTrackIndex: " + data.getTrackIndex()
+                        Log.w(TAG, "onSubtitleData(): getTrackIndex: " + data.getTrackIndex()
                                 + ", selected track index: " + mSelectedSubtitleTrackIndex);
                         return;
                     }
@@ -1311,17 +1134,16 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                 private void onPrepared(MediaPlayer2 mp, DataSourceDesc dsd) {
                     if (DEBUG) {
-                        Log.d(TAG, "OnPreparedListener(). mCurrentState=" + mCurrentState
+                        Log.d(TAG, "OnPreparedListener(): "
+                                + ", mCurrentState=" + mCurrentState
                                 + ", mTargetState=" + mTargetState);
                     }
                     mCurrentState = STATE_PREPARED;
-                    // Create and set playback state for MediaControlView2
-                    updatePlaybackState();
 
                     if (mMediaSession != null) {
                         extractTracks();
                         extractMetadata();
-                        extractAudioMetadata();
+                        sendMetadata();
                     }
 
                     if (mMediaControlView != null) {
@@ -1333,7 +1155,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     // mSeekWhenPrepared may be changed after seekTo() call
                     long seekToPosition = mSeekWhenPrepared;
                     if (seekToPosition != 0) {
-                        mMediaController.getTransportControls().seekTo(seekToPosition);
+                        mMediaSession.seekTo(seekToPosition);
                     }
 
                     if (videoWidth != 0 && videoHeight != 0) {
@@ -1344,181 +1166,127 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         }
 
                         if (needToStart()) {
-                            mMediaController.getTransportControls().play();
+                            mMediaSession.play();
                         }
 
                     } else {
                         // We don't know the video size yet, but should start anyway.
                         // The video size might be reported to us later.
                         if (needToStart()) {
-                            mMediaController.getTransportControls().play();
-                        }
-                    }
-                    // Get and set duration and title values as MediaMetadata for MediaControlView2
-                    MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
-
-                    builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, mTitle);
-                    builder.putLong(
-                            MediaMetadataCompat.METADATA_KEY_DURATION, mMediaPlayer.getDuration());
-
-                    if (mMediaSession != null) {
-                        mMediaSession.setMetadata(builder.build());
-
-                        if (mNeedUpdateMediaType) {
-                            mMediaSession.sendSessionEvent(
-                                    MediaControlView2.EVENT_UPDATE_MEDIA_TYPE_STATUS,
-                                    mMediaTypeData);
-                            mNeedUpdateMediaType = false;
+                            mMediaSession.play();
                         }
                     }
                 }
 
-                @SuppressWarnings("deprecation")
                 private void onCompletion(MediaPlayer2 mp, DataSourceDesc dsd) {
                     mCurrentState = STATE_PLAYBACK_COMPLETED;
                     mTargetState = STATE_PLAYBACK_COMPLETED;
-                    updatePlaybackState();
-                    if (mAudioFocusType != AudioManager.AUDIOFOCUS_NONE) {
-                        mAudioManager.abandonAudioFocus(null);
-                    }
-                }
-
-                private void onBufferingUpdate(MediaPlayer2 mp, DataSourceDesc dsd, int percent) {
-                    mCurrentBufferPercentage = percent;
-                    updatePlaybackState();
                 }
             };
 
-    private class MediaSessionCallback extends MediaSessionCompat.Callback {
+    class MediaSessionCallback extends MediaSession2.SessionCallback {
         @Override
-        public void onCommand(String command, Bundle args, ResultReceiver receiver) {
+        public SessionCommandGroup2 onConnect(
+                @NonNull MediaSession2 session,
+                @NonNull MediaSession2.ControllerInfo controller) {
+            SessionCommandGroup2 commands = new SessionCommandGroup2();
+            commands.addAllPredefinedCommands();
+            commands.addCommand(new SessionCommand2(MediaControlView2.COMMAND_SHOW_SUBTITLE, null));
+            commands.addCommand(new SessionCommand2(MediaControlView2.COMMAND_HIDE_SUBTITLE, null));
+            commands.addCommand(new SessionCommand2(
+                    MediaControlView2.COMMAND_SELECT_AUDIO_TRACK, null));
+            commands.addCommand(new SessionCommand2(
+                    MediaControlView2.COMMAND_SET_PLAYBACK_SPEED, null));
+            commands.addCommand(new SessionCommand2(MediaControlView2.COMMAND_MUTE, null));
+            commands.addCommand(new SessionCommand2(MediaControlView2.COMMAND_UNMUTE, null));
+            return commands;
+        }
+
+        @Override
+        public void onCustomCommand(@NonNull MediaSession2 session,
+                @NonNull MediaSession2.ControllerInfo controller,
+                @NonNull SessionCommand2 customCommand,
+                @Nullable Bundle args, @Nullable ResultReceiver cb) {
             if (isRemotePlayback()) {
-                mRoutePlayer.onCommand(command, args, receiver);
-            } else {
-                switch (command) {
-                    case MediaControlView2.COMMAND_SHOW_SUBTITLE:
-                        int subtitleIndex = args.getInt(
-                                MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX,
-                                INVALID_TRACK_INDEX);
-                        if (subtitleIndex != INVALID_TRACK_INDEX) {
-                            int subtitleTrackIndex = mSubtitleTrackIndices.get(subtitleIndex).first;
-                            if (subtitleTrackIndex != mSelectedSubtitleTrackIndex) {
-                                mSelectedSubtitleTrackIndex = subtitleTrackIndex;
-                                mInstance.setSubtitleEnabled(true);
-                            }
+                // TODO: call mRoutePlayer.onCommand()
+                return;
+            }
+            switch (customCommand.getCustomCommand()) {
+                case MediaControlView2.COMMAND_SHOW_SUBTITLE:
+                    int subtitleIndex = args != null ? args.getInt(
+                            MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX,
+                            INVALID_TRACK_INDEX) : INVALID_TRACK_INDEX;
+                    if (subtitleIndex != INVALID_TRACK_INDEX) {
+                        int subtitleTrackIndex = mSubtitleTrackIndices.get(subtitleIndex).first;
+                        if (subtitleTrackIndex != mSelectedSubtitleTrackIndex) {
+                            mSelectedSubtitleTrackIndex = subtitleTrackIndex;
+                            mInstance.setSubtitleEnabled(true);
                         }
-                        break;
-                    case MediaControlView2.COMMAND_HIDE_SUBTITLE:
-                        mInstance.setSubtitleEnabled(false);
-                        break;
-                    case MediaControlView2.COMMAND_SELECT_AUDIO_TRACK:
-                        int audioIndex = args.getInt(MediaControlView2.KEY_SELECTED_AUDIO_INDEX,
-                                INVALID_TRACK_INDEX);
-                        if (audioIndex != INVALID_TRACK_INDEX) {
-                            int audioTrackIndex = mAudioTrackIndices.get(audioIndex);
-                            if (audioTrackIndex != mSelectedAudioTrackIndex) {
-                                mSelectedAudioTrackIndex = audioTrackIndex;
-                                mMediaPlayer.selectTrack(mSelectedAudioTrackIndex);
-                            }
-                        }
-                        break;
-                    case MediaControlView2.COMMAND_SET_PLAYBACK_SPEED:
-                        float speed = args.getFloat(
-                                MediaControlView2.KEY_PLAYBACK_SPEED, INVALID_SPEED);
-                        if (speed != INVALID_SPEED && speed != mSpeed) {
-                            setSpeed(speed);
-                            mSpeed = speed;
-                        }
-                        break;
-                    case MediaControlView2.COMMAND_MUTE:
-                        mVolumeLevel = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-                        break;
-                    case MediaControlView2.COMMAND_UNMUTE:
-                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeLevel, 0);
-                        break;
-                }
-            }
-        }
-
-        @Override
-        public void onCustomAction(final String action, final Bundle extras) {
-            mCustomActionListenerRecord.first.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mCustomActionListenerRecord.second.onCustomAction(action, extras);
-                }
-            });
-        }
-
-        @Override
-        public void onPlay() {
-            if (!isAudioGranted()) {
-                requestAudioFocus(mAudioFocusType);
-            }
-
-            if ((isInPlaybackState() && mCurrentView.hasAvailableSurface()) || mIsMusicMediaType) {
-                if (isRemotePlayback()) {
-                    mRoutePlayer.onPlay();
-                } else {
-                    applySpeed();
-                    mMediaPlayer.play();
-                    mCurrentState = STATE_PLAYING;
-                    updatePlaybackState();
-                }
-                mCurrentState = STATE_PLAYING;
-            }
-            mTargetState = STATE_PLAYING;
-            if (DEBUG) {
-                Log.d(TAG, "onPlay(). mCurrentState=" + mCurrentState
-                        + ", mTargetState=" + mTargetState);
-            }
-        }
-
-        @Override
-        public void onPause() {
-            if (isInPlaybackState()) {
-                if (isRemotePlayback()) {
-                    mRoutePlayer.onPlay();
-                    mCurrentState = STATE_PAUSED;
-                } else if (isPlaying()) {
-                    mMediaPlayer.pause();
-                    mCurrentState = STATE_PAUSED;
-                    updatePlaybackState();
-                }
-            }
-            mTargetState = STATE_PAUSED;
-            if (DEBUG) {
-                Log.d(TAG, "onPause(). mCurrentState=" + mCurrentState
-                        + ", mTargetState=" + mTargetState);
-            }
-        }
-
-        @Override
-        public void onSeekTo(long pos) {
-            if (isInPlaybackState()) {
-                if (isRemotePlayback()) {
-                    mRoutePlayer.onPlay();
-                } else {
-                    if (android.os.Build.VERSION.SDK_INT < 26) {
-                        mMediaPlayer.seekTo((int) pos);
-                    } else {
-                        mMediaPlayer.seekTo(pos, MediaPlayer2.SEEK_PREVIOUS_SYNC);
                     }
-                    mSeekWhenPrepared = 0;
-                }
-            } else {
-                mSeekWhenPrepared = pos;
+                    break;
+                case MediaControlView2.COMMAND_HIDE_SUBTITLE:
+                    mInstance.setSubtitleEnabled(false);
+                    break;
+                case MediaControlView2.COMMAND_SELECT_AUDIO_TRACK:
+                    int audioIndex = (args != null)
+                            ? args.getInt(MediaControlView2.KEY_SELECTED_AUDIO_INDEX,
+                            INVALID_TRACK_INDEX) : INVALID_TRACK_INDEX;
+                    if (audioIndex != INVALID_TRACK_INDEX) {
+                        int audioTrackIndex = mAudioTrackIndices.get(audioIndex);
+                        if (audioTrackIndex != mSelectedAudioTrackIndex) {
+                            mSelectedAudioTrackIndex = audioTrackIndex;
+                            mMediaPlayer.selectTrack(mSelectedAudioTrackIndex);
+                        }
+                    }
+                    break;
             }
         }
 
         @Override
-        public void onStop() {
-            if (isRemotePlayback()) {
-                mRoutePlayer.onPlay();
-            } else {
-                resetPlayer();
+        public boolean onCommandRequest(@NonNull MediaSession2 session,
+                @NonNull MediaSession2.ControllerInfo controller,
+                @NonNull SessionCommand2 command) {
+            switch(command.getCommandCode()) {
+                case SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY:
+                    mTargetState = STATE_PLAYING;
+                    if (!mCurrentView.hasAvailableSurface()) {
+                        Log.d(TAG, "surface is not available");
+                        return false;
+                    }
+                    break;
+                case SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE:
+                    mTargetState = STATE_PAUSED;
+                    break;
+                case SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO:
+                    mSeekWhenPrepared = 0;
+                    break;
             }
+            return true;
+        }
+
+        @Override
+        public void onPlayerStateChanged(@NonNull MediaSession2 session,
+                @NonNull BaseMediaPlayer player, @BaseMediaPlayer.PlayerState int state) {
+            switch(state) {
+                case BaseMediaPlayer.PLAYER_STATE_IDLE:
+                    mCurrentState = STATE_IDLE;
+                    break;
+                case BaseMediaPlayer.PLAYER_STATE_PLAYING:
+                    mCurrentState = STATE_PLAYING;
+                    break;
+                case BaseMediaPlayer.PLAYER_STATE_PAUSED:
+                    mCurrentState = STATE_PAUSED;
+                    break;
+                case BaseMediaPlayer.PLAYER_STATE_ERROR:
+                    mCurrentState = STATE_ERROR;
+                    break;
+            }
+        }
+
+        @Override
+        public void onMediaPrepared(@NonNull MediaSession2 session,
+                @NonNull BaseMediaPlayer player, @NonNull MediaItem2 item) {
+            Log.d(TAG, "onMediaPrepared() is called.");
         }
     }
 }

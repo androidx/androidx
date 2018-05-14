@@ -43,7 +43,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -70,9 +69,7 @@ import androidx.palette.graphics.Palette;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 /**
  * Base implementation of VideoView2.
@@ -104,7 +101,6 @@ class VideoView2ImplBaseWithMp1
     private int mAudioFocusType = AudioManager.AUDIOFOCUS_GAIN; // legacy focus gain
     private boolean mAudioFocused = false;
 
-    private Pair<Executor, VideoView2.OnCustomActionListener> mCustomActionListenerRecord;
     private VideoView2.OnViewTypeChangedListener mViewTypeChangedListener;
 
     private VideoViewInterfaceWithMp1 mCurrentView;
@@ -134,7 +130,6 @@ class VideoView2ImplBaseWithMp1
     private int mSizeType;
 
     private PlaybackStateCompat.Builder mStateBuilder;
-    private List<PlaybackStateCompat.CustomAction> mCustomActionList;
 
     private int mTargetState = STATE_IDLE;
     private int mCurrentState = STATE_IDLE;
@@ -382,7 +377,6 @@ class VideoView2ImplBaseWithMp1
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public SessionToken2 getMediaSessionToken() {
-        //return mProvider.getMediaSessionToken_impl();
         return null;
     }
 
@@ -439,33 +433,6 @@ class VideoView2ImplBaseWithMp1
     @Override
     public float getSpeed() {
         return mSpeed;
-    }
-
-    /**
-     * Sets which type of audio focus will be requested during the playback, or configures playback
-     * to not request audio focus. Valid values for focus requests are
-     * {@link AudioManager#AUDIOFOCUS_GAIN}, {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT},
-     * {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}, and
-     * {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}. Or use
-     * {@link AudioManager#AUDIOFOCUS_NONE} to express that audio focus should not be
-     * requested when playback starts. You can for instance use this when playing a silent animation
-     * through this class, and you don't want to affect other audio applications playing in the
-     * background.
-     *
-     * @param focusGain the type of audio focus gain that will be requested, or
-     *                  {@link AudioManager#AUDIOFOCUS_NONE} to disable the use audio focus during
-     *                  playback.
-     */
-    @Override
-    public void setAudioFocusRequest(int focusGain) {
-        if (focusGain != AudioManager.AUDIOFOCUS_NONE
-                && focusGain != AudioManager.AUDIOFOCUS_GAIN
-                && focusGain != AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
-                && focusGain != AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
-                && focusGain != AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE) {
-            throw new IllegalArgumentException("Illegal audio focus type " + focusGain);
-        }
-        mAudioFocusType = focusGain;
     }
 
     /**
@@ -585,28 +552,6 @@ class VideoView2ImplBaseWithMp1
     @VideoView2.ViewType
     public int getViewType() {
         return mCurrentView.getViewType();
-    }
-
-    /**
-     * Sets custom actions which will be shown as custom buttons in {@link MediaControlView2}.
-     *
-     * @param actionList A list of {@link PlaybackStateCompat.CustomAction}. The return value of
-     *                   {@link PlaybackStateCompat.CustomAction#getIcon()} will be used to draw
-     *                   buttons in {@link MediaControlView2}.
-     * @param executor executor to run callbacks on.
-     * @param listener A listener to be called when a custom button is clicked.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    @Override
-    public void setCustomActions(List<PlaybackStateCompat.CustomAction> actionList,
-            Executor executor, VideoView2.OnCustomActionListener listener) {
-        mCustomActionList = actionList;
-        mCustomActionListenerRecord = new Pair<>(executor, listener);
-
-        // Create a new playback builder in order to clear existing the custom actions.
-        mStateBuilder = null;
-        updatePlaybackState();
     }
 
     /**
@@ -932,12 +877,6 @@ class VideoView2ImplBaseWithMp1
                     | PlaybackStateCompat.ACTION_SEEK_TO;
             mStateBuilder = new PlaybackStateCompat.Builder();
             mStateBuilder.setActions(playbackActions);
-
-            if (mCustomActionList != null) {
-                for (PlaybackStateCompat.CustomAction action : mCustomActionList) {
-                    mStateBuilder.addCustomAction(action);
-                }
-            }
         }
         mStateBuilder.setState(getCorrespondingPlaybackState(),
                 mMediaPlayer.getCurrentPosition(), mSpeed);
@@ -1339,16 +1278,6 @@ class VideoView2ImplBaseWithMp1
                         break;
                 }
             }
-        }
-
-        @Override
-        public void onCustomAction(final String action, final Bundle extras) {
-            mCustomActionListenerRecord.first.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mCustomActionListenerRecord.second.onCustomAction(action, extras);
-                }
-            });
         }
 
         @Override

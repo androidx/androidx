@@ -17,10 +17,8 @@
 package androidx.media.widget;
 
 import android.content.Context;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,9 +31,7 @@ import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.SessionToken2;
 
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 /**
  * Interface for impl classes.
@@ -129,23 +125,6 @@ interface VideoView2Impl {
     float getSpeed();
 
     /**
-     * Sets which type of audio focus will be requested during the playback, or configures playback
-     * to not request audio focus. Valid values for focus requests are
-     * {@link AudioManager#AUDIOFOCUS_GAIN}, {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT},
-     * {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}, and
-     * {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}. Or use
-     * {@link AudioManager#AUDIOFOCUS_NONE} to express that audio focus should not be
-     * requested when playback starts. You can for instance use this when playing a silent animation
-     * through this class, and you don't want to affect other audio applications playing in the
-     * background.
-     *
-     * @param focusGain the type of audio focus gain that will be requested, or
-     *                  {@link AudioManager#AUDIOFOCUS_NONE} to disable the use audio focus during
-     *                  playback.
-     */
-    void setAudioFocusRequest(int focusGain);
-
-    /**
      * Sets the {@link AudioAttributesCompat} to be used during the playback of the video.
      *
      * @param attributes non-null <code>AudioAttributesCompat</code>.
@@ -211,18 +190,6 @@ interface VideoView2Impl {
      */
     @VideoView2.ViewType
     int getViewType();
-
-    /**
-     * Sets custom actions which will be shown as custom buttons in {@link MediaControlView2}.
-     *
-     * @param actionList A list of {@link PlaybackStateCompat.CustomAction}. The return value of
-     *                   {@link PlaybackStateCompat.CustomAction#getIcon()} will be used to draw
-     *                   buttons in {@link MediaControlView2}.
-     * @param executor executor to run callbacks on.
-     * @param listener A listener to be called when a custom button is clicked.
-     */
-    void setCustomActions(List<PlaybackStateCompat.CustomAction> actionList,
-            Executor executor, VideoView2.OnCustomActionListener listener);
 
     /**
      * Registers a callback to be invoked when a view type change is done.

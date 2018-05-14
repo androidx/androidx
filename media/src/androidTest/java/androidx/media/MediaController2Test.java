@@ -480,6 +480,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         };
         final MediaController2 controller = createController(mSession.getToken(), true, callback);
         mPlayer.mCurrentPosition = testPosition;
+        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PAUSED;
         mPlayer.notifySeekCompleted(testSeekPosition);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
