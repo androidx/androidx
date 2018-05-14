@@ -24,6 +24,7 @@ import static androidx.media.MediaConstants2.ARGUMENT_PAGE;
 import static androidx.media.MediaConstants2.ARGUMENT_PAGE_SIZE;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.BadParcelableException;
 import android.os.Bundle;
@@ -223,18 +224,14 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         // constructor.
         public static final class Builder extends MediaSession2.BuilderBase<MediaLibrarySession,
                 Builder, MediaLibrarySessionCallback> {
-            private MediaLibrarySessionImplBase.Builder mImpl;
-
             // Builder requires MediaLibraryService2 instead of Context just to ensure that the
             // builder can be only instantiated within the MediaLibraryService2.
-            // Ideally it's better to make it inner class of service to enforce, it violates API
+            // Ideally it's better to make it inner class of service to enforce, but it violates API
             // guideline that Builders should be the inner class of the building target.
             public Builder(@NonNull MediaLibraryService2 service,
                     @NonNull Executor callbackExecutor,
                     @NonNull MediaLibrarySessionCallback callback) {
                 super(service);
-                mImpl = new MediaLibrarySessionImplBase.Builder(service);
-                setImpl(mImpl);
                 setSessionCallback(callbackExecutor, callback);
             }
 
@@ -266,12 +263,32 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
 
             @Override
             public @NonNull MediaLibrarySession build() {
-                return super.build();
+                if (mCallbackExecutor == null) {
+                    mCallbackExecutor = new MainHandlerExecutor(mContext);
+                }
+                if (mCallback == null) {
+                    mCallback = new MediaLibrarySession.MediaLibrarySessionCallback() {};
+                }
+                return new MediaLibrarySession(mContext, mId, mPlayer, mPlaylistAgent,
+                        mVolumeProvider, mSessionActivity, mCallbackExecutor, mCallback);
             }
         }
 
-        MediaLibrarySession(SupportLibraryImpl impl) {
-            super(impl);
+        MediaLibrarySession(Context context, String id, BaseMediaPlayer player,
+                MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
+                PendingIntent sessionActivity, Executor callbackExecutor,
+                MediaSession2.SessionCallback callback) {
+            super(context, id, player, playlistAgent, volumeProvider, sessionActivity,
+                    callbackExecutor, callback);
+        }
+
+        @Override
+        SupportLibraryImpl createImpl(Context context, String id, BaseMediaPlayer player,
+                MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
+                PendingIntent sessionActivity, Executor callbackExecutor,
+                MediaSession2.SessionCallback callback) {
+            return new MediaLibrarySessionImplBase(this, context, id, player, playlistAgent,
+                    volumeProvider, sessionActivity, callbackExecutor, callback);
         }
 
         /**

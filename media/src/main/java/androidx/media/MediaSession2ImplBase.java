@@ -60,7 +60,6 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
@@ -98,11 +97,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @GuardedBy("mLock")
     private PlaybackInfo mPlaybackInfo;
 
-    MediaSession2ImplBase(Context context, String id, BaseMediaPlayer player,
-            MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
-            PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback) {
+    MediaSession2ImplBase(MediaSession2 instance, Context context, String id,
+            BaseMediaPlayer player, MediaPlaylistAgent playlistAgent,
+            VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
+            Executor callbackExecutor, SessionCallback callback) {
         mContext = context;
-        mInstance = createInstance();
+        mInstance = instance;
         mHandlerThread = new HandlerThread("MediaController2_Thread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
@@ -117,7 +117,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
 
         mPlayerEventCallback = new MyPlayerEventCallback(this);
         mPlaylistEventCallback = new MyPlaylistEventCallback(this);
-        mAudioFocusHandler = new AudioFocusHandler(getInstance());
+        mAudioFocusHandler = new AudioFocusHandler(context, getInstance());
 
         // Infer type from the id and package name.
         String libraryService = getServiceName(context, MediaLibraryService2.SERVICE_INTERFACE, id);
@@ -884,11 +884,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     // package private and private methods
     ///////////////////////////////////////////////////
     @Override
-    MediaSession2 createInstance() {
-        return new MediaSession2(this);
-    }
-
-    @Override
     @NonNull MediaSession2 getInstance() {
         return mInstance;
     }
@@ -1464,104 +1459,6 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                 return;
             }
             session.notifyShuffleModeChangedOnExecutor(playlistAgent, shuffleMode);
-        }
-    }
-
-    abstract static class BuilderBase
-            <T extends MediaSession2, C extends SessionCallback> {
-        final Context mContext;
-        BaseMediaPlayer mPlayer;
-        String mId;
-        Executor mCallbackExecutor;
-        C mCallback;
-        MediaPlaylistAgent mPlaylistAgent;
-        VolumeProviderCompat mVolumeProvider;
-        PendingIntent mSessionActivity;
-
-        BuilderBase(Context context) {
-            if (context == null) {
-                throw new IllegalArgumentException("context shouldn't be null");
-            }
-            mContext = context;
-            // Ensure MediaSessionCompat non-null or empty
-            mId = TAG;
-        }
-
-        void setPlayer(@NonNull BaseMediaPlayer player) {
-            if (player == null) {
-                throw new IllegalArgumentException("player shouldn't be null");
-            }
-            mPlayer = player;
-        }
-
-        void setPlaylistAgent(@NonNull MediaPlaylistAgent playlistAgent) {
-            if (playlistAgent == null) {
-                throw new IllegalArgumentException("playlistAgent shouldn't be null");
-            }
-            mPlaylistAgent = playlistAgent;
-        }
-
-        void setVolumeProvider(@Nullable VolumeProviderCompat volumeProvider) {
-            mVolumeProvider = volumeProvider;
-        }
-
-        void setSessionActivity(@Nullable PendingIntent pi) {
-            mSessionActivity = pi;
-        }
-
-        void setId(@NonNull String id) {
-            if (id == null) {
-                throw new IllegalArgumentException("id shouldn't be null");
-            }
-            mId = id;
-        }
-
-        void setSessionCallback(@NonNull Executor executor, @NonNull C callback) {
-            if (executor == null) {
-                throw new IllegalArgumentException("executor shouldn't be null");
-            }
-            if (callback == null) {
-                throw new IllegalArgumentException("callback shouldn't be null");
-            }
-            mCallbackExecutor = executor;
-            mCallback = callback;
-        }
-
-        abstract @NonNull T build();
-    }
-
-    static final class Builder extends
-            BuilderBase<MediaSession2, MediaSession2.SessionCallback> {
-        Builder(Context context) {
-            super(context);
-        }
-
-        @Override
-        public @NonNull MediaSession2 build() {
-            if (mCallbackExecutor == null) {
-                mCallbackExecutor = new MainHandlerExecutor(mContext);
-            }
-            if (mCallback == null) {
-                mCallback = new SessionCallback() {};
-            }
-            return new MediaSession2(new MediaSession2ImplBase(mContext, mId, mPlayer,
-                    mPlaylistAgent, mVolumeProvider, mSessionActivity, mCallbackExecutor,
-                    mCallback));
-        }
-    }
-
-    static class MainHandlerExecutor implements Executor {
-        private final Handler mHandler;
-
-        MainHandlerExecutor(Context context) {
-            mHandler = new Handler(context.getMainLooper());
-        }
-
-        @Override
-        public void execute(Runnable command) {
-            if (!mHandler.post(command)) {
-                throw new RejectedExecutionException(mHandler + " is shutting down");
-            }
         }
     }
 }

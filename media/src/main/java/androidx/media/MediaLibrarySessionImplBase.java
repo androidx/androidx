@@ -21,43 +21,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.media.MediaLibraryService2.MediaLibrarySession;
 
 import java.util.concurrent.Executor;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaLibrarySessionImplBase extends MediaSession2ImplBase {
-    MediaLibrarySessionImplBase(Context context, String id, BaseMediaPlayer player,
-            MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
-            PendingIntent sessionActivity, Executor callbackExecutor,
-            MediaSession2.SessionCallback callback) {
-        super(context, id, player, playlistAgent, volumeProvider, sessionActivity, callbackExecutor,
-                callback);
-    }
-
-    @Override
-    MediaSession2 createInstance() {
-        return new MediaLibrarySession(this);
-    }
-
-    static final class Builder extends MediaSession2ImplBase.BuilderBase<
-            MediaLibrarySession, MediaLibrarySession.MediaLibrarySessionCallback> {
-        Builder(Context context) {
-            super(context);
-        }
-
-        @Override
-        public @NonNull MediaLibrarySession build() {
-            if (mCallbackExecutor == null) {
-                mCallbackExecutor = new MainHandlerExecutor(mContext);
-            }
-            if (mCallback == null) {
-                mCallback = new MediaLibrarySession.MediaLibrarySessionCallback() {};
-            }
-            return new MediaLibrarySession(new MediaLibrarySessionImplBase(mContext,
-                    mId, mPlayer, mPlaylistAgent, mVolumeProvider, mSessionActivity,
-                    mCallbackExecutor, mCallback));
-        }
+    MediaLibrarySessionImplBase(MediaLibrarySession instance, Context context, String id,
+            BaseMediaPlayer player, MediaPlaylistAgent playlistAgent,
+            VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
+            Executor callbackExecutor, MediaSession2.SessionCallback callback) {
+        super(instance, context, id, player, playlistAgent, volumeProvider, sessionActivity,
+                callbackExecutor, callback);
     }
 }
