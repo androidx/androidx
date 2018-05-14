@@ -26,17 +26,26 @@ import java.util.Map;
 /**
  * An {@link InputMerger} that attempts to merge the various inputs.  For each input, we look at
  * each key:
- *
- * - If this is the first time we encountered the key
- *   - If it's an array, put it in the output
- *   - If it's a primitive, turn it into a size 1 array and put it in the output
- * - Else
- *   - If the value type matches the old value type
- *     - If they are arrays, concatenate them
- *     - If they are primitives, turn them into a size 2 array
- *   - Else if one is an array and the other is a primitive
- *     - Make a longer array and concatenate them
- *   - Else throw an {@link IllegalArgumentException}
+ * <p><ul>
+ * <li>If this is the first time we encountered the key</li>
+ *   <ul>
+ *   <li>If it's an array, put it in the output</li>
+ *   <li>If it's a primitive, turn it into a size 1 array and put it in the output</li>
+ *   </ul>
+ * <li>Else</li>
+ *   <ul>
+ *   <li>If the value type matches the old value type</li>
+ *     <ul>
+ *     <li>If they are arrays, concatenate them</li>
+ *     <li>If they are primitives, turn them into a size 2 array</li>
+ *     </ul>
+ *   <li>Else if one is an array and the other is a primitive</li>
+ *     <ul>
+ *     <li>Make a longer array and concatenate them</li>
+ *     </ul>
+ *   <li>Else throw an {@link IllegalArgumentException}</li>
+ *   </ul>
+ * </ul>
  */
 
 public final class ArrayCreatingInputMerger extends InputMerger {
