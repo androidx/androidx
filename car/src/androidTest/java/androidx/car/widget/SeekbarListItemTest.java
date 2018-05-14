@@ -74,9 +74,18 @@ public class SeekbarListItemTest {
         mPagedListView = mActivity.findViewById(R.id.paged_list_view);
     }
 
+    private SeekbarListItem initSeekbarListItem() {
+        SeekbarListItem item = new SeekbarListItem(mActivity);
+        item.setMax(0);
+        item.setProgress(0);
+        item.setOnSeekBarChangeListener(null);
+        item.setText(null);
+        return item;
+    }
+
     @Test
     public void testOnlySliderIsVisibleInEmptyItem() {
-        SeekbarListItem item = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item = initSeekbarListItem();
 
         setupPagedListView(Arrays.asList(item));
         verifyViewDefaultVisibility(mPagedListView.getRecyclerView().getLayoutManager()
@@ -85,14 +94,13 @@ public class SeekbarListItemTest {
 
     @Test
     public void testPrimaryActionVisible() {
-        SeekbarListItem item0 = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item0 = initSeekbarListItem();
         item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
 
-        SeekbarListItem item1 = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item1 = initSeekbarListItem();
         item1.setPrimaryActionIcon(new ColorDrawable(Color.BLACK));
 
-        List<ListItem> items = Arrays.asList(item0, item1);
-        setupPagedListView(items);
+        setupPagedListView(Arrays.asList(item0, item1));
 
         assertThat(getViewHolderAtPosition(0).getPrimaryIcon().getVisibility(),
                 is(equalTo(View.VISIBLE)));
@@ -102,21 +110,20 @@ public class SeekbarListItemTest {
 
     @Test
     public void testSliderTextVisible() {
-        SeekbarListItem item = new SeekbarListItem(mActivity, 0, 0, null, "Text");
+        SeekbarListItem item = initSeekbarListItem();
+        item.setText("Text");
 
-        List<ListItem> items = Arrays.asList(item);
-        setupPagedListView(items);
+        setupPagedListView(Arrays.asList(item));
 
         assertThat(getViewHolderAtPosition(0).getText().getVisibility(), is(equalTo(View.VISIBLE)));
     }
 
     @Test
     public void testSupplementalIconVisible() {
-        SeekbarListItem item = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item = initSeekbarListItem();
         item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
 
-        List<ListItem> items = Arrays.asList(item);
-        setupPagedListView(items);
+        setupPagedListView(Arrays.asList(item));
 
         assertThat(getViewHolderAtPosition(0).getSupplementalIcon().getVisibility(),
                 is(equalTo(View.VISIBLE)));
@@ -126,11 +133,10 @@ public class SeekbarListItemTest {
 
     @Test
     public void testSupplementalIconDividerVisible() {
-        SeekbarListItem item = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item = initSeekbarListItem();
         item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true);
 
-        List<ListItem> items = Arrays.asList(item);
-        setupPagedListView(items);
+        setupPagedListView(Arrays.asList(item));
 
         assertThat(getViewHolderAtPosition(0).getSupplementalIcon().getVisibility(),
                 is(equalTo(View.VISIBLE)));
@@ -215,27 +221,41 @@ public class SeekbarListItemTest {
     }
 
     @Test
-    public void testPrimaryIconIsNotClickable() {
-        SeekbarListItem item0 = new SeekbarListItem(mActivity, 0, 0, null, null);
+    public void testPrimaryIconIsNotClickableWithoutListener() {
+        SeekbarListItem item0 = initSeekbarListItem();
         item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
 
-        SeekbarListItem item1 = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item1 = initSeekbarListItem();
         item1.setPrimaryActionIcon(new ColorDrawable(Color.BLACK));
 
-        List<ListItem> items = Arrays.asList(item0, item1);
-        setupPagedListView(items);
+        setupPagedListView(Arrays.asList(item0, item1));
 
         assertFalse(getViewHolderAtPosition(0).getPrimaryIcon().isClickable());
         assertFalse(getViewHolderAtPosition(1).getPrimaryIcon().isClickable());
     }
 
     @Test
+    public void testClickingPrimaryActionIcon() {
+        boolean[] clicked = {false};
+        SeekbarListItem item = initSeekbarListItem();
+        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item.setPrimaryActionIconListener(v -> clicked[0] = true);
+
+        setupPagedListView(Arrays.asList(item));
+
+        onView(withId(R.id.recycler_view)).perform(
+                actionOnItemAtPosition(0, clickChildViewWithId(R.id.primary_icon)));
+
+        assertTrue(clicked[0]);
+        assertTrue(getViewHolderAtPosition(0).getPrimaryIcon().isClickable());
+    }
+
+    @Test
     public void testSupplementalIconNotClickableWithoutListener() {
-        SeekbarListItem item = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item = initSeekbarListItem();
         item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
 
-        List<ListItem> items = Arrays.asList(item);
-        setupPagedListView(items);
+        setupPagedListView(Arrays.asList(item));
 
         assertFalse(getViewHolderAtPosition(0).getSupplementalIcon().isClickable());
     }
@@ -243,12 +263,11 @@ public class SeekbarListItemTest {
     @Test
     public void testClickingSupplementalIcon() {
         boolean[] clicked = {false};
-        SeekbarListItem item = new SeekbarListItem(mActivity, 0, 0, null, null);
-        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false,
-                v -> clicked[0] = true);
+        SeekbarListItem item = initSeekbarListItem();
+        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+        item.setSupplementalIconListener(v -> clicked[0] = true);
 
-        List<ListItem> items = Arrays.asList(item);
-        setupPagedListView(items);
+        setupPagedListView(Arrays.asList(item));
 
         onView(withId(R.id.recycler_view)).perform(
                 actionOnItemAtPosition(0, clickChildViewWithId(R.id.supplemental_icon)));
@@ -258,13 +277,13 @@ public class SeekbarListItemTest {
 
     @Test
     public void testPrimaryActionEmptyIconSpacing() {
-        SeekbarListItem item0 = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item0 = initSeekbarListItem();
         item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
 
-        SeekbarListItem item1 = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item1 = initSeekbarListItem();
         item1.setPrimaryActionIcon(new ColorDrawable(Color.BLACK));
 
-        SeekbarListItem item2 = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item2 = initSeekbarListItem();
         item2.setPrimaryActionEmptyIcon();
 
         List<ListItem> items = Arrays.asList(item0, item1, item2);
@@ -279,10 +298,10 @@ public class SeekbarListItemTest {
     @Test
     public void testSupplementalIconSpacingWithoutDivider() {
         final boolean showDivider = false;
-        SeekbarListItem item0 = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item0 = initSeekbarListItem();
         item0.setSupplementalIcon(android.R.drawable.sym_def_app_icon, showDivider);
 
-        SeekbarListItem item1 = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item1 = initSeekbarListItem();
         item1.setSupplementalEmptyIcon(showDivider);
 
         List<ListItem> items = Arrays.asList(item0, item1);
@@ -297,10 +316,10 @@ public class SeekbarListItemTest {
     @Test
     public void testSupplementalIconSpacingWithDivider() {
         final boolean showDivider = true;
-        SeekbarListItem item0 = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item0 = initSeekbarListItem();
         item0.setSupplementalIcon(android.R.drawable.sym_def_app_icon, showDivider);
 
-        SeekbarListItem item1 = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item1 = initSeekbarListItem();
         item1.setSupplementalEmptyIcon(showDivider);
 
         List<ListItem> items = Arrays.asList(item0, item1);
@@ -315,7 +334,7 @@ public class SeekbarListItemTest {
     @Test
     public void testSettingSupplementalIconWithDrawable() {
         Drawable drawable = mActivity.getDrawable(android.R.drawable.sym_def_app_icon);
-        SeekbarListItem item = new SeekbarListItem(mActivity, 0, 0, null, null);
+        SeekbarListItem item = initSeekbarListItem();
         item.setSupplementalIcon(drawable, false);
 
         setupPagedListView(Arrays.asList(item));
