@@ -24,6 +24,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.WorkerThread;
 import androidx.core.content.PermissionChecker;
 import androidx.core.os.BuildCompat;
 
@@ -229,6 +230,7 @@ public abstract class SliceManager {
      * @return All slices within the space.
      * @see SliceProvider#onGetSliceDescendants(Uri)
      */
+    @WorkerThread
     public abstract @NonNull Collection<Uri> getSliceDescendants(@NonNull Uri uri);
 
     /**
