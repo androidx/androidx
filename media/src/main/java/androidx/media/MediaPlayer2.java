@@ -54,6 +54,7 @@ import java.util.concurrent.Executor;
  * <p>Topics covered here are:
  * <ol>
  * <li><a href="#PlayerStates">Player states</a>
+ * <li><a href="#Valid_and_Invalid_States">Valid and Invalid States</a>
  * <li><a href="#Permissions">Permissions</a>
  * <li><a href="#Callbacks">Register informational and error callbacks</a>
  * </ol>
@@ -197,6 +198,150 @@ import java.util.concurrent.Executor;
  *         <li>While in the <strong>Paused</strong> state, calling {@link #play()} can restart the
  *         playback from the beginning of the audio/video source.</li>
  * </ul>
+ *
+ * <a name="Valid_and_Invalid_States"></a>
+ * <h3>Valid and invalid states</h3>
+ *
+ * <table border="0" cellspacing="0" cellpadding="0">
+ * <tr><td>Method Name </p></td>
+ *     <td>Valid Sates </p></td>
+ *     <td>Invalid States </p></td></tr>
+ * <tr><td>close </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>play </p></td>
+ *     <td>{Prepared, Paused, Playing} </p></td>
+ *     <td>{Idle, Error} </p></td></tr>
+ * <tr><td>prepare </p></td>
+ *     <td>{Idle} </p></td>
+ *     <td>{Prepared, Paused, Playing, Error} </p></td></tr>
+ * <tr><td>pause </p></td>
+ *     <td>{Paused, Playing} </p></td>
+ *     <td>{Idle, Prepared, Error} </p></td></tr>
+ * <tr><td>skipToNext </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing} </p></td>
+ *     <td>{Error} </p></td></tr>
+ * <tr><td>seekTo </p></td>
+ *     <td>{Prepared, Paused, Playing} </p></td>
+ *     <td>{Idle, Error} </p></td></tr>
+ * <tr><td>getCurrentPosition </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing} </p></td>
+ *     <td>{Error} </p></td></tr>
+ * <tr><td>getDuration </p></td>
+ *     <td>{Prepared, Paused, Playing} </p></td>
+ *     <td>{Idle, Error} </p></td></tr>
+ * <tr><td>getBufferedPosition </p></td>
+ *     <td>{Prepared, Paused, Playing} </p></td>
+ *     <td>{Idle, Error} </p></td></tr>
+ * <tr><td>getState </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>setAudioAttributes </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getAudioAttributes </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>setDataSource </p></td>
+ *     <td>{Idle} </p></td>
+ *     <td>{Prepared, Paused, Playing, Error} </p></td></tr>
+ * <tr><td>setNextDataSource </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing} </p></td>
+ *     <td>{Error} </p></td></tr>
+ * <tr><td>setNextDataSources </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing} </p></td>
+ *     <td>{Error} </p></td></tr>
+ * <tr><td>getCurrentDataSource </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing} </p></td>
+ *     <td>{Error} </p></td></tr>
+ * <tr><td>loopCurrent </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>setPlaybackSpeed </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getPlaybackSpeed </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>isReversePlaybackSupported </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>setPlayerVolume </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getPlayerVolume </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getMaxPlayerVolume </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>notifyWhenCommandLabelReached </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>setSurface </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>clearPendingCommands </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getVideoWidth </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getVideoHeight </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getMetrics </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>setPlaybackParams </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getPlaybackParams </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>setSyncParams </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getSyncParams </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getTimestamp </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>reset </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>setAudioSessionId </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getAudioSessionId </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>attachAuxEffect </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>setAuxEffectSendLevel </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>getTrackInfo </p></td>
+ *     <td>{Prepared, Paused, Playing} </p></td>
+ *     <td>{Idle, Error} </p></td></tr>
+ * <tr><td>getSelectedTrack </p></td>
+ *     <td>{Prepared, Paused, Playing} </p></td>
+ *     <td>{Idle, Error} </p></td></tr>
+ * <tr><td>selectTrack </p></td>
+ *     <td>{Prepared, Paused, Playing} </p></td>
+ *     <td>{Idle, Error} </p></td></tr>
+ * <tr><td>deselectTrack </p></td>
+ *     <td>{Prepared, Paused, Playing} </p></td>
+ *     <td>{Idle, Error} </p></td></tr>
+ * <tr><td>setEventCallback </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * <tr><td>clearEventCallback </p></td>
+ *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{} </p></td></tr>
+ * </table>
  *
  * <a name="Permissions"></a>
  * <h3>Permissions</h3>
