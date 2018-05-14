@@ -23,8 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.support.annotation.NonNull;
-import android.support.test.filters.MediumTest;
-import android.support.test.filters.SmallTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
@@ -46,7 +45,7 @@ public class WorkTimerTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testTimer_withListenerAndCleanUp() throws InterruptedException {
         TestTimeLimitExceededListener listenerSpy = spy(mListener);
         mWorkTimer.startTimer(WORKSPEC_ID_1, 0, listenerSpy);
@@ -57,7 +56,7 @@ public class WorkTimerTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testStopTimer_withCleanUp() throws InterruptedException {
         TestTimeLimitExceededListener listenerSpy = spy(mListener);
         mWorkTimer.startTimer(WORKSPEC_ID_1, 100, listenerSpy);

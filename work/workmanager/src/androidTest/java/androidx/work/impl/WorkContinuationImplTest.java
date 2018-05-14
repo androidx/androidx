@@ -34,6 +34,7 @@ import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -258,7 +259,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     @SuppressWarnings("unchecked")
     public void testContinuation_joinPassesAllOutput() throws InterruptedException {
         final String intTag = "myint";
