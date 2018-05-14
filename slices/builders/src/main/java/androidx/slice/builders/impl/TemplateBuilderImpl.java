@@ -19,9 +19,10 @@ package androidx.slice.builders.impl;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.RestrictTo;
-
+import androidx.slice.Clock;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
+import androidx.slice.SystemClock;
 
 /**
  * @hide
@@ -31,10 +32,16 @@ public abstract class TemplateBuilderImpl {
 
     private final Slice.Builder mSliceBuilder;
     private final SliceSpec mSpec;
+    private Clock mClock;
 
     protected TemplateBuilderImpl(Slice.Builder b, SliceSpec spec) {
+        this(b, spec, new SystemClock());
+    }
+
+    protected TemplateBuilderImpl(Slice.Builder b, SliceSpec spec, Clock clock) {
         mSliceBuilder = b;
         mSpec = spec;
+        mClock = clock;
     }
 
     /**
@@ -67,4 +74,12 @@ public abstract class TemplateBuilderImpl {
      */
     @RestrictTo(LIBRARY)
     public abstract void apply(Slice.Builder builder);
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public Clock getClock() {
+        return mClock;
+    }
 }
