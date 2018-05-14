@@ -22,7 +22,7 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
     android:layout_marginTop="8dp"
-    android:paddingStart="?android:attr/listPreferredItemPaddingStart">
+    android:layout_marginStart="?android:attr/listPreferredItemPaddingStart">
 
     <LinearLayout
         android:id="@+id/icon_frame"
