@@ -46,8 +46,9 @@ import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Process;
+import android.support.test.filters.FlakyTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.GuardedBy;
@@ -69,7 +70,8 @@ import java.util.concurrent.TimeUnit;
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
+@FlakyTest
 public class MediaSession2_AudioFocusTest extends MediaSession2TestBase {
     private AudioManager mAudioManager;
     private AudioFocusListener mAudioFocusListener;
