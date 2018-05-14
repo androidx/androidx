@@ -1653,6 +1653,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             @Override
             public boolean onError(MediaPlayer mp, final int what, final int extra) {
                 mPlayer.onError(mp);
+                synchronized (mTaskLock) {
+                    if (mCurrentTask != null
+                            && mCurrentTask.mNeedToWaitForEventToComplete) {
+                        mCurrentTask.sendCompleteNotification(CALL_STATUS_ERROR_UNKNOWN);
+                        mCurrentTask = null;
+                        processPendingTask_l();
+                    }
+                }
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(EventCallback cb) {
@@ -2114,6 +2122,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             if (src.mSourceState == SOURCE_STATE_PREPARED) {
                 src.mPlayer.start();
                 setMp2State(src.mPlayer, MEDIAPLAYER2_STATE_PLAYING);
+            } else {
+                throw new IllegalStateException();
             }
         }
 
