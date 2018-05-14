@@ -28,6 +28,8 @@ import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.SliceSpec;
 import androidx.slice.SliceSpecs;
+import androidx.slice.Clock;
+import androidx.slice.SystemClock;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
 
 import java.util.ArrayList;
@@ -137,6 +139,17 @@ public abstract class TemplateSliceBuilder {
         // TODO: Support getting specs from pinned info.
         Log.w(TAG, "Not currently bunding a slice");
         return Arrays.asList(SliceSpecs.BASIC);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    protected Clock getClock() {
+        if (SliceProvider.getClock() != null) {
+            return SliceProvider.getClock();
+        }
+        return new SystemClock();
     }
 
     /**

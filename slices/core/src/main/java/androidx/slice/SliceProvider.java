@@ -101,6 +101,7 @@ public abstract class SliceProvider extends ContentProvider implements
         CoreComponentFactory.CompatWrapped {
 
     private static Set<SliceSpec> sSpecs;
+    private static Clock sClock;
 
     private static final String TAG = "SliceProvider";
 
@@ -395,5 +396,21 @@ public abstract class SliceProvider extends ContentProvider implements
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static Set<SliceSpec> getCurrentSpecs() {
         return sSpecs;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void setClock(Clock clock) {
+        sClock = clock;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static Clock getClock() {
+        return sClock;
     }
 }
