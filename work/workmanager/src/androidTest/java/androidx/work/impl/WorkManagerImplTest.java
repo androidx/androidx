@@ -55,6 +55,7 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -1122,7 +1123,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testCancelWorkByName_ignoresFinishedWork() {
         final String testName = "myname";
 
