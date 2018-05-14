@@ -20,6 +20,7 @@ import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_INT;
 
 import android.app.PendingIntent;
+import android.app.slice.SliceMetrics;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
@@ -38,6 +39,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.os.BuildCompat;
 import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
@@ -128,6 +130,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     private int mMode = MODE_LARGE;
     private Slice mCurrentSlice;
+    private SliceMetrics mCurrentSliceMetrics;
     private ListContent mListContent;
     private SliceChildView mCurrentView;
     private List<SliceAction> mActions;
@@ -136,6 +139,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private boolean mShowActions = false;
     private boolean mIsScrollable = true;
     private boolean mShowLastUpdated = true;
+    private boolean mCurrentSliceLoggedVisible = false;
 
     private int mShortcutSize;
     private int mMinLargeHeight;
@@ -240,7 +244,9 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
                 if (mSliceObserver != null && mClickInfo != null && mClickInfo.length > 1) {
                     EventInfo eventInfo = new EventInfo(getMode(),
                             EventInfo.ACTION_TYPE_CONTENT, mClickInfo[0], mClickInfo[1]);
-                    mSliceObserver.onSliceAction(eventInfo, mListContent.getPrimaryAction());
+                    SliceItem sliceItem = mListContent.getPrimaryAction();
+                    mSliceObserver.onSliceAction(eventInfo, sliceItem);
+                    logSliceMetricsOnTouch(sliceItem, eventInfo);
                 }
             } catch (PendingIntent.CanceledException e) {
                 Log.e(TAG, "PendingIntent for slice cannot be sent", e);
@@ -401,9 +407,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      * content see {@link SliceLiveData}.
      */
     public void setSlice(@Nullable Slice slice) {
+        initSliceMetrics(slice);
         if (slice != null && (mCurrentSlice == null
                 || !mCurrentSlice.getUri().equals(slice.getUri()))) {
-                mCurrentView.resetView();
+            mCurrentView.resetView();
         }
         mCurrentSlice = slice;
         reinflate();
@@ -598,6 +605,9 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         // Set the slice
         mCurrentView.setSliceContent(mListContent);
         updateActions();
+
+        // Log slice metrics visible.
+        logSliceMetricsVisibilityChange(true);
     }
 
     private void updateActions() {
@@ -672,4 +682,67 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             }
         }
     };
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (isShown()) {
+            logSliceMetricsVisibilityChange(true);
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        logSliceMetricsVisibilityChange(false);
+    }
+
+    @Override
+    protected void onVisibilityChanged(View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (isAttachedToWindow()) {
+            logSliceMetricsVisibilityChange(visibility == VISIBLE);
+        }
+    }
+
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        super.onWindowVisibilityChanged(visibility);
+        logSliceMetricsVisibilityChange(visibility == VISIBLE);
+    }
+
+    private void initSliceMetrics(@Nullable Slice slice) {
+        if (BuildCompat.isAtLeastP()) {
+            if (slice == null || slice.getUri() == null) {
+                logSliceMetricsVisibilityChange(false);
+                mCurrentSliceMetrics = null;
+            } else if (mCurrentSlice == null || !mCurrentSlice.getUri().equals(slice.getUri())) {
+                logSliceMetricsVisibilityChange(false);
+                mCurrentSliceMetrics = new SliceMetrics(getContext(), slice.getUri());
+            }
+        }
+    }
+
+    private void logSliceMetricsVisibilityChange(boolean visibility) {
+        if (BuildCompat.isAtLeastP() && mCurrentSliceMetrics != null) {
+            if (visibility && !mCurrentSliceLoggedVisible) {
+                mCurrentSliceMetrics.logVisible();
+                mCurrentSliceLoggedVisible = true;
+            }
+            if (!visibility && mCurrentSliceLoggedVisible) {
+                mCurrentSliceMetrics.logHidden();
+                mCurrentSliceLoggedVisible = false;
+            }
+        }
+    }
+
+    private void logSliceMetricsOnTouch(SliceItem item, EventInfo info) {
+        if (BuildCompat.isAtLeastP() && mCurrentSliceMetrics != null) {
+            if (item.getSlice() != null && item.getSlice().getUri() != null) {
+                mCurrentSliceMetrics.logTouch(
+                        info.actionType,
+                        mListContent.getPrimaryAction().getSlice().getUri());
+            }
+        }
+    }
 }
