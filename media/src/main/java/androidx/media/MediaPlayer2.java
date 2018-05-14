@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.TargetApi;
 import android.graphics.SurfaceTexture;
-import android.media.AudioAttributes;
 import android.media.DeniedByServerException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
@@ -487,7 +486,7 @@ public abstract class MediaPlayer2 {
 
     /**
      * Sets the audio attributes for this MediaPlayer2.
-     * See {@link AudioAttributes} for how to build and configure an instance of this class.
+     * See {@link AudioAttributesCompat} for how to build and configure an instance of this class.
      * You must call this method before {@link #prepare()} in order
      * for the audio attributes to become effective thereafter.
      * @param attributes a non-null set of audio attributes
@@ -539,37 +538,6 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract void loopCurrent(boolean loop);
-
-    /**
-     * Sets the playback speed.
-     * A value of 1.0f is the default playback value.
-     * A negative value indicates reverse playback, check {@link #isReversePlaybackSupported()}
-     * before using negative values.<br>
-     * After changing the playback speed, it is recommended to query the actual speed supported
-     * by the player, see {@link #getPlaybackSpeed()}.
-     * @param speed the desired playback speed
-     */
-    // This is an asynchronous call.
-    public abstract void setPlaybackSpeed(float speed);
-
-    /**
-     * Returns the actual playback speed to be used by the player when playing.
-     * Note that it may differ from the speed set in {@link #setPlaybackSpeed(float)}.
-     * @return the actual playback speed
-     */
-    public float getPlaybackSpeed() {
-        return 1.0f;
-    }
-
-    /**
-     * Indicates whether reverse playback is supported.
-     * Reverse playback is indicated by negative playback speeds, see
-     * {@link #setPlaybackSpeed(float)}.
-     * @return true if reverse playback is supported.
-     */
-    public boolean isReversePlaybackSupported() {
-        return false;
-    }
 
     /**
      * Sets the volume of the audio of the media to play, expressed as a linear multiplier
@@ -1463,11 +1431,6 @@ public abstract class MediaPlayer2 {
      */
     public static final int CALL_COMPLETED_SET_PLAYBACK_PARAMS = 24;
 
-    /** The player just completed a call {@link #setPlaybackSpeed}.
-     * @see EventCallback#onCallCompleted
-     */
-    public static final int CALL_COMPLETED_SET_PLAYBACK_SPEED = 25;
-
     /** The player just completed a call {@link #setPlayerVolume}.
      * @see EventCallback#onCallCompleted
      */
@@ -1514,12 +1477,11 @@ public abstract class MediaPlayer2 {
             CALL_COMPLETED_SET_NEXT_DATA_SOURCE,
             CALL_COMPLETED_SET_NEXT_DATA_SOURCES,
             CALL_COMPLETED_SET_PLAYBACK_PARAMS,
-            CALL_COMPLETED_SET_PLAYBACK_SPEED,
             CALL_COMPLETED_SET_PLAYER_VOLUME,
             CALL_COMPLETED_SET_SURFACE,
             CALL_COMPLETED_SET_SYNC_PARAMS,
             CALL_COMPLETED_SKIP_TO_NEXT,
-            CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED
+            CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED,
     })
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP)

@@ -467,46 +467,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     /**
-     * Sets the playback speed.
-     * A value of 1.0f is the default playback value.
-     * A negative value indicates reverse playback, check {@link #isReversePlaybackSupported()}
-     * before using negative values.<br>
-     * After changing the playback speed, it is recommended to query the actual speed supported
-     * by the player, see {@link #getPlaybackSpeed()}.
-     * @param speed the desired playback speed
-     */
-    @Override
-    public void setPlaybackSpeed(final float speed) {
-        addTask(new Task(CALL_COMPLETED_SET_PLAYBACK_SPEED, false) {
-            @Override
-            void process() {
-                setPlaybackParamsInternal(getPlaybackParams().setSpeed(speed));
-            }
-        });
-    }
-
-    /**
-     * Returns the actual playback speed to be used by the player when playing.
-     * Note that it may differ from the speed set in {@link #setPlaybackSpeed(float)}.
-     * @return the actual playback speed
-     */
-    @Override
-    public float getPlaybackSpeed() {
-        return getPlaybackParams().getSpeed();
-    }
-
-    /**
-     * Indicates whether reverse playback is supported.
-     * Reverse playback is indicated by negative playback speeds, see
-     * {@link #setPlaybackSpeed(float)}.
-     * @return true if reverse playback is supported.
-     */
-    @Override
-    public boolean isReversePlaybackSupported() {
-        return false;
-    }
-
-    /**
      * Sets the volume of the audio of the media to play, expressed as a linear multiplier
      * on the audio samples.
      * Note that this volume is specific to the player, and is separate from stream volume
@@ -2634,12 +2594,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         @Override
         public void setPlaybackSpeed(float speed) {
-            MediaPlayer2Impl.this.setPlaybackSpeed(speed);
+            MediaPlayer2Impl.this.setPlaybackParams(getPlaybackParams().setSpeed(speed));
         }
 
         @Override
         public float getPlaybackSpeed() {
-            return MediaPlayer2Impl.this.getPlaybackSpeed();
+            return MediaPlayer2Impl.this.getPlaybackParams().getSpeed();
         }
 
         @Override

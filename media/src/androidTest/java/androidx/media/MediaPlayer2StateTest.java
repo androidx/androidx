@@ -32,7 +32,6 @@ import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCE;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCES;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PARAMS;
-import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_SPEED;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_PLAYER_VOLUME;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_SURFACE;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_SYNC_PARAMS;
@@ -277,40 +276,6 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
             return CALL_COMPLETED_LOOP_CURRENT;
         }
     };
-    private static final PlayerOperation sSetPlaybackSpeedOperation = new PlayerOperation() {
-        @Override
-        public void doOperation(MediaPlayer2 player) {
-            player.setPlaybackSpeed(1.0f);
-        }
-
-        @Override
-        public Integer getCallCompleteCode() {
-            return CALL_COMPLETED_SET_PLAYBACK_SPEED;
-        }
-    };
-    private static final PlayerOperation sGetPlaybackSpeedOperation = new PlayerOperation() {
-        @Override
-        public void doOperation(MediaPlayer2 player) {
-            player.getPlaybackSpeed();
-        }
-
-        @Override
-        public Integer getCallCompleteCode() {
-            return null;
-        }
-    };
-    private static final PlayerOperation sIsReversePlaybackSupportedOperation =
-            new PlayerOperation() {
-                @Override
-                public void doOperation(MediaPlayer2 player) {
-                    player.isReversePlaybackSupported();
-                }
-
-                @Override
-                public Integer getCallCompleteCode() {
-                    return null;
-                }
-            };
     private static final PlayerOperation sSetPlayerVolumeOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
@@ -686,24 +651,6 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
                 { sLoopCurrentOperation, MEDIAPLAYER2_STATE_PAUSED, true },
                 { sLoopCurrentOperation, MEDIAPLAYER2_STATE_PLAYING, true },
                 { sLoopCurrentOperation, MEDIAPLAYER2_STATE_ERROR, true },
-
-                { sSetPlaybackSpeedOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetPlaybackSpeedOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetPlaybackSpeedOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetPlaybackSpeedOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetPlaybackSpeedOperation, MEDIAPLAYER2_STATE_ERROR, true },
-
-                { sGetPlaybackSpeedOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetPlaybackSpeedOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetPlaybackSpeedOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetPlaybackSpeedOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetPlaybackSpeedOperation, MEDIAPLAYER2_STATE_ERROR, true },
-
-                { sIsReversePlaybackSupportedOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sIsReversePlaybackSupportedOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sIsReversePlaybackSupportedOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sIsReversePlaybackSupportedOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sIsReversePlaybackSupportedOperation, MEDIAPLAYER2_STATE_ERROR, true },
 
                 { sSetPlayerVolumeOperation, MEDIAPLAYER2_STATE_IDLE, true },
                 { sSetPlayerVolumeOperation, MEDIAPLAYER2_STATE_PREPARED, true },
