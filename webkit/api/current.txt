@@ -89,8 +89,10 @@ package androidx.webkit {
 
   public class WebViewFeature {
     method public static boolean isFeatureSupported(java.lang.String);
+    field public static final java.lang.String CREATE_WEB_MESSAGE_CHANNEL = "CREATE_WEB_MESSAGE_CHANNEL";
     field public static final java.lang.String DISABLED_ACTION_MODE_MENU_ITEMS = "DISABLED_ACTION_MODE_MENU_ITEMS";
     field public static final java.lang.String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
+    field public static final java.lang.String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
     field public static final java.lang.String RECEIVE_HTTP_ERROR = "RECEIVE_HTTP_ERROR";
     field public static final java.lang.String RECEIVE_WEB_RESOURCE_ERROR = "RECEIVE_WEB_RESOURCE_ERROR";
     field public static final java.lang.String SAFE_BROWSING_ENABLE = "SAFE_BROWSING_ENABLE";
@@ -109,6 +111,10 @@ package androidx.webkit {
     field public static final java.lang.String SHOULD_OVERRIDE_WITH_REDIRECTS = "SHOULD_OVERRIDE_WITH_REDIRECTS";
     field public static final java.lang.String START_SAFE_BROWSING = "START_SAFE_BROWSING";
     field public static final java.lang.String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
+    field public static final java.lang.String WEB_MESSAGE_CALLBACK_ON_MESSAGE = "WEB_MESSAGE_CALLBACK_ON_MESSAGE";
+    field public static final java.lang.String WEB_MESSAGE_PORT_CLOSE = "WEB_MESSAGE_PORT_CLOSE";
+    field public static final java.lang.String WEB_MESSAGE_PORT_POST_MESSAGE = "WEB_MESSAGE_PORT_POST_MESSAGE";
+    field public static final java.lang.String WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK = "WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK";
     field public static final java.lang.String WEB_RESOURCE_ERROR_GET_CODE = "WEB_RESOURCE_ERROR_GET_CODE";
     field public static final java.lang.String WEB_RESOURCE_ERROR_GET_DESCRIPTION = "WEB_RESOURCE_ERROR_GET_DESCRIPTION";
     field public static final java.lang.String WEB_RESOURCE_REQUEST_IS_REDIRECT = "WEB_RESOURCE_REQUEST_IS_REDIRECT";

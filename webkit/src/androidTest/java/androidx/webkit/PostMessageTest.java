@@ -18,10 +18,11 @@ package androidx.webkit;
 
 import static junit.framework.Assert.assertEquals;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
-import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.webkit.WebView;
 
@@ -100,31 +101,25 @@ public class PostMessageTest {
 
     // Post a string message to main frame and make sure it is received.
     @Test
-    @SdkSuppress(minSdkVersion = 23) // TODO(gsennton) activate this test for pre-M devices when we
-    // can pre-install a WebView APK containing support for the WebView Support Library, see
-    // b/73454652.
     public void testSimpleMessageToMainFrame() throws Throwable {
         verifyPostMessageToOrigin(Uri.parse(BASE_URI));
     }
 
     // Post a string message to main frame passing a wildcard as target origin
     @Test
-    @SdkSuppress(minSdkVersion = 23) // TODO (gsennton) remove this restriction when we can
-    // pre-install a WebView APK containing support for the WebView Support Library, see b/73454652.
     public void testWildcardOriginMatchesAnything() throws Throwable {
         verifyPostMessageToOrigin(Uri.parse("*"));
     }
 
     // Post a string message to main frame passing an empty string as target origin
     @Test
-    @SdkSuppress(minSdkVersion = 23) // TODO(gsennton) activate this test for pre-M devices when we
-    // can pre-install a WebView APK containing support for the WebView Support Library, see
-    // b/73454652.
     public void testEmptyStringOriginMatchesAnything() throws Throwable {
         verifyPostMessageToOrigin(Uri.parse(""));
     }
 
     private void verifyPostMessageToOrigin(Uri origin) throws Throwable {
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE));
+
         loadPage(TITLE_FROM_POST_MESSAGE);
         WebMessageCompat message = new WebMessageCompat(WEBVIEW_MESSAGE);
         mOnUiThread.postWebMessageCompat(message, origin);
@@ -134,10 +129,9 @@ public class PostMessageTest {
     // Post multiple messages to main frame and make sure they are received in
     // correct order.
     @Test
-    @SdkSuppress(minSdkVersion = 23) // TODO(gsennton) activate this test for pre-M devices when we
-    // can pre-install a WebView APK containing support for the WebView Support Library, see
-    // b/73454652.
     public void testMultipleMessagesToMainFrame() throws Throwable {
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE));
+
         loadPage(TITLE_FROM_POST_MESSAGE);
         for (int i = 0; i < 10; i++) {
             mOnUiThread.postWebMessageCompat(new WebMessageCompat(Integer.toString(i)),
@@ -148,10 +142,13 @@ public class PostMessageTest {
 
     // Create a message channel and make sure it can be used for data transfer to/from js.
     @Test
-    @SdkSuppress(minSdkVersion = 23) // TODO(gsennton) activate this test for pre-M devices when we
-    // can pre-install a WebView APK containing support for the WebView Support Library, see
-    // b/73454652.
     public void testMessageChannel() throws Throwable {
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE));
+        assumeTrue(WebViewFeature.isFeatureSupported(
+                WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK));
+
         loadPage(CHANNEL_MESSAGE);
         final WebMessagePortCompat[] channel = mOnUiThread.createWebMessageChannelCompat();
         WebMessageCompat message =
@@ -181,10 +178,12 @@ public class PostMessageTest {
 
     // Test that a message port that is closed cannot used to send a message
     @Test
-    @SdkSuppress(minSdkVersion = 23) // TODO(gsennton) activate this test for pre-M devices when we
-    // can pre-install a WebView APK containing support for the WebView Support Library, see
-    // b/73454652.
     public void testClose() throws Throwable {
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_PORT_CLOSE));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE));
+
         loadPage(CHANNEL_MESSAGE);
         final WebMessagePortCompat[] channel = mOnUiThread.createWebMessageChannelCompat();
         WebMessageCompat message =
@@ -225,10 +224,11 @@ public class PostMessageTest {
 
     // Test a message port created in JS can be received and used for message transfer.
     @Test
-    @SdkSuppress(minSdkVersion = 23) // TODO(gsennton) activate this test for pre-M devices when we
-    // can pre-install a WebView APK containing support for the WebView Support Library, see
-    // b/73454652.
     public void testReceiveMessagePort() throws Throwable {
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE));
+
         final String hello = "HELLO";
         loadPage(CHANNEL_FROM_JS);
         final WebMessagePortCompat[] channel = mOnUiThread.createWebMessageChannelCompat();
