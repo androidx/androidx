@@ -290,6 +290,9 @@ public class SliceSelectionDialog {
         }
 
         private String getType(ProviderInfo provider) {
+            if (provider == null || provider.authority == null) {
+                return "";
+            }
             String authority = provider.authority.split(";")[0];
             if (mSharedPreferences.contains(authority)) {
                 return mSharedPreferences.getString(authority, null);
