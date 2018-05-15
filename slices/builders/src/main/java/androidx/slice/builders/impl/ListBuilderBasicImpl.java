@@ -16,6 +16,8 @@
 
 package androidx.slice.builders.impl;
 
+import static android.app.slice.Slice.HINT_ERROR;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 
@@ -37,6 +39,7 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY)
 public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBuilder {
+    boolean mIsError;
 
     /**
      */
@@ -117,6 +120,11 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     public void setTtl(long ttl) {
     }
 
+    @Override
+    public void setIsError(boolean isError) {
+        mIsError = isError;
+    }
+
     /**
      */
     @Override
@@ -162,7 +170,9 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
      */
     @Override
     public void apply(Slice.Builder builder) {
-
+        if (mIsError) {
+            builder.addHints(HINT_ERROR);
+        }
     }
 
     /**

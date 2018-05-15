@@ -17,6 +17,7 @@
 package androidx.slice.builders.impl;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_ERROR;
 import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
@@ -67,6 +68,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
     private List<Slice> mSliceActions;
     private Slice mSliceHeader;
+    private boolean mIsError;
 
     public ListBuilderV1Impl(Slice.Builder b, SliceSpec spec) {
         this(b, spec, new SystemClock());
@@ -92,6 +94,9 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 sb.addSubSlice(mSliceActions.get(i));
             }
             builder.addSubSlice(sb.addHints(HINT_ACTIONS).build());
+        }
+        if (mIsError) {
+            builder.addHints(HINT_ERROR);
         }
     }
 
@@ -161,7 +166,6 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                                 .addHints(HINT_SEE_MORE).build(), null)
                         .build());
     }
-
 
     /**
      * Builder to construct an input row.
@@ -310,6 +314,11 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     public void setTtl(long ttl) {
         long expiry = ttl == INFINITY ? INFINITY : getClock().currentTimeMillis() + ttl;
         getBuilder().addTimestamp(expiry, SUBTYPE_MILLIS, HINT_TTL);
+    }
+
+    @Override
+    public void setIsError(boolean isError) {
+        mIsError = isError;
     }
 
     /**
