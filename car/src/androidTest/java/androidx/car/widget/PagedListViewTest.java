@@ -338,8 +338,16 @@ public final class PagedListViewTest {
         final int color = R.color.car_teal_700;
         mPagedListView.setScrollbarColor(color);
 
-        for (int style : new int[] {DayNightStyle.AUTO, DayNightStyle.AUTO_INVERSE,
-                DayNightStyle.FORCE_NIGHT, DayNightStyle.FORCE_DAY}) {
+        int[] styles = new int[] {
+                DayNightStyle.AUTO,
+                DayNightStyle.AUTO_INVERSE,
+                DayNightStyle.ALWAYS_LIGHT,
+                DayNightStyle.ALWAYS_DARK,
+                DayNightStyle.FORCE_DAY,
+                DayNightStyle.FORCE_NIGHT,
+        };
+
+        for (int style : styles) {
             mPagedListView.setDayNightStyle(style);
 
             assertThat(mPagedListView.mScrollBarView.getScrollbarThumbColor(),

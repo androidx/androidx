@@ -237,7 +237,7 @@ public class CarListDialog extends Dialog {
      */
     private void initializeScrollbar() {
         mScrollBarView = getWindow().findViewById(R.id.scrollbar);
-        mScrollBarView.setDayNightStyle(DayNightStyle.FORCE_NIGHT);
+        mScrollBarView.setDayNightStyle(DayNightStyle.ALWAYS_LIGHT);
 
         mScrollBarView.setPaginationListener(new PagedScrollBarView.PaginationListener() {
             @Override
