@@ -2331,12 +2331,14 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @SmallTest
     public void testClearPendingCommands() throws Exception {
+        final Monitor readRequested = new Monitor();
         final Monitor readAllowed = new Monitor();
         Media2DataSource dataSource = new Media2DataSource() {
             @Override
             public int readAt(long position, byte[] buffer, int offset, int size)
                     throws IOException {
                 try {
+                    readRequested.signal();
                     readAllowed.waitForSignal();
                 } catch (InterruptedException e) {
                     fail();
@@ -2393,13 +2395,19 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.play();
         mPlayer.seekTo(1000);
 
-        // Cause a failure on the pending prepare operation.
+        // Clear the pending commands once the prepare operation starts.
+        readRequested.waitForSignal();
+        mPlayer.clearPendingCommands();
+
+        // Make the on-going prepare operation fail and check the results.
         readAllowed.signal();
         mOnErrorCalled.waitForSignal();
         assertEquals(0, mOnPrepareCalled.getNumSignal());
-        assertEquals(1, commandsCompleted.size());
+        assertEquals(2, commandsCompleted.size());
         assertEquals(MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE,
                 (int) commandsCompleted.peekFirst());
+        assertEquals(MediaPlayer2.CALL_COMPLETED_PREPARE,
+                (int) commandsCompleted.getLast());
     }
 
     @Test
