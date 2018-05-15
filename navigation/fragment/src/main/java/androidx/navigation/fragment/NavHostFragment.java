@@ -272,9 +272,6 @@ public class NavHostFragment extends Fragment implements NavHost {
         }
         if (defaultHost) {
             mDefaultNavHost = true;
-            if (isAdded()) {
-                getFragmentManager().beginTransaction().setPrimaryNavigationFragment(this).commit();
-            }
         }
         a.recycle();
     }
