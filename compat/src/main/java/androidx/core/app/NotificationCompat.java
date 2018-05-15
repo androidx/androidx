@@ -2349,8 +2349,11 @@ public class NotificationCompat {
          * that has set a {@link MessagingStyle} using {@link NotificationCompat} or
          * {@link android.app.Notification.Builder} to send messaging information to another
          * application using {@link NotificationCompat}, regardless of the API level of the system.
-         * Returns {@code null} if there is no {@link MessagingStyle} set.
+         *
+         * @return {@code null} if there is no {@link MessagingStyle} set, or if the SDK version is
+         * &lt; {@code 16} (JellyBean).
          */
+        @Nullable
         public static MessagingStyle extractMessagingStyleFromNotification(
                 Notification notification) {
             Bundle extras = NotificationCompat.getExtras(notification);
@@ -5000,8 +5003,9 @@ public class NotificationCompat {
     /**
      * Gets the {@link Notification#extras} field from a notification in a backwards
      * compatible manner. Extras field was supported from JellyBean (Api level 16)
-     * forwards. This function will return null on older api levels.
+     * forwards. This function will return {@code null} on older api levels.
      */
+    @Nullable
     public static Bundle getExtras(Notification notification) {
         if (Build.VERSION.SDK_INT >= 19) {
             return notification.extras;

@@ -530,6 +530,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(100, n.ledOffMS);
     }
 
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_nullPerson() {
         NotificationCompat.MessagingStyle messagingStyle =
@@ -553,6 +554,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertNull(result.get(0).getSender());
     }
 
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_message() {
         NotificationCompat.MessagingStyle messagingStyle =
@@ -595,6 +597,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation() {
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.P;
@@ -616,6 +619,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertTrue(result.isGroupConversation());
     }
 
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation_noConversationTitle() {
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.P;
@@ -637,6 +641,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertTrue(result.isGroupConversation());
     }
 
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation_withConversationTitle_legacy() {
         // In legacy (version < P), isGroupConversation is controlled by conversationTitle.
@@ -658,6 +663,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertTrue(result.isGroupConversation());
     }
 
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation_withoutConversationTitle_legacy() {
         // In legacy (version < P), isGroupConversation is controlled by conversationTitle.
@@ -679,6 +685,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(result.isGroupConversation());
     }
 
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation_withConversationTitle_legacyWithOverride() {
         // #setGroupConversation should always take precedence over legacy behavior, so a non-null
@@ -702,6 +709,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(result.isGroupConversation());
     }
 
+    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation_withoutTitle_legacyWithOverride() {
         // #setGroupConversation should always take precedence over legacy behavior, so a null
