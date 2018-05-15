@@ -16,11 +16,13 @@
 
 package androidx.heifwriter;
 
-import androidx.annotation.IntDef;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.Log;
+
+import androidx.annotation.IntDef;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.FloatBuffer;
@@ -34,6 +36,7 @@ import java.nio.FloatBuffer;
  */
 public class Texture2dProgram {
     private static final String TAG = "Texture2dProgram";
+    private static final boolean DEBUG = false;
 
     /** Identity matrix for general use. Don't modify or life will get weird. */
     public static final float[] IDENTITY_MATRIX;
@@ -129,7 +132,9 @@ public class Texture2dProgram {
         if (mProgramHandle == 0) {
             throw new RuntimeException("Unable to create program");
         }
-        Log.d(TAG, "Created program " + mProgramHandle + " (" + programType + ")");
+        if (DEBUG) {
+            Log.d(TAG, "Created program " + mProgramHandle + " (" + programType + ")");
+        }
 
         // get locations of attributes and uniforms
 
