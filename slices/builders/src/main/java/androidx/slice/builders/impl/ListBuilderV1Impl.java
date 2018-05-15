@@ -170,6 +170,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         private int mMin = 0;
         private int mMax = 100;
         private int mValue = 0;
+        private boolean mValueSet = false;
         private CharSequence mTitle;
         private CharSequence mSubtitle;
         private CharSequence mContentDescr;
@@ -192,6 +193,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @Override
         public void setValue(int value) {
             mValue = value;
+            mValueSet = true;
         }
 
         @Override
@@ -216,6 +218,16 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
         @Override
         public void apply(Slice.Builder builder) {
+            if (!mValueSet) {
+                // Unset, make it whatever min is
+                mValue = mMin;
+            }
+            if (!(mMin <= mValue && mValue <= mMax && mMin < mMax))  {
+                throw new IllegalArgumentException(
+                        "Invalid range values, min=" + mMin + ", value=" + mValue + ", max=" + mMax
+                + " ensure value falls within (min, max) and min < max.");
+            }
+
             if (mTitle != null) {
                 builder.addText(mTitle, null, HINT_TITLE);
             }

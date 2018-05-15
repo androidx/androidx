@@ -16,6 +16,8 @@
 
 package androidx.slice;
 
+import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
+import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 import static android.app.slice.Slice.HINT_TITLE;
 
 import static androidx.slice.SliceMetadata.LOADED_ALL;
@@ -32,8 +34,10 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
@@ -51,13 +55,17 @@ import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.EventInfo;
 import androidx.slice.widget.SliceLiveData;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Tests for {@link SliceMetadata}.
@@ -508,6 +516,45 @@ public class SliceMetadataTest {
     }
 
     @Test
+    public void testSendToggleAction() {
+        final AtomicBoolean toggleState = new AtomicBoolean(true);
+        final CountDownLatch latch = new CountDownLatch(3);
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int newState = intent.getExtras().getInt(EXTRA_TOGGLE_STATE, 0);
+                toggleState.set(newState == 1);
+                latch.countDown();
+            }
+        };
+        String intentAction = mContext.getPackageName() + ".actionToggle";
+        mContext.registerReceiver(receiver, new IntentFilter(intentAction));
+        PendingIntent broadcast = PendingIntent.getBroadcast(mContext, 0,
+                new Intent(intentAction), 0);
+
+        SliceAction toggle = new SliceAction(broadcast, "toggle", true /* isChecked */);
+
+        Uri uri = Uri.parse("content://pkg/slice");
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.setHeader(new ListBuilder.HeaderBuilder(lb).setTitle("another title"));
+        lb.addAction(toggle);
+
+        SliceMetadata metadata = SliceMetadata.from(mContext, lb.build());
+        try {
+            metadata.sendToggleAction(toggle, false);
+        } catch (PendingIntent.CanceledException e) {
+        }
+        try {
+            latch.await(100, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        assertEquals(false, toggleState.get());
+        mContext.unregisterReceiver(receiver);
+    }
+
+    @Test
     public void testGetRangeNull() {
         Uri uri = Uri.parse("content://pkg/slice");
 
@@ -566,6 +613,61 @@ public class SliceMetadataTest {
         SliceMetadata sliderInfo = SliceMetadata.from(mContext, sliderSlice);
         assertEquals(expectedIntent, sliderInfo.getInputRangeAction());
         assertEquivalent(primaryAction, sliderInfo.getPrimaryAction());
+    }
+
+    @Test
+    public void testSendInputRangeAction() {
+        final AtomicInteger rangeValue = new AtomicInteger(-1);
+        final CountDownLatch latch = new CountDownLatch(3);
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int newValue = intent.getExtras().getInt(EXTRA_RANGE_VALUE, 0);
+                rangeValue.set(newValue);
+                latch.countDown();
+            }
+        };
+        String intentAction = mContext.getPackageName() + ".action";
+        mContext.registerReceiver(receiver, new IntentFilter(intentAction));
+        PendingIntent broadcast = PendingIntent.getBroadcast(mContext, 0,
+                new Intent(intentAction), 0);
+
+        Uri uri = Uri.parse("content://pkg/slice");
+        ListBuilder lb = new ListBuilder(mContext, uri, INFINITY);
+        Slice slice = lb.addInputRange(new ListBuilder.InputRangeBuilder(lb)
+                .setInputAction(broadcast)
+                .setMax(70)
+                .setMin(20))
+                .build();
+
+        SliceMetadata metadata = SliceMetadata.from(mContext, slice);
+
+        // Within range
+        sendInputRangeHelper(metadata, 40, latch);
+        Assert.assertEquals(40, rangeValue.get());
+
+        // Too low
+        sendInputRangeHelper(metadata, 10, latch);
+        Assert.assertEquals(20, rangeValue.get());
+
+        // Too high
+        sendInputRangeHelper(metadata, 80, latch);
+        Assert.assertEquals(70, rangeValue.get());
+
+        mContext.unregisterReceiver(receiver);
+    }
+
+    private void sendInputRangeHelper(SliceMetadata metadata, int valueToSend,
+            CountDownLatch latch) {
+        try {
+            metadata.sendInputRangeAction(valueToSend);
+        } catch (PendingIntent.CanceledException e) {
+        }
+        try {
+            latch.await(100, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

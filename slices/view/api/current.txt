@@ -39,6 +39,8 @@ package androidx.slice {
     method public java.util.List<androidx.slice.core.SliceAction> getToggles();
     method public boolean hasLargeMode();
     method public boolean isPermissionSlice();
+    method public boolean sendInputRangeAction(int) throws android.app.PendingIntent.CanceledException;
+    method public boolean sendToggleAction(androidx.slice.core.SliceAction, boolean) throws android.app.PendingIntent.CanceledException;
     field public static final int LOADED_ALL = 2; // 0x2
     field public static final int LOADED_NONE = 0; // 0x0
     field public static final int LOADED_PARTIAL = 1; // 0x1
