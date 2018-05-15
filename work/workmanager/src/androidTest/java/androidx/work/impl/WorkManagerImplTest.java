@@ -100,6 +100,8 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest {
 
+    private static final int NUMBER_OF_WORKERS_TO_SCHEDULE = 150;
+
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
 
