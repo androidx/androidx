@@ -68,8 +68,6 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
 
     private static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
     private static final boolean TEST_INTENT = false;
-    private static final boolean TEST_THEMES = true;
-    private static final boolean SCROLLING_ENABLED = true;
 
     private ArrayList<Uri> mSliceUris = new ArrayList<Uri>();
     private int mSelectedMode;
@@ -78,6 +76,9 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     private SimpleCursorAdapter mAdapter;
     private SubMenu mTypeMenu;
     private LiveData<Slice> mSliceLiveData;
+
+    private SliceView mSliceView;
+    private boolean mScrollingEnabled = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,6 +91,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         // Shows the slice
         mContainer = findViewById(R.id.slice_preview);
         mSearchView = findViewById(R.id.search_view);
+
+        mSliceView = findViewById(R.id.slice_view);
 
         final String[] from = new String[]{"uri"};
         final int[] to = new int[]{android.R.id.text1};
@@ -130,10 +133,12 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
                 : SliceView.MODE_LARGE;
         if (savedInstanceState != null) {
             mSearchView.setQuery(savedInstanceState.getString("SELECTED_QUERY"), true);
+            mScrollingEnabled = savedInstanceState.getBoolean("SCROLLING_ENABLED");
         }
 
         // TODO: Listen for changes.
         updateAvailableSlices();
+        initSliceView(mSliceView);
         if (TEST_INTENT) {
             addSlice(new Intent("androidx.intent.SLICE_ACTION").setPackage(getPackageName()));
         }
@@ -148,6 +153,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         mTypeMenu.add("Small");
         mTypeMenu.add("Large");
         menu.add("Open");
+        menu.add("Toggle scrolling");
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -173,6 +179,12 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             case "Open":
                 SliceSelectionDialog.create(this, uri -> addSlice(uri));
                 return true;
+            case "Toggle scrolling":
+                mScrollingEnabled = !mScrollingEnabled;
+                mSliceView.setScrollable(mScrollingEnabled);
+                String message = "Scrolling " + (mScrollingEnabled ? "enabled" : "disabled");
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -182,6 +194,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         super.onSaveInstanceState(outState);
         outState.putInt("SELECTED_MODE", mSelectedMode);
         outState.putString("SELECTED_QUERY", mSearchView.getQuery().toString());
+        outState.putBoolean("SCROLLING_ENABLED", mScrollingEnabled);
     }
 
     private void updateAvailableSlices() {
@@ -208,31 +221,34 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     }
 
     private void addSlice(Intent intent) {
-        SliceView v = createSliceView();
-        v.setTag(intent);
-        mContainer.removeAllViews();
-        mContainer.addView(v);
+        if (mSliceLiveData != null) {
+            mSliceLiveData.removeObservers(this);
+        }
+        mSliceView.setTag(intent);
         mSliceLiveData = SliceLiveData.fromIntent(this, intent);
-        v.setMode(mSelectedMode);
-        mSliceLiveData.observe(this, v);
+        mSliceView.setMode(mSelectedMode);
+        mSliceLiveData.observe(this, mSliceView);
     }
 
     private void addSlice(Uri uri) {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
-            SliceView v = createSliceView();
-            v.setTag(uri);
-            mContainer.removeAllViews();
-            mContainer.addView(v);
+            if (mSliceLiveData != null) {
+                mSliceLiveData.removeObservers(this);
+            }
+            mSliceView.setTag(uri);
             mSliceLiveData = SliceLiveData.fromUri(this, uri);
-            v.setMode(mSelectedMode);
             mSliceLiveData.observe(this, slice -> {
-                v.setSlice(slice);
+                mSliceView.setSlice(slice);
                 SliceMetadata metadata = SliceMetadata.from(this, slice);
                 long expiry = metadata.getExpiry();
                 if (expiry != INFINITY) {
                     // Shows the updated text after the TTL expires.
-                    v.postDelayed(() -> v.setSlice(slice),
-                            expiry - System.currentTimeMillis() + 15);
+                    mSliceView.postDelayed(() -> {
+                        if (mSliceView.getSlice() != null
+                                && mSliceView.getSlice().getUri().equals(slice.getUri())) {
+                            mSliceView.setSlice(slice);
+                        }
+                    }, expiry - System.currentTimeMillis() + 15);
                 }
             });
             mSliceLiveData.observe(this, slice -> Log.d(TAG, "Slice: " + slice));
@@ -274,29 +290,22 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         Log.w(TAG, "onSliceAction, sliceItem: \n" + item);
     }
 
-    private SliceView createSliceView() {
-        SliceView v = TEST_THEMES
-                ? new SliceView(this)
-                : new SliceView(getApplicationContext());
-        v.setOnSliceActionListener(this);
-        v.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),
-                        "Custom listener clicked", Toast.LENGTH_SHORT).show();
-            }
-        });
-        if (mSliceLiveData != null) {
-            mSliceLiveData.removeObservers(this);
-        }
-        v.setScrollable(SCROLLING_ENABLED);
-        v.setOnLongClickListener(new View.OnLongClickListener() {
+    private void initSliceView(SliceView sliceView) {
+        sliceView.setOnSliceActionListener(this);
+        sliceView.setScrollable(mScrollingEnabled);
+        sliceView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 Toast.makeText(getApplicationContext(), "LONGPRESS !!", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
-        return v;
+        sliceView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "No action on slice, fallthrough click",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
