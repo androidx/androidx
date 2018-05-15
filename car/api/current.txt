@@ -190,10 +190,12 @@ package androidx.car.widget {
   }
 
   public abstract class DayNightStyle implements java.lang.annotation.Annotation {
+    field public static final int ALWAYS_DARK = 3; // 0x3
+    field public static final int ALWAYS_LIGHT = 2; // 0x2
     field public static final int AUTO = 0; // 0x0
     field public static final int AUTO_INVERSE = 1; // 0x1
-    field public static final int FORCE_DAY = 3; // 0x3
-    field public static final int FORCE_NIGHT = 2; // 0x2
+    field public static final deprecated int FORCE_DAY = 5; // 0x5
+    field public static final deprecated int FORCE_NIGHT = 4; // 0x4
   }
 
   public abstract interface IAlphaJumpAdapter {

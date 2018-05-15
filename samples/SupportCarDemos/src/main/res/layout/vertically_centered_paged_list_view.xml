@@ -24,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:showPagedListViewDivider="true"
-        app:dayNightStyle="force_night"
+        app:dayNightStyle="always_light"
         app:verticallyCenterListContent="true"
         app:gutter="both"/>
 </FrameLayout>
