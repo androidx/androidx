@@ -4617,6 +4617,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * {@link #findViewHolderForAdapterPosition(int)}
      */
     @Deprecated
+    @Nullable
     public ViewHolder findViewHolderForPosition(int position) {
         return findViewHolderForPosition(position, false);
     }
@@ -4640,6 +4641,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @param position The position of the item in the data set of the adapter
      * @return The ViewHolder at <code>position</code> or null if there is no such item
      */
+    @Nullable
     public ViewHolder findViewHolderForLayoutPosition(int position) {
         return findViewHolderForPosition(position, false);
     }
@@ -4661,6 +4663,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @param position The position of the item in the data set of the adapter
      * @return The ViewHolder at <code>position</code> or null if there is no such item
      */
+    @Nullable
     public ViewHolder findViewHolderForAdapterPosition(int position) {
         if (mDataSetHasChangedAfterLayout) {
             return null;
@@ -4682,6 +4685,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         return hidden;
     }
 
+    @Nullable
     ViewHolder findViewHolderForPosition(int position, boolean checkNewPosition) {
         final int childCount = mChildHelper.getUnfilteredChildCount();
         ViewHolder hidden = null;
