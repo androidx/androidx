@@ -140,6 +140,44 @@ public class SliceMetadata {
     }
 
     /**
+     * @return the title associated with this slice, if it exists.
+     */
+    @Nullable
+    public CharSequence getTitle() {
+        CharSequence title = null;
+        if (mHeaderItem != null) {
+            if (mHeaderItem.hasHint(HINT_HORIZONTAL)) {
+                GridContent gc = new GridContent(mContext, mHeaderItem);
+                title = gc.getTitle();
+            } else {
+                RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+                if (rc.getTitleItem() != null) {
+                    title = rc.getTitleItem().getText();
+                }
+            }
+        }
+        if (TextUtils.isEmpty(title) && mPrimaryAction != null) {
+            return mPrimaryAction.getTitle();
+
+        }
+        return title;
+    }
+
+    /**
+     * @return the subtitle associated with this slice, if it exists.
+     */
+    @Nullable
+    public CharSequence getSubtitle() {
+        if (mHeaderItem != null && !mHeaderItem.hasHint(HINT_HORIZONTAL)) {
+            RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+            if (rc.getSubtitleItem() != null) {
+                return rc.getSubtitleItem().getText();
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return the group of actions associated with this slice, if they exist.
      */
     @Nullable
