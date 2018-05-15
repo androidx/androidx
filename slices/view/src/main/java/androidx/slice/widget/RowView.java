@@ -576,9 +576,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mDivider.setVisibility(GONE);
         if (mRangeBar != null) {
             removeView(mRangeBar);
+            mRangeBar = null;
         }
         if (mSeeMoreView != null) {
             mRootView.removeView(mSeeMoreView);
+            mSeeMoreView = null;
         }
     }
 }

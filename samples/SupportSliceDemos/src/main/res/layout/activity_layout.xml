@@ -55,23 +55,22 @@
         </androidx.cardview.widget.CardView>
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/slice_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:orientation="vertical"
+        android:background="?android:attr/colorBackground"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:elevation="10dp" >
 
-    <ScrollView
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
+        <androidx.slice.widget.SliceView
+                android:id="@+id/slice_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
-        <FrameLayout
-            android:id="@+id/slice_preview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:orientation="vertical"
-            android:background="?android:attr/colorBackground"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:elevation="10dp" />
-    </ScrollView>
+    </FrameLayout>
 
 </LinearLayout>
