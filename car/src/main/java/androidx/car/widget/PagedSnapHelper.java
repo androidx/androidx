@@ -17,12 +17,13 @@
 package androidx.car.widget;
 
 import android.content.Context;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.View;
 
 /**
  * Extension of a {@link LinearSnapHelper} that will snap to the start of the target child view to
@@ -52,16 +53,16 @@ public class PagedSnapHelper extends LinearSnapHelper {
      */
     private static final float LONG_ITEM_END_VISIBLE_THRESHOLD = 0.3f;
 
-    private final PagedSmoothScroller mSmoothScroller;
+    private final Context mContext;
     private RecyclerView mRecyclerView;
+
+    public PagedSnapHelper(Context context) {
+        mContext = context;
+    }
 
     // Orientation helpers are lazily created per LayoutManager.
     @Nullable private OrientationHelper mVerticalHelper;
     @Nullable private OrientationHelper mHorizontalHelper;
-
-    public PagedSnapHelper(Context context) {
-        mSmoothScroller = new PagedSmoothScroller(context);
-    }
 
     @Override
     public int[] calculateDistanceToFinalSnap(@NonNull RecyclerView.LayoutManager layoutManager,
@@ -237,7 +238,7 @@ public class PagedSnapHelper extends LinearSnapHelper {
      */
     @Override
     protected RecyclerView.SmoothScroller createScroller(RecyclerView.LayoutManager layoutManager) {
-        return mSmoothScroller;
+        return new PagedSmoothScroller(mContext);
     }
 
     /**
