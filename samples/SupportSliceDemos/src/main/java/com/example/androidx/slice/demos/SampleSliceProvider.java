@@ -46,6 +46,7 @@ import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.MessagingSliceBuilder;
 import androidx.slice.builders.SliceAction;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
@@ -69,6 +70,7 @@ public class SampleSliceProvider extends SliceProvider {
             "message",
             "wifi",
             "note",
+            "grocery",
             "ride",
             "toggle",
             "toggle2",
@@ -128,6 +130,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createWifiSlice(sliceUri);
             case "/note":
                 return createNoteSlice(sliceUri);
+            case "/grocery":
+                return createInteractiveNote(sliceUri);
             case "/ride":
                 return createRideSlice(sliceUri);
             case "/toggle":
@@ -396,6 +400,46 @@ public class SampleSliceProvider extends SliceProvider {
                         IconCompat.createWithResource(getContext(), R.drawable.ic_camera),
                         "Photo note"))
                 .build();
+    }
+
+    public static ArrayList<String> sGroceryList = new ArrayList<>();
+    public static final String ACTION_ITEM_CHECKED = "com.example.androidx.ACTION_ITEM_CHECKED";
+    public static final String EXTRA_ITEM_INDEX = "com.example.androidx.extra.ITEM_INDEX";
+    public static final String[] GROCERY_LIST = {"Mozzarella", "Tomatoes", "Garlic", "Parmesan",
+            "Green olives", "Green peppers", "Pineapple"};
+
+    private PendingIntent getGroceryIntent(int i) {
+        Intent intent = new Intent(ACTION_ITEM_CHECKED);
+        intent.setClass(getContext(), SliceBroadcastReceiver.class);
+        intent.putExtra(EXTRA_ITEM_INDEX, i);
+        return PendingIntent.getBroadcast(getContext(), i, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private Slice createInteractiveNote(Uri sliceUri) {
+        if (sGroceryList.size() == 0) {
+            sGroceryList.addAll(Arrays.asList(GROCERY_LIST));
+        }
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setAccentColor(0xfff4b400);
+        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "Open grocery note"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_note),
+                "Grocery list");
+        lb.setHeader(hb -> hb.setTitle("Grocery list")
+                .setSubtitle("Shared with 2 others")
+                .setPrimaryAction(action));
+
+        for (int i = 0; i < sGroceryList.size(); i++) {
+            ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
+            rb.setTitle(sGroceryList.get(i));
+
+            SliceAction checkBox = new SliceAction(getGroceryIntent(i),
+                    IconCompat.createWithResource(getContext(), R.drawable.toggle_check),
+                     "Check", false /* unchecked */);
+            rb.setTitleItem(checkBox);
+            lb.addRow(rb);
+        }
+        return lb.build();
     }
 
     private Slice createReservationSlice(Uri sliceUri) {

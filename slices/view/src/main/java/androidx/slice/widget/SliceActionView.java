@@ -163,7 +163,6 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
     private void sendAction() {
         // TODO - Show loading indicator here?
         try {
-            PendingIntent pi = mSliceAction.getAction();
             if (mSliceAction.isToggle()) {
                 // Update the intent extra state
                 boolean isChecked = ((Checkable) mActionView).isChecked();

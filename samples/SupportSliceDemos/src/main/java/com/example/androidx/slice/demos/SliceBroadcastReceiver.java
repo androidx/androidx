@@ -19,7 +19,9 @@ package com.example.androidx.slice.demos;
 import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 
+import static com.example.androidx.slice.demos.SampleSliceProvider.EXTRA_ITEM_INDEX;
 import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
+import static com.example.androidx.slice.demos.SampleSliceProvider.sGroceryList;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -37,6 +39,13 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent i) {
         String action = i.getAction();
         switch (action) {
+            case SampleSliceProvider.ACTION_ITEM_CHECKED:
+                int index = i.getExtras().getInt(EXTRA_ITEM_INDEX, -1);
+                if (index != -1 && sGroceryList.size() > index) {
+                    sGroceryList.remove(index);
+                    context.getContentResolver().notifyChange(getUri("grocery", context), null);
+                }
+                break;
             case SampleSliceProvider.ACTION_WIFI_CHANGED:
                 WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                 boolean newState = i.getBooleanExtra(EXTRA_TOGGLE_STATE, wm.isWifiEnabled());
