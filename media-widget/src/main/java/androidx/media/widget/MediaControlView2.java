@@ -273,7 +273,7 @@ public class MediaControlView2 extends BaseLayout {
     private long mShowControllerIntervalMs;
     private boolean mDragging;
     private boolean mIsFullScreen;
-    private boolean mOverflowExpanded;
+    private boolean mOverflowIsShowing;
     private boolean mIsStopped;
     private boolean mSubtitleIsEnabled;
     private boolean mSeekAvailable;
@@ -326,8 +326,8 @@ public class MediaControlView2 extends BaseLayout {
     private ViewGroup mCustomButtons;
     private ImageButton mSubtitleButton;
     private ImageButton mFullScreenButton;
-    private ImageButton mOverflowButtonRight;
-    private ImageButton mOverflowButtonLeft;
+    private ImageButton mOverflowShowButton;
+    private ImageButton mOverflowHideButton;
     private ImageButton mMuteButton;
     private ImageButton mVideoQualityButton;
     private ImageButton mSettingsButton;
@@ -352,6 +352,8 @@ public class MediaControlView2 extends BaseLayout {
     private AnimatorSet mHideAllBarsAnimator;
     private AnimatorSet mShowMainBarsAnimator;
     private AnimatorSet mShowAllBarsAnimator;
+    private ValueAnimator mOverflowShowAnimator;
+    private ValueAnimator mOverflowHideAnimator;
 
     public MediaControlView2(@NonNull Context context) {
         this(context, null);
@@ -471,8 +473,8 @@ public class MediaControlView2 extends BaseLayout {
                 }
                 break;
             case MediaControlView2.BUTTON_OVERFLOW:
-                if (mOverflowButtonRight != null) {
-                    mOverflowButtonRight.setVisibility(visibility);
+                if (mOverflowShowButton != null) {
+                    mOverflowShowButton.setVisibility(visibility);
                 }
                 break;
             case MediaControlView2.BUTTON_MUTE:
@@ -544,11 +546,17 @@ public class MediaControlView2 extends BaseLayout {
             // Dismiss SettingsWindow if it is showing.
             mSettingsWindow.dismiss();
 
-            // These views may not have been initialized yet.
+            // Hide Overflow if it is showing.
+            if (mOverflowIsShowing) {
+                mOverflowHideAnimator.start();
+            }
+
+            // The following views may not have been initialized yet.
             if (mTransportControls.getWidth() == 0 || mTimeView.getWidth() == 0) {
                 return;
             }
 
+            // Update layout if necessary
             int currWidth = getMeasuredWidth();
             int currHeight = getMeasuredHeight();
             WindowManager manager = (WindowManager) getContext().getApplicationContext()
@@ -586,6 +594,13 @@ public class MediaControlView2 extends BaseLayout {
                         screenHeight);
             }
             mPrevWidth = currWidth;
+
+            // By default, show the full view when view size is changed.
+            if (mUxState != UX_STATE_FULL) {
+                removeCallbacks(mHideMainBars);
+                removeCallbacks(mHideProgressBar);
+                post(mShowMainBars);
+            }
         }
         // Update title bar parameters in order to avoid overlap between title view and the right
         // side of the title bar.
@@ -770,7 +785,6 @@ public class MediaControlView2 extends BaseLayout {
         mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
 
         // Relating to Bottom Bar Right View
-        mBottomBarRightView = v.findViewById(R.id.bottom_bar_right);
         mBasicControls = v.findViewById(R.id.basic_controls);
         mExtraControls = v.findViewById(R.id.extra_controls);
         mCustomButtons = v.findViewById(R.id.custom_buttons);
@@ -782,13 +796,13 @@ public class MediaControlView2 extends BaseLayout {
         if (mFullScreenButton != null) {
             mFullScreenButton.setOnClickListener(mFullScreenListener);
         }
-        mOverflowButtonRight = v.findViewById(R.id.overflow_right);
-        if (mOverflowButtonRight != null) {
-            mOverflowButtonRight.setOnClickListener(mOverflowRightListener);
+        mOverflowShowButton = v.findViewById(R.id.overflow_show);
+        if (mOverflowShowButton != null) {
+            mOverflowShowButton.setOnClickListener(mOverflowShowListener);
         }
-        mOverflowButtonLeft = v.findViewById(R.id.overflow_left);
-        if (mOverflowButtonLeft != null) {
-            mOverflowButtonLeft.setOnClickListener(mOverflowLeftListener);
+        mOverflowHideButton = v.findViewById(R.id.overflow_hide);
+        if (mOverflowHideButton != null) {
+            mOverflowHideButton.setOnClickListener(mOverflowHideListener);
         }
         mMuteButton = v.findViewById(R.id.mute);
         if (mMuteButton != null) {
@@ -969,6 +983,58 @@ public class MediaControlView2 extends BaseLayout {
                 mUxState = UX_STATE_FULL;
             }
         });
+
+        mOverflowShowAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
+        mOverflowShowAnimator.setDuration(SHOW_TIME_MS);
+        mOverflowShowAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                animateOverflow(animation);
+            }
+        });
+        mOverflowShowAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mExtraControls.setVisibility(View.VISIBLE);
+                mOverflowShowButton.setVisibility(View.GONE);
+                mOverflowHideButton.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mBasicControls.setVisibility(View.GONE);
+
+                if (mSizeType == SIZE_TYPE_FULL) {
+                    mFfwdButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        mOverflowHideAnimator = ValueAnimator.ofFloat(1.0f, 0.0f);
+        mOverflowHideAnimator.setDuration(SHOW_TIME_MS);
+        mOverflowHideAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                animateOverflow(animation);
+            }
+        });
+        mOverflowHideAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mBasicControls.setVisibility(View.VISIBLE);
+                mOverflowShowButton.setVisibility(View.VISIBLE);
+                mOverflowHideButton.setVisibility(View.GONE);
+
+                if (mSizeType == SIZE_TYPE_FULL) {
+                    mFfwdButton.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mExtraControls.setVisibility(View.GONE);
+            }
+        });
     }
 
     /**
@@ -1107,7 +1173,6 @@ public class MediaControlView2 extends BaseLayout {
                 || mUxState == UX_STATE_ANIMATING) {
             return;
         }
-
         removeCallbacks(mHideMainBars);
         removeCallbacks(mHideProgressBar);
 
@@ -1343,19 +1408,29 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final OnClickListener mOverflowRightListener = new OnClickListener() {
+    private final OnClickListener mOverflowShowListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            mBasicControls.setVisibility(View.GONE);
-            mExtraControls.setVisibility(View.VISIBLE);
+            mOverflowIsShowing = true;
+
+            removeCallbacks(mHideMainBars);
+            removeCallbacks(mHideProgressBar);
+            postDelayed(mHideMainBars, mShowControllerIntervalMs);
+
+            mOverflowShowAnimator.start();
         }
     };
 
-    private final OnClickListener mOverflowLeftListener = new OnClickListener() {
+    private final OnClickListener mOverflowHideListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            mBasicControls.setVisibility(View.VISIBLE);
-            mExtraControls.setVisibility(View.GONE);
+            mOverflowIsShowing = false;
+
+            removeCallbacks(mHideMainBars);
+            removeCallbacks(mHideProgressBar);
+            postDelayed(mHideMainBars, mShowControllerIntervalMs);
+
+            mOverflowHideAnimator.start();
         }
     };
 
@@ -1625,7 +1700,7 @@ public class MediaControlView2 extends BaseLayout {
 
                 // Relating to Full Screen Button
                 mMinimalExtraView.setVisibility(View.GONE);
-                mFullScreenButton = mBottomBarRightView.findViewById(R.id.fullscreen);
+                mFullScreenButton = mBasicControls.findViewById(R.id.fullscreen);
                 mFullScreenButton.setOnClickListener(mFullScreenListener);
 
                 // Relating to Center View
@@ -1636,7 +1711,14 @@ public class MediaControlView2 extends BaseLayout {
                 mCenterView.addView(mTransportControls);
 
                 // Relating to Progress Bar
-                seeker.setThumb(mResources.getDrawable(R.drawable.custom_progress_thumb));
+                GradientDrawable thumb = (GradientDrawable) mResources.getDrawable(
+                        R.drawable.custom_progress_thumb);
+                if (mUxState == UX_STATE_FULL) {
+                    int originalSize = mResources.getDimensionPixelSize(
+                            R.dimen.mcv2_custom_progress_thumb_size);
+                    thumb.setSize(originalSize, originalSize);
+                }
+                seeker.setThumb(thumb);
                 mProgressBuffer.setVisibility(View.VISIBLE);
 
                 // Relating to Bottom Bar
@@ -1658,7 +1740,7 @@ public class MediaControlView2 extends BaseLayout {
 
                 // Relating to Full Screen Button
                 mMinimalExtraView.setVisibility(View.GONE);
-                mFullScreenButton = mBottomBarRightView.findViewById(R.id.fullscreen);
+                mFullScreenButton = mBasicControls.findViewById(R.id.fullscreen);
                 mFullScreenButton.setOnClickListener(mFullScreenListener);
 
                 // Relating to Center View
@@ -1676,7 +1758,7 @@ public class MediaControlView2 extends BaseLayout {
                 mBottomBar.setVisibility(View.VISIBLE);
                 if (timeViewParams.getRules()[RelativeLayout.RIGHT_OF] != 0) {
                     timeViewParams.removeRule(RelativeLayout.RIGHT_OF);
-                    timeViewParams.addRule(RelativeLayout.LEFT_OF, R.id.bottom_bar_right);
+                    timeViewParams.addRule(RelativeLayout.LEFT_OF, R.id.basic_controls);
                 }
                 break;
             case SIZE_TYPE_MINIMAL:
@@ -1817,6 +1899,34 @@ public class MediaControlView2 extends BaseLayout {
         mSettingsWindow.dismiss();
         mSettingsWindow.showAsDropDown(this, mSettingsWindowMargin,
                 mSettingsWindowMargin - totalHeight, Gravity.BOTTOM | Gravity.RIGHT);
+    }
+
+    private void animateOverflow(ValueAnimator animation) {
+        RelativeLayout.LayoutParams extraControlsParams =
+                (RelativeLayout.LayoutParams) mExtraControls.getLayoutParams();
+        int iconWidth = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_size);
+        // Currently, mExtraControls view is set to the right end of the bottom bar
+        // view. This animates the view by setting the initial margin value to the
+        // negative value of its width ((-2) * iconWidth) and the final margin value
+        // to the positive value of the overflow button width (iconWidth).
+        int extraControlMargin = (-2 * iconWidth)
+                + (int) (3 * iconWidth * (float) animation.getAnimatedValue());
+        extraControlsParams.setMargins(0, 0, extraControlMargin, 0);
+        mExtraControls.setLayoutParams(extraControlsParams);
+
+        mTimeView.setAlpha(1 - (float) animation.getAnimatedValue());
+        mBasicControls.setAlpha(1 - (float) animation.getAnimatedValue());
+
+        if (mSizeType == SIZE_TYPE_FULL) {
+            int transportControlMargin =
+                    (-1) * (int) (iconWidth * (float) animation.getAnimatedValue());
+            LinearLayout.LayoutParams transportControlsParams =
+                    (LinearLayout.LayoutParams) mTransportControls.getLayoutParams();
+            transportControlsParams.setMargins(transportControlMargin, 0, 0, 0);
+            mTransportControls.setLayoutParams(transportControlsParams);
+
+            mFfwdButton.setAlpha(1 - (float) animation.getAnimatedValue());
+        }
     }
 
     private class MediaControllerCallback extends MediaControllerCompat.Callback {
