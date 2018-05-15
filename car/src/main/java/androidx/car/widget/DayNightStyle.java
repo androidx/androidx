@@ -38,6 +38,8 @@ import java.lang.annotation.Retention;
 @IntDef({
         DayNightStyle.AUTO,
         DayNightStyle.AUTO_INVERSE,
+        DayNightStyle.ALWAYS_LIGHT,
+        DayNightStyle.ALWAYS_DARK,
         DayNightStyle.FORCE_NIGHT,
         DayNightStyle.FORCE_DAY,
 })
@@ -57,15 +59,28 @@ public @interface DayNightStyle {
      */
     int AUTO_INVERSE = 1;
 
+    /** Sets the color to be locked to a light variant during day and night. */
+    int ALWAYS_LIGHT = 2;
+
+    /** Sets the color to be locked ot a dark variant during day and night. */
+    int ALWAYS_DARK = 3;
+
     /**
      * Sets the foreground color to be locked to the night version, which assumes the app content
      * background is always dark during both day and night.
+     *
+     * @deprecated Use {@link #ALWAYS_LIGHT} instead.
      */
-    int FORCE_NIGHT = 2;
+    @Deprecated
+    int FORCE_NIGHT = 4;
 
     /**
      * Sets the foreground color to be locked to the day version, which assumes the app content
      * background is always light during both day and night.
+     *
+     * @deprecated Use {@link #ALWAYS_DARK} instead.
      */
-    int FORCE_DAY = 3;
+    @Deprecated
+    int FORCE_DAY = 5;
+
 }
