@@ -70,6 +70,11 @@ public abstract class WebMessagePortCompat {
          *
          * @param port  the WebMessagePort that the message is destined for
          * @param message  the message from the entangled port.
+         *
+         * This method is called only if {@link WebViewFeature#WEB_MESSAGE_CALLBACK_ON_MESSAGE} is
+         * supported. You can check whether that flag is supported using
+         * {@link WebViewFeature#isFeatureSupported(String)}.
+         *
          */
         public void onMessage(@NonNull WebMessagePortCompat port,
                 @Nullable WebMessageCompat message) { }

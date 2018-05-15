@@ -344,12 +344,19 @@ public class WebViewCompat {
      *
      * @return an array of size two, containing the two message ports that form the message channel.
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull WebMessagePortCompat[] createWebMessageChannel(
             @NonNull WebView webview) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL);
+        if (feature.isSupportedByFramework()) {
             return WebMessagePortImpl.portsToCompat(webview.createWebMessageChannel());
-        } else {
+        } else if (feature.isSupportedByWebView()) {
             return getProvider(webview).createWebMessageChannel();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
@@ -365,6 +372,9 @@ public class WebViewCompat {
      * @param message the WebMessage
      * @param targetOrigin the target origin.
      */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.POST_WEB_MESSAGE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void postWebMessage(@NonNull WebView webview, @NonNull WebMessageCompat message,
             @NonNull Uri targetOrigin) {
         // The wildcard ("*") Uri was first supported in WebView 60, see
@@ -375,12 +385,16 @@ public class WebViewCompat {
             targetOrigin = EMPTY_URI;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.POST_WEB_MESSAGE);
+        if (feature.isSupportedByFramework()) {
             webview.postWebMessage(
                     WebMessagePortImpl.compatToFrameworkMessage(message),
                     targetOrigin);
-        } else {
+        } else if (feature.isSupportedByWebView()) {
             getProvider(webview).postWebMessage(message, targetOrigin);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 

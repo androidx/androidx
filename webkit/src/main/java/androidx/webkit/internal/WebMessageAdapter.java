@@ -52,6 +52,12 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
         return invocationHandlers;
     }
 
+    @Override
+    public String[] getSupportedFeatures() {
+        // getData() and getPorts() are not covered by feature flags.
+        return new String[0];
+    }
+
     // ====================================================================================
     // Methods related to converting a WebMessageBoundaryInterface into a WebMessageCompat.
     // ====================================================================================
