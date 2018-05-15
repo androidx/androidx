@@ -24,6 +24,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.HashMap;
@@ -124,17 +126,18 @@ public final class RemoteInput {
      */
     public static final class Builder {
         private final String mResultKey;
+        private final Set<String> mAllowedDataTypes = new HashSet<>();
+        private final Bundle mExtras = new Bundle();
         private CharSequence mLabel;
         private CharSequence[] mChoices;
         private boolean mAllowFreeFormTextInput = true;
-        private Bundle mExtras = new Bundle();
-        private final Set<String> mAllowedDataTypes = new HashSet<>();
 
         /**
          * Create a builder object for {@link androidx.core.app.RemoteInput} objects.
+         *
          * @param resultKey the Bundle key that refers to this input when collected from the user
          */
-        public Builder(String resultKey) {
+        public Builder(@NonNull String resultKey) {
             if (resultKey == null) {
                 throw new IllegalArgumentException("Result key can't be null");
             }
@@ -143,22 +146,30 @@ public final class RemoteInput {
 
         /**
          * Set a label to be displayed to the user when collecting this input.
-         * @param label The label to show to users when they input a response.
+         *
+         * @param label The label to show to users when they input a response
          * @return this object for method chaining
          */
-        public Builder setLabel(CharSequence label) {
+        @NonNull
+        public Builder setLabel(@Nullable CharSequence label) {
             mLabel = label;
             return this;
         }
 
         /**
          * Specifies choices available to the user to satisfy this input.
+         *
+         * <p>Note: Starting in Android P, these choices will always be shown on phones if the app's
+         * target SDK is >= P. However, these choices may also be rendered on other types of devices
+         * regardless of target SDK.
+         *
          * @param choices an array of pre-defined choices for users input.
          *        You must provide a non-null and non-empty array if
-         *        you disabled free form input using {@link #setAllowFreeFormInput}.
+         *        you disabled free form input using {@link #setAllowFreeFormInput}
          * @return this object for method chaining
          */
-        public Builder setChoices(CharSequence[] choices) {
+        @NonNull
+        public Builder setChoices(@Nullable CharSequence[] choices) {
             mChoices = choices;
             return this;
         }
@@ -169,11 +180,12 @@ public final class RemoteInput {
          * @param mimeType A mime type that results are allowed to come in.
          *         Be aware that text results (see {@link #setAllowFreeFormInput}
          *         are allowed by default. If you do not want text results you will have to
-         *         pass false to {@code setAllowFreeFormInput}.
-         * @param doAllow Whether the mime type should be allowed or not.
+         *         pass false to {@code setAllowFreeFormInput}
+         * @param doAllow Whether the mime type should be allowed or not
          * @return this object for method chaining
          */
-        public Builder setAllowDataType(String mimeType, boolean doAllow) {
+        @NonNull
+        public Builder setAllowDataType(@NonNull String mimeType, boolean doAllow) {
             if (doAllow) {
                 mAllowedDataTypes.add(mimeType);
             } else {
@@ -189,9 +201,10 @@ public final class RemoteInput {
          *         If you specify {@code false}, you must either provide a non-null
          *         and non-empty array to {@link #setChoices}, or enable a data result
          *         in {@code setAllowDataType}. Otherwise an
-         *         {@link IllegalArgumentException} is thrown.
+         *         {@link IllegalArgumentException} is thrown
          * @return this object for method chaining
          */
+        @NonNull
         public Builder setAllowFreeFormInput(boolean allowFreeFormTextInput) {
             mAllowFreeFormTextInput = allowFreeFormTextInput;
             return this;
@@ -204,7 +217,8 @@ public final class RemoteInput {
          *
          * @see RemoteInput#getExtras
          */
-        public Builder addExtras(Bundle extras) {
+        @NonNull
+        public Builder addExtras(@NonNull Bundle extras) {
             if (extras != null) {
                 mExtras.putAll(extras);
             }
@@ -216,14 +230,16 @@ public final class RemoteInput {
          *
          * <p>The returned Bundle is shared with this Builder.
          */
+        @NonNull
         public Bundle getExtras() {
             return mExtras;
         }
 
         /**
-         * Combine all of the options that have been set and return a new
-         * {@link androidx.core.app.RemoteInput} object.
+         * Combine all of the options that have been set and return a new {@link
+         * androidx.core.app.RemoteInput} object.
          */
+        @NonNull
         public RemoteInput build() {
             return new RemoteInput(
                     mResultKey,
