@@ -20,8 +20,8 @@ import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.SUBTYPE_MESSAGE;
 import static android.app.slice.Slice.SUBTYPE_SOURCE;
-import static android.app.slice.SliceItem.FORMAT_INT;
-import static android.app.slice.SliceItem.FORMAT_TEXT;
+import static android.app.slice.SliceItem.FORMAT_ACTION;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
 
 import static androidx.slice.widget.SliceView.MODE_LARGE;
 
@@ -43,7 +43,6 @@ import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -304,22 +303,11 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         }
 
         private String genString(SliceItem item) {
-            final StringBuilder builder = new StringBuilder();
-            Iterator<SliceItem> items = SliceQuery.stream(item);
-            while (items.hasNext()) {
-                SliceItem i = items.next();
-                builder.append(i.getFormat());
-                builder.append(i.getHints());
-                switch (i.getFormat()) {
-                    case FORMAT_TEXT:
-                        builder.append(i.getText());
-                        break;
-                    case FORMAT_INT:
-                        builder.append(i.getInt());
-                        break;
-                }
+            if (FORMAT_SLICE.equals(item.getFormat())
+                    || FORMAT_ACTION.equals(item.getFormat())) {
+                return String.valueOf(item.getSlice().getItems().size());
             }
-            return builder.toString();
+            return item.toString();
         }
 
         public void resetUsage() {
