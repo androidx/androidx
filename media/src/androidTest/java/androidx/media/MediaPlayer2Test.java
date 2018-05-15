@@ -2469,4 +2469,69 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnCompletionCalled.waitForSignal();
         assertTrue(Math.abs(mPlayer.getCurrentPosition() - end2) < PLAYBACK_COMPLETE_TOLERANCE_MS);
     }
+
+    @Test
+    @LargeTest
+    public void testPreservePlaybackProperties() throws Exception {
+        final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
+        final long start1 = 6000;
+        final long end1 = 7000;
+        AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1);
+        DataSourceDesc dsd1 = new DataSourceDesc.Builder()
+                .setDataSource(afd1.getFileDescriptor(), afd1.getStartOffset(), afd1.getLength())
+                .setStartPosition(start1)
+                .setEndPosition(end1)
+                .build();
+
+        final int resid2 = R.raw.testvideo;
+        final long start2 = 3000;
+        final long end2 = 4000;
+        AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2);
+        DataSourceDesc dsd2 = new DataSourceDesc.Builder()
+                .setDataSource(afd2.getFileDescriptor(), afd2.getStartOffset(), afd2.getLength())
+                .setStartPosition(start2)
+                .setEndPosition(end2)
+                .build();
+
+        mPlayer.setDataSource(dsd1);
+        mPlayer.setNextDataSource(dsd2);
+        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+
+        MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
+            @Override
+            public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
+                    mOnPrepareCalled.signal();
+                } else if (what == MediaPlayer2.MEDIA_INFO_PLAYBACK_COMPLETE) {
+                    mOnCompletionCalled.signal();
+                }
+            }
+
+            @Override
+            public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
+                if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
+                    assertTrue(status == MediaPlayer2.CALL_STATUS_NO_ERROR);
+                    mOnPlayCalled.signal();
+                }
+            }
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
+
+        mOnPrepareCalled.reset();
+        mPlayer.prepare();
+        mOnPrepareCalled.waitForSignal();
+
+        mOnPlayCalled.reset();
+        mOnCompletionCalled.reset();
+        mPlayer.setPlaybackParams(new PlaybackParams().setSpeed(2.0f));
+        mPlayer.play();
+
+        mOnPlayCalled.waitForSignal();
+        mOnCompletionCalled.waitForSignal();
+
+        assertEquals(dsd2, mPlayer.getCurrentDataSource());
+        assertEquals(2.0f, mPlayer.getPlaybackParams().getSpeed(), 0.001f);
+    }
 }
