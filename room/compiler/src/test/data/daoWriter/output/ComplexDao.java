@@ -274,7 +274,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
-        return new ComputableLiveData<User>() {
+        return new ComputableLiveData<User>(__db.getQueryExecutor()) {
             private Observer _observer;
 
             @Override
@@ -334,7 +334,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _statement.bindLong(_argIndex, _item);
             _argIndex ++;
         }
-        return new ComputableLiveData<List<User>>() {
+        return new ComputableLiveData<List<User>>(__db.getQueryExecutor()) {
             private Observer _observer;
 
             @Override

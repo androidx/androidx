@@ -56,8 +56,9 @@ class GuavaListenableFutureQueryResultBinder(
 
         scope.builder().apply {
             addStatement(
-                    "return $T.createListenableFuture($L, $L, $L)",
+                    "return $T.createListenableFuture($N, $L, $L, $L)",
                     RoomGuavaTypeNames.GUAVA_ROOM,
+                    DaoWriter.dbField,
                     callableImpl,
                     roomSQLiteQueryVar,
                     canReleaseQuery)

@@ -24,6 +24,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.INVALIDATION_OBSERVER
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -49,7 +50,13 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
     ) {
         val typeName = typeArg.typeName()
 
-        val liveDataImpl = TypeSpec.anonymousClassBuilder("").apply {
+        val liveDataImpl =
+                TypeSpec.anonymousClassBuilder(
+                        // This passes the Executor as a parameter to the superclass' constructor
+                        // while declaring an anonymous class.
+                        CodeBlock.builder().apply {
+                            add("$N.getQueryExecutor()", dbField)
+                        }.build().toString()).apply {
             superclass(ParameterizedTypeName.get(LifecyclesTypeNames.COMPUTABLE_LIVE_DATA,
                     typeName))
             val observerField = FieldSpec.builder(RoomTypeNames.INVALIDATION_OBSERVER,

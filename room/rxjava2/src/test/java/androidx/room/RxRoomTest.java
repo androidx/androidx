@@ -25,6 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.JunitTaskExecutorRule;
 
 import org.hamcrest.CoreMatchers;
@@ -54,6 +55,7 @@ import io.reactivex.subscribers.TestSubscriber;
 public class RxRoomTest {
     @Rule
     public JunitTaskExecutorRule mExecutor = new JunitTaskExecutorRule(1, false);
+
     private RoomDatabase mDatabase;
     private InvalidationTracker mInvalidationTracker;
     private List<InvalidationTracker.Observer> mAddedObservers = new ArrayList<>();
@@ -63,6 +65,7 @@ public class RxRoomTest {
         mDatabase = mock(RoomDatabase.class);
         mInvalidationTracker = mock(InvalidationTracker.class);
         when(mDatabase.getInvalidationTracker()).thenReturn(mInvalidationTracker);
+        when(mDatabase.getQueryExecutor()).thenReturn(ArchTaskExecutor.getIOThreadExecutor());
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -96,7 +99,7 @@ public class RxRoomTest {
     }
 
     @Test
-    public void basicNotify() throws InterruptedException {
+    public void basicNotify() throws Exception {
         String[] tables = {"a", "b"};
         Set<String> tableSet = new HashSet<>(Arrays.asList(tables));
         Flowable<Object> flowable = RxRoom.createFlowable(mDatabase, tables);
@@ -115,7 +118,7 @@ public class RxRoomTest {
     }
 
     @Test
-    public void internalCallable() throws InterruptedException {
+    public void internalCallable() throws Exception {
         final AtomicReference<String> value = new AtomicReference<>(null);
         String[] tables = {"a", "b"};
         Set<String> tableSet = new HashSet<>(Arrays.asList(tables));
@@ -148,12 +151,12 @@ public class RxRoomTest {
         assertThat(consumer.mCount, CoreMatchers.is(2));
     }
 
-    private void drain() throws InterruptedException {
+    private void drain() throws Exception {
         mExecutor.drainTasks(2);
     }
 
     @Test
-    public void exception() throws InterruptedException {
+    public void exception() throws Exception {
         final Flowable<String> flowable = RxRoom.createFlowable(mDatabase, new String[]{"a"},
                 new Callable<String>() {
                     @Override

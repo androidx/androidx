@@ -19,6 +19,7 @@ import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -27,6 +28,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 
 /**
  * A class to hold static methods used by code generation in Room's Guava compatibility library.
@@ -42,13 +44,39 @@ public class GuavaRoom {
     /**
      * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
      * {@link ArchTaskExecutor}'s background-threaded Executor.
+     *
+     * @deprecated
+     *      Use {@link #createListenableFuture(RoomDatabase, Callable, RoomSQLiteQuery, boolean)}
      */
+    @Deprecated
     public static <T> ListenableFuture<T> createListenableFuture(
             final Callable<T> callable,
             final RoomSQLiteQuery query,
             final boolean releaseQuery) {
+        return createListenableFuture(
+                ArchTaskExecutor.getIOThreadExecutor(), callable, query, releaseQuery);
+    }
+
+    /**
+     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
+     * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
+     */
+    public static <T> ListenableFuture<T> createListenableFuture(
+            final RoomDatabase roomDatabase,
+            final Callable<T> callable,
+            final RoomSQLiteQuery query,
+            final boolean releaseQuery) {
+        return createListenableFuture(
+                roomDatabase.getQueryExecutor(), callable, query, releaseQuery);
+    }
+
+    private static <T> ListenableFuture<T> createListenableFuture(
+            final Executor executor,
+            final Callable<T> callable,
+            final RoomSQLiteQuery query,
+            final boolean releaseQuery) {
         ListenableFutureTask<T> listenableFutureTask = ListenableFutureTask.create(callable);
-        ArchTaskExecutor.getInstance().executeOnDiskIO(listenableFutureTask);
+        executor.execute(listenableFutureTask);
 
         if (releaseQuery) {
             Futures.addCallback(
