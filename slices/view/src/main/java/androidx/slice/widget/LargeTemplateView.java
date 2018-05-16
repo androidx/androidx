@@ -32,7 +32,7 @@ import androidx.slice.SliceItem;
 import androidx.slice.core.SliceAction;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -47,7 +47,7 @@ public class LargeTemplateView extends SliceChildView {
     private final RecyclerView mRecyclerView;
     private boolean mScrollingEnabled;
     private ListContent mListContent;
-    private List<SliceItem> mDisplayedItems = new ArrayList<>();
+    private ArrayList<SliceItem> mDisplayedItems = new ArrayList<>();
     private int mDisplayedItemsHeight = 0;
     private int[] mLoc = new int[2];
 
@@ -80,8 +80,7 @@ public class LargeTemplateView extends SliceChildView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int height = MeasureSpec.getSize(heightMeasureSpec);
-        if (mDisplayedItems.size() > 0 && mDisplayedItemsHeight > height) {
-            // Need to resize
+        if (!mScrollingEnabled && mDisplayedItems.size() > 0 && mDisplayedItemsHeight != height) {
             updateDisplayedItems(height);
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -115,8 +114,13 @@ public class LargeTemplateView extends SliceChildView {
 
     @Override
     public void setMode(int newMode) {
-        super.setMode(newMode);
-        updateDisplayedItems(getMeasuredHeight());
+        if (mMode != newMode) {
+            mMode = newMode;
+            if (mListContent != null && mListContent.isValid()) {
+                int sliceHeight = mListContent.getLargeHeight(-1, mScrollingEnabled);
+                updateDisplayedItems(sliceHeight);
+            }
+        }
     }
 
     @Override
@@ -126,18 +130,16 @@ public class LargeTemplateView extends SliceChildView {
 
     @Override
     public int getSmallHeight() {
-        if (mListContent == null || mListContent.getHeaderItem() == null) {
+        if (mListContent == null || !mListContent.isValid()) {
             return 0;
         }
-        SliceItem headerItem = mListContent.getHeaderItem();
-        return mListContent.getHeight(getContext(), headerItem, true /* isHeader */,
-                0 /* rowIndex */, 1 /* rowCount */, MODE_SMALL);
+        return mListContent.getSmallHeight();
     }
 
     @Override
     public void setTint(int tint) {
         super.setTint(tint);
-        populate();
+        updateDisplayedItems(getMeasuredHeight());
     }
 
     @Override
@@ -156,7 +158,8 @@ public class LargeTemplateView extends SliceChildView {
     @Override
     public void setSliceContent(ListContent sliceContent) {
         mListContent = sliceContent;
-        populate();
+        int sliceHeight = mListContent.getLargeHeight(-1, mScrollingEnabled);
+        updateDisplayedItems(sliceHeight);
     }
 
     @Override
@@ -177,46 +180,34 @@ public class LargeTemplateView extends SliceChildView {
         mAdapter.setLastUpdated(lastUpdated);
     }
 
-    private void populate() {
-        if (mListContent == null) {
-            resetView();
-            return;
-        }
-        updateDisplayedItems(getMeasuredHeight());
-    }
-
     /**
      * Whether or not the content in this template should be scrollable.
      */
     public void setScrollable(boolean scrollingEnabled) {
-        mScrollingEnabled = scrollingEnabled;
-        updateDisplayedItems(getMeasuredHeight());
+        if (mScrollingEnabled != scrollingEnabled) {
+            mScrollingEnabled = scrollingEnabled;
+            if (mListContent != null && mListContent.isValid()) {
+                int sliceHeight = mListContent.getLargeHeight(-1, mScrollingEnabled);
+                updateDisplayedItems(sliceHeight);
+            }
+        }
     }
 
     private void updateDisplayedItems(int height) {
-        if (mListContent == null) {
+        if (mListContent == null || !mListContent.isValid()) {
+            resetView();
             return;
         }
-        if (!mScrollingEnabled) {
-            // If we're not scrollable we must cap the number of items we're displaying such
-            // that they fit in the available space
-            if (height == 0) {
-                // Not measured, use default
-                mDisplayedItems = mListContent.getItemsForNonScrollingList(-1);
-            } else {
-                mDisplayedItems = mListContent.getItemsForNonScrollingList(height);
-            }
+        int mode = getMode();
+        if (mode == MODE_SMALL) {
+            mDisplayedItems = new ArrayList(Arrays.asList(mListContent.getRowItems().get(0)));
+        } else if (!mScrollingEnabled && height != 0) {
+            mDisplayedItems = mListContent.getItemsForNonScrollingList(height);
         } else {
             mDisplayedItems = mListContent.getRowItems();
         }
-        mDisplayedItemsHeight = mListContent.getListHeight(getContext(), mDisplayedItems);
-        int mode = getMode();
-        if (mode == SliceView.MODE_LARGE) {
-            mAdapter.setSliceItems(mDisplayedItems, mTintColor, mode);
-        } else if (mode == MODE_SMALL) {
-            mAdapter.setSliceItems(
-                    Collections.singletonList(mDisplayedItems.get(0)), mTintColor, mode);
-        }
+        mDisplayedItemsHeight = mListContent.getListHeight(mDisplayedItems);
+        mAdapter.setSliceItems(mDisplayedItems, mTintColor, mode);
         updateOverscroll();
     }
 
