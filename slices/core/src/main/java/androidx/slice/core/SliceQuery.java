@@ -264,6 +264,24 @@ public class SliceQuery {
         };
     }
 
+    /**
+     * Finds an item matching provided params that is a direct child of the slice.
+     */
+    public static SliceItem findTopLevelItem(Slice s, final String format, final String subtype,
+            final String[] hints, final String[] nonHints) {
+        List<SliceItem> items = s.getItems();
+        for (int i = 0; i < items.size(); i++) {
+            SliceItem item = items.get(i);
+            if (checkFormat(item, format)
+                    && checkSubtype(item, subtype)
+                    && hasHints(item, hints)
+                    && !hasAnyHints(item, nonHints)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     private static <T> List<T> collect(Iterator<T> iter) {
         List<T> list = new ArrayList<>();
         while (iter.hasNext()) list.add(iter.next());
