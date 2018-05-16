@@ -90,6 +90,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
 
     void onDestroy() {
         mProcessor.removeExecutionListener(this);
+        mCompletedListener = null;
     }
 
     @Override
@@ -133,6 +134,10 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     }
 
     void setCompletedListener(@NonNull CommandsCompletedListener listener) {
+        if (mCompletedListener != null) {
+            Log.e(TAG, "A completion listener for SystemAlarmDispatcher already exists.");
+            return;
+        }
         mCompletedListener = listener;
     }
 
