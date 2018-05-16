@@ -281,27 +281,26 @@ public class WebViewCompat {
      * Return the PackageInfo of the currently loaded WebView APK. This method uses reflection and
      * propagates any exceptions thrown, to the caller.
      */
+    @SuppressLint("PrivateApi")
     private static PackageInfo getLoadedWebViewPackageInfo()
             throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
         Class<?> webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
-        PackageInfo webviewPackageInfo =
-                (PackageInfo) webViewFactoryClass.getMethod(
-                        "getLoadedPackageInfo").invoke(null);
-        return webviewPackageInfo;
+        return (PackageInfo) webViewFactoryClass.getMethod(
+                "getLoadedPackageInfo").invoke(null);
     }
 
     /**
      * Return the PackageInfo of the WebView APK that would have been used as WebView implementation
      * if WebView was to be loaded right now.
      */
+    @SuppressLint("PrivateApi")
     private static PackageInfo getNotYetLoadedWebViewPackageInfo(Context context) {
-        String webviewPackageName = null;
+        String webviewPackageName;
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
                     && Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-                Class<?> webViewFactoryClass = null;
-                webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
+                Class<?> webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
 
                 webviewPackageName = (String) webViewFactoryClass.getMethod(
                         "getWebViewPackageName").invoke(null);
@@ -406,7 +405,7 @@ public class WebViewCompat {
         return getFactory().createWebView(webview);
     }
 
-    @SuppressWarnings("NewApi")
+    @SuppressWarnings({"NewApi", "JavaReflectionMemberAccess", "PrivateApi"})
     private static void checkThread(WebView webview) {
         if (BuildCompat.isAtLeastP()) {
             if (webview.getWebViewLooper() != Looper.myLooper()) {

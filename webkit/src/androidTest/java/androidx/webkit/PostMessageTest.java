@@ -26,6 +26,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
 import androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat;
 
 import junit.framework.Assert;
@@ -164,7 +165,8 @@ public class PostMessageTest {
                 }
                 channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
                     @Override
-                    public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
+                    public void onMessage(@NonNull WebMessagePortCompat port,
+                            WebMessageCompat message) {
                         int i = messageCount - (int) latch.getCount();
                         assertEquals(WEBVIEW_MESSAGE + i + i, message.getData());
                         latch.countDown();
@@ -240,7 +242,8 @@ public class PostMessageTest {
             public void run() {
                 channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
                     @Override
-                    public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
+                    public void onMessage(@NonNull WebMessagePortCompat port,
+                            WebMessageCompat message) {
                         message.getPorts()[0].postMessage(new WebMessageCompat(hello));
                     }
                 });

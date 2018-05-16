@@ -88,6 +88,7 @@ class WebViewOnUiThread {
     /**
      * Called from WaitForLoadedClient.
      */
+    @SuppressWarnings("EmptyMethod")
     synchronized void onPageStarted() {}
 
     /**

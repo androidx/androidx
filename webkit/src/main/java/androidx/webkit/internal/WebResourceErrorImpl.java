@@ -91,6 +91,7 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
         }
     }
 
+    @NonNull
     @SuppressLint("NewApi")
     @Override
     public CharSequence getDescription() {

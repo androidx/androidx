@@ -19,6 +19,7 @@ package androidx.webkit.internal;
 import android.annotation.SuppressLint;
 import android.webkit.ServiceWorkerController;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.ServiceWorkerClientCompat;
 import androidx.webkit.ServiceWorkerControllerCompat;
@@ -72,6 +73,7 @@ public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
         return mBoundaryInterface;
     }
 
+    @NonNull
     @Override
     public ServiceWorkerWebSettingsCompat getServiceWorkerWebSettings() {
         return mWebSettings;

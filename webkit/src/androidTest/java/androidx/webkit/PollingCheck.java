@@ -28,7 +28,7 @@ import java.util.concurrent.Callable;
  */
 public abstract class PollingCheck {
     private static final long TIME_SLICE = 50;
-    private long mTimeout = 3000;
+    private long mTimeout;
 
     public PollingCheck(long timeout) {
         mTimeout = timeout;
