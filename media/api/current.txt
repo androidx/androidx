@@ -951,7 +951,6 @@ package androidx.media {
     method public abstract androidx.media.BaseMediaPlayer getMediaPlayerInterface();
     method public abstract android.os.PersistableBundle getMetrics();
     method public abstract android.media.PlaybackParams getPlaybackParams();
-    method public float getPlaybackSpeed();
     method public abstract float getPlayerVolume();
     method public abstract int getSelectedTrack(int);
     method public abstract int getState();
@@ -960,7 +959,6 @@ package androidx.media {
     method public abstract java.util.List<androidx.media.MediaPlayer2.TrackInfo> getTrackInfo();
     method public abstract int getVideoHeight();
     method public abstract int getVideoWidth();
-    method public boolean isReversePlaybackSupported();
     method public abstract void loopCurrent(boolean);
     method public void notifyWhenCommandLabelReached(java.lang.Object);
     method public abstract void pause();
@@ -985,7 +983,6 @@ package androidx.media {
     method public abstract void setNextDataSources(java.util.List<androidx.media.DataSourceDesc>);
     method public abstract void setOnDrmConfigHelper(androidx.media.MediaPlayer2.OnDrmConfigHelper);
     method public abstract void setPlaybackParams(android.media.PlaybackParams);
-    method public abstract void setPlaybackSpeed(float);
     method public abstract void setPlayerVolume(float);
     method public abstract void setSurface(android.view.Surface);
     method public abstract void setSyncParams(android.media.SyncParams);
@@ -1005,7 +1002,6 @@ package androidx.media {
     field public static final int CALL_COMPLETED_SET_NEXT_DATA_SOURCE = 22; // 0x16
     field public static final int CALL_COMPLETED_SET_NEXT_DATA_SOURCES = 23; // 0x17
     field public static final int CALL_COMPLETED_SET_PLAYBACK_PARAMS = 24; // 0x18
-    field public static final int CALL_COMPLETED_SET_PLAYBACK_SPEED = 25; // 0x19
     field public static final int CALL_COMPLETED_SET_PLAYER_VOLUME = 26; // 0x1a
     field public static final int CALL_COMPLETED_SET_SURFACE = 27; // 0x1b
     field public static final int CALL_COMPLETED_SET_SYNC_PARAMS = 28; // 0x1c
