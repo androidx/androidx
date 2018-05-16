@@ -1,9 +1,5 @@
 <resources>
     <declare-styleable name="ViewPager2">
-        <attr name="orientation" format="enum">
-            <!-- keep in sync with ViewPager2.Orientation -->
-            <enum name="horizontal" value="0"/>
-            <enum name="vertical" value="1"/>
-        </attr>
+        <attr name="android:orientation"/>
     </declare-styleable>
 </resources>
