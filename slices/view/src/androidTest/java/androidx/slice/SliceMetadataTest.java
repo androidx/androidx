@@ -31,6 +31,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 import android.app.PendingIntent;
@@ -79,6 +80,42 @@ public class SliceMetadataTest {
     @Before
     public void setup() {
         SliceProvider.setSpecs(SliceLiveData.SUPPORTED_SPECS);
+    }
+
+    @Test
+    public void testIsErrorSlice() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        SliceAction primaryAction = new SliceAction(getIntent(""), icon, "Action");
+        lb.setHeader(new ListBuilder.HeaderBuilder(lb)
+                .setTitle("Title")
+                .setPrimaryAction(primaryAction));
+        lb.setIsError(true);
+
+        SliceMetadata metadata = SliceMetadata.from(mContext, lb.build());
+        assertTrue(metadata.isErrorSlice());
+    }
+
+    @Test
+    public void testIsNotErrorSlice() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        SliceAction primaryAction = new SliceAction(getIntent(""), icon, "Action");
+        lb.setHeader(new ListBuilder.HeaderBuilder(lb)
+                .setTitle("Title")
+                .setPrimaryAction(primaryAction));
+        lb.setIsError(false);
+
+        SliceMetadata metadata = SliceMetadata.from(mContext, lb.build());
+        assertFalse(metadata.isErrorSlice());
     }
 
     @Test

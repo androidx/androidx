@@ -495,6 +495,16 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
+     * Sets whether this slice indicates an error, i.e. the normal contents of this slice are
+     * unavailable and instead the slice contains a message indicating an error.
+     */
+    @NonNull
+    public ListBuilder setIsError(boolean isError) {
+        mImpl.setIsError(isError);
+        return this;
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(LIBRARY)

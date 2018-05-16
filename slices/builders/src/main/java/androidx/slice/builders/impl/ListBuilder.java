@@ -108,6 +108,12 @@ public interface ListBuilder {
     void setTtl(long ttl);
 
     /**
+     * Sets whether this slice indicates an error, i.e. the normal contents of this slice are
+     * unavailable and instead the slice contains a message indicating an error.
+     */
+    void setIsError(boolean isError);
+
+    /**
      * Create a builder that implements {@link RowBuilder}.
      */
     TemplateBuilderImpl createRowBuilder();

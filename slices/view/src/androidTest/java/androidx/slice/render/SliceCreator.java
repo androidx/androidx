@@ -77,6 +77,7 @@ public class SliceCreator {
             "range",
             "permission",
             "empty",
+            "error",
     };
 
     private final Context mContext;
@@ -141,6 +142,8 @@ public class SliceCreator {
                 return createPermissionSlice(sliceUri);
             case "/empty":
                 return new ListBuilder(getContext(), sliceUri, INFINITY).build();
+            case "/error":
+                return createErrorSlice(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -549,6 +552,19 @@ public class SliceCreator {
                         .setValue(75)
                         .setPrimaryAction(primaryAction))
                 .build();
+    }
+
+    private Slice createErrorSlice(Uri uri) {
+        IconCompat ic2 = IconCompat.createWithResource(getContext(), R.drawable.ic_error);
+        SliceAction simpleAction = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "error slice tapped"), ic2, "icon");
+        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+        return lb.setIsError(true)
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitle("Slice representing an error")
+                        .setSubtitle("This is not the slice you're looking for")
+                        .addEndItem(ic2, ICON_IMAGE)
+                        .setPrimaryAction(simpleAction)).build();
     }
 
     private Slice createPermissionSlice(Uri uri) {

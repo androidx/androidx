@@ -87,6 +87,7 @@ public class SampleSliceProvider extends SliceProvider {
             "range",
             "subscription",
             "singleitems",
+            "error",
     };
 
     /**
@@ -164,6 +165,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createCatSlice(sliceUri, false /* customSeeMore */);
             case "/singleitems":
                 return createSingleSlice(sliceUri);
+            case "/error":
+                return createErrorSlice(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -759,6 +762,19 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .addEndItem(image, SMALL_IMAGE))
                 .build();
+    }
+
+    private Slice createErrorSlice(Uri uri) {
+        IconCompat ic2 = IconCompat.createWithResource(getContext(), R.drawable.ic_error);
+        SliceAction simpleAction = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "error slice tapped"), ic2, "icon");
+        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+        return lb.setIsError(true)
+                .addRow(rb -> rb
+                        .setTitle("Slice representing an error")
+                        .setSubtitle("This is not the slice you're looking for")
+                        .addEndItem(ic2, ICON_IMAGE)
+                        .setPrimaryAction(simpleAction)).build();
     }
 
     private Handler mHandler = new Handler();

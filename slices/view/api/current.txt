@@ -38,6 +38,7 @@ package androidx.slice {
     method public java.lang.CharSequence getTitle();
     method public java.util.List<androidx.slice.core.SliceAction> getToggles();
     method public boolean hasLargeMode();
+    method public boolean isErrorSlice();
     method public boolean isPermissionSlice();
     method public boolean sendInputRangeAction(int) throws android.app.PendingIntent.CanceledException;
     method public boolean sendToggleAction(androidx.slice.core.SliceAction, boolean) throws android.app.PendingIntent.CanceledException;
