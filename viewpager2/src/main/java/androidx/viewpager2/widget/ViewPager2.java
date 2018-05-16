@@ -111,7 +111,8 @@ public class ViewPager2 extends ViewGroup {
     private void setOrientation(Context context, AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ViewPager2);
         try {
-            setOrientation(a.getInt(R.styleable.ViewPager2_orientation, Orientation.HORIZONTAL));
+            setOrientation(
+                    a.getInt(R.styleable.ViewPager2_android_orientation, Orientation.HORIZONTAL));
         } finally {
             a.recycle();
         }
