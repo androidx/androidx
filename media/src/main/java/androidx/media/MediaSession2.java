@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
@@ -46,6 +47,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Allows a media app to expose its transport controls and playback information in a process to
@@ -192,8 +194,20 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
 
     private final SupportLibraryImpl mImpl;
 
-    MediaSession2(SupportLibraryImpl impl) {
-        mImpl = impl;
+    MediaSession2(Context context, String id, BaseMediaPlayer player,
+            MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
+            PendingIntent sessionActivity, Executor callbackExecutor,
+            MediaSession2.SessionCallback callback) {
+        mImpl = createImpl(context, id, player, playlistAgent,
+                volumeProvider, sessionActivity, callbackExecutor, callback);
+    }
+
+    SupportLibraryImpl createImpl(Context context, String id, BaseMediaPlayer player,
+            MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
+            PendingIntent sessionActivity, Executor callbackExecutor,
+            MediaSession2.SessionCallback callback) {
+        return new MediaSession2ImplBase(this, context, id, player, playlistAgent,
+                volumeProvider, sessionActivity, callbackExecutor, callback);
     }
 
     SupportLibraryImpl getImpl() {
@@ -1214,12 +1228,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
      * that created session with the {@link Builder#build()}.
      */
     public static final class Builder extends BuilderBase<MediaSession2, Builder, SessionCallback> {
-        private MediaSession2ImplBase.Builder mImpl;
-
         public Builder(Context context) {
             super(context);
-            mImpl = new MediaSession2ImplBase.Builder(context);
-            setImpl(mImpl);
         }
 
         @Override
@@ -1255,7 +1265,14 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
 
         @Override
         public @NonNull MediaSession2 build() {
-            return super.build();
+            if (mCallbackExecutor == null) {
+                mCallbackExecutor = new MainHandlerExecutor(mContext);
+            }
+            if (mCallback == null) {
+                mCallback = new SessionCallback() {};
+            }
+            return new MediaSession2(mContext, mId, mPlayer, mPlaylistAgent, mVolumeProvider,
+                    mSessionActivity, mCallbackExecutor, mCallback);
         }
     }
 
@@ -1612,7 +1629,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
                 @NonNull String query, int itemCount, @Nullable Bundle extras);
 
         // Internally used methods
-        abstract MediaSession2 createInstance();
         abstract MediaSession2 getInstance();
         abstract IBinder getSessionBinder();
         abstract MediaSessionCompat getSessionCompat();
@@ -1647,15 +1663,21 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     abstract static class BuilderBase
             <T extends MediaSession2, U extends BuilderBase<T, U, C>, C extends SessionCallback> {
         final Context mContext;
-        MediaSession2ImplBase.BuilderBase<T, C> mBaseImpl;
         BaseMediaPlayer mPlayer;
         String mId;
+        Executor mCallbackExecutor;
+        C mCallback;
+        MediaPlaylistAgent mPlaylistAgent;
+        VolumeProviderCompat mVolumeProvider;
+        PendingIntent mSessionActivity;
 
         BuilderBase(Context context) {
             if (context == null) {
                 throw new IllegalArgumentException("context shouldn't be null");
             }
             mContext = context;
+            // Ensure MediaSessionCompat non-null or empty
+            mId = TAG;
         }
 
         /**
@@ -1669,7 +1691,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             if (player == null) {
                 throw new IllegalArgumentException("player shouldn't be null");
             }
-            mBaseImpl.setPlayer(player);
+            mPlayer = player;
             return (U) this;
         }
 
@@ -1689,7 +1711,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             if (playlistAgent == null) {
                 throw new IllegalArgumentException("playlistAgent shouldn't be null");
             }
-            mBaseImpl.setPlaylistAgent(playlistAgent);
+            mPlaylistAgent = playlistAgent;
             return (U) this;
         }
 
@@ -1700,7 +1722,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @param volumeProvider The provider that will receive volume button events.
          */
         @NonNull U setVolumeProvider(@Nullable VolumeProviderCompat volumeProvider) {
-            mBaseImpl.setVolumeProvider(volumeProvider);
+            mVolumeProvider = volumeProvider;
             return (U) this;
         }
 
@@ -1712,7 +1734,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @param pi The intent to launch to show UI for this session.
          */
         @NonNull U setSessionActivity(@Nullable PendingIntent pi) {
-            mBaseImpl.setSessionActivity(pi);
+            mSessionActivity = pi;
             return (U) this;
         }
 
@@ -1730,7 +1752,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             if (id == null) {
                 throw new IllegalArgumentException("id shouldn't be null");
             }
-            mBaseImpl.setId(id);
+            mId = id;
             return (U) this;
         }
 
@@ -1748,7 +1770,8 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
             if (callback == null) {
                 throw new IllegalArgumentException("callback shouldn't be null");
             }
-            mBaseImpl.setSessionCallback(executor, callback);
+            mCallbackExecutor = executor;
+            mCallback = callback;
             return (U) this;
         }
 
@@ -1759,12 +1782,21 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
          * @throws IllegalStateException if the session with the same id is already exists for the
          *      package.
          */
-        @NonNull T build() {
-            return mBaseImpl.build();
+        @NonNull abstract T build();
+    }
+
+    static class MainHandlerExecutor implements Executor {
+        private final Handler mHandler;
+
+        MainHandlerExecutor(Context context) {
+            mHandler = new Handler(context.getMainLooper());
         }
 
-        void setImpl(MediaSession2ImplBase.BuilderBase<T, C> impl) {
-            mBaseImpl = impl;
+        @Override
+        public void execute(Runnable command) {
+            if (!mHandler.post(command)) {
+                throw new RejectedExecutionException(mHandler + " is shutting down");
+            }
         }
     }
 }

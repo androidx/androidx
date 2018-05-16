@@ -63,8 +63,8 @@ public class AudioFocusHandler {
 
     private final AudioFocusHandlerImpl mImpl;
 
-    AudioFocusHandler(MediaSession2 session) {
-        mImpl = new AudioFocusHandlerImplBase(session);
+    AudioFocusHandler(Context context, MediaSession2 session) {
+        mImpl = new AudioFocusHandlerImplBase(context, session);
     }
 
     /**
@@ -141,10 +141,12 @@ public class AudioFocusHandler {
         @GuardedBy("mLock")
         private boolean mHasRegisteredReceiver;
 
-        AudioFocusHandlerImplBase(MediaSession2 session) {
+        AudioFocusHandlerImplBase(Context context, MediaSession2 session) {
             mSession = session;
-            mAudioManager = (AudioManager) mSession.getContext().getSystemService(
-                    Context.AUDIO_SERVICE);
+
+            // Cannot use session.getContext() because session's impl isn't initialized at this
+            // moment.
+            mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         }
 
         private void updateAudioAttributesIfNeeded() {
