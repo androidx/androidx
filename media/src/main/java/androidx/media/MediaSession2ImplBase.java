@@ -19,7 +19,6 @@ package androidx.media;
 import static androidx.media.BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.MediaSession2.ControllerCb;
 import static androidx.media.MediaSession2.ControllerInfo;
-import static androidx.media.MediaSession2.ErrorCode;
 import static androidx.media.MediaSession2.OnDataSourceMissingHelper;
 import static androidx.media.MediaSession2.SessionCallback;
 import static androidx.media.SessionToken2.TYPE_LIBRARY_SERVICE;
@@ -41,6 +40,7 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
@@ -53,6 +53,7 @@ import androidx.core.util.ObjectsCompat;
 import androidx.media.BaseMediaPlayer.PlayerEventCallback;
 import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaPlaylistAgent.PlaylistEventCallback;
+import androidx.media.MediaSession2.ErrorCode;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -81,6 +82,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private final MediaPlaylistAgent.PlaylistEventCallback mPlaylistEventCallback;
     private final AudioFocusHandler mAudioFocusHandler;
     private final MediaSession2 mInstance;
+    private final PendingIntent mSessionActivity;
 
     @GuardedBy("mLock")
     private BaseMediaPlayer mPlayer;
@@ -95,21 +97,18 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     @GuardedBy("mLock")
     private PlaybackInfo mPlaybackInfo;
 
-    MediaSession2ImplBase(Context context, MediaSessionCompat sessionCompat, String id,
-            BaseMediaPlayer player, MediaPlaylistAgent playlistAgent,
-            VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
-            Executor callbackExecutor, SessionCallback callback) {
+    MediaSession2ImplBase(Context context, String id, BaseMediaPlayer player,
+            MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
+            PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback) {
         mContext = context;
         mInstance = createInstance();
         mHandlerThread = new HandlerThread("MediaController2_Thread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
 
-        mSessionCompat = sessionCompat;
         mSession2Stub = new MediaSession2Stub(this);
         mSessionLegacyStub = new MediaSessionLegacyStub(this);
-        mSessionCompat.setCallback(mSession2Stub, mHandler);
-        mSessionCompat.setSessionActivity(sessionActivity);
+        mSessionActivity = sessionActivity;
 
         mCallback = callback;
         mCallbackExecutor = callbackExecutor;
@@ -126,15 +125,20 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             throw new IllegalArgumentException("Ambiguous session type. Multiple"
                     + " session services define the same id=" + id);
         } else if (libraryService != null) {
-            mSessionToken = new SessionToken2(Process.myUid(), TYPE_LIBRARY_SERVICE,
-                    context.getPackageName(), libraryService, id, mSessionCompat.getSessionToken());
+            mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
+                    TYPE_LIBRARY_SERVICE, context.getPackageName(), libraryService, id,
+                    mSession2Stub));
         } else if (sessionService != null) {
-            mSessionToken = new SessionToken2(Process.myUid(), TYPE_SESSION_SERVICE,
-                    context.getPackageName(), sessionService, id, mSessionCompat.getSessionToken());
+            mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
+                    TYPE_SESSION_SERVICE, context.getPackageName(), sessionService, id,
+                    mSession2Stub));
         } else {
-            mSessionToken = new SessionToken2(Process.myUid(), TYPE_SESSION,
-                    context.getPackageName(), null, id, mSessionCompat.getSessionToken());
+            mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
+                    TYPE_SESSION, context.getPackageName(), null, id, mSession2Stub));
         }
+        mSessionCompat = new MediaSessionCompat(context, id, mSessionToken);
+        mSessionCompat.setCallback(mSessionLegacyStub, mHandler);
+        mSessionCompat.setSessionActivity(sessionActivity);
         updatePlayer(player, playlistAgent, volumeProvider);
     }
 
@@ -265,6 +269,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             mPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
             mPlayer = null;
             mSessionCompat.release();
+            notifyToAllControllers(new NotifyRunnable() {
+                @Override
+                public void run(ControllerCb callback) throws RemoteException {
+                    callback.onDisconnected();
+                }
+            });
             mHandler.removeCallbacksAndMessages(null);
             if (mHandlerThread.isAlive()) {
                 if (Build.VERSION.SDK_INT >= 18) {
@@ -948,6 +958,12 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             return mPlaybackInfo;
         }
     }
+
+    @Override
+    PendingIntent getSessionActivity() {
+        return mSessionActivity;
+    }
+
     private static String getServiceName(Context context, String serviceAction, String id) {
         PackageManager manager = context.getPackageManager();
         Intent serviceIntent = new Intent(serviceAction);
@@ -1031,20 +1047,23 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
     private void notifyPlayerUpdatedNotLocked(BaseMediaPlayer oldPlayer) {
         // Always forcefully send the player state and buffered state to send the current position
         // and buffered position.
+        final long currentTimeMs = SystemClock.elapsedRealtime();
+        final long positionMs = getCurrentPosition();
         final int playerState = getPlayerState();
         notifyToAllControllers(new NotifyRunnable() {
             @Override
             public void run(ControllerCb callback) throws RemoteException {
-                callback.onPlayerStateChanged(playerState);
+                callback.onPlayerStateChanged(currentTimeMs, positionMs, playerState);
             }
         });
         final MediaItem2 item = getCurrentMediaItem();
         if (item != null) {
             final int bufferingState = getBufferingState();
+            final long bufferedPositionMs = getBufferedPosition();
             notifyToAllControllers(new NotifyRunnable() {
                 @Override
                 public void run(ControllerCb callback) throws RemoteException {
-                    callback.onBufferingStateChanged(item, bufferingState);
+                    callback.onBufferingStateChanged(item, bufferingState, bufferedPositionMs);
                 }
             });
         }
@@ -1053,7 +1072,7 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             notifyToAllControllers(new NotifyRunnable() {
                 @Override
                 public void run(ControllerCb callback) throws RemoteException {
-                    callback.onPlaybackSpeedChanged(speed);
+                    callback.onPlaybackSpeedChanged(currentTimeMs, positionMs, speed);
                 }
             });
         }
@@ -1292,7 +1311,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     session.notifyToAllControllers(new NotifyRunnable() {
                         @Override
                         public void run(ControllerCb callback) throws RemoteException {
-                            callback.onPlayerStateChanged(state);
+                            callback.onPlayerStateChanged(SystemClock.elapsedRealtime(),
+                                    player.getCurrentPosition(), state);
                         }
                     });
                 }
@@ -1318,7 +1338,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     session.notifyToAllControllers(new NotifyRunnable() {
                         @Override
                         public void run(ControllerCb callback) throws RemoteException {
-                            callback.onBufferingStateChanged(item, state);
+                            callback.onBufferingStateChanged(item, state,
+                                    mpb.getBufferedPosition());
                         }
                     });
                 }
@@ -1338,7 +1359,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     session.notifyToAllControllers(new NotifyRunnable() {
                         @Override
                         public void run(ControllerCb callback) throws RemoteException {
-                            callback.onPlaybackSpeedChanged(speed);
+                            callback.onPlaybackSpeedChanged(SystemClock.elapsedRealtime(),
+                                    session.getCurrentPosition(), speed);
                         }
                     });
                 }
@@ -1358,7 +1380,8 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
                     session.notifyToAllControllers(new NotifyRunnable() {
                         @Override
                         public void run(ControllerCb callback) throws RemoteException {
-                            callback.onSeekCompleted(position);
+                            callback.onSeekCompleted(SystemClock.elapsedRealtime(),
+                                    session.getCurrentPosition(), position);
                         }
                     });
                 }
@@ -1515,9 +1538,9 @@ class MediaSession2ImplBase extends MediaSession2.SupportLibraryImpl {
             if (mCallback == null) {
                 mCallback = new SessionCallback() {};
             }
-            return new MediaSession2(new MediaSession2ImplBase(mContext,
-                    new MediaSessionCompat(mContext, mId), mId, mPlayer, mPlaylistAgent,
-                    mVolumeProvider, mSessionActivity, mCallbackExecutor, mCallback));
+            return new MediaSession2(new MediaSession2ImplBase(mContext, mId, mPlayer,
+                    mPlaylistAgent, mVolumeProvider, mSessionActivity, mCallbackExecutor,
+                    mCallback));
         }
     }
 

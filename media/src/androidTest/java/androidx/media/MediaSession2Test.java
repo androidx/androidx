@@ -52,7 +52,6 @@ import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -816,7 +815,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
     }
 
     // TODO(jaewan): Revisit
-    @Ignore
     @Test
     public void testBadPlayer() throws InterruptedException {
         prepareLooper();

@@ -20,7 +20,6 @@ import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.NonNull;
 import androidx.media.MediaLibraryService2.MediaLibrarySession;
@@ -29,14 +28,12 @@ import java.util.concurrent.Executor;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaLibrarySessionImplBase extends MediaSession2ImplBase {
-    MediaLibrarySessionImplBase(Context context,
-            MediaSessionCompat sessionCompat, String id,
-            BaseMediaPlayer player, MediaPlaylistAgent playlistAgent,
-            VolumeProviderCompat volumeProvider, PendingIntent sessionActivity,
-            Executor callbackExecutor,
+    MediaLibrarySessionImplBase(Context context, String id, BaseMediaPlayer player,
+            MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
+            PendingIntent sessionActivity, Executor callbackExecutor,
             MediaSession2.SessionCallback callback) {
-        super(context, sessionCompat, id, player, playlistAgent, volumeProvider, sessionActivity,
-                callbackExecutor, callback);
+        super(context, id, player, playlistAgent, volumeProvider, sessionActivity, callbackExecutor,
+                callback);
     }
 
     @Override
@@ -59,8 +56,8 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase {
                 mCallback = new MediaLibrarySession.MediaLibrarySessionCallback() {};
             }
             return new MediaLibrarySession(new MediaLibrarySessionImplBase(mContext,
-                    new MediaSessionCompat(mContext, mId), mId, mPlayer, mPlaylistAgent,
-                    mVolumeProvider, mSessionActivity, mCallbackExecutor, mCallback));
+                    mId, mPlayer, mPlaylistAgent, mVolumeProvider, mSessionActivity,
+                    mCallbackExecutor, mCallback));
         }
     }
 }

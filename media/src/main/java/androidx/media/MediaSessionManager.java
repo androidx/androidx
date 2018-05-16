@@ -24,7 +24,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.os.BuildCompat;
 
 /**
  * Provides support for interacting with {@link MediaSessionCompat media sessions} that
@@ -62,7 +61,7 @@ public final class MediaSessionManager {
     }
 
     private MediaSessionManager(Context context) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             mImpl = new MediaSessionManagerImplApi28(context);
         } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaSessionManagerImplApi21(context);
@@ -122,7 +121,7 @@ public final class MediaSessionManager {
         RemoteUserInfoImpl mImpl;
 
         public RemoteUserInfo(@NonNull String packageName, int pid, int uid) {
-            if (BuildCompat.isAtLeastP()) {
+            if (Build.VERSION.SDK_INT >= 28) {
                 mImpl = new MediaSessionManagerImplApi28.RemoteUserInfo(packageName, pid, uid);
             } else {
                 mImpl = new MediaSessionManagerImplBase.RemoteUserInfo(packageName, pid, uid);

@@ -773,6 +773,15 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
     }
 
     /**
+     * @hide
+     * @return Bundle
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public MediaSessionCompat getSessionCompat() {
+        return mImpl.getSessionCompat();
+    }
+
+    /**
      * Interface definition of a callback to be invoked when a {@link MediaItem2} in the playlist
      * didn't have a {@link DataSourceDesc} but it's needed now for preparing or playing it.
      *
@@ -1542,11 +1551,14 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
                 throws RemoteException;
         abstract void onCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args,
                 @Nullable ResultReceiver receiver) throws RemoteException;
-        abstract void onPlayerStateChanged(int playerState) throws RemoteException;
-        abstract void onPlaybackSpeedChanged(float speed) throws RemoteException;
-        abstract void onBufferingStateChanged(@NonNull MediaItem2 item,
-                @BaseMediaPlayer.BuffState int state) throws RemoteException;
-        abstract void onSeekCompleted(long position) throws RemoteException;
+        abstract void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
+                throws RemoteException;
+        abstract void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
+                throws RemoteException;
+        abstract void onBufferingStateChanged(@NonNull MediaItem2 item, @BuffState int state,
+                long bufferedPositionMs) throws RemoteException;
+        abstract void onSeekCompleted(long eventTimeMs, long positionMs, long position)
+                throws RemoteException;
         abstract void onError(@ErrorCode int errorCode, @Nullable Bundle extras)
                 throws RemoteException;
         abstract void onCurrentMediaItemChanged(@Nullable MediaItem2 item) throws RemoteException;
@@ -1563,6 +1575,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
                 @Nullable Bundle extras) throws RemoteException;
         abstract void onSearchResultChanged(@NonNull String query, int itemCount,
                 @Nullable Bundle extras) throws RemoteException;
+        abstract void onDisconnected() throws RemoteException;
     }
 
     abstract static class SupportLibraryImpl extends MediaInterface2.SessionPlayer
@@ -1605,6 +1618,7 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         abstract PlaybackStateCompat getPlaybackStateCompat();
         abstract PlaybackInfo getPlaybackInfo();
         abstract AudioFocusHandler getAudioFocusHandler();
+        abstract PendingIntent getSessionActivity();
     }
 
     /**
@@ -1631,11 +1645,6 @@ public class MediaSession2 extends MediaInterface2.SessionPlayer implements Auto
         MediaSession2ImplBase.BuilderBase<T, C> mBaseImpl;
         BaseMediaPlayer mPlayer;
         String mId;
-        Executor mCallbackExecutor;
-        C mCallback;
-        MediaPlaylistAgent mPlaylistAgent;
-        VolumeProviderCompat mVolumeProvider;
-        PendingIntent mSessionActivity;
 
         BuilderBase(Context context) {
             if (context == null) {
