@@ -282,7 +282,7 @@ public final class MediaRouter {
      *            {@link RouteInfo#getUniqueRouteDescriptorBundle()}
      * @return A route for the given {@code uniqueRouteDescriptorBundle} if exist, otherwise null.
      * @see androidx.media.MediaSession2#notifyRoutesInfoChanged
-     * @see androidx.media.MediaController2#ControllerCallback#onRoutesInfoChanged
+     * @see androidx.media.MediaController2.ControllerCallback#onRoutesInfoChanged
      */
     public @Nullable RouteInfo getRoute(Bundle uniqueRouteDescriptorBundle) {
         if (uniqueRouteDescriptorBundle == null) {
