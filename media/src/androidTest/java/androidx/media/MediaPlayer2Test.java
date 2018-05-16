@@ -2471,7 +2471,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         mOnCompletionCalled.waitForSignal();
         assertTrue(mPlayer.getCurrentPosition() >= start2);
-        mPlayer.setPlaybackSpeed(0.5f);
+        mPlayer.setPlaybackParams(new PlaybackParams().setSpeed(0.5f));
 
         mOnCompletionCalled.reset();
         mOnCompletionCalled.waitForSignal();
