@@ -720,6 +720,17 @@ public class MediaController2 implements AutoCloseable {
         mImpl.selectRoute(route);
     }
 
+    /**
+     * Sets the time diff forcefully when calculating current position.
+     * @param timeDiff {@code null} for reset.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setTimeDiff(Long timeDiff) {
+        mTimeDiff = timeDiff;
+    }
+
     @NonNull Context getContext() {
         return mImpl.getContext();
     }
@@ -734,17 +745,6 @@ public class MediaController2 implements AutoCloseable {
 
     @Nullable MediaBrowserCompat getBrowserCompat() {
         return mImpl.getBrowserCompat();
-    }
-
-    /**
-     * Sets the time diff forcefully when calculating current position.
-     * @param timeDiff {@code null} for reset.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setTimeDiff(Long timeDiff) {
-        mTimeDiff = timeDiff;
     }
 
     interface SupportLibraryImpl extends AutoCloseable {
@@ -798,14 +798,12 @@ public class MediaController2 implements AutoCloseable {
         void unsubscribeRoutesInfo();
         void selectRoute(@NonNull Bundle route);
 
-        // For MediaBrowser2
+        // Internally used methods
+        @NonNull MediaController2 getInstance();
         @NonNull Context getContext();
         @NonNull ControllerCallback getCallback();
         @NonNull Executor getCallbackExecutor();
         @Nullable MediaBrowserCompat getBrowserCompat();
-
-        // Internally used methods
-        MediaController2 getInstance();
     }
 
     /**

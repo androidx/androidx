@@ -1226,7 +1226,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(SessionToken2.TYPE_SESSION_SERVICE, token.getType());
     }
 
-    @Ignore
     @Test
     public void testConnectToService_sessionService() throws InterruptedException {
         prepareLooper();
@@ -1293,7 +1292,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         testControllerAfterSessionIsClosed(mSession.getToken().getId());
     }
 
-    @Ignore
     @Test
     public void testControllerAfterSessionIsClosed_sessionService() throws InterruptedException {
         prepareLooper();
@@ -1385,7 +1383,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         testControllerAfterSessionIsClosed(id);
     }
 
-    @Ignore
     @Test
     public void testClose_sessionService() throws InterruptedException {
         prepareLooper();

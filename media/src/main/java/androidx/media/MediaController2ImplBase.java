@@ -78,7 +78,7 @@ import java.util.concurrent.Executor;
 
 class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     private static final String TAG = "MC2ImplBase";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DEBUG = true; // (STOPSHIP) Log.isLoggable(TAG, Log.DEBUG);
 
     private final MediaController2 mInstance;
     private final Context mContext;

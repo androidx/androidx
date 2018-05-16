@@ -32,6 +32,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.Builder;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media.MediaSession2.ControllerInfo;
@@ -67,6 +68,12 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
      * support -- that is, this is the action it uses for its intent filter.
      */
     public static final String SERVICE_INTERFACE = "android.media.MediaLibraryService2";
+
+    // Stub BrowserRoot for accepting any connection here.
+    // See MyBrowserService#onGetRoot() for detail.
+    static final BrowserRoot sDefaultBrowserRoot = new BrowserRoot(SERVICE_INTERFACE, null);
+
+    private final MediaBrowserServiceCompat mBrowserServiceCompat;
 
     /**
      * Session for the {@link MediaLibraryService2}. Build this object with
@@ -334,14 +341,13 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         }
     }
 
-    @Override
-    MediaBrowserServiceCompat createBrowserServiceCompat() {
-        return new MyBrowserService();
+    public MediaLibraryService2() {
+        super();
+        mBrowserServiceCompat = new MyBrowserService();
     }
 
-    @Override
-    int getSessionType() {
-        return SessionToken2.TYPE_LIBRARY_SERVICE;
+    MediaBrowserServiceCompat getServiceCompat() {
+        return mBrowserServiceCompat;
     }
 
     @Override

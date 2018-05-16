@@ -19,21 +19,13 @@ package androidx.media;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaSession2.ControllerInfo;
-import androidx.media.SessionToken2.TokenType;
-
-import java.util.List;
 
 /**
  * Base class for media session services, which is the service version of the {@link MediaSession2}.
@@ -124,29 +116,12 @@ public abstract class MediaSessionService2 extends Service {
      */
     public static final String SERVICE_META_DATA = "android.media.session";
 
-    // Stub BrowserRoot for accepting any connction here.
-    // See MyBrowserService#onGetRoot() for detail.
-    static final BrowserRoot sDefaultBrowserRoot = new BrowserRoot(SERVICE_INTERFACE, null);
-
-    private final MediaBrowserServiceCompat mBrowserServiceCompat;
-
-    private final Object mLock = new Object();
-    @GuardedBy("mLock")
-    private NotificationManager mNotificationManager;
-    @GuardedBy("mLock")
-    private Intent mStartSelfIntent;
-    @GuardedBy("mLock")
-    private boolean mIsRunningForeground;
-    @GuardedBy("mLock")
-    private MediaSession2 mSession;
+    private final SupportLibraryImpl mImpl;
 
     public MediaSessionService2() {
         super();
-        mBrowserServiceCompat = createBrowserServiceCompat();
-    }
-
-    MediaBrowserServiceCompat createBrowserServiceCompat() {
-        return new MyBrowserService();
+        // Note: This service doesn't have valid context at this moment.
+        mImpl = new MediaSessionService2ImplBase();
     }
 
     /**
@@ -159,29 +134,7 @@ public abstract class MediaSessionService2 extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mBrowserServiceCompat.attachToBaseContext(this);
-        mBrowserServiceCompat.onCreate();
-        SessionToken2 token = new SessionToken2(this,
-                new ComponentName(getPackageName(), getClass().getName()));
-        if (token.getType() != getSessionType()) {
-            throw new RuntimeException("Expected session type " + getSessionType()
-                    + " but was " + token.getType());
-        }
-        MediaSession2 session = onCreateSession(token.getId());
-        synchronized (mLock) {
-            mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            mStartSelfIntent = new Intent(this, getClass());
-            mSession = session;
-            if (mSession == null || !token.getId().equals(mSession.getToken().getId())) {
-                throw new RuntimeException("Expected session with id " + token.getId()
-                        + ", but got " + mSession);
-            }
-            mBrowserServiceCompat.setSessionToken(mSession.getSessionCompat().getSessionToken());
-        }
-    }
-
-    @TokenType int getSessionType() {
-        return SessionToken2.TYPE_SESSION_SERVICE;
+        mImpl.onCreate(this);
     }
 
     /**
@@ -203,8 +156,10 @@ public abstract class MediaSessionService2 extends Service {
     public @NonNull abstract MediaSession2 onCreateSession(String sessionId);
 
     /**
-     * Called when the playback state of this session is changed so notification needs update.
-     * Override this method to show or cancel your own notification UI.
+     * Called when notification UI needs update. Override this method to show or cancel your own
+     * notification UI.
+     * <p>
+     * This would be called when player state changed,
      * <p>
      * With the notification returned here, the service become foreground service when the playback
      * is started. It becomes background service after the playback is stopped.
@@ -212,7 +167,7 @@ public abstract class MediaSessionService2 extends Service {
      * @return a {@link MediaNotification}. If it's {@code null}, notification wouldn't be shown.
      */
     public @Nullable MediaNotification onUpdateNotification() {
-        return null;
+        return mImpl.onUpdateNotification();
     }
 
     /**
@@ -224,9 +179,7 @@ public abstract class MediaSessionService2 extends Service {
      * @return created session
      */
     public final @Nullable MediaSession2 getSession() {
-        synchronized (mLock) {
-            return mSession;
-        }
+        return mImpl.getSession();
     }
 
     /**
@@ -245,18 +198,7 @@ public abstract class MediaSessionService2 extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        if (MediaSessionService2.SERVICE_INTERFACE.equals(intent.getAction())
-                || MediaBrowserServiceCompat.SERVICE_INTERFACE.equals(intent.getAction())) {
-            // Change the intent action for browser service.
-            Intent browserServiceIntent = new Intent(intent);
-            browserServiceIntent.setAction(MediaSessionService2.SERVICE_INTERFACE);
-            return mBrowserServiceCompat.onBind(intent);
-        }
-        return null;
-    }
-
-    MediaBrowserServiceCompat getServiceCompat() {
-        return mBrowserServiceCompat;
+        return mImpl.onBind(intent);
     }
 
     /**
@@ -303,20 +245,13 @@ public abstract class MediaSessionService2 extends Service {
         }
     }
 
-    private static class MyBrowserService extends MediaBrowserServiceCompat {
-        @Override
-        public BrowserRoot onGetRoot(String clientPackageName, int clientUid, Bundle rootHints) {
-            // Returns *stub* root here. Here's the reason.
-            //   1. A non-null BrowserRoot should be returned here to keep the binding
-            //   2. MediaSessionService2 is defined as the simplified version of the library
-            //      service with no browsing feature, so shouldn't allow MediaBrowserServiceCompat
-            //      specific operations.
-            return sDefaultBrowserRoot;
-        }
+    interface SupportLibraryImpl {
+        void onCreate(MediaSessionService2 service);
+        IBinder onBind(Intent intent);
+        MediaNotification onUpdateNotification();
+        MediaSession2 getSession();
 
-        @Override
-        public void onLoadChildren(String parentId, Result<List<MediaItem>> result) {
-            // Disallow loading children.
-        }
+        // Internally used
+        int getSessionType();
     }
 }
