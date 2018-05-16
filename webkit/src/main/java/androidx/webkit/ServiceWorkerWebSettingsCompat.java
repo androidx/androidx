@@ -53,6 +53,11 @@ public abstract class ServiceWorkerWebSettingsCompat {
      *
      * Overrides the way the cache is used, see {@link WebSettings#setCacheMode}.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SERVICE_WORKER_CACHE_MODE}.
+     *
      * @param mode the mode to use. One of {@link WebSettings#LOAD_DEFAULT},
      * {@link WebSettings#LOAD_CACHE_ELSE_NETWORK}, {@link WebSettings#LOAD_NO_CACHE}
      * or {@link WebSettings#LOAD_CACHE_ONLY}. The default value is
@@ -67,6 +72,11 @@ public abstract class ServiceWorkerWebSettingsCompat {
      *
      * Gets the current setting for overriding the cache mode.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SERVICE_WORKER_CACHE_MODE}.
+     *
      * @return the current setting for overriding the cache mode
      * @see #setCacheMode
      *
@@ -80,6 +90,11 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * Enables or disables content URL access from Service Workers, see
      * {@link WebSettings#setAllowContentAccess}.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SERVICE_WORKER_CONTENT_ACCESS}.
+     *
      */
     @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -88,6 +103,11 @@ public abstract class ServiceWorkerWebSettingsCompat {
     /**
      *
      * Gets whether Service Workers support content URL access.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SERVICE_WORKER_CONTENT_ACCESS}.
      *
      * @see #setAllowContentAccess
      *
@@ -101,6 +121,11 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * Enables or disables file access within Service Workers, see
      * {@link WebSettings#setAllowFileAccess}.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SERVICE_WORKER_FILE_ACCESS}.
+     *
      */
     @RequiresFeature(name = WebViewFeature.SERVICE_WORKER_FILE_ACCESS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -109,6 +134,11 @@ public abstract class ServiceWorkerWebSettingsCompat {
     /**
      *
      * Gets whether Service Workers support file access.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SERVICE_WORKER_FILE_ACCESS}.
      *
      * @see #setAllowFileAccess
      *
@@ -122,6 +152,11 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * Sets whether Service Workers should not load resources from the network,
      * see {@link WebSettings#setBlockNetworkLoads}.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SERVICE_WORKER_BLOCK_NETWORK_LOADS}.
+     *
      * @param flag {@code true} means block network loads by the Service Workers
      *
      */
@@ -132,6 +167,11 @@ public abstract class ServiceWorkerWebSettingsCompat {
     /**
      *
      * Gets whether Service Workers are prohibited from loading any resources from the network.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SERVICE_WORKER_BLOCK_NETWORK_LOADS}.
      *
      * @return {@code true} if the Service Workers are not allowed to load any resources from the
      * network

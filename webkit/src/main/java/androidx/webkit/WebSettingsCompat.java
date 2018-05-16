@@ -49,6 +49,11 @@ public class WebSettingsCompat {
      * <li> Limit use of this mode to a small number of WebViews. Use it for
      *   visible WebViews and WebViews about to be animated to visible.
      * </ul>
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#OFF_SCREEN_PRERASTER}.
      */
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
@@ -68,6 +73,12 @@ public class WebSettingsCompat {
     /**
      * Gets whether this WebView should raster tiles when it is
      * offscreen but attached to a window.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#OFF_SCREEN_PRERASTER}.
+     *
      * @return {@code true} if this WebView will raster tiles when it is
      * offscreen but attached to a window.
      */
@@ -98,6 +109,11 @@ public class WebSettingsCompat {
      * <p>
      * Safe Browsing is enabled by default for devices which support it.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SAFE_BROWSING_ENABLE}.
+     *
      * @param enabled Whether Safe Browsing is enabled.
      */
     @SuppressLint("NewApi")
@@ -118,6 +134,11 @@ public class WebSettingsCompat {
     /**
      * Gets whether Safe Browsing is enabled.
      * See {@link #setSafeBrowsingEnabled}.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SAFE_BROWSING_ENABLE}.
      *
      * @return {@code true} if Safe Browsing is enabled and {@code false} otherwise.
      */
@@ -152,6 +173,12 @@ public class WebSettingsCompat {
 
     /**
      * Disables the action mode menu items according to {@code menuItems} flag.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS}.
+     *
      * @param menuItems an integer field flag for the menu items to be disabled.
      */
     @SuppressLint("NewApi")
@@ -173,6 +200,11 @@ public class WebSettingsCompat {
     /**
      * Gets the action mode menu items that are disabled, expressed in an integer field flag.
      * The default value is {@link WebSettings#MENU_ITEM_NONE}
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS}.
      *
      * @return all the disabled menu item flags combined with bitwise OR.
      */

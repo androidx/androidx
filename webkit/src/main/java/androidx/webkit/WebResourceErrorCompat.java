@@ -58,6 +58,11 @@ public abstract class WebResourceErrorCompat {
      * Gets the error code of the error. The code corresponds to one
      * of the {@code ERROR_*} constants in {@link WebViewClient}.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_RESOURCE_ERROR_GET_CODE}.
+     *
      * @return The error code of the error
      */
     @RequiresFeature(name = WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE,
@@ -67,6 +72,11 @@ public abstract class WebResourceErrorCompat {
     /**
      * Gets the string describing the error. Descriptions are localized,
      * and thus can be used for communicating the problem to the user.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_RESOURCE_ERROR_GET_DESCRIPTION}.
      *
      * @return The description of the error
      */

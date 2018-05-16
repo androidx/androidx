@@ -28,6 +28,11 @@ public abstract class SafeBrowsingResponseCompat {
     /**
      * Display the default interstitial.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL}.
+     *
      * @param allowReporting {@code true} if the interstitial should show a reporting checkbox.
      */
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL,
@@ -37,6 +42,11 @@ public abstract class SafeBrowsingResponseCompat {
     /**
      * Act as if the user clicked "visit this unsafe site."
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SAFE_BROWSING_RESPONSE_PROCEED}.
+     *
      * @param report {@code true} to enable Safe Browsing reporting.
      */
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED,
@@ -45,6 +55,11 @@ public abstract class SafeBrowsingResponseCompat {
 
     /**
      * Act as if the user clicked "back to safety."
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY}.
      *
      * @param report {@code true} to enable Safe Browsing reporting.
      */
