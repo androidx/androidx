@@ -17,6 +17,8 @@
 package androidx.work.impl.utils;
 
 import static android.app.AlarmManager.RTC_WAKEUP;
+import static android.app.PendingIntent.FLAG_NO_CREATE;
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -30,8 +32,6 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.background.systemalarm.SystemAlarmService;
-import androidx.work.impl.background.systemjob.SystemJobService;
 
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +46,9 @@ import java.util.concurrent.TimeUnit;
 public class ForceStopRunnable implements Runnable {
 
     private static final String TAG = "ForceStopRunnable";
+
+    @VisibleForTesting
+    static final String ACTION_FORCE_STOP_RESCHEDULE = "ACTION_FORCE_STOP_RESCHEDULE";
 
     // All our alarms are use request codes which are > 0.
     private static final int ALARM_ID = -1;
@@ -76,10 +79,7 @@ public class ForceStopRunnable implements Runnable {
         // Cancelling of Jobs on force-stop was introduced in N-MR1 (SDK 25).
         // Even though API 23, 24 are probably safe, OEMs may choose to do
         // something different.
-        PendingIntent pendingIntent = getPendingIntent(
-                ALARM_ID,
-                PendingIntent.FLAG_NO_CREATE);
-
+        PendingIntent pendingIntent = getPendingIntent(ALARM_ID, FLAG_NO_CREATE);
         if (pendingIntent == null) {
             setAlarm(ALARM_ID);
             return true;
@@ -96,38 +96,54 @@ public class ForceStopRunnable implements Runnable {
     @VisibleForTesting
     public PendingIntent getPendingIntent(int alarmId, int flags) {
         Intent intent = getIntent();
-        return PendingIntent.getService(mContext, alarmId, intent, flags);
+        return PendingIntent.getBroadcast(mContext, alarmId, intent, flags);
     }
 
     /**
-     * @return The instance of {@link Intent}.
-     *
-     * Uses {@link SystemJobService} on API_LEVEL >=
-     *          {@link WorkManagerImpl#MIN_JOB_SCHEDULER_API_LEVEL}.
-     *
-     * Uses {@link SystemAlarmService} otherwise.
+     * @return The instance of {@link Intent} used to keep track of force stops.
      */
     @VisibleForTesting
     public Intent getIntent() {
         Intent intent = new Intent();
-        if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            intent.setComponent(new ComponentName(mContext, SystemJobService.class));
-        } else {
-            intent.setComponent(new ComponentName(mContext, SystemAlarmService.class));
-        }
-        intent.setAction(TAG);
+        intent.setComponent(new ComponentName(mContext, ForceStopRunnable.BroadcastReceiver.class));
+        intent.setAction(ACTION_FORCE_STOP_RESCHEDULE);
         return intent;
     }
 
     private void setAlarm(int alarmId) {
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pendingIntent = getPendingIntent(alarmId, PendingIntent.FLAG_ONE_SHOT);
+        // Using FLAG_UPDATE_CURRENT, because we only ever want once instance of this alarm.
+        PendingIntent pendingIntent = getPendingIntent(alarmId, FLAG_UPDATE_CURRENT);
         long triggerAt = System.currentTimeMillis() + TEN_YEARS;
         if (alarmManager != null) {
             if (Build.VERSION.SDK_INT >= 19) {
                 alarmManager.setExact(RTC_WAKEUP, triggerAt, pendingIntent);
             } else {
                 alarmManager.set(RTC_WAKEUP, triggerAt, pendingIntent);
+            }
+        }
+    }
+
+    /**
+     * A {@link android.content.BroadcastReceiver} which takes care of recreating the
+     * long lived alarm which helps track force stops for an application.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static class BroadcastReceiver extends android.content.BroadcastReceiver {
+        private static final String TAG = "ForceStopRunnable$Rcvr";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null) {
+                String action = intent.getAction();
+                if (ACTION_FORCE_STOP_RESCHEDULE.equals(action)) {
+                    Log.v(TAG, "Rescheduling alarm that keeps track of force-stops.");
+                    WorkManagerImpl workManager = WorkManagerImpl.getInstance();
+                    ForceStopRunnable runnable = new ForceStopRunnable(context, workManager);
+                    runnable.setAlarm(ForceStopRunnable.ALARM_ID);
+                }
             }
         }
     }

@@ -16,6 +16,9 @@
 
 package androidx.work.integration.testapp;
 
+import static androidx.work.ExistingWorkPolicy.KEEP;
+import static androidx.work.ExistingWorkPolicy.REPLACE;
+
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,11 +26,15 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
@@ -39,6 +46,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    private static final String UNIQUE_WORK_NAME = "importantUniqueWork";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,5 +123,48 @@ public class MainActivity extends AppCompatActivity {
                         .build());
             }
         });
+
+        findViewById(R.id.enqueue_periodic_work).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Data input = new Data.Builder()
+                        .putString(ToastWorker.ARG_MESSAGE, "Periodic work")
+                        .build();
+                PeriodicWorkRequest request =
+                        new PeriodicWorkRequest.Builder(ToastWorker.class, 15, TimeUnit.MINUTES)
+                                .setInputData(input)
+                                .build();
+                WorkManager.getInstance().enqueue(request);
+            }
+        });
+
+        findViewById(R.id.begin_unique_work_loop)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        CheckBox keep = findViewById(R.id.keep);
+                        ExistingWorkPolicy policy = keep.isChecked() ? KEEP : REPLACE;
+                        for (int i = 0; i < 50; i += 1) {
+                            WorkManager.getInstance()
+                                    .beginUniqueWork(UNIQUE_WORK_NAME,
+                                            policy,
+                                            OneTimeWorkRequest.from(SleepWorker.class))
+                                    .enqueue();
+                        }
+                    }
+                });
+
+        findViewById(R.id.enqueue_lots_of_work)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        for (int i = 0; i < 150; i += 1) {
+                            // Exceed Scheduler.MAX_SCHEDULER_LIMIT (100)
+                            WorkManager.getInstance()
+                                    .beginWith(OneTimeWorkRequest.from(SleepWorker.class))
+                                    .enqueue();
+                        }
+                    }
+                });
     }
 }

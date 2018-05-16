@@ -37,6 +37,10 @@
             android:exported="true"
             android:enabled="@bool/enable_system_job_service_default" />
         <receiver
+            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
             android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy"
             android:enabled="false">
             <intent-filter>
