@@ -45,7 +45,7 @@ public class LargeTemplateView extends SliceChildView {
     private final View mForeground;
     private final LargeSliceAdapter mAdapter;
     private final RecyclerView mRecyclerView;
-    private boolean mIsScrollable;
+    private boolean mScrollingEnabled;
     private ListContent mListContent;
     private List<SliceItem> mDisplayedItems = new ArrayList<>();
     private int mDisplayedItemsHeight = 0;
@@ -188,8 +188,8 @@ public class LargeTemplateView extends SliceChildView {
     /**
      * Whether or not the content in this template should be scrollable.
      */
-    public void setScrollable(boolean isScrollable) {
-        mIsScrollable = isScrollable;
+    public void setScrollable(boolean scrollingEnabled) {
+        mScrollingEnabled = scrollingEnabled;
         updateDisplayedItems(getMeasuredHeight());
     }
 
@@ -197,7 +197,7 @@ public class LargeTemplateView extends SliceChildView {
         if (mListContent == null) {
             return;
         }
-        if (!mIsScrollable) {
+        if (!mScrollingEnabled) {
             // If we're not scrollable we must cap the number of items we're displaying such
             // that they fit in the available space
             if (height == 0) {
@@ -217,6 +217,14 @@ public class LargeTemplateView extends SliceChildView {
             mAdapter.setSliceItems(
                     Collections.singletonList(mDisplayedItems.get(0)), mTintColor, mode);
         }
+        updateOverscroll();
+    }
+
+    private void updateOverscroll() {
+        boolean scrollable = mDisplayedItemsHeight > getMeasuredHeight();
+        mRecyclerView.setOverScrollMode(mScrollingEnabled && scrollable
+                ? View.OVER_SCROLL_IF_CONTENT_SCROLLS
+                : View.OVER_SCROLL_NEVER);
     }
 
     @Override
