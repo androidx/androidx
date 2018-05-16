@@ -115,11 +115,11 @@ class PomDocumentTest {
                     setOf(
                         PomDependency(
                             groupId = "testGroup", artifactId = "testArtifact",
-                            version = "{slVersion}")
+                            version = "{newSlVersion}")
                     )
                 )
             ),
-            versionsMap = DependencyVersionsMap(slVersion = "1.0.0-test")
+            versionsMap = DependencyVersionsMap(newSlVersion = "1.0.0-test")
         )
     }
 
