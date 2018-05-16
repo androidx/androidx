@@ -51,7 +51,6 @@ import androidx.media.MediaSession2.ControllerInfo;
 
 import junit.framework.Assert;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -71,7 +70,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@Ignore
 public class MediaBrowser2Test extends MediaController2Test {
     private static final String TAG = "MediaBrowser2Test";
 
@@ -398,7 +396,6 @@ public class MediaBrowser2Test extends MediaController2Test {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Ignore
     @Test
     public void testUnsubscribe() throws InterruptedException {
         prepareLooper();

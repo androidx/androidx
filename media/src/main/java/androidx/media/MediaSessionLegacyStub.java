@@ -24,8 +24,6 @@ import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
 import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
 import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
 import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
-import static androidx.media.MediaConstants2.ARGUMENT_ITEM_COUNT;
-import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ID;
 import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media.MediaConstants2.ARGUMENT_PID;
@@ -34,7 +32,6 @@ import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
 import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
-import static androidx.media.MediaConstants2.ARGUMENT_QUERY;
 import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
 import static androidx.media.MediaConstants2.ARGUMENT_RESULT_RECEIVER;
 import static androidx.media.MediaConstants2.ARGUMENT_ROUTE_BUNDLE;
@@ -45,7 +42,6 @@ import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
 import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CHILDREN_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
@@ -55,7 +51,6 @@ import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ROUTES_INFO_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEARCH_RESULT_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEEK_COMPLETED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
 import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
@@ -565,23 +560,38 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
+        void onGetLibraryRootDone(Bundle rootHints, String rootMediaId, Bundle rootExtra)
+                throws RemoteException {
+            // no-op
+        }
+
+        @Override
         void onChildrenChanged(String parentId, int itemCount, Bundle extras)
                 throws RemoteException {
-            Bundle bundle = new Bundle();
-            bundle.putString(ARGUMENT_MEDIA_ID, parentId);
-            bundle.putInt(ARGUMENT_ITEM_COUNT, itemCount);
-            bundle.putBundle(ARGUMENT_EXTRAS, extras);
-            mIControllerCallback.onEvent(SESSION_EVENT_ON_CHILDREN_CHANGED, bundle);
+            // no-op
+        }
+
+        @Override
+        void onGetChildrenDone(String parentId, int page, int pageSize, List<MediaItem2> result,
+                Bundle extras) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onGetItemDone(String mediaId, MediaItem2 result) throws RemoteException {
+            // no-op
         }
 
         @Override
         void onSearchResultChanged(String query, int itemCount, Bundle extras)
                 throws RemoteException {
-            Bundle bundle = new Bundle();
-            bundle.putString(ARGUMENT_QUERY, query);
-            bundle.putInt(ARGUMENT_ITEM_COUNT, itemCount);
-            bundle.putBundle(ARGUMENT_EXTRAS, extras);
-            mIControllerCallback.onEvent(SESSION_EVENT_ON_SEARCH_RESULT_CHANGED, bundle);
+            // no-op
+        }
+
+        @Override
+        void onGetSearchResultDone(String query, int page, int pageSize, List<MediaItem2> result,
+                Bundle extras) throws RemoteException {
+            // no-op
         }
 
         @Override

@@ -121,7 +121,11 @@ public abstract class MediaSessionService2 extends Service {
     public MediaSessionService2() {
         super();
         // Note: This service doesn't have valid context at this moment.
-        mImpl = new MediaSessionService2ImplBase();
+        mImpl = createImpl();
+    }
+
+    SupportLibraryImpl createImpl() {
+        return new MediaSessionService2ImplBase();
     }
 
     /**

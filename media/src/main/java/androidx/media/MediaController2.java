@@ -114,11 +114,20 @@ public class MediaController2 implements AutoCloseable {
         if (executor == null) {
             throw new IllegalArgumentException("executor shouldn't be null");
         }
+        mImpl = createImpl(context, token, executor, callback);
+    }
+
+    SupportLibraryImpl createImpl(@NonNull Context context, @NonNull SessionToken2 token,
+            @NonNull Executor executor, @NonNull ControllerCallback callback) {
         if (token.isLegacySession()) {
-            mImpl = new MediaController2ImplLegacy(context, this, token, executor, callback);
+            return new MediaController2ImplLegacy(context, this, token, executor, callback);
         } else {
-            mImpl = new MediaController2ImplBase(context, this, token, executor, callback);
+            return new MediaController2ImplBase(context, this, token, executor, callback);
         }
+    }
+
+    SupportLibraryImpl getImpl() {
+        return mImpl;
     }
 
     /**

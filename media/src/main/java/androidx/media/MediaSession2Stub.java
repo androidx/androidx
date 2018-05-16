@@ -39,6 +39,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaController2.PlaybackInfo;
+import androidx.media.MediaLibraryService2.MediaLibrarySession;
+import androidx.media.MediaLibraryService2.MediaLibrarySession.SupportLibraryImpl;
 import androidx.media.MediaSession2.CommandButton;
 import androidx.media.MediaSession2.ControllerCb;
 import androidx.media.MediaSession2.ControllerInfo;
@@ -48,6 +50,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Handles incoming commands from {@link MediaController2} and {@link MediaBrowser2}
+ * to both {@link MediaSession2} and {@link MediaLibrarySession}.
+ * <p>
+ * We cannot create a subclass for library service specific function because AIDL doesn't support
+ * subclassing and it's generated stub class is an abstract class.
+ */
 @TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaSession2Stub extends IMediaSession2.Stub {
 
@@ -185,35 +194,13 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         });
     }
 
-    private void onBrowserCommand(@NonNull IMediaController2 caller,
+    private void onBrowserCommand(@NonNull IMediaController2 caller, final int commandCode,
             final @NonNull SessionRunnable runnable) {
-        final ControllerInfo controller;
-        synchronized (mLock) {
-            controller = mControllers.get(caller);
+        if (!(mSession instanceof MediaLibrarySession.SupportLibraryImpl)) {
+            throw new RuntimeException("MediaSession2 cannot handle MediaLibrarySession command");
         }
-        if (mSession.isClosed() || controller == null) {
-            return;
-        }
-        mSession.getCallbackExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (mLock) {
-                    if (!mControllers.containsValue(controller)) {
-                        return;
-                    }
-                }
-                try {
-                    runnable.run(controller);
-                } catch (RemoteException e) {
-                    // Currently it's TransactionTooLargeException or DeadSystemException.
-                    // We'd better to leave log for those cases because
-                    //   - TransactionTooLargeException means that we may need to fix our code.
-                    //     (e.g. add pagination or special way to deliver Bitmap)
-                    //   - DeadSystemException means that errors around it can be ignored.
-                    Log.w(TAG, "Exception in " + controller.toString(), e);
-                }
-            }
-        });
+
+        onSessionCommandInternal(caller, null, commandCode, runnable);
     }
 
     void removeControllerInfo(ControllerInfo controller) {
@@ -797,37 +784,130 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     // AIDL methods for LibrarySession overrides
     //////////////////////////////////////////////////////////////////////////////////////////////
 
+    private MediaLibrarySession.SupportLibraryImpl getLibrarySession() {
+        if (!(mSession instanceof MediaLibrarySession.SupportLibraryImpl)) {
+            throw new RuntimeException("Session cannot be casted to library session");
+        }
+        return (SupportLibraryImpl) mSession;
+    }
+
     @Override
     public void getLibraryRoot(final IMediaController2 caller, final Bundle rootHints)
             throws RuntimeException {
+        onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        getLibrarySession().onGetLibraryRootOnExecutor(controller, rootHints);
+                    }
+                });
     }
 
     @Override
     public void getItem(final IMediaController2 caller, final String mediaId)
             throws RuntimeException {
+        onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_ITEM,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (mediaId == null) {
+                            Log.w(TAG, "getItem(): Ignoring null mediaId from " + controller);
+                            return;
+                        }
+                        getLibrarySession().onGetItemOnExecutor(controller, mediaId);
+                    }
+                });
     }
 
     @Override
     public void getChildren(final IMediaController2 caller, final String parentId,
             final int page, final int pageSize, final Bundle extras) throws RuntimeException {
+        onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_CHILDREN,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (parentId == null) {
+                            Log.w(TAG, "getChildren(): Ignoring null parentId from " + controller);
+                            return;
+                        }
+                        if (page < 1 || pageSize < 1) {
+                            Log.w(TAG, "getChildren(): Ignoring page nor pageSize less than 1 from "
+                                    + controller);
+                            return;
+                        }
+                        getLibrarySession().onGetChildrenOnExecutor(controller, parentId, page,
+                                pageSize, extras);
+                    }
+                });
     }
 
     @Override
-    public void search(IMediaController2 caller, String query, Bundle extras) {
+    public void search(IMediaController2 caller, final String query, final Bundle extras) {
+        onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_SEARCH,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (TextUtils.isEmpty(query)) {
+                            Log.w(TAG, "search(): Ignoring empty query from " + controller);
+                            return;
+                        }
+                        getLibrarySession().onSearchOnExecutor(controller, query, extras);
+                    }
+                });
     }
 
     @Override
     public void getSearchResult(final IMediaController2 caller, final String query,
             final int page, final int pageSize, final Bundle extras) {
+        onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (TextUtils.isEmpty(query)) {
+                            Log.w(TAG, "getSearchResult(): Ignoring empty query from "
+                                    + controller);
+                            return;
+                        }
+                        if (page < 1 || pageSize < 1) {
+                            Log.w(TAG, "getSearchResult(): Ignoring page nor pageSize less than 1 "
+                                    + " from " + controller);
+                            return;
+                        }
+                        getLibrarySession().onGetSearchResultOnExecutor(controller,
+                                query, page, pageSize, extras);
+                    }
+                });
     }
 
     @Override
     public void subscribe(final IMediaController2 caller, final String parentId,
             final Bundle option) {
+        onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_SUBSCRIBE,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (parentId == null) {
+                            Log.w(TAG, "subscribe(): Ignoring null parentId from " + controller);
+                            return;
+                        }
+                        getLibrarySession().onSubscribeOnExecutor(controller, parentId, option);
+                    }
+                });
     }
 
     @Override
     public void unsubscribe(final IMediaController2 caller, final String parentId) {
+        onBrowserCommand(caller, SessionCommand2.COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
+                new SessionRunnable() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (parentId == null) {
+                            Log.w(TAG, "unsubscribe(): Ignoring null parentId from " + controller);
+                            return;
+                        }
+                        getLibrarySession().onUnsubscribeOnExecutor(controller, parentId);
+                    }
+                });
     }
 
     @FunctionalInterface
@@ -932,15 +1012,40 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         }
 
         @Override
+        void onGetLibraryRootDone(Bundle rootHints, String rootMediaId, Bundle rootExtra)
+                throws RemoteException {
+            mIControllerCallback.onGetLibraryRootDone(rootHints, rootMediaId, rootExtra);
+        }
+
+        @Override
         void onChildrenChanged(String parentId, int itemCount, Bundle extras)
                 throws RemoteException {
             mIControllerCallback.onChildrenChanged(parentId, itemCount, extras);
         }
 
         @Override
+        void onGetChildrenDone(String parentId, int page, int pageSize, List<MediaItem2> result,
+                Bundle extras) throws RemoteException {
+            List<Bundle> bundleList = MediaUtils2.toMediaItem2BundleList(result);
+            mIControllerCallback.onGetChildrenDone(parentId, page, pageSize, bundleList, extras);
+        }
+
+        @Override
+        void onGetItemDone(String mediaId, MediaItem2 result) throws RemoteException {
+            mIControllerCallback.onGetItemDone(mediaId, result == null ? null : result.toBundle());
+        }
+
+        @Override
         void onSearchResultChanged(String query, int itemCount, Bundle extras)
                 throws RemoteException {
             mIControllerCallback.onSearchResultChanged(query, itemCount, extras);
+        }
+
+        @Override
+        void onGetSearchResultDone(String query, int page, int pageSize, List<MediaItem2> result,
+                Bundle extras) throws RemoteException {
+            List<Bundle> bundleList = MediaUtils2.toMediaItem2BundleList(result);
+            mIControllerCallback.onGetSearchResultDone(query, page, pageSize, bundleList, extras);
         }
 
         @Override

@@ -72,9 +72,9 @@ class MediaInterface2 {
 
     // Common interface for session2 and controller2
     // TODO: consider to add fastForward, rewind.
-    abstract static class SessionPlayer implements SessionPlaybackControl, SessionPlaylistControl {
-        abstract void skipForward();
-        abstract void skipBackward();
-        abstract void notifyError(@MediaSession2.ErrorCode int errorCode, @Nullable Bundle extras);
+    interface SessionPlayer extends SessionPlaybackControl, SessionPlaylistControl {
+        void skipForward();
+        void skipBackward();
+        void notifyError(@MediaSession2.ErrorCode int errorCode, @Nullable Bundle extras);
     }
 }

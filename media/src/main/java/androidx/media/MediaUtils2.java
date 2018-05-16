@@ -36,6 +36,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaSession2.CommandButton;
 
 import java.util.ArrayList;
@@ -43,6 +44,11 @@ import java.util.List;
 
 class MediaUtils2 {
     static final String TAG = "MediaUtils2";
+
+    // Stub BrowserRoot for accepting any connection here.
+    // See MyBrowserService#onGetRoot() for detail.
+    static final BrowserRoot sDefaultBrowserRoot =
+            new BrowserRoot(MediaLibraryService2.SERVICE_INTERFACE, null);
 
     private MediaUtils2() {
     }

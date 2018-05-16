@@ -77,18 +77,19 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
-    private static final String TAG = "MC2ImplBase";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final String TAG = "MC2ImplBase";
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final MediaController2 mInstance;
     private final Context mContext;
     private final Object mLock = new Object();
 
-    private final MediaController2Stub mControllerStub;
     private final SessionToken2 mToken;
     private final ControllerCallback mCallback;
     private final Executor mCallbackExecutor;
     private final IBinder.DeathRecipient mDeathRecipient;
+
+    final MediaController2Stub mControllerStub;
 
     @GuardedBy("mLock")
     private SessionServiceConnection mServiceConnection;
