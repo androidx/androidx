@@ -51,6 +51,11 @@ public abstract class ServiceWorkerControllerCompat {
      * only one ServiceWorkerController instance for all WebView instances,
      * however this restriction may be relaxed in the future.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SERVICE_WORKER_BASIC_USAGE}.
+     *
      * @return the default ServiceWorkerController instance
      */
     @NonNull

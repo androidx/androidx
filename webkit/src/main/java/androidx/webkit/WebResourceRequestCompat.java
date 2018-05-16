@@ -38,6 +38,11 @@ public class WebResourceRequestCompat {
     /**
      * Gets whether the request was a result of a server-side redirect.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_RESOURCE_REQUEST_IS_REDIRECT}.
+     *
      * @return whether the request was a result of a server-side redirect.
      */
     @SuppressLint("NewApi")

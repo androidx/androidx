@@ -113,6 +113,7 @@ public class WebViewCompat {
      * {@link android.webkit.WebSettings#setOffscreenPreRaster} for more details and do consider its
      * caveats.
      *
+     * <p>
      * This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#VISUAL_STATE_CALLBACK}.
@@ -158,6 +159,11 @@ public class WebViewCompat {
      * This should be called with the Application Context (and will always use the Application
      * context to do its work regardless).
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#START_SAFE_BROWSING}.
+     *
      * @param context Application Context.
      * @param callback will be called on the UI thread with {@code true} if initialization is
      * successful, {@code false} otherwise.
@@ -196,6 +202,11 @@ public class WebViewCompat {
      * The correct syntax for hosts is defined by <a
      * href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986</a>.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SAFE_BROWSING_WHITELIST}.
+     *
      * @param hosts the list of hosts
      * @param callback will be called with {@code true} if hosts are successfully added to the
      * whitelist. It will be called with {@code false} if any hosts are malformed. The callback
@@ -219,6 +230,11 @@ public class WebViewCompat {
 
     /**
      * Returns a URL pointing to the privacy policy for Safe Browsing reporting.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SAFE_BROWSING_PRIVACY_POLICY_URL}.
      *
      * @return the url pointing to a privacy policy document which can be displayed to users.
      */
@@ -342,6 +358,11 @@ public class WebViewCompat {
      *
      * <p>The returned message channels are entangled and already in started state.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#CREATE_WEB_MESSAGE_CHANNEL}.
+     *
      * @return an array of size two, containing the two message ports that form the message channel.
      */
     @SuppressLint("NewApi")
@@ -368,6 +389,11 @@ public class WebViewCompat {
      * <p>
      * A target origin can be set as a wildcard ("*"). However this is not recommended.
      * See the page above for security issues.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#POST_WEB_MESSAGE}.
      *
      * @param message the WebMessage
      * @param targetOrigin the target origin.

@@ -22,6 +22,7 @@ import android.webkit.WebMessagePort;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 
 import java.lang.reflect.InvocationHandler;
@@ -89,22 +90,43 @@ public abstract class WebMessagePortCompat {
     /**
      * Post a WebMessage to the entangled port.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_MESSAGE_PORT_POST_MESSAGE}.
+     *
      * @param message  the message from Java to JS.
      *
      * @throws IllegalStateException If message port is already transferred or closed.
      */
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void postMessage(@NonNull WebMessageCompat message);
 
     /**
      * Close the message port and free any resources associated with it.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_MESSAGE_PORT_CLOSE}.
      */
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_PORT_CLOSE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void close();
 
     /**
      * Sets a callback to receive message events on the main thread.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK}.
+     *
      * @param callback  the message callback.
      */
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void setWebMessageCallback(@NonNull WebMessageCallbackCompat callback);
 
     /**
@@ -112,9 +134,16 @@ public abstract class WebMessagePortCompat {
      * by the application. If the handler is null the message events are received on the main
      * thread.
      *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK}.
+     *
      * @param handler   the handler to receive the message events.
      * @param callback  the message callback.
      */
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void setWebMessageCallback(@Nullable Handler handler,
             @NonNull WebMessageCallbackCompat callback);
 
