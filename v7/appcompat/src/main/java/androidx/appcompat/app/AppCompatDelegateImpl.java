@@ -265,7 +265,14 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (mOriginalWindowCallback instanceof Activity) {
-            if (NavUtils.getParentActivityName((Activity) mOriginalWindowCallback) != null) {
+            String parentActivityName = null;
+            try {
+                parentActivityName = NavUtils.getParentActivityName(
+                        (Activity) mOriginalWindowCallback);
+            } catch (IllegalArgumentException iae) {
+                // Ignore in this case
+            }
+            if (parentActivityName != null) {
                 // Peek at the Action Bar and update it if it already exists
                 ActionBar ab = peekSupportActionBar();
                 if (ab == null) {
