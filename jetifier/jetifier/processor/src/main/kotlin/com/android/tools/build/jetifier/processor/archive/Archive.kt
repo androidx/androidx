@@ -85,7 +85,9 @@ class Archive(
         }
 
         // Create directories if they don't exist yet
-        Files.createDirectories(outputPath.parent)
+        if (outputPath.parent != null) {
+            Files.createDirectories(outputPath.parent)
+        }
 
         Log.i(TAG, "Writing archive: %s", outputPath.toUri())
         val file = outputPath.toFile()
