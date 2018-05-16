@@ -103,4 +103,49 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/enqueue_infinite_work_charging"/>
 
+    <Button
+        android:text="@string/enqueue_periodic_work"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:id="@+id/enqueue_periodic_work"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/delay_in_ms"/>
+
+    <Button
+        android:text="@string/loop_unique_work"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:id="@+id/begin_unique_work_loop"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/enqueue_periodic_work"/>
+
+    <CheckBox
+        android:text="@string/keep"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/keep"
+        app:layout_constraintStart_toEndOf="@+id/begin_unique_work_loop"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintTop_toTopOf="@+id/begin_unique_work_loop"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/begin_unique_work_loop"
+        android:layout_marginBottom="8dp"/>
+
+    <Button android:text="@string/enqueue_lots_of_work"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:id="@+id/enqueue_lots_of_work"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/begin_unique_work_loop"/>
+
 </android.support.constraint.ConstraintLayout>

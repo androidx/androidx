@@ -29,14 +29,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.background.systemalarm.SystemAlarmService;
-import androidx.work.impl.background.systemjob.SystemJobService;
 import androidx.work.impl.model.WorkSpecDao;
 
 import org.junit.Before;
@@ -65,19 +62,12 @@ public class ForceStopRunnableTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL)
-    public void testIntent_expectsSystemAlarmService() {
+    public void testIntent() {
         Intent intent = mRunnable.getIntent();
         ComponentName componentName = intent.getComponent();
-        assertThat(componentName.getClassName(), is(SystemAlarmService.class.getName()));
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
-    public void testIntent_expectsSystemJobService() {
-        Intent intent = mRunnable.getIntent();
-        ComponentName componentName = intent.getComponent();
-        assertThat(componentName.getClassName(), is(SystemJobService.class.getName()));
+        assertThat(componentName.getClassName(),
+                is(ForceStopRunnable.BroadcastReceiver.class.getName()));
+        assertThat(intent.getAction(), is(ForceStopRunnable.ACTION_FORCE_STOP_RESCHEDULE));
     }
 
     @Test
