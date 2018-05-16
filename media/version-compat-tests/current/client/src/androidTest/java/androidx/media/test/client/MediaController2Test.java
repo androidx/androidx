@@ -18,6 +18,10 @@ package androidx.media.test.client;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 
+import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_MUSIC;
+import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_FIXED;
+import static androidx.media.test.lib.CommonConstants.KEY_AUDIO_ATTRIBUTES;
 import static androidx.media.test.lib.CommonConstants.KEY_BUFFERED_POSITION;
 import static androidx.media.test.lib.CommonConstants.KEY_BUFFERING_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_POSITION;
@@ -27,7 +31,8 @@ import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
 import static androidx.media.test.lib.CommonConstants.KEY_STREAM;
 import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.CLOSE;
 import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
-        .CUSTOM_SET_MULTIPLE_VALUES;
+        .CUSTOM_METHOD_SET_MULTIPLE_VALUES;
+import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.UPDATE_PLAYER;
 import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
         .UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE;
 import static androidx.media.test.lib.MediaSession2Constants.TEST_GET_SESSION_ACTIVITY;
@@ -49,8 +54,10 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.media.AudioAttributesCompat;
 import androidx.media.BaseMediaPlayer;
 import androidx.media.MediaController2;
+import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaItem2;
 import androidx.media.SessionToken2;
 
@@ -108,7 +115,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testGetSessionActivity() throws InterruptedException {
         prepareLooper();
         MediaController2 controller = createController(
-                mTestHelper.createSession2(TEST_GET_SESSION_ACTIVITY));
+                mTestHelper.createMediaSession2(TEST_GET_SESSION_ACTIVITY));
         PendingIntent sessionActivity = controller.getSessionActivity();
         assertEquals(SERVICE_PACKAGE_NAME, sessionActivity.getCreatorPackage());
         // TODO: Add getPid/getUid in TestHelperService and compare them.
@@ -123,7 +130,7 @@ public class MediaController2Test extends MediaSession2TestBase {
             return;
         }
 
-        MediaController2 controller = createController(mTestHelper.createDefaultSession2());
+        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
 
         // Here, we intentionally choose STREAM_ALARM in order not to consider
         // 'Do Not Disturb' or 'Volume limit'.
@@ -162,7 +169,7 @@ public class MediaController2Test extends MediaSession2TestBase {
             return;
         }
 
-        MediaController2 controller = createController(mTestHelper.createDefaultSession2());
+        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
 
         // Here, we intentionally choose STREAM_ALARM in order not to consider
         // 'Do Not Disturb' or 'Volume limit'.
@@ -197,14 +204,14 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGetPackageName() throws Exception {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultSession2());
+        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
         assertEquals(SERVICE_PACKAGE_NAME, controller.getSessionToken().getPackageName());
     }
 
     @Test
     public void testIsConnected() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultSession2());
+        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
         assertTrue(controller.isConnected());
 
         mTestHelper.callMediaSession2Method(CLOSE, null);
@@ -215,7 +222,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testClose_beforeConnected() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultSession2(),
+        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2(),
                 false /* waitForConnect */, null /* callback */);
         controller.close();
     }
@@ -223,7 +230,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testClose_twice() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultSession2());
+        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
         controller.close();
         controller.close();
     }
@@ -239,7 +246,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         final long timeDiff = 102;
         final MediaItem2 currentMediaItem = MediaTestUtils.createMediaItemWithMetadata();
 
-        SessionToken2 token = mTestHelper.createDefaultSession2();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
 
         Bundle args = new Bundle();
         args.putInt(KEY_PLAYER_STATE, state);
@@ -248,7 +255,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         args.putLong(KEY_BUFFERED_POSITION, bufferedPosition);
         args.putFloat(KEY_SPEED, speed);
         args.putBundle(KEY_MEDIA_ITEM, currentMediaItem.toBundle());
-        mTestHelper.callMediaSession2Method(CUSTOM_SET_MULTIPLE_VALUES, args);
+        mTestHelper.callMediaSession2Method(CUSTOM_METHOD_SET_MULTIPLE_VALUES, args);
 
         MediaController2 controller = createController(token);
         controller.setTimeDiff(timeDiff);
@@ -257,5 +264,35 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
         assertEquals(position + (long) (speed * timeDiff), controller.getCurrentPosition());
         assertEquals(currentMediaItem, controller.getCurrentMediaItem());
+    }
+
+    @Test
+    public void testGetPlaybackInfo() throws Exception {
+        prepareLooper();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+
+        final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .build();
+
+        Bundle args = new Bundle();
+        args.putBundle(KEY_AUDIO_ATTRIBUTES, attrs.toBundle());
+        mTestHelper.callMediaSession2Method(UPDATE_PLAYER, args);
+
+        final MediaController2 controller = createController(token);
+        PlaybackInfo info = controller.getPlaybackInfo();
+        assertNotNull(info);
+        assertEquals(PlaybackInfo.PLAYBACK_TYPE_LOCAL, info.getPlaybackType());
+        assertEquals(attrs, info.getAudioAttributes());
+
+        int localVolumeControlType = VOLUME_CONTROL_ABSOLUTE;
+        if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            localVolumeControlType = VOLUME_CONTROL_FIXED;
+        }
+        assertEquals(localVolumeControlType, info.getControlType());
+        assertEquals(mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
+                info.getMaxVolume());
+        assertEquals(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC),
+                info.getCurrentVolume());
     }
 }

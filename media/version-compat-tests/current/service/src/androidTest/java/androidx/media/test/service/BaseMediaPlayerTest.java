@@ -60,8 +60,8 @@ import java.util.concurrent.TimeUnit;
 @FlakyTest
 public class BaseMediaPlayerTest extends MediaSession2TestBase {
 
-    MediaSession2 mSession;
-    MockPlayer mPlayer;
+    private MediaSession2 mSession;
+    private MockPlayer mPlayer;
 
     @Before
     @Override
@@ -84,7 +84,7 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
         TestServiceRegistry.getInstance().setHandler(sHandler);
 
         // Create a default MediaController2 in client app.
-        mTestHelper.createDefaultController2(mSession.getToken());
+        mTestHelper.createMediaController2(mSession.getToken());
     }
 
     @After
@@ -95,6 +95,13 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
             mSession.close();
         }
         TestServiceRegistry.getInstance().cleanUp();
+    }
+
+    @Test
+    public void testPlayBySession() throws Exception {
+        prepareLooper();
+        mSession.play();
+        assertTrue(mPlayer.mPlayCalled);
     }
 
     @Test
@@ -109,6 +116,13 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
     }
 
     @Test
+    public void testPauseBySession() throws Exception {
+        prepareLooper();
+        mSession.pause();
+        assertTrue(mPlayer.mPauseCalled);
+    }
+
+    @Test
     public void testPauseByController() {
         mTestHelper.callMediaController2Method(PAUSE, null);
         try {
@@ -117,6 +131,13 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
             fail(e.getMessage());
         }
         assertTrue(mPlayer.mPauseCalled);
+    }
+
+    @Test
+    public void testResetBySession() throws Exception {
+        prepareLooper();
+        mSession.reset();
+        assertTrue(mPlayer.mResetCalled);
     }
 
     @Test
@@ -131,6 +152,13 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
     }
 
     @Test
+    public void testPrepareBySession() throws Exception {
+        prepareLooper();
+        mSession.prepare();
+        assertTrue(mPlayer.mPrepareCalled);
+    }
+
+    @Test
     public void testPrepareByController() {
         mTestHelper.callMediaController2Method(PREPARE, null);
         try {
@@ -139,6 +167,15 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
             fail(e.getMessage());
         }
         assertTrue(mPlayer.mPrepareCalled);
+    }
+
+    @Test
+    public void testSeekToBySession() throws Exception {
+        prepareLooper();
+        final long pos = 1004L;
+        mSession.seekTo(pos);
+        assertTrue(mPlayer.mSeekToCalled);
+        assertEquals(pos, mPlayer.mSeekPosition);
     }
 
     @Test
@@ -154,6 +191,15 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
         }
         assertTrue(mPlayer.mSeekToCalled);
         assertEquals(seekPosition, mPlayer.mSeekPosition);
+    }
+
+    @Test
+    public void testSetPlaybackSpeedBySession() throws Exception {
+        prepareLooper();
+        final float speed = 1.5f;
+        mSession.setPlaybackSpeed(speed);
+        assertTrue(mPlayer.mSetPlaybackSpeedCalled);
+        assertEquals(speed, mPlayer.mPlaybackSpeed, 0.0f);
     }
 
     @Test

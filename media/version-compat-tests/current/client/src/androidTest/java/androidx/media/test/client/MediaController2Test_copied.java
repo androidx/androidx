@@ -16,26 +16,17 @@
 
 package androidx.media.test.client;
 
-import android.os.Build;
-import android.support.test.filters.FlakyTest;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import androidx.media.MediaController2;
-
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
 
 /**
  * Tests {@link MediaController2}.
  */
-// TODO(jaewan): Fix flaky failure -- see MediaController2Impl.getController()
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
-@RunWith(AndroidJUnit4.class)
-@SmallTest
-@FlakyTest
-@Ignore
+//// TODO(jaewan): Fix flaky failure -- see MediaController2Impl.getController()
+//@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
+//@RunWith(AndroidJUnit4.class)
+//@SmallTest
+//@FlakyTest
+//@Ignore
 public class MediaController2Test_copied extends MediaSession2TestBase {
     private static final String TAG = "MediaController2Test_copied";
 
