@@ -93,7 +93,7 @@ public class TextClassifierTest {
         android.view.textclassifier.TextClassifier.EntityConfig platformEntityConfig =
                 TextClassifier.EntityConfig.Convert.toPlatform(entityConfig);
 
-        assertThat(platformEntityConfig.getHints().isEmpty());
+        assertThat(platformEntityConfig.getHints()).isEmpty();
         assertThat(platformEntityConfig.resolveEntityListModifications(Arrays.asList("extra")))
                 .containsExactly("included");
     }
