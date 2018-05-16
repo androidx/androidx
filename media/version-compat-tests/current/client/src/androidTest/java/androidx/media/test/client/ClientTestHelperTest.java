@@ -66,7 +66,7 @@ public class ClientTestHelperTest {
     @Test
     @SmallTest
     public void testGettingToken() {
-        SessionToken2 token = mTestHelper.createSession2(DEFAULT_TEST_NAME);
+        SessionToken2 token = mTestHelper.createMediaSession2(DEFAULT_TEST_NAME);
         assertNotNull(token);
         assertEquals(SERVICE_PACKAGE_NAME, token.getPackageName());
     }
@@ -75,7 +75,7 @@ public class ClientTestHelperTest {
     @SmallTest
     public void testCreatingController() {
         Looper.prepare();
-        SessionToken2 token = mTestHelper.createSession2(DEFAULT_TEST_NAME);
+        SessionToken2 token = mTestHelper.createMediaSession2(DEFAULT_TEST_NAME);
         assertNotNull(token);
         MediaController2 controller = new MediaController2(mContext, token, new Executor() {
             @Override

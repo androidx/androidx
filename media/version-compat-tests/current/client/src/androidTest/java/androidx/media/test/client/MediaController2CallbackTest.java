@@ -16,20 +16,44 @@
 
 package androidx.media.test.client;
 
+import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
+
+import static androidx.media.MediaMetadata2.METADATA_KEY_DURATION;
+import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_DSD;
+import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_DSD;
+import static androidx.media.test.lib.CommonConstants.KEY_ARGUMENTS;
 import static androidx.media.test.lib.CommonConstants.KEY_AUDIO_ATTRIBUTES;
 import static androidx.media.test.lib.CommonConstants.KEY_BUFFERED_POSITION;
 import static androidx.media.test.lib.CommonConstants.KEY_BUFFERING_STATE;
+import static androidx.media.test.lib.CommonConstants.KEY_COMMAND_BUTTON_LIST;
+import static androidx.media.test.lib.CommonConstants.KEY_COMMAND_GROUP;
 import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_POSITION;
+import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_VOLUME;
 import static androidx.media.test.lib.CommonConstants.KEY_CUSTOM_COMMAND;
+import static androidx.media.test.lib.CommonConstants.KEY_DURATION;
+import static androidx.media.test.lib.CommonConstants.KEY_ERROR_CODE;
+import static androidx.media.test.lib.CommonConstants.KEY_EXTRAS;
 import static androidx.media.test.lib.CommonConstants.KEY_ITEM_INDEX;
+import static androidx.media.test.lib.CommonConstants.KEY_MAX_VOLUME;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST_METADATA;
 import static androidx.media.test.lib.CommonConstants.KEY_REPEAT_MODE;
+import static androidx.media.test.lib.CommonConstants.KEY_RESULT_RECEIVER;
+import static androidx.media.test.lib.CommonConstants.KEY_ROUTE_LIST;
 import static androidx.media.test.lib.CommonConstants.KEY_SEEK_POSITION;
 import static androidx.media.test.lib.CommonConstants.KEY_SHUFFLE_MODE;
+import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
+import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
 import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
         .NOTIFY_BUFFERED_STATE_CHANGED;
+import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
+        .NOTIFY_CURRENT_DATA_SOURCE_CHANGED;
+import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
+        .NOTIFY_MEDIA_PREPARED;
+import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
+        .NOTIFY_PLAYBACK_SPEED_CHANGED;
 import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
         .NOTIFY_PLAYER_STATE_CHANGED;
 import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
@@ -37,7 +61,13 @@ import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMeth
 import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
         .SET_BUFFERED_POSITION_MANUALLY;
 import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
+        .SET_CURRENT_MEDIA_ITEM_MANUALLY;
+import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
         .SET_CURRENT_POSITION_MANUALLY;
+import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
+        .SET_DURATION_MANUALLY;
+import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
+        .SET_PLAYBACK_SPEED_MANUALLY;
 import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods;
 import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
         .NOTIFY_PLAYLIST_CHANGED;
@@ -48,15 +78,25 @@ import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethod
 import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
         .NOTIFY_SHUFFLE_MODE_CHANGED;
 import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
+        .SET_PLAYLIST_MANUALLY;
+import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
         .SET_PLAYLIST_METADATA_MANUALLY;
 import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
         .SET_REPEAT_MODE_MANUALLY;
 import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
         .SET_SHUFFLE_MODE_MANUALLY;
 import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.CLOSE;
+import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.NOTIFY_ERROR;
+import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
+        .NOTIFY_ROUTES_INFO_CHANGED;
 import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.SEND_CUSTOM_COMMAND;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.SET_PLAYLIST;
+import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
+        .SEND_CUSTOM_COMMAND_TO_ONE_CONTROLLER;
+import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.SET_ALLOWED_COMMANDS;
+import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.SET_CUSTOM_LAYOUT;
 import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.UPDATE_PLAYER;
+import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
+        .UPDATE_PLAYER_WITH_VOLUME_PROVIDER;
 import static androidx.media.test.lib.MediaSession2Constants
         .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
 
@@ -69,21 +109,27 @@ import static org.junit.Assert.assertTrue;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.BaseMediaPlayer;
 import androidx.media.MediaController2;
+import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.MediaPlaylistAgent;
 import androidx.media.MediaSession2;
 import androidx.media.SessionCommand2;
+import androidx.media.SessionCommandGroup2;
 import androidx.media.SessionToken2;
+import androidx.media.test.lib.TestUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -91,7 +137,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -125,7 +173,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         // createController() uses controller callback to wait until the controller becomes
         // available.
-        MediaController2 controller = createController(mTestHelper.createDefaultSession2());
+        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
         assertNotNull(controller);
     }
 
@@ -133,7 +181,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     public void testConnection_sessionRejects() throws InterruptedException {
         prepareLooper();
         MediaController2 controller = createController(
-                mTestHelper.createSession2(TEST_CONTROLLER_CALLBACK_SESSION_REJECTS),
+                mTestHelper.createMediaSession2(TEST_CONTROLLER_CALLBACK_SESSION_REJECTS),
                 false /* waitForConnect */, null);
         assertNotNull(controller);
         waitForConnect(controller, false /* expected */);
@@ -143,7 +191,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testConnection_sessionClosed() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultSession2());
+        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
 
         mTestHelper.callMediaSession2Method(CLOSE, null);
         waitForDisconnect(controller, true);
@@ -152,7 +200,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testConnection_controllerClosed() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultSession2());
+        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
 
         controller.close();
         waitForDisconnect(controller, true);
@@ -162,7 +210,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @LargeTest
     public void testNoInteractionAfterSessionClose_session() throws InterruptedException {
         prepareLooper();
-        SessionToken2 token = mTestHelper.createDefaultSession2();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
         mController = createController(token);
         testControllerAfterSessionIsClosed(token.getId());
     }
@@ -171,7 +219,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @LargeTest
     public void testNoInteractionAfterControllerClose_session() throws InterruptedException {
         prepareLooper();
-        final SessionToken2 token = mTestHelper.createDefaultSession2();
+        final SessionToken2 token = mTestHelper.createDefaultMediaSession2();
         mController = createController(token);
 
         mController.close();
@@ -191,7 +239,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_RING).build();
         final CountDownLatch latch = new CountDownLatch(3);
-        mController = createController(mTestHelper.createDefaultSession2(),
+        mController = createController(mTestHelper.createDefaultMediaSession2(),
                 true /* waitForConnect */, new MediaController2.ControllerCallback() {
                     @Override
                     public void onPlayerStateChanged(MediaController2 controller, int state) {
@@ -221,11 +269,140 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         Bundle args = new Bundle();
         args.putInt(KEY_PLAYER_STATE, testState);
         args.putParcelableArrayList(
-                KEY_PLAYLIST, MediaTestUtils.toParcelableArrayList(testPlaylist));
+                KEY_PLAYLIST, MediaTestUtils.playlistToParcelableArrayList(testPlaylist));
         args.putBundle(KEY_AUDIO_ATTRIBUTES, testAudioAttributes.toBundle());
 
         mTestHelper.callMediaSession2Method(UPDATE_PLAYER, args);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnCurrentMediaItemChanged() throws Exception {
+        prepareLooper();
+        final SessionToken2 token =
+                mTestHelper.createMediaSession2("testOnCurrentMediaItemChanged");
+
+        final int listSize = 5;
+        final List<MediaItem2> list = MediaTestUtils.createPlaylist(listSize);
+
+        Bundle setPlaylistArgs = new Bundle();
+        setPlaylistArgs.putParcelableArrayList(
+                KEY_PLAYLIST, MediaTestUtils.playlistToParcelableArrayList(list));
+        mTestHelper.callMediaPlaylistAgentMethod(SET_PLAYLIST_MANUALLY, setPlaylistArgs);
+
+        final int currentItemIndex = 3;
+        final MediaItem2 currentItem = list.get(currentItemIndex);
+        final CountDownLatch latchForControllerCallback = new CountDownLatch(2);
+        final MediaController2 controller = createController(
+                token, true, new MediaController2.ControllerCallback() {
+                    @Override
+                    public void onCurrentMediaItemChanged(MediaController2 controller,
+                            MediaItem2 item) {
+                        switch ((int) latchForControllerCallback.getCount()) {
+                            case 2:
+                                assertEquals(currentItem.getMediaId(), item.getMediaId());
+                                break;
+                            case 1:
+                                assertNull(item);
+                        }
+                        latchForControllerCallback.countDown();
+                    }
+                });
+        Bundle args = new Bundle();
+
+        // Player notifies with the unknown dsd. Should be ignored.
+        args.putInt(KEY_ITEM_INDEX, INDEX_FOR_UNKONWN_DSD);
+        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_CURRENT_DATA_SOURCE_CHANGED, args);
+
+        // Known DSD should be notified through the onCurrentMediaItemChanged.
+        args.clear();
+        args.putInt(KEY_ITEM_INDEX, currentItemIndex);
+        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_CURRENT_DATA_SOURCE_CHANGED, args);
+
+        // Null DSD becomes null MediaItem2.
+        args.clear();
+        args.putInt(KEY_ITEM_INDEX, INDEX_FOR_NULL_DSD);
+        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_CURRENT_DATA_SOURCE_CHANGED, args);
+
+        assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    /**
+     * This also tests {@link MediaController2#getPlaybackSpeed()}.
+     */
+    @Test
+    public void testOnPlaybackSpeedChanged() throws Exception {
+        prepareLooper();
+        final float speed = 1.5f;
+        final SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+
+        Bundle setPlaybackSpeedArgs = new Bundle();
+        setPlaybackSpeedArgs.putFloat(KEY_SPEED, speed);
+        mTestHelper.callBaseMediaPlayerMethod(SET_PLAYBACK_SPEED_MANUALLY, setPlaybackSpeedArgs);
+
+        final CountDownLatch latchForControllerCallback = new CountDownLatch(1);
+        final MediaController2 controller = createController(
+                token, true, new MediaController2.ControllerCallback() {
+                    @Override
+                    public void onPlaybackSpeedChanged(MediaController2 controller,
+                            float speedOut) {
+                        assertEquals(speed, speedOut, 0.0f);
+                        latchForControllerCallback.countDown();
+                    }
+                });
+
+        Bundle args = new Bundle();
+        args.putFloat(KEY_SPEED, speed);
+        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_PLAYBACK_SPEED_CHANGED, args);
+        assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
+    }
+
+    /**
+     * This also tests {@link MediaController2#getPlaybackInfo()}.
+     */
+    @Test
+    public void testOnPlaybackInfoChanged() throws Exception {
+        prepareLooper();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+
+        final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .build();
+        final int maxVolume = 100;
+        final int currentVolume = 23;
+        final int volumeControlType = VOLUME_CONTROL_ABSOLUTE;
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController2.ControllerCallback callback =
+                new MediaController2.ControllerCallback() {
+            @Override
+            public void onPlaybackInfoChanged(MediaController2 controller, PlaybackInfo info) {
+                assertEquals(PlaybackInfo.PLAYBACK_TYPE_REMOTE, info.getPlaybackType());
+                assertEquals(attrs, info.getAudioAttributes());
+                assertEquals(volumeControlType, info.getPlaybackType());
+                assertEquals(maxVolume, info.getMaxVolume());
+                assertEquals(currentVolume, info.getCurrentVolume());
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller = createController(token, true, callback);
+
+        Bundle args = new Bundle();
+        args.putInt(KEY_MAX_VOLUME, maxVolume);
+        args.putInt(KEY_CURRENT_VOLUME, currentVolume);
+        args.putInt(KEY_VOLUME_CONTROL_TYPE, volumeControlType);
+        args.putParcelable(KEY_AUDIO_ATTRIBUTES, attrs.toBundle());
+        mTestHelper.callMediaSession2Method(UPDATE_PLAYER_WITH_VOLUME_PROVIDER, args);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+        PlaybackInfo info = controller.getPlaybackInfo();
+        assertNotNull(info);
+        assertEquals(PlaybackInfo.PLAYBACK_TYPE_REMOTE, info.getPlaybackType());
+        assertEquals(attrs, info.getAudioAttributes());
+        assertEquals(volumeControlType, info.getControlType());
+        assertEquals(maxVolume, info.getMaxVolume());
+        assertEquals(currentVolume, info.getCurrentVolume());
     }
 
     /**
@@ -254,11 +431,11 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                 };
 
         // Create a session.
-        SessionToken2 token = mTestHelper.createDefaultSession2();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
 
         Bundle setPlaylistArgs = new Bundle();
         setPlaylistArgs.putParcelableArrayList(
-                KEY_PLAYLIST, MediaTestUtils.toParcelableArrayList(testList));
+                KEY_PLAYLIST, MediaTestUtils.playlistToParcelableArrayList(testList));
         mTestHelper.callMediaPlaylistAgentMethod(
                 PlaylistAgentMethods.SET_PLAYLIST_MANUALLY, setPlaylistArgs);
 
@@ -266,6 +443,54 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         mTestHelper.callMediaPlaylistAgentMethod(NOTIFY_PLAYLIST_CHANGED, null);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(listFromCallback.get(), controller.getPlaylist());
+    }
+
+    @Test
+    public void testOnPlaylistChanged_byPlayerNotifyMediaPrepared() throws Exception {
+        prepareLooper();
+        final SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+
+        final long testDuration = 9999;
+        final List<MediaItem2> playlist = MediaTestUtils.createPlaylist(2);
+        final int testItemIndex = 1;
+        final MediaItem2 testItem = playlist.get(testItemIndex);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(
+                KEY_PLAYLIST, MediaTestUtils.playlistToParcelableArrayList(playlist));
+        mTestHelper.callMediaPlaylistAgentMethod(SET_PLAYLIST_MANUALLY, args);
+
+        args.clear();
+        args.putInt(KEY_ITEM_INDEX, testItemIndex);
+        mTestHelper.callMediaPlaylistAgentMethod(SET_CURRENT_MEDIA_ITEM_MANUALLY, args);
+
+        args.clear();
+        args.putLong(KEY_DURATION, testDuration);
+        mTestHelper.callBaseMediaPlayerMethod(SET_DURATION_MANUALLY, args);
+
+        MediaController2 controller = createController(
+                token, true, new MediaController2.ControllerCallback() {
+                    @Override
+                    public void onPlaylistChanged(MediaController2 controller,
+                            List<MediaItem2> list, MediaMetadata2 metadata) {
+                        assertNotNull(list);
+                        assertEquals(playlist.size(), list.size());
+
+                        // The duration info should be passed through this callback.
+                        MediaItem2 itemOut = list.get(testItemIndex);
+                        assertEquals(testItem.getMediaId(), itemOut.getMediaId());
+                        assertNotNull(itemOut.getMetadata());
+                        assertEquals(testDuration,
+                                itemOut.getMetadata().getLong(METADATA_KEY_DURATION));
+                        latch.countDown();
+                    }
+                });
+
+        Bundle notifyMediaPreparedArgs = new Bundle();
+        notifyMediaPreparedArgs.putInt(KEY_ITEM_INDEX, testItemIndex);
+        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_MEDIA_PREPARED, notifyMediaPreparedArgs);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -290,7 +515,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                 };
 
         // Create a session.
-        SessionToken2 token = mTestHelper.createDefaultSession2();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
 
         Bundle setMetadataArgs = new Bundle();
         setMetadataArgs.putBundle(KEY_PLAYLIST_METADATA, testMetadata.toBundle());
@@ -333,7 +558,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     }
                 };
 
-        SessionToken2 token = mTestHelper.createDefaultSession2();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
 
         Bundle args = new Bundle();
         args.putInt(KEY_SHUFFLE_MODE, testShuffleMode);
@@ -362,7 +587,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     }
                 };
 
-        SessionToken2 token = mTestHelper.createDefaultSession2();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
 
         Bundle args = new Bundle();
         args.putInt(KEY_REPEAT_MODE, testRepeatMode);
@@ -391,18 +616,18 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        SessionToken2 token = mTestHelper.createDefaultSession2();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
 
         Bundle setCurrentPositionArgs = new Bundle();
         setCurrentPositionArgs.putLong(KEY_CURRENT_POSITION, testPosition);
-        mTestHelper.callMediaPlayerInterfaceMethod(
+        mTestHelper.callBaseMediaPlayerMethod(
                 SET_CURRENT_POSITION_MANUALLY, setCurrentPositionArgs);
 
         final MediaController2 controller = createController(token, true, callback);
 
         Bundle notifySeekCompletedArgs = new Bundle();
         notifySeekCompletedArgs.putLong(KEY_SEEK_POSITION, testSeekPosition);
-        mTestHelper.callMediaPlayerInterfaceMethod(NOTIFY_SEEK_COMPLETED, notifySeekCompletedArgs);
+        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_SEEK_COMPLETED, notifySeekCompletedArgs);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -429,16 +654,16 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        SessionToken2 token = mTestHelper.createDefaultSession2();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
 
         Bundle setPlaylistArgs = new Bundle();
         setPlaylistArgs.putParcelableArrayList(KEY_PLAYLIST,
-                MediaTestUtils.toParcelableArrayList(testPlaylist));
-        mTestHelper.callMediaSession2Method(SET_PLAYLIST, setPlaylistArgs);
+                MediaTestUtils.playlistToParcelableArrayList(testPlaylist));
+        mTestHelper.callMediaPlaylistAgentMethod(SET_PLAYLIST_MANUALLY, setPlaylistArgs);
 
         Bundle setBufferedPositionArgs = new Bundle();
         setBufferedPositionArgs.putLong(KEY_BUFFERED_POSITION, testBufferingPosition);
-        mTestHelper.callMediaPlayerInterfaceMethod(SET_BUFFERED_POSITION_MANUALLY,
+        mTestHelper.callBaseMediaPlayerMethod(SET_BUFFERED_POSITION_MANUALLY,
                 setBufferedPositionArgs);
 
         final MediaController2 controller = createController(token, true, callback);
@@ -447,7 +672,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         // Since we cannot pass the DataSourceDesc directly, send the item index so that the player
         // can select which item's state change should be notified.
         notifyBufferingStateChangedArgs.putInt(KEY_ITEM_INDEX, targetItemIndex);
-        mTestHelper.callMediaPlayerInterfaceMethod(NOTIFY_BUFFERED_STATE_CHANGED,
+        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_BUFFERED_STATE_CHANGED,
                 notifyBufferingStateChangedArgs);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -470,20 +695,174 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        SessionToken2 token = mTestHelper.createDefaultSession2();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
 
         Bundle setCurrentPositionArgs = new Bundle();
         setCurrentPositionArgs.putLong(KEY_CURRENT_POSITION, testPosition);
-        mTestHelper.callMediaPlayerInterfaceMethod(
+        mTestHelper.callBaseMediaPlayerMethod(
                 SET_CURRENT_POSITION_MANUALLY, setCurrentPositionArgs);
 
         final MediaController2 controller = createController(token, true, callback);
 
         Bundle notifyPlayerStateArgs = new Bundle();
         notifyPlayerStateArgs.putInt(KEY_PLAYER_STATE, testPlayerState);
-        mTestHelper.callMediaPlayerInterfaceMethod(NOTIFY_PLAYER_STATE_CHANGED,
+        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_PLAYER_STATE_CHANGED,
                 notifyPlayerStateArgs);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnError() throws InterruptedException {
+        prepareLooper();
+        final int errorCode = MediaSession2.ERROR_CODE_NOT_AVAILABLE_IN_REGION;
+        final Bundle extras = TestUtils.createTestBundle();
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController2.ControllerCallback callback =
+                new MediaController2.ControllerCallback() {
+            @Override
+            public void onError(MediaController2 controller, int errorCodeOut, Bundle extrasOut) {
+                assertEquals(errorCode, errorCodeOut);
+                assertTrue(TestUtils.equals(extras, extrasOut));
+                latch.countDown();
+            }
+        };
+
+        final MediaController2 controller =
+                createController(mTestHelper.createDefaultMediaSession2(), true, callback);
+
+        Bundle args = new Bundle();
+        args.putInt(KEY_ERROR_CODE, errorCode);
+        args.putBundle(KEY_EXTRAS, extras);
+        mTestHelper.callMediaSession2Method(NOTIFY_ERROR, args);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnAllowedCommandsChanged() throws InterruptedException {
+        prepareLooper();
+        final SessionCommandGroup2 commands = new SessionCommandGroup2();
+        commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY);
+        commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
+        commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController2.ControllerCallback callback =
+                new MediaController2.ControllerCallback() {
+            @Override
+            public void onAllowedCommandsChanged(MediaController2 controller,
+                    SessionCommandGroup2 commandsOut) {
+                assertNotNull(commandsOut);
+                Set<SessionCommand2> expected = commands.getCommands();
+                Set<SessionCommand2> actual = commandsOut.getCommands();
+
+                assertNotNull(actual);
+                assertEquals(expected.size(), actual.size());
+                for (SessionCommand2 command : expected) {
+                    assertTrue(actual.contains(command));
+                }
+                latch.countDown();
+            }
+        };
+
+        final MediaController2 controller =
+                createController(mTestHelper.createDefaultMediaSession2(), true, callback);
+
+        Bundle args = new Bundle();
+        args.putBundle(KEY_COMMAND_GROUP, commands.toBundle());
+        mTestHelper.callMediaSession2Method(SET_ALLOWED_COMMANDS, args);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnCustomCommand() throws InterruptedException {
+        prepareLooper();
+        final SessionCommand2 testCommand = new SessionCommand2(
+                SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE);
+        final Bundle testArgs = TestUtils.createTestBundle();
+
+        final CountDownLatch latch = new CountDownLatch(2);
+        final MediaController2.ControllerCallback callback =
+                new MediaController2.ControllerCallback() {
+            @Override
+            public void onCustomCommand(MediaController2 controller, SessionCommand2 command,
+                    Bundle args, ResultReceiver receiver) {
+                assertEquals(testCommand, command);
+                assertTrue(TestUtils.equals(testArgs, args));
+                assertNull(receiver);
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller =
+                createController(mTestHelper.createDefaultMediaSession2(), true, callback);
+
+        Bundle args = new Bundle();
+        args.putBundle(KEY_CUSTOM_COMMAND, testCommand.toBundle());
+        args.putBundle(KEY_ARGUMENTS, testArgs);
+        // TODO(jaewan): Test with multiple controllers
+        mTestHelper.callMediaSession2Method(SEND_CUSTOM_COMMAND, args);
+
+        // TODO(jaewan): Test receivers as well.
+        args.putParcelable(KEY_RESULT_RECEIVER, null);
+        mTestHelper.callMediaSession2Method(SEND_CUSTOM_COMMAND_TO_ONE_CONTROLLER, args);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnCustomLayoutChanged() throws InterruptedException {
+        prepareLooper();
+        final List<MediaSession2.CommandButton> buttons = new ArrayList<>();
+
+        MediaSession2.CommandButton button = new MediaSession2.CommandButton.Builder()
+                .setCommand(new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY))
+                .setDisplayName("button")
+                .build();
+        buttons.add(button);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController2.ControllerCallback callback =
+                new MediaController2.ControllerCallback() {
+            @Override
+            public void onCustomLayoutChanged(MediaController2 controller2,
+                    List<MediaSession2.CommandButton> layout) {
+                assertEquals(layout.size(), buttons.size());
+                for (int i = 0; i < layout.size(); i++) {
+                    assertEquals(layout.get(i).getCommand(), buttons.get(i).getCommand());
+                    assertEquals(layout.get(i).getDisplayName(), buttons.get(i).getDisplayName());
+                }
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller =
+                createController(mTestHelper.createDefaultMediaSession2(), true, callback);
+
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(KEY_COMMAND_BUTTON_LIST,
+                MediaTestUtils.buttonListToParcelableArrayList(buttons));
+        mTestHelper.callMediaSession2Method(SET_CUSTOM_LAYOUT, args);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnRoutesInfoChanged() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController2.ControllerCallback callback =
+                new MediaController2.ControllerCallback() {
+            @Override
+            public void onRoutesInfoChanged(@NonNull MediaController2 controller,
+                    @Nullable List<Bundle> routes) {
+                assertNull(routes);
+                latch.countDown();
+            }
+        };
+        final MediaController2 controller =
+                createController(mTestHelper.createDefaultMediaSession2(), true, callback);
+
+        Bundle args = new Bundle();
+        args.putBundle(KEY_ROUTE_LIST, null);
+        mTestHelper.callMediaSession2Method(NOTIFY_ROUTES_INFO_CHANGED, args);
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     private void testControllerAfterSessionIsClosed(String id) throws InterruptedException {
@@ -495,7 +874,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         // Ensure that the controller cannot use newly create session with the same ID.
         // Recreated session has different session stub, so previously created controller
         // shouldn't be available.
-        SessionToken2 token = mTestHelper.createDefaultSession2();
+        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
         assertEquals(id, token.getId());
         testNoInteraction();
     }

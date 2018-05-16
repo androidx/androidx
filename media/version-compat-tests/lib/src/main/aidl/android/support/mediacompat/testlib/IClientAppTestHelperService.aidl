@@ -18,6 +18,6 @@ package android.support.mediacompat.testlib;
 
 interface IClientAppTestHelperService {
 
-    void createMediaController2(String testName, in Bundle token);
+    void createMediaController2(in Bundle token, boolean waitForConnection);
     void callMediaController2Method(int method, in Bundle args);
 }

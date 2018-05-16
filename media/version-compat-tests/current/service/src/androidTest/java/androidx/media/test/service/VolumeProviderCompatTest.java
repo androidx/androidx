@@ -78,7 +78,7 @@ public class VolumeProviderCompatTest extends MediaSession2TestBase {
                 }).build();
         TestServiceRegistry.getInstance().setHandler(sHandler);
         // Create a default MediaController2 in client app.
-        mTestHelper.createDefaultController2(mSession.getToken());
+        mTestHelper.createMediaController2(mSession.getToken());
     }
 
     @After

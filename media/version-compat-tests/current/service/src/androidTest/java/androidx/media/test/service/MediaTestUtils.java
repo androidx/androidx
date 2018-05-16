@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
+import androidx.media.MediaSession2.CommandButton;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -100,7 +101,7 @@ public final class MediaTestUtils {
         return new DataSourceDesc.Builder().setDataSource(new FileDescriptor()).build();
     }
 
-    public static ArrayList<Parcelable> toParcelableArrayList(List<MediaItem2> playlist) {
+    public static ArrayList<Parcelable> playlistToParcelableArrayList(List<MediaItem2> playlist) {
         if (playlist == null) {
             return null;
         }
@@ -111,13 +112,40 @@ public final class MediaTestUtils {
         return result;
     }
 
-    public static List<MediaItem2> fromParcelableList(List<Parcelable> parcelables) {
+    public static List<MediaItem2> playlistFromParcelableList(List<Parcelable> parcelables,
+            boolean createDsd) {
         if (parcelables == null) {
             return null;
         }
+
         List<MediaItem2> result = new ArrayList<>();
-        for (Parcelable item : parcelables) {
-            result.add(MediaItem2.fromBundle((Bundle) item));
+        if (createDsd) {
+            for (Parcelable itemBundle : parcelables) {
+                MediaItem2 item = MediaItem2.fromBundle((Bundle) itemBundle);
+                result.add(new MediaItem2.Builder(item.getFlags())
+                        .setMediaId(item.getMediaId())
+                        .setMetadata(item.getMetadata())
+                        .setDataSourceDesc(new DataSourceDesc.Builder()
+                                .setDataSource(new FileDescriptor())
+                                .build())
+                        .build());
+            }
+        } else {
+            for (Parcelable itemBundle : parcelables) {
+                result.add(MediaItem2.fromBundle((Bundle) itemBundle));
+            }
+        }
+        return result;
+    }
+
+    public static List<CommandButton> buttonListFromParcelableArrayList(
+            List<Parcelable> parcelables) {
+        if (parcelables == null) {
+            return null;
+        }
+        List<CommandButton> result = new ArrayList<>();
+        for (Parcelable button : parcelables) {
+            result.add(CommandButton.fromBundle((Bundle) button));
         }
         return result;
     }

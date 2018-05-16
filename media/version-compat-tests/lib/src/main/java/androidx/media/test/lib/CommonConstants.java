@@ -50,6 +50,7 @@ public class CommonConstants {
     public static final String KEY_VOLUME_DIRECTION = "volumeDirection";
     public static final String KEY_FLAGS = "flags";
     public static final String KEY_COMMAND = "command";
+    public static final String KEY_COMMAND_GROUP = "commandGroup";
     public static final String KEY_ARGUMENTS = "arguments";
     public static final String KEY_RESULT_RECEIVER = "resultReceiver";
     public static final String KEY_QUERY = "query";
@@ -58,6 +59,16 @@ public class CommonConstants {
     public static final String KEY_MEDIA_ID = "mediaId";
     public static final String KEY_RATING = "rating";
     public static final String KEY_ROUTE = "route";
+    public static final String KEY_ROUTE_LIST = "routeList";
+    public static final String KEY_ERROR_CODE = "errorCode";
+    public static final String KEY_COMMAND_BUTTON_LIST = "commandButtonList";
+    public static final String KEY_DURATION = "duration";
+    public static final String KEY_MAX_VOLUME = "maxVolume";
+    public static final String KEY_CURRENT_VOLUME = "currentVolume";
+    public static final String KEY_VOLUME_CONTROL_TYPE = "volumeControlType";
+
+    public static final int INDEX_FOR_UNKONWN_DSD = -1;
+    public static final int INDEX_FOR_NULL_DSD = -2;
 
     // Default test name
     public static final String DEFAULT_TEST_NAME = "defaultTestName";

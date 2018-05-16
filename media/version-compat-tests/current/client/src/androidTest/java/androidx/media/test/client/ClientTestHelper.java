@@ -98,7 +98,7 @@ public class ClientTestHelper {
         if (closeSession2) {
             try {
                 if (mBinder != null) {
-                    mBinder.closeSession2();
+                    mBinder.closeMediaSession2();
                 }
             } catch (RemoteException ex) {
                 Log.e(TAG, "Failed to close the remote session");
@@ -115,10 +115,10 @@ public class ClientTestHelper {
      *
      * @return A {@link SessionToken2} object if succeeded, {@code null} if failed.
      */
-    public SessionToken2 createDefaultSession2() {
+    public SessionToken2 createDefaultMediaSession2() {
         SessionToken2 token = null;
         try {
-            Bundle bundle = mBinder.createSession2(DEFAULT_TEST_NAME);
+            Bundle bundle = mBinder.createMediaSession2(DEFAULT_TEST_NAME);
             if (bundle != null) {
                 bundle.setClassLoader(MediaSession2.class.getClassLoader());
             }
@@ -134,10 +134,10 @@ public class ClientTestHelper {
      *
      * @return A {@link SessionToken2} object if succeeded, {@code null} if failed.
      */
-    public SessionToken2 createSession2(String sessionId) {
+    public SessionToken2 createMediaSession2(String sessionId) {
         SessionToken2 token = null;
         try {
-            Bundle bundle = mBinder.createSession2(sessionId);
+            Bundle bundle = mBinder.createMediaSession2(sessionId);
             if (bundle != null) {
                 bundle.setClassLoader(MediaSession2.class.getClassLoader());
             }
@@ -168,9 +168,9 @@ public class ClientTestHelper {
      * @param method One of the constants in {@link BaseMediaPlayerMethods}
      * @param args A bundle that contains arguments. Keys are defined in {@link CommonConstants}.
      */
-    public void callMediaPlayerInterfaceMethod(int method, Bundle args) {
+    public void callBaseMediaPlayerMethod(int method, Bundle args) {
         try {
-            mBinder.callMediaPlayerInterfaceMethod(method, args == null ? new Bundle() : args);
+            mBinder.callBaseMediaPlayerMethod(method, args == null ? new Bundle() : args);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call player method. method=" + method + ", args=" + args);
         }

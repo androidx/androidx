@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
+import androidx.media.MediaSession2.CommandButton;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -100,7 +101,7 @@ public final class MediaTestUtils {
         return new DataSourceDesc.Builder().setDataSource(new FileDescriptor()).build();
     }
 
-    public static ArrayList<Parcelable> toParcelableArrayList(List<MediaItem2> playlist) {
+    public static ArrayList<Parcelable> playlistToParcelableArrayList(List<MediaItem2> playlist) {
         if (playlist == null) {
             return null;
         }
@@ -111,13 +112,25 @@ public final class MediaTestUtils {
         return result;
     }
 
-    public static List<MediaItem2> fromParcelableList(List<Parcelable> parcelables) {
+    public static List<MediaItem2> playlistFromParcelableList(List<Parcelable> parcelables) {
         if (parcelables == null) {
             return null;
         }
         List<MediaItem2> result = new ArrayList<>();
         for (Parcelable item : parcelables) {
             result.add(MediaItem2.fromBundle((Bundle) item));
+        }
+        return result;
+    }
+
+    public static ArrayList<Parcelable> buttonListToParcelableArrayList(
+            List<CommandButton> buttons) {
+        if (buttons == null) {
+            return null;
+        }
+        ArrayList<Parcelable> result = new ArrayList<>();
+        for (CommandButton button : buttons) {
+            result.add(button.toBundle());
         }
         return result;
     }

@@ -18,7 +18,6 @@ package androidx.media.test.service;
 
 import static androidx.media.test.lib.CommonConstants.ACTION_TEST_HELPER;
 import static androidx.media.test.lib.CommonConstants.CLIENT_APP_TEST_HELPER_SERVICE_COMPONENT_NAME;
-import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -94,32 +93,32 @@ public class ServiceTestHelper {
     }
 
     /**
-     * Create a {@link MediaController2} in the client app, and wait until connected to the session.
+     * Create a {@link MediaController2} in the client app.
+     * This method waits for the new controller to connect to the session.
      */
-    public void createDefaultController2(SessionToken2 token) {
+    public void createMediaController2(SessionToken2 token) {
+        createMediaController2(token, true);
+    }
+
+    /**
+     * Create a {@link MediaController2} in the client app.
+     *
+     * @param waitForConnection true if this method needs to wait for the connection,
+     *                          false otherwise.
+     */
+    public void createMediaController2(SessionToken2 token, boolean waitForConnection) {
         try {
-            mBinder.createMediaController2(DEFAULT_TEST_NAME, token.toBundle());
+            mBinder.createMediaController2(token.toBundle(), waitForConnection);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to create default controller with given token.");
         }
     }
 
     /**
-     * Create a {@link MediaController2} in the client app for this specific test.
-     */
-    public void createSession2(String testName, SessionToken2 token) {
-        try {
-            mBinder.createMediaController2(testName, token.toBundle());
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to create the controller. testName=" + testName);
-        }
-    }
-
-    /**
      * Calls current {@link MediaController2}'s method.
      *
-     * @see MediaController2Constants
-     * @see CommonConstants
+     * @param method One of the constants in {@link MediaController2Constants}
+     * @param args A bundle that contains arguments. Keys are defined in {@link CommonConstants}.
      */
     public void callMediaController2Method(int method, Bundle args) {
         try {
