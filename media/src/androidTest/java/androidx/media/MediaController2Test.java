@@ -52,6 +52,7 @@ import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -462,7 +463,6 @@ public class MediaController2Test extends MediaSession2TestBase {
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
-
 
     @Test
     public void testControllerCallback_onSeekCompleted() throws InterruptedException {
@@ -1226,12 +1226,14 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(SessionToken2.TYPE_SESSION_SERVICE, token.getType());
     }
 
+    @Ignore
     @Test
     public void testConnectToService_sessionService() throws InterruptedException {
         prepareLooper();
         testConnectToService(MockMediaSessionService2.ID);
     }
 
+    @Ignore
     @Test
     public void testConnectToService_libraryService() throws InterruptedException {
         prepareLooper();
@@ -1291,6 +1293,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         testControllerAfterSessionIsClosed(mSession.getToken().getId());
     }
 
+    @Ignore
     @Test
     public void testControllerAfterSessionIsClosed_sessionService() throws InterruptedException {
         prepareLooper();
@@ -1382,12 +1385,14 @@ public class MediaController2Test extends MediaSession2TestBase {
         testControllerAfterSessionIsClosed(id);
     }
 
+    @Ignore
     @Test
     public void testClose_sessionService() throws InterruptedException {
         prepareLooper();
         testCloseFromService(MockMediaSessionService2.ID);
     }
 
+    @Ignore
     @Test
     public void testClose_libraryService() throws InterruptedException {
         prepareLooper();

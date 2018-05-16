@@ -176,7 +176,7 @@ public abstract class MediaSessionService2 extends Service {
                 throw new RuntimeException("Expected session with id " + token.getId()
                         + ", but got " + mSession);
             }
-            mBrowserServiceCompat.setSessionToken(mSession.getToken().getSessionCompatToken());
+            mBrowserServiceCompat.setSessionToken(mSession.getSessionCompat().getSessionToken());
         }
     }
 

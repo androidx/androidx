@@ -27,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
+import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -101,8 +102,23 @@ public class MediaController2 implements AutoCloseable {
      */
     public MediaController2(@NonNull Context context, @NonNull SessionToken2 token,
             @NonNull Executor executor, @NonNull ControllerCallback callback) {
-        mImpl = new MediaController2ImplBase(context, token, executor, callback);
-        mImpl.setInstance(this);
+        if (context == null) {
+            throw new IllegalArgumentException("context shouldn't be null");
+        }
+        if (token == null) {
+            throw new IllegalArgumentException("token shouldn't be null");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("callback shouldn't be null");
+        }
+        if (executor == null) {
+            throw new IllegalArgumentException("executor shouldn't be null");
+        }
+        if (token.isLegacySession()) {
+            mImpl = new MediaController2ImplLegacy(context, this, token, executor, callback);
+        } else {
+            mImpl = new MediaController2ImplBase(context, this, token, executor, callback);
+        }
     }
 
     /**
@@ -215,6 +231,9 @@ public class MediaController2 implements AutoCloseable {
      *               to be played.
      */
     public void playFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
+        if (mediaId == null) {
+            throw new IllegalArgumentException("mediaId shouldn't be null");
+        }
         mImpl.playFromMediaId(mediaId, extras);
     }
 
@@ -225,6 +244,9 @@ public class MediaController2 implements AutoCloseable {
      * @param extras Optional extras that can include extra information about the query.
      */
     public void playFromSearch(@NonNull String query, @Nullable Bundle extras) {
+        if (TextUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("query shouldn't be empty");
+        }
         mImpl.playFromSearch(query, extras);
     }
 
@@ -236,6 +258,9 @@ public class MediaController2 implements AutoCloseable {
      *               to be played.
      */
     public void playFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
+        if (uri == null) {
+            throw new IllegalArgumentException("uri shouldn't be null");
+        }
         mImpl.playFromUri(uri, extras);
     }
 
@@ -252,6 +277,9 @@ public class MediaController2 implements AutoCloseable {
      *               to be prepared.
      */
     public void prepareFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
+        if (mediaId == null) {
+            throw new IllegalArgumentException("mediaId shouldn't be null");
+        }
         mImpl.prepareFromMediaId(mediaId, extras);
     }
 
@@ -268,6 +296,9 @@ public class MediaController2 implements AutoCloseable {
      * @param extras Optional extras that can include extra information about the query.
      */
     public void prepareFromSearch(@NonNull String query, @Nullable Bundle extras) {
+        if (TextUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("query shouldn't be empty");
+        }
         mImpl.prepareFromSearch(query, extras);
     }
 
@@ -284,6 +315,9 @@ public class MediaController2 implements AutoCloseable {
      *               to be prepared.
      */
     public void prepareFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
+        if (uri == null) {
+            throw new IllegalArgumentException("uri shouldn't be null");
+        }
         mImpl.prepareFromUri(uri, extras);
     }
 
@@ -431,6 +465,12 @@ public class MediaController2 implements AutoCloseable {
      * @param rating The rating to set
      */
     public void setRating(@NonNull String mediaId, @NonNull Rating2 rating) {
+        if (mediaId == null) {
+            throw new IllegalArgumentException("mediaId shouldn't be null");
+        }
+        if (rating == null) {
+            throw new IllegalArgumentException("rating shouldn't be null");
+        }
         mImpl.setRating(mediaId, rating);
     }
 
@@ -443,6 +483,9 @@ public class MediaController2 implements AutoCloseable {
      */
     public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args,
             @Nullable ResultReceiver cb) {
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
         mImpl.sendCustomCommand(command, args, cb);
     }
 
@@ -475,6 +518,9 @@ public class MediaController2 implements AutoCloseable {
      * @see ControllerCallback#onPlaylistChanged
      */
     public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
+        if (list == null) {
+            throw new IllegalArgumentException("list shouldn't be null");
+        }
         mImpl.setPlaylist(list, metadata);
     }
 
@@ -511,6 +557,12 @@ public class MediaController2 implements AutoCloseable {
      * @param item the media item you want to add
      */
     public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
+        }
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
         mImpl.addPlaylistItem(index, item);
     }
 
@@ -523,6 +575,9 @@ public class MediaController2 implements AutoCloseable {
      * @param item the media item you want to add
      */
     public void removePlaylistItem(@NonNull MediaItem2 item) {
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
         mImpl.removePlaylistItem(item);
     }
 
@@ -534,6 +589,12 @@ public class MediaController2 implements AutoCloseable {
      * @param item the new item
      */
     public void replacePlaylistItem(int index, @NonNull MediaItem2 item) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
+        }
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
         mImpl.replacePlaylistItem(index, item);
     }
 
@@ -573,6 +634,9 @@ public class MediaController2 implements AutoCloseable {
      * @param item The item in the playlist you want to play
      */
     public void skipToPlaylistItem(@NonNull MediaItem2 item) {
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
         mImpl.skipToPlaylistItem(item);
     }
 
@@ -650,6 +714,9 @@ public class MediaController2 implements AutoCloseable {
      * @param route The route to select.
      */
     public void selectRoute(@NonNull Bundle route) {
+        if (route == null) {
+            throw new IllegalArgumentException("route shouldn't be null");
+        }
         mImpl.selectRoute(route);
     }
 
@@ -681,7 +748,6 @@ public class MediaController2 implements AutoCloseable {
     }
 
     interface SupportLibraryImpl extends AutoCloseable {
-        void setInstance(MediaController2 controller);
         SessionToken2 getSessionToken();
         boolean isConnected();
         void play();
@@ -737,6 +803,9 @@ public class MediaController2 implements AutoCloseable {
         @NonNull ControllerCallback getCallback();
         @NonNull Executor getCallbackExecutor();
         @Nullable MediaBrowserCompat getBrowserCompat();
+
+        // Internally used methods
+        MediaController2 getInstance();
     }
 
     /**

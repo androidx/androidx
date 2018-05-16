@@ -16,66 +16,9 @@
 
 package androidx.media;
 
-import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
-
 import static androidx.media.BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media.BaseMediaPlayer.UNKNOWN_TIME;
-import static androidx.media.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
-import static androidx.media.MediaConstants2.ARGUMENT_ARGUMENTS;
-import static androidx.media.MediaConstants2.ARGUMENT_BUFFERING_STATE;
-import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_BUTTONS;
-import static androidx.media.MediaConstants2.ARGUMENT_COMMAND_CODE;
-import static androidx.media.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
-import static androidx.media.MediaConstants2.ARGUMENT_ERROR_CODE;
-import static androidx.media.MediaConstants2.ARGUMENT_EXTRAS;
-import static androidx.media.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
-import static androidx.media.MediaConstants2.ARGUMENT_ITEM_COUNT;
-import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ID;
-import static androidx.media.MediaConstants2.ARGUMENT_MEDIA_ITEM;
-import static androidx.media.MediaConstants2.ARGUMENT_PACKAGE_NAME;
-import static androidx.media.MediaConstants2.ARGUMENT_PID;
-import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_INFO;
-import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_SPEED;
-import static androidx.media.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
-import static androidx.media.MediaConstants2.ARGUMENT_PLAYER_STATE;
-import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST;
-import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_INDEX;
-import static androidx.media.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
-import static androidx.media.MediaConstants2.ARGUMENT_QUERY;
-import static androidx.media.MediaConstants2.ARGUMENT_RATING;
-import static androidx.media.MediaConstants2.ARGUMENT_REPEAT_MODE;
-import static androidx.media.MediaConstants2.ARGUMENT_RESULT_RECEIVER;
-import static androidx.media.MediaConstants2.ARGUMENT_ROUTE_BUNDLE;
-import static androidx.media.MediaConstants2.ARGUMENT_SEEK_POSITION;
-import static androidx.media.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
-import static androidx.media.MediaConstants2.ARGUMENT_UID;
-import static androidx.media.MediaConstants2.ARGUMENT_URI;
-import static androidx.media.MediaConstants2.ARGUMENT_VOLUME;
-import static androidx.media.MediaConstants2.ARGUMENT_VOLUME_DIRECTION;
-import static androidx.media.MediaConstants2.ARGUMENT_VOLUME_FLAGS;
-import static androidx.media.MediaConstants2.CONNECT_RESULT_CONNECTED;
-import static androidx.media.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
-import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
-import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_BY_CUSTOM_COMMAND;
-import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
-import static androidx.media.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CHILDREN_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ERROR;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_ROUTES_INFO_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEARCH_RESULT_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SEEK_COMPLETED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
-import static androidx.media.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
-import static androidx.media.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
+import static androidx.media.MediaMetadata2.METADATA_KEY_DURATION;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
 import static androidx.media.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
@@ -101,75 +44,54 @@ import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_S
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_REWIND;
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
-import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SET_RATING;
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
 import static androidx.media.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
 import static androidx.media.SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
 import static androidx.media.SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.BundleCompat;
 import androidx.media.MediaController2.ControllerCallback;
 import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaController2.VolumeDirection;
 import androidx.media.MediaController2.VolumeFlags;
 import androidx.media.MediaPlaylistAgent.RepeatMode;
 import androidx.media.MediaPlaylistAgent.ShuffleMode;
-import androidx.media.MediaSession2.CommandButton;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
-
     private static final String TAG = "MC2ImplBase";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    // Note: Using {@code null} doesn't helpful here because MediaBrowserServiceCompat always wraps
-    //       the rootHints so it becomes non-null.
-    static final Bundle sDefaultRootExtras = new Bundle();
-    static {
-        sDefaultRootExtras.putBoolean(MediaConstants2.ROOT_EXTRA_DEFAULT, true);
-    }
-
+    private final MediaController2 mInstance;
     private final Context mContext;
     private final Object mLock = new Object();
 
+    private final MediaController2Stub mControllerStub;
     private final SessionToken2 mToken;
     private final ControllerCallback mCallback;
     private final Executor mCallbackExecutor;
     private final IBinder.DeathRecipient mDeathRecipient;
 
-    private final HandlerThread mHandlerThread;
-    private final Handler mHandler;
-
-    private MediaController2 mInstance;
-
     @GuardedBy("mLock")
-    private MediaBrowserCompat mBrowserCompat;
+    private SessionServiceConnection mServiceConnection;
     @GuardedBy("mLock")
     private boolean mIsReleased;
     @GuardedBy("mLock")
@@ -183,32 +105,32 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     @GuardedBy("mLock")
     private int mPlayerState;
     @GuardedBy("mLock")
+    private long mPositionEventTimeMs;
+    @GuardedBy("mLock")
+    private long mPositionMs;
+    @GuardedBy("mLock")
+    private float mPlaybackSpeed;
+    @GuardedBy("mLock")
     private MediaItem2 mCurrentMediaItem;
     @GuardedBy("mLock")
     private int mBufferingState;
     @GuardedBy("mLock")
+    private long mBufferedPositionMs;
+    @GuardedBy("mLock")
     private PlaybackInfo mPlaybackInfo;
     @GuardedBy("mLock")
+    private PendingIntent mSessionActivity;
+    @GuardedBy("mLock")
     private SessionCommandGroup2 mAllowedCommands;
-
-    // Media 1.0 variables
-    @GuardedBy("mLock")
-    private MediaControllerCompat mControllerCompat;
-    @GuardedBy("mLock")
-    private ControllerCompatCallback mControllerCompatCallback;
-    @GuardedBy("mLock")
-    private PlaybackStateCompat mPlaybackStateCompat;
-    @GuardedBy("mLock")
-    private MediaMetadataCompat mMediaMetadataCompat;
 
     // Assignment should be used with the lock hold, but should be used without a lock to prevent
     // potential deadlock.
     @GuardedBy("mLock")
-    private volatile boolean mConnected;
+    private volatile IMediaSession2 mISession2;
 
-    MediaController2ImplBase(@NonNull Context context, @NonNull SessionToken2 token,
-            @NonNull Executor executor, @NonNull ControllerCallback callback) {
-        super();
+    MediaController2ImplBase(Context context, MediaController2 instance, SessionToken2 token,
+            Executor executor, ControllerCallback callback) {
+        mInstance = instance;
         if (context == null) {
             throw new IllegalArgumentException("context shouldn't be null");
         }
@@ -222,52 +144,55 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
             throw new IllegalArgumentException("executor shouldn't be null");
         }
         mContext = context;
-        mHandlerThread = new HandlerThread("MediaController2_Thread");
-        mHandlerThread.start();
-        mHandler = new Handler(mHandlerThread.getLooper());
+        mControllerStub = new MediaController2Stub(this);
         mToken = token;
         mCallback = callback;
         mCallbackExecutor = executor;
         mDeathRecipient = new IBinder.DeathRecipient() {
             @Override
             public void binderDied() {
-                MediaController2ImplBase.this.close();
+                mInstance.close();
             }
         };
 
-        initialize();
-    }
-
-    @Override
-    public void setInstance(MediaController2 controller) {
-        mInstance = controller;
+        IMediaSession2 iSession2 = IMediaSession2.Stub.asInterface((IBinder) mToken.getBinder());
+        if (mToken.getType() == SessionToken2.TYPE_SESSION) {
+            // Session
+            mServiceConnection = null;
+            connectToSession(iSession2);
+        } else {
+            mServiceConnection = new SessionServiceConnection();
+            connectToService();
+        }
     }
 
     @Override
     public void close() {
         if (DEBUG) {
-            //Log.d(TAG, "release from " + mToken, new IllegalStateException());
+            Log.d(TAG, "release from " + mToken);
         }
+        final IMediaSession2 iSession2;
         synchronized (mLock) {
+            iSession2 = mISession2;
             if (mIsReleased) {
                 // Prevent re-enterance from the ControllerCallback.onDisconnected()
                 return;
             }
             mIsReleased = true;
-
-            // When the controller is closed before getting extra binder (IMediaControllerCallback)
-            // from session, cleaning up MediaControllerCompat is postponed until the extra binder
-            // arrives. This is because the MediaControllerCompat is needed to tell session that
-            // this controller is closed.
-            if (mControllerCompatCallback != null
-                    && mControllerCompatCallback.getIControllerCallback() != null) {
-                cleanUpControllerCompatLocked(true /* sendDisconnectCommand */);
+            if (mServiceConnection != null) {
+                mContext.unbindService(mServiceConnection);
+                mServiceConnection = null;
             }
-            if (mBrowserCompat != null) {
-                mBrowserCompat.disconnect();
-                mBrowserCompat = null;
+            mISession2 = null;
+            mControllerStub.destroy();
+        }
+        if (iSession2 != null) {
+            try {
+                iSession2.asBinder().unlinkToDeath(mDeathRecipient, 0);
+                iSession2.release(mControllerStub);
+            } catch (RemoteException e) {
+                // No-op.
             }
-            mConnected = false;
         }
         mCallbackExecutor.execute(new Runnable() {
             @Override
@@ -277,116 +202,103 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
         });
     }
 
-    private void cleanUpControllerCompatLocked(boolean sendDisconnectCommand) {
-        mHandler.removeCallbacksAndMessages(null);
-        if (Build.VERSION.SDK_INT >= 18) {
-            mHandlerThread.quitSafely();
-        } else {
-            mHandlerThread.quit();
-        }
-
-        // Send command before the unregister callback to use mIControllerCallback in the
-        // callback.
-        if (sendDisconnectCommand) {
-            sendCommand(CONTROLLER_COMMAND_DISCONNECT);
-        }
-
-        synchronized (mLock) {
-            if (mControllerCompat != null) {
-                mControllerCompat.unregisterCallback(mControllerCompatCallback);
-                mControllerCompat = null;
-            }
-        }
-    }
-
     @Override
-    public @NonNull SessionToken2 getSessionToken() {
+    public SessionToken2 getSessionToken() {
         return mToken;
     }
 
     @Override
     public boolean isConnected() {
         synchronized (mLock) {
-            return mConnected;
+            return mISession2 != null;
         }
     }
 
     @Override
     public void play() {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_PLAYBACK_PLAY);
+        if (iSession2 != null) {
+            try {
+                iSession2.play(mControllerStub);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            sendCommand(COMMAND_CODE_PLAYBACK_PLAY);
         }
     }
 
     @Override
     public void pause() {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_PLAYBACK_PAUSE);
+        if (iSession2 != null) {
+            try {
+                iSession2.pause(mControllerStub);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            sendCommand(COMMAND_CODE_PLAYBACK_PAUSE);
         }
     }
 
     @Override
     public void reset() {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_PLAYBACK_RESET);
+        if (iSession2 != null) {
+            try {
+                iSession2.reset(mControllerStub);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            sendCommand(COMMAND_CODE_PLAYBACK_RESET);
         }
     }
 
     @Override
     public void prepare() {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_PLAYBACK_PREPARE);
+        if (iSession2 != null) {
+            try {
+                iSession2.prepare(mControllerStub);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            sendCommand(COMMAND_CODE_PLAYBACK_PREPARE);
         }
     }
 
     @Override
     public void fastForward() {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(
+                COMMAND_CODE_SESSION_FAST_FORWARD);
+        if (iSession2 != null) {
+            try {
+                iSession2.fastForward(mControllerStub);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            sendCommand(COMMAND_CODE_SESSION_FAST_FORWARD);
         }
     }
 
     @Override
     public void rewind() {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_SESSION_REWIND);
+        if (iSession2 != null) {
+            try {
+                iSession2.rewind(mControllerStub);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            sendCommand(COMMAND_CODE_SESSION_REWIND);
         }
     }
 
     @Override
     public void seekTo(long pos) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        if (pos < 0) {
+            throw new IllegalArgumentException("position shouldn't be negative");
+        }
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_PLAYBACK_SEEK_TO);
+        if (iSession2 != null) {
+            try {
+                iSession2.seekTo(mControllerStub, pos);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle args = new Bundle();
-            args.putLong(ARGUMENT_SEEK_POSITION, pos);
-            sendCommand(COMMAND_CODE_PLAYBACK_SEEK_TO, args);
         }
     }
 
@@ -402,124 +314,111 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
 
     @Override
     public void playFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(
+                COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID);
+        if (iSession2 != null) {
+            try {
+                iSession2.playFromMediaId(mControllerStub, mediaId, extras);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle args = new Bundle();
-            args.putString(ARGUMENT_MEDIA_ID, mediaId);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID, args);
         }
     }
 
     @Override
     public void playFromSearch(@NonNull String query, @Nullable Bundle extras) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH);
+        if (iSession2 != null) {
+            try {
+                iSession2.playFromSearch(mControllerStub, query, extras);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle args = new Bundle();
-            args.putString(ARGUMENT_QUERY, query);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH, args);
         }
     }
 
     @Override
-    public void playFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+    public void playFromUri(Uri uri, Bundle extras) {
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_SESSION_PLAY_FROM_URI);
+        if (iSession2 != null) {
+            try {
+                iSession2.playFromUri(mControllerStub, uri, extras);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle args = new Bundle();
-            args.putParcelable(ARGUMENT_URI, uri);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PLAY_FROM_URI, args);
         }
     }
 
     @Override
     public void prepareFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(
+                COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID);
+        if (iSession2 != null) {
+            try {
+                iSession2.prepareFromMediaId(mControllerStub, mediaId, extras);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle args = new Bundle();
-            args.putString(ARGUMENT_MEDIA_ID, mediaId);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID, args);
         }
     }
 
     @Override
     public void prepareFromSearch(@NonNull String query, @Nullable Bundle extras) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(
+                COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH);
+        if (iSession2 != null) {
+            try {
+                iSession2.prepareFromSearch(mControllerStub, query, extras);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle args = new Bundle();
-            args.putString(ARGUMENT_QUERY, query);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH, args);
         }
     }
 
     @Override
     public void prepareFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_SESSION_PREPARE_FROM_URI);
+        if (iSession2 != null) {
+            try {
+                iSession2.prepareFromUri(mControllerStub, uri, extras);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle args = new Bundle();
-            args.putParcelable(ARGUMENT_URI, uri);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PREPARE_FROM_URI, args);
         }
     }
 
     @Override
     public void setVolumeTo(int value, @VolumeFlags int flags) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_VOLUME_SET_VOLUME);
+        if (iSession2 != null) {
+            try {
+                iSession2.setVolumeTo(mControllerStub, value, flags);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle args = new Bundle();
-            args.putInt(ARGUMENT_VOLUME, value);
-            args.putInt(ARGUMENT_VOLUME_FLAGS, flags);
-            sendCommand(COMMAND_CODE_VOLUME_SET_VOLUME, args);
         }
     }
 
     @Override
     public void adjustVolume(@VolumeDirection int direction, @VolumeFlags int flags) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_VOLUME_ADJUST_VOLUME);
+        if (iSession2 != null) {
+            try {
+                iSession2.adjustVolume(mControllerStub, direction, flags);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle args = new Bundle();
-            args.putInt(ARGUMENT_VOLUME_DIRECTION, direction);
-            args.putInt(ARGUMENT_VOLUME_FLAGS, flags);
-            sendCommand(COMMAND_CODE_VOLUME_ADJUST_VOLUME, args);
         }
     }
 
     @Override
-    public @Nullable PendingIntent getSessionActivity() {
+    public PendingIntent getSessionActivity() {
         synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return null;
-            }
-            return mControllerCompat.getSessionActivity();
+            return mSessionActivity;
         }
     }
 
@@ -533,9 +432,9 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     @Override
     public long getDuration() {
         synchronized (mLock) {
-            if (mMediaMetadataCompat != null
-                    && mMediaMetadataCompat.containsKey(METADATA_KEY_DURATION)) {
-                return mMediaMetadataCompat.getLong(METADATA_KEY_DURATION);
+            MediaMetadata2 metadata = mCurrentMediaItem.getMetadata();
+            if (metadata != null && metadata.containsKey(METADATA_KEY_DURATION)) {
+                return metadata.getLong(METADATA_KEY_DURATION);
             }
         }
         return BaseMediaPlayer.UNKNOWN_TIME;
@@ -544,50 +443,47 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     @Override
     public long getCurrentPosition() {
         synchronized (mLock) {
-            if (!mConnected) {
+            if (mISession2 == null) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return UNKNOWN_TIME;
             }
-            if (mPlaybackStateCompat != null) {
-                long timeDiff = (mInstance.mTimeDiff != null) ? mInstance.mTimeDiff
-                        : SystemClock.elapsedRealtime()
-                                - mPlaybackStateCompat.getLastPositionUpdateTime();
-                long expectedPosition = mPlaybackStateCompat.getPosition()
-                        + (long) (mPlaybackStateCompat.getPlaybackSpeed() * timeDiff);
-                return Math.max(0, expectedPosition);
-            }
-            return UNKNOWN_TIME;
+            long timeDiff = (mInstance.mTimeDiff != null) ? mInstance.mTimeDiff
+                    : SystemClock.elapsedRealtime() - mPositionEventTimeMs;
+            long expectedPosition = mPositionMs + (long) (mPlaybackSpeed * timeDiff);
+            return Math.max(0, expectedPosition);
         }
     }
 
     @Override
     public float getPlaybackSpeed() {
         synchronized (mLock) {
-            if (!mConnected) {
+            if (mISession2 == null) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return 0f;
             }
-            return (mPlaybackStateCompat == null) ? 0f : mPlaybackStateCompat.getPlaybackSpeed();
+            return mPlaybackSpeed;
         }
     }
 
     @Override
     public void setPlaybackSpeed(float speed) {
         synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+            final IMediaSession2 iSession2 =
+                    getSessionInterfaceIfAble(COMMAND_CODE_PLAYBACK_SET_SPEED);
+            if (iSession2 != null) {
+                try {
+                    iSession2.setPlaybackSpeed(mControllerStub, speed);
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+                }
             }
-            Bundle args = new Bundle();
-            args.putFloat(ARGUMENT_PLAYBACK_SPEED, speed);
-            sendCommand(COMMAND_CODE_PLAYBACK_SET_SPEED, args);
         }
     }
 
     @Override
     public @BaseMediaPlayer.BuffState int getBufferingState() {
         synchronized (mLock) {
-            if (!mConnected) {
+            if (mISession2 == null) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return BUFFERING_STATE_UNKNOWN;
             }
@@ -598,17 +494,16 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     @Override
     public long getBufferedPosition() {
         synchronized (mLock) {
-            if (!mConnected) {
+            if (mISession2 == null) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return UNKNOWN_TIME;
             }
-            return (mPlaybackStateCompat == null) ? UNKNOWN_TIME
-                    : mPlaybackStateCompat.getBufferedPosition();
+            return mBufferedPositionMs;
         }
     }
 
     @Override
-    public @Nullable PlaybackInfo getPlaybackInfo() {
+    public PlaybackInfo getPlaybackInfo() {
         synchronized (mLock) {
             return mPlaybackInfo;
         }
@@ -616,35 +511,34 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
 
     @Override
     public void setRating(@NonNull String mediaId, @NonNull Rating2 rating) {
+        final IMediaSession2 iSession2;
         synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+            iSession2 = mISession2;
+        }
+        if (iSession2 != null) {
+            try {
+                iSession2.setRating(mControllerStub, mediaId, rating.toBundle());
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle args = new Bundle();
-            args.putString(ARGUMENT_MEDIA_ID, mediaId);
-            args.putBundle(ARGUMENT_RATING, rating.toBundle());
-            sendCommand(COMMAND_CODE_SESSION_SET_RATING, args);
         }
     }
 
     @Override
-    public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args,
+    public void sendCustomCommand(@NonNull SessionCommand2 command, Bundle args,
             @Nullable ResultReceiver cb) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(command);
+        if (iSession2 != null) {
+            try {
+                iSession2.sendCustomCommand(mControllerStub, command.toBundle(), args, cb);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
-            Bundle bundle = new Bundle();
-            bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
-            bundle.putBundle(ARGUMENT_ARGUMENTS, args);
-            sendCommand(CONTROLLER_COMMAND_BY_CUSTOM_COMMAND, bundle, cb);
         }
     }
 
     @Override
-    public @Nullable List<MediaItem2> getPlaylist() {
+    public List<MediaItem2> getPlaylist() {
         synchronized (mLock) {
             return mPlaylist;
         }
@@ -652,24 +546,33 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
 
     @Override
     public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-        if (list == null) {
-            throw new IllegalArgumentException("list shouldn't be null");
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SET_LIST);
+        if (iSession2 != null) {
+            try {
+                iSession2.setPlaylist(mControllerStub, MediaUtils2.toMediaItem2BundleList(list),
+                        (metadata == null) ? null : metadata.toBundle());
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+            }
         }
-        Bundle args = new Bundle();
-        args.putParcelableArray(ARGUMENT_PLAYLIST, MediaUtils2.toMediaItem2ParcelableArray(list));
-        args.putBundle(ARGUMENT_PLAYLIST_METADATA, metadata == null ? null : metadata.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_SET_LIST, args);
     }
 
     @Override
     public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
-        Bundle args = new Bundle();
-        args.putBundle(ARGUMENT_PLAYLIST_METADATA, metadata == null ? null : metadata.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_SET_LIST_METADATA, args);
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(
+                COMMAND_CODE_PLAYLIST_SET_LIST_METADATA);
+        if (iSession2 != null) {
+            try {
+                iSession2.updatePlaylistMetadata(mControllerStub,
+                        (metadata == null) ? null : metadata.toBundle());
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+            }
+        }
     }
 
     @Override
-    public @Nullable MediaMetadata2 getPlaylistMetadata() {
+    public MediaMetadata2 getPlaylistMetadata() {
         synchronized (mLock) {
             return mPlaylistMetadata;
         }
@@ -677,25 +580,40 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
 
     @Override
     public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
-        Bundle args = new Bundle();
-        args.putInt(ARGUMENT_PLAYLIST_INDEX, index);
-        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_ADD_ITEM, args);
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_ADD_ITEM);
+        if (iSession2 != null) {
+            try {
+                iSession2.addPlaylistItem(mControllerStub, index, item.toBundle());
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+            }
+        }
     }
 
     @Override
     public void removePlaylistItem(@NonNull MediaItem2 item) {
-        Bundle args = new Bundle();
-        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_REMOVE_ITEM, args);
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_REMOVE_ITEM);
+        if (iSession2 != null) {
+            try {
+                iSession2.removePlaylistItem(mControllerStub, item.toBundle());
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+            }
+        }
     }
 
     @Override
     public void replacePlaylistItem(int index, @NonNull MediaItem2 item) {
-        Bundle args = new Bundle();
-        args.putInt(ARGUMENT_PLAYLIST_INDEX, index);
-        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_REPLACE_ITEM, args);
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_REPLACE_ITEM);
+        if (iSession2 != null) {
+            try {
+                iSession2.replacePlaylistItem(mControllerStub, index, item.toBundle());
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+            }
+        }
     }
 
     @Override
@@ -707,67 +625,126 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
 
     @Override
     public void skipToPreviousItem() {
-        sendCommand(COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM);
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM);
+        synchronized (mLock) {
+            if (iSession2 != null) {
+                try {
+                    iSession2.skipToPreviousItem(mControllerStub);
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+                }
+            }
+        }
     }
 
     @Override
     public void skipToNextItem() {
-        sendCommand(COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM);
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM);
+        synchronized (mLock) {
+            if (iSession2 != null) {
+                try {
+                    mISession2.skipToNextItem(mControllerStub);
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+                }
+            }
+        }
     }
 
     @Override
     public void skipToPlaylistItem(@NonNull MediaItem2 item) {
-        Bundle args = new Bundle();
-        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM, args);
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM);
+        synchronized (mLock) {
+            if (iSession2 != null) {
+                try {
+                    mISession2.skipToPlaylistItem(mControllerStub, item.toBundle());
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+                }
+            }
+        }
     }
 
     @Override
-    public @RepeatMode int getRepeatMode() {
+    public int getRepeatMode() {
         synchronized (mLock) {
             return mRepeatMode;
         }
     }
 
     @Override
-    public void setRepeatMode(@RepeatMode int repeatMode) {
-        Bundle args = new Bundle();
-        args.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
-        sendCommand(COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE, args);
+    public void setRepeatMode(int repeatMode) {
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE);
+        if (iSession2 != null) {
+            try {
+                iSession2.setRepeatMode(mControllerStub, repeatMode);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+            }
+        }
     }
 
     @Override
-    public @ShuffleMode int getShuffleMode() {
+    public int getShuffleMode() {
         synchronized (mLock) {
             return mShuffleMode;
         }
     }
 
     @Override
-    public void setShuffleMode(@ShuffleMode int shuffleMode) {
-        Bundle args = new Bundle();
-        args.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
-        sendCommand(COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE, args);
+    public void setShuffleMode(int shuffleMode) {
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE);
+        if (iSession2 != null) {
+            try {
+                iSession2.setShuffleMode(mControllerStub, shuffleMode);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+            }
+        }
     }
 
     @Override
     public void subscribeRoutesInfo() {
-        sendCommand(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
+        if (iSession2 != null) {
+            try {
+                iSession2.subscribeRoutesInfo(mControllerStub);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+            }
+        }
     }
 
     @Override
     public void unsubscribeRoutesInfo() {
-        sendCommand(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
+        if (iSession2 != null) {
+            try {
+                iSession2.unsubscribeRoutesInfo(mControllerStub);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+            }
+        }
     }
 
     @Override
     public void selectRoute(@NonNull Bundle route) {
-        if (route == null) {
-            throw new IllegalArgumentException("route shouldn't be null");
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_SESSION_SELECT_ROUTE);
+        if (iSession2 != null) {
+            try {
+                iSession2.selectRoute(mControllerStub, route);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+            }
         }
-        Bundle args = new Bundle();
-        args.putBundle(ARGUMENT_ROUTE_BUNDLE, route);
-        sendCommand(COMMAND_CODE_SESSION_SELECT_ROUTE, args);
     }
 
     @Override
@@ -787,42 +764,291 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
 
     @Override
     public @Nullable MediaBrowserCompat getBrowserCompat() {
+        return null;
+    }
+
+    @Override
+    public @NonNull MediaController2 getInstance() {
+        return mInstance;
+    }
+
+    private void connectToService() {
+        // Service. Needs to get fresh binder whenever connection is needed.
+        final Intent intent = new Intent(MediaSessionService2.SERVICE_INTERFACE);
+        intent.setClassName(mToken.getPackageName(), mToken.getServiceName());
+
+        // Use bindService() instead of startForegroundService() to start session service for three
+        // reasons.
+        // 1. Prevent session service owner's stopSelf() from destroying service.
+        //    With the startForegroundService(), service's call of stopSelf() will trigger immediate
+        //    onDestroy() calls on the main thread even when onConnect() is running in another
+        //    thread.
+        // 2. Minimize APIs for developers to take care about.
+        //    With bindService(), developers only need to take care about Service.onBind()
+        //    but Service.onStartCommand() should be also taken care about with the
+        //    startForegroundService().
+        // 3. Future support for UI-less playback
+        //    If a service wants to keep running, it should be either foreground service or
+        //    bounded service. But there had been request for the feature for system apps
+        //    and using bindService() will be better fit with it.
         synchronized (mLock) {
-            return mBrowserCompat;
+            boolean result = mContext.bindService(
+                    intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+            if (!result) {
+                Log.w(TAG, "bind to " + mToken + " failed");
+            } else if (DEBUG) {
+                Log.d(TAG, "bind to " + mToken + " success");
+            }
         }
     }
 
+    private void connectToSession(IMediaSession2 sessionBinder) {
+        try {
+            sessionBinder.connect(mControllerStub, mContext.getPackageName());
+        } catch (RemoteException e) {
+            Log.w(TAG, "Failed to call connection request. Framework will retry"
+                    + " automatically");
+        }
+    }
+
+    // Returns session interface if the controller can send the command.
+    IMediaSession2 getSessionInterfaceIfAble(int commandCode) {
+        synchronized (mLock) {
+            if (!mAllowedCommands.hasCommand(commandCode)) {
+                // Cannot send because isn't allowed to.
+                Log.w(TAG, "Controller isn't allowed to call command, commandCode="
+                        + commandCode);
+                return null;
+            }
+            return mISession2;
+        }
+    }
+
+    // Returns session binder if the controller can send the command.
+    IMediaSession2 getSessionInterfaceIfAble(SessionCommand2 command) {
+        synchronized (mLock) {
+            if (!mAllowedCommands.hasCommand(command)) {
+                Log.w(TAG, "Controller isn't allowed to call command, command=" + command);
+                return null;
+            }
+            return mISession2;
+        }
+    }
+
+    void notifyCurrentMediaItemChanged(final MediaItem2 item) {
+        synchronized (mLock) {
+            mCurrentMediaItem = item;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onCurrentMediaItemChanged(mInstance, item);
+            }
+        });
+
+    }
+
+    void notifyPlayerStateChanges(long eventTimeMs, long positionMs, final int state) {
+        synchronized (mLock) {
+            mPositionEventTimeMs = eventTimeMs;
+            mPositionMs = positionMs;
+            mPlayerState = state;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onPlayerStateChanged(mInstance, state);
+            }
+        });
+    }
+
+    void notifyPlaybackSpeedChanges(long eventTimeMs, long positionMs, final float speed) {
+        synchronized (mLock) {
+            mPositionEventTimeMs = eventTimeMs;
+            mPositionMs = positionMs;
+            mPlaybackSpeed = speed;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onPlaybackSpeedChanged(mInstance, speed);
+            }
+        });
+    }
+
+    void notifyBufferingStateChanged(final MediaItem2 item, final int state,
+            long bufferedPositionMs) {
+        synchronized (mLock) {
+            mBufferingState = state;
+            mBufferedPositionMs = bufferedPositionMs;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onBufferingStateChanged(mInstance, item, state);
+            }
+        });
+    }
+
+    void notifyPlaylistChanges(final List<MediaItem2> playlist, final MediaMetadata2 metadata) {
+        synchronized (mLock) {
+            mPlaylist = playlist;
+            mPlaylistMetadata = metadata;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onPlaylistChanged(mInstance, playlist, metadata);
+            }
+        });
+    }
+
+    void notifyPlaylistMetadataChanges(final MediaMetadata2 metadata) {
+        synchronized (mLock) {
+            mPlaylistMetadata = metadata;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onPlaylistMetadataChanged(mInstance, metadata);
+            }
+        });
+    }
+
+    void notifyPlaybackInfoChanges(final PlaybackInfo info) {
+        synchronized (mLock) {
+            mPlaybackInfo = info;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onPlaybackInfoChanged(mInstance, info);
+            }
+        });
+    }
+
+    void notifyRepeatModeChanges(final int repeatMode) {
+        synchronized (mLock) {
+            mRepeatMode = repeatMode;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onRepeatModeChanged(mInstance, repeatMode);
+            }
+        });
+    }
+
+    void notifyShuffleModeChanges(final int shuffleMode) {
+        synchronized (mLock) {
+            mShuffleMode = shuffleMode;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onShuffleModeChanged(mInstance, shuffleMode);
+            }
+        });
+    }
+
+    void notifySeekCompleted(long eventTimeMs, long positionMs, final long seekPositionMs) {
+        synchronized (mLock) {
+            mPositionEventTimeMs = eventTimeMs;
+            mPositionMs = positionMs;
+        }
+
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onSeekCompleted(mInstance, seekPositionMs);
+            }
+        });
+    }
+
+    void notifyError(final int errorCode, final Bundle extras) {
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onError(mInstance, errorCode, extras);
+            }
+        });
+    }
+
+    void notifyRoutesInfoChanged(final List<Bundle> routes) {
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onRoutesInfoChanged(mInstance, routes);
+            }
+        });
+    }
+
     // Should be used without a lock to prevent potential deadlock.
-    void onConnectedNotLocked(Bundle data) {
-        data.setClassLoader(MediaSession2.class.getClassLoader());
-        // is enough or should we pass it while connecting?
-        final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
-                data.getBundle(ARGUMENT_ALLOWED_COMMANDS));
-        final int playerState = data.getInt(ARGUMENT_PLAYER_STATE);
-        final int bufferingState = data.getInt(ARGUMENT_BUFFERING_STATE);
-        final PlaybackStateCompat playbackStateCompat = data.getParcelable(
-                ARGUMENT_PLAYBACK_STATE_COMPAT);
-        final int repeatMode = data.getInt(ARGUMENT_REPEAT_MODE);
-        final int shuffleMode = data.getInt(ARGUMENT_SHUFFLE_MODE);
-        final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
-                data.getParcelableArray(ARGUMENT_PLAYLIST));
-        final MediaItem2 currentMediaItem = MediaItem2.fromBundle(
-                data.getBundle(ARGUMENT_MEDIA_ITEM));
-        final PlaybackInfo playbackInfo =
-                PlaybackInfo.fromBundle(data.getBundle(ARGUMENT_PLAYBACK_INFO));
-        final MediaMetadata2 metadata = MediaMetadata2.fromBundle(
-                data.getBundle(ARGUMENT_PLAYLIST_METADATA));
+    void onConnectedNotLocked(IMediaSession2 sessionBinder,
+            final SessionCommandGroup2 allowedCommands,
+            final int playerState,
+            final MediaItem2 currentMediaItem,
+            final long positionEventTimeMs,
+            final long positionMs,
+            final float playbackSpeed,
+            final long bufferedPositionMs,
+            final PlaybackInfo info,
+            final int repeatMode,
+            final int shuffleMode,
+            final List<MediaItem2> playlist,
+            final PendingIntent sessionActivity) {
         if (DEBUG) {
-            Log.d(TAG, "onConnectedNotLocked sessionCompatToken=" + mToken.getSessionCompatToken()
+            Log.d(TAG, "onConnectedNotLocked sessionBinder=" + sessionBinder
                     + ", allowedCommands=" + allowedCommands);
         }
         boolean close = false;
         try {
+            if (sessionBinder == null || allowedCommands == null) {
+                // Connection rejected.
+                close = true;
+                return;
+            }
             synchronized (mLock) {
                 if (mIsReleased) {
                     return;
                 }
-                if (mConnected) {
+                if (mISession2 != null) {
                     Log.e(TAG, "Cannot be notified about the connection result many times."
                             + " Probably a bug or malicious app.");
                     close = true;
@@ -830,15 +1056,28 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
                 }
                 mAllowedCommands = allowedCommands;
                 mPlayerState = playerState;
-                mBufferingState = bufferingState;
-                mPlaybackStateCompat = playbackStateCompat;
+                mCurrentMediaItem = currentMediaItem;
+                mPositionEventTimeMs = positionEventTimeMs;
+                mPositionMs = positionMs;
+                mPlaybackSpeed = playbackSpeed;
+                mBufferedPositionMs = bufferedPositionMs;
+                mPlaybackInfo = info;
                 mRepeatMode = repeatMode;
                 mShuffleMode = shuffleMode;
                 mPlaylist = playlist;
-                mCurrentMediaItem = currentMediaItem;
-                mPlaylistMetadata = metadata;
-                mConnected = true;
-                mPlaybackInfo = playbackInfo;
+                mSessionActivity = sessionActivity;
+                mISession2 = sessionBinder;
+                try {
+                    // Implementation for the local binder is no-op,
+                    // so can be used without worrying about deadlock.
+                    mISession2.asBinder().linkToDeath(mDeathRecipient, 0);
+                } catch (RemoteException e) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Session died too early.", e);
+                    }
+                    close = true;
+                    return;
+                }
             }
             mCallbackExecutor.execute(new Runnable() {
                 @Override
@@ -853,456 +1092,74 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
             if (close) {
                 // Trick to call release() without holding the lock, to prevent potential deadlock
                 // with the developer's custom lock within the ControllerCallback.onDisconnected().
-                close();
+                mInstance.close();
             }
         }
     }
 
-    private void initialize() {
-        if (mToken.getType() == SessionToken2.TYPE_SESSION) {
-            synchronized (mLock) {
-                mBrowserCompat = null;
-            }
-            connectToSession(mToken.getSessionCompatToken());
-        } else {
-            connectToService();
+    void onCustomCommand(final SessionCommand2 command, final Bundle args,
+            final ResultReceiver receiver) {
+        if (DEBUG) {
+            Log.d(TAG, "onCustomCommand cmd=" + command);
         }
-    }
-
-    private void connectToSession(MediaSessionCompat.Token sessionCompatToken) {
-        MediaControllerCompat controllerCompat = null;
-        try {
-            controllerCompat = new MediaControllerCompat(mContext, sessionCompatToken);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        synchronized (mLock) {
-            mControllerCompat = controllerCompat;
-            mControllerCompatCallback = new ControllerCompatCallback();
-            mControllerCompat.registerCallback(mControllerCompatCallback, mHandler);
-        }
-
-        if (controllerCompat.isSessionReady()) {
-            sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
-                @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    if (!mHandlerThread.isAlive()) {
-                        return;
-                    }
-                    switch (resultCode) {
-                        case CONNECT_RESULT_CONNECTED:
-                            onConnectedNotLocked(resultData);
-                            break;
-                        case CONNECT_RESULT_DISCONNECTED:
-                            mCallbackExecutor.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mCallback.onDisconnected(mInstance);
-                                }
-                            });
-                            close();
-                            break;
-                    }
-                }
-            });
-        }
-    }
-
-    private void connectToService() {
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                synchronized (mLock) {
-                    mBrowserCompat = new MediaBrowserCompat(mContext, mToken.getComponentName(),
-                            new ConnectionCallback(), sDefaultRootExtras);
-                    mBrowserCompat.connect();
-                }
+                mCallback.onCustomCommand(mInstance, command, args, receiver);
             }
         });
     }
 
-    private void sendCommand(int commandCode) {
-        sendCommand(commandCode, null);
+    void onAllowedCommandsChanged(final SessionCommandGroup2 commands) {
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mCallback.onAllowedCommandsChanged(mInstance, commands);
+            }
+        });
     }
 
-    private void sendCommand(int commandCode, Bundle args) {
-        if (args == null) {
-            args = new Bundle();
-        }
-        args.putInt(ARGUMENT_COMMAND_CODE, commandCode);
-        sendCommand(CONTROLLER_COMMAND_BY_COMMAND_CODE, args, null);
+    void onCustomLayoutChanged(final List<MediaSession2.CommandButton> layout) {
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mCallback.onCustomLayoutChanged(mInstance, layout);
+            }
+        });
     }
 
-    private void sendCommand(String command) {
-        sendCommand(command, null, null);
-    }
-
-    private void sendCommand(String command, ResultReceiver receiver) {
-        sendCommand(command, null, receiver);
-    }
-
-    private void sendCommand(String command, Bundle args, ResultReceiver receiver) {
-        if (args == null) {
-            args = new Bundle();
-        }
-        MediaControllerCompat controller;
-        ControllerCompatCallback callback;
-        synchronized (mLock) {
-            controller = mControllerCompat;
-            callback = mControllerCompatCallback;
-        }
-        BundleCompat.putBinder(args, ARGUMENT_ICONTROLLER_CALLBACK,
-                callback.getIControllerCallback().asBinder());
-        args.putString(ARGUMENT_PACKAGE_NAME, mContext.getPackageName());
-        args.putInt(ARGUMENT_UID, Process.myUid());
-        args.putInt(ARGUMENT_PID, Process.myPid());
-        controller.sendCommand(command, args, receiver);
-    }
-
-    private class ConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
+    // This will be called on the main thread.
+    private class SessionServiceConnection implements ServiceConnection {
         @Override
-        public void onConnected() {
-            MediaBrowserCompat browser = getBrowserCompat();
-            if (browser != null) {
-                connectToSession(browser.getSessionToken());
-            } else if (DEBUG) {
-                Log.d(TAG, "Controller is closed prematually", new IllegalStateException());
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // Note that it's always main-thread.
+            if (DEBUG) {
+                Log.d(TAG, "onServiceConnected " + name + " " + this);
+            }
+            // Sanity check
+            if (!mToken.getPackageName().equals(name.getPackageName())) {
+                Log.wtf(TAG, name + " was connected, but expected pkg="
+                        + mToken.getPackageName() + " with id=" + mToken.getId());
+                return;
+            }
+            connectToSession(IMediaSession2.Stub.asInterface(service));
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // Temporal lose of the binding because of the service crash. System will automatically
+            // rebind, so just no-op.
+            if (DEBUG) {
+                Log.w(TAG, "Session service " + name + " is disconnected.");
             }
         }
 
         @Override
-        public void onConnectionSuspended() {
+        public void onBindingDied(ComponentName name) {
+            // Permanent lose of the binding because of the service package update or removed.
+            // This SessionServiceRecord will be removed accordingly, but forget session binder here
+            // for sure.
             close();
-        }
-
-        @Override
-        public void onConnectionFailed() {
-            close();
-        }
-    }
-
-    private final class ControllerCompatCallback extends MediaControllerCompat.Callback {
-        @Override
-        public void onSessionReady() {
-            sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
-                @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    if (!mHandlerThread.isAlive()) {
-                        return;
-                    }
-                    switch (resultCode) {
-                        case CONNECT_RESULT_CONNECTED:
-                            synchronized (mLock) {
-                                if (mIsReleased) {
-                                    cleanUpControllerCompatLocked(true /* sendDisconnectCommand */);
-                                    return;
-                                }
-                            }
-                            onConnectedNotLocked(resultData);
-                            break;
-                        case CONNECT_RESULT_DISCONNECTED:
-                            synchronized (mLock) {
-                                if (mIsReleased) {
-                                    cleanUpControllerCompatLocked(
-                                            false /* sendDisconnectCommand */);
-                                    return;
-                                }
-                            }
-                            mCallbackExecutor.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mCallback.onDisconnected(mInstance);
-                                }
-                            });
-                            close();
-                            break;
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onSessionDestroyed() {
-            close();
-        }
-
-        @Override
-        public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            synchronized (mLock) {
-                mPlaybackStateCompat = state;
-            }
-        }
-
-        @Override
-        public void onMetadataChanged(MediaMetadataCompat metadata) {
-            synchronized (mLock) {
-                mMediaMetadataCompat = metadata;
-            }
-        }
-
-        @Override
-        public void onSessionEvent(String event, Bundle extras) {
-            if (extras != null) {
-                extras.setClassLoader(MediaSession2.class.getClassLoader());
-            }
-            switch (event) {
-                case SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED: {
-                    final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
-                            extras.getBundle(ARGUMENT_ALLOWED_COMMANDS));
-                    synchronized (mLock) {
-                        mAllowedCommands = allowedCommands;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onAllowedCommandsChanged(mInstance, allowedCommands);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_PLAYER_STATE_CHANGED: {
-                    final int playerState = extras.getInt(ARGUMENT_PLAYER_STATE);
-                    PlaybackStateCompat state =
-                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
-                    if (state == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mPlayerState = playerState;
-                        mPlaybackStateCompat = state;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onPlayerStateChanged(mInstance, playerState);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED: {
-                    final MediaItem2 item = MediaItem2.fromBundle(
-                            extras.getBundle(ARGUMENT_MEDIA_ITEM));
-                    synchronized (mLock) {
-                        mCurrentMediaItem = item;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onCurrentMediaItemChanged(mInstance, item);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_ERROR: {
-                    final int errorCode = extras.getInt(ARGUMENT_ERROR_CODE);
-                    final Bundle errorExtras = extras.getBundle(ARGUMENT_EXTRAS);
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onError(mInstance, errorCode, errorExtras);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_ROUTES_INFO_CHANGED: {
-                    final List<Bundle> routes = MediaUtils2.toBundleList(
-                            extras.getParcelableArray(ARGUMENT_ROUTE_BUNDLE));
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onRoutesInfoChanged(mInstance, routes);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_PLAYLIST_CHANGED: {
-                    final MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
-                            extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
-                    final List<MediaItem2> playlist = MediaUtils2.fromMediaItem2ParcelableArray(
-                            extras.getParcelableArray(ARGUMENT_PLAYLIST));
-                    synchronized (mLock) {
-                        mPlaylist = playlist;
-                        mPlaylistMetadata = playlistMetadata;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onPlaylistChanged(mInstance, playlist, playlistMetadata);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED: {
-                    final MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
-                            extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
-                    synchronized (mLock) {
-                        mPlaylistMetadata = playlistMetadata;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onPlaylistMetadataChanged(mInstance, playlistMetadata);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_REPEAT_MODE_CHANGED: {
-                    final int repeatMode = extras.getInt(ARGUMENT_REPEAT_MODE);
-                    synchronized (mLock) {
-                        mRepeatMode = repeatMode;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onRepeatModeChanged(mInstance, repeatMode);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED: {
-                    final int shuffleMode = extras.getInt(ARGUMENT_SHUFFLE_MODE);
-                    synchronized (mLock) {
-                        mShuffleMode = shuffleMode;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onShuffleModeChanged(mInstance, shuffleMode);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_SEND_CUSTOM_COMMAND: {
-                    Bundle commandBundle = extras.getBundle(ARGUMENT_CUSTOM_COMMAND);
-                    if (commandBundle == null) {
-                        return;
-                    }
-                    final SessionCommand2 command = SessionCommand2.fromBundle(commandBundle);
-                    final Bundle args = extras.getBundle(ARGUMENT_ARGUMENTS);
-                    final ResultReceiver receiver = extras.getParcelable(ARGUMENT_RESULT_RECEIVER);
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onCustomCommand(mInstance, command, args, receiver);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_SET_CUSTOM_LAYOUT: {
-                    final List<CommandButton> layout = MediaUtils2.fromCommandButtonParcelableArray(
-                            extras.getParcelableArray(ARGUMENT_COMMAND_BUTTONS));
-                    if (layout == null) {
-                        return;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onCustomLayoutChanged(mInstance, layout);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED: {
-                    final PlaybackInfo info = PlaybackInfo.fromBundle(
-                            extras.getBundle(ARGUMENT_PLAYBACK_INFO));
-                    if (info == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mPlaybackInfo = info;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onPlaybackInfoChanged(mInstance, info);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED: {
-                    final PlaybackStateCompat state =
-                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
-                    if (state == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mPlaybackStateCompat = state;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onPlaybackSpeedChanged(mInstance, state.getPlaybackSpeed());
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_BUFFERING_STATE_CHANGED: {
-                    final MediaItem2 item = MediaItem2.fromBundle(
-                            extras.getBundle(ARGUMENT_MEDIA_ITEM));
-                    final int bufferingState = extras.getInt(ARGUMENT_BUFFERING_STATE);
-                    PlaybackStateCompat state =
-                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
-                    if (item == null || state == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mBufferingState = bufferingState;
-                        mPlaybackStateCompat = state;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onBufferingStateChanged(mInstance, item, bufferingState);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_SEEK_COMPLETED: {
-                    final long position = extras.getLong(ARGUMENT_SEEK_POSITION);
-                    PlaybackStateCompat state =
-                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
-                    if (state == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mPlaybackStateCompat = state;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onSeekCompleted(mInstance, position);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_CHILDREN_CHANGED: {
-                    String parentId = extras.getString(ARGUMENT_MEDIA_ID);
-                    if (parentId == null || !(mInstance instanceof MediaBrowser2)) {
-                        return;
-                    }
-                    int itemCount = extras.getInt(ARGUMENT_ITEM_COUNT, -1);
-                    Bundle childrenExtras = extras.getBundle(ARGUMENT_EXTRAS);
-                    ((MediaBrowser2.BrowserCallback) mCallback).onChildrenChanged(
-                            (MediaBrowser2) mInstance, parentId, itemCount, childrenExtras);
-                    break;
-                }
-                case SESSION_EVENT_ON_SEARCH_RESULT_CHANGED: {
-                    final String query = extras.getString(ARGUMENT_QUERY);
-                    if (query == null || !(mInstance instanceof MediaBrowser2)) {
-                        return;
-                    }
-                    final int itemCount = extras.getInt(ARGUMENT_ITEM_COUNT, -1);
-                    final Bundle searchExtras = extras.getBundle(ARGUMENT_EXTRAS);
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            ((MediaBrowser2.BrowserCallback) mCallback).onSearchResultChanged(
-                                    (MediaBrowser2) mInstance, query, itemCount, searchExtras);
-                        }
-                    });
-                    break;
-                }
-            }
         }
     }
 }

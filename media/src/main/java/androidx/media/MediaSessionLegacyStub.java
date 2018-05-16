@@ -92,9 +92,10 @@ import java.util.List;
 import java.util.Set;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
+// Getting the commands from MediaControllerCompat'
 class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
-    private static final String TAG = "MS2StubImplBase";
+    private static final String TAG = "MediaSessionLegacyStub";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static final SparseArray<SessionCommand2> sCommandsForOnCommandRequest =
@@ -458,7 +459,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlayerStateChanged(int playerState)
+        void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException {
             // Note: current position should be also sent to the controller here for controller
             // to calculate the position more correctly.
@@ -469,7 +470,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlaybackSpeedChanged(float speed) throws RemoteException {
+        void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
+                throws RemoteException {
             // Note: current position should be also sent to the controller here for controller
             // to calculate the position more correctly.
             Bundle bundle = new Bundle();
@@ -479,7 +481,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onBufferingStateChanged(MediaItem2 item, int state) throws RemoteException {
+        void onBufferingStateChanged(MediaItem2 item, int state, long bufferedPositionMs)
+                throws RemoteException {
             // Note: buffered position should be also sent to the controller here. It's to
             // follow the behavior of BaseMediaPlayer.PlayerEventCallback.
             Bundle bundle = new Bundle();
@@ -492,7 +495,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onSeekCompleted(long position) throws RemoteException {
+        void onSeekCompleted(long eventTimeMs, long positionMs, long position)
+                throws RemoteException {
             // Note: current position should be also sent to the controller here because the
             // position here may refer to the parameter of the previous seek() API calls.
             Bundle bundle = new Bundle();
@@ -578,6 +582,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             bundle.putInt(ARGUMENT_ITEM_COUNT, itemCount);
             bundle.putBundle(ARGUMENT_EXTRAS, extras);
             mIControllerCallback.onEvent(SESSION_EVENT_ON_SEARCH_RESULT_CHANGED, bundle);
+        }
+
+        @Override
+        void onDisconnected() throws RemoteException {
+            mIControllerCallback.onSessionDestroyed();
         }
     }
 }
