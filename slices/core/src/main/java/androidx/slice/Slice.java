@@ -17,6 +17,7 @@
 package androidx.slice;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_ERROR;
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_LIST;
@@ -103,6 +104,7 @@ public final class Slice {
             HINT_TTL,
             HINT_LAST_UPDATED,
             HINT_PERMISSION_REQUEST,
+            HINT_ERROR,
     })
     public @interface SliceHint{ }
 

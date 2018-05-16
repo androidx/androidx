@@ -19,6 +19,7 @@ package androidx.slice;
 import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_ERROR;
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
@@ -411,6 +412,16 @@ public class SliceMetadata {
      */
     public boolean isPermissionSlice() {
         return mSlice.hasHint(HINT_PERMISSION_REQUEST);
+    }
+
+    /**
+     * Indicates whether this slice indicates an error, i.e. the normal contents of this slice are
+     * unavailable and instead the slice contains a message indicating an error.
+     *
+     * @return whether this slice represents an error.
+     */
+    public boolean isErrorSlice() {
+        return mSlice.hasHint(HINT_ERROR);
     }
 
     /**
