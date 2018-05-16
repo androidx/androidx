@@ -263,6 +263,8 @@ public interface WorkSpecDao {
      */
     @Query("SELECT * from workspec WHERE "
             + "state=" + WorkTypeConverters.StateIds.ENQUEUED
+            // We only want WorkSpecs which have not been previously scheduled.
+            + " AND schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
             + " LIMIT "
                 + "(SELECT " + Scheduler.MAX_SCHEDULER_LIMIT + "-COUNT(*) FROM workspec WHERE"
                     + " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET

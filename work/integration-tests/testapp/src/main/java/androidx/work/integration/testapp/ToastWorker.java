@@ -29,7 +29,7 @@ import androidx.work.Worker;
  *  A {@link Worker} that shows a given Toast.
  */
 public class ToastWorker extends Worker {
-    private static final String ARG_MESSAGE = "message";
+    static final String ARG_MESSAGE = "message";
 
     /**
      * Create a {@link OneTimeWorkRequest.Builder} with the given message.

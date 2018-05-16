@@ -40,6 +40,7 @@ public class SystemAlarmService extends LifecycleService
     public void onCreate() {
         super.onCreate();
         mDispatcher = new SystemAlarmDispatcher(this);
+        mDispatcher.setCompletedListener(this);
     }
 
     @Override
