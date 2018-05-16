@@ -265,21 +265,19 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 .build();
 
         insertWork(work);
-        String workSpecId = work.getStringId();
         final Intent constraintChanged = CommandHandler.createConstraintsChangedIntent(mContext);
         mSpyDispatcher.postOnMainThread(
                 new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, constraintChanged, START_ID));
 
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
-
         assertThat(mLatch.getCount(), is(0L));
-        verify(mSpyProcessor, times(1)).startWork(workSpecId);
     }
 
     @Test
     public void testConstraintsChangedMarkedNotScheduled_withNoConstraints()
             throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setScheduleRequestedAt(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
