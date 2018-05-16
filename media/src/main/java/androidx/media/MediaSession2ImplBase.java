@@ -879,7 +879,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     @Override
     public PlaybackStateCompat getPlaybackStateCompat() {
         synchronized (mLock) {
-            int state = MediaUtils2.createPlaybackStateCompatState(getPlayerState(),
+            int state = MediaUtils2.convertToPlaybackStateCompatState(getPlayerState(),
                     getBufferingState());
             long allActions = PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_PAUSE
                     | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_REWIND

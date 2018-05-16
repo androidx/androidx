@@ -356,7 +356,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                             COMMAND_CODE_PLAYLIST_GET_LIST) ? mSession.getPlaylist() : null;
                     if (playlist != null) {
                         resultData.putParcelableArray(ARGUMENT_PLAYLIST,
-                                MediaUtils2.toMediaItem2ParcelableArray(playlist));
+                                MediaUtils2.convertMediaItem2ListToParcelableArray(playlist));
                     }
                     final MediaItem2 currentMediaItem =
                             allowedCommands.hasCommand(COMMAND_CODE_PLAYLIST_GET_CURRENT_MEDIA_ITEM)
@@ -424,7 +424,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
             Bundle bundle = new Bundle();
             bundle.putParcelableArray(ARGUMENT_COMMAND_BUTTONS,
-                    MediaUtils2.toCommandButtonParcelableArray(layout));
+                    MediaUtils2.convertCommandButtonListToParcelableArray(layout));
             mIControllerCallback.onEvent(SESSION_EVENT_SET_CUSTOM_LAYOUT, bundle);
         }
 
@@ -521,7 +521,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 throws RemoteException {
             Bundle bundle = new Bundle();
             bundle.putParcelableArray(ARGUMENT_PLAYLIST,
-                    MediaUtils2.toMediaItem2ParcelableArray(playlist));
+                    MediaUtils2.convertMediaItem2ListToParcelableArray(playlist));
             bundle.putBundle(ARGUMENT_PLAYLIST_METADATA,
                     metadata == null ? null : metadata.toBundle());
             mIControllerCallback.onEvent(SESSION_EVENT_ON_PLAYLIST_CHANGED, bundle);

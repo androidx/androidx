@@ -94,7 +94,7 @@ class MediaLibraryService2LegacyStub extends MediaBrowserServiceCompat {
                             List<MediaItem2> children = mLibrarySession.getCallback()
                                     .onGetChildren(mLibrarySession.getInstance(), controller,
                                             parentId, page, pageSize, options);
-                            result.sendResult(MediaUtils2.fromMediaItem2List(children));
+                            result.sendResult(MediaUtils2.convertToMediaItemList(children));
                             return;
                         }
                         // Cannot distinguish onLoadChildren() why it's called either by
@@ -109,7 +109,7 @@ class MediaLibraryService2LegacyStub extends MediaBrowserServiceCompat {
                         .onGetChildren(mLibrarySession.getInstance(), controller, parentId,
                                 1 /* page */, Integer.MAX_VALUE /* pageSize*/,
                                 null /* extras */);
-                result.sendResult(MediaUtils2.fromMediaItem2List(children));
+                result.sendResult(MediaUtils2.convertToMediaItemList(children));
             }
         });
     }
@@ -126,7 +126,7 @@ class MediaLibraryService2LegacyStub extends MediaBrowserServiceCompat {
                 if (item == null) {
                     result.sendResult(null);
                 } else {
-                    result.sendResult(MediaUtils2.createMediaItem(item));
+                    result.sendResult(MediaUtils2.convertToMediaItem(item));
                 }
             }
         });
@@ -152,7 +152,7 @@ class MediaLibraryService2LegacyStub extends MediaBrowserServiceCompat {
                             result.sendResult(null);
                             return;
                         }
-                        result.sendResult(MediaUtils2.fromMediaItem2List(searchResult));
+                        result.sendResult(MediaUtils2.convertToMediaItemList(searchResult));
                     }
                 });
             } else {

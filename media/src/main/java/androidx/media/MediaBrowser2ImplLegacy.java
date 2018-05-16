@@ -180,7 +180,7 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
                     @Override
                     public void run() {
                         getCallback().onGetItemDone(getInstance(), mediaId,
-                                MediaUtils2.createMediaItem2(item));
+                                MediaUtils2.convertToMediaItem2(item));
                     }
                 });
             }
@@ -240,7 +240,8 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
                 getCallbackExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
-                        List<MediaItem2> item2List = MediaUtils2.toMediaItem2List(items);
+                        List<MediaItem2> item2List =
+                                MediaUtils2.convertMediaItemListToMediaItem2List(items);
                         getCallback().onGetSearchResultDone(
                                 getInstance(), query, page, pageSize, item2List, extras);
                     }
@@ -400,7 +401,7 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
             } else {
                 items = new ArrayList<>();
                 for (int i = 0; i < children.size(); i++) {
-                    items.add(MediaUtils2.createMediaItem2(children.get(i)));
+                    items.add(MediaUtils2.convertToMediaItem2(children.get(i)));
                 }
             }
             final Bundle extras = getExtrasWithoutPagination(options);
