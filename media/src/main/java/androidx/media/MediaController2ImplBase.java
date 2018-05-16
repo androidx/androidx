@@ -550,7 +550,8 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
         final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SET_LIST);
         if (iSession2 != null) {
             try {
-                iSession2.setPlaylist(mControllerStub, MediaUtils2.toMediaItem2BundleList(list),
+                iSession2.setPlaylist(mControllerStub,
+                        MediaUtils2.convertMediaItem2ListToBundleList(list),
                         (metadata == null) ? null : metadata.toBundle());
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);

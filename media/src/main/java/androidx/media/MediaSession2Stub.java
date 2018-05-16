@@ -296,7 +296,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                     SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST)
                                             ? mSession.getPlaylist() : null;
                     final List<Bundle> playlistBundle =
-                            MediaUtils2.toMediaItem2BundleList(playlist);
+                            MediaUtils2.convertMediaItem2ListToBundleList(playlist);
 
                     // Double check if session is still there, because close() can be called in
                     // another thread.
@@ -624,7 +624,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             return;
                         }
                         mSession.getInstance().setPlaylist(
-                                MediaUtils2.fromMediaItem2BundleList(playlist),
+                                MediaUtils2.convertBundleListToMediaItem2List(playlist),
                                 MediaMetadata2.fromBundle(metadata));
                     }
                 });
@@ -930,7 +930,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
             mIControllerCallback.onCustomLayoutChanged(
-                    MediaUtils2.toCommandButtonBundleList(layout));
+                    MediaUtils2.convertCommandButtonListToBundleList(layout));
         }
 
         @Override
@@ -987,7 +987,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onPlaylistChanged(List<MediaItem2> playlist, MediaMetadata2 metadata)
                 throws RemoteException {
-            mIControllerCallback.onPlaylistChanged(MediaUtils2.toMediaItem2BundleList(playlist),
+            mIControllerCallback.onPlaylistChanged(
+                    MediaUtils2.convertMediaItem2ListToBundleList(playlist),
                     metadata == null ? null : metadata.toBundle());
         }
 
@@ -1026,7 +1027,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onGetChildrenDone(String parentId, int page, int pageSize, List<MediaItem2> result,
                 Bundle extras) throws RemoteException {
-            List<Bundle> bundleList = MediaUtils2.toMediaItem2BundleList(result);
+            List<Bundle> bundleList = MediaUtils2.convertMediaItem2ListToBundleList(result);
             mIControllerCallback.onGetChildrenDone(parentId, page, pageSize, bundleList, extras);
         }
 
@@ -1044,7 +1045,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onGetSearchResultDone(String query, int page, int pageSize, List<MediaItem2> result,
                 Bundle extras) throws RemoteException {
-            List<Bundle> bundleList = MediaUtils2.toMediaItem2BundleList(result);
+            List<Bundle> bundleList = MediaUtils2.convertMediaItem2ListToBundleList(result);
             mIControllerCallback.onGetSearchResultDone(query, page, pageSize, bundleList, extras);
         }
 

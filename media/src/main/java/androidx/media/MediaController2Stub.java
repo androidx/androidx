@@ -388,7 +388,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             @Override
             public void run() {
                 browser.getCallback().onGetChildrenDone(browser, parentId, page, pageSize,
-                        MediaUtils2.fromMediaItem2BundleList(itemBundleList), extras);
+                        MediaUtils2.convertBundleListToMediaItem2List(itemBundleList), extras);
             }
         });
     }
@@ -441,7 +441,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             @Override
             public void run() {
                 browser.getCallback().onGetSearchResultDone(browser, query, page, pageSize,
-                        MediaUtils2.fromMediaItem2BundleList(itemBundleList), extras);
+                        MediaUtils2.convertBundleListToMediaItem2List(itemBundleList), extras);
             }
         });
     }
