@@ -382,7 +382,8 @@ public class ListContent {
 
     @Nullable
     private static SliceItem getSeeMoreItem(@NonNull Slice slice) {
-        SliceItem item = SliceQuery.find(slice, null, HINT_SEE_MORE, null);
+        SliceItem item = SliceQuery.findTopLevelItem(slice, null, null,
+                new String[] {HINT_SEE_MORE}, null);
         if (item != null) {
             if (FORMAT_SLICE.equals(item.getFormat())) {
                 List<SliceItem> items = item.getSlice().getItems();
