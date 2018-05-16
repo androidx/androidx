@@ -595,8 +595,9 @@ public final class Data {
          * each of those types.  Any {@code null} values will also be ignored.
          *
          * @param values A {@link Map} of key-value pairs to add
+         * @return The {@link Builder}
          */
-        public void putAll(Map<String, Object> values) {
+        public Builder putAll(Map<String, Object> values) {
             for (Map.Entry<String, Object> entry : values.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
@@ -632,6 +633,7 @@ public final class Data {
                             String.format("Key %s has invalid type %s", key, valueType));
                 }
             }
+            return this;
         }
 
         /**
