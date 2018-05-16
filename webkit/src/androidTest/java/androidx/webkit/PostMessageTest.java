@@ -16,11 +16,12 @@
 
 package androidx.webkit;
 
-import static junit.framework.Assert.assertEquals;
-
 import static org.junit.Assume.assumeTrue;
 
 import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -166,14 +167,14 @@ public class PostMessageTest {
                     @Override
                     public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
                         int i = messageCount - (int) latch.getCount();
-                        assertEquals(WEBVIEW_MESSAGE + i + i, message.getData());
+                        Assert.assertEquals(WEBVIEW_MESSAGE + i + i, message.getData());
                         latch.countDown();
                     }
                 });
             }
         });
         // Wait for all the responses to arrive.
-        boolean ignore = latch.await(TIMEOUT, java.util.concurrent.TimeUnit.MILLISECONDS);
+        Assert.assertTrue(latch.await(TIMEOUT, java.util.concurrent.TimeUnit.MILLISECONDS));
     }
 
     // Test that a message port that is closed cannot used to send a message
@@ -247,5 +248,78 @@ public class PostMessageTest {
             }
         });
         waitForTitle(hello);
+    }
+
+    // Ensure the callback is invoked on the correct Handler.
+    @Test
+    public void testWebMessageHandler() throws Throwable {
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE));
+        assumeTrue(WebViewFeature.isFeatureSupported(
+                WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK));
+
+        loadPage(CHANNEL_MESSAGE);
+        final WebMessagePortCompat[] channel = mOnUiThread.createWebMessageChannelCompat();
+        WebMessageCompat message = new WebMessageCompat(WEBVIEW_MESSAGE, new
+                WebMessagePortCompat[]{channel[1]});
+        mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
+        final int messageCount = 1;
+        final CountDownLatch latch = new CountDownLatch(messageCount);
+
+        // Create a new thread for the WebMessageCallbackCompat.
+        final HandlerThread messageHandlerThread = new HandlerThread("POST_MESSAGE_THREAD");
+        messageHandlerThread.start();
+        final Handler messageHandler = new Handler(messageHandlerThread.getLooper());
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
+                channel[0].setWebMessageCallback(messageHandler, new WebMessageCallbackCompat() {
+                    @Override
+                    public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
+                        Assert.assertTrue(messageHandlerThread.getLooper().isCurrentThread());
+                        latch.countDown();
+                    }
+                });
+            }
+        });
+        // Wait for all the responses to arrive.
+        Assert.assertTrue(latch.await(TIMEOUT, java.util.concurrent.TimeUnit.MILLISECONDS));
+    }
+
+    // Ensure the callback is invoked on the MainLooper by default.
+    @Test
+    public void testWebMessageDefaultHandler() throws Throwable {
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE));
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE));
+        assumeTrue(WebViewFeature.isFeatureSupported(
+                WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK));
+
+        loadPage(CHANNEL_MESSAGE);
+        final WebMessagePortCompat[] channel = mOnUiThread.createWebMessageChannelCompat();
+        WebMessageCompat message = new WebMessageCompat(WEBVIEW_MESSAGE,
+                new WebMessagePortCompat[]{channel[1]});
+        mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
+        final int messageCount = 1;
+        final CountDownLatch latch = new CountDownLatch(messageCount);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
+                channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
+                    @Override
+                    public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
+                        Assert.assertTrue(Looper.getMainLooper().isCurrentThread());
+                        latch.countDown();
+                    }
+                });
+            }
+        });
+        // Wait for all the responses to arrive.
+        Assert.assertTrue(latch.await(TIMEOUT, java.util.concurrent.TimeUnit.MILLISECONDS));
     }
 }
