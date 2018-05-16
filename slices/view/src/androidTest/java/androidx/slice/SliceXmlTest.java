@@ -29,7 +29,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.app.PendingIntent;
+import android.app.RemoteInput;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
@@ -56,9 +58,11 @@ public class SliceXmlTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testThrowForAction() throws IOException {
+        PendingIntent pi = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Slice inner = new Slice.Builder(Uri.parse("context://pkg/slice/inner")).build();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
-                .addAction((PendingIntent) null, null, null)
+                .addAction(pi, inner, null)
                 .build();
         SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
                 .SerializeOptions());
@@ -66,9 +70,10 @@ public class SliceXmlTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testThrowForRemoteInput() throws IOException {
+        RemoteInput remoteInput = new RemoteInput.Builder("").build();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
-                .addRemoteInput(null, null)
+                .addRemoteInput(remoteInput, null)
                 .build();
         SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
                 .SerializeOptions());
@@ -78,7 +83,8 @@ public class SliceXmlTest {
     public void testThrowForImage() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
-                .addIcon(null, null)
+                .addIcon(IconCompat.createWithResource(mContext,
+                        R.drawable.abc_slice_remote_input_bg), null)
                 .build();
         SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
                 .SerializeOptions());
@@ -86,9 +92,11 @@ public class SliceXmlTest {
 
     @Test
     public void testNoThrowForAction() throws IOException {
+        PendingIntent pi = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Slice inner = new Slice.Builder(Uri.parse("context://pkg/slice/inner")).build();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
-                .addAction((PendingIntent) null, null, null)
+                .addAction(pi, inner, null)
                 .build();
         SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
                 .SerializeOptions().setActionMode(SliceUtils.SerializeOptions.MODE_REMOVE));
@@ -96,9 +104,10 @@ public class SliceXmlTest {
 
     @Test
     public void testNoThrowForRemoteInput() throws IOException {
+        RemoteInput remoteInput = new RemoteInput.Builder("").build();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
-                .addRemoteInput(null, null)
+                .addRemoteInput(remoteInput, null)
                 .build();
         SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
                 .SerializeOptions().setActionMode(SliceUtils.SerializeOptions.MODE_REMOVE));
@@ -108,7 +117,8 @@ public class SliceXmlTest {
     public void testNoThrowForImage() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
-                .addIcon(null, null)
+                .addIcon(IconCompat.createWithResource(mContext,
+                        R.drawable.abc_slice_remote_input_bg), null)
                 .build();
         SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
                 .SerializeOptions().setImageMode(SliceUtils.SerializeOptions.MODE_REMOVE));
@@ -116,6 +126,7 @@ public class SliceXmlTest {
 
     @Test
     public void testSerialization() throws Exception {
+        PendingIntent pi = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
         // Create a slice containing all the types in a hierarchy.
@@ -125,7 +136,7 @@ public class SliceXmlTest {
                         .build())
                 .addIcon(IconCompat.createWithBitmap(b), null)
                 .addText("Some text", null)
-                .addAction((PendingIntent) null,
+                .addAction(pi,
                         new Slice.Builder(Uri.parse("content://pkg/slice/action"))
                         .addText("Action text", null)
                         .build(), null)

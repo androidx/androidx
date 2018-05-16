@@ -59,6 +59,7 @@ import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.Consumer;
+import androidx.core.util.Preconditions;
 import androidx.slice.compat.SliceProviderCompat;
 
 import java.util.ArrayList;
@@ -258,6 +259,7 @@ public final class Slice {
          * Add a sub-slice to the slice being constructed
          */
         public Builder addSubSlice(@NonNull Slice slice) {
+            Preconditions.checkNotNull(slice);
             return addSubSlice(slice, null);
         }
 
@@ -267,6 +269,7 @@ public final class Slice {
          * @see {@link SliceItem#getSubType()}
          */
         public Builder addSubSlice(@NonNull Slice slice, String subType) {
+            Preconditions.checkNotNull(slice);
             mItems.add(new SliceItem(slice, FORMAT_SLICE, subType, slice.getHints().toArray(
                     new String[slice.getHints().size()])));
             return this;
@@ -279,6 +282,8 @@ public final class Slice {
          */
         public Slice.Builder addAction(@NonNull PendingIntent action,
                 @NonNull Slice s, @Nullable String subType) {
+            Preconditions.checkNotNull(action);
+            Preconditions.checkNotNull(s);
             @SliceHint String[] hints = s != null
                     ? s.getHints().toArray(new String[s.getHints().size()]) : new String[0];
             mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));
@@ -292,6 +297,7 @@ public final class Slice {
          */
         public Slice.Builder addAction(@NonNull Consumer<Uri> action,
                 @NonNull Slice s, @Nullable String subType) {
+            Preconditions.checkNotNull(s);
             @SliceHint String[] hints = s != null
                     ? s.getHints().toArray(new String[s.getHints().size()]) : new String[0];
             mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));
@@ -326,6 +332,7 @@ public final class Slice {
          */
         public Builder addIcon(IconCompat icon, @Nullable String subType,
                 @SliceHint String... hints) {
+            Preconditions.checkNotNull(icon);
             mItems.add(new SliceItem(icon, FORMAT_IMAGE, subType, hints));
             return this;
         }
@@ -337,6 +344,7 @@ public final class Slice {
          */
         public Builder addIcon(IconCompat icon, @Nullable String subType,
                 @SliceHint List<String> hints) {
+            Preconditions.checkNotNull(icon);
             return addIcon(icon, subType, hints.toArray(new String[hints.size()]));
         }
 
@@ -349,6 +357,7 @@ public final class Slice {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,
                 @SliceHint List<String> hints) {
+            Preconditions.checkNotNull(remoteInput);
             return addRemoteInput(remoteInput, subType, hints.toArray(new String[hints.size()]));
         }
 
@@ -361,6 +370,7 @@ public final class Slice {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,
                 @SliceHint String... hints) {
+            Preconditions.checkNotNull(remoteInput);
             mItems.add(new SliceItem(remoteInput, FORMAT_REMOTE_INPUT, subType, hints));
             return this;
         }

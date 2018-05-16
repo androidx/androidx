@@ -64,6 +64,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.os.BuildCompat;
+import androidx.core.util.Preconditions;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -662,6 +663,7 @@ public class IconCompat {
     @RequiresApi(23)
     @Nullable
     public static IconCompat createFromIcon(@NonNull Icon icon) {
+        Preconditions.checkNotNull(icon);
         IconCompat iconCompat = new IconCompat(TYPE_UNKOWN);
         iconCompat.mObj1 = icon;
         return iconCompat;
