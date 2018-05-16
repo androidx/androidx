@@ -82,8 +82,7 @@ class TopOfTreeBuilder {
         val packaging = artifactFile.relativePath.toFile().extension
         val baseFileName = "${pomDep.artifactId}-${pomDep.version}"
 
-        val artifactDir = Paths.get(
-            DIR_PREFIX, groupAsPath, pomDep.artifactId, pomDep.version!!.toUpperCase())
+        val artifactDir = Paths.get(DIR_PREFIX, groupAsPath, pomDep.artifactId, pomDep.version!!)
         val newLibFilePath = Paths.get(artifactDir.toString(), "$baseFileName.$packaging")
         val newPomFilePath = Paths.get(artifactDir.toString(), "$baseFileName.pom")
 
