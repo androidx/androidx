@@ -166,11 +166,12 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                     versionedParcelable.getAnnotationMirrors(), VERSIONED_PARCELIZE);
             String allowSerialization = getValue(annotation, "allowSerialization", "false");
             String ignoreParcelables = getValue(annotation, "ignoreParcelables", "false");
+            String isCustom = getValue(annotation, "isCustom", "false");
             String deprecatedIds = getValue(annotation, "deprecatedIds", "");
             parseDeprecated(takenIds, deprecatedIds);
             checkClass(versionedParcelable, takenIds);
             generateSerialization(versionedParcelable, fields, allowSerialization,
-                    ignoreParcelables);
+                    ignoreParcelables, isCustom);
         }
 
         return true;
@@ -185,7 +186,8 @@ public class VersionedParcelProcessor extends AbstractProcessor {
     }
 
     private void generateSerialization(Element versionedParcelable, Set<Element> fields,
-            String allowSerialization, String ignoreParcelables) {
+            String allowSerialization, String ignoreParcelables, String isCustom) {
+        boolean custom = "true".equals(isCustom);
         AnnotationSpec restrictTo = AnnotationSpec.builder(
                 ClassName.get("androidx.annotation", "RestrictTo"))
                 .addMember("value", "androidx.annotation.RestrictTo.Scope.LIBRARY").build();
@@ -213,6 +215,9 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                         "parcel")
                 .addStatement("parcel.setSerializationFlags($L, $L)", allowSerialization,
                         ignoreParcelables);
+        if (custom) {
+            writeBuilder.addStatement("obj.onPreParceling(parcel.isStream())");
+        }
         for (VariableElement e : parcelFields) {
             String id = getValue(e);
             String method = getMethod(e);
@@ -220,6 +225,9 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                     "read" + method, e.getSimpleName(), id);
             writeBuilder.addStatement("parcel.$L(obj.$L, $L)", "write" + method,
                     e.getSimpleName(), id);
+        }
+        if (custom) {
+            readBuilder.addStatement("obj.onPostParceling()");
         }
         genClass.addMethod(readBuilder.build());
         genClass.addMethod(writeBuilder.build());

@@ -72,6 +72,13 @@ public abstract class VersionedParcel {
     private static final int TYPE_BINDER = 5;
 
     /**
+     * Whether this VersionedParcel is serializing into a stream and will not accept Parcelables.
+     */
+    public boolean isStream() {
+        return false;
+    }
+
+    /**
      * Closes the last field when done parceling.
      */
     public abstract void closeField();
@@ -1361,7 +1368,7 @@ public abstract class VersionedParcel {
                     "ClassNotFoundException when unmarshalling: " + name);
         } catch (NoSuchMethodException e) {
             throw new BadParcelableException("VersionedParcelable protocol requires "
-                    + "there be a constructor taking VersionedParcel on " + name);
+                    + "there be an empty constructor on " + name);
         } catch (InstantiationException e) {
             Log.e(TAG, "InstantiationException when unmarshalling: " + name, e);
             throw new BadParcelableException(

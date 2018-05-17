@@ -31,7 +31,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Set;
 
 /**
@@ -39,6 +39,8 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class VersionedParcelStream extends VersionedParcel {
+
+    private static final Charset UTF_16 = Charset.forName("UTF-16");
 
     // Supported types held inside a bundle. These cannot be added to or changed once shipped.
     private static final int TYPE_NULL = 0;
@@ -71,6 +73,11 @@ public class VersionedParcelStream extends VersionedParcel {
         mMasterOutput = output != null ? new DataOutputStream(output) : null;
         mCurrentInput = mMasterInput;
         mCurrentOutput = mMasterOutput;
+    }
+
+    @Override
+    public boolean isStream() {
+        return true;
     }
 
     /**
@@ -204,7 +211,7 @@ public class VersionedParcelStream extends VersionedParcel {
     public void writeString(String val) {
         try {
             if (val != null) {
-                byte[] bytes = val.getBytes(StandardCharsets.UTF_16.toString());
+                byte[] bytes = val.getBytes(UTF_16);
                 mCurrentOutput.writeInt(bytes.length);
                 mCurrentOutput.write(bytes);
             } else {
@@ -299,7 +306,7 @@ public class VersionedParcelStream extends VersionedParcel {
             if (len > 0) {
                 byte[] bytes = new byte[len];
                 mCurrentInput.readFully(bytes);
-                return new String(bytes, StandardCharsets.UTF_16.toString());
+                return new String(bytes, UTF_16);
             } else {
                 return null;
             }
