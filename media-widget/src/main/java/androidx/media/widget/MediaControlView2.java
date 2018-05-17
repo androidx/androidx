@@ -25,6 +25,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
@@ -36,6 +37,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -238,13 +240,21 @@ public class MediaControlView2 extends BaseLayout {
     private static final int MEDIA_TYPE_MUSIC = 1;
     private static final int MEDIA_TYPE_ADVERTISEMENT = 2;
 
+    private static final int BOTTOM_BAR_RIGHT_VIEW_MAX_ICON_NUM_DEFAULT = 4;
+    private static final int BOTTOM_BAR_RIGHT_VIEW_MAX_ICON_NUM_MUSIC = 2;
+
     private static final int SIZE_TYPE_EMBEDDED = 0;
     private static final int SIZE_TYPE_FULL = 1;
     private static final int SIZE_TYPE_MINIMAL = 2;
 
+    // Int for defining the UX state where all the views (TitleBar, ProgressBar, BottomBar) are
+    // all visible.
     private static final int UX_STATE_FULL = 0;
+    // Int for defining the UX state where only the ProgressBar view is visible.
     private static final int UX_STATE_PROGRESS_BAR_ONLY = 1;
+    // Int for defining the UX state where none of the views are visible.
     private static final int UX_STATE_EMPTY = 2;
+    // Int for defining the UX state where the views are being animated (shown or hidden).
     private static final int UX_STATE_ANIMATING = 3;
 
     private static final long DEFAULT_SHOW_CONTROLLER_INTERVAL_MS = 2000;
@@ -263,9 +273,17 @@ public class MediaControlView2 extends BaseLayout {
     OnFullScreenListener mOnFullScreenListener;
     private AccessibilityManager mAccessibilityManager;
     SessionCommandGroup2 mAllowedCommands;
+    private WindowManager mWindowManager;
     int mPrevState;
     private int mPrevWidth;
+    private int mPrevOrientation;
     private int mOriginalLeftBarWidth;
+    private int mMaxTimeViewWidth;
+    private int mEmbeddedSettingsItemWidth;
+    private int mFullSettingsItemWidth;
+    private int mSettingsItemHeight;
+    private int mSettingsWindowMargin;
+    private int mIconSize;
     int mVideoTrackCount;
     int mAudioTrackCount;
     int mSubtitleTrackCount;
@@ -274,10 +292,6 @@ public class MediaControlView2 extends BaseLayout {
     int mSelectedAudioTrackIndex;
     int mSelectedVideoQualityIndex;
     int mSelectedSpeedIndex;
-    private int mEmbeddedSettingsItemWidth;
-    private int mFullSettingsItemWidth;
-    private int mSettingsItemHeight;
-    private int mSettingsWindowMargin;
     int mMediaType;
     int mSizeType;
     int mUxState;
@@ -291,7 +305,6 @@ public class MediaControlView2 extends BaseLayout {
     boolean mSeekAvailable;
     boolean mIsAdvertisement;
     boolean mIsMute;
-    private boolean mNeedUxUpdate;
     boolean mNeedToHideBars;
 
     // Relating to Title Bar View
@@ -558,7 +571,7 @@ public class MediaControlView2 extends BaseLayout {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         // Update layout when this view's width changes in order to avoid any UI overlap between
         // transport controls.
-        if (mPrevWidth != getMeasuredWidth() || mNeedUxUpdate) {
+        if (mPrevWidth != getMeasuredWidth()) {
             // Dismiss SettingsWindow if it is showing.
             mSettingsWindow.dismiss();
 
@@ -575,39 +588,14 @@ public class MediaControlView2 extends BaseLayout {
             // Update layout if necessary
             int currWidth = getMeasuredWidth();
             int currHeight = getMeasuredHeight();
-            WindowManager manager = (WindowManager) getContext().getApplicationContext()
-                    .getSystemService(Context.WINDOW_SERVICE);
             Point screenSize = new Point();
-            manager.getDefaultDisplay().getSize(screenSize);
-            int screenWidth = screenSize.x;
-            int screenHeight = screenSize.y;
-            int iconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_size);
-
+            mWindowManager.getDefaultDisplay().getSize(screenSize);
             if (mMediaType == MEDIA_TYPE_DEFAULT) {
-                // Max number of icons inside BottomBarRightView for Music mode is 4.
-                int maxIconCount = 4;
-                updateLayout(maxIconCount, iconSize, currWidth, currHeight, screenWidth,
-                        screenHeight);
-
+                updateLayout(BOTTOM_BAR_RIGHT_VIEW_MAX_ICON_NUM_DEFAULT, currWidth,
+                        currHeight, screenSize.x, screenSize.y);
             } else if (mMediaType == MEDIA_TYPE_MUSIC) {
-                if (mNeedUxUpdate) {
-                    // One-time operation for Music media type
-                    mBasicControls.removeView(mMuteButton);
-                    mExtraControls.addView(mMuteButton, 0);
-                    mVideoQualityButton.setVisibility(View.GONE);
-                    if (mFfwdButton != null) {
-                        mFfwdButton.setVisibility(View.GONE);
-                    }
-                    if (mRewButton != null) {
-                        mRewButton.setVisibility(View.GONE);
-                    }
-                }
-                mNeedUxUpdate = false;
-
-                // Max number of icons inside BottomBarRightView for Music mode is 3.
-                int maxIconCount = 3;
-                updateLayout(maxIconCount, iconSize, currWidth, currHeight, screenWidth,
-                        screenHeight);
+                updateLayout(BOTTOM_BAR_RIGHT_VIEW_MAX_ICON_NUM_MUSIC, currWidth,
+                        currHeight, screenSize.x, screenSize.y);
             }
             mPrevWidth = currWidth;
 
@@ -755,6 +743,10 @@ public class MediaControlView2 extends BaseLayout {
 
     @SuppressWarnings("deprecation")
     private void initControllerView(ViewGroup v) {
+        mWindowManager = (WindowManager) getContext().getApplicationContext()
+                .getSystemService(Context.WINDOW_SERVICE);
+        mIconSize = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_size);
+
         // Relating to Title Bar View
         mTitleBar = v.findViewById(R.id.title_bar);
         mTitleView = v.findViewById(R.id.title_text);
@@ -803,6 +795,11 @@ public class MediaControlView2 extends BaseLayout {
         // Relating to Bottom Bar Left View
         mBottomBarLeftView = v.findViewById(R.id.bottom_bar_left);
         mTimeView = v.findViewById(R.id.time);
+        // Save the width of the initial time view since it represents the maximum width that this
+        // class supports (00:00:00 · 00:00:00).
+        if (mTimeView != null) {
+            mMaxTimeViewWidth = mTimeView.getWidth();
+        }
         mEndTime = v.findViewById(R.id.time_end);
         mCurrentTime = v.findViewById(R.id.time_current);
         mAdSkipView = v.findViewById(R.id.ad_skip_time);
@@ -1080,7 +1077,7 @@ public class MediaControlView2 extends BaseLayout {
             public void onAnimationEnd(Animator animation) {
                 mBasicControls.setVisibility(View.GONE);
 
-                if (mSizeType == SIZE_TYPE_FULL) {
+                if (mSizeType == SIZE_TYPE_FULL && mMediaType == MEDIA_TYPE_DEFAULT) {
                     mFfwdButton.setVisibility(View.GONE);
                 }
             }
@@ -1101,7 +1098,7 @@ public class MediaControlView2 extends BaseLayout {
                 mOverflowShowButton.setVisibility(View.VISIBLE);
                 mOverflowHideButton.setVisibility(View.GONE);
 
-                if (mSizeType == SIZE_TYPE_FULL) {
+                if (mSizeType == SIZE_TYPE_FULL && mMediaType == MEDIA_TYPE_DEFAULT) {
                     mFfwdButton.setVisibility(View.VISIBLE);
                 }
             }
@@ -1247,8 +1244,7 @@ public class MediaControlView2 extends BaseLayout {
     }
 
     private void toggleMediaControlViewVisibility() {
-        if ((mMediaType == MEDIA_TYPE_MUSIC && mSizeType == SIZE_TYPE_FULL)
-                || mShowControllerIntervalMs == 0
+        if (shouldNotHideBars() || mShowControllerIntervalMs == 0
                 || mAccessibilityManager.isTouchExplorationEnabled()
                 || mUxState == UX_STATE_ANIMATING) {
             return;
@@ -1290,6 +1286,9 @@ public class MediaControlView2 extends BaseLayout {
     private final Runnable mHideAllBars = new Runnable() {
         @Override
         public void run() {
+            if (shouldNotHideBars()) {
+                return;
+            }
             mHideAllBarsAnimator.start();
         }
     };
@@ -1297,7 +1296,7 @@ public class MediaControlView2 extends BaseLayout {
     Runnable mHideMainBars = new Runnable() {
         @Override
         public void run() {
-            if (!isPlaying()) {
+            if (!isPlaying() || shouldNotHideBars()) {
                 return;
             }
             mHideMainBarsAnimator.start();
@@ -1308,7 +1307,7 @@ public class MediaControlView2 extends BaseLayout {
     final Runnable mHideProgressBar = new Runnable() {
         @Override
         public void run() {
-            if (!isPlaying()) {
+            if (!isPlaying() || shouldNotHideBars()) {
                 return;
             }
             mHideProgressBarAnimator.start();
@@ -1710,12 +1709,27 @@ public class MediaControlView2 extends BaseLayout {
             // Update title for Embedded size type
             mTitleView.setText(titleText + " - " + artistText);
 
-            // Set to true to update layout inside onMeasure()
-            mNeedUxUpdate = true;
+            // Update mute button location
+            mBasicControls.removeView(mMuteButton);
+            mExtraControls.addView(mMuteButton, 0);
+
+            // Remove unnecessary buttons
+            mVideoQualityButton.setVisibility(View.GONE);
+            if (mFfwdButton != null) {
+                mFfwdButton.setVisibility(View.GONE);
+            }
+            if (mRewButton != null) {
+                mRewButton.setVisibility(View.GONE);
+            }
+
+            Point screenSize = new Point();
+            mWindowManager.getDefaultDisplay().getSize(screenSize);
+            updateLayout(BOTTOM_BAR_RIGHT_VIEW_MAX_ICON_NUM_MUSIC, getMeasuredWidth(),
+                    getMeasuredHeight(), screenSize.x, screenSize.y);
         }
     }
 
-    void updateLayout() {
+    void updateLayoutForAd() {
         if (mIsAdvertisement) {
             mRewButton.setVisibility(View.GONE);
             mFfwdButton.setVisibility(View.GONE);
@@ -1746,18 +1760,32 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    private void updateLayout(int maxIconCount, int iconSize, int currWidth,
-             int currHeight, int screenWidth, int screenHeight) {
-        int bottomBarRightWidthMax = iconSize * maxIconCount;
+    private void updateLayout(int maxIconNum, int currWidth, int currHeight, int screenWidth,
+            int screenHeight) {
+        int bottomBarRightWidthMax = mIconSize * maxIconNum;
         int fullWidth = mTransportControls.getWidth() + mTimeView.getWidth()
                 + bottomBarRightWidthMax;
-        int embeddedWidth = mTimeView.getWidth() + bottomBarRightWidthMax;
         int screenMaxLength = Math.max(screenWidth, screenHeight);
+        int embeddedWidth = mMaxTimeViewWidth + bottomBarRightWidthMax;
 
-        boolean isFullSize = (mMediaType == MEDIA_TYPE_DEFAULT) ? (currWidth == screenMaxLength) :
-                (currWidth == screenWidth && currHeight == screenHeight);
+        // TODO: b/111246858
+        // If Media type is default, the size of MCV2 is full only when the current width is equal
+        // to the max length of the screen (only landscape mode). If Media type is music, however,
+        // the size of MCV2 is full when the current width is equal to the current screen width
+        // (both landscape and portrait modes).
+        boolean isFullSize = (mMediaType == MEDIA_TYPE_DEFAULT) ? currWidth == screenMaxLength
+                : currWidth == screenWidth;
+        // This handles an edge case where the size of MCV2 is full but the layout is being
+        // redrawn because the orientation changed. Since the size of MCV2 does not change,
+        // the layout does not need to be redrawn.
+        int currOrientation = retrieveOrientation();
+        boolean isFullSizeOrientationChanged = (mSizeType == SIZE_TYPE_FULL
+                && mPrevOrientation != currOrientation) ? true : false;
+        mPrevOrientation = currOrientation;
 
-        if (isFullSize) {
+        if (isFullSizeOrientationChanged) {
+            // Do nothing.
+        } else if (isFullSize) {
             if (mSizeType != SIZE_TYPE_FULL) {
                 updateLayoutForSizeChange(SIZE_TYPE_FULL);
                 if (mMediaType == MEDIA_TYPE_MUSIC) {
@@ -2039,7 +2067,7 @@ public class MediaControlView2 extends BaseLayout {
         mTimeView.setAlpha(1 - (float) animation.getAnimatedValue());
         mBasicControls.setAlpha(1 - (float) animation.getAnimatedValue());
 
-        if (mSizeType == SIZE_TYPE_FULL) {
+        if (mSizeType == SIZE_TYPE_FULL && mMediaType == MEDIA_TYPE_DEFAULT) {
             int transportControlMargin =
                     (-1) * (int) (iconWidth * (float) animation.getAnimatedValue());
             LinearLayout.LayoutParams transportControlsParams =
@@ -2126,6 +2154,20 @@ public class MediaControlView2 extends BaseLayout {
             // the new one.
             mSeekList.set(1, position);
         }
+    }
+
+    private int retrieveOrientation() {
+        DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+
+        return (height > width)
+                ? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    }
+
+    boolean shouldNotHideBars() {
+        return mMediaType == MEDIA_TYPE_MUSIC && mSizeType == SIZE_TYPE_FULL;
     }
 
     private class SettingsAdapter extends BaseAdapter {
@@ -2498,8 +2540,9 @@ public class MediaControlView2 extends BaseLayout {
             @Override
             public void onCurrentMediaItemChanged(@NonNull MediaController2 controller,
                     @Nullable MediaItem2 mediaItem) {
-                // This logic is for detecting end of playback, but it's not working. (b/79715323)
-                Log.d(TAG, "onCurrentMediaItemChanged()" + mediaItem);
+                if (DEBUG) {
+                    Log.d(TAG, "onCurrentMediaItemChanged(): " + mediaItem);
+                }
                 if (mediaItem == null) {
                     mPlayPauseButton.setImageDrawable(
                             mResources.getDrawable(
@@ -2596,7 +2639,7 @@ public class MediaControlView2 extends BaseLayout {
                                 && args.getBoolean(KEY_STATE_IS_ADVERTISEMENT);
                         if (isAd != mIsAdvertisement) {
                             mIsAdvertisement = isAd;
-                            updateLayout();
+                            updateLayoutForAd();
                         }
                         break;
                 }
@@ -2889,7 +2932,7 @@ public class MediaControlView2 extends BaseLayout {
                         boolean newStatus = extras.getBoolean(KEY_STATE_IS_ADVERTISEMENT);
                         if (newStatus != mIsAdvertisement) {
                             mIsAdvertisement = newStatus;
-                            updateLayout();
+                            updateLayoutForAd();
                         }
                         break;
                 }

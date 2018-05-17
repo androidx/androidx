@@ -111,7 +111,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private Drawable mMusicAlbumDrawable;
     private String mMusicTitleText;
     private String mMusicArtistText;
-    private boolean mIsMusicMediaType;
+    boolean mIsMusicMediaType;
     private int mPrevWidth;
     private int mPrevHeight;
     int mDominantColor;
@@ -616,13 +616,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                     if (mSizeType != SIZE_TYPE_FULL) {
                         mSizeType = SIZE_TYPE_FULL;
-                        // TODO: remove MCV2 callback
                     }
                 } else {
                     if (mSizeType != SIZE_TYPE_EMBEDDED) {
                         mSizeType = SIZE_TYPE_EMBEDDED;
                         inflateMusicView(R.layout.embedded_music);
-                        // TODO: remove MCV2 callback
                     }
                 }
                 mPrevWidth = currWidth;
@@ -1201,7 +1199,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             switch(command.getCommandCode()) {
                 case SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY:
                     mTargetState = STATE_PLAYING;
-                    if (!mCurrentView.hasAvailableSurface()) {
+                    if (!mCurrentView.hasAvailableSurface() && !mIsMusicMediaType) {
                         Log.d(TAG, "surface is not available");
                         return false;
                     }
