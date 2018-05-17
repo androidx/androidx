@@ -509,8 +509,8 @@ public class MediaSessionCompat {
         mController = new MediaControllerCompat(context, this);
 
         if (sMaxBitmapSize == 0) {
-            sMaxBitmapSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                    MAX_BITMAP_SIZE_IN_DP, context.getResources().getDisplayMetrics());
+            sMaxBitmapSize = (int) (TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                    MAX_BITMAP_SIZE_IN_DP, context.getResources().getDisplayMetrics()) + 0.5f);
         }
     }
 
