@@ -46,12 +46,10 @@ class PomRewriteInZipTest {
                         groupId = "old.group",
                         artifactId = "myOldArtifact",
                         version = "0.1.0"),
-                    to = setOf(
-                        PomDependency(
-                            groupId = "com.sample.my.group",
-                            artifactId = "myArtifact",
-                            version = "1.0.0"
-                        )
+                    to = PomDependency(
+                        groupId = "com.sample.my.group",
+                        artifactId = "myArtifact",
+                        version = "1.0.0"
                     )
                 )),
             typesMap = TypesMap.EMPTY,

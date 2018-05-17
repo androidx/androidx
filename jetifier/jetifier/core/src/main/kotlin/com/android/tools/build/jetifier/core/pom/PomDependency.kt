@@ -49,13 +49,6 @@ data class PomDependency(
     val optional: String? = null) {
 
     /**
-     * Whether this dependency should be skipped from the rewriting process
-     */
-    fun shouldSkipRewrite(): Boolean {
-        return scope != null && scope.toLowerCase() == "test"
-    }
-
-    /**
      * Returns a new dependency created by taking all the items from the [input] dependency and then
      * overwriting these with all of its non-null items.
      */
@@ -82,5 +75,12 @@ data class PomDependency(
      */
     fun toStringNotation(): String {
         return "$groupId:$artifactId:$version"
+    }
+
+    /**
+     * Returns the dependency in format "groupId:artifactId".
+     */
+    fun toStringNotationWithoutVersion(): String {
+        return "$groupId:$artifactId"
     }
 }

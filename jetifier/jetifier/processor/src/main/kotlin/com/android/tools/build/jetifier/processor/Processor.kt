@@ -84,15 +84,21 @@ class Processor private constructor(
          * @param rewritingSupportLib Whether we are rewriting the support library itself
          * @param useFallbackIfTypeIsMissing Use fallback for types resolving instead of crashing
          * @param versionsMap Versions map for dependencies rewriting
+         * @param dataBindingVersion The versions to be used for data binding otherwise undefined.
          */
         fun createProcessor(
             config: Config,
             reversedMode: Boolean = false,
             rewritingSupportLib: Boolean = false,
             useFallbackIfTypeIsMissing: Boolean = true,
-            versionsMap: DependencyVersionsMap = DependencyVersionsMap.LATEST_RELEASED
+            versionsMap: DependencyVersionsMap = DependencyVersionsMap.LATEST_RELEASED,
+            dataBindingVersion: String? = null
         ): Processor {
             var newConfig = config
+
+            if (dataBindingVersion != null) {
+                versionsMap.setDataBindingVersion(dataBindingVersion)
+            }
 
             if (reversedMode) {
                 newConfig = Config(
@@ -120,6 +126,22 @@ class Processor private constructor(
 
             return Processor(context, transformers)
         }
+    }
+
+    private val oldDependenciesRegex: List<Regex> = context.config.pomRewriteRules.map {
+        Regex(".*"
+            + it.from.groupId!!.replace(".", "[./\\\\]")
+            + "[./\\\\]"
+            + it.from.artifactId
+            + "[./\\\\].*")
+    }
+
+    private val newDependenciesRegex: List<Regex> = context.config.pomRewriteRules.map {
+        Regex(".*"
+            + it.to.groupId!!.replace(".", "[./\\\\]")
+            + "[./\\\\]"
+            + it.to.artifactId
+            + "[./\\\\].*")
     }
 
     /**
@@ -211,13 +233,43 @@ class Processor private constructor(
         val resultRule = context.config.pomRewriteRules
             .firstOrNull { it.matches(inputDependency) } ?: return null
 
-        if (resultRule.to.isEmpty()) {
-            return null
-        }
-
-        return resultRule.to.single()
+        return resultRule.to
             .rewrite(inputDependency, context.versionsMap)
             .toStringNotation()
+    }
+
+    /**
+     * Returns map of all rewritten dependencies in format "groupId:artifactId"
+     * to "groupId:artifactId:version".
+     *
+     * Don't forget to pass dataBinding version to the constructor to get correct versions.
+     *
+     * @param filterOutBaseLibrary Set true to filter out "baseLibrary" artifact of data binding.
+     */
+    fun getDependenciesMap(filterOutBaseLibrary: Boolean = true): Map<String, String> {
+        return context.config.pomRewriteRules
+            .filter { !filterOutBaseLibrary || !(it.from.artifactId == "baseLibrary"
+                    && it.from.groupId == "com.android.databinding") }
+            .map {
+                (context.versionsMap.applyOnConfigPomDep(it.from).toStringNotationWithoutVersion()
+                    to context.versionsMap.applyOnConfigPomDep(it.to).toStringNotation()) }
+            .toMap()
+    }
+
+    /**
+     * Returns whether the given artifact file is from the old list of dependencies and should be
+     * replaced by a new one.
+     */
+    fun isOldDependencyFile(aarOrJarFile: File): Boolean {
+        return oldDependenciesRegex.any { it.matches(aarOrJarFile.absolutePath) }
+    }
+
+    /**
+     * Return whether the given artifact file is a new artifact from the new set of dependencies
+     * and should be kept.
+     */
+    fun isNewDependencyFile(aarOrJarFile: File): Boolean {
+        return newDependenciesRegex.any { it.matches(aarOrJarFile.absolutePath) }
     }
 
     private fun loadLibraries(inputLibraries: Iterable<FileMapping>): List<Archive> {

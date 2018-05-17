@@ -51,10 +51,8 @@ class ChangeDetectionTest {
             PomRewriteRule(
                 PomDependency(
                     groupId = "supportGroup", artifactId = "supportArtifact", version = "4.0"),
-                setOf(
-                    PomDependency(
-                        groupId = "testGroup", artifactId = "testArtifact", version = "1.0")
-                )
+                PomDependency(
+                    groupId = "testGroup", artifactId = "testArtifact", version = "1.0")
             )),
         typesMap = TypesMap(
             JavaType("android/support/v7/preference/Preference")
