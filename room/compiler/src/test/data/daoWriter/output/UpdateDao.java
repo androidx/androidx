@@ -12,7 +12,7 @@ import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings("unchecked")
-public class UpdateDao_Impl implements UpdateDao {
+public final class UpdateDao_Impl implements UpdateDao {
   private final RoomDatabase __db;
 
   private final EntityDeletionOrUpdateAdapter __updateAdapterOfUser;
