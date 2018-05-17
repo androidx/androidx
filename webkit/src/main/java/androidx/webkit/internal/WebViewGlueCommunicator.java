@@ -105,6 +105,7 @@ public class WebViewGlueCommunicator {
         }
     }
 
+    @SuppressWarnings({"JavaReflectionMemberAccess", "PrivateApi"})
     private static Object getWebViewProviderFactory() {
         try {
             Method getFactoryMethod = WebView.class.getDeclaredMethod("getFactory");

@@ -22,12 +22,15 @@ import android.os.Build;
 import android.os.Handler;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import androidx.webkit.SafeBrowsingResponseCompat;
 import androidx.webkit.ServiceWorkerClientCompat;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
+import androidx.webkit.WebResourceErrorCompat;
 import androidx.webkit.WebResourceRequestCompat;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;

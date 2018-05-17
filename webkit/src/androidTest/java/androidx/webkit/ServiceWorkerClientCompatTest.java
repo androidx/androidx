@@ -26,6 +26,8 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -101,10 +103,10 @@ public class ServiceWorkerClientCompatTest {
     }
 
     public static class InterceptServiceWorkerClient extends ServiceWorkerClientCompat {
-        private List<WebResourceRequest> mInterceptedRequests = new ArrayList<WebResourceRequest>();
+        private List<WebResourceRequest> mInterceptedRequests = new ArrayList<>();
 
         @Override
-        public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {
+        public WebResourceResponse shouldInterceptRequest(@NonNull WebResourceRequest request) {
             // Records intercepted requests and only return content for SW_URL.
             mInterceptedRequests.add(request);
             try {
