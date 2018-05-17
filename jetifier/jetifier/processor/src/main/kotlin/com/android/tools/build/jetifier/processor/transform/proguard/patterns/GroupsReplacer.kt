@@ -39,18 +39,25 @@ class GroupsReplacer(
         var results = mutableListOf<String>(start)
         var tempResults = mutableListOf<String>()
 
-        // We go intentionally backwards to replace using indexes
+        // For each group, apply the corresponding replacement. Iterate backwards over replacements
+        // to avoid having to recompute replacement string indexes, also we could replace something
+        // twice
         for (i in groupsMap.size - 1 downTo 0) {
             val groupVal = matcher.group(i + 1) ?: continue
             val localStart = matcher.start(i + 1) - matcher.start()
             val localEnd = matcher.end(i + 1) - matcher.start()
 
+            // Call the corresponding replacer for this group
             val replacements = groupsMap[i].invoke(groupVal)
 
+            // Update the Cartesian product, copying each existing element of results and replacing
+            // groupVal in each with a different element of replacements
             tempResults.clear()
             results.forEach {
                 result -> replacements.forEach {
                     tempResults.add(
+                        // Because we iterate in reverse, we know the index of groupVal in result
+                        // will be the same as the index of groupVal in start
                         result.replaceRange(
                             startIndex = localStart,
                             endIndex = localEnd,
