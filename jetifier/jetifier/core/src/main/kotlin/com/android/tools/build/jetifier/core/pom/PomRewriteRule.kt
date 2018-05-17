@@ -23,14 +23,14 @@ import java.nio.file.Path
 /**
  * Rule that defines how to rewrite a dependency element in a POM file.
  *
- * Any dependency that is matched against [from] should be rewritten to list of the dependencies
- * defined in [to].
+ * Any dependency that is matched against [from] should be rewritten to the dependency defined
+ * in [to].
  */
-data class PomRewriteRule(val from: PomDependency, val to: Set<PomDependency>) {
+data class PomRewriteRule(val from: PomDependency, val to: PomDependency) {
 
     init {
         validate(from, checkVersion = false)
-        to.forEach { validate(it, checkVersion = true) }
+        validate(to, checkVersion = true)
     }
 
     companion object {
@@ -53,10 +53,7 @@ data class PomRewriteRule(val from: PomDependency, val to: Set<PomDependency>) {
     }
 
     fun getReversed(): PomRewriteRule {
-        if (to.size > 1) {
-            throw IllegalArgumentException("Can't reverse pom rule with more than one package.")
-        }
-        return PomRewriteRule(from = to.first(), to = setOf(from))
+        return PomRewriteRule(from = to, to = from)
     }
 
     /**
@@ -119,12 +116,12 @@ data class PomRewriteRule(val from: PomDependency, val to: Set<PomDependency>) {
         @SerializedName("from")
         val from: PomDependency,
         @SerializedName("to")
-        val to: Set<PomDependency>
+        val to: PomDependency
     ) {
 
         /** Creates instance of [PomRewriteRule] */
         fun toRule(): PomRewriteRule {
-            return PomRewriteRule(from, to.filterNotNull().toSet())
+            return PomRewriteRule(from, to)
         }
     }
 }

@@ -40,9 +40,7 @@ class ConfigParserTest {
             "    pomRules: [\n" +
             "        {\n" +
             "            from: {groupId: \"g\", artifactId: \"a\", version: \"1.0\"},\n" +
-            "            to: [\n" +
-            "                {groupId: \"g\", artifactId: \"a\", version: \"2.0\"} \n" +
-            "            ]\n" +
+            "            to: {groupId: \"g\", artifactId: \"a\", version: \"2.0\"} \n" +
             "        }\n" +
             "    ],\n" +
             "   proGuardMap: {\n" +
@@ -70,7 +68,7 @@ class ConfigParserTest {
             "    pomRules: [\n" +
             "        {\n" +
             "            from: {artifactId: \"a\", version: \"1.0\"},\n" +
-            "            to: []\n" +
+            "            to: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"}\n" +
             "        }\n" +
             "    ]\n" +
             "}"
@@ -87,7 +85,7 @@ class ConfigParserTest {
             "    pomRules: [\n" +
             "        {\n" +
             "            from: {groupId: \"g\", version: \"1.0\"},\n" +
-            "            to: []\n" +
+            "            to: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"}\n" +
             "        }\n" +
             "    ]\n" +
             "}"
@@ -104,7 +102,7 @@ class ConfigParserTest {
             "    pomRules: [\n" +
             "        {\n" +
             "            from: {artifactId: \"a\", groupId: \"g\"},\n" +
-            "            to: [{artifactId: \"a\", groupId: \"g\"}]\n" +
+            "            to: {artifactId: \"a\", groupId: \"g\"}\n" +
             "        }\n" +
             "    ]\n" +
             "}"
@@ -115,20 +113,20 @@ class ConfigParserTest {
     fun parseConfig_duplicity_shouldFail() {
         val confStr =
             "{\n" +
-                "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
-                "    rules: [\n" +
-                "    ],\n" +
-                "    pomRules: [\n" +
-                "        {\n" +
-                "            from: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"},\n" +
-                "            to: []\n" +
-                "        },\n" +
-                "        {\n" +
-                "            from: {artifactId: \"a\", groupId: \"g\", version: \"2.0\"},\n" +
-                "            to: []\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}"
+            "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+            "    rules: [\n" +
+            "    ],\n" +
+            "    pomRules: [\n" +
+            "        {\n" +
+            "            from: {artifactId: \"a\", groupId: \"g\", version: \"1.0\"},\n" +
+            "            to: {artifactId: \"b\", groupId: \"g\", version: \"1.0\"}\n" +
+            "        },\n" +
+            "        {\n" +
+            "            from: {artifactId: \"a\", groupId: \"g\", version: \"2.0\"},\n" +
+            "            to: {artifactId: \"c\", groupId: \"g\", version: \"1.0\"}\n" +
+            "        }\n" +
+            "    ]\n" +
+            "}"
         ConfigParser.parseFromString(confStr)
     }
 }
