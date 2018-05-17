@@ -35,6 +35,8 @@ import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -125,7 +127,6 @@ public class WebViewCompatTest {
             public void onReceiveValue(Boolean value) {
                 assertTrue(ctx.wasGetApplicationContextCalled());
                 resultLatch.countDown();
-                return;
             }
         });
         assertTrue(resultLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
@@ -150,7 +151,6 @@ public class WebViewCompatTest {
                     public void onReceiveValue(Boolean value) {
                         assertTrue(Looper.getMainLooper().isCurrentThread());
                         resultLatch.countDown();
-                        return;
                     }
                 });
         assertTrue(resultLatch.await(TEST_TIMEOUT, TimeUnit.MILLISECONDS));
@@ -160,7 +160,7 @@ public class WebViewCompatTest {
     public void testSetSafeBrowsingWhitelistWithMalformedList() throws Exception {
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_WHITELIST));
 
-        List whitelist = new ArrayList<String>();
+        List<String> whitelist = new ArrayList<>();
         // Protocols are not supported in the whitelist
         whitelist.add("http://google.com");
         final CountDownLatch resultLatch = new CountDownLatch(1);
@@ -180,7 +180,7 @@ public class WebViewCompatTest {
         // This test relies on the onSafeBrowsingHit callback to verify correctness.
         assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_HIT));
 
-        List whitelist = new ArrayList<String>();
+        List<String> whitelist = new ArrayList<>();
         whitelist.add("safe-browsing");
         final CountDownLatch resultLatch = new CountDownLatch(1);
         WebViewCompat.setSafeBrowsingWhitelist(whitelist, new ValueCallback<Boolean>() {
@@ -200,8 +200,9 @@ public class WebViewCompatTest {
             }
 
             @Override
-            public void onSafeBrowsingHit(WebView view, WebResourceRequest request, int threatType,
-                    SafeBrowsingResponseCompat callback) {
+            public void onSafeBrowsingHit(@NonNull WebView view,
+                    @NonNull WebResourceRequest request, int threatType,
+                    @NonNull SafeBrowsingResponseCompat callback) {
                 Assert.fail("Should not invoke onSafeBrowsingHit");
             }
         });

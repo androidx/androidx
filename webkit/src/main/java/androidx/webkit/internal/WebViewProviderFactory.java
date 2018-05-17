@@ -24,12 +24,13 @@ import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 
 /**
- * Interface representing {@link android.webkit.WebViewProviderFactory}.
+ * Interface representing {@link android.webkit.WebViewFactoryProvider}.
  * On device with a compatible WebView APK this interface is implemented by a class defined in the
  * WebView APK itself.
  * On devices without a compatible WebView APK this interface is implemented by a stub class
- * {@link androidx.webkit.internal.IncompatibleWebViewProviderFactory}.
+ * {@link androidx.webkit.internal.IncompatibleApkWebViewProviderFactory}.
  */
+@SuppressWarnings("JavadocReference") // WebViewFactoryProvider and WebViewProvider are hidden.
 public interface WebViewProviderFactory {
     /**
      * Create a support library version of {@link android.webkit.WebViewProvider}.

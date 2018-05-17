@@ -33,6 +33,7 @@ import java.lang.reflect.InvocationHandler;
  * WebViewCompat, this adapter is the support library version of
  * {@link android.webkit.WebViewProvider}.
  */
+@SuppressWarnings("JavadocReference") // WebViewProvider is hidden.
 public class WebViewProviderAdapter {
     WebViewProviderBoundaryInterface mImpl;
 

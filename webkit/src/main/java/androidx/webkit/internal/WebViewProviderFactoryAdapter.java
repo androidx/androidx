@@ -29,6 +29,7 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
  * Adapter for WebViewProviderFactoryBoundaryInterface providing static WebView functionality
  * similar to that provided by {@link android.webkit.WebViewFactoryProvider}.
  */
+@SuppressWarnings("JavadocReference") // WebViewFactoryProvider and WebViewProvider are hidden.
 public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     WebViewProviderFactoryBoundaryInterface mImpl;
 

@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.webkit.WebMessage;
 import android.webkit.WebMessagePort;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
@@ -71,7 +72,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
 
     @SuppressLint("NewApi")
     @Override
-    public void postMessage(WebMessageCompat message) {
+    public void postMessage(@NonNull WebMessageCompat message) {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE);
         if (feature.isSupportedByFramework()) {
@@ -101,7 +102,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
 
     @SuppressLint("NewApi")
     @Override
-    public void setWebMessageCallback(final WebMessageCallbackCompat callback) {
+    public void setWebMessageCallback(@NonNull final WebMessageCallbackCompat callback) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
                 WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK);
         if (feature.isSupportedByFramework()) {
@@ -124,7 +125,8 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
 
     @SuppressLint("NewApi")
     @Override
-    public void setWebMessageCallback(Handler handler, final WebMessageCallbackCompat callback) {
+    public void setWebMessageCallback(Handler handler,
+            @NonNull final WebMessageCallbackCompat callback) {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL);
         if (feature.isSupportedByFramework()) {

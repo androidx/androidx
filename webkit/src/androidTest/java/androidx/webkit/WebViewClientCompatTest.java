@@ -26,6 +26,8 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.NonNull;
+
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -87,7 +89,7 @@ public class WebViewClientCompatTest {
 
             @Override
             public Map<String, String> getRequestHeaders() {
-                return new HashMap<String, String>();
+                return new HashMap<>();
             }
         };
 
@@ -257,7 +259,7 @@ public class WebViewClientCompatTest {
 
         mWebViewOnUiThread.setWebViewClient(new WebViewClientCompat() {
             @Override
-            public void onPageCommitVisible(WebView view, String url) {
+            public void onPageCommitVisible(@NonNull WebView view, @NonNull String url) {
                 Assert.assertEquals(url, "about:blank");
                 callbackLatch.countDown();
             }
@@ -321,14 +323,14 @@ public class WebViewClientCompatTest {
         }
 
         @Override
-        public void onReceivedError(WebView view, WebResourceRequest request,
-                WebResourceErrorCompat error) {
+        public void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
+                @NonNull WebResourceErrorCompat error) {
             mOnReceivedResourceError = error;
         }
 
         @Override
-        public void onReceivedHttpError(WebView view, WebResourceRequest request,
-                WebResourceResponse errorResponse) {
+        public void onReceivedHttpError(@NonNull WebView view, @NonNull WebResourceRequest request,
+                @NonNull WebResourceResponse errorResponse) {
             super.onReceivedHttpError(view, request, errorResponse);
             mOnReceivedHttpError = errorResponse;
         }
@@ -342,7 +344,8 @@ public class WebViewClientCompatTest {
         }
 
         @Override
-        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+        public boolean shouldOverrideUrlLoading(@NonNull WebView view,
+                @NonNull WebResourceRequest request) {
             mLastShouldOverrideResourceRequest = request;
             return false;
         }
@@ -371,8 +374,8 @@ public class WebViewClientCompatTest {
 
     private class SafeBrowsingBackToSafetyClient extends SafeBrowsingClient {
         @Override
-        public void onSafeBrowsingHit(WebView view, WebResourceRequest request,
-                int threatType, SafeBrowsingResponseCompat response) {
+        public void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
+                int threatType, @NonNull SafeBrowsingResponseCompat response) {
             // Immediately go back to safety to return the network error code
             setOnSafeBrowsingHitRequest(request);
             setOnSafeBrowsingHitThreatType(threatType);
@@ -382,8 +385,8 @@ public class WebViewClientCompatTest {
 
     private class SafeBrowsingProceedClient extends SafeBrowsingClient {
         @Override
-        public void onSafeBrowsingHit(WebView view, WebResourceRequest request,
-                int threatType, SafeBrowsingResponseCompat response) {
+        public void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
+                int threatType, @NonNull SafeBrowsingResponseCompat response) {
             // Proceed through Safe Browsing warnings
             setOnSafeBrowsingHitRequest(request);
             setOnSafeBrowsingHitThreatType(threatType);
