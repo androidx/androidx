@@ -38,7 +38,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class VersionedParcelStream extends VersionedParcel {
+class VersionedParcelStream extends VersionedParcel {
 
     // Supported types held inside a bundle. These cannot be added to or changed once shipped.
     private static final int TYPE_NULL = 0;
