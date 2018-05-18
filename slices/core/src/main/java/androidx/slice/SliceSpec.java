@@ -20,6 +20,9 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * Class describing the structure of the data contained within a slice.
@@ -40,10 +43,21 @@ import androidx.annotation.RestrictTo;
  * @see SliceProvider#onBindSlice(Uri)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class SliceSpec {
+@VersionedParcelize(allowSerialization = true)
+public final class SliceSpec implements VersionedParcelable {
 
-    private final String mType;
-    private final int mRevision;
+    @ParcelField(1)
+    String mType;
+    @ParcelField(2)
+    int mRevision;
+
+    /**
+     * Used for VersionedParcelable
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public SliceSpec() {
+    }
 
     public SliceSpec(@NonNull String type, int revision) {
         mType = type;

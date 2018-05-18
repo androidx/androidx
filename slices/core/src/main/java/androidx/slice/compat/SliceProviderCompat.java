@@ -49,6 +49,7 @@ import androidx.core.util.Preconditions;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.SliceSpec;
+import androidx.versionedparcelable.ParcelUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -90,6 +91,8 @@ public class SliceProviderCompat {
     public static final String EXTRA_UID = "uid";
     public static final String EXTRA_PID = "pid";
     public static final String EXTRA_RESULT = "result";
+
+    public static final String ARG_SUPPORTS_VERSIONED_PARCELABLE = "supports_versioned_parcelable";
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Context mContext;
@@ -136,7 +139,11 @@ public class SliceProviderCompat {
 
             Slice s = handleBindSlice(uri, specs, getCallingPackage());
             Bundle b = new Bundle();
-            b.putParcelable(EXTRA_SLICE, s != null ? s.toBundle() : null);
+            if (ARG_SUPPORTS_VERSIONED_PARCELABLE.equals(arg)) {
+                b.putParcelable(EXTRA_SLICE, s != null ? ParcelUtils.toParcelable(s) : null);
+            } else {
+                b.putParcelable(EXTRA_SLICE, s != null ? s.toBundle() : null);
+            }
             return b;
         } else if (method.equals(METHOD_MAP_INTENT)) {
             Intent intent = extras.getParcelable(EXTRA_INTENT);
@@ -145,7 +152,11 @@ public class SliceProviderCompat {
             if (uri != null) {
                 Set<SliceSpec> specs = getSpecs(extras);
                 Slice s = handleBindSlice(uri, specs, getCallingPackage());
-                b.putParcelable(EXTRA_SLICE, s != null ? s.toBundle() : null);
+                if (ARG_SUPPORTS_VERSIONED_PARCELABLE.equals(arg)) {
+                    b.putParcelable(EXTRA_SLICE, s != null ? ParcelUtils.toParcelable(s) : null);
+                } else {
+                    b.putParcelable(EXTRA_SLICE, s != null ? s.toBundle() : null);
+                }
             } else {
                 b.putParcelable(EXTRA_SLICE, null);
             }
@@ -288,15 +299,20 @@ public class SliceProviderCompat {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
             addSpecs(extras, supportedSpecs);
-            final Bundle res = holder.mProvider.call(METHOD_SLICE, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_SLICE,
+                    ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
             if (res == null) {
                 return null;
             }
-            Parcelable bundle = res.getParcelable(EXTRA_SLICE);
-            if (!(bundle instanceof Bundle)) {
+            res.setClassLoader(SliceProviderCompat.class.getClassLoader());
+            Parcelable parcel = res.getParcelable(EXTRA_SLICE);
+            if (parcel == null) {
                 return null;
             }
-            return new Slice((Bundle) bundle);
+            if (parcel instanceof Bundle) {
+                return new Slice((Bundle) parcel);
+            }
+            return ParcelUtils.fromParcelable(parcel);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to bind slice", e);
             return null;
@@ -338,7 +354,7 @@ public class SliceProviderCompat {
             Set<SliceSpec> supportedSpecs) {
         Preconditions.checkNotNull(intent, "intent");
         Preconditions.checkArgument(intent.getComponent() != null || intent.getPackage() != null
-                || intent.getData() != null,
+                        || intent.getData() != null,
                 String.format("Slice intent must be explicit %s", intent));
         ContentResolver resolver = context.getContentResolver();
 
@@ -378,15 +394,20 @@ public class SliceProviderCompat {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_INTENT, intent);
             addSpecs(extras, supportedSpecs);
-            final Bundle res = holder.mProvider.call(METHOD_MAP_INTENT, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_MAP_INTENT,
+                    ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
             if (res == null) {
                 return null;
             }
-            Parcelable bundle = res.getParcelable(EXTRA_SLICE);
-            if (!(bundle instanceof Bundle)) {
+            res.setClassLoader(SliceProviderCompat.class.getClassLoader());
+            Parcelable parcel = res.getParcelable(EXTRA_SLICE);
+            if (parcel == null) {
                 return null;
             }
-            return new Slice((Bundle) bundle);
+            if (parcel instanceof Bundle) {
+                return new Slice((Bundle) parcel);
+            }
+            return ParcelUtils.fromParcelable(parcel);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to bind slice", e);
             return null;
@@ -407,7 +428,7 @@ public class SliceProviderCompat {
             extras.putParcelable(EXTRA_BIND_URI, uri);
             extras.putString(EXTRA_PKG, context.getPackageName());
             addSpecs(extras, supportedSpecs);
-            holder.mProvider.call(METHOD_PIN, null, extras);
+            holder.mProvider.call(METHOD_PIN, ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to pin slice", e);
         }
@@ -427,7 +448,7 @@ public class SliceProviderCompat {
             extras.putParcelable(EXTRA_BIND_URI, uri);
             extras.putString(EXTRA_PKG, context.getPackageName());
             addSpecs(extras, supportedSpecs);
-            holder.mProvider.call(METHOD_UNPIN, null, extras);
+            holder.mProvider.call(METHOD_UNPIN, ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to unpin slice", e);
         }
@@ -444,7 +465,8 @@ public class SliceProviderCompat {
         try {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
-            final Bundle res = holder.mProvider.call(METHOD_GET_PINNED_SPECS, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_GET_PINNED_SPECS,
+                    ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
             if (res != null) {
                 return getSpecs(res);
             }
@@ -460,7 +482,7 @@ public class SliceProviderCompat {
     public static Uri mapIntentToUri(Context context, Intent intent) {
         Preconditions.checkNotNull(intent, "intent");
         Preconditions.checkArgument(intent.getComponent() != null || intent.getPackage() != null
-                || intent.getData() != null,
+                        || intent.getData() != null,
                 String.format("Slice intent must be explicit %s", intent));
         ContentResolver resolver = context.getContentResolver();
 
@@ -497,7 +519,8 @@ public class SliceProviderCompat {
             }
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_INTENT, intent);
-            final Bundle res = holder.mProvider.call(METHOD_MAP_ONLY_INTENT, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_MAP_ONLY_INTENT,
+                    ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
             if (res != null) {
                 return res.getParcelable(EXTRA_SLICE);
             }
@@ -515,7 +538,8 @@ public class SliceProviderCompat {
         try (ProviderHolder holder = acquireClient(resolver, uri)) {
             Bundle extras = new Bundle();
             extras.putParcelable(EXTRA_BIND_URI, uri);
-            final Bundle res = holder.mProvider.call(METHOD_GET_DESCENDANTS, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_GET_DESCENDANTS,
+                    ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
             if (res != null) {
                 return res.getParcelableArrayList(EXTRA_SLICE_DESCENDANTS);
             }
@@ -538,7 +562,8 @@ public class SliceProviderCompat {
             extras.putInt(EXTRA_PID, pid);
             extras.putInt(EXTRA_UID, uid);
 
-            final Bundle res = holder.mProvider.call(METHOD_CHECK_PERMISSION, null, extras);
+            final Bundle res = holder.mProvider.call(METHOD_CHECK_PERMISSION,
+                    ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
             if (res != null) {
                 return res.getInt(EXTRA_RESULT);
             }
@@ -560,7 +585,8 @@ public class SliceProviderCompat {
             extras.putString(EXTRA_PROVIDER_PKG, packageName);
             extras.putString(EXTRA_PKG, toPackage);
 
-            holder.mProvider.call(METHOD_GRANT_PERMISSION, null, extras);
+            holder.mProvider.call(METHOD_GRANT_PERMISSION, ARG_SUPPORTS_VERSIONED_PARCELABLE,
+                    extras);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to get slice descendants", e);
         }
@@ -578,7 +604,8 @@ public class SliceProviderCompat {
             extras.putString(EXTRA_PROVIDER_PKG, packageName);
             extras.putString(EXTRA_PKG, toPackage);
 
-            holder.mProvider.call(METHOD_REVOKE_PERMISSION, null, extras);
+            holder.mProvider.call(METHOD_REVOKE_PERMISSION, ARG_SUPPORTS_VERSIONED_PARCELABLE,
+                    extras);
         } catch (RemoteException e) {
             Log.e(TAG, "Unable to get slice descendants", e);
         }
