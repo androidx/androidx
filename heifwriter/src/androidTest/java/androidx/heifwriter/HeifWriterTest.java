@@ -18,6 +18,7 @@ package androidx.heifwriter;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 
+import android.Manifest;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -32,6 +33,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.support.test.filters.LargeTest;
+import android.support.test.rule.GrantPermissionRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
@@ -48,6 +50,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -66,6 +69,15 @@ import java.util.Arrays;
 @RunWith(AndroidJUnit4.class)
 public class HeifWriterTest {
     private static final String TAG = HeifWriterTest.class.getSimpleName();
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule1 =
+            GrantPermissionRule.grant(Manifest.permission.READ_EXTERNAL_STORAGE);
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule =
+            GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
     private static final boolean DEBUG = false;
     private static final boolean DUMP_YUV_INPUT = false;
 
