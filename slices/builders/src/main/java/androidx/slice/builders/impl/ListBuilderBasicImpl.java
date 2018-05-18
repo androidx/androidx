@@ -125,6 +125,10 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         mIsError = isError;
     }
 
+    @Override
+    public void setLayoutDirection(int layoutDirection) {
+    }
+
     /**
      */
     @Override
@@ -210,6 +214,11 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
          */
         @Override
         public void setContentDescription(CharSequence description) {
+
+        }
+
+        @Override
+        public void setLayoutDirection(int layoutDirection) {
 
         }
 
@@ -363,6 +372,11 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
 
         @Override
         public void setContentDescription(CharSequence description) {
+
+        }
+
+        @Override
+        public void setLayoutDirection(int layoutDirection) {
 
         }
     }

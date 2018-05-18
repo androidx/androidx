@@ -23,6 +23,7 @@ import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
+import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static android.app.slice.Slice.SUBTYPE_RANGE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -35,6 +36,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
+import static androidx.slice.widget.SliceViewUtil.resolveLayoutDirection;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -60,8 +62,9 @@ import java.util.List;
 public class RowContent {
     private static final String TAG = "RowContent";
 
-    private SliceItem mPrimaryAction;
     private SliceItem mRowSlice;
+    private SliceItem mPrimaryAction;
+    private SliceItem mLayoutDirItem;
     private SliceItem mStartItem;
     private SliceItem mTitleItem;
     private SliceItem mSubtitleItem;
@@ -113,6 +116,14 @@ public class RowContent {
                 rowSlice = rowItems.get(0);
                 rowItems = filterInvalidItems(rowSlice);
             }
+        }
+        mLayoutDirItem = SliceQuery.findTopLevelItem(rowSlice.getSlice(), FORMAT_INT,
+                SUBTYPE_LAYOUT_DIRECTION, null, null);
+        if (mLayoutDirItem != null) {
+            // Make sure it's valid
+            mLayoutDirItem = resolveLayoutDirection(mLayoutDirItem.getInt()) != -1
+                    ? mLayoutDirItem
+                    : null;
         }
         if (SUBTYPE_RANGE.equals(rowSlice.getSubType())) {
             mRange = rowSlice;
@@ -216,6 +227,11 @@ public class RowContent {
     @NonNull
     public SliceItem getSlice() {
         return mRowSlice;
+    }
+
+    @Nullable
+    public SliceItem getLayoutDirItem() {
+        return mLayoutDirItem;
     }
 
     /**

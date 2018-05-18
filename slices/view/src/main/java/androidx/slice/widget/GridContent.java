@@ -22,6 +22,7 @@ import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
+import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
@@ -35,6 +36,7 @@ import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SMALL_IMAGE;
+import static androidx.slice.widget.SliceViewUtil.resolveLayoutDirection;
 
 import android.app.slice.Slice;
 import android.content.Context;
@@ -61,6 +63,7 @@ public class GridContent {
 
     private boolean mAllImages;
     private SliceItem mColorItem;
+    private SliceItem mLayoutDirItem;
     private SliceItem mPrimaryAction;
     private ArrayList<CellContent> mGridContent = new ArrayList<>();
     private SliceItem mSeeMoreItem;
@@ -96,6 +99,17 @@ public class GridContent {
      */
     private boolean populate(SliceItem gridItem) {
         mColorItem = SliceQuery.findSubtype(gridItem, FORMAT_INT, SUBTYPE_COLOR);
+        if (FORMAT_SLICE.equals(gridItem.getFormat())
+                || FORMAT_ACTION.equals(gridItem.getFormat())) {
+            mLayoutDirItem = SliceQuery.findTopLevelItem(gridItem.getSlice(), FORMAT_INT,
+                SUBTYPE_LAYOUT_DIRECTION, null, null);
+            if (mLayoutDirItem != null) {
+                // Make sure it's valid
+                mLayoutDirItem = resolveLayoutDirection(mLayoutDirItem.getInt()) != -1
+                        ? mLayoutDirItem
+                        : null;
+            }
+        }
         mSeeMoreItem = SliceQuery.find(gridItem, null, HINT_SEE_MORE, null);
         if (mSeeMoreItem != null && FORMAT_SLICE.equals(mSeeMoreItem.getFormat())) {
             mSeeMoreItem = mSeeMoreItem.getSlice().getItems().get(0);
@@ -165,6 +179,11 @@ public class GridContent {
     @NonNull
     public ArrayList<CellContent> getGridContent() {
         return mGridContent;
+    }
+
+    @Nullable
+    public SliceItem getLayoutDirItem() {
+        return mLayoutDirItem;
     }
 
     /**

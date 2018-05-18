@@ -36,6 +36,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.SparseArray;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.IconCompat;
@@ -88,6 +89,8 @@ public class SampleSliceProvider extends SliceProvider {
             "subscription",
             "singleitems",
             "error",
+            "translate",
+            "rtlgrid",
     };
 
     /**
@@ -167,6 +170,10 @@ public class SampleSliceProvider extends SliceProvider {
                 return createSingleSlice(sliceUri);
             case "/error":
                 return createErrorSlice(sliceUri);
+            case "/translate":
+                return createTranslationSlice(sliceUri);
+            case "/rtlgrid":
+                return createRtlGridSlice(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -726,6 +733,69 @@ public class SampleSliceProvider extends SliceProvider {
         lb.addRow(someToggles);
         lb.addRow(muchToggles);
         return lb.build();
+    }
+
+    private Slice createRtlGridSlice(Uri uri) {
+        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+        lb.setHeader(hb -> hb
+                .setTitle("Language practice")
+                .setSubtitle("Which image doesn't match the word?")
+                .setLayoutDirection(View.LAYOUT_DIRECTION_LTR));
+        lb.addGridRow(grb -> grb
+                .addCell(cb -> cb
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.cake),
+                                SMALL_IMAGE)
+                        .addText("1")
+                        .addTitleText("كيكة")
+                        .setContentIntent(getBroadcastIntent(ACTION_TOAST, "Wrong answer")))
+                .addCell(cb -> cb
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.cheese),
+                                SMALL_IMAGE)
+                        .addText("2")
+                        .addTitleText("جبن")
+                        .setContentIntent(getBroadcastIntent(ACTION_TOAST, "Wrong answer")))
+                .addCell(cb -> cb
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.pizza),
+                                SMALL_IMAGE)
+                        .addText("3")
+                        .addTitleText("تفاحة")
+                        .setContentIntent(getBroadcastIntent(ACTION_TOAST,
+                                "Correct! This is pizza not an apple!")))
+                .setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
+        return lb.build();
+    }
+
+    private Slice createTranslationSlice(Uri uri) {
+        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+        return lb.setLayoutDirection(View.LAYOUT_DIRECTION_LTR)
+                .setHeader(hb -> hb
+                        .setTitle("How to say hello")
+                        .setSummary("Hello, bonjour, שלום ,مرحبا"))
+                .addRow(rb -> rb
+                        .setTitle("Hello")
+                        .setSubtitle("English \u00b7 heˈlō")
+                        .addEndItem(getSpeakWordAction("Hello")))
+                .addRow(rb -> rb
+                        .setTitle("Bonjour")
+                        .setSubtitle("French")
+                        .addEndItem(getSpeakWordAction("Bonjour")))
+                .addRow(rb -> rb
+                        .setTitle("שלום")
+                        .setSubtitle("Hebrew")
+                        .addEndItem(getSpeakWordAction("שלום"))
+                        .setLayoutDirection(View.LAYOUT_DIRECTION_RTL))
+                .addRow(rb -> rb
+                        .setTitle("مرحبا")
+                        .setSubtitle("Arabic \u00b7 marhabaan")
+                        .addEndItem(getSpeakWordAction("مرحبا"))
+                        .setLayoutDirection(View.LAYOUT_DIRECTION_RTL))
+                .build();
+    }
+
+    private SliceAction getSpeakWordAction(String word) {
+        return new SliceAction(getBroadcastIntent(ACTION_TOAST, word),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_speak), ICON_IMAGE,
+                "Hear " + word);
     }
 
     private Slice createSingleSlice(Uri uri) {

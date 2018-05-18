@@ -176,6 +176,9 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     }
 
     private void populateViews(GridContent gc) {
+        if (gc.getLayoutDirItem() != null) {
+            setLayoutDirection(gc.getLayoutDirItem().getInt());
+        }
         if (gc.getContentIntent() != null) {
             EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
                     EventInfo.ROW_TYPE_GRID, mRowIndex);
@@ -420,6 +423,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
     @Override
     public void resetView() {
         mViewContainer.removeAllViews();
+        setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT);
         makeClickable(mViewContainer, false);
     }
 }

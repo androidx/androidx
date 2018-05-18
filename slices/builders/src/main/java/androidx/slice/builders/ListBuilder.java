@@ -23,6 +23,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.view.View;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
@@ -150,6 +151,17 @@ public class ListBuilder extends TemplateSliceBuilder {
      * Constant representing infinity.
      */
     public static final long INFINITY = SliceHints.INFINITY;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+            View.LAYOUT_DIRECTION_RTL, View.LAYOUT_DIRECTION_LTR, View.LAYOUT_DIRECTION_INHERIT,
+            View.LAYOUT_DIRECTION_LOCALE
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface LayoutDirection{}
 
     /**
      * Create a builder which will construct a slice made up of rows of content.
@@ -346,6 +358,17 @@ public class ListBuilder extends TemplateSliceBuilder {
         return this;
     }
 
+
+    /**
+     * Sets the desired layout direction for this slice.
+     *
+     * @param layoutDirection the layout direction to set.
+     */
+    @NonNull
+    public ListBuilder setLayoutDirection(@LayoutDirection int layoutDirection) {
+        mImpl.setLayoutDirection(layoutDirection);
+        return this;
+    }
 
     /**
      * If all content in a slice cannot be shown, the row added here may be displayed where the
@@ -661,6 +684,17 @@ public class ListBuilder extends TemplateSliceBuilder {
             return this;
         }
 
+        /**
+         * Sets the desired layout direction for the content in this row.
+         *
+         * @param layoutDirection the layout direction to set.
+         */
+        @NonNull
+        public RangeBuilder setLayoutDirection(@LayoutDirection int layoutDirection) {
+            mImpl.setLayoutDirection(layoutDirection);
+            return this;
+        }
+
         @Override
         void setImpl(TemplateBuilderImpl impl) {
             mImpl = (androidx.slice.builders.impl.ListBuilder.RangeBuilder) impl;
@@ -798,6 +832,17 @@ public class ListBuilder extends TemplateSliceBuilder {
         @NonNull
         public InputRangeBuilder setContentDescription(@NonNull CharSequence description) {
             mImpl.setContentDescription(description);
+            return this;
+        }
+
+        /**
+         * Sets the desired layout direction for the content in this row.
+         *
+         * @param layoutDirection the layout direction to set.
+         */
+        @NonNull
+        public InputRangeBuilder setLayoutDirection(@LayoutDirection int layoutDirection) {
+            mImpl.setLayoutDirection(layoutDirection);
             return this;
         }
 
@@ -1275,6 +1320,17 @@ public class ListBuilder extends TemplateSliceBuilder {
             return this;
         }
 
+        /**
+         * Sets the desired layout direction for the content in this row.
+         *
+         * @param layoutDirection the layout direction to set.
+         */
+        @NonNull
+        public RowBuilder setLayoutDirection(@LayoutDirection int layoutDirection) {
+            mImpl.setLayoutDirection(layoutDirection);
+            return this;
+        }
+
         @Override
         void setImpl(TemplateBuilderImpl impl) {
             mImpl = (androidx.slice.builders.impl.ListBuilder.RowBuilder) impl;
@@ -1451,6 +1507,17 @@ public class ListBuilder extends TemplateSliceBuilder {
         @NonNull
         public HeaderBuilder setContentDescription(@NonNull CharSequence description) {
             mImpl.setContentDescription(description);
+            return this;
+        }
+
+        /**
+         * Sets the desired layout direction for the content in this row.
+         *
+         * @param layoutDirection the layout direction to set.
+         */
+        @NonNull
+        public HeaderBuilder setLayoutDirection(@LayoutDirection int layoutDirection) {
+            mImpl.setLayoutDirection(layoutDirection);
             return this;
         }
 

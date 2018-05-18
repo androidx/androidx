@@ -33,6 +33,7 @@ import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
+import android.view.View;
 
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
@@ -78,6 +79,8 @@ public class SliceCreator {
             "permission",
             "empty",
             "error",
+            "rtlgrid",
+            "translate",
     };
 
     private final Context mContext;
@@ -144,6 +147,10 @@ public class SliceCreator {
                 return new ListBuilder(getContext(), sliceUri, INFINITY).build();
             case "/error":
                 return createErrorSlice(sliceUri);
+            case "/translate":
+                return createTranslationSlice(sliceUri);
+            case "/rtlgrid":
+                return createRtlGridSlice(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -565,6 +572,69 @@ public class SliceCreator {
                         .setSubtitle("This is not the slice you're looking for")
                         .addEndItem(ic2, ICON_IMAGE)
                         .setPrimaryAction(simpleAction)).build();
+    }
+
+    private Slice createRtlGridSlice(Uri uri) {
+        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+        GridRowBuilder grb = new GridRowBuilder(lb);
+        lb.setHeader(new ListBuilder.HeaderBuilder(lb)
+                .setTitle("Language practice")
+                .setSubtitle("Which image doesn't match the word?"));
+        lb.addGridRow(grb
+                .addCell(new GridRowBuilder.CellBuilder(grb)
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.cake),
+                                SMALL_IMAGE)
+                        .addText("3")
+                        .addTitleText("كيكة")
+                        .setContentIntent(getBroadcastIntent(ACTION_TOAST, "Wrong answer")))
+                .addCell(new GridRowBuilder.CellBuilder(grb)
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.cheese),
+                                SMALL_IMAGE)
+                        .addText("2")
+                        .addTitleText("جبن")
+                        .setContentIntent(getBroadcastIntent(ACTION_TOAST, "Wrong answer")))
+                .addCell(new GridRowBuilder.CellBuilder(grb)
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.pizza),
+                                SMALL_IMAGE)
+                        .addText("1")
+                        .addTitleText("تفاحة")
+                        .setContentIntent(getBroadcastIntent(ACTION_TOAST,
+                                "Correct! This is pizza not an apple!")))
+                .setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
+        return lb.build();
+    }
+
+    private Slice createTranslationSlice(Uri uri) {
+        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+        return lb.setHeader(new ListBuilder.HeaderBuilder(lb)
+                .setTitle("How to say hello")
+                .setSummary("Hello, bonjour, שלום ,مرحبا"))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitle("Hello")
+                        .setSubtitle("English \u00b7 heˈlō")
+                        .addEndItem(getSpeakWordAction("Hello"))
+                        .setLayoutDirection(View.LAYOUT_DIRECTION_LTR))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitle("Bonjour")
+                        .setSubtitle("French")
+                        .addEndItem(getSpeakWordAction("Bonjour")))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitle("שלום")
+                        .setSubtitle("Hebrew")
+                        .addEndItem(getSpeakWordAction("שלום"))
+                        .setLayoutDirection(View.LAYOUT_DIRECTION_RTL))
+                .addRow(new ListBuilder.RowBuilder(lb)
+                        .setTitle("مرحبا")
+                        .setSubtitle("Arabic \u00b7 marhabaan")
+                        .addEndItem(getSpeakWordAction("مرحبا"))
+                        .setLayoutDirection(View.LAYOUT_DIRECTION_RTL))
+                .build();
+    }
+
+    private SliceAction getSpeakWordAction(String word) {
+        return new SliceAction(getBroadcastIntent(ACTION_TOAST, word),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_speak), ICON_IMAGE,
+                "Hear " + word);
     }
 
     private Slice createPermissionSlice(Uri uri) {
