@@ -34,6 +34,7 @@ import androidx.fragment.app.FragmentActivity;
 public class CarListDialogDemo extends FragmentActivity {
     private static final String DIALOG_TAG = "list_dialog_tag";
 
+    private static final int DEFAULT_NUM_OF_SECTIONS = 0;
     private static final int DEFAULT_NUM_OF_ITEMS = 4;
     private static final int DEFAULT_INITIAL_POSITION = 0;
 
@@ -42,10 +43,16 @@ public class CarListDialogDemo extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_dialog_activity);
 
+        EditText numOfSectionsEdit = findViewById(R.id.num_of_sections_edit);
         EditText numOfItemsEdit = findViewById(R.id.num_of_items_edit);
         EditText initialPositionEdit = findViewById(R.id.initial_position_edit);
 
         findViewById(R.id.create_dialog).setOnClickListener(v -> {
+            CharSequence numOfSectionsText = numOfSectionsEdit.getText();
+            int numOfSections = TextUtils.isEmpty(numOfSectionsText)
+                    ? DEFAULT_NUM_OF_SECTIONS
+                    : Integer.parseInt(numOfSectionsText.toString());
+
             CharSequence numOfItemsText = numOfItemsEdit.getText();
             int numOfItems = TextUtils.isEmpty(numOfItemsText)
                     ? DEFAULT_NUM_OF_ITEMS
@@ -58,6 +65,7 @@ public class CarListDialogDemo extends FragmentActivity {
 
             ListDialogFragment alertDialog = ListDialogFragment.newInstance(
                     ((CheckBox) findViewById(R.id.has_title)).isChecked(),
+                    numOfSections,
                     numOfItems,
                     initialPosition);
 
@@ -68,13 +76,15 @@ public class CarListDialogDemo extends FragmentActivity {
     /** A {@link DialogFragment} that will inflate a {@link CarListDialog}. */
     public static class ListDialogFragment extends DialogFragment {
         private static final String HAS_TITLE_KEY = "has_title_key";
+        private static final String NUM_OF_SECTIONS_KEY = "num_of_sections_key";
         private static final String NUM_OF_ITEMS_KEY = "num_of_items_key";
         private static final String INITIAL_POSITION_KEY = "initial_position_key";
 
-        static ListDialogFragment newInstance(boolean hasTitle,
+        static ListDialogFragment newInstance(boolean hasTitle, int numOfSections,
                 int numOfItems, int initialPosition) {
             Bundle args = new Bundle();
             args.putBoolean(HAS_TITLE_KEY, hasTitle);
+            args.putInt(NUM_OF_SECTIONS_KEY, numOfSections);
             args.putInt(NUM_OF_ITEMS_KEY, numOfItems);
             args.putInt(INITIAL_POSITION_KEY, initialPosition);
 
@@ -87,8 +97,16 @@ public class CarListDialogDemo extends FragmentActivity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             CarListDialog.Builder builder = new CarListDialog.Builder(getContext())
-                    .setItems(getItems(), /* onClickListener= */ null)
                     .setInitialPosition(getArguments().getInt(INITIAL_POSITION_KEY));
+
+            int numOfSections = getArguments().getInt(NUM_OF_SECTIONS_KEY);
+            int numOfItems = getArguments().getInt(NUM_OF_ITEMS_KEY);
+
+            if (numOfSections != 0) {
+                builder.setItems(createSections(numOfSections, numOfItems), null);
+            } else {
+                builder.setItems(createItems(numOfItems), null);
+            }
 
             if (getArguments().getBoolean(HAS_TITLE_KEY)) {
                 builder.setTitle(getContext().getString(R.string.list_dialog_title));
@@ -97,9 +115,20 @@ public class CarListDialogDemo extends FragmentActivity {
             return builder.create();
         }
 
-        private String[] getItems() {
-            int numOfItems = getArguments().getInt(NUM_OF_ITEMS_KEY);
+        private CarListDialog.DialogSubSection[] createSections(int numOfSections, int numOfItems) {
+            CarListDialog.DialogSubSection[] items =
+                    new CarListDialog.DialogSubSection[numOfSections];
 
+            for (int i = 0; i < numOfSections; i++) {
+                items[i] = new CarListDialog.DialogSubSection(
+                        /* title= */ "Section " + (i + 1),
+                        createItems(numOfItems));
+            }
+
+            return items;
+        }
+
+        private String[] createItems(int numOfItems) {
             String[] items = new String[numOfItems];
             for (int i = 0; i < numOfItems; i++) {
                 items[i] = "Item " + (i + 1);
