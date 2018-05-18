@@ -859,6 +859,8 @@ package androidx.appcompat.widget {
     method protected androidx.appcompat.widget.Toolbar.LayoutParams generateDefaultLayoutParams();
     method public androidx.appcompat.widget.Toolbar.LayoutParams generateLayoutParams(android.util.AttributeSet);
     method protected androidx.appcompat.widget.Toolbar.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
+    method public java.lang.CharSequence getCollapseContentDescription();
+    method public android.graphics.drawable.Drawable getCollapseIcon();
     method public int getContentInsetEnd();
     method public int getContentInsetEndWithActions();
     method public int getContentInsetLeft();
@@ -886,6 +888,10 @@ package androidx.appcompat.widget {
     method public boolean hideOverflowMenu();
     method public void inflateMenu(int);
     method public boolean isOverflowMenuShowing();
+    method public void setCollapseContentDescription(int);
+    method public void setCollapseContentDescription(java.lang.CharSequence);
+    method public void setCollapseIcon(int);
+    method public void setCollapseIcon(android.graphics.drawable.Drawable);
     method public void setContentInsetEndWithActions(int);
     method public void setContentInsetStartWithNavigation(int);
     method public void setContentInsetsAbsolute(int, int);
