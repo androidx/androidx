@@ -37,7 +37,7 @@ limitations under the License.
         <item name="actionBarSize">@dimen/car_app_bar_height</item>
         <item name="actionButtonStyle">@style/Widget.Car.ActionButton</item>
         <item name="actionMenuTextAppearance">@style/TextAppearance.Car.ActionBar.Menu</item>
-        <item name="actionMenuTextColor">@color/car_accent</item>
+        <item name="actionMenuTextColor">@drawable/car_borderless_button_text_color</item>
         <item name="carDialogTheme">@style/Theme.Car.Dialog</item>
         <item name="colorControlHighlight">@color/car_card_ripple_background</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
