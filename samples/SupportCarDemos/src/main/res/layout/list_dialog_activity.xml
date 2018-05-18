@@ -48,7 +48,7 @@
             android:inputType="number"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Car.Body2"/>
-    </com.google.android.material.textfield.TextInputLayout>
+    </android.support.design.widget.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/num_of_items"
