@@ -10,6 +10,7 @@
 
 if [ -n "$OUT_DIR" ] ; then
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
+    export LINT_PRINT_STACKTRACE=true
 fi
 
 # ----------------------------------------------------------------------------
