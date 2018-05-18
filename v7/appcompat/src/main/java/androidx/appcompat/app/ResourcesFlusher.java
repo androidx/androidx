@@ -23,6 +23,7 @@ import android.util.LongSparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.os.BuildCompat;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -42,19 +43,21 @@ class ResourcesFlusher {
     private static Field sResourcesImplField;
     private static boolean sResourcesImplFieldFetched;
 
-    static boolean flush(@NonNull final Resources resources) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return flushNougats(resources);
+    static void flush(@NonNull final Resources resources) {
+        if (BuildCompat.isAtLeastP()) {
+            // no-op on P and above
+            return;
+        } else if (Build.VERSION.SDK_INT >= 24) {
+            flushNougats(resources);
         } else if (Build.VERSION.SDK_INT >= 23) {
-            return flushMarshmallows(resources);
+            flushMarshmallows(resources);
         } else if (Build.VERSION.SDK_INT >= 21) {
-            return flushLollipops(resources);
+            flushLollipops(resources);
         }
-        return false;
     }
 
     @RequiresApi(21)
-    private static boolean flushLollipops(@NonNull final Resources resources) {
+    private static void flushLollipops(@NonNull final Resources resources) {
         if (!sDrawableCacheFieldFetched) {
             try {
                 sDrawableCacheField = Resources.class.getDeclaredField("mDrawableCache");
@@ -73,14 +76,12 @@ class ResourcesFlusher {
             }
             if (drawableCache != null) {
                 drawableCache.clear();
-                return true;
             }
         }
-        return false;
     }
 
     @RequiresApi(23)
-    private static boolean flushMarshmallows(@NonNull final Resources resources) {
+    private static void flushMarshmallows(@NonNull final Resources resources) {
         if (!sDrawableCacheFieldFetched) {
             try {
                 sDrawableCacheField = Resources.class.getDeclaredField("mDrawableCache");
@@ -102,14 +103,14 @@ class ResourcesFlusher {
 
         if (drawableCache == null) {
             // If there is no drawable cache, there's nothing to flush...
-            return false;
+            return;
         }
 
-        return drawableCache != null && flushThemedResourcesCache(drawableCache);
+        flushThemedResourcesCache(drawableCache);
     }
 
     @RequiresApi(24)
-    private static boolean flushNougats(@NonNull final Resources resources) {
+    private static void flushNougats(@NonNull final Resources resources) {
         if (!sResourcesImplFieldFetched) {
             try {
                 sResourcesImplField = Resources.class.getDeclaredField("mResourcesImpl");
@@ -122,7 +123,7 @@ class ResourcesFlusher {
 
         if (sResourcesImplField == null) {
             // If the mResourcesImpl field isn't available, bail out now
-            return false;
+            return;
         }
 
         Object resourcesImpl = null;
@@ -134,7 +135,7 @@ class ResourcesFlusher {
 
         if (resourcesImpl == null) {
             // If there is no impl instance, bail out now
-            return false;
+            return;
         }
 
         if (!sDrawableCacheFieldFetched) {
@@ -156,11 +157,13 @@ class ResourcesFlusher {
             }
         }
 
-        return drawableCache != null && flushThemedResourcesCache(drawableCache);
+        if (drawableCache != null) {
+            flushThemedResourcesCache(drawableCache);
+        }
     }
 
     @RequiresApi(16)
-    private static boolean flushThemedResourcesCache(@NonNull final Object cache) {
+    private static void flushThemedResourcesCache(@NonNull final Object cache) {
         if (!sThemedResourceCacheClazzFetched) {
             try {
                 sThemedResourceCacheClazz = Class.forName("android.content.res.ThemedResourceCache");
@@ -172,7 +175,7 @@ class ResourcesFlusher {
 
         if (sThemedResourceCacheClazz == null) {
             // If the ThemedResourceCache class isn't available, bail out now
-            return false;
+            return;
         }
 
         if (!sThemedResourceCache_mUnthemedEntriesFieldFetched) {
@@ -188,7 +191,7 @@ class ResourcesFlusher {
 
         if (sThemedResourceCache_mUnthemedEntriesField == null) {
             // Didn't get mUnthemedEntries field, bail out...
-            return false;
+            return;
         }
 
         LongSparseArray unthemedEntries = null;
@@ -201,9 +204,7 @@ class ResourcesFlusher {
 
         if (unthemedEntries != null) {
             unthemedEntries.clear();
-            return true;
         }
-        return false;
     }
 
     private ResourcesFlusher() {
