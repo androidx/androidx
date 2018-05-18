@@ -14,7 +14,7 @@ import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings("unchecked")
-public class DeletionDao_Impl implements DeletionDao {
+public final class DeletionDao_Impl implements DeletionDao {
   private final RoomDatabase __db;
 
   private final EntityDeletionOrUpdateAdapter __deletionAdapterOfUser;

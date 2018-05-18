@@ -93,6 +93,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
 
         builder.apply {
             addModifiers(PUBLIC)
+            addModifiers(FINAL)
             if (dao.element.kind == ElementKind.INTERFACE) {
                 addSuperinterface(dao.typeName)
             } else {
