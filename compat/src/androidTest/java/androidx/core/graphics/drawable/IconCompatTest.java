@@ -36,6 +36,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -43,10 +44,12 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.test.R;
+import androidx.versionedparcelable.ParcelUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -318,9 +321,21 @@ public class IconCompatTest {
         icon.setTintMode(PorterDuff.Mode.XOR);
 
         // Parcelable methods.
+        // Bundle.
         Bundle b = icon.toBundle();
-
         assertNotNull(IconCompat.createFromBundle(b));
+
+        // Parcel
+        Parcel p = Parcel.obtain();
+        p.writeParcelable(ParcelUtils.toParcelable(icon), 0);
+        p.setDataPosition(0);
+        assertNotNull(ParcelUtils.fromParcelable(p.readParcelable(getClass().getClassLoader())));
+
+        // Stream.
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ParcelUtils.toOutputStream(icon, outputStream);
+        InputStream input = new ByteArrayInputStream(outputStream.toByteArray());
+        assertNotNull(ParcelUtils.fromInputStream(input));
 
         // loading drawable synchronously.
         assertNotNull(icon.loadDrawable(mContext));
