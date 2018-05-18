@@ -23,10 +23,13 @@ import static androidx.versionedparcelable.ParcelUtils.toParcelable;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
@@ -72,6 +75,17 @@ public class VersionedParcelIntegTest {
             p.setDataPosition(0);
             return fromParcelable(p.readParcelable(getClass().getClassLoader()));
         }
+    }
+
+    @Test
+    public void testCustomParcelCallbacks() {
+        ParcelizableImpl obj = new ParcelizableImpl();
+        assertFalse(obj.mPreParcelled);
+        assertFalse(obj.mPostParcelled);
+
+        ParcelizableImpl other = parcelCopy(obj);
+        assertTrue(obj.mPreParcelled);
+        assertTrue(other.mPostParcelled);
     }
 
     @Test
@@ -246,6 +260,8 @@ public class VersionedParcelIntegTest {
 
     @Test
     public void testSize() {
+        // No Size until Lollipop.
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) return;
         ParcelizableImpl obj = new ParcelizableImpl();
         obj.mSize = new Size(4, 2);
         ParcelizableImpl other = parcelCopy(obj);
@@ -254,6 +270,8 @@ public class VersionedParcelIntegTest {
 
     @Test
     public void testSizeF() {
+        // No Size until Lollipop.
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) return;
         ParcelizableImpl obj = new ParcelizableImpl();
         obj.mSizeF = new SizeF(4.2f, 5);
         ParcelizableImpl other = parcelCopy(obj);
@@ -268,7 +286,15 @@ public class VersionedParcelIntegTest {
         obj.mSparseBooleanArray.put(15, true);
         obj.mSparseBooleanArray.put(23, false);
         ParcelizableImpl other = parcelCopy(obj);
-        assertEquals(obj.mSparseBooleanArray, other.mSparseBooleanArray);
+        assertEquivalent(obj.mSparseBooleanArray, other.mSparseBooleanArray);
+    }
+
+    private void assertEquivalent(SparseBooleanArray first, SparseBooleanArray second) {
+        assertEquals(first.size(), second.size());
+        for (int i = 0; i < first.size(); i++) {
+            assertTrue(second.indexOfKey(first.keyAt(i)) >= 0);
+            assertEquals(first.valueAt(i), second.get(first.keyAt(i)));
+        }
     }
 
     @Test
@@ -347,8 +373,9 @@ public class VersionedParcelIntegTest {
 
     @VersionedParcelize(allowSerialization = true,
             ignoreParcelables = true,
+            isCustom = true,
             deprecatedIds = {5, 14})
-    public static class ParcelizableImpl implements VersionedParcelable {
+    public static class ParcelizableImpl extends CustomVersionedParcelable {
 
         @ParcelField(1)
         public int mIntField;
@@ -406,5 +433,20 @@ public class VersionedParcelIntegTest {
         public List<String> mStringList;
         @ParcelField(27)
         public List<IBinder> mBinderList;
+
+        @NonParcelField
+        private boolean mPreParcelled;
+        @NonParcelField
+        private boolean mPostParcelled;
+
+        @Override
+        protected void onPreParceling(boolean isStream) {
+            mPreParcelled = true;
+        }
+
+        @Override
+        protected void onPostParceling() {
+            mPostParcelled = true;
+        }
     }
 }
