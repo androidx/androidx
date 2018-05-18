@@ -34,13 +34,13 @@ public class ParcelImpl implements Parcelable {
     }
 
     protected ParcelImpl(Parcel in) {
-        mParcel = new VersionedParcelParcel(in).readSafeParcelable();
+        mParcel = new VersionedParcelParcel(in).readVersionedParcelable();
     }
 
     /**
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    public <T extends VersionedParcelable> T getSafeParcel() {
+    public <T extends VersionedParcelable> T getVersionedParcel() {
         return (T) mParcel;
     }
 
@@ -52,7 +52,7 @@ public class ParcelImpl implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         VersionedParcelParcel parcel = new VersionedParcelParcel(dest);
-        parcel.writeSafeParcelable(mParcel);
+        parcel.writeVersionedParcelable(mParcel);
     }
 
     public static final Creator<ParcelImpl> CREATOR = new Creator<ParcelImpl>() {

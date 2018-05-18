@@ -65,7 +65,7 @@ public abstract class VersionedParcel {
     private static final int EX_UNSUPPORTED_OPERATION = -7;
     private static final int EX_PARCELABLE = -9;
 
-    private static final int TYPE_SAFE_PARCELABLE = 1;
+    private static final int TYPE_VERSIONED_PARCELABLE = 1;
     private static final int TYPE_PARCELABLE = 2;
     private static final int TYPE_SERIALIZABLE = 3;
     private static final int TYPE_STRING = 4;
@@ -236,7 +236,7 @@ public abstract class VersionedParcel {
     /**
      * Configure the VersionedParcel for current serialization method.
      */
-    protected void setSerializationFlags(boolean allowSerialization, boolean ignoreParcelables) {
+    public void setSerializationFlags(boolean allowSerialization, boolean ignoreParcelables) {
         // Don't care except in VersionedParcelStream
     }
 
@@ -802,9 +802,9 @@ public abstract class VersionedParcel {
                         i++;
                     }
                     break;
-                case TYPE_SAFE_PARCELABLE:
+                case TYPE_VERSIONED_PARCELABLE:
                     while (i < n) {
-                        writeSafeParcelable((VersionedParcelable) val.get(i));
+                        writeVersionedParcelable((VersionedParcelable) val.get(i));
                         i++;
                     }
                     break;
@@ -866,9 +866,9 @@ public abstract class VersionedParcel {
                         i++;
                     }
                     break;
-                case TYPE_SAFE_PARCELABLE:
+                case TYPE_VERSIONED_PARCELABLE:
                     while (i < n) {
-                        writeSafeParcelable((VersionedParcelable) val[i]);
+                        writeVersionedParcelable((VersionedParcelable) val[i]);
                         i++;
                     }
                     break;
@@ -894,13 +894,14 @@ public abstract class VersionedParcel {
         } else if (t instanceof Parcelable) {
             return TYPE_PARCELABLE;
         } else if (t instanceof VersionedParcelable) {
-            return TYPE_SAFE_PARCELABLE;
+            return TYPE_VERSIONED_PARCELABLE;
         } else if (t instanceof Serializable) {
             return TYPE_SERIALIZABLE;
         } else if (t instanceof IBinder) {
             return TYPE_BINDER;
         }
-        throw new IllegalArgumentException(t.getClass().getName() + " cannot be SafeParcelled");
+        throw new IllegalArgumentException(t.getClass().getName()
+                + " cannot be VersionedParcelled");
     }
 
     /**
@@ -909,26 +910,26 @@ public abstract class VersionedParcel {
      *
      * @param p The VersionedParcelable object to be written.
      */
-    public void writeSafeParcelable(VersionedParcelable p, int fieldId) {
+    public void writeVersionedParcelable(VersionedParcelable p, int fieldId) {
         setOutputField(fieldId);
-        writeSafeParcelable(p);
+        writeVersionedParcelable(p);
     }
 
     /**
      */
-    protected void writeSafeParcelable(VersionedParcelable p) {
+    protected void writeVersionedParcelable(VersionedParcelable p) {
         if (p == null) {
             writeString(null);
             return;
         }
-        writeSafeParcelableCreator(p);
+        writeVersionedParcelableCreator(p);
 
         VersionedParcel subParcel = createSubParcel();
         writeToParcel(p, subParcel);
         subParcel.closeField();
     }
 
-    private void writeSafeParcelableCreator(VersionedParcelable p) {
+    private void writeVersionedParcelableCreator(VersionedParcelable p) {
         String name = p.getClass().getName();
         writeString(name);
     }
@@ -1227,9 +1228,9 @@ public abstract class VersionedParcel {
                         n--;
                     }
                     break;
-                case TYPE_SAFE_PARCELABLE:
+                case TYPE_VERSIONED_PARCELABLE:
                     while (n > 0) {
-                        list.add((T) readSafeParcelable());
+                        list.add((T) readVersionedParcelable());
                         n--;
                     }
                     break;
@@ -1295,9 +1296,9 @@ public abstract class VersionedParcel {
                         n--;
                     }
                     break;
-                case TYPE_SAFE_PARCELABLE:
+                case TYPE_VERSIONED_PARCELABLE:
                     while (n > 0) {
-                        list.add((T) readSafeParcelable());
+                        list.add((T) readVersionedParcelable());
                         n--;
                     }
                     break;
@@ -1320,11 +1321,11 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public <T extends VersionedParcelable> T readSafeParcelable(T def, int fieldId) {
+    public <T extends VersionedParcelable> T readVersionedParcelable(T def, int fieldId) {
         if (!readField(fieldId)) {
             return def;
         }
-        return readSafeParcelable();
+        return readVersionedParcelable();
     }
 
     /**
@@ -1332,11 +1333,11 @@ public abstract class VersionedParcel {
      *
      * @return Returns the newly created VersionedParcelable, or null if a null
      * object has been written.
-     * @throws BadParcelableException Throws BadSafeParcelableException if there
+     * @throws BadParcelableException Throws BadVersionedParcelableException if there
      *                                was an error trying to instantiate the VersionedParcelable.
      */
     @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-    protected <T extends VersionedParcelable> T readSafeParcelable() {
+    protected <T extends VersionedParcelable> T readVersionedParcelable() {
         String name = readString();
         if (name == null) {
             return null;

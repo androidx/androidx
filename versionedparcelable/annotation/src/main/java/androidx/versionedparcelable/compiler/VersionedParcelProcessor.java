@@ -102,6 +102,8 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 "SparseBooleanArray");
         mMethodLookup.put(Pattern.compile("^android.os.Parcelable$"), "Parcelable");
         mMethodLookup.put(Pattern.compile("^java.util.List<.*>$"), "List");
+        mMethodLookup.put(Pattern.compile("^androidx.versionedparcelable.VersionedParcelable$"),
+                "VersionedParcelable");
     }
 
     @Override
@@ -111,7 +113,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         TypeElement field = findAnnotation(set, PARCEL_FIELD);
         TypeElement nonField = findAnnotation(set, NON_PARCEL_FIELD);
         List<Element> versionedParcelables = new ArrayList<>();
-        Set<Element> fields = new HashSet<>();
+        Map<Element, Set<Element>> fields = new HashMap<>();
         Set<Element> nonFields = new HashSet<>();
 
         if (cls == null) {
@@ -139,7 +141,10 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 mMessager.printMessage(Diagnostic.Kind.ERROR,
                         cls + " must be added to classes containing " + field);
             } else {
-                fields.add(element);
+                if (!fields.containsKey(clsElement)) {
+                    fields.put(clsElement, new HashSet<>());
+                }
+                fields.get(clsElement).add(element);
             }
         }
         if (nonField != null) {
@@ -169,9 +174,9 @@ public class VersionedParcelProcessor extends AbstractProcessor {
             String isCustom = getValue(annotation, "isCustom", "false");
             String deprecatedIds = getValue(annotation, "deprecatedIds", "");
             parseDeprecated(takenIds, deprecatedIds);
-            checkClass(versionedParcelable, takenIds);
-            generateSerialization(versionedParcelable, fields, allowSerialization,
-                    ignoreParcelables, isCustom);
+            checkClass(versionedParcelable.asType().toString(), versionedParcelable, takenIds);
+            generateSerialization(versionedParcelable, fields.get(versionedParcelable),
+                    allowSerialization, ignoreParcelables, isCustom);
         }
 
         return true;
@@ -241,7 +246,6 @@ public class VersionedParcelProcessor extends AbstractProcessor {
 
     private String getPkg(Element s) {
         String pkg = mEnv.getElementUtils().getPackageOf(s).toString();
-        mMessager.printMessage(Diagnostic.Kind.NOTE, "Pkg: " + pkg);
         return pkg;
     }
 
@@ -250,10 +254,8 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         String m = getMethod(type);
         if (m != null) return m;
         TypeElement te = (TypeElement) mEnv.getTypeUtils().asElement(type);
-        mMessager.printMessage(Diagnostic.Kind.NOTE, "Type " + te + " " + type);
         if (te != null) {
             for (TypeMirror t : te.getInterfaces()) {
-                mMessager.printMessage(Diagnostic.Kind.NOTE, "Interface " + t);
                 m = getMethod(t);
                 if (m != null) return m;
             }
@@ -290,7 +292,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         }
     }
 
-    private void checkClass(Element element, ArrayList<String> takenIds) {
+    private void checkClass(String clsName, Element element, ArrayList<String> takenIds) {
         if (element.getKind() == ElementKind.FIELD) {
             if (!element.getModifiers().contains(Modifier.STATIC)) {
                 int i;
@@ -315,14 +317,16 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 }
                 if (i == annotations.size()) {
                     mMessager.printMessage(Diagnostic.Kind.ERROR,
-                            "VersionedParcelables must have all fields annotated with ParcelField"
-                                    + " or NonParcelField");
+                            clsName + "." + element.getSimpleName() + " is not annotated with "
+                                    + "@ParcelField or @NonParcelField");
                     return;
                 }
             }
         }
         for (Element e : element.getEnclosedElements()) {
-            checkClass(e, takenIds);
+            if (e.getKind() != ElementKind.CLASS) {
+                checkClass(clsName, e, takenIds);
+            }
         }
     }
 
