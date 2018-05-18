@@ -2222,6 +2222,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             if (src.mSourceState == SOURCE_STATE_PREPARED) {
                 // start next source only when it's in prepared state.
                 src.mPlayer.start();
+                setMp2State(src.mPlayer, MEDIAPLAYER2_STATE_PLAYING);
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(EventCallback callback) {
@@ -2247,7 +2248,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         synchronized DataSourceError prepareAt(int n) {
             if (n >= mQueue.size()
                     || mQueue.get(n).mSourceState != SOURCE_STATE_INIT
-                    || getPlayerState() == BaseMediaPlayer.PLAYER_STATE_IDLE) {
+                    || (n != 0 && getPlayerState() == BaseMediaPlayer.PLAYER_STATE_IDLE)) {
                 // There is no next source or it's in preparing or prepared state.
                 return null;
             }
@@ -2276,7 +2277,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             }
             final MediaPlayerSource src = mQueue.get(0);
             moveToNext();
-            if (src.mPlayerState == BaseMediaPlayer.PLAYER_STATE_PLAYING) {
+            if (src.mPlayerState == BaseMediaPlayer.PLAYER_STATE_PLAYING || src.mPlayPending) {
                 playCurrent();
             }
         }
