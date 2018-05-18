@@ -35,6 +35,22 @@
         android:text="@string/list_dialog_checkbox_title" />
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/num_of_sections"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/car_single_line_list_item_height"
+        android:hint="@string/list_dialog_num_of_sections_hint"
+        app:hintTextAppearance="@style/TextAppearance.Car.Hint">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/num_of_sections_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Car.Body2"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/num_of_items"
         android:layout_width="match_parent"
         android:layout_height="@dimen/car_single_line_list_item_height"
