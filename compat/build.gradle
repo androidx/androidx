@@ -10,6 +10,7 @@ dependencies {
     api(project(":annotation"))
     api(project(":collection"))
     api(ARCH_LIFECYCLE_RUNTIME, libs.exclude_annotations_transitive)
+    api project(':versionedparcelable')
 
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
     androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
@@ -18,6 +19,7 @@ dependencies {
     androidTestImplementation project(':internal-testutils'), {
         exclude group: 'androidx.core', module: 'core'
     }
+    annotationProcessor(project(":versionedparcelable-annotation"))
 }
 
 android {
