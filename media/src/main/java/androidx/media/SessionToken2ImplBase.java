@@ -227,8 +227,8 @@ final class SessionToken2ImplBase implements SessionToken2.SupportLibraryImpl {
         final String packageName = bundle.getString(KEY_PACKAGE_NAME);
         final String serviceName = bundle.getString(KEY_SERVICE_NAME);
         final String sessionId = bundle.getString(KEY_SESSION_ID);
-        final IMediaSession2 iSession2 = (IMediaSession2) BundleCompat.getBinder(
-                bundle, KEY_SESSION_BINDER);
+        final IMediaSession2 iSession2 = IMediaSession2.Stub.asInterface(BundleCompat.getBinder(
+                bundle, KEY_SESSION_BINDER));
 
         // Sanity check.
         switch (type) {
