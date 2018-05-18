@@ -24,7 +24,7 @@
 
     <uses-feature android:name="android.software.Leanback" android:required="false" />
 
-    <application android:label="pref demo"
+    <application android:label="Preferences Demo"
         android:icon="@drawable/app_sample_code"
         android:allowBackup="false"
         android:supportsRtl="true"
@@ -40,8 +40,7 @@
         </activity>
 
         <activity android:name=".FragmentSupportPreferences"
-            android:label="@string/fragment_support_preferences_demo"
-            android:theme="@style/SupportPreference">
+            android:label="@string/fragment_support_preferences_demo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
@@ -50,7 +49,7 @@
 
         <activity android:name=".FragmentSupportPreferencesCompat"
             android:label="@string/fragment_support_preferences_compat_demo"
-            android:theme="@style/SupportPreferenceCompat">
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
@@ -67,6 +66,5 @@
                 <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
-
     </application>
 </manifest>

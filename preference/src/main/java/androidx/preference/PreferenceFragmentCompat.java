@@ -207,9 +207,10 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         super.onCreate(savedInstanceState);
         final TypedValue tv = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
-        final int theme = tv.resourceId;
+        int theme = tv.resourceId;
         if (theme == 0) {
-            throw new IllegalStateException("Must specify preferenceTheme in theme");
+            // Fallback to default theme.
+            theme = R.style.PreferenceThemeOverlay;
         }
         mStyledContext = new ContextThemeWrapper(getActivity(), theme);
 
@@ -258,13 +259,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
 
         a.recycle();
 
-        // Need to theme the inflater to pick up the preferenceFragmentListStyle
-        final TypedValue tv = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
-        final int theme = tv.resourceId;
-
-        final Context themedContext = new ContextThemeWrapper(inflater.getContext(), theme);
-        final LayoutInflater themedInflater = inflater.cloneInContext(themedContext);
+        final LayoutInflater themedInflater = inflater.cloneInContext(mStyledContext);
 
         final View view = themedInflater.inflate(mLayoutResId, container, false);
 
