@@ -69,6 +69,8 @@ public class ListContent {
     private ArrayList<SliceItem> mRowItems = new ArrayList<>();
     private List<SliceAction> mSliceActions;
     private Context mContext;
+    private int mMinScrollHeight;
+    private int mLargeHeight;
 
     private int mHeaderTitleSize;
     private int mHeaderSubtitleSize;
@@ -89,11 +91,19 @@ public class ListContent {
     public ListContent(Context context, Slice slice, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         mSlice = slice;
+        if (mSlice == null) {
+            return;
+        }
         mContext = context;
 
         // TODO: duplicated code from SliceChildView; could do something better
         // Some of this information will impact the size calculations for slice content.
         if (context != null) {
+            mMinScrollHeight = context.getResources()
+                    .getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
+            mLargeHeight = context.getResources()
+                    .getDimensionPixelSize(R.dimen.abc_slice_large_height);
+
             Resources.Theme theme = context.getTheme();
             if (theme != null) {
                 TypedArray a = theme.obtainStyledAttributes(attrs, R.styleable.SliceView,
@@ -179,13 +189,43 @@ public class ListContent {
     }
 
     /**
+     * @return height of this list when displayed in small mode.
+     */
+    public int getSmallHeight() {
+        return getHeight(mHeaderItem, true /* isHeader */,
+                0 /* rowIndex */, 1 /* rowCount */, MODE_SMALL);
+    }
+
+    /**
+     * @param maxHeight max height we can be, -1 if no max.
+     * @param scrollable whether scrolling is allowed.
+     * @return height of the list when displayed in large mode.
+     */
+    public int getLargeHeight(int maxHeight, boolean scrollable) {
+        int desiredHeight = getListHeight(mRowItems);
+        int maxLargeHeight = maxHeight != -1
+                ? maxHeight
+                : Math.min(maxHeight, mLargeHeight);
+
+        // Do we have enough content to reasonably scroll in our max?
+        boolean bigEnoughToScroll = desiredHeight - maxLargeHeight >= mMinScrollHeight;
+
+        // Adjust for scrolling
+        int height = bigEnoughToScroll ? maxLargeHeight : Math.min(desiredHeight, maxLargeHeight);
+        if (!scrollable) {
+            height = getListHeight(getItemsForNonScrollingList(height));
+        }
+        return height;
+    }
+
+    /**
      * Expects the provided list of items to be filtered (i.e. only things that can be turned into
      * GridContent or RowContent) and in order (i.e. first item could be a header).
      *
      * @return the total height of all the rows contained in the provided list.
      */
-    public int getListHeight(Context context, List<SliceItem> listItems) {
-        if (listItems == null) {
+    public int getListHeight(List<SliceItem> listItems) {
+        if (listItems == null || mContext == null) {
             return 0;
         }
         int height = 0;
@@ -196,11 +236,11 @@ public class ListContent {
             hasRealHeader = !maybeHeader.hasAnyHints(HINT_LIST_ITEM, HINT_HORIZONTAL);
         }
         if (listItems.size() == 1 && !maybeHeader.hasHint(HINT_HORIZONTAL)) {
-            return getHeight(context, maybeHeader, true /* isHeader */, 0, 1, MODE_LARGE);
+            return getHeight(maybeHeader, true /* isHeader */, 0, 1, MODE_LARGE);
         }
         int rowCount = listItems.size();
         for (int i = 0; i < listItems.size(); i++) {
-            height += getHeight(context, listItems.get(i), i == 0 && hasRealHeader /* isHeader */,
+            height += getHeight(listItems.get(i), i == 0 && hasRealHeader /* isHeader */,
                     i, rowCount, MODE_LARGE);
         }
         return height;
@@ -208,19 +248,18 @@ public class ListContent {
 
     /**
      * Returns a list of items that can be displayed in the provided height. If this list
-     * has a {@link #getSeeMoreItem()} this will be returned in the list if appropriate.
+     * has a {@link #getSeeMoreItem()} this will be displayed in the list if appropriate.
      *
-     * @param height the height to restrict the items, -1 to use default sizings for non-scrolling
-     *               templates.
-     * @return the list of items that can be displayed in the provided  height.
+     * @param height to use to determine the row items to return.
+     *
+     * @return the list of items that can be displayed in the provided height.
      */
     @NonNull
-    public List<SliceItem> getItemsForNonScrollingList(int height) {
+    public ArrayList<SliceItem> getItemsForNonScrollingList(int height) {
         ArrayList<SliceItem> visibleItems = new ArrayList<>();
         if (mRowItems == null || mRowItems.size() == 0) {
             return visibleItems;
         }
-        final int idealItemCount = hasHeader() ? 4 : 3;
         final int minItemCount = hasHeader() ? 2 : 1;
         int visibleHeight = 0;
         // Need to show see more
@@ -230,17 +269,17 @@ public class ListContent {
         }
         int rowCount = mRowItems.size();
         for (int i = 0; i < rowCount; i++) {
-            int itemHeight = getHeight(mContext, mRowItems.get(i), i == 0 /* isHeader */,
+            int itemHeight = getHeight(mRowItems.get(i), i == 0 /* isHeader */,
                     i, rowCount, MODE_LARGE);
-            if ((height == -1 && i > idealItemCount)
-                    || (height > 0 && visibleHeight + itemHeight > height)) {
+            if (height > 0 && visibleHeight + itemHeight > height) {
                 break;
             } else {
                 visibleHeight += itemHeight;
                 visibleItems.add(mRowItems.get(i));
             }
         }
-        if (mSeeMoreItem != null && visibleItems.size() >= minItemCount) {
+        if (mSeeMoreItem != null && visibleItems.size() >= minItemCount
+                && visibleItems.size() != rowCount) {
             // Only add see more if we're at least showing one item and it's not the header
             visibleItems.add(mSeeMoreItem);
         }
@@ -254,16 +293,18 @@ public class ListContent {
     /**
      * Determines the height of the provided {@link SliceItem}.
      */
-    public int getHeight(Context context, SliceItem item, boolean isHeader, int index,
-            int count, int mode) {
+    private int getHeight(SliceItem item, boolean isHeader, int index, int count, int mode) {
+        if (mContext == null || item == null) {
+            return 0;
+        }
         if (item.hasHint(HINT_HORIZONTAL)) {
-            GridContent gc = new GridContent(context, item);
+            GridContent gc = new GridContent(mContext, item);
             int topPadding = gc.isAllImages() && index == 0 ? mGridTopPadding : 0;
             int bottomPadding = gc.isAllImages() && index == count - 1 ? mGridBottomPadding : 0;
             int height = mode == MODE_SMALL ? gc.getSmallHeight() : gc.getActualHeight();
             return height + topPadding + bottomPadding;
         } else {
-            RowContent rc = new RowContent(context, item, isHeader);
+            RowContent rc = new RowContent(mContext, item, isHeader);
             return mode == MODE_SMALL ? rc.getSmallHeight() : rc.getActualHeight();
         }
     }
@@ -272,7 +313,7 @@ public class ListContent {
      * @return whether this list has content that is valid to display.
      */
     public boolean isValid() {
-        return mRowItems.size() > 0;
+        return mSlice != null && mRowItems.size() > 0;
     }
 
     @Nullable
