@@ -2180,8 +2180,7 @@ public final class MediaControllerCompat {
         }
 
         private void requestExtraBinder() {
-            sendCommand(COMMAND_GET_EXTRA_BINDER, null,
-                    new ExtraBinderRequestResultReceiver(this, new Handler()));
+            sendCommand(COMMAND_GET_EXTRA_BINDER, null, new ExtraBinderRequestResultReceiver(this));
         }
 
         private void processPendingCallbacks() {
@@ -2208,9 +2207,8 @@ public final class MediaControllerCompat {
         private static class ExtraBinderRequestResultReceiver extends ResultReceiver {
             private WeakReference<MediaControllerImplApi21> mMediaControllerImpl;
 
-            public ExtraBinderRequestResultReceiver(MediaControllerImplApi21 mediaControllerImpl,
-                    Handler handler) {
-                super(handler);
+            ExtraBinderRequestResultReceiver(MediaControllerImplApi21 mediaControllerImpl) {
+                super(null /* handler */);
                 mMediaControllerImpl = new WeakReference<>(mediaControllerImpl);
             }
 
