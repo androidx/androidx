@@ -41,6 +41,7 @@ import androidx.car.widget.ListItemAdapter;
 import androidx.car.widget.ListItemProvider;
 import androidx.car.widget.PagedListView;
 import androidx.car.widget.PagedScrollBarView;
+import androidx.car.widget.SubheaderListItem;
 import androidx.car.widget.TextListItem;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -97,7 +98,12 @@ public class CarListDialog extends Dialog {
         mTitle = builder.mTitle;
         mTitleElevation =
                 context.getResources().getDimension(R.dimen.car_list_dialog_title_elevation);
-        initializeAdapter(builder.mItems);
+
+        if (builder.mSections != null) {
+            initializeWithSections(builder.mSections);
+        } else {
+            initializeWithItems(builder.mItems);
+        }
     }
 
     @Override
@@ -210,6 +216,7 @@ public class CarListDialog extends Dialog {
         mList = getWindow().findViewById(R.id.list);
         mList.setMaxPages(PagedListView.UNLIMITED_PAGES);
         mList.setAdapter(mAdapter);
+        mList.setDividerVisibilityManager(mAdapter);
 
         // The list will start at the 0 position, so no need to scroll.
         if (mInitialPosition != 0) {
@@ -274,22 +281,57 @@ public class CarListDialog extends Dialog {
      * Initializes {@link #mAdapter} to display the items in the given array. It utilizes the
      * {@link TextListItem} but only populates the title field with the the values in the array.
      */
-    private void initializeAdapter(String[] items) {
+    private void initializeWithItems(String[] items) {
         Context context = getContext();
         List<ListItem> listItems = new ArrayList<>();
 
         for (int i = 0; i < items.length; i++) {
-            TextListItem item = new TextListItem(getContext());
-            item.setTitle(items[i]);
-
-            // Save the position to pass to onItemClick().
-            final int position = i;
-            item.setOnClickListener(v -> onItemClick(position));
-
-            listItems.add(item);
+            listItems.add(createItem(/* text= */ items[i], /* position= */ i));
         }
 
         mAdapter = new ListItemAdapter(context, new ListItemProvider.ListProvider(listItems));
+
+    }
+
+    /**
+     * Initializes the {@link #mAdapter} to display the sections in the given array. It utilizes
+     * the {@link SubheaderListItem} to display the section title and {@link TextListItem} to
+     * display the individual items of a section.
+     */
+    private void initializeWithSections(DialogSubSection[] sections) {
+        Context context = getContext();
+        List<ListItem> listItems = new ArrayList<>();
+
+        for (DialogSubSection section : sections) {
+            SubheaderListItem header = new SubheaderListItem(getContext(), section.getTitle());
+            header.setHideDivider(true);
+
+            listItems.add(header);
+
+            String[] items = section.getItems();
+            // Now initialize all the items associated with this subsection.
+            for (int i = 0, length = items.length; i < length; i++) {
+                listItems.add(createItem(/* text= */ items[i], /* position= */ i));
+            }
+        }
+
+        mAdapter = new ListItemAdapter(context, new ListItemProvider.ListProvider(listItems));
+    }
+
+    /**
+     * Creates the {@link TextListItem} that represents an item in the {@code CarListDialog}.
+     *
+     * @param text The text to display as the title in {@code TextListItem}.
+     * @param position The position of the item in the list.
+     */
+    private TextListItem createItem(String text, int position) {
+        TextListItem item = new TextListItem(getContext());
+        item.setTitle(text);
+
+        // Save the position to pass to onItemClick().
+        item.setOnClickListener(v -> onItemClick(position));
+
+        return item;
     }
 
     /**
@@ -299,7 +341,7 @@ public class CarListDialog extends Dialog {
      */
     private void onItemClick(int position) {
         if (mOnClickListener != null) {
-            mOnClickListener.onClick(this /* dialog */, position);
+            mOnClickListener.onClick(/* dialog= */ this, position);
         }
         dismiss();
     }
@@ -316,7 +358,6 @@ public class CarListDialog extends Dialog {
      */
     private void updateScrollbar() {
         RecyclerView recyclerView = mList.getRecyclerView();
-        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
 
         boolean isAtStart = mList.isAtStart();
         boolean isAtEnd = mList.isAtEnd();
@@ -336,7 +377,7 @@ public class CarListDialog extends Dialog {
                 recyclerView.computeVerticalScrollRange(),
                 recyclerView.computeVerticalScrollOffset(),
                 recyclerView.computeVerticalScrollExtent(),
-                false /* animate */);
+                /* animate= */ false);
 
         getWindow().getDecorView().invalidate();
     }
@@ -352,6 +393,60 @@ public class CarListDialog extends Dialog {
     }
 
     /**
+     * A struct that holds data for a section. A section is a combination of the section title and
+     * the list of items associated with that section.
+     */
+    public static class DialogSubSection {
+        private final String mTitle;
+        private final String[] mItems;
+
+        /**
+         * Creates a subsection.
+         *
+         * @param title The title of the section. Must be non-empty.
+         * @param items A list of items associated with this section. This list cannot be
+         *              {@code null} or empty.
+         */
+        public DialogSubSection(@NonNull String title, @NonNull String[] items) {
+            if (TextUtils.isEmpty(title)) {
+                throw new IllegalArgumentException("Title cannot be empty.");
+            }
+
+            if (items == null || items.length == 0) {
+                throw new IllegalArgumentException("Items cannot be empty.");
+            }
+
+            mTitle = title;
+            mItems = items;
+        }
+
+        /** Returns the section title. */
+        @NonNull
+        public String getTitle() {
+            return mTitle;
+        }
+
+        /** Returns the section items. */
+        @NonNull
+        public String[] getItems() {
+            return mItems;
+        }
+
+        /**
+         * Returns the total number of items related to this section. The length of the section is
+         * defined as the number of items plus an entry for the title of the section.
+         *
+         * <p>This value will always be greater than 0 due to the fact that the title must always
+         * be specified and the number of items passed to this {@code DialogSubSection} should
+         * always be greater than 0.
+         */
+        public int getItemCount() {
+            // Adding 1 to the length for account for the title.
+            return mItems.length + 1;
+        }
+    }
+
+    /**
      * Builder class that can be used to create a {@link CarListDialog} by configuring the
      * options for the list and behavior of the dialog.
      */
@@ -361,6 +456,7 @@ public class CarListDialog extends Dialog {
         private CharSequence mTitle;
         private int mInitialPosition;
         private String[] mItems;
+        private DialogSubSection[] mSections;
         private DialogInterface.OnClickListener mOnClickListener;
 
         private boolean mCancelable = true;
@@ -382,6 +478,7 @@ public class CarListDialog extends Dialog {
          * @param titleId The resource id of the string to be used as the title.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setTitle(@StringRes int titleId) {
             mTitle = mContext.getString(titleId);
             return this;
@@ -393,6 +490,7 @@ public class CarListDialog extends Dialog {
          * @param title The string to be used as the title.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setTitle(CharSequence title) {
             mTitle = title;
             return this;
@@ -411,10 +509,15 @@ public class CarListDialog extends Dialog {
          * <p>The provided list of items cannot be {@code null} or empty. Passing an empty list
          * to this method will throw can exception.
          *
+         * <p>If both this method and {@link #setItems(DialogSubSection[], OnClickListener)} are
+         * called, then the sections will take precedent, and the items set via this method will
+         * be ignored.
+         *
          * @param items The items that will appear in the list.
          * @param onClickListener The listener that will be notified of a click.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setItems(@NonNull String[] items,
                 @Nullable OnClickListener onClickListener) {
             if (items == null || items.length == 0) {
@@ -427,15 +530,56 @@ public class CarListDialog extends Dialog {
         }
 
         /**
+         * Sets the items that should appear in the list, divided into sections. Each section has a
+         * title and a list of items associated with it. The dialog will automatically dismiss
+         * itself when an item in the list is clicked on; the title of the section is not
+         * clickable.
+         *
+         * <p>If a {@link DialogInterface.OnClickListener} is given, then it will be notified
+         * of the click. The dialog will still be dismissed afterwards. The {@code which}
+         * parameter of the {@link DialogInterface.OnClickListener#onClick(DialogInterface, int)}
+         * method will be the position of the item. This position maps to the index of the item in
+         * the given list.
+         *
+         * <p>The provided list of sections cannot be {@code null} or empty. The list of items
+         * within a section also cannot be empty. Passing an empty list to this method will
+         * throw can exception.
+         *
+         * <p>If both this method and {@link #setItems(String[], OnClickListener)} are called, then
+         * the sections will take precedent, and the items set via the other method will be
+         * ignored.
+         *
+         * @param sections The sections that will appear in the list.
+         * @param onClickListener The listener that will be notified of a click.
+         * @return This {@code Builder} object to allow for chaining of calls.
+         */
+        @NonNull
+        public Builder setItems(@NonNull DialogSubSection[] sections,
+                @Nullable OnClickListener onClickListener) {
+            if (sections == null || sections.length == 0) {
+                throw new IllegalArgumentException("Provided list of sections cannot be empty.");
+            }
+
+            mSections = sections;
+            mOnClickListener = onClickListener;
+            return this;
+        }
+
+        /**
          * Sets the initial position in the list that the {@code CarListDialog} will start at. When
          * the dialog is created, the list will animate to the given position.
          *
          * <p>The position uses zero-based indexing. So, to scroll to the fifth item in the list,
          * a value of four should be passed.
          *
+         * <p>If the items in this dialog was set by
+         * {@link #setItems(DialogSubSection[], OnClickListener)}, then note that the title of the
+         * section counts as an item in the list.
+         *
          * @param initialPosition The initial position in the list to display.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setInitialPosition(int initialPosition) {
             if (initialPosition < 0) {
                 throw new IllegalArgumentException("Initial position cannot be negative.");
@@ -449,6 +593,7 @@ public class CarListDialog extends Dialog {
          *
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setCancelable(boolean cancelable) {
             mCancelable = cancelable;
             return this;
@@ -468,6 +613,7 @@ public class CarListDialog extends Dialog {
          * @see #setCancelable(boolean)
          * @see #setOnDismissListener(OnDismissListener)
          */
+        @NonNull
         public Builder setOnCancelListener(OnCancelListener onCancelListener) {
             mOnCancelListener = onCancelListener;
             return this;
@@ -478,6 +624,7 @@ public class CarListDialog extends Dialog {
          *
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setOnDismissListener(OnDismissListener onDismissListener) {
             mOnDismissListener = onDismissListener;
             return this;
@@ -493,12 +640,28 @@ public class CarListDialog extends Dialog {
          * {@link androidx.fragment.app.DialogFragment} to show the dialog.
          */
         public CarListDialog create() {
-            if (mItems == null || mItems.length == 0) {
+            // Check that the dialog was created with a list of either sections or items.
+            if ((mSections == null || mSections.length == 0)
+                    && (mItems == null || mItems.length == 0)) {
                 throw new IllegalStateException(
-                        "CarListDialog must be created with a non-empty list.");
+                        "CarListDialog cannot be created with a non-empty list.");
             }
 
-            if (mInitialPosition >= mItems.length) {
+            int numOfItems = 0;
+
+            // Subsections take precedent over items as both cannot be set at the same time.
+            if (mSections != null) {
+                mItems = null;
+
+                // Calculate the total number of items by adding up all the sections.
+                for (DialogSubSection section : mSections) {
+                    numOfItems += section.getItemCount();
+                }
+            } else {
+                numOfItems = mItems.length;
+            }
+
+            if (mInitialPosition >= numOfItems) {
                 throw new IllegalStateException("Initial position is greater than the number of "
                         + "items in the list.");
             }
