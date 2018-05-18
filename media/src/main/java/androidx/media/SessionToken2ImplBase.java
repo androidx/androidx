@@ -150,7 +150,15 @@ final class SessionToken2ImplBase implements SessionToken2.SupportLibraryImpl {
                 && TextUtils.equals(mPackageName, other.mPackageName)
                 && TextUtils.equals(mServiceName, other.mServiceName)
                 && TextUtils.equals(mSessionId, other.mSessionId)
-                && mType == other.mType;
+                && mType == other.mType
+                && sessionBinderEquals(mISession2, other.mISession2);
+    }
+
+    private boolean sessionBinderEquals(IMediaSession2 a, IMediaSession2 b) {
+        if (a == null || b == null) {
+            return a == b;
+        }
+        return a.asBinder().equals(b.asBinder());
     }
 
     @Override
