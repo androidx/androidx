@@ -65,6 +65,12 @@ public @interface VersionedParcelize {
     boolean ignoreParcelables() default false;
 
     /**
+     * Whether or not this class implements {@link CustomVersionedParcelable} and those callbacks
+     * should be called during serialization.
+     */
+    boolean isCustom() default false;
+
+    /**
      * This can be filled with any ids that used to be contained within this VersionedParcelable,
      * but are no longer present. Ids listed here cannot be used by any fields within this class.
      */
