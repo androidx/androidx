@@ -105,12 +105,46 @@ function pullConstraint() {
 	curl "https://dl.google.com/dl/android/maven2/com/android/support/constraint/$NAME/1.1.0/$NAME-1.1.0.$TYPE" -o "$SUPPORT_LIBS_UNPACKED/$NAME.$TYPE"
 }
 
+function pullTest() {
+	NAME=$1
+	curl "https://dl.google.com/dl/android/maven2/com/android/support/test/$NAME/1.0.2/$NAME-1.0.2.aar" -o "$SUPPORT_LIBS_UNPACKED/$NAME.aar"
+}
+# Unfortunately this doesn't make a coffee using a lever machine. It only downloads espresso artifacts.
+function pullEspresso() {
+	NAME=$1
+	curl "https://dl.google.com/dl/android/maven2/com/android/support/test/espresso/$NAME/3.0.2/$NAME-3.0.2.aar" -o "$SUPPORT_LIBS_UNPACKED/$NAME.aar"
+}
+function pullEspressoIdling() {
+	NAME=$1
+	curl "https://dl.google.com/dl/android/maven2/com/android/support/test/espresso/idling/$NAME/3.0.2/$NAME-3.0.2.aar" -o "$SUPPORT_LIBS_UNPACKED/$NAME.aar"
+}
+
 getPreRenamedSupportLib
 pullDataBinding "baseLibrary" "jar"
 pullDataBinding "adapters" "aar"
 pullDataBinding "library" "aar"
 pullConstraint "constraint-layout" "aar"
 pullConstraint "constraint-layout-solver" "jar"
+
+pullTest "monitor"
+pullTest "rules"
+pullTest "runner"
+# FYI: We skip orchestrator since it is apk
+pullEspresso "espresso-accessibility"
+pullEspresso "espresso-contrib"
+pullEspresso "espresso-core"
+pullEspresso "espresso-idling-resource"
+pullEspresso "espresso-intents"
+pullEspresso "espresso-remote"
+pullEspresso "espresso-web"
+pullEspressoIdling "idling-concurrent"
+pullEspressoIdling "idling-net"
+curl "https://dl.google.com/dl/android/maven2/com/android/support/test/janktesthelper/janktesthelper-v23/1.0.1/janktesthelper-v23-1.0.1.aar" -o "$SUPPORT_LIBS_UNPACKED/janktesthelper-v23.aar"
+curl "https://dl.google.com/dl/android/maven2/com/android/support/test/uiautomator/uiautomator-v18/2.1.3/uiautomator-v18-2.1.3.aar" -o "$SUPPORT_LIBS_UNPACKED/uiautomator-v18.aar"
+# FYI: We skip test-services since it is apk
+
+# exposed-instrumentation-api-publish skipped as it is deprecated
+# testing-support-lib skipped as it is deprecated
 
 printSectionStart "Preparing Jetifier"
 buildProjectUsingGradle $JETIFIER_DIR/../..
