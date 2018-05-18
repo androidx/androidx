@@ -22,6 +22,7 @@ import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
+import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
@@ -32,6 +33,7 @@ import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
 import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.widget.SliceView.MODE_LARGE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
+import static androidx.slice.widget.SliceViewUtil.resolveLayoutDirection;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -60,8 +62,9 @@ import java.util.List;
 public class ListContent {
 
     private Slice mSlice;
-    private SliceItem mHeaderItem;
     private SliceItem mColorItem;
+    private SliceItem mLayoutDirItem;
+    private SliceItem mHeaderItem;
     private SliceItem mSeeMoreItem;
     private ArrayList<SliceItem> mRowItems = new ArrayList<>();
     private List<SliceAction> mSliceActions;
@@ -134,7 +137,16 @@ public class ListContent {
      */
     private boolean populate(Slice slice) {
         if (slice == null) return false;
-        mColorItem = SliceQuery.findSubtype(slice, FORMAT_INT, SUBTYPE_COLOR);
+        mColorItem = SliceQuery.findTopLevelItem(slice, FORMAT_INT, SUBTYPE_COLOR, null, null);
+        mLayoutDirItem = SliceQuery.findTopLevelItem(slice, FORMAT_INT, SUBTYPE_LAYOUT_DIRECTION,
+                null, null);
+        if (mLayoutDirItem != null) {
+            // Make sure it's valid
+            mLayoutDirItem = resolveLayoutDirection(mLayoutDirItem.getInt()) != -1
+                    ? mLayoutDirItem
+                    : null;
+        }
+
         // Find slice actions
         mSliceActions = SliceMetadata.getSliceActions(slice);
         // Find header
@@ -266,6 +278,11 @@ public class ListContent {
     @Nullable
     public Slice getSlice() {
         return mSlice;
+    }
+
+    @Nullable
+    public SliceItem getLayoutDirItem() {
+        return mLayoutDirItem;
     }
 
     @Nullable

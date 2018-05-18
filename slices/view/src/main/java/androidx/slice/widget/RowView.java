@@ -232,6 +232,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     private void populateViews() {
         resetView();
+        if (mRowContent.getLayoutDirItem() != null) {
+            setLayoutDirection(mRowContent.getLayoutDirItem().getInt());
+        }
         if (mRowContent.isDefaultSeeMore()) {
             showSeeMore();
             return;
@@ -563,6 +566,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     @Override
     public void resetView() {
         mRootView.setVisibility(VISIBLE);
+        setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT);
         setViewClickable(mRootView, false);
         setViewClickable(mContent, false);
         mStartContainer.removeAllViews();

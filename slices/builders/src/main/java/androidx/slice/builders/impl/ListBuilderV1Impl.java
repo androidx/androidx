@@ -28,6 +28,7 @@ import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
+import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static android.app.slice.Slice.SUBTYPE_MAX;
 import static android.app.slice.Slice.SUBTYPE_RANGE;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
@@ -179,6 +180,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         private CharSequence mSubtitle;
         private CharSequence mContentDescr;
         private SliceAction mPrimaryAction;
+        private int mLayoutDir = -1;
 
         public RangeBuilderImpl(Slice.Builder sb) {
             super(sb, null);
@@ -221,6 +223,11 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         }
 
         @Override
+        public void setLayoutDirection(int layoutDirection) {
+            mLayoutDir = layoutDirection;
+        }
+
+        @Override
         public void apply(Slice.Builder builder) {
             if (!mValueSet) {
                 // Unset, make it whatever min is
@@ -245,6 +252,9 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 Slice.Builder sb = new Slice.Builder(
                         getBuilder()).addHints(HINT_TITLE, HINT_SHORTCUT);
                 builder.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
+            }
+            if (mLayoutDir != -1) {
+                builder.addInt(mLayoutDir, SUBTYPE_LAYOUT_DIRECTION);
             }
             builder.addHints(HINT_LIST_ITEM)
                     .addInt(mMin, SUBTYPE_MIN)
@@ -319,6 +329,11 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     @Override
     public void setIsError(boolean isError) {
         mIsError = isError;
+    }
+
+    @Override
+    public void setLayoutDirection(int layoutDirection) {
+        getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
     }
 
     /**
@@ -562,6 +577,11 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             mContentDescr = description;
         }
 
+        @Override
+        public void setLayoutDirection(int layoutDirection) {
+            getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
+        }
+
         /**
          */
         @Override
@@ -679,6 +699,11 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         @Override
         public void setContentDescription(CharSequence description) {
             mContentDescr = description;
+        }
+
+        @Override
+        public void setLayoutDirection(int layoutDirection) {
+            getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
         }
     }
 }
