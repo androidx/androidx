@@ -27,6 +27,8 @@ import android.support.test.filters.SmallTest;
 
 import org.junit.Test;
 
+import java.io.UnsupportedEncodingException;
+
 @SmallTest
 public class NavDeepLinkTest {
     private static final String DEEP_LINK_EXACT_NO_SCHEME = "www.example.com";
@@ -66,8 +68,19 @@ public class NavDeepLinkTest {
         Bundle matchArgs = deepLink.getMatchingArguments(
                 Uri.parse(deepLinkArgument.replace("{id}", id)));
         assertThat(matchArgs, not(nullValue()));
-        assert matchArgs != null;
         assertThat(matchArgs.getString("id"), is(id));
+    }
+
+    @Test
+    public void deepLinkArgumentMatchEncoded() throws UnsupportedEncodingException {
+        String deepLinkArgument = DEEP_LINK_EXACT_HTTPS + "/users/{name}/posts";
+        NavDeepLink deepLink = new NavDeepLink(deepLinkArgument);
+
+        String name = "John Doe";
+        Bundle matchArgs = deepLink.getMatchingArguments(
+                Uri.parse(deepLinkArgument.replace("{name}", Uri.encode(name))));
+        assertThat(matchArgs, not(nullValue()));
+        assertThat(matchArgs.getString("name"), is(name));
     }
 
     @Test
@@ -80,7 +93,6 @@ public class NavDeepLinkTest {
         Bundle matchArgs = deepLink.getMatchingArguments(
                 Uri.parse(deepLinkArgument.replace("{id}", id).replace("{postId}", postId)));
         assertThat(matchArgs, not(nullValue()));
-        assert matchArgs != null;
         assertThat(matchArgs.getString("id"), is(id));
         assertThat(matchArgs.getString("postId"), is(postId));
     }
@@ -124,7 +136,6 @@ public class NavDeepLinkTest {
         Bundle matchArgs = deepLink.getMatchingArguments(
                 Uri.parse(deepLinkMultiple.replace("{id}", id)));
         assertThat(matchArgs, not(nullValue()));
-        assert matchArgs != null;
         assertThat(matchArgs.getString("id"), is(id));
     }
 }
