@@ -30,11 +30,13 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.car.test.R;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.junit.Assume;
 import org.junit.Before;
@@ -45,8 +47,6 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import androidx.car.test.R;
 
 /** Unit tests for implementations of {@link PagedListView.DividerVisibilityManager}. */
 @RunWith(AndroidJUnit4.class)
@@ -203,6 +203,47 @@ public final class DividerVisibilityManagerTest {
         int lower = mPagedListView.getRecyclerView().getLayoutManager()
                 .findViewByPosition(1).getTop();
         assertThat(lower - upper, is(greaterThan(0)));
+    }
+
+    @Test
+    public void testSubheaderHidesDividerBefore() throws Throwable {
+        TextListItem itemBefore = new TextListItem(mActivity);
+
+        // Explicitly set this item as wanting to show its divider.
+        itemBefore.setHideDivider(false);
+
+        SubheaderListItem subheader = new SubheaderListItem(mActivity, "Subheader");
+
+        ListItemProvider provider = new ListItemProvider.ListProvider(
+                Arrays.asList(itemBefore, subheader));
+
+        mActivityRule.runOnUiThread(
+                () -> mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider)));
+
+        PagedListView.DividerVisibilityManager dvm = (PagedListView.DividerVisibilityManager)
+                mPagedListView.getAdapter();
+
+        assertThat(dvm, is(notNullValue()));
+
+        // Assert that the divider for the first item should be hidden.
+        assertThat(dvm.shouldHideDivider(0), is(true));
+    }
+
+    @Test
+    public void testSubheaderHidesDividerAfter() throws Throwable {
+        SubheaderListItem subheader = new SubheaderListItem(mActivity, "Subheader");
+        ListItemProvider provider = new ListItemProvider.ListProvider(Arrays.asList(subheader));
+
+        mActivityRule.runOnUiThread(
+                () -> mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider)));
+
+        PagedListView.DividerVisibilityManager dvm = (PagedListView.DividerVisibilityManager)
+                mPagedListView.getAdapter();
+
+        assertThat(dvm, is(notNullValue()));
+
+        // Assert that the divider is hidden for the first item, which is the subheader.
+        assertThat(dvm.shouldHideDivider(0), is(true));
     }
 
     private class TestDividerVisibilityManager implements PagedListView.DividerVisibilityManager {
