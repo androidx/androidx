@@ -249,6 +249,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final int seekDuration = 100;
 
         MediaPlayer2 mp = createMediaPlayer2(mContext, resid);
+        AssetFileDescriptor afd = null;
 
         final Monitor onPrepareCalled = new Monitor();
         final Monitor onPlayCalled = new Monitor();
@@ -314,7 +315,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             // test stop and restart
             mp.reset();
-            AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
+            afd = mResources.openRawResourceFd(resid);
             mp.setDataSource(new DataSourceDesc.Builder()
                     .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                     .build());
@@ -339,6 +340,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             throw e;
         } finally {
             mp.close();
+            afd.close();
         }
     }
 
@@ -470,6 +472,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final int seekDuration = 1000;
 
         MediaPlayer2 mp = createMediaPlayer2(mContext, resid);
+        AssetFileDescriptor afd = null;
 
         final Monitor onPrepareCalled = new Monitor();
         final Monitor onSeekToCalled = new Monitor();
@@ -525,7 +528,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             // test stop and restart
             mp.reset();
-            AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
+            afd = mResources.openRawResourceFd(resid);
             mp.setDataSource(new DataSourceDesc.Builder()
                     .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                     .build());
@@ -541,6 +544,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             Thread.sleep(SLEEP_TIME);
         } finally {
             mp.close();
+            afd.close();
         }
     }
 
@@ -2476,6 +2480,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnCompletionCalled.reset();
         mOnCompletionCalled.waitForSignal();
         assertTrue(Math.abs(mPlayer.getCurrentPosition() - end2) < PLAYBACK_COMPLETE_TOLERANCE_MS);
+
+        afd1.close();
+        afd2.close();
     }
 
     @Test
@@ -2541,5 +2548,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         assertEquals(dsd2, mPlayer.getCurrentDataSource());
         assertEquals(2.0f, mPlayer.getPlaybackParams().getSpeed(), 0.001f);
+
+        afd1.close();
+        afd2.close();
     }
 }

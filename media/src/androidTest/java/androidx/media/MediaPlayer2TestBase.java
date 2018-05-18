@@ -99,6 +99,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             new ActivityTestRule<>(MediaStubActivity.class);
     public PowerManager.WakeLock mScreenLock;
     private KeyguardManager mKeyguardManager;
+    private List<AssetFileDescriptor> mFdsToClose = new ArrayList<>();
 
     // convenience functions to create MediaPlayer2
     protected MediaPlayer2 createMediaPlayer2(Context context, Uri uri) {
@@ -170,6 +171,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             if (afd == null) {
                 return null;
             }
+            mFdsToClose.add(afd);
 
             MediaPlayer2 mp = createMediaPlayer2OnUiThread();
 
@@ -282,6 +284,9 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         }
         mExecutor.shutdown();
         mActivity = null;
+        for (AssetFileDescriptor afd :  mFdsToClose) {
+            afd.close();
+        }
     }
 
     protected void setUpMP2ECb(MediaPlayer2 mp, final Object cbLock,
@@ -377,8 +382,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                     .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                     .build());
         } finally {
-            // TODO: close afd only after setDataSource is confirmed.
-            // afd.close();
+            // Close descriptor later when test finishes since setDataSource is async operation.
+            mFdsToClose.add(afd);
         }
         return true;
     }
@@ -391,6 +396,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         */
 
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
+        mFdsToClose.add(afd);
         return new DataSourceDesc.Builder()
                 .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                 .build();
