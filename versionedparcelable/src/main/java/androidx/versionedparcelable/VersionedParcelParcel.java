@@ -29,7 +29,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class VersionedParcelParcel extends VersionedParcel {
+class VersionedParcelParcel extends VersionedParcel {
 
     private final Parcel mParcel;
     private final SparseIntArray mPositionLookup = new SparseIntArray();

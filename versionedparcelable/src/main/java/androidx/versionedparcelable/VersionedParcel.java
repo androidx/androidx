@@ -74,7 +74,7 @@ public abstract class VersionedParcel {
     /**
      * Closes the last field when done parceling.
      */
-    public abstract void closeField();
+    protected abstract void closeField();
 
     /**
      * Create a sub-parcel to be used for a child VersionedParcelable
@@ -86,7 +86,7 @@ public abstract class VersionedParcel {
      *
      * @param b Bytes to place into the parcel.
      */
-    public abstract void writeByteArray(byte[] b);
+    protected abstract void writeByteArray(byte[] b);
 
     /**
      * Write a byte array into the parcel.
@@ -95,43 +95,43 @@ public abstract class VersionedParcel {
      * @param offset Index of first byte to be written.
      * @param len    Number of bytes to write.
      */
-    public abstract void writeByteArray(byte[] b, int offset, int len);
+    protected abstract void writeByteArray(byte[] b, int offset, int len);
 
     /**
      * Write an integer value into the parcel at the current dataPosition(),
      * growing dataCapacity() if needed.
      */
-    public abstract void writeInt(int val);
+    protected abstract void writeInt(int val);
 
     /**
      * Write a long integer value into the parcel at the current dataPosition(),
      * growing dataCapacity() if needed.
      */
-    public abstract void writeLong(long val);
+    protected abstract void writeLong(long val);
 
     /**
      * Write a floating point value into the parcel at the current
      * dataPosition(), growing dataCapacity() if needed.
      */
-    public abstract void writeFloat(float val);
+    protected abstract void writeFloat(float val);
 
     /**
      * Write a double precision floating point value into the parcel at the
      * current dataPosition(), growing dataCapacity() if needed.
      */
-    public abstract void writeDouble(double val);
+    protected abstract void writeDouble(double val);
 
     /**
      * Write a string value into the parcel at the current dataPosition(),
      * growing dataCapacity() if needed.
      */
-    public abstract void writeString(String val);
+    protected abstract void writeString(String val);
 
     /**
      * Write an object into the parcel at the current dataPosition(),
      * growing dataCapacity() if needed.
      */
-    public abstract void writeStrongBinder(IBinder val);
+    protected abstract void writeStrongBinder(IBinder val);
 
     /**
      * Flatten the name of the class of the VersionedParcelable and its contents
@@ -140,96 +140,96 @@ public abstract class VersionedParcel {
      * @param p The VersionedParcelable object to be written.
      *          {@link Parcelable#writeToParcel(Parcel, int) Parcelable.writeToParcel()}.
      */
-    public abstract void writeParcelable(Parcelable p);
+    protected abstract void writeParcelable(Parcelable p);
 
     /**
      * Write a boolean value into the parcel at the current dataPosition(),
      * growing dataCapacity() if needed.
      */
-    public abstract void writeBoolean(boolean val);
+    protected abstract void writeBoolean(boolean val);
 
     /**
      * Write an object into the parcel at the current dataPosition(),
      * growing dataCapacity() if needed.
      */
-    public abstract void writeStrongInterface(IInterface val);
+    protected abstract void writeStrongInterface(IInterface val);
 
     /**
      * Flatten a Bundle into the parcel at the current dataPosition(),
      * growing dataCapacity() if needed.
      */
-    public abstract void writeBundle(Bundle val);
+    protected abstract void writeBundle(Bundle val);
 
     /**
      * Read an integer value from the parcel at the current dataPosition().
      */
-    public abstract int readInt();
+    protected abstract int readInt();
 
     /**
      * Read a long integer value from the parcel at the current dataPosition().
      */
-    public abstract long readLong();
+    protected abstract long readLong();
 
     /**
      * Read a floating point value from the parcel at the current
      * dataPosition().
      */
-    public abstract float readFloat();
+    protected abstract float readFloat();
 
     /**
      * Read a double precision floating point value from the parcel at the
      * current dataPosition().
      */
-    public abstract double readDouble();
+    protected abstract double readDouble();
 
     /**
      * Read a string value from the parcel at the current dataPosition().
      */
-    public abstract String readString();
+    protected abstract String readString();
 
     /**
      * Read an object from the parcel at the current dataPosition().
      */
-    public abstract IBinder readStrongBinder();
+    protected abstract IBinder readStrongBinder();
 
     /**
      * Read a byte[] object from the parcel.
      */
-    public abstract byte[] readByteArray();
+    protected abstract byte[] readByteArray();
 
     /**
      */
     @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-    public abstract <T extends Parcelable> T readParcelable();
+    protected abstract <T extends Parcelable> T readParcelable();
 
     /**
      * Read and return a new Bundle object from the parcel at the current
      * dataPosition().  Returns null if the previously written Bundle object was
      * null.
      */
-    public abstract Bundle readBundle();
+    protected abstract Bundle readBundle();
 
     /**
      * Read a boolean value from the parcel at the current dataPosition().
      */
-    public abstract boolean readBoolean();
+    protected abstract boolean readBoolean();
 
     /**
      * Prepares to read data from a specific field for the following read
      * calls.
      */
-    public abstract boolean readField(int fieldId);
+    protected abstract boolean readField(int fieldId);
 
     /**
      * Sets the output of write methods to be tagged as part of the specified
      * fieldId.
      */
-    public abstract void setOutputField(int fieldId);
+    protected abstract void setOutputField(int fieldId);
 
     /**
      * Configure the VersionedParcel for current serialization method.
      */
-    public void setSerializationFlags(boolean allowSerialization, boolean ignoreParcelables) {
+    protected void setSerializationFlags(boolean allowSerialization, boolean ignoreParcelables) {
         // Don't care except in VersionedParcelStream
     }
 
@@ -516,7 +516,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public void writeBooleanArray(boolean[] val) {
+    protected void writeBooleanArray(boolean[] val) {
         if (val != null) {
             int n = val.length;
             writeInt(n);
@@ -539,7 +539,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public boolean[] readBooleanArray() {
+    protected boolean[] readBooleanArray() {
         int n = readInt();
         if (n < 0) {
             return null;
@@ -592,7 +592,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public void writeIntArray(int[] val) {
+    protected void writeIntArray(int[] val) {
         if (val != null) {
             int n = val.length;
             writeInt(n);
@@ -615,7 +615,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public int[] readIntArray() {
+    protected int[] readIntArray() {
         int n = readInt();
         if (n < 0) {
             return null;
@@ -636,7 +636,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public void writeLongArray(long[] val) {
+    protected void writeLongArray(long[] val) {
         if (val != null) {
             int n = val.length;
             writeInt(n);
@@ -659,7 +659,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public long[] readLongArray() {
+    protected long[] readLongArray() {
         int n = readInt();
         if (n < 0) {
             return null;
@@ -680,7 +680,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public void writeFloatArray(float[] val) {
+    protected void writeFloatArray(float[] val) {
         if (val != null) {
             int n = val.length;
             writeInt(n);
@@ -703,7 +703,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public float[] readFloatArray() {
+    protected float[] readFloatArray() {
         int n = readInt();
         if (n < 0) {
             return null;
@@ -724,7 +724,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public void writeDoubleArray(double[] val) {
+    protected void writeDoubleArray(double[] val) {
         if (val != null) {
             int n = val.length;
             writeInt(n);
@@ -747,7 +747,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public double[] readDoubleArray() {
+    protected double[] readDoubleArray() {
         int n = readInt();
         if (n < 0) {
             return null;
@@ -834,7 +834,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public <T> void writeArray(T[] val) {
+    protected <T> void writeArray(T[] val) {
         if (val == null) {
             writeInt(-1);
             return;
@@ -909,7 +909,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public void writeSafeParcelable(VersionedParcelable p) {
+    protected void writeSafeParcelable(VersionedParcelable p) {
         if (p == null) {
             writeString(null);
             return;
@@ -1032,7 +1032,7 @@ public abstract class VersionedParcel {
      * @see #writeException
      * @see #readException
      */
-    public void writeNoException() {
+    protected void writeNoException() {
         writeInt(0);
     }
 
@@ -1083,7 +1083,7 @@ public abstract class VersionedParcel {
      * Gets the root {@link Throwable#getCause() cause} of {@code t}
      */
     @NonNull
-    public static Throwable getRootCause(@NonNull Throwable t) {
+    protected static Throwable getRootCause(@NonNull Throwable t) {
         while (t.getCause() != null) t = t.getCause();
         return t;
     }
@@ -1264,7 +1264,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public <T> T[] readArray(T[] def) {
+    protected <T> T[] readArray(T[] def) {
         int n = readInt();
         if (n < 0) {
             return null;
@@ -1329,7 +1329,7 @@ public abstract class VersionedParcel {
      *                                was an error trying to instantiate the VersionedParcelable.
      */
     @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-    public <T extends VersionedParcelable> T readSafeParcelable() {
+    protected <T extends VersionedParcelable> T readSafeParcelable() {
         String name = readString();
         if (name == null) {
             return null;
@@ -1380,7 +1380,7 @@ public abstract class VersionedParcel {
      * @return the Serializable object, or null if the Serializable name
      * wasn't found in the parcel.
      */
-    public Serializable readSerializable() {
+    protected Serializable readSerializable() {
         String name = readString();
         if (name == null) {
             // For some reason we were unable to read the name of the Serializable (either there
@@ -1419,7 +1419,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public static <T extends VersionedParcelable> void readFromParcel(T val,
+    protected static <T extends VersionedParcelable> void readFromParcel(T val,
             VersionedParcel versionedParcel) {
         try {
             Class cls = findParcelClass(val);
@@ -1438,7 +1438,7 @@ public abstract class VersionedParcel {
 
     /**
      */
-    public static <T extends VersionedParcelable> void writeToParcel(T val,
+    protected static <T extends VersionedParcelable> void writeToParcel(T val,
             VersionedParcel versionedParcel) {
         try {
             Class cls = findParcelClass(val);
