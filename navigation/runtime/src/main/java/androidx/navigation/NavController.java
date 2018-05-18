@@ -440,19 +440,20 @@ public class NavController {
         }
         Bundle extras = intent.getExtras();
         int[] deepLink = extras != null ? extras.getIntArray(KEY_DEEP_LINK_IDS) : null;
-        Bundle bundle = extras != null ? extras.getBundle(KEY_DEEP_LINK_EXTRAS) : null;
+        Bundle bundle = new Bundle();
+        Bundle deepLinkExtras = extras != null ? extras.getBundle(KEY_DEEP_LINK_EXTRAS) : null;
+        if (deepLinkExtras != null) {
+            bundle.putAll(deepLinkExtras);
+        }
         if ((deepLink == null || deepLink.length == 0) && intent.getData() != null) {
             Pair<NavDestination, Bundle> matchingDeepLink = mGraph.matchDeepLink(intent.getData());
             if (matchingDeepLink != null) {
                 deepLink = matchingDeepLink.first.buildDeepLinkIds();
-                bundle = matchingDeepLink.second;
+                bundle.putAll(matchingDeepLink.second);
             }
         }
         if (deepLink == null || deepLink.length == 0) {
             return false;
-        }
-        if (bundle == null) {
-            bundle = new Bundle();
         }
         bundle.putParcelable(KEY_DEEP_LINK_INTENT, intent);
         int flags = intent.getFlags();
