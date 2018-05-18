@@ -48,7 +48,7 @@ public class ParcelUtils {
         if (!(p instanceof ParcelImpl)) {
             throw new IllegalArgumentException("Invalid parcel");
         }
-        return ((ParcelImpl) p).getSafeParcel();
+        return ((ParcelImpl) p).getVersionedParcel();
     }
 
     /**
@@ -56,7 +56,7 @@ public class ParcelUtils {
      */
     public static void toOutputStream(VersionedParcelable obj, OutputStream output) {
         VersionedParcelStream stream = new VersionedParcelStream(null, output);
-        stream.writeSafeParcelable(obj);
+        stream.writeVersionedParcelable(obj);
         stream.closeField();
     }
 
@@ -66,6 +66,6 @@ public class ParcelUtils {
     @SuppressWarnings("TypeParameterUnusedInFormals")
     public static <T extends VersionedParcelable> T fromInputStream(InputStream input) {
         VersionedParcelStream stream = new VersionedParcelStream(input, null);
-        return stream.readSafeParcelable();
+        return stream.readVersionedParcelable();
     }
 }
