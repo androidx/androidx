@@ -20,7 +20,7 @@
     <string name="fragment_support_preferences_compat_demo">Support PreferenceFragmentCompat</string>
     <string name="fragment_support_preferences_leanback_demo">Support LeanbackPreferenceFragment</string>
 
-    <string name="root_title">Demo Preferences</string>
+    <string name="root_title">Preferences Demo</string>
 
     <string name="title_basic_preference">Basic preference</string>
     <string name="summary_basic_preference">This is a basic preference</string>

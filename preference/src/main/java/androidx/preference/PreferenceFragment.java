@@ -130,7 +130,7 @@ public abstract class PreferenceFragment extends Fragment implements
     private boolean mHavePrefs;
     private boolean mInitDone;
     private Context mStyledContext;
-    private int mLayoutResId = androidx.preference.R.layout.preference_list_fragment;
+    private int mLayoutResId = R.layout.preference_list_fragment;
     private Runnable mSelectPreferenceRunnable;
 
     private final Handler mHandler = new Handler() {
@@ -155,11 +155,11 @@ public abstract class PreferenceFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final TypedValue tv = new TypedValue();
-        getActivity().getTheme().resolveAttribute(
-                androidx.preference.R.attr.preferenceTheme, tv, true);
-        final int theme = tv.resourceId;
+        getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
+        int theme = tv.resourceId;
         if (theme == 0) {
-            throw new IllegalStateException("Must specify preferenceTheme in theme");
+            // Fallback to default theme.
+            theme = R.style.PreferenceThemeOverlay;
         }
         mStyledContext = new ContextThemeWrapper(getActivity(), theme);
 
@@ -193,10 +193,8 @@ public abstract class PreferenceFragment extends Fragment implements
 
         TypedArray a = mStyledContext.obtainStyledAttributes(null,
                 R.styleable.PreferenceFragment,
-                TypedArrayUtils.getAttr(mStyledContext,
-                        androidx.preference.R.attr.preferenceFragmentStyle,
-                        AndroidResources.ANDROID_R_PREFERENCE_FRAGMENT_STYLE),
-                0);
+                TypedArrayUtils.getAttr(mStyledContext, R.attr.preferenceFragmentStyle,
+                        AndroidResources.ANDROID_R_PREFERENCE_FRAGMENT_STYLE), 0);
 
         mLayoutResId = a.getResourceId(R.styleable.PreferenceFragment_android_layout, mLayoutResId);
 
@@ -207,14 +205,7 @@ public abstract class PreferenceFragment extends Fragment implements
                 R.styleable.PreferenceFragment_allowDividerAfterLastItem, true);
         a.recycle();
 
-        // Need to theme the inflater to pick up the preferenceFragmentListStyle
-        final TypedValue tv = new TypedValue();
-        getActivity().getTheme().resolveAttribute(
-                androidx.preference.R.attr.preferenceTheme, tv, true);
-        final int theme = tv.resourceId;
-
-        final Context themedContext = new ContextThemeWrapper(inflater.getContext(), theme);
-        final LayoutInflater themedInflater = inflater.cloneInContext(themedContext);
+        final LayoutInflater themedInflater = inflater.cloneInContext(mStyledContext);
 
         final View view = themedInflater.inflate(mLayoutResId, container, false);
 
@@ -515,9 +506,8 @@ public abstract class PreferenceFragment extends Fragment implements
      */
     public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState) {
-        RecyclerView recyclerView = (RecyclerView) inflater
-                .inflate(androidx.preference.R.layout.preference_recyclerview,
-                        parent, false);
+        RecyclerView recyclerView = (RecyclerView) inflater.inflate(
+                R.layout.preference_recyclerview, parent, false);
 
         recyclerView.setLayoutManager(onCreateLayoutManager());
         recyclerView.setAccessibilityDelegateCompat(

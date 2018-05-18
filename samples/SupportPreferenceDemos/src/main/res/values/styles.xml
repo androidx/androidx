@@ -17,18 +17,10 @@
 
 <resources>
 
-    <style name="DemoTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
-
-    <style name="SupportPreference" parent="DemoTheme">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
-    </style>
-
-    <style name="SupportPreferenceCompat" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
-    </style>
+    <style name="DemoTheme" parent="android:Theme.Holo.Light.DarkActionBar"/>
 
     <style name="SupportPreferenceLeanback" parent="Theme.Leanback">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Leanback</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlayLeanback</item>
     </style>
 
 </resources>
