@@ -69,7 +69,7 @@ class NavDeepLink {
         int size = mArguments.size();
         for (int index = 0; index < size; index++) {
             String argument = mArguments.get(index);
-            bundle.putString(argument, matcher.group(index + 1));
+            bundle.putString(argument, Uri.decode(matcher.group(index + 1)));
         }
         return bundle;
     }
