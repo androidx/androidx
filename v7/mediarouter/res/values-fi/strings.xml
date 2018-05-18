@@ -22,7 +22,7 @@
     <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Cast-painike. Yhteys katkaistu"</string>
     <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Cast-painike. Yhdistetään"</string>
     <string name="mr_cast_button_connected" msgid="5088427771788648085">"Cast-painike. Yhdistetty"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"Suoratoiston kohde"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"Valitse laite TV:stä katsomista varten:"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Etsitään laitteita"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Katkaise yhteys"</string>
     <string name="mr_controller_stop" msgid="4570331844078181931">"Lopeta suoratoisto"</string>
