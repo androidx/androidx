@@ -64,7 +64,7 @@ public class SliceXmlTest {
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
                 .addAction(pi, inner, null)
                 .build();
-        SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
+        SliceUtils.serializeSlice(s, mContext, outputStream, new SliceUtils
                 .SerializeOptions());
     }
 
@@ -75,7 +75,7 @@ public class SliceXmlTest {
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
                 .addRemoteInput(remoteInput, null)
                 .build();
-        SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
+        SliceUtils.serializeSlice(s, mContext, outputStream, new SliceUtils
                 .SerializeOptions());
     }
 
@@ -86,7 +86,7 @@ public class SliceXmlTest {
                 .addIcon(IconCompat.createWithResource(mContext,
                         R.drawable.abc_slice_remote_input_bg), null)
                 .build();
-        SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
+        SliceUtils.serializeSlice(s, mContext, outputStream, new SliceUtils
                 .SerializeOptions());
     }
 
@@ -98,7 +98,7 @@ public class SliceXmlTest {
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
                 .addAction(pi, inner, null)
                 .build();
-        SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
+        SliceUtils.serializeSlice(s, mContext, outputStream, new SliceUtils
                 .SerializeOptions().setActionMode(SliceUtils.SerializeOptions.MODE_REMOVE));
     }
 
@@ -109,7 +109,7 @@ public class SliceXmlTest {
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
                 .addRemoteInput(remoteInput, null)
                 .build();
-        SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
+        SliceUtils.serializeSlice(s, mContext, outputStream, new SliceUtils
                 .SerializeOptions().setActionMode(SliceUtils.SerializeOptions.MODE_REMOVE));
     }
 
@@ -120,7 +120,7 @@ public class SliceXmlTest {
                 .addIcon(IconCompat.createWithResource(mContext,
                         R.drawable.abc_slice_remote_input_bg), null)
                 .build();
-        SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8", new SliceUtils
+        SliceUtils.serializeSlice(s, mContext, outputStream, new SliceUtils
                 .SerializeOptions().setImageMode(SliceUtils.SerializeOptions.MODE_REMOVE));
     }
 
@@ -147,7 +147,47 @@ public class SliceXmlTest {
                 .build();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        SliceUtils.serializeSlice(before, mContext, outputStream, "UTF-8",
+        SliceUtils.serializeSlice(before, mContext, outputStream,
+                new SliceUtils.SerializeOptions()
+                        .setImageMode(SliceUtils.SerializeOptions.MODE_CONVERT)
+                        .setActionMode(SliceUtils.SerializeOptions.MODE_CONVERT));
+
+        byte[] bytes = outputStream.toByteArray();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+        SliceUtils.SliceActionListener listener = mock(SliceUtils.SliceActionListener.class);
+        Slice after = SliceUtils.parseSlice(mContext, inputStream, "UTF-8", listener);
+
+        assertEquivalent(before, after);
+
+        SliceItem action = SliceQuery.find(after, FORMAT_ACTION);
+        action.fireAction(null, null);
+        verify(listener).onSliceAction(eq(Uri.parse("content://pkg/slice/action")));
+    }
+
+    @Test
+    public void testBackCompatSerialization() throws Exception {
+        PendingIntent pi = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        // Create a slice containing all the types in a hierarchy.
+        Slice before = new Slice.Builder(Uri.parse("content://pkg/slice"))
+                .addSubSlice(new Slice.Builder(Uri.parse("content://pkg/slice/sub"))
+                        .addTimestamp(System.currentTimeMillis(), null, "Hint")
+                        .build())
+                .addIcon(IconCompat.createWithBitmap(b), null)
+                .addText("Some text", null)
+                .addAction(pi,
+                        new Slice.Builder(Uri.parse("content://pkg/slice/action"))
+                        .addText("Action text", null)
+                        .build(), null)
+                .addInt(0xff00ff00, "subtype")
+                .addIcon(IconCompat.createWithResource(mContext, R.drawable.abc_slice_see_more_bg),
+                        null)
+                .addHints("Hint 1", "Hint 2")
+                .build();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        SliceXml.serializeSlice(before, mContext, outputStream, "UTF-8",
                 new SliceUtils.SerializeOptions()
                         .setImageMode(SliceUtils.SerializeOptions.MODE_CONVERT)
                         .setActionMode(SliceUtils.SerializeOptions.MODE_CONVERT));
