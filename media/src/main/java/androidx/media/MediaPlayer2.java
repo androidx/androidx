@@ -24,11 +24,7 @@ import android.media.DeniedByServerException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.MediaFormat;
-import android.media.MediaTimestamp;
-import android.media.PlaybackParams;
 import android.media.ResourceBusyException;
-import android.media.SubtitleData;
-import android.media.SyncParams;
 import android.media.TimedMetaData;
 import android.media.UnsupportedSchemeException;
 import android.os.Build;
@@ -296,12 +292,6 @@ import java.util.concurrent.Executor;
  *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
  *     <td>{} </p></td></tr>
  * <tr><td>getPlaybackParams </p></td>
- *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
- *     <td>{} </p></td></tr>
- * <tr><td>setSyncParams </p></td>
- *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
- *     <td>{} </p></td></tr>
- * <tr><td>getSyncParams </p></td>
  *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
  *     <td>{} </p></td></tr>
  * <tr><td>getTimestamp </p></td>
@@ -659,8 +649,8 @@ public abstract class MediaPlayer2 {
     public abstract PersistableBundle getMetrics();
 
     /**
-     * Sets playback rate using {@link PlaybackParams}. The object sets its internal
-     * PlaybackParams to the input, except that the object remembers previous speed
+     * Sets playback rate using {@link PlaybackParams2}. The object sets its internal
+     * PlaybackParams2 to the input, except that the object remembers previous speed
      * when input speed is zero. This allows the object to resume at previous speed
      * when play() is called. Calling it before the object is prepared does not change
      * the object state. After the object is prepared, calling it with zero speed is
@@ -670,7 +660,7 @@ public abstract class MediaPlayer2 {
      * @param params the playback params.
      */
     // This is an asynchronous call.
-    public abstract void setPlaybackParams(@NonNull PlaybackParams params);
+    public abstract void setPlaybackParams(@NonNull PlaybackParams2 params);
 
     /**
      * Gets the playback params, containing the current playback rate.
@@ -678,23 +668,7 @@ public abstract class MediaPlayer2 {
      * @return the playback params.
      */
     @NonNull
-    public abstract PlaybackParams getPlaybackParams();
-
-    /**
-     * Sets A/V sync mode.
-     *
-     * @param params the A/V sync params to apply
-     */
-    // This is an asynchronous call.
-    public abstract void setSyncParams(@NonNull SyncParams params);
-
-    /**
-     * Gets the A/V sync mode.
-     *
-     * @return the A/V sync params
-     */
-    @NonNull
-    public abstract SyncParams getSyncParams();
+    public abstract PlaybackParams2 getPlaybackParams();
 
     /**
      * Seek modes used in method seekTo(long, int) to move media position
@@ -769,9 +743,9 @@ public abstract class MediaPlayer2 {
     public abstract void seekTo(long msec, @SeekMode int mode);
 
     /**
-     * Gets current playback position as a {@link MediaTimestamp}.
+     * Gets current playback position as a {@link MediaTimestamp2}.
      * <p>
-     * The MediaTimestamp represents how the media time correlates to the system time in
+     * The MediaTimestamp2 represents how the media time correlates to the system time in
      * a linear fashion using an anchor and a clock rate. During regular playback, the media
      * time moves fairly constantly (though the anchor frame may be rebased to a current
      * system time, the linear correlation stays steady). Therefore, this method does not
@@ -779,15 +753,15 @@ public abstract class MediaPlayer2 {
      * <p>
      * To help users get current playback position, this method always anchors the timestamp
      * to the current {@link System#nanoTime system time}, so
-     * {@link MediaTimestamp#getAnchorMediaTimeUs} can be used as current playback position.
+     * {@link MediaTimestamp2#getAnchorMediaTimeUs} can be used as current playback position.
      *
-     * @return a MediaTimestamp object if a timestamp is available, or {@code null} if no timestamp
+     * @return a MediaTimestamp2 object if a timestamp is available, or {@code null} if no timestamp
      *         is available, e.g. because the media player has not been initialized.
      *
-     * @see MediaTimestamp
+     * @see MediaTimestamp2
      */
     @Nullable
-    public abstract MediaTimestamp getTimestamp();
+    public abstract MediaTimestamp2 getTimestamp();
 
     /**
      * Resets the MediaPlayer2 to its uninitialized state. After calling
@@ -1063,10 +1037,10 @@ public abstract class MediaPlayer2 {
          * @param mp the MediaPlayer2 the media time pertains to.
          * @param dsd the DataSourceDesc of this data source
          * @param timestamp the timestamp that correlates media time, system time and clock rate,
-         *     or {@link MediaTimestamp#TIMESTAMP_UNKNOWN} in an error case.
+         *     or {@link MediaTimestamp2#TIMESTAMP_UNKNOWN} in an error case.
          */
         public void onMediaTimeDiscontinuity(
-                MediaPlayer2 mp, DataSourceDesc dsd, MediaTimestamp timestamp) { }
+                MediaPlayer2 mp, DataSourceDesc dsd, MediaTimestamp2 timestamp) { }
 
         /**
          * Called to indicate {@link #notifyWhenCommandLabelReached(Object)} has been processed.
@@ -1084,7 +1058,7 @@ public abstract class MediaPlayer2 {
          * @param data the subtitle data
          */
         public void onSubtitleData(
-                MediaPlayer2 mp, DataSourceDesc dsd, @NonNull SubtitleData data) { }
+                MediaPlayer2 mp, DataSourceDesc dsd, @NonNull SubtitleData2 data) { }
     }
 
     /**
@@ -1441,11 +1415,6 @@ public abstract class MediaPlayer2 {
      */
     public static final int CALL_COMPLETED_SET_SURFACE = 27;
 
-    /** The player just completed a call {@link #setSyncParams}.
-     * @see EventCallback#onCallCompleted
-     */
-    public static final int CALL_COMPLETED_SET_SYNC_PARAMS = 28;
-
     /** The player just completed a call {@link #skipToNext}.
      * @see EventCallback#onCallCompleted
      */
@@ -1479,7 +1448,6 @@ public abstract class MediaPlayer2 {
             CALL_COMPLETED_SET_PLAYBACK_PARAMS,
             CALL_COMPLETED_SET_PLAYER_VOLUME,
             CALL_COMPLETED_SET_SURFACE,
-            CALL_COMPLETED_SET_SYNC_PARAMS,
             CALL_COMPLETED_SKIP_TO_NEXT,
             CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED,
     })

@@ -30,8 +30,6 @@ import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
-import android.media.PlaybackParams;
-import android.media.SubtitleData;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -63,7 +61,9 @@ import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.MediaPlayer2;
+import androidx.media.PlaybackParams2;
 import androidx.media.SessionToken2;
+import androidx.media.SubtitleData2;
 import androidx.media.subtitle.Cea708CaptionRenderer;
 import androidx.media.subtitle.ClosedCaptionRenderer;
 import androidx.media.subtitle.SubtitleController;
@@ -1030,15 +1030,15 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         if (android.os.Build.VERSION.SDK_INT < 23) {
             return;
         }
-        PlaybackParams params = mMediaPlayer.getPlaybackParams().allowDefaults();
+        PlaybackParams2 params = mMediaPlayer.getPlaybackParams();
         if (mSpeed != params.getSpeed()) {
             try {
-                params.setSpeed(mSpeed);
-                mMediaPlayer.setPlaybackParams(params);
+                mMediaPlayer.setPlaybackParams(
+                        new PlaybackParams2.Builder().setSpeed(mSpeed).build());
                 mFallbackSpeed = mSpeed;
             } catch (IllegalArgumentException e) {
-                Log.e(TAG, "PlaybackParams has unsupported value: " + e);
-                float fallbackSpeed = mMediaPlayer.getPlaybackParams().allowDefaults().getSpeed();
+                Log.e(TAG, "PlaybackParams2 has unsupported value: " + e);
+                float fallbackSpeed = mMediaPlayer.getPlaybackParams().getSpeed();
                 if (fallbackSpeed > 0.0f) {
                     mFallbackSpeed = fallbackSpeed;
                 }
@@ -1284,7 +1284,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 }
 
                 @Override
-                public void onSubtitleData(MediaPlayer2 mp, DataSourceDesc dsd, SubtitleData data) {
+                public void onSubtitleData(
+                        MediaPlayer2 mp, DataSourceDesc dsd, SubtitleData2 data) {
                     if (DEBUG) {
                         Log.d(TAG, "onSubtitleData(): getTrackIndex: " + data.getTrackIndex()
                                 + ", getCurrentPosition: " + mp.getCurrentPosition()
