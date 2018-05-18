@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.widget.Checkable;
@@ -114,8 +115,11 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
             mActionView.setLayoutParams(lp);
             int p = action.getImageMode() == ICON_IMAGE ? mIconSize / 2 : 0;
             mActionView.setPadding(p, p, p, p);
-            mActionView.setBackground(SliceViewUtil.getDrawable(getContext(),
-                    android.R.attr.selectableItemBackground));
+            int touchFeedbackAttr = android.R.attr.selectableItemBackground;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                touchFeedbackAttr = android.R.attr.selectableItemBackgroundBorderless;
+            }
+            mActionView.setBackground(SliceViewUtil.getDrawable(getContext(), touchFeedbackAttr));
             mActionView.setOnClickListener(this);
         }
 
