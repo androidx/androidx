@@ -22,16 +22,18 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.v4.app.TaskStackBuilder;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import androidx.navigation.test.R;
 import androidx.navigation.testing.TestNavigator;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 @SmallTest
 public class NavControllerTest {
@@ -67,7 +69,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testSetGraph() throws Throwable {
+    public void testSetGraph() {
         NavController navController = createNavController();
         assertThat(navController.getGraph(), is(nullValue(NavGraph.class)));
 
@@ -77,7 +79,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigate() throws Throwable {
+    public void testNavigate() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
         TestNavigator navigator = navController.getNavigatorProvider()
@@ -136,7 +138,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateWithNoDefaultValue() throws Throwable {
+    public void testNavigateWithNoDefaultValue() {
         Bundle returnedArgs = navigateWithArgs(null);
 
         // Test that arguments without a default value aren't passed through at all
@@ -144,7 +146,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateWithDefaultArgs() throws Throwable {
+    public void testNavigateWithDefaultArgs() {
         Bundle returnedArgs = navigateWithArgs(null);
 
         // Test that default values are passed through
@@ -152,7 +154,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateWithArgs() throws Throwable {
+    public void testNavigateWithArgs() {
         Bundle args = new Bundle();
         args.putString(TEST_ARG, TEST_ARG_VALUE);
         Bundle returnedArgs = navigateWithArgs(args);
@@ -162,7 +164,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateWithOverriddenDefaultArgs() throws Throwable {
+    public void testNavigateWithOverriddenDefaultArgs() {
         Bundle args = new Bundle();
         args.putString(TEST_OVERRIDDEN_VALUE_ARG, TEST_OVERRIDDEN_VALUE_ARG_VALUE);
         Bundle returnedArgs = navigateWithArgs(args);
@@ -172,7 +174,7 @@ public class NavControllerTest {
                 is(TEST_OVERRIDDEN_VALUE_ARG_VALUE));
     }
 
-    private Bundle navigateWithArgs(Bundle args) throws Throwable {
+    private Bundle navigateWithArgs(Bundle args) {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_arguments);
 
@@ -187,7 +189,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateThenPop() throws Throwable {
+    public void testNavigateThenPop() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
         TestNavigator navigator = navController.getNavigatorProvider()
@@ -205,7 +207,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateThenNavigateUp() throws Throwable {
+    public void testNavigateThenNavigateUp() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
         TestNavigator navigator = navController.getNavigatorProvider()
@@ -224,7 +226,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateViaAction() throws Throwable {
+    public void testNavigateViaAction() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
@@ -238,7 +240,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateOptionSingleTop() throws Throwable {
+    public void testNavigateOptionSingleTop() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
@@ -253,7 +255,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateOptionPopUpToInAction() throws Throwable {
+    public void testNavigateOptionPopUpToInAction() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
@@ -268,7 +270,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateWithPopUpOptionsOnly() throws Throwable {
+    public void testNavigateWithPopUpOptionsOnly() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
@@ -286,7 +288,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNoDestinationNoPopUpTo() throws Throwable {
+    public void testNoDestinationNoPopUpTo() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
         NavOptions options = new NavOptions.Builder().build();
@@ -299,7 +301,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateOptionPopSelf() throws Throwable {
+    public void testNavigateOptionPopSelf() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
@@ -314,7 +316,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateViaActionWithArgs() throws Throwable {
+    public void testNavigateViaActionWithArgs() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_arguments);
 
@@ -340,7 +342,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testDeepLinkFromNavGraph() throws Throwable {
+    public void testDeepLinkFromNavGraph() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
 
@@ -349,6 +351,27 @@ public class NavControllerTest {
                 .createTaskStackBuilder();
         assertThat(taskStackBuilder, is(notNullValue(TaskStackBuilder.class)));
         assertThat(taskStackBuilder.getIntentCount(), is(1));
+    }
+
+    @Test
+    public void testDeepLinkIntent() {
+        NavController navController = createNavController();
+        navController.setGraph(R.navigation.nav_simple);
+
+        Bundle args = new Bundle();
+        args.putString("test", "test");
+        TaskStackBuilder taskStackBuilder = navController.createDeepLink()
+                .setDestination(R.id.second_test)
+                .setArguments(args)
+                .createTaskStackBuilder();
+
+        Intent intent = taskStackBuilder.editIntentAt(0);
+        assertThat(intent, is(notNullValue()));
+        navController.onHandleDeepLink(intent);
+
+        // The original Intent should be untouched and safely writable to a Parcel
+        Parcel p = Parcel.obtain();
+        intent.writeToParcel(p, 0);
     }
 
     private NavController createNavController() {
