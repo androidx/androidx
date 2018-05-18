@@ -65,7 +65,12 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
+import androidx.versionedparcelable.CustomVersionedParcelable;
+import androidx.versionedparcelable.NonParcelField;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelize;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -73,11 +78,13 @@ import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 
 /**
  * Helper for accessing features in {@link android.graphics.drawable.Icon}.
  */
-public class IconCompat {
+@VersionedParcelize(allowSerialization = true, ignoreParcelables = true, isCustom = true)
+public class IconCompat extends CustomVersionedParcelable {
 
     private static final String TAG = "IconCompat";
 
@@ -85,13 +92,13 @@ public class IconCompat {
      * Value returned when the type of an {@link Icon} cannot be determined.
      * @see #getType(Icon)
      */
-    public static final int TYPE_UNKOWN = -1;
+    public static final int TYPE_UNKNOWN = -1;
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @IntDef({TYPE_UNKOWN, TYPE_BITMAP, TYPE_RESOURCE, TYPE_DATA, TYPE_URI, TYPE_ADAPTIVE_BITMAP})
+    @IntDef({TYPE_UNKNOWN, TYPE_BITMAP, TYPE_RESOURCE, TYPE_DATA, TYPE_URI, TYPE_ADAPTIVE_BITMAP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface IconType {
     }
@@ -113,28 +120,41 @@ public class IconCompat {
     private static final String EXTRA_TINT_LIST = "tint_list";
     private static final String EXTRA_TINT_MODE = "tint_mode";
 
-    private final int mType;
+    @ParcelField(1)
+    int mType;
 
     // To avoid adding unnecessary overhead, we have a few basic objects that get repurposed
     // based on the value of mType.
 
     // TYPE_BITMAP: Bitmap
     // TYPE_ADAPTIVE_BITMAP: Bitmap
-    // TYPE_RESOURCE: Context
+    // TYPE_RESOURCE: String
     // TYPE_URI: String
     // TYPE_DATA: DataBytes
-    private Object          mObj1;
+    @NonParcelField
+    Object          mObj1;
+    @ParcelField(2)
+    byte[]          mData;
+    @ParcelField(3)
+    Parcelable      mParcelable;
 
     // TYPE_RESOURCE: resId
     // TYPE_DATA: data offset
-    private int             mInt1;
+    @ParcelField(4)
+    int             mInt1;
 
     // TYPE_DATA: data length
-    private int             mInt2;
+    @ParcelField(5)
+    int             mInt2;
 
-    private ColorStateList  mTintList = null;
+    @ParcelField(6)
+    ColorStateList  mTintList = null;
+
     static final PorterDuff.Mode DEFAULT_TINT_MODE = PorterDuff.Mode.SRC_IN; // SRC_IN
-    private PorterDuff.Mode mTintMode = DEFAULT_TINT_MODE;
+    @NonParcelField
+    PorterDuff.Mode mTintMode = DEFAULT_TINT_MODE;
+    @ParcelField(7)
+    String mTintModeStr;
 
     /**
      * Create an Icon pointing to a drawable resource.
@@ -150,6 +170,20 @@ public class IconCompat {
         final IconCompat rep = new IconCompat(TYPE_RESOURCE);
         rep.mInt1 = resId;
         rep.mObj1 = context.getPackageName();
+        return rep;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static IconCompat createWithResource(String pkg, @DrawableRes int resId) {
+        if (pkg == null) {
+            throw new IllegalArgumentException("Package must not be null.");
+        }
+        final IconCompat rep = new IconCompat(TYPE_RESOURCE);
+        rep.mInt1 = resId;
+        rep.mObj1 = pkg;
         return rep;
     }
 
@@ -230,6 +264,14 @@ public class IconCompat {
         return createWithContentUri(uri.toString());
     }
 
+    /**
+     * Used for VersionedParcelable.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public IconCompat() {
+    }
+
     private IconCompat(int mType) {
         this.mType = mType;
     }
@@ -243,7 +285,7 @@ public class IconCompat {
      */
     @IconType
     public int getType() {
-        if (mType == TYPE_UNKOWN && Build.VERSION.SDK_INT >= 23) {
+        if (mType == TYPE_UNKNOWN && Build.VERSION.SDK_INT >= 23) {
             return getType((Icon) mObj1);
         }
         return mType;
@@ -258,7 +300,7 @@ public class IconCompat {
      */
     @NonNull
     public String getResPackage() {
-        if (mType == TYPE_UNKOWN && Build.VERSION.SDK_INT >= 23) {
+        if (mType == TYPE_UNKNOWN && Build.VERSION.SDK_INT >= 23) {
             return getResPackage((Icon) mObj1);
         }
         if (mType != TYPE_RESOURCE) {
@@ -276,7 +318,7 @@ public class IconCompat {
      */
     @IdRes
     public int getResId() {
-        if (mType == TYPE_UNKOWN && Build.VERSION.SDK_INT >= 23) {
+        if (mType == TYPE_UNKNOWN && Build.VERSION.SDK_INT >= 23) {
             return getResId((Icon) mObj1);
         }
         if (mType != TYPE_RESOURCE) {
@@ -294,7 +336,7 @@ public class IconCompat {
      */
     @NonNull
     public Uri getUri() {
-        if (mType == TYPE_UNKOWN && Build.VERSION.SDK_INT >= 23) {
+        if (mType == TYPE_UNKNOWN && Build.VERSION.SDK_INT >= 23) {
             return getUri((Icon) mObj1);
         }
         return Uri.parse((String) mObj1);
@@ -341,7 +383,7 @@ public class IconCompat {
     public Icon toIcon() {
         Icon icon;
         switch (mType) {
-            case TYPE_UNKOWN:
+            case TYPE_UNKNOWN:
                 // When type is unknown we are just wrapping an icon.
                 return (Icon) mObj1;
             case TYPE_BITMAP:
@@ -544,7 +586,7 @@ public class IconCompat {
             case TYPE_ADAPTIVE_BITMAP:
                 bundle.putParcelable(EXTRA_OBJ, (Bitmap) mObj1);
                 break;
-            case TYPE_UNKOWN:
+            case TYPE_UNKNOWN:
                 // When unknown just wrapping an Icon.
                 bundle.putParcelable(EXTRA_OBJ, (Parcelable) mObj1);
                 break;
@@ -572,7 +614,7 @@ public class IconCompat {
 
     @Override
     public String toString() {
-        if (mType == TYPE_UNKOWN) {
+        if (mType == TYPE_UNKNOWN) {
             return String.valueOf(mObj1);
         }
         final StringBuilder sb = new StringBuilder("Icon(typ=").append(typeToString(mType));
@@ -611,6 +653,77 @@ public class IconCompat {
         return sb.toString();
     }
 
+    @Override
+    protected void onPreParceling(boolean isStream) {
+        mTintModeStr = mTintMode.name();
+        switch (mType) {
+            case TYPE_UNKNOWN:
+                if (isStream) {
+                    // We can't determine how to serialize this icon, so throw so the caller knows.
+                    throw new IllegalArgumentException("Can't serialize Icon created with "
+                            + "IconCompat#createFromIcon");
+                } else {
+                    mParcelable = (Parcelable) mObj1;
+                }
+                break;
+            case TYPE_ADAPTIVE_BITMAP:
+            case TYPE_BITMAP:
+                if (isStream) {
+                    Bitmap bitmap = (Bitmap) mObj1;
+                    ByteArrayOutputStream data = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, data);
+                    mData = data.toByteArray();
+                } else {
+                    mParcelable = (Parcelable) mObj1;
+                }
+                break;
+            case TYPE_URI:
+                mData = mObj1.toString().getBytes(Charset.forName("UTF-16"));
+                break;
+            case TYPE_RESOURCE:
+                mData = ((String) mObj1).getBytes(Charset.forName("UTF-16"));
+                break;
+            case TYPE_DATA:
+                mData = (byte[]) mObj1;
+                break;
+        }
+    }
+
+    @Override
+    protected void onPostParceling() {
+        mTintMode = PorterDuff.Mode.valueOf(mTintModeStr);
+        switch (mType) {
+            case TYPE_UNKNOWN:
+                if (mParcelable != null) {
+                    mObj1 = mParcelable;
+                } else {
+                    throw new IllegalArgumentException("Invalid icon");
+                }
+                break;
+            case TYPE_ADAPTIVE_BITMAP:
+            case TYPE_BITMAP:
+                if (mParcelable != null) {
+                    mObj1 = mParcelable;
+                } else {
+                    // This is data now.
+                    mObj1 = mData;
+                    mType = TYPE_DATA;
+                    mInt1 = 0;
+                    mInt2 = mData.length;
+                }
+                break;
+            case TYPE_URI:
+                mObj1 = Uri.parse(new String(mData, Charset.forName("UTF-16")));
+                break;
+            case TYPE_RESOURCE:
+                mObj1 = new String(mData, Charset.forName("UTF-16"));
+                break;
+            case TYPE_DATA:
+                mData = (byte[]) mObj1;
+                break;
+        }
+    }
+
     private static String typeToString(int x) {
         switch (x) {
             case TYPE_BITMAP: return "BITMAP";
@@ -640,7 +753,7 @@ public class IconCompat {
         switch (type) {
             case TYPE_BITMAP:
             case TYPE_ADAPTIVE_BITMAP:
-            case TYPE_UNKOWN:
+            case TYPE_UNKNOWN:
                 icon.mObj1 = bundle.getParcelable(EXTRA_OBJ);
                 break;
             case TYPE_RESOURCE:
@@ -664,7 +777,13 @@ public class IconCompat {
     @Nullable
     public static IconCompat createFromIcon(@NonNull Icon icon) {
         Preconditions.checkNotNull(icon);
-        IconCompat iconCompat = new IconCompat(TYPE_UNKOWN);
+        switch (getType(icon)) {
+            case TYPE_RESOURCE:
+                return createWithResource(getResPackage(icon), getResId(icon));
+            case TYPE_URI:
+                return createWithContentUri(getUri(icon));
+        }
+        IconCompat iconCompat = new IconCompat(TYPE_UNKNOWN);
         iconCompat.mObj1 = icon;
         return iconCompat;
     }
@@ -673,7 +792,7 @@ public class IconCompat {
      * Gets the type of the icon provided.
      * <p>
      * Note that new types may be added later, so callers should guard against other
-     * types being returned. Returns {@link #TYPE_UNKOWN} when the type cannot be
+     * types being returned. Returns {@link #TYPE_UNKNOWN} when the type cannot be
      * determined.
      */
     @IconType
@@ -686,13 +805,13 @@ public class IconCompat {
             return (int) icon.getClass().getMethod("getType").invoke(icon);
         } catch (IllegalAccessException e) {
             Log.e(TAG, "Unable to get icon type " + icon, e);
-            return TYPE_UNKOWN;
+            return TYPE_UNKNOWN;
         } catch (InvocationTargetException e) {
             Log.e(TAG, "Unable to get icon type " + icon, e);
-            return TYPE_UNKOWN;
+            return TYPE_UNKNOWN;
         } catch (NoSuchMethodException e) {
             Log.e(TAG, "Unable to get icon type " + icon, e);
-            return TYPE_UNKOWN;
+            return TYPE_UNKNOWN;
         }
     }
 
@@ -734,6 +853,7 @@ public class IconCompat {
      */
     @IdRes
     @RequiresApi(23)
+    @DrawableRes
     public static int getResId(@NonNull Icon icon) {
         if (BuildCompat.isAtLeastP()) {
             return icon.getResId();
@@ -762,7 +882,7 @@ public class IconCompat {
      */
     @Nullable
     @RequiresApi(23)
-    public Uri getUri(@NonNull Icon icon) {
+    public static Uri getUri(@NonNull Icon icon) {
         if (BuildCompat.isAtLeastP()) {
             return icon.getUri();
         }

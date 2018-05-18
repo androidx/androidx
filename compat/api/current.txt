@@ -983,7 +983,7 @@ package androidx.core.graphics.drawable {
     method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
   }
 
-  public class IconCompat {
+  public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public static androidx.core.graphics.drawable.IconCompat createFromBundle(android.os.Bundle);
     method public static androidx.core.graphics.drawable.IconCompat createFromIcon(android.graphics.drawable.Icon);
     method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmap(android.graphics.Bitmap);
@@ -999,14 +999,14 @@ package androidx.core.graphics.drawable {
     method public int getType();
     method public static int getType(android.graphics.drawable.Icon);
     method public android.net.Uri getUri();
-    method public android.net.Uri getUri(android.graphics.drawable.Icon);
+    method public static android.net.Uri getUri(android.graphics.drawable.Icon);
     method public android.graphics.drawable.Drawable loadDrawable(android.content.Context);
     method public androidx.core.graphics.drawable.IconCompat setTint(int);
     method public androidx.core.graphics.drawable.IconCompat setTintList(android.content.res.ColorStateList);
     method public androidx.core.graphics.drawable.IconCompat setTintMode(android.graphics.PorterDuff.Mode);
     method public android.os.Bundle toBundle();
     method public android.graphics.drawable.Icon toIcon();
-    field public static final int TYPE_UNKOWN = -1; // 0xffffffff
+    field public static final int TYPE_UNKNOWN = -1; // 0xffffffff
   }
 
   public abstract class RoundedBitmapDrawable extends android.graphics.drawable.Drawable {
