@@ -40,12 +40,12 @@ public class SubheaderListItemActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_paged_list_view_no_divider);
+        setContentView(R.layout.activity_paged_list_view);
 
         mPagedListView = findViewById(R.id.paged_list_view);
 
         ListItemAdapter adapter = new ListItemAdapter(this,
-                new SampleProvider(this), ListItemAdapter.BackgroundStyle.CARD);
+                new SampleProvider(this), ListItemAdapter.BackgroundStyle.SOLID);
         mPagedListView.setAdapter(adapter);
         mPagedListView.setMaxPages(PagedListView.UNLIMITED_PAGES);
         mPagedListView.setDividerVisibilityManager(adapter);

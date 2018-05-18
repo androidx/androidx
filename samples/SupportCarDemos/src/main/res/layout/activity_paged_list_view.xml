@@ -17,6 +17,7 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/car_card"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <androidx.car.widget.PagedListView
@@ -24,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:showPagedListViewDivider="true"
-        app:dayNightStyle="force_night"
+        app:dayNightStyle="auto"
         app:dividerStartMargin="@dimen/car_keyline_1"
         app:dividerEndMargin="@dimen/car_keyline_1"
         app:gutter="both"/>

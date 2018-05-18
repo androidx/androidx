@@ -51,6 +51,15 @@ import java.util.function.Function;
  *     individual {@link ListItem}.
  * </ul>
  *
+ * <p>To utilize this adapter as the controller for divider visibility, set it as the
+ * {@code DividerVisibilityManager} via the
+ * {@link PagedListView#setDividerVisibilityManager(PagedListView.DividerVisibilityManager)} method.
+ *
+ * <p>Note, that this adapter will treat {@link SubheaderListItem}s specially. Usually, it will
+ * hide dividers based on if {@link ListItem#shouldHideDivider()} returns {@code true}. However,
+ * it will always hide dividers for a {@code SubheaderListItem}. It will also hide the divider for
+ * the item before the subheader.
+ *
  * <p>To enable support for {@link CarUxRestrictions}, call {@link #start()} in your
  * {@code Activity}'s {@link android.app.Activity#onCreate(Bundle)}, and {@link #stop()} in
  * {@link Activity#onStop()}.
@@ -289,12 +298,40 @@ public class ListItemAdapter extends
         mMaxItems = maxItems;
     }
 
+    /**
+     * Returns {@code true} if the divider should be hidden for the item at the given position. The
+     * divider is drawn at the bottom of the item.
+     *
+     * <p>This method will respect the values returned by {@link ListItem#shouldHideDivider()} for
+     * the {@code ListItem} at the given position except if that item is a
+     * {@link SubheaderListItem}.
+     *
+     * <p>For {@code SubheaderListItem}s, the divider is always hidden. In addition, the item before
+     * the {@code SubheaderListItem} will also have its divider hidden.
+     *
+     * @param position The position of the item within the adapter.
+     * @return {@code true} if the divider should be hidden for the item at the given position.
+     *     {@code false} otherwise.
+     */
     @Override
     public boolean shouldHideDivider(int position) {
-        // By default we should show the divider i.e. return false.
+        // Position is out of bounds, so just return false.
+        if (position < 0 || position >= getItemCount()) {
+            return false;
+        }
 
-        // Check if position is within range, and then check the item flag.
-        return position >= 0 && position < getItemCount()
-                && mItemProvider.get(position).shouldHideDivider();
+        // Handle the special case of a SubheaderListItem. A subheader should have dividers hidden
+        // for the item before it. As a result, hide this item's divider if the next item is a
+        // subheader.
+        if (position + 1 < getItemCount()) {
+            ListItem nextListItem = mItemProvider.get(position + 1);
+
+            if (nextListItem instanceof SubheaderListItem) {
+                return true;
+            }
+        }
+
+        // Note that subheaders will always return "true" for shouldHideDivider().
+        return mItemProvider.get(position).shouldHideDivider();
     }
 }
