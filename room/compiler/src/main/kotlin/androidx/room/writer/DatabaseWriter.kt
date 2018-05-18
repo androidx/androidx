@@ -34,6 +34,7 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import stripNonJava
 import javax.lang.model.element.Modifier
+import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PROTECTED
 import javax.lang.model.element.Modifier.PUBLIC
@@ -47,6 +48,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
         val builder = TypeSpec.classBuilder(database.implTypeName)
         builder.apply {
             addModifiers(PUBLIC)
+            addModifiers(FINAL)
             superclass(database.typeName)
             addMethod(createCreateOpenHelper())
             addMethod(createCreateInvalidationTracker())

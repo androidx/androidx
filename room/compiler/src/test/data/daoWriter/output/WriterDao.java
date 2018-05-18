@@ -28,7 +28,7 @@ import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings("unchecked")
-public class WriterDao_Impl implements WriterDao {
+public final class WriterDao_Impl implements WriterDao {
     private final RoomDatabase __db;
 
     private final EntityInsertionAdapter __insertionAdapterOfUser;

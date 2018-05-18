@@ -20,7 +20,7 @@ import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings("unchecked")
-public class ComplexDao_Impl extends ComplexDao {
+public final class ComplexDao_Impl extends ComplexDao {
     private final RoomDatabase __db;
 
     public ComplexDao_Impl(ComplexDatabase __db) {
