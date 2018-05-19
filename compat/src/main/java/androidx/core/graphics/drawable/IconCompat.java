@@ -83,7 +83,8 @@ import java.nio.charset.Charset;
 /**
  * Helper for accessing features in {@link android.graphics.drawable.Icon}.
  */
-@VersionedParcelize(allowSerialization = true, ignoreParcelables = true, isCustom = true)
+@VersionedParcelize(allowSerialization = true, ignoreParcelables = true, isCustom = true,
+        jetifyAs = "android.support.v4.graphics.drawable.IconCompat")
 public class IconCompat extends CustomVersionedParcelable {
 
     private static final String TAG = "IconCompat";
@@ -120,8 +121,12 @@ public class IconCompat extends CustomVersionedParcelable {
     private static final String EXTRA_TINT_LIST = "tint_list";
     private static final String EXTRA_TINT_MODE = "tint_mode";
 
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     @ParcelField(1)
-    int mType;
+    public int mType;
 
     // To avoid adding unnecessary overhead, we have a few basic objects that get repurposed
     // based on the value of mType.
@@ -133,28 +138,52 @@ public class IconCompat extends CustomVersionedParcelable {
     // TYPE_DATA: DataBytes
     @NonParcelField
     Object          mObj1;
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     @ParcelField(2)
-    byte[]          mData;
+    public byte[]          mData;
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     @ParcelField(3)
-    Parcelable      mParcelable;
+    public Parcelable      mParcelable;
 
     // TYPE_RESOURCE: resId
     // TYPE_DATA: data offset
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     @ParcelField(4)
-    int             mInt1;
+    public int             mInt1;
 
     // TYPE_DATA: data length
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     @ParcelField(5)
-    int             mInt2;
+    public int             mInt2;
 
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     @ParcelField(6)
-    ColorStateList  mTintList = null;
+    public ColorStateList  mTintList = null;
 
     static final PorterDuff.Mode DEFAULT_TINT_MODE = PorterDuff.Mode.SRC_IN; // SRC_IN
     @NonParcelField
     PorterDuff.Mode mTintMode = DEFAULT_TINT_MODE;
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     @ParcelField(7)
-    String mTintModeStr;
+    public String mTintModeStr;
 
     /**
      * Create an Icon pointing to a drawable resource.
@@ -654,7 +683,7 @@ public class IconCompat extends CustomVersionedParcelable {
     }
 
     @Override
-    protected void onPreParceling(boolean isStream) {
+    public void onPreParceling(boolean isStream) {
         mTintModeStr = mTintMode.name();
         switch (mType) {
             case TYPE_UNKNOWN:
@@ -690,7 +719,7 @@ public class IconCompat extends CustomVersionedParcelable {
     }
 
     @Override
-    protected void onPostParceling() {
+    public void onPostParceling() {
         mTintMode = PorterDuff.Mode.valueOf(mTintModeStr);
         switch (mType) {
             case TYPE_UNKNOWN:

@@ -75,4 +75,10 @@ public @interface VersionedParcelize {
      * but are no longer present. Ids listed here cannot be used by any fields within this class.
      */
     int[] deprecatedIds() default {};
+
+    /**
+     * An alternate classname to also generate serialization for to support jetifier androidx
+     * migration.
+     */
+    String jetifyAs() default "";
 }

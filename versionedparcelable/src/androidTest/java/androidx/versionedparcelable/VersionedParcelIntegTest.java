@@ -440,12 +440,12 @@ public class VersionedParcelIntegTest {
         private boolean mPostParcelled;
 
         @Override
-        protected void onPreParceling(boolean isStream) {
+        public void onPreParceling(boolean isStream) {
             mPreParcelled = true;
         }
 
         @Override
-        protected void onPostParceling() {
+        public void onPostParceling() {
             mPostParcelled = true;
         }
     }
