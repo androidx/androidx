@@ -43,6 +43,10 @@ import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
+import androidx.versionedparcelable.CustomVersionedParcelable;
+import androidx.versionedparcelable.NonParcelField;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.Arrays;
 import java.util.List;
@@ -64,7 +68,8 @@ import java.util.List;
  * the content. The hints that are guaranteed to be understood by the system
  * are defined on {@link Slice}.
  */
-public class SliceItem {
+@VersionedParcelize(allowSerialization = true, ignoreParcelables = true, isCustom = true)
+public final class SliceItem extends CustomVersionedParcelable {
 
     private static final String HINTS = "hints";
     private static final String FORMAT = "format";
@@ -85,10 +90,17 @@ public class SliceItem {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    protected @Slice.SliceHint String[] mHints;
-    private final String mFormat;
-    private final String mSubType;
-    private final Object mObj;
+    @ParcelField(1)
+    protected @Slice.SliceHint String[] mHints = new String[0];
+    @ParcelField(2)
+    String mFormat;
+    @ParcelField(3)
+    String mSubType;
+    @NonParcelField
+    Object mObj;
+
+    @ParcelField(4)
+    SliceItemHolder mHolder;
 
     /**
      * @hide
@@ -109,6 +121,14 @@ public class SliceItem {
     public SliceItem(Object obj, @SliceType String format, String subType,
             @Slice.SliceHint List<String> hints) {
         this (obj, format, subType, hints.toArray(new String[hints.size()]));
+    }
+
+    /**
+     * Used by VersionedParcelable.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public SliceItem() {
     }
 
     /**
@@ -144,14 +164,6 @@ public class SliceItem {
     @RestrictTo(Scope.LIBRARY)
     public void addHint(@Slice.SliceHint String hint) {
         mHints = ArrayUtils.appendElement(String.class, mHints, hint);
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY)
-    public void removeHint(String hint) {
-        ArrayUtils.removeElement(String.class, mHints, hint);
     }
 
     /**
@@ -443,5 +455,16 @@ public class SliceItem {
         }
         sb.append(",\n");
         return sb.toString();
+    }
+
+    @Override
+    protected void onPreParceling(boolean isStream) {
+        mHolder = new SliceItemHolder(mFormat, mObj, isStream);
+    }
+
+    @Override
+    protected void onPostParceling() {
+        mObj = mHolder.getObj(mFormat);
+        mHolder = null;
     }
 }

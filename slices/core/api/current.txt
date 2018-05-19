@@ -1,6 +1,6 @@
 package androidx.slice {
 
-  public final class Slice {
+  public final class Slice implements androidx.versionedparcelable.VersionedParcelable {
     method public java.util.List<java.lang.String> getHints();
     method public java.util.List<androidx.slice.SliceItem> getItems();
     method public android.net.Uri getUri();
@@ -11,7 +11,7 @@ package androidx.slice {
     method public static androidx.slice.Slice wrap(android.app.slice.Slice);
   }
 
-  public class SliceItem {
+  public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public android.app.PendingIntent getAction();
     method public java.lang.String getFormat();
     method public java.util.List<java.lang.String> getHints();

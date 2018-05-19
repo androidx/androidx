@@ -62,6 +62,9 @@ import androidx.core.os.BuildCompat;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 import androidx.slice.compat.SliceProviderCompat;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,14 +78,14 @@ import java.util.Set;
  * in a tree structure that provides the OS some information about how the content should be
  * displayed.
  */
-public final class Slice {
+@VersionedParcelize(allowSerialization = true)
+public final class Slice implements VersionedParcelable {
 
     private static final String HINTS = "hints";
     private static final String ITEMS = "items";
     private static final String URI = "uri";
     private static final String SPEC_TYPE = "type";
     private static final String SPEC_REVISION = "revision";
-    private final SliceSpec mSpec;
 
     /**
      * @hide
@@ -109,9 +112,16 @@ public final class Slice {
     })
     public @interface SliceHint{ }
 
-    private final SliceItem[] mItems;
-    private final @SliceHint String[] mHints;
-    private Uri mUri;
+    @ParcelField(1)
+    SliceSpec mSpec;
+
+    @ParcelField(2)
+    SliceItem[] mItems = new SliceItem[0];
+    @ParcelField(3)
+    @SliceHint
+    String[] mHints = new String[0];
+    @ParcelField(4)
+    String mUri;
 
     /**
      * @hide
@@ -121,8 +131,16 @@ public final class Slice {
             SliceSpec spec) {
         mHints = hints;
         mItems = items.toArray(new SliceItem[items.size()]);
-        mUri = uri;
+        mUri = uri.toString();
         mSpec = spec;
+    }
+
+    /**
+     * Used for VersionedParcelable
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public Slice() {
     }
 
     /**
@@ -138,7 +156,7 @@ public final class Slice {
                 mItems[i] = new SliceItem((Bundle) items[i]);
             }
         }
-        mUri = in.getParcelable(URI);
+        mUri = in.getParcelable(URI).toString();
         mSpec = in.containsKey(SPEC_TYPE)
                 ? new SliceSpec(in.getString(SPEC_TYPE), in.getInt(SPEC_REVISION))
                 : null;
@@ -156,7 +174,7 @@ public final class Slice {
             p[i] = mItems[i].toBundle();
         }
         b.putParcelableArray(ITEMS, p);
-        b.putParcelable(URI, mUri);
+        b.putParcelable(URI, Uri.parse(mUri));
         if (mSpec != null) {
             b.putString(SPEC_TYPE, mSpec.getType());
             b.putInt(SPEC_REVISION, mSpec.getRevision());
@@ -177,7 +195,7 @@ public final class Slice {
      * @return The Uri that this Slice represents.
      */
     public Uri getUri() {
-        return mUri;
+        return Uri.parse(mUri);
     }
 
     /**

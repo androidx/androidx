@@ -108,7 +108,7 @@ public class SliceTest {
         SliceItem item = s.getItems().get(0);
         assertEquals(FORMAT_TEXT, item.getFormat());
         // TODO: Test spannables here.
-        assertEquals("Expected text", item.getText());
+        assertEquals("Expected text", item.getText().toString());
     }
 
     @Test
