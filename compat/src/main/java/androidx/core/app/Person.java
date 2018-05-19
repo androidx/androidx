@@ -16,10 +16,14 @@
 
 package androidx.core.app;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 
 /**
@@ -38,7 +42,8 @@ public class Person {
      * Extracts and returns the {@link Person} written to the {@code bundle}. A bundle can be
      * created from a {@link Person} using {@link #toBundle()}.
      */
-    public static Person fromBundle(Bundle bundle) {
+    @NonNull
+    public static Person fromBundle(@NonNull Bundle bundle) {
         Bundle iconBundle = bundle.getBundle(ICON_KEY);
         return new Builder()
                 .setName(bundle.getCharSequence(NAME_KEY))
@@ -47,6 +52,29 @@ public class Person {
                 .setKey(bundle.getString(KEY_KEY))
                 .setBot(bundle.getBoolean(IS_BOT_KEY))
                 .setImportant(bundle.getBoolean(IS_IMPORTANT_KEY))
+                .build();
+    }
+
+
+    /**
+     * Converts an Android framework {@link android.app.Person} to a compat {@link Person}.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @RequiresApi(28)
+    @NonNull
+    public static Person fromAndroidPerson(@NonNull android.app.Person person) {
+        return new Builder()
+                .setName(person.getName())
+                .setIcon(
+                        (person.getIcon() != null)
+                                ? IconCompat.createFromIcon(person.getIcon())
+                                : null)
+                .setUri(person.getUri())
+                .setKey(person.getKey())
+                .setBot(person.isBot())
+                .setImportant(person.isImportant())
                 .build();
     }
 
@@ -70,6 +98,7 @@ public class Person {
      * Writes and returns a new {@link Bundle} that represents this {@link Person}. This bundle can
      * be converted back by using {@link #fromBundle(Bundle)}.
      */
+    @NonNull
     public Bundle toBundle() {
         Bundle result = new Bundle();
         result.putCharSequence(NAME_KEY, mName);
@@ -82,8 +111,28 @@ public class Person {
     }
 
     /** Creates and returns a new {@link Builder} initialized with this Person's data. */
+    @NonNull
     public Builder toBuilder() {
         return new Builder(this);
+    }
+
+    /**
+     * Converts this compat {@link Person} to the base Android framework {@link android.app.Person}.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    @RequiresApi(28)
+    public android.app.Person toAndroidPerson() {
+        return new android.app.Person.Builder()
+                .setName(getName())
+                .setIcon((getIcon() != null) ? getIcon().toIcon() : null)
+                .setUri(getUri())
+                .setKey(getKey())
+                .setBot(isBot())
+                .setImportant(isImportant())
+                .build();
     }
 
     /**

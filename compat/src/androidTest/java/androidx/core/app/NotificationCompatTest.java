@@ -36,6 +36,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -47,7 +48,9 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 
+import androidx.core.R;
 import androidx.core.app.NotificationCompat.MessagingStyle.Message;
+import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -828,6 +831,28 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(resultMessagingStyle.isGroupConversation());
     }
 
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void testMessagingStyle_apply_writesMessagePerson() {
+        Notification msNotification = newMsNotification(true, true);
+
+        Bundle[] messagesBundle =
+                (Bundle[]) msNotification.extras.getParcelableArray(Notification.EXTRA_MESSAGES);
+        assertEquals(2, messagesBundle.length);
+        assertTrue(messagesBundle[0].containsKey(Message.KEY_NOTIFICATION_PERSON));
+    }
+
+    @SdkSuppress(minSdkVersion = 24, maxSdkVersion = 27)
+    @Test
+    public void testMessagingStyle_apply_writesMessagePerson_legacy() {
+        Notification msNotification = newMsNotification(true, true);
+
+        Bundle[] messagesBundle =
+                (Bundle[]) msNotification.extras.getParcelableArray(Notification.EXTRA_MESSAGES);
+        assertEquals(2, messagesBundle.length);
+        assertTrue(messagesBundle[0].containsKey(Message.KEY_PERSON));
+    }
+
     @Test
     public void testMessagingStyle_restoreFromCompatExtras() {
         NotificationCompat.MessagingStyle messagingStyle =
@@ -942,11 +967,17 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     private Notification newMsNotification(boolean isGroup, boolean hasTitle) {
-        NotificationCompat.MessagingStyle ms =
-                new NotificationCompat.MessagingStyle(new Person.Builder().setName("Name").build());
-        String message = "isGroup? " + Boolean.toString(isGroup)
+        IconCompat testIcon =
+                IconCompat.createWithBitmap(
+                        BitmapFactory.decodeResource(
+                                mContext.getResources(),
+                                R.drawable.notification_bg_normal));
+        NotificationCompat.MessagingStyle ms = new NotificationCompat.MessagingStyle(
+                new Person.Builder().setName("Me").setIcon(testIcon).build());
+        String message = "compat. isGroup? " + Boolean.toString(isGroup)
                 + "; hasTitle? " + Boolean.toString(hasTitle);
-        ms.addMessage(new Message(message, 40, new Person.Builder().setName("John").build()));
+        ms.addMessage(new Message(
+                message, 40, new Person.Builder().setName("John").setIcon(testIcon).build()));
         ms.addMessage(new Message("Heyo", 41, (Person) null));
         ms.setGroupConversation(isGroup);
         ms.setConversationTitle(hasTitle ? "My Conversation Title" : null);
@@ -957,7 +988,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         } else {
             builder = new NotificationCompat.Builder(mContext);
         }
-        builder.setSmallIcon(androidx.testutils.R.drawable.notification_icon_background);
+        builder.setSmallIcon(R.drawable.notification_bg_normal);
         builder.setStyle(ms);
         return builder.build();
     }
