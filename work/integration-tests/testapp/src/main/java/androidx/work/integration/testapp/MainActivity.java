@@ -45,8 +45,10 @@ import java.util.concurrent.TimeUnit;
  * Main Activity
  */
 public class MainActivity extends AppCompatActivity {
+
     private static final String TAG = "MainActivity";
     private static final String UNIQUE_WORK_NAME = "importantUniqueWork";
+    private static final int NUM_WORKERS = 150;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        for (int i = 0; i < 150; i += 1) {
+                        for (int i = 0; i < NUM_WORKERS; i += 1) {
                             // Exceed Scheduler.MAX_SCHEDULER_LIMIT (100)
                             WorkManager.getInstance()
                                     .beginWith(OneTimeWorkRequest.from(SleepWorker.class))

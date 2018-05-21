@@ -338,6 +338,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 IsIterableContainingInOrder.contains(
                         CommandHandler.ACTION_DELAY_MET,
                         CommandHandler.ACTION_STOP_WORK,
+                        CommandHandler.ACTION_EXECUTION_COMPLETED,
                         CommandHandler.ACTION_CONSTRAINTS_CHANGED));
 
         assertThat(workSpec.state, is(State.ENQUEUED));
@@ -370,6 +371,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(intentActions,
                 IsIterableContainingInOrder.contains(
                         CommandHandler.ACTION_DELAY_MET,
+                        CommandHandler.ACTION_EXECUTION_COMPLETED,
                         CommandHandler.ACTION_CONSTRAINTS_CHANGED));
 
         assertThat(workSpec.state, is(State.SUCCEEDED));
