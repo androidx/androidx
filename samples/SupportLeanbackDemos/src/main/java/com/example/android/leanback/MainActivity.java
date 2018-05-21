@@ -147,6 +147,16 @@ public class MainActivity extends Activity {
             addAction(actions, MusicExampleActivity.class,
                     R.string.music,
                     R.string.music_description);
+
+            addAction(actions, DatePickerActivity.class,
+                    R.string.date_picker,
+                    R.string.date_picker_description);
+            addAction(actions, TimePickerActivity.class,
+                    R.string.time_picker,
+                    R.string.time_picker_description);
+            addAction(actions, PinPickerActivity.class,
+                    R.string.pin_picker,
+                    R.string.pin_picker_description);
         }
 
         private void addAction(List<GuidedAction> actions, Class cls, int titleRes, int descRes) {

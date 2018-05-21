@@ -790,4 +790,16 @@
         <item name="android:visibility">gone</item>
     </style>
 
+    <style name="Widget.Leanback.PickerStyle">
+        <item name="pickerItemLayout">@layout/lb_picker_item</item>
+    </style>
+
+    <style name="Widget.Leanback.PickerStyle.DatePickerStyle" />
+
+    <style name="Widget.Leanback.PickerStyle.TimePickerStyle" />
+
+    <style name="Widget.Leanback.PickerStyle.PinPickerStyle">
+        <item name="pickerItemLayout">@layout/lb_pinpicker_item</item>
+    </style>
+
 </resources>

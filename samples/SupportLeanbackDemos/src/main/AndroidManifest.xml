@@ -190,5 +190,15 @@
 
         <service android:exported="false" android:name=".MediaSessionService"/>
 
+        <activity
+            android:name=".DatePickerActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".TimePickerActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".PinPickerActivity"
+            android:exported="true"/>
+
     </application>
 </manifest>

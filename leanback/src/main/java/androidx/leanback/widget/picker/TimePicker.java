@@ -86,7 +86,7 @@ public class TimePicker extends Picker {
      * @param attrs the attributes of the XML tag that is inflating the TimePicker widget
      */
     public TimePicker(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.attr.timePickerStyle);
     }
 
     /**
@@ -107,10 +107,17 @@ public class TimePicker extends Picker {
 
         final TypedArray attributesArray = context.obtainStyledAttributes(attrs,
                 R.styleable.lbTimePicker);
-        mIs24hFormat = attributesArray.getBoolean(R.styleable.lbTimePicker_is24HourFormat,
-                DateFormat.is24HourFormat(context));
-        boolean useCurrentTime = attributesArray.getBoolean(R.styleable.lbTimePicker_useCurrentTime,
-                true);
+        boolean useCurrentTime;
+
+        try {
+            mIs24hFormat = attributesArray.getBoolean(R.styleable.lbTimePicker_is24HourFormat,
+                    DateFormat.is24HourFormat(context));
+            useCurrentTime = attributesArray.getBoolean(
+                    R.styleable.lbTimePicker_useCurrentTime,
+                    true);
+        } finally {
+            attributesArray.recycle();
+        }
 
         // The following 2 methods must be called after setting mIs24hFormat since this attribute is
         // used to extract the time format string.
@@ -126,20 +133,16 @@ public class TimePicker extends Picker {
         }
     }
 
-    private static boolean updateMin(PickerColumn column, int value) {
+    private static void updateMin(PickerColumn column, int value) {
         if (value != column.getMinValue()) {
             column.setMinValue(value);
-            return true;
         }
-        return false;
     }
 
-    private static boolean updateMax(PickerColumn column, int value) {
+    private static void updateMax(PickerColumn column, int value) {
         if (value != column.getMaxValue()) {
             column.setMaxValue(value);
-            return true;
         }
-        return false;
     }
 
     /**

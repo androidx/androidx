@@ -1000,7 +1000,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             }
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(dateAction.getDate());
-            dateView.updateDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH),
+            dateView.setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH),
                     c.get(Calendar.DAY_OF_MONTH), false);
         }
     }

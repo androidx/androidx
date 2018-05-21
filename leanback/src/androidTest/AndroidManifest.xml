@@ -30,6 +30,10 @@
                   android:exported="true"
                   android:theme="@style/Theme.Leanback"/>
 
+        <activity android:name="androidx.leanback.widget.picker.PinPickerActivity"
+                  android:exported="true"
+                  android:theme="@style/Theme.Leanback"/>
+
         <activity
             android:name="androidx.leanback.app.wizard.GuidedStepAttributesTestActivity"
             android:exported="true"

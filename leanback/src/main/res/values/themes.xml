@@ -106,6 +106,10 @@
         <item name="overlayDimActiveLevel">@fraction/lb_view_active_level</item>
         <item name="overlayDimDimmedLevel">@fraction/lb_view_dimmed_level</item>
 
+        <item name="pickerStyle">@style/Widget.Leanback.PickerStyle</item>
+        <item name="datePickerStyle">@style/Widget.Leanback.PickerStyle.DatePickerStyle</item>
+        <item name="timePickerStyle">@style/Widget.Leanback.PickerStyle.TimePickerStyle</item>
+        <item name="pinPickerStyle">@style/Widget.Leanback.PickerStyle.PinPickerStyle</item>
     </style>
 
     <style name="Theme.Leanback.Browse" parent="Theme.Leanback">

@@ -15,6 +15,7 @@
 package androidx.leanback.widget.picker;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -23,12 +24,13 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.LayoutRes;
 import androidx.leanback.R;
 import androidx.leanback.widget.OnChildViewHolderSelectedListener;
 import androidx.leanback.widget.VerticalGridView;
@@ -56,13 +58,23 @@ import java.util.List;
  */
 public class Picker extends FrameLayout {
 
+    /**
+     * Listener for {@link Picker} value changes.
+     *
+     * @see Picker#addOnValueChangedListener(PickerValueListener)
+     */
     public interface PickerValueListener {
-        public void onValueChanged(Picker picker, int column);
+        /**
+         * Called whenever the value of the {@link Picker} changes.
+         *
+         * @param picker View whose value has changed.
+         * @param column Column whose value has changed.
+         */
+        void onValueChanged(Picker picker, int column);
     }
 
-    private ViewGroup mRootView;
     private ViewGroup mPickerView;
-    final List<VerticalGridView> mColumnViews = new ArrayList<VerticalGridView>();
+    final List<VerticalGridView> mColumnViews = new ArrayList<>();
     ArrayList<PickerColumn> mColumns;
 
     private float mUnfocusedAlpha;
@@ -71,15 +83,14 @@ public class Picker extends FrameLayout {
     private float mInvisibleColumnAlpha;
     private int mAlphaAnimDuration;
     private Interpolator mDecelerateInterpolator;
-    private Interpolator mAccelerateInterpolator;
     private ArrayList<PickerValueListener> mListeners;
     private float mVisibleItemsActivated = 3;
     private float mVisibleItems = 1;
     private int mSelectedColumn = 0;
 
     private List<CharSequence> mSeparators = new ArrayList<>();
-    private int mPickerItemLayoutId = R.layout.lb_picker_item;
-    private int mPickerItemTextViewId = 0;
+    private int mPickerItemLayoutId;
+    private int mPickerItemTextViewId;
 
     /**
      * Gets separator string between columns.
@@ -127,11 +138,21 @@ public class Picker extends FrameLayout {
     }
 
     /**
-     * Classes extending {@link Picker} can choose to override this method to
+     * Classes extending {@link Picker} can call {@link #setPickerItemLayoutId(int)} to
      * supply the {@link Picker}'s item's layout id
      */
+    @LayoutRes
     public final int getPickerItemLayoutId() {
         return mPickerItemLayoutId;
+    }
+
+    /**
+     * Sets the layout to use for picker items.
+     *
+     * @param pickerItemLayoutId Layout resource id to use for picker items.
+     */
+    public final void setPickerItemLayoutId(@LayoutRes int pickerItemLayoutId) {
+        mPickerItemLayoutId = pickerItemLayoutId;
     }
 
     /**
@@ -140,6 +161,7 @@ public class Picker extends FrameLayout {
      * layout provided by {@link Picker#getPickerItemLayoutId()} is a {link
      * TextView}.
      */
+    @IdRes
     public final int getPickerItemTextViewId() {
         return mPickerItemTextViewId;
     }
@@ -153,8 +175,15 @@ public class Picker extends FrameLayout {
      * @param textViewId View id of TextView inside a Picker item, or 0 if the Picker item is a
      *                   TextView.
      */
-    public final void setPickerItemTextViewId(int textViewId) {
+    public final void setPickerItemTextViewId(@IdRes int textViewId) {
         mPickerItemTextViewId = textViewId;
+    }
+
+    /**
+     * Creates a Picker widget.
+     */
+    public Picker(Context context, AttributeSet attributeSet) {
+        this(context, attributeSet, R.attr.pickerStyle);
     }
 
     /**
@@ -162,6 +191,12 @@ public class Picker extends FrameLayout {
      */
     public Picker(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        final TypedArray a = context.obtainStyledAttributes(
+                attrs, R.styleable.lbPicker, defStyleAttr, 0);
+        mPickerItemLayoutId = a.getResourceId(R.styleable.lbPicker_pickerItemLayout,
+                R.layout.lb_picker_item);
+        mPickerItemTextViewId = a.getResourceId(R.styleable.lbPicker_pickerItemTextViewId, 0);
+        a.recycle();
         // Make it enabled and clickable to receive Click event.
         setEnabled(true);
         setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
@@ -175,11 +210,10 @@ public class Picker extends FrameLayout {
                 200; // mContext.getResources().getInteger(R.integer.dialog_animation_duration);
 
         mDecelerateInterpolator = new DecelerateInterpolator(2.5F);
-        mAccelerateInterpolator = new AccelerateInterpolator(2.5F);
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        mRootView = (ViewGroup) inflater.inflate(R.layout.lb_picker, this, true);
-        mPickerView = (ViewGroup) mRootView.findViewById(R.id.picker);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.lb_picker, this, true);
+        mPickerView = rootView.findViewById(R.id.picker);
     }
 
     /**
@@ -235,7 +269,7 @@ public class Picker extends FrameLayout {
 
         mColumnViews.clear();
         mPickerView.removeAllViews();
-        mColumns = new ArrayList<PickerColumn>(columns);
+        mColumns = new ArrayList<>(columns);
         if (mSelectedColumn > mColumns.size() - 1) {
             mSelectedColumn = mColumns.size() - 1;
         }
@@ -249,7 +283,6 @@ public class Picker extends FrameLayout {
             mPickerView.addView(separator);
         }
         for (int i = 0; i < totalCol; i++) {
-            final int colIndex = i;
             final VerticalGridView columnView = (VerticalGridView) inflater.inflate(
                     R.layout.lb_picker_column, mPickerView, false);
             // we don't want VerticalGridView to receive focus.
@@ -277,8 +310,8 @@ public class Picker extends FrameLayout {
                 mPickerView.addView(separator);
             }
 
-            columnView.setAdapter(new PickerScrollArrayAdapter(getContext(),
-                    getPickerItemLayoutId(), getPickerItemTextViewId(), colIndex));
+            columnView.setAdapter(new PickerScrollArrayAdapter(
+                    getPickerItemLayoutId(), getPickerItemTextViewId(), i));
             columnView.setOnChildViewHolderSelectedListener(mColumnChangeListener);
         }
     }
@@ -339,7 +372,7 @@ public class Picker extends FrameLayout {
      */
     public void addOnValueChangedListener(PickerValueListener listener) {
         if (mListeners == null) {
-            mListeners = new ArrayList<Picker.PickerValueListener>();
+            mListeners = new ArrayList<>();
         }
         mListeners.add(listener);
     }
@@ -446,7 +479,7 @@ public class Picker extends FrameLayout {
         private final int mTextViewResourceId;
         private PickerColumn mData;
 
-        PickerScrollArrayAdapter(Context context, int resource, int textViewResourceId,
+        PickerScrollArrayAdapter(int resource, int textViewResourceId,
                 int colIndex) {
             mResource = resource;
             mColIndex = colIndex;
@@ -460,12 +493,11 @@ public class Picker extends FrameLayout {
             View v = inflater.inflate(mResource, parent, false);
             TextView textView;
             if (mTextViewResourceId != 0) {
-                textView = (TextView) v.findViewById(mTextViewResourceId);
+                textView = v.findViewById(mTextViewResourceId);
             } else {
                 textView = (TextView) v;
             }
-            ViewHolder vh = new ViewHolder(v, textView);
-            return vh;
+            return new ViewHolder(v, textView);
         }
 
         @Override
@@ -496,11 +528,9 @@ public class Picker extends FrameLayout {
                 public void onChildViewHolderSelected(RecyclerView parent,
                         RecyclerView.ViewHolder child,
                         int position, int subposition) {
-                    PickerScrollArrayAdapter pickerScrollArrayAdapter =
-                            (PickerScrollArrayAdapter) parent
-                                    .getAdapter();
 
-                    int colIndex = mColumnViews.indexOf(parent);
+                    final VerticalGridView verticalGridView = (VerticalGridView) parent;
+                    int colIndex = mColumnViews.indexOf(verticalGridView);
                     updateColumnAlpha(colIndex, true);
                     if (child != null) {
                         int newValue = mColumns.get(colIndex).getMinValue() + position;
@@ -532,7 +562,7 @@ public class Picker extends FrameLayout {
     @Override
     protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
         int column = getSelectedColumn();
-        if (column < mColumnViews.size()) {
+        if (column >= 0 && column < mColumnViews.size()) {
             return mColumnViews.get(column).requestFocus(direction, previouslyFocusedRect);
         }
         return false;
@@ -688,6 +718,10 @@ public class Picker extends FrameLayout {
             for (int i = 0; i < mColumnViews.size(); i++) {
                 updateColumnAlpha(i, true);
             }
+        }
+        VerticalGridView columnView = mColumnViews.get(columnIndex);
+        if (hasFocus()) {
+            columnView.requestFocus();
         }
     }
 

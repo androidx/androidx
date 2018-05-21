@@ -101,4 +101,11 @@
 
     <string name="music">Music player</string>
     <string name="music_description">Music player using control glue</string>
+
+    <string name="date_picker">Date picker</string>
+    <string name="date_picker_description">Show date picker</string>
+    <string name="time_picker">Time picker</string>
+    <string name="time_picker_description">Show time picker</string>
+    <string name="pin_picker">Pin picker</string>
+    <string name="pin_picker_description">Show pin picker</string>
 </resources>
