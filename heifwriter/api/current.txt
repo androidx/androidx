@@ -2,6 +2,7 @@ package androidx.heifwriter {
 
   public final class HeifWriter implements java.lang.AutoCloseable {
     method public void addBitmap(android.graphics.Bitmap);
+    method public void addExifData(int, byte[], int, int);
     method public void addYuvBuffer(int, byte[]);
     method public void close();
     method public android.view.Surface getInputSurface();

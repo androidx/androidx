@@ -87,6 +87,7 @@ public final class HeifEncoder implements AutoCloseable,
     private final int mGridRows;
     private final int mGridCols;
     private final int mNumTiles;
+    private final boolean mUseGrid;
 
     private int mInputIndex;
     private boolean mInputEOS;
@@ -224,6 +225,7 @@ public final class HeifEncoder implements AutoCloseable,
 
         mWidth = width;
         mHeight = height;
+        mUseGrid = useGrid;
 
         int gridWidth, gridHeight, gridRows, gridCols;
 
@@ -308,7 +310,7 @@ public final class HeifEncoder implements AutoCloseable,
         if (useSurfaceInternally) {
             mEncoderSurface = mEncoder.createInputSurface();
 
-            boolean copyTiles = (mNumTiles > 1);
+            boolean copyTiles = useGrid && !useHeicEncoder;
             mEOSTracker = new SurfaceEOSTracker(copyTiles);
 
             if (inputMode == INPUT_MODE_SURFACE) {
@@ -317,20 +319,15 @@ public final class HeifEncoder implements AutoCloseable,
                     mEncoderEglSurface.makeCurrent();
 
                     mRectBlt = new EglRectBlt(
-                            new Texture2dProgram((inputMode == INPUT_MODE_BITMAP)
-                                    ? Texture2dProgram.TEXTURE_2D
-                                    : Texture2dProgram.TEXTURE_EXT),
-                            mWidth, mHeight);
+                            new Texture2dProgram(Texture2dProgram.TEXTURE_EXT), mWidth, mHeight);
 
                     mTextureId = mRectBlt.createTextureObject();
 
-                    if (inputMode == INPUT_MODE_SURFACE) {
-                        // use single buffer mode to block on input
-                        mInputTexture = new SurfaceTexture(mTextureId, true);
-                        mInputTexture.setOnFrameAvailableListener(this);
-                        mInputTexture.setDefaultBufferSize(mWidth, mHeight);
-                        mInputSurface = new Surface(mInputTexture);
-                    }
+                    // use single buffer mode to block on input
+                    mInputTexture = new SurfaceTexture(mTextureId, true);
+                    mInputTexture.setOnFrameAvailableListener(this);
+                    mInputTexture.setDefaultBufferSize(mWidth, mHeight);
+                    mInputSurface = new Surface(mInputTexture);
 
                     // make uncurrent since onFrameAvailable could be called on arbituray thread.
                     // making the context current on a different thread will cause error.
@@ -377,7 +374,7 @@ public final class HeifEncoder implements AutoCloseable,
                         int left = col * mGridWidth;
                         int top = row * mGridHeight;
                         mSrcRect.set(left, top, left + mGridWidth, top + mGridHeight);
-                        mRectBlt.copyRect(mTextureId, mTmpMatrix, mSrcRect);
+                        mRectBlt.copyRect(mTextureId, Texture2dProgram.V_FLIP_MATRIX, mSrcRect);
                         mEncoderEglSurface.setPresentationTime(
                                 1000 * computePresentationTime(mInputIndex++));
                         mEncoderEglSurface.swapBuffers();
@@ -813,7 +810,7 @@ public final class HeifEncoder implements AutoCloseable,
                 format.setInteger(MediaFormat.KEY_WIDTH, mWidth);
                 format.setInteger(MediaFormat.KEY_HEIGHT, mHeight);
 
-                if (mNumTiles > 1) {
+                if (mUseGrid) {
                     format.setInteger(MediaFormat.KEY_TILE_WIDTH, mGridWidth);
                     format.setInteger(MediaFormat.KEY_TILE_HEIGHT, mGridHeight);
                     format.setInteger(MediaFormat.KEY_GRID_ROWS, mGridRows);
