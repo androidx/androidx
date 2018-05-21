@@ -143,9 +143,10 @@ public final class RxPagedListBuilder<Key, Value> {
      * Sets scheduler which will be used for observing new PagedLists, as well as loading updates
      * within the PagedLists.
      * <p>
-     * The built observable will be {@link Observable#observeOn(Scheduler) observed on} this
-     * scheduler, so that the thread receiving PagedLists will also receive the internal updates to
-     * the PagedList.
+     * If not set, defaults to the UI thread.
+     * <p>
+     * The built observable/flowable will be observed on this scheduler, so that the thread
+     * receiving PagedLists will also receive the internal updates to the PagedList.
      *
      * @param scheduler Scheduler for background DataSource loading.
      * @return this
@@ -168,6 +169,10 @@ public final class RxPagedListBuilder<Key, Value> {
     /**
      * Sets scheduler which will be used for background fetching of PagedLists, as well as on-demand
      * fetching of pages inside.
+     * <p>
+     * If not set, defaults to the Arch components I/O thread pool.
+     * <p>
+     * The built observable/flowable will be subscribed on this scheduler.
      *
      * @param scheduler Scheduler for background DataSource loading.
      * @return this
