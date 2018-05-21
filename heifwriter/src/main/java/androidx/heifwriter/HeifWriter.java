@@ -28,6 +28,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Surface;
 
 import androidx.annotation.IntDef;
@@ -39,7 +40,10 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class writes one or more still images (of the same dimensions) into
@@ -75,6 +79,7 @@ import java.util.concurrent.TimeoutException;
 public final class HeifWriter implements AutoCloseable {
     private static final String TAG = "HeifWriter";
     private static final boolean DEBUG = false;
+    private static final int MUXER_DATA_FLAG = 16;
 
     private final @InputMode int mInputMode;
     private final HandlerThread mHandlerThread;
@@ -87,9 +92,12 @@ public final class HeifWriter implements AutoCloseable {
 
     private MediaMuxer mMuxer;
     private HeifEncoder mHeifEncoder;
+    final AtomicBoolean mMuxerStarted = new AtomicBoolean(false);
     private int[] mTrackIndexArray;
     private int mOutputIndex;
     private boolean mStarted;
+
+    private final List<Pair<Integer, ByteBuffer>> mExifList = new ArrayList<>();
 
     /**
      * The input mode where the client adds input buffers with YUV data.
@@ -418,6 +426,49 @@ public final class HeifWriter implements AutoCloseable {
     }
 
     /**
+     * Add Exif data for the specified image. The data must be a valid Exif data block,
+     * starting with "Exif\0\0" followed by the TIFF header (See JEITA CP-3451C Section 4.5.2.)
+     *
+     * @param imageIndex index of the image, must be a valid index for the max number of image
+     *                   specified by {@link Builder#setMaxImages(int)}.
+     * @param exifData byte buffer containing a Exif data block.
+     * @param offset offset of the Exif data block within exifData.
+     * @param length length of the Exif data block.
+     */
+    public void addExifData(int imageIndex, @NonNull byte[] exifData, int offset, int length) {
+        checkStarted(true);
+
+        ByteBuffer buffer = ByteBuffer.allocateDirect(length);
+        buffer.put(exifData, offset, length);
+        buffer.flip();
+        // Put it in a queue, as we might not be able to process it at this time.
+        synchronized (mExifList) {
+            mExifList.add(new Pair<Integer, ByteBuffer>(imageIndex, buffer));
+        }
+        processExifData();
+    }
+
+    @SuppressLint("WrongConstant")
+    private void processExifData() {
+        if (!mMuxerStarted.get()) {
+            return;
+        }
+
+        while (true) {
+            Pair<Integer, ByteBuffer> entry;
+            synchronized (mExifList) {
+                if (mExifList.isEmpty()) {
+                    return;
+                }
+                entry = mExifList.remove(0);
+            }
+            MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
+            info.set(entry.second.position(), entry.second.remaining(), 0, MUXER_DATA_FLAG);
+            mMuxer.writeSampleData(mTrackIndexArray[entry.first], entry.second, info);
+        }
+    }
+
+    /**
      * Stop the heif writer synchronously. Throws exception if the writer didn't finish writing
      * successfully. Upon a success return:
      *
@@ -443,6 +494,8 @@ public final class HeifWriter implements AutoCloseable {
             }
         }
         mResultWaiter.waitForResult(timeoutMs);
+        processExifData();
+        closeInternal();
     }
 
     private void checkStarted(boolean requiredStarted) {
@@ -487,6 +540,7 @@ public final class HeifWriter implements AutoCloseable {
      * Callback from the heif encoder.
      */
     private class HeifCallback extends HeifEncoder.Callback {
+        private boolean mEncoderStopped;
         /**
          * Upon receiving output format from the encoder, add the requested number of
          * image tracks to the muxer and start the muxer.
@@ -494,7 +548,7 @@ public final class HeifWriter implements AutoCloseable {
         @Override
         public void onOutputFormatChanged(
                 @NonNull HeifEncoder encoder, @NonNull MediaFormat format) {
-            if (encoder != mHeifEncoder) return;
+            if (mEncoderStopped) return;
 
             if (DEBUG) {
                 Log.d(TAG, "onOutputFormatChanged: " + format);
@@ -527,6 +581,8 @@ public final class HeifWriter implements AutoCloseable {
                 mTrackIndexArray[i] = mMuxer.addTrack(format);
             }
             mMuxer.start();
+            mMuxerStarted.set(true);
+            processExifData();
         }
 
         /**
@@ -536,7 +592,7 @@ public final class HeifWriter implements AutoCloseable {
         @Override
         public void onDrainOutputBuffer(
                 @NonNull HeifEncoder encoder, @NonNull ByteBuffer byteBuffer) {
-            if (encoder != mHeifEncoder) return;
+            if (mEncoderStopped) return;
 
             if (DEBUG) {
                 Log.d(TAG, "onDrainOutputBuffer: " + mOutputIndex);
@@ -564,28 +620,18 @@ public final class HeifWriter implements AutoCloseable {
 
         @Override
         public void onComplete(@NonNull HeifEncoder encoder) {
-            if (encoder != mHeifEncoder) return;
-
             stopAndNotify(null);
         }
 
         @Override
         public void onError(@NonNull HeifEncoder encoder, @NonNull MediaCodec.CodecException e) {
-            if (encoder != mHeifEncoder) return;
-
             stopAndNotify(e);
         }
 
         private void stopAndNotify(@Nullable Exception error) {
-            try {
-                closeInternal();
-            } catch (Exception e) {
-                // if there is an error during muxer stop, that must be propagated,
-                // unless error exists already.
-                if (error == null) {
-                    error = e;
-                }
-            }
+            if (mEncoderStopped) return;
+
+            mEncoderStopped = true;
             mResultWaiter.signalResult(error);
         }
     }
