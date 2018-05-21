@@ -609,6 +609,7 @@ public final class Data {
                 if (valueType == Boolean.class
                         || valueType == Integer.class
                         || valueType == Long.class
+                        || valueType == Float.class
                         || valueType == Double.class
                         || valueType == String.class
                         || valueType == Boolean[].class
