@@ -463,14 +463,14 @@ public class AnimatorInflaterCompat {
         // After we find the right contour, then sample it using the current distance value minus
         // the previously sampled contours' total length.
         for (int i = 0; i < numPoints; ++i) {
-            pathMeasure.getPosTan(currentDistance, position, null);
+            pathMeasure.getPosTan(currentDistance - contourLengths.get(contourIndex),
+                    position, null);
 
             mX[i] = position[0];
             mY[i] = position[1];
             currentDistance += step;
             if ((contourIndex + 1) < contourLengths.size()
                     && currentDistance > contourLengths.get(contourIndex + 1)) {
-                currentDistance -= contourLengths.get(contourIndex + 1);
                 contourIndex++;
                 pathMeasure.nextContour();
             }
