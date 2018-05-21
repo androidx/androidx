@@ -21,6 +21,7 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 import android.util.SparseIntArray;
 
 import androidx.annotation.RestrictTo;
@@ -30,32 +31,38 @@ import androidx.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class VersionedParcelParcel extends VersionedParcel {
+    private static final boolean DEBUG = false;
+    private static final String TAG = "VersionedParcelParcel";
 
-    private final Parcel mParcel;
     private final SparseIntArray mPositionLookup = new SparseIntArray();
+    private final Parcel mParcel;
     private final int mOffset;
+    private final int mEnd;
+    private final String mPrefix;
     private int mCurrentField = -1;
     private int mNextRead = 0;
 
-    public VersionedParcelParcel(Parcel p) {
-        this(p, p.dataPosition());
+    VersionedParcelParcel(Parcel p) {
+        this(p, p.dataPosition(), p.dataSize(), "");
     }
 
-    public VersionedParcelParcel(Parcel p, int offset) {
+    VersionedParcelParcel(Parcel p, int offset, int end, String prefix) {
         mParcel = p;
         mOffset = offset;
+        mEnd = end;
         mNextRead = mOffset;
+        mPrefix = prefix;
     }
 
     private int readUntilField(int fieldId) {
-        while (mNextRead < mParcel.dataSize()) {
+        while (mNextRead < mEnd) {
             mParcel.setDataPosition(mNextRead);
             int fieldInfo = mParcel.readInt();
 
             int fid = (fieldInfo >> 16) & 0xffff;
             int size = fieldInfo & 0xffff;
+            if (DEBUG) Log.d(TAG, mPrefix + "Found field " + fieldId + " : " + size);
 
-            mPositionLookup.put(fid, mParcel.dataPosition());
             mNextRead = mNextRead + size;
             if (fid == fieldId) return mParcel.dataPosition();
         }
@@ -64,14 +71,11 @@ class VersionedParcelParcel extends VersionedParcel {
 
     @Override
     public boolean readField(int fieldId) {
-        int position = mPositionLookup.get(fieldId, -1);
+        int position = readUntilField(fieldId);
         if (position == -1) {
-            // Try reading ahead in the parcel, because maybe we haven't gotten there yet.
-            position = readUntilField(fieldId);
-            if (position == -1) {
-                return false;
-            }
+            return false;
         }
+        if (DEBUG) Log.d(TAG, mPrefix + "Reading " + fieldId + " : " + position);
         mParcel.setDataPosition(position);
         return true;
     }
@@ -81,6 +85,7 @@ class VersionedParcelParcel extends VersionedParcel {
         closeField();
         mCurrentField = fieldId;
         mPositionLookup.put(fieldId, mParcel.dataPosition());
+        if (DEBUG) Log.d(TAG, mPrefix + "Starting " + fieldId + " : " + mParcel.dataPosition());
         writeInt(0); // Placeholder for field id/size
     }
 
@@ -90,6 +95,10 @@ class VersionedParcelParcel extends VersionedParcel {
             int currentFieldPosition = mPositionLookup.get(mCurrentField);
             int position = mParcel.dataPosition();
             int size = position - currentFieldPosition;
+            if (DEBUG) {
+                Log.d(TAG, mPrefix + "Closing " + mCurrentField + " : "
+                        + mParcel.dataPosition() + " " + size);
+            }
             mParcel.setDataPosition(currentFieldPosition);
             mParcel.writeInt((mCurrentField << 16) | size);
             mParcel.setDataPosition(position);
@@ -98,7 +107,12 @@ class VersionedParcelParcel extends VersionedParcel {
 
     @Override
     protected VersionedParcel createSubParcel() {
-        return new VersionedParcelParcel(mParcel, mParcel.dataPosition());
+        if (DEBUG) {
+            Log.d(TAG, mPrefix + "Creating subparcel " + mCurrentField + " : "
+                    + mParcel.dataPosition() + " - " + (mNextRead == mOffset ? mEnd : mNextRead));
+        }
+        return new VersionedParcelParcel(mParcel, mParcel.dataPosition(),
+                mNextRead == mOffset ? mEnd : mNextRead, mPrefix + "  ");
     }
 
     @Override

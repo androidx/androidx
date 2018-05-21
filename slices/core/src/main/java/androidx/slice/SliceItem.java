@@ -458,12 +458,12 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     @Override
-    protected void onPreParceling(boolean isStream) {
+    public void onPreParceling(boolean isStream) {
         mHolder = new SliceItemHolder(mFormat, mObj, isStream);
     }
 
     @Override
-    protected void onPostParceling() {
+    public void onPostParceling() {
         mObj = mHolder.getObj(mFormat);
         mHolder = null;
     }
