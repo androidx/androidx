@@ -1455,6 +1455,9 @@ public abstract class VersionedParcel {
         } catch (IllegalAccessException e) {
             throw new RuntimeException("VersionedParcel encountered IllegalAccessException", e);
         } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            }
             throw new RuntimeException("VersionedParcel encountered InvocationTargetException", e);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("VersionedParcel encountered NoSuchMethodException", e);
