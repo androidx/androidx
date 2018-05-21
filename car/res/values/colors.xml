@@ -86,7 +86,7 @@
     <color name="car_body1_dark">@color/car_grey_900</color>
     <color name="car_body1">@color/car_body1_dark</color>
 
-    <color name="car_body2_light">@color/car_grey_300</color>
+    <color name="car_body2_light">@color/car_grey_400</color>
     <color name="car_body2_dark">@color/car_grey_650</color>
     <color name="car_body2">@color/car_body2_dark</color>
 
