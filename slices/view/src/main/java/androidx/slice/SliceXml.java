@@ -354,6 +354,15 @@ class SliceXml {
 
     private static void serializeIcon(XmlSerializer serializer, IconCompat icon,
             Context context, SliceUtils.SerializeOptions options) throws IOException {
+        byte[] outputStream = convertToBytes(icon, context, options);
+
+        serializer.attribute(NAMESPACE, ATTR_ICON_TYPE, ICON_TYPE_DEFAULT);
+        serializer.text(new String(
+                Base64.encode(outputStream, Base64.NO_WRAP), StandardCharsets.UTF_8));
+    }
+
+    public static byte[] convertToBytes(IconCompat icon, Context context,
+            SliceUtils.SerializeOptions options) {
         Drawable d = icon.loadDrawable(context);
         int width = d.getIntrinsicWidth();
         int height = d.getIntrinsicHeight();
@@ -371,12 +380,9 @@ class SliceXml {
         d.setBounds(0, 0, c.getWidth(), c.getHeight());
         d.draw(c);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        b.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        b.compress(options.getFormat(), options.getQuality(), outputStream);
         b.recycle();
-
-        serializer.attribute(NAMESPACE, ATTR_ICON_TYPE, ICON_TYPE_DEFAULT);
-        serializer.text(new String(
-                Base64.encode(outputStream.toByteArray(), Base64.NO_WRAP), StandardCharsets.UTF_8));
+        return outputStream.toByteArray();
     }
 
     private static String hintStr(List<String> hints) {

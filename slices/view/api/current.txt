@@ -52,7 +52,8 @@ package androidx.slice {
     method public static deprecated java.util.List<androidx.slice.SliceItem> getSliceActions(androidx.slice.Slice);
     method public static deprecated java.util.List<java.lang.String> getSliceKeywords(androidx.slice.Slice);
     method public static androidx.slice.Slice parseSlice(android.content.Context, java.io.InputStream, java.lang.String, androidx.slice.SliceUtils.SliceActionListener) throws java.io.IOException, androidx.slice.SliceUtils.SliceParseException;
-    method public static void serializeSlice(androidx.slice.Slice, android.content.Context, java.io.OutputStream, java.lang.String, androidx.slice.SliceUtils.SerializeOptions) throws java.io.IOException, java.lang.IllegalArgumentException;
+    method public static deprecated void serializeSlice(androidx.slice.Slice, android.content.Context, java.io.OutputStream, java.lang.String, androidx.slice.SliceUtils.SerializeOptions) throws java.io.IOException, java.lang.IllegalArgumentException;
+    method public static void serializeSlice(androidx.slice.Slice, android.content.Context, java.io.OutputStream, androidx.slice.SliceUtils.SerializeOptions) throws java.lang.IllegalArgumentException;
     field public static final deprecated int LOADING_ALL = 0; // 0x0
     field public static final deprecated int LOADING_COMPLETE = 2; // 0x2
     field public static final deprecated int LOADING_PARTIAL = 1; // 0x1
@@ -61,6 +62,7 @@ package androidx.slice {
   public static class SliceUtils.SerializeOptions {
     ctor public SliceUtils.SerializeOptions();
     method public androidx.slice.SliceUtils.SerializeOptions setActionMode(int);
+    method public androidx.slice.SliceUtils.SerializeOptions setImageConversionFormat(android.graphics.Bitmap.CompressFormat, int);
     method public androidx.slice.SliceUtils.SerializeOptions setImageMode(int);
     method public androidx.slice.SliceUtils.SerializeOptions setMaxImageHeight(int);
     method public androidx.slice.SliceUtils.SerializeOptions setMaxImageWidth(int);
