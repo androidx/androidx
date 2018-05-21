@@ -341,8 +341,10 @@ public class SliceProviderCompat {
         ArraySet<SliceSpec> specs = new ArraySet<>();
         ArrayList<String> types = extras.getStringArrayList(EXTRA_SUPPORTED_SPECS);
         ArrayList<Integer> revs = extras.getIntegerArrayList(EXTRA_SUPPORTED_SPECS_REVS);
-        for (int i = 0; i < types.size(); i++) {
-            specs.add(new SliceSpec(types.get(i), revs.get(i)));
+        if (types != null && revs != null) {
+            for (int i = 0; i < types.size(); i++) {
+                specs.add(new SliceSpec(types.get(i), revs.get(i)));
+            }
         }
         return specs;
     }
