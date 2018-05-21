@@ -41,6 +41,7 @@ public class SliceConvert {
      * Convert {@link androidx.slice.Slice} to {@link android.app.slice.Slice}
      */
     public static android.app.slice.Slice unwrap(androidx.slice.Slice slice) {
+        if (slice == null || slice.getUri() == null) return null;
         android.app.slice.Slice.Builder builder = new android.app.slice.Slice.Builder(
                 slice.getUri(), unwrap(slice.getSpec()));
         builder.addHints(slice.getHints());
@@ -81,8 +82,10 @@ public class SliceConvert {
     static Set<android.app.slice.SliceSpec> unwrap(
             Set<androidx.slice.SliceSpec> supportedSpecs) {
         Set<android.app.slice.SliceSpec> ret = new ArraySet<>();
-        for (androidx.slice.SliceSpec spec : supportedSpecs) {
-            ret.add(unwrap(spec));
+        if (supportedSpecs != null) {
+            for (androidx.slice.SliceSpec spec : supportedSpecs) {
+                ret.add(unwrap(spec));
+            }
         }
         return ret;
     }
@@ -91,6 +94,7 @@ public class SliceConvert {
      * Convert {@link android.app.slice.Slice} to {@link androidx.slice.Slice}
      */
     public static androidx.slice.Slice wrap(android.app.slice.Slice slice) {
+        if (slice == null || slice.getUri() == null) return null;
         androidx.slice.Slice.Builder builder = new androidx.slice.Slice.Builder(
                 slice.getUri());
         builder.addHints(slice.getHints());
@@ -137,8 +141,10 @@ public class SliceConvert {
     public static Set<androidx.slice.SliceSpec> wrap(
             Set<android.app.slice.SliceSpec> supportedSpecs) {
         Set<androidx.slice.SliceSpec> ret = new ArraySet<>();
-        for (android.app.slice.SliceSpec spec : supportedSpecs) {
-            ret.add(wrap(spec));
+        if (supportedSpecs != null) {
+            for (android.app.slice.SliceSpec spec : supportedSpecs) {
+                ret.add(wrap(spec));
+            }
         }
         return ret;
     }
