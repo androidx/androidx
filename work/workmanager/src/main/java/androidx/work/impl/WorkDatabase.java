@@ -42,7 +42,6 @@ import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.model.WorkTypeConverters;
 
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -68,12 +67,13 @@ public abstract class WorkDatabase extends RoomDatabase {
             + " WHERE state=" + RUNNING;
 
     // Delete rows in the workspec table that...
-    private static final String PRUNE_SQL_FORMAT = "DELETE FROM workspec WHERE "
+    private static final String PRUNE_SQL_FORMAT_PREFIX = "DELETE FROM workspec WHERE "
             // are completed...
             + "state IN " + COMPLETED_STATES + " AND "
             // and the minimum retention time has expired...
-            + "(period_start_time + minimum_retention_duration) < %d AND"
-            // and all dependents are completed.
+            + "(period_start_time + minimum_retention_duration) < ";
+    // and all dependents are completed.
+    private static final String PRUNE_SQL_FORMAT_SUFFIX = " AND "
             + "(SELECT COUNT(*)=0 FROM dependency WHERE "
             + "    prerequisite_id=id AND "
             + "    work_spec_id NOT IN "
@@ -122,7 +122,7 @@ public abstract class WorkDatabase extends RoomDatabase {
     }
 
     private static String getPruneSQL() {
-        return String.format(Locale.getDefault(), PRUNE_SQL_FORMAT, getPruneDate());
+        return PRUNE_SQL_FORMAT_PREFIX + getPruneDate() + PRUNE_SQL_FORMAT_SUFFIX;
     }
 
     static long getPruneDate() {
