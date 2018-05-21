@@ -127,7 +127,7 @@ def main():
   pathOfThisFile = os.path.realpath(__file__)
   jetifierPath = os.path.abspath(os.path.join(pathOfThisFile, "..", ".."))
 
-  jetifierConfigPath = os.path.join(jetifierPath, "core", "src", "main", "resources", "default.config")
+  jetifierConfigPath = os.path.join(jetifierPath, "source-transformer", "default.config")
   print("Parsing " + jetifierConfigPath)
   jetifierConfig = JetifierConfig.parse(jetifierConfigPath)
 
