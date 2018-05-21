@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
@@ -93,6 +94,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     private static final int SUPPLEMENTAL_ACTION_SUPPLEMENTAL_EMPTY_ICON_WITH_DIVIDER = 3;
 
     private final Context mContext;
+    private boolean mIsEnabled = true;
 
     private final List<ViewBinder<ViewHolder>> mBinders = new ArrayList<>();
 
@@ -130,6 +132,11 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
     @Override
     public int getViewType() {
         return ListItemAdapter.LIST_ITEM_TYPE_SEEKBAR;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        mIsEnabled = enabled;
     }
 
     /**
@@ -196,18 +203,18 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
         for (ViewBinder binder : mBinders) {
             binder.bind(viewHolder);
         }
+
+        for (View v : viewHolder.getWidgetViews()) {
+            v.setEnabled(mIsEnabled);
+        }
     }
 
     private void hideSubViews(ViewHolder vh) {
-        View[] subviews = new View[] {
-                vh.getPrimaryIcon(),
-                // SeekBar is always visible.
-                vh.getText(),
-                vh.getSupplementalIcon(), vh.getSupplementalIconDivider(),
-        };
-        for (View v : subviews) {
+        for (View v : vh.getWidgetViews()) {
             v.setVisibility(View.GONE);
         }
+        // SeekBar is always visible.
+        vh.getSeekBar().setVisibility(View.VISIBLE);
     }
 
     private void setItemLayoutHeight() {
@@ -566,6 +573,8 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
      */
     public static class ViewHolder extends ListItem.ViewHolder {
 
+        private final View[] mWidgetViews;
+
         private RelativeLayout mContainerLayout;
 
         private ImageView mPrimaryIcon;
@@ -596,6 +605,13 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
 
             MinTouchTargetHelper.ensureThat(mSupplementalIcon)
                     .hasMinTouchSize(minTouchSize);
+
+            // Each line groups relevant child views in an effort to help keep this view array
+            // updated with actual child views in the ViewHolder.
+            mWidgetViews = new View[]{
+                    mPrimaryIcon,
+                    mSeekBar, mText,
+                    mSupplementalIcon, mSupplementalIconDivider};
         }
 
         @Override
@@ -603,32 +619,44 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
             CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
         }
 
+        @NonNull
         public RelativeLayout getContainerLayout() {
             return mContainerLayout;
         }
 
+        @NonNull
         public ImageView getPrimaryIcon() {
             return mPrimaryIcon;
         }
 
+        @NonNull
         public LinearLayout getSeekBarContainer() {
             return mSeekBarContainer;
         }
 
+        @NonNull
         public TextView getText() {
             return mText;
         }
 
+        @NonNull
         public SeekBar getSeekBar() {
             return mSeekBar;
         }
 
+        @NonNull
         public ImageView getSupplementalIcon() {
             return mSupplementalIcon;
         }
 
+        @NonNull
         public View getSupplementalIconDivider() {
             return mSupplementalIconDivider;
+        }
+
+        @NonNull
+        public View[] getWidgetViews() {
+            return mWidgetViews;
         }
     }
 }

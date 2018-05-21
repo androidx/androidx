@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.IsCloseTo.closeTo;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -47,6 +46,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.car.test.R;
+import androidx.car.utils.CarUxRestrictionsTestUtils;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import org.hamcrest.Matcher;
 import org.junit.Assume;
 import org.junit.Before;
@@ -58,10 +61,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
-import androidx.car.test.R;
-import androidx.car.utils.CarUxRestrictionsTestUtils;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 /**
 * Tests the layout configuration in {@link TextListItem}.
@@ -134,8 +133,7 @@ public class TextListItemTest {
 
     private TextListItem.ViewHolder getViewHolderAtPosition(int position) {
         return (TextListItem.ViewHolder) mPagedListView.getRecyclerView()
-                .findViewHolderForAdapterPosition(
-                position);
+                .findViewHolderForAdapterPosition(position);
     }
 
     @Test
@@ -819,6 +817,43 @@ public class TextListItemTest {
         viewHolder.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getBaseline());
         refreshUi();
         assertTrue(Arrays.asList(viewHolder.getBody().getFilters()).contains(filter));
+    }
+
+    @Test
+    public void testDisabledItemDisablesViewHolder() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setOnClickListener(v -> { });
+        item.setTitle("title");
+        item.setBody("body");
+        item.setAction("action", false, v -> { });
+        item.setEnabled(false);
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertFalse(viewHolder.getTitle().isEnabled());
+        assertFalse(viewHolder.getBody().isEnabled());
+        assertFalse(viewHolder.getAction1().isEnabled());
+    }
+
+    @Test
+    public void testDisabledItemDoesNotRespondToClick() {
+        // Disabled view will not respond to touch event.
+        // Current test setup makes it hard to test, since clickChildViewWithId() directly calls
+        // performClick() on a view, bypassing the way UI handles disabled state.
+
+        // We are explicitly setting itemView so test it here.
+        boolean[] clicked = new boolean[]{false};
+        TextListItem item = new TextListItem(mActivity);
+        item.setOnClickListener(v -> clicked[0] = true);
+        item.setEnabled(false);
+
+        setupPagedListView(Arrays.asList(item));
+
+        onView(withId(R.id.recycler_view)).perform(
+                actionOnItemAtPosition(0, click()));
+
+        assertFalse(clicked[0]);
     }
 
     private static ViewAction clickChildViewWithId(final int id) {
