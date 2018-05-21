@@ -50,9 +50,12 @@ public class CommandHandler implements ExecutionListener {
     static final String ACTION_STOP_WORK = "ACTION_STOP_WORK";
     static final String ACTION_CONSTRAINTS_CHANGED = "ACTION_CONSTRAINTS_CHANGED";
     static final String ACTION_RESCHEDULE = "ACTION_RESCHEDULE";
+    static final String ACTION_EXECUTION_COMPLETED = "ACTION_EXECUTION_COMPLETED";
 
     // keys
     private static final String KEY_WORKSPEC_ID = "KEY_WORKSPEC_ID";
+    private static final String KEY_IS_SUCCESSFUL = "KEY_IS_SUCCESSFUL";
+    private static final String KEY_NEEDS_RESCHEDULE = "KEY_NEEDS_RESCHEDULE";
 
     // constants
     static final long WORK_PROCESSING_TIME_IN_MS = 10 * 60 * 1000L;
@@ -88,6 +91,20 @@ public class CommandHandler implements ExecutionListener {
     static Intent createRescheduleIntent(@NonNull Context context) {
         Intent intent = new Intent(context, SystemAlarmService.class);
         intent.setAction(ACTION_RESCHEDULE);
+        return intent;
+    }
+
+    static Intent createExecutionCompletedIntent(
+            @NonNull Context context,
+            @NonNull String workSpecId,
+            boolean isSuccessful,
+            boolean needsReschedule) {
+
+        Intent intent = new Intent(context, SystemAlarmService.class);
+        intent.setAction(ACTION_EXECUTION_COMPLETED);
+        intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
+        intent.putExtra(KEY_IS_SUCCESSFUL, isSuccessful);
+        intent.putExtra(KEY_NEEDS_RESCHEDULE, needsReschedule);
         return intent;
     }
 
@@ -159,6 +176,8 @@ public class CommandHandler implements ExecutionListener {
                     handleDelayMet(intent, startId, dispatcher);
                 } else if (ACTION_STOP_WORK.equals(action)) {
                     handleStopWork(intent, startId, dispatcher);
+                } else if (ACTION_EXECUTION_COMPLETED.equals(action)) {
+                    handleExecutionCompleted(intent, startId, dispatcher);
                 } else {
                     Log.w(TAG, String.format("Ignoring intent %s", intent));
                 }
@@ -255,6 +274,23 @@ public class CommandHandler implements ExecutionListener {
 
         Log.d(TAG, String.format("Handling reschedule %s, %s", intent, startId));
         dispatcher.getWorkManager().rescheduleEligibleWork();
+    }
+
+    private void handleExecutionCompleted(
+            @NonNull Intent intent,
+            int startId,
+            @NonNull SystemAlarmDispatcher dispatcher) {
+
+        Bundle extras = intent.getExtras();
+        String workSpecId = extras.getString(KEY_WORKSPEC_ID);
+        boolean isSuccessful = extras.getBoolean(KEY_IS_SUCCESSFUL);
+        boolean needsReschedule = extras.getBoolean(KEY_NEEDS_RESCHEDULE);
+        Log.d(TAG, String.format("Handling onExecutionCompleted %s, %s", intent, startId));
+        // Delegate onExecuted() to the command handler.
+        onExecuted(workSpecId, isSuccessful, needsReschedule);
+        // Check if we need to stop service.
+        dispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.CheckForCompletionRunnable(dispatcher));
     }
 
     private static boolean hasKeys(@Nullable Bundle bundle, @NonNull String... keys) {
