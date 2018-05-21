@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.IsCloseTo.closeTo;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -47,6 +46,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.car.test.R;
+import androidx.car.utils.CarUxRestrictionsTestUtils;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import org.hamcrest.Matcher;
 import org.junit.Assume;
 import org.junit.Before;
@@ -58,10 +61,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
-import androidx.car.test.R;
-import androidx.car.utils.CarUxRestrictionsTestUtils;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 /**
 * Tests the layout configuration in {@link TextListItem}.
@@ -494,7 +493,18 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testClickingPrimaryActionIsSeparateFromSupplementalAction() {
+    public void testItemNotClickableWithNullOnClickListener() {
+        TextListItem item = new TextListItem(mActivity);
+        item.setOnClickListener(null);
+
+        setupPagedListView(Arrays.asList(item));
+
+        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertFalse(viewHolder.itemView.isClickable());
+    }
+
+    @Test
+    public void testClickingItemIsSeparateFromSupplementalAction() {
         final boolean[] clicked = {false, false};
 
         TextListItem item0 = new TextListItem(mActivity);
