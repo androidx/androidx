@@ -8140,8 +8140,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         /**
-         * <p>Starts a smooth scroll using the provided SmoothScroller.</p>
-         * <p>Calling this method will cancel any previous smooth scroll request.</p>
+         * Starts a smooth scroll using the provided {@link SmoothScroller}.
+         *
+         * <p>Each instance of SmoothScroller is intended to only be used once. Provide a new
+         * SmoothScroller instance each time this method is called.
+         *
+         * <p>Calling this method will cancel any previous smooth scroll request.
+         *
          * @param smoothScroller Instance which defines how smooth scroll should be animated
          */
         public void startSmoothScroll(SmoothScroller smoothScroller) {
@@ -10823,7 +10828,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         /**
          * @deprecated This method is deprecated because its meaning is ambiguous due to the async
-         * handling of adapter updates. Please use {@link #getLayoutPosition()} or
+         * handling of adapter updates. You should use {@link #getLayoutPosition()} or
          * {@link #getAdapterPosition()} depending on your use case.
          *
          * @see #getLayoutPosition()
@@ -11427,8 +11432,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     /**
-     * <p>Base class for smooth scrolling. Handles basic tracking of the target view position and
-     * provides methods to trigger a programmatic scroll.</p>
+     * Base class for smooth scrolling. Handles basic tracking of the target view position and
+     * provides methods to trigger a programmatic scroll.
+     *
+     * <p>An instance of SmoothScroller is only intended to be used once.  You should create a new
+     * instance for each call to {@link LayoutManager#startSmoothScroll(SmoothScroller)}.
      *
      * @see LinearSmoothScroller
      */
@@ -11448,6 +11456,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         private final Action mRecyclingAction;
 
+        private boolean mStarted;
+
         public SmoothScroller() {
             mRecyclingAction = new Action(0, 0);
         }
@@ -11465,6 +11475,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * stop calling SmoothScroller in each animation step.</p>
          */
         void start(RecyclerView recyclerView, LayoutManager layoutManager) {
+            if (mStarted) {
+                Log.w(TAG, "An instance of " + this.getClass().getSimpleName() + " was started "
+                        + "more than once. Each instance of" + this.getClass().getSimpleName() + " "
+                        + "is intended to only be used once. You should create a new instance for "
+                        + "each use.");
+            }
+
             mRecyclerView = recyclerView;
             mLayoutManager = layoutManager;
             if (mTargetPosition == RecyclerView.NO_POSITION) {
@@ -11476,6 +11493,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             mTargetView = findViewByPosition(getTargetPosition());
             onStart();
             mRecyclerView.mViewFlinger.postOnAnimation();
+
+            mStarted = true;
         }
 
         public void setTargetPosition(int targetPosition) {
