@@ -127,7 +127,7 @@ public final class LivePagedListBuilder<Key, Value> {
     /**
      * Sets executor used for background fetching of PagedLists, and the pages within.
      * <p>
-     * If not set, defaults to the Arch components I/O thread.
+     * If not set, defaults to the Arch components I/O thread pool.
      *
      * @param fetchExecutor Executor for fetching data from DataSources.
      * @return this
