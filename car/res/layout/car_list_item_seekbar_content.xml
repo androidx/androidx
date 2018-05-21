@@ -41,12 +41,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/car_seekbar_text_overlap"/>
+
+        <!-- Note: the horizontal padding and offset are set to 0 so that the track and thumb
+             aligns with the proper keylines. -->
         <SeekBar
             android:id="@+id/seek_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/car_seekbar_padding"
             android:paddingBottom="@dimen/car_seekbar_padding"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:thumbOffset="0dp"
             android:min="0"
             android:splitTrack="false"/>
     </LinearLayout>
