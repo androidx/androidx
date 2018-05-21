@@ -48,8 +48,8 @@ data class DependencyVersionsMap(
             newLifecycleVersion = "2.0.0",
             newPagingVersion = "2.0.0",
             newRoomVersion = "2.0.0",
-            newEspressoVersion = "3.1.0-alpha1",
-            newTestsVersion = "1.1.0-alpha1",
+            newEspressoVersion = "3.1.0-alpha2",
+            newTestsVersion = "1.1.0-alpha2",
             newJankTestHelperVersion = "1.0.1-alpha1",
             newUiAutomatorVersion = "2.2.0-alpha1",
             newDataBindingVersion = "undefined"
@@ -65,8 +65,8 @@ data class DependencyVersionsMap(
             newLifecycleVersion = "2.0.0-alpha1",
             newPagingVersion = "2.0.0-alpha1",
             newRoomVersion = "2.0.0-alpha1",
-            newEspressoVersion = "3.1.0-alpha1",
-            newTestsVersion = "1.1.0-alpha1",
+            newEspressoVersion = "3.1.0-alpha2",
+            newTestsVersion = "1.1.0-alpha2",
             newJankTestHelperVersion = "1.0.1-alpha1",
             newUiAutomatorVersion = "2.2.0-alpha1",
             newDataBindingVersion = "undefined"
