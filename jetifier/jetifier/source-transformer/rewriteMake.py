@@ -100,7 +100,7 @@ print("Writing " + scriptPath)
 with open(scriptPath, 'w') as scriptFile:
   scriptFile.write(str(rewriterTextBuilder))
 
-rewriteCommand = "time find . -name out -prune -o -name .git -prune -o -name .repo -prune -o -iregex '.*\.mk' -print | xargs -n 1 --no-run-if-empty -P 64 sed -i -f /tmp/jetifier-make-sed-script.txt"
+rewriteCommand = "time find . -name out -prune -o -name .git -prune -o -name .repo -prune -o -iregex '.*\.mk\|.*\.bp' -print | xargs -n 1 --no-run-if-empty -P 64 sed -i -f /tmp/jetifier-make-sed-script.txt"
 
 print("""
 Will run command:
