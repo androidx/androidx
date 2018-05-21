@@ -35,6 +35,7 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -56,6 +57,8 @@ import java.util.concurrent.TimeUnit;
  * Examples of using slice template builders.
  */
 public class SampleSliceProvider extends SliceProvider {
+
+    private static final String TAG = "SampleSliceProvider";
 
     private static final boolean TEST_CUSTOM_SEE_MORE = false;
 
@@ -175,7 +178,8 @@ public class SampleSliceProvider extends SliceProvider {
             case "/rtlgrid":
                 return createRtlGridSlice(sliceUri);
         }
-        throw new IllegalArgumentException("Unknown uri " + sliceUri);
+        Log.w(TAG, String.format("Unknown uri: %s", sliceUri));
+        return null;
     }
 
     private Slice createWeather(Uri sliceUri) {
