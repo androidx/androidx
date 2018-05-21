@@ -26,7 +26,6 @@ import android.os.IInterface;
 import android.os.NetworkOnMainThreadException;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 import android.util.Size;
 import android.util.SizeF;
 import android.util.SparseBooleanArray;
@@ -42,7 +41,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -930,8 +928,14 @@ public abstract class VersionedParcel {
     }
 
     private void writeVersionedParcelableCreator(VersionedParcelable p) {
-        String name = p.getClass().getName();
-        writeString(name);
+        Class name = null;
+        try {
+            name = findParcelClass(p.getClass());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(p.getClass().getSimpleName() + " does not have a Parcelizer",
+                    e);
+        }
+        writeString(name.getName());
     }
 
     /**
@@ -1342,44 +1346,7 @@ public abstract class VersionedParcel {
         if (name == null) {
             return null;
         }
-        try {
-            ClassLoader parcelableClassLoader = getClass().getClassLoader();
-            Class<?> parcelableClass = Class.forName(name, false /* initialize */,
-                    parcelableClassLoader);
-            if (!VersionedParcelable.class.isAssignableFrom(parcelableClass)) {
-                throw new BadParcelableException(
-                        "VersionedParcelable protocol requires subclassing "
-                                + "from VersionedParcelable on class " + name);
-            }
-            Constructor<?> constructor = parcelableClass.getDeclaredConstructor();
-            if (constructor == null) {
-                throw new BadParcelableException("VersionedParcelable protocol requires "
-                        + "there be a constructor taking VersionedParcel on " + name);
-            }
-            T t = (T) constructor.newInstance();
-            readFromParcel(t, createSubParcel());
-            return t;
-        } catch (IllegalAccessException e) {
-            Log.e(TAG, "Illegal access when unmarshalling: " + name, e);
-            throw new BadParcelableException(
-                    "IllegalAccessException when unmarshalling: " + name);
-        } catch (ClassNotFoundException e) {
-            Log.e(TAG, "Class not found when unmarshalling: " + name, e);
-            throw new BadParcelableException(
-                    "ClassNotFoundException when unmarshalling: " + name);
-        } catch (NoSuchMethodException e) {
-            throw new BadParcelableException("VersionedParcelable protocol requires "
-                    + "there be an empty constructor on " + name);
-        } catch (InstantiationException e) {
-            Log.e(TAG, "InstantiationException when unmarshalling: " + name, e);
-            throw new BadParcelableException(
-                    "InstantiationException when unmarshalling: " + name);
-        } catch (InvocationTargetException e) {
-            Log.e(TAG, "InvocationTargetException when unmarshalling: " + name, e);
-            throw new BadParcelableException(
-                    "InvocationTargetException when unmarshalling: " + name);
-        }
-
+        return readFromParcel(name, createSubParcel());
     }
 
     /**
@@ -1427,15 +1394,19 @@ public abstract class VersionedParcel {
 
     /**
      */
-    protected static <T extends VersionedParcelable> void readFromParcel(T val,
-            VersionedParcel versionedParcel) {
+    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
+    protected static <T extends VersionedParcelable> T readFromParcel(
+            String parcelCls, VersionedParcel versionedParcel) {
         try {
-            Class cls = findParcelClass(val);
-            cls.getDeclaredMethod("read", val.getClass(), VersionedParcel.class)
-                    .invoke(null, val, versionedParcel);
+            Class cls = Class.forName(parcelCls, true, VersionedParcel.class.getClassLoader());
+            return (T) cls.getDeclaredMethod("read", VersionedParcel.class)
+                    .invoke(null, versionedParcel);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("VersionedParcel encountered IllegalAccessException", e);
         } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            }
             throw new RuntimeException("VersionedParcel encountered InvocationTargetException", e);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("VersionedParcel encountered NoSuchMethodException", e);
@@ -1469,6 +1440,11 @@ public abstract class VersionedParcel {
     private static <T extends VersionedParcelable> Class findParcelClass(T val)
             throws ClassNotFoundException {
         Class<? extends VersionedParcelable> cls = val.getClass();
+        return findParcelClass(cls);
+    }
+
+    private static Class findParcelClass(Class<? extends VersionedParcelable> cls)
+            throws ClassNotFoundException {
         String pkg = cls.getPackage().getName();
         String c = String.format("%s.%sParcelizer", pkg, cls.getSimpleName());
         return Class.forName(c, false, cls.getClassLoader());

@@ -32,7 +32,7 @@ public abstract class CustomVersionedParcelable implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    protected void onPreParceling(boolean isStream) {
+    public void onPreParceling(boolean isStream) {
     }
 
     /**
@@ -41,6 +41,6 @@ public abstract class CustomVersionedParcelable implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    protected void onPostParceling() {
+    public void onPostParceling() {
     }
 }
