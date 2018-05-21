@@ -238,6 +238,12 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             mSliceView.setTag(uri);
             mSliceLiveData = SliceLiveData.fromUri(this, uri);
             mSliceLiveData.observe(this, slice -> {
+                if (slice == null) {
+                    Log.w(TAG, "Slice is null");
+                    mSliceView.setSlice(null);
+                    Toast.makeText(this, "Invalid slice URI", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 mSliceView.setSlice(slice);
                 SliceMetadata metadata = SliceMetadata.from(this, slice);
                 long expiry = metadata.getExpiry();
@@ -254,6 +260,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             mSliceLiveData.observe(this, slice -> Log.d(TAG, "Slice: " + slice));
         } else {
             Log.w(TAG, "Invalid uri, skipping slice: " + uri);
+            Toast.makeText(this, "Invalid slice URI", Toast.LENGTH_SHORT).show();
         }
     }
 
