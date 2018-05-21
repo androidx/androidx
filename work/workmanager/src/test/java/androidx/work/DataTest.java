@@ -116,6 +116,7 @@ public class DataTest {
     public void testPutAll() {
         Map<String, Object> map = new HashMap<>();
         map.put("int", 1);
+        map.put("float", 99f);
         map.put("String", "two");
         map.put("long array", new long[] { 1L, 2L, 3L });
         map.put("null", null);
@@ -123,6 +124,7 @@ public class DataTest {
         dataBuilder.putAll(map);
         Data data = dataBuilder.build();
         assertThat(data.getInt("int", 0), is(1));
+        assertThat(data.getFloat("float", 0f), is(99f));
         assertThat(data.getString("String", null), is("two"));
         long[] longArray = data.getLongArray("long array");
         assertThat(longArray, is(notNullValue()));
