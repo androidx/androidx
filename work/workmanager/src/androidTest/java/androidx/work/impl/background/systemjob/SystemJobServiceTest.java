@@ -217,7 +217,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         static Uri[] sTriggeredContentUris;
 
         @Override
-        public WorkerResult doWork() {
+        public @NonNull WorkerResult doWork() {
             synchronized (ContentUriTriggerLoggingWorker.class) {
                 ++sTimesUpdated;
                 sTriggeredContentAuthorities = getTriggeredContentAuthorities();

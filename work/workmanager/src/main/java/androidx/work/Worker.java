@@ -25,7 +25,9 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
-import androidx.work.impl.RuntimeExtras;
+import androidx.work.impl.Extras;
+
+import java.util.Set;
 
 /**
  * The basic unit of work.
@@ -40,9 +42,8 @@ public abstract class Worker {
 
     private @NonNull Context mAppContext;
     private @NonNull String mId;
-    private @NonNull Data mInputData;
+    private @NonNull Extras mExtras;
     private @NonNull Data mOutputData = Data.EMPTY;
-    private @Nullable RuntimeExtras mRuntimeExtras;
 
     public final @NonNull Context getApplicationContext() {
         return mAppContext;
@@ -53,19 +54,23 @@ public abstract class Worker {
     }
 
     public final @NonNull Data getInputData() {
-        return mInputData;
+        return mExtras.getInputData();
+    }
+
+    public final @NonNull Set<String> getTags() {
+        return mExtras.getTags();
     }
 
     @RequiresApi(24)
     public final @Nullable Uri[] getTriggeredContentUris() {
-        return (mRuntimeExtras == null) ? null : mRuntimeExtras.triggeredContentUris;
+        Extras.RuntimeExtras runtimeExtras = mExtras.getRuntimeExtras();
+        return (runtimeExtras == null) ? null : runtimeExtras.triggeredContentUris;
     }
 
     @RequiresApi(24)
     public final @Nullable String[] getTriggeredContentAuthorities() {
-        return (mRuntimeExtras == null)
-                ? null
-                : mRuntimeExtras.triggeredContentAuthorities;
+        Extras.RuntimeExtras runtimeExtras = mExtras.getRuntimeExtras();
+        return (runtimeExtras == null) ? null : runtimeExtras.triggeredContentAuthorities;
     }
 
     /**
@@ -116,19 +121,17 @@ public abstract class Worker {
     private void internalInit(
             @NonNull Context appContext,
             @NonNull String id,
-            @NonNull Data inputData,
-            @Nullable RuntimeExtras runtimeExtras) {
+            @NonNull Extras extras) {
         mAppContext = appContext;
         mId = id;
-        mInputData = inputData;
-        mRuntimeExtras = runtimeExtras;
+        mExtras = extras;
     }
 
     /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @Nullable RuntimeExtras getRuntimeExtras() {
-        return mRuntimeExtras;
+    public @NonNull Extras getExtras() {
+        return mExtras;
     }
 }
