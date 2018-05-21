@@ -19,5 +19,6 @@
     <string name="enqueue_periodic_work">Enqueue Periodic Work</string>
     <string name="loop_unique_work">Loop Unique Work</string>
     <string name="enqueue_lots_of_work">Add Lots of Work</string>
+    <string name="enqueue_lots_of_work_parallel">Add Lots of Work In Parallel</string>
     <string name="keep">Use KEEP</string>
 </resources>
