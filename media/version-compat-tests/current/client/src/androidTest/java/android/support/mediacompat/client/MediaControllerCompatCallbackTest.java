@@ -72,8 +72,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.mediacompat.testlib.util.PollingCheck;
-import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.MediaBrowserCompat;
@@ -561,32 +561,94 @@ public class MediaControllerCompatCallbackTest {
 
     @Test
     @SmallTest
-    @FlakyTest
-    public void testSessionReady() throws Exception {
-        if (android.os.Build.VERSION.SDK_INT < 21) {
-            return;
-        }
-
-        final MediaSessionCompat.Token tokenWithoutExtraBinder =
-                MediaSessionCompat.Token.fromToken(mSessionToken.getToken());
-
-        final MediaControllerCallback callback = new MediaControllerCallback();
-        synchronized (mWaitLock) {
+    @SdkSuppress(minSdkVersion = 21)
+    public void testOnSessionReadyCalled_extraBinderIsReadyWhenRegisteringCallback()
+            throws Exception {
+        mController = null;
+        final SessionReadyCallback callback = new SessionReadyCallback();
+        synchronized (callback.mWaitLock) {
             getInstrumentation().runOnMainSync(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        MediaControllerCompat controller = new MediaControllerCompat(
-                                getInstrumentation().getTargetContext(), tokenWithoutExtraBinder);
-                        controller.registerCallback(callback, new Handler());
-                        assertFalse(controller.isSessionReady());
+                        mController = new MediaControllerCompat(
+                                getInstrumentation().getTargetContext(),
+                                mSessionToken /* This token has an extra binder in it */);
+                        mController.registerCallback(callback, new Handler());
+                        assertTrue(mController.isSessionReady());
+                        assertFalse(callback.mOnSessionReadyCalled);
                     } catch (Exception e) {
                         fail();
                     }
                 }
             });
-            mWaitLock.wait(TIME_OUT_MS);
+            callback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(callback.mOnSessionReadyCalled);
+            assertTrue(mController.isSessionReady());
+        }
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 21)
+    public void testOnSessionReadyCalled_extraBinderIsNotReadyWhenRegisteringCallback()
+            throws Exception {
+        mController = null;
+        final SessionReadyCallback callback = new SessionReadyCallback();
+        final MediaSessionCompat.Token tokenWithoutExtraBinder =
+                MediaSessionCompat.Token.fromToken(mSessionToken.getToken());
+        synchronized (callback.mWaitLock) {
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // onSessionReady() should be posted when the controller receives the
+                        // extra binder from session.
+                        mController = new MediaControllerCompat(
+                                getInstrumentation().getTargetContext(),
+                                tokenWithoutExtraBinder);
+                        mController.registerCallback(callback, new Handler());
+                        // Since mController.isSessionReady() can be both true/false,
+                        // we don't check the return value at this point.
+                        assertFalse(callback.mOnSessionReadyCalled);
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
+            callback.mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(callback.mOnSessionReadyCalled);
+            assertTrue(mController.isSessionReady());
+        }
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(maxSdkVersion = 19)
+    public void testOnSessionReadyCalled_underApi21() throws Exception {
+        mController = null;
+        final SessionReadyCallback callback = new SessionReadyCallback();
+        synchronized (callback.mWaitLock) {
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // No extra binder exists in API 19. (i.e. session is always ready.)
+                        // onSessionReady() should be posted by registerCallback().
+                        mController = new MediaControllerCompat(
+                                getInstrumentation().getTargetContext(),
+                                mSessionToken);
+                        mController.registerCallback(callback, new Handler());
+                        assertTrue(mController.isSessionReady());
+                        assertFalse(callback.mOnSessionReadyCalled);
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
+            callback.mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(callback.mOnSessionReadyCalled);
+            assertTrue(mController.isSessionReady());
         }
     }
 
@@ -619,7 +681,6 @@ public class MediaControllerCompatCallbackTest {
         private volatile boolean mOnCaptioningEnabledChangedCalled;
         private volatile boolean mOnRepeatModeChangedCalled;
         private volatile boolean mOnShuffleModeChangedCalled;
-        private volatile boolean mOnSessionReadyCalled;
 
         private volatile PlaybackStateCompat mPlaybackState;
         private volatile MediaMetadataCompat mMediaMetadata;
@@ -753,6 +814,11 @@ public class MediaControllerCompatCallbackTest {
                 mWaitLock.notify();
             }
         }
+    }
+
+    private class SessionReadyCallback extends MediaControllerCompat.Callback {
+        final Object mWaitLock = new Object();
+        private volatile boolean mOnSessionReadyCalled;
 
         @Override
         public void onSessionReady() {
