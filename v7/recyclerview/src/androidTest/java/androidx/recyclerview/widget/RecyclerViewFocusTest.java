@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThat;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
@@ -112,6 +113,7 @@ public class RecyclerViewFocusTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 17)
     public void focusSearch_horizontalRtlAndHasChildInDirection_findsCorrectChild()
             throws Throwable {
         setupRecyclerView(true, RecyclerView.HORIZONTAL, false);
@@ -150,6 +152,7 @@ public class RecyclerViewFocusTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 17)
     public void focusSearch_horizontalRtlAndHasChildInDirection_doesNotCallOnFocusSearchFailed()
             throws Throwable {
         setupRecyclerView(true, RecyclerView.HORIZONTAL, false);
@@ -184,6 +187,7 @@ public class RecyclerViewFocusTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 17)
     public void focusSearch_horizontalRtlAndDoesNotHaveChildInDirection_callsOnFocusSearchFailed()
             throws Throwable {
         setupRecyclerView(true, RecyclerView.HORIZONTAL, false);
