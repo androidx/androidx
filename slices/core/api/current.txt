@@ -41,6 +41,7 @@ package androidx.slice {
     method public final int bulkInsert(android.net.Uri, android.content.ContentValues[]);
     method public final android.net.Uri canonicalize(android.net.Uri);
     method public final int delete(android.net.Uri, java.lang.String, java.lang.String[]);
+    method public java.util.List<android.net.Uri> getPinnedSlices();
     method public final java.lang.String getType(android.net.Uri);
     method public java.lang.Object getWrapper();
     method public final android.net.Uri insert(android.net.Uri, android.content.ContentValues);

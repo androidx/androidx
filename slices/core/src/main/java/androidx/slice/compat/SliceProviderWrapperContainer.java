@@ -77,11 +77,13 @@ public class SliceProviderWrapperContainer {
         @Override
         public void onSlicePinned(Uri sliceUri) {
             mSliceProvider.onSlicePinned(sliceUri);
+            mSliceProvider.handleSlicePinned(sliceUri);
         }
 
         @Override
         public void onSliceUnpinned(Uri sliceUri) {
             mSliceProvider.onSliceUnpinned(sliceUri);
+            mSliceProvider.handleSliceUnpinned(sliceUri);
         }
 
         @Override

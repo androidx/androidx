@@ -229,6 +229,7 @@ public class SliceProviderCompat {
         mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
         try {
             mProvider.onSlicePinned(sliceUri);
+            mProvider.handleSlicePinned(sliceUri);
         } finally {
             mHandler.removeCallbacks(mAnr);
         }
@@ -239,6 +240,7 @@ public class SliceProviderCompat {
         mHandler.postDelayed(mAnr, SLICE_BIND_ANR);
         try {
             mProvider.onSliceUnpinned(sliceUri);
+            mProvider.handleSliceUnpinned(sliceUri);
         } finally {
             mHandler.removeCallbacks(mAnr);
         }

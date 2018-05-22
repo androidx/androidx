@@ -56,6 +56,7 @@ import androidx.slice.core.R;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -110,6 +111,7 @@ public abstract class SliceProvider extends ContentProvider implements
 
     private SliceProviderCompat mCompat;
 
+    private List<Uri> mPinnedSliceUris;
 
     /**
      * A version of constructing a SliceProvider that allows autogranting slice permissions
@@ -163,6 +165,7 @@ public abstract class SliceProvider extends ContentProvider implements
 
     @Override
     public final boolean onCreate() {
+        mPinnedSliceUris = SliceManager.getInstance(getContext()).getPinnedSlices();
         if (!BuildCompat.isAtLeastP()) {
             mCompat = new SliceProviderCompat(this,
                     onCreatePermissionManager(mAutoGrantPermissions), getContext());
@@ -286,8 +289,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * @param sliceUri The uri of the slice being unpinned.
      * @see #onSliceUnpinned(Uri)
      */
-    public void onSlicePinned(Uri sliceUri) {
-    }
+    public void onSlicePinned(Uri sliceUri) {}
 
     /**
      * Called to inform an app that a slices is no longer pinned.
@@ -297,7 +299,26 @@ public abstract class SliceProvider extends ContentProvider implements
      * or jobs related to this slice should be cancelled.
      * @see #onSlicePinned(Uri)
      */
-    public void onSliceUnpinned(Uri sliceUri) {
+    public void onSliceUnpinned(Uri sliceUri) {}
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void handleSlicePinned(Uri sliceUri) {
+        if (!mPinnedSliceUris.contains(sliceUri)) {
+            mPinnedSliceUris.add(sliceUri);
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void handleSliceUnpinned(Uri sliceUri) {
+        if (mPinnedSliceUris.contains(sliceUri)) {
+            mPinnedSliceUris.remove(sliceUri);
+        }
     }
 
     /**
@@ -325,6 +346,15 @@ public abstract class SliceProvider extends ContentProvider implements
      */
     public Collection<Uri> onGetSliceDescendants(Uri uri) {
         return Collections.emptyList();
+    }
+
+    /**
+     * Returns a list of slice URIs that are currently pinned.
+     *
+     * @return All pinned slices.
+     */
+    @NonNull public List<Uri> getPinnedSlices() {
+        return mPinnedSliceUris;
     }
 
     @Nullable
