@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
@@ -102,12 +101,10 @@ public class CompatPermissionManager {
     }
 
     private synchronized void persist(PermissionState state) {
-        if (!getPrefs().edit()
+        getPrefs().edit()
                 .putStringSet(state.getKey(), state.toPersistable())
                 .putBoolean(state.getKey() + ALL_SUFFIX, state.hasAllPermissions())
-                .commit()) {
-            Log.e(TAG, "Unable to persist permissions");
-        }
+                .apply();
     }
 
     private PermissionState getPermissionState(String pkg, String authority) {
