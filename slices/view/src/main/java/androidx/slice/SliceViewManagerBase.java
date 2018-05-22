@@ -36,12 +36,12 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public abstract class SliceManagerBase extends SliceManager {
+public abstract class SliceViewManagerBase extends SliceViewManager {
     private final ArrayMap<Pair<Uri, SliceCallback>, SliceListenerImpl> mListenerLookup =
             new ArrayMap<>();
     protected final Context mContext;
 
-    SliceManagerBase(Context context) {
+    SliceViewManagerBase(Context context) {
         mContext = context;
     }
 

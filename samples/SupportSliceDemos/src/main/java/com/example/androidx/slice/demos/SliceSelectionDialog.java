@@ -47,8 +47,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Consumer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
-import androidx.slice.SliceManager;
 import androidx.slice.SliceMetadata;
+import androidx.slice.SliceViewManager;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.widget.ListContent;
 
@@ -147,13 +147,13 @@ public class SliceSelectionDialog {
         AsyncTask.execute(() -> {
             String authority = provider.authority.split(";")[0];
             HashMap<String, String> labels = new HashMap<>();
-            SliceManager sliceManager = SliceManager.getInstance(context);
-            List<Uri> slices = new ArrayList<>(sliceManager.getSliceDescendants(
+            SliceViewManager sliceViewManager = SliceViewManager.getInstance(context);
+            List<Uri> slices = new ArrayList<>(sliceViewManager.getSliceDescendants(
                     new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
                             .authority(authority)
                             .build()));
             for (Uri slice : slices) {
-                labels.put(slice.toString(), loadLabel(context, sliceManager, slice));
+                labels.put(slice.toString(), loadLabel(context, sliceViewManager, slice));
             }
             new Handler(Looper.getMainLooper()).post(() -> {
                 dialog.dismiss();
@@ -201,8 +201,8 @@ public class SliceSelectionDialog {
         });
     }
 
-    private static String loadLabel(Context context, SliceManager sliceManager, Uri slice) {
-        Slice content = bindSliceSynchronous(context, sliceManager, slice);
+    private static String loadLabel(Context context, SliceViewManager sliceViewManager, Uri slice) {
+        Slice content = bindSliceSynchronous(context, sliceViewManager, slice);
         return String.valueOf(findTitle(context, content, SliceMetadata.from(context, content)));
     }
 
@@ -233,10 +233,11 @@ public class SliceSelectionDialog {
         return null;
     }
 
-    protected static Slice bindSliceSynchronous(Context context, SliceManager manager, Uri slice) {
+    protected static Slice bindSliceSynchronous(Context context, SliceViewManager manager,
+            Uri slice) {
         final Slice[] returnSlice = new Slice[1];
         CountDownLatch latch = new CountDownLatch(1);
-        SliceManager.SliceCallback callback = new SliceManager.SliceCallback() {
+        SliceViewManager.SliceCallback callback = new SliceViewManager.SliceCallback() {
             @Override
             public void onSliceUpdated(Slice s) {
                 try {

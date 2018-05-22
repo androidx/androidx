@@ -18,6 +18,7 @@ package androidx.slice;
 
 import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
+import static androidx.slice.compat.SliceProviderCompat.PERMS_PREFIX;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,6 +30,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.slice.compat.CompatPermissionManager;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +41,7 @@ import org.junit.runner.RunWith;
 @SmallTest
 public class SlicePermissionTest {
 
-    private static final Uri BASE_URI = Uri.parse("content://androidx.slice.view.test/");
+    private static final Uri BASE_URI = Uri.parse("content://androidx.slice.core.permission/");
     private final Context mContext = InstrumentationRegistry.getContext();
     private String mTestPkg;
     private int mTestUid;
@@ -182,4 +185,21 @@ public class SlicePermissionTest {
                 mSliceManager.checkSlicePermission(BASE_URI, mTestPid, mTestUid));
     }
 
+    public static class PermissionProvider extends SliceProvider {
+        @Override
+        public boolean onCreateSliceProvider() {
+            return true;
+        }
+
+        protected CompatPermissionManager onCreatePermissionManager(
+                String[] autoGrantPermissions) {
+            return new CompatPermissionManager(getContext(), PERMS_PREFIX + getClass().getName(),
+                    -1 /* Different uid to run permissions */, autoGrantPermissions);
+        }
+
+        @Override
+        public Slice onBindSlice(Uri sliceUri) {
+            return null;
+        }
+    }
 }
