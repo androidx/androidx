@@ -102,7 +102,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         mScheduler = mock(Scheduler.class);
         Context context = InstrumentationRegistry.getTargetContext();
         Configuration configuration = new Configuration.Builder()
-                .withExecutor(Executors.newSingleThreadExecutor())
+                .setExecutor(Executors.newSingleThreadExecutor())
                 .build();
 
         mWorkManagerImpl = spy(new WorkManagerImpl(context, configuration));
