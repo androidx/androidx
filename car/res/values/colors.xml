@@ -168,12 +168,8 @@
          car_scrollbar_thumb. -->
     <color name="car_scrollbar_thumb_inverse">@color/car_scrollbar_thumb_light</color>
 
-    <!-- The lighter and darker color for the seekbar track secondary progress. -->
-    <color name="car_seekbar_track_secondary_progress_light">@color/car_grey_400</color>
-    <color name="car_seekbar_track_secondary_progress_dark">@color/car_grey_700</color>
     <!-- The color of the seekbar track secondary progress in SeekbarListItem. -->
-    <color name="car_seekbar_track_secondary_progress">
-        @color/car_seekbar_track_secondary_progress_dark</color>
+    <color name="car_seekbar_track_secondary_progress">@color/car_grey_500</color>
 
     <!-- The lighter and darker color for the seekbar track background. -->
     <color name="car_seekbar_track_background_light">@color/car_grey_400</color>

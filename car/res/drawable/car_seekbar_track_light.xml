@@ -29,7 +29,7 @@
             <shape android:shape="line">
                 <stroke
                     android:width="@dimen/car_seekbar_height"
-                    android:color="@color/car_seekbar_track_secondary_progress_dark" />
+                    android:color="@color/car_seekbar_track_secondary_progress" />
             </shape>
         </clip>
     </item>
