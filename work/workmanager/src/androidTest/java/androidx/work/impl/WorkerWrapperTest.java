@@ -58,6 +58,7 @@ import androidx.work.worker.ChainedArgumentWorker;
 import androidx.work.worker.EchoingWorker;
 import androidx.work.worker.ExceptionWorker;
 import androidx.work.worker.FailureWorker;
+import androidx.work.worker.InterruptionAwareWorker;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
@@ -697,6 +698,31 @@ public class WorkerWrapperTest extends DatabaseTest {
         workerWrapper.interrupt();
         Thread.sleep(6000L);
         verify(mMockListener).onExecuted(work.getStringId(), false, true);
+    }
+
+    @Test
+    @SmallTest
+    public void testInterruption_isMarkedOnRunningWorker() {
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
+        insertWork(work);
+
+        Worker worker = WorkerWrapper.workerFromClassName(mContext,
+                InterruptionAwareWorker.class.getName(),
+                work.getStringId(),
+                new Extras(Data.EMPTY, Collections.<String>emptyList(), null));
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker.isStopped(), is(false));
+
+        WorkerWrapper workerWrapper =
+                new WorkerWrapper.Builder(mContext, mDatabase, work.getStringId())
+                        .withSchedulers(Collections.singletonList(mMockScheduler))
+                        .withListener(mMockListener)
+                        .withWorker(worker)
+                        .build();
+        Executors.newSingleThreadExecutor().submit(workerWrapper);
+        workerWrapper.interrupt();
+        assertThat(worker.isStopped(), is(true));
     }
 
     @Test
