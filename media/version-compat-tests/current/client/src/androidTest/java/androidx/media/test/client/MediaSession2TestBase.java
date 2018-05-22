@@ -16,6 +16,8 @@
 
 package androidx.media.test.client;
 
+import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
+
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
@@ -69,7 +71,7 @@ abstract class MediaSession2TestBase {
     static Executor sHandlerExecutor;
 
     Context mContext;
-    ClientTestHelper mTestHelper;
+    RemoteMediaSession2 mRemoteSession2;
     private List<MediaController2> mControllers = new ArrayList<>();
 
     interface TestControllerInterface {
@@ -143,10 +145,11 @@ abstract class MediaSession2TestBase {
     @CallSuper
     public void setUp() throws Exception {
         mContext = InstrumentationRegistry.getTargetContext();
-        mTestHelper = new ClientTestHelper(mContext);
-        if (!mTestHelper.connect(WAIT_TIME_MS)) {
+        mRemoteSession2 = new RemoteMediaSession2(DEFAULT_TEST_NAME, mContext);
+        if (!mRemoteSession2.connect(WAIT_TIME_MS)) {
             fail("Failed to connect to TestHelperService.");
         }
+        mRemoteSession2.create();
     }
 
     @CallSuper
@@ -154,7 +157,7 @@ abstract class MediaSession2TestBase {
         for (int i = 0; i < mControllers.size(); i++) {
             mControllers.get(i).close();
         }
-        mTestHelper.disconnect(true);
+        mRemoteSession2.disconnect(true);
     }
 
     final MediaController2 createController(SessionToken2 token) throws InterruptedException {
