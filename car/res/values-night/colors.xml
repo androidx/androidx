@@ -44,7 +44,6 @@
     <color name="car_accent">@color/car_accent_light</color>
 
     <color name="car_seekbar_track_background">@color/car_seekbar_track_background_dark</color>
-    <color name="car_seekbar_track_secondary_progress">@color/car_seekbar_track_secondary_progress_light</color>
 
     <color name="speed_bump_background">#FF4C4C4C</color>
 </resources>
