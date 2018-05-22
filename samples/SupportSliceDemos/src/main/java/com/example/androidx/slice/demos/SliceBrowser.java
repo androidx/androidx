@@ -260,6 +260,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             mSliceLiveData.observe(this, slice -> Log.d(TAG, "Slice: " + slice));
         } else {
             Log.w(TAG, "Invalid uri, skipping slice: " + uri);
+            mSliceView.setSlice(null);
             Toast.makeText(this, "Invalid slice URI", Toast.LENGTH_SHORT).show();
         }
     }
