@@ -27,9 +27,9 @@ import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 import androidx.lifecycle.LiveData;
 import androidx.slice.Slice;
-import androidx.slice.SliceManager;
 import androidx.slice.SliceSpec;
 import androidx.slice.SliceSpecs;
+import androidx.slice.SliceViewManager;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -79,12 +79,12 @@ public final class SliceLiveData {
 
     private static class SliceLiveDataImpl extends LiveData<Slice> {
         private final Intent mIntent;
-        private final SliceManager mSliceManager;
+        private final SliceViewManager mSliceViewManager;
         private Uri mUri;
 
         private SliceLiveDataImpl(Context context, Uri uri) {
             super();
-            mSliceManager = SliceManager.getInstance(context);
+            mSliceViewManager = SliceViewManager.getInstance(context);
             mUri = uri;
             mIntent = null;
             // TODO: Check if uri points at a Slice?
@@ -92,7 +92,7 @@ public final class SliceLiveData {
 
         private SliceLiveDataImpl(Context context, Intent intent) {
             super();
-            mSliceManager = SliceManager.getInstance(context);
+            mSliceViewManager = SliceViewManager.getInstance(context);
             mUri = null;
             mIntent = intent;
         }
@@ -101,31 +101,32 @@ public final class SliceLiveData {
         protected void onActive() {
             AsyncTask.execute(mUpdateSlice);
             if (mUri != null) {
-                mSliceManager.registerSliceCallback(mUri, mSliceCallback);
+                mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
             }
         }
 
         @Override
         protected void onInactive() {
             if (mUri != null) {
-                mSliceManager.unregisterSliceCallback(mUri, mSliceCallback);
+                mSliceViewManager.unregisterSliceCallback(mUri, mSliceCallback);
             }
         }
 
         private final Runnable mUpdateSlice = new Runnable() {
             @Override
             public void run() {
-                Slice s = mUri != null ? mSliceManager.bindSlice(mUri)
-                        : mSliceManager.bindSlice(mIntent);
+                Slice s = mUri != null ? mSliceViewManager.bindSlice(mUri)
+                        : mSliceViewManager.bindSlice(mIntent);
                 if (mUri == null && s != null) {
                     mUri = s.getUri();
-                    mSliceManager.registerSliceCallback(mUri, mSliceCallback);
+                    mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
                 }
                 postValue(s);
             }
         };
 
-        private final SliceManager.SliceCallback mSliceCallback = new SliceManager.SliceCallback() {
+        private final SliceViewManager.SliceCallback mSliceCallback =
+                new SliceViewManager.SliceCallback() {
             @Override
             public void onSliceUpdated(@NonNull Slice s) {
                 postValue(s);

@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -70,6 +71,7 @@ public class SliceXmlTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testThrowForRemoteInput() throws IOException {
+        if (Build.VERSION.SDK_INT < 20) throw new IllegalArgumentException();
         RemoteInput remoteInput = new RemoteInput.Builder("").build();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))
@@ -104,6 +106,7 @@ public class SliceXmlTest {
 
     @Test
     public void testNoThrowForRemoteInput() throws IOException {
+        if (Build.VERSION.SDK_INT < 20) return;
         RemoteInput remoteInput = new RemoteInput.Builder("").build();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Slice s = new Slice.Builder(Uri.parse("content://pkg/slice"))

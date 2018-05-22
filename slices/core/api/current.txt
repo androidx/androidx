@@ -25,6 +25,15 @@ package androidx.slice {
     method public boolean hasHint(java.lang.String);
   }
 
+  public abstract class SliceManager {
+    method public abstract int checkSlicePermission(android.net.Uri, int, int);
+    method public static androidx.slice.SliceManager getInstance(android.content.Context);
+    method public abstract java.util.List<android.net.Uri> getPinnedSlices();
+    method public abstract java.util.Set<androidx.slice.SliceSpec> getPinnedSpecs(android.net.Uri);
+    method public abstract void grantSlicePermission(java.lang.String, android.net.Uri);
+    method public abstract void revokeSlicePermission(java.lang.String, android.net.Uri);
+  }
+
   public abstract class SliceProvider extends android.content.ContentProvider implements androidx.core.app.CoreComponentFactory.CompatWrapped {
     ctor public SliceProvider(java.lang.String...);
     ctor public SliceProvider();

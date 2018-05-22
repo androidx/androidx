@@ -1,27 +1,5 @@
 package androidx.slice {
 
-  public abstract class SliceManager {
-    method public abstract androidx.slice.Slice bindSlice(android.net.Uri);
-    method public abstract androidx.slice.Slice bindSlice(android.content.Intent);
-    method public abstract int checkSlicePermission(android.net.Uri, int, int);
-    method public static androidx.slice.SliceManager getInstance(android.content.Context);
-    method public abstract java.util.List<android.net.Uri> getPinnedSlices();
-    method public abstract java.util.Set<androidx.slice.SliceSpec> getPinnedSpecs(android.net.Uri);
-    method public abstract java.util.Collection<android.net.Uri> getSliceDescendants(android.net.Uri);
-    method public abstract void grantSlicePermission(java.lang.String, android.net.Uri);
-    method public abstract android.net.Uri mapIntentToUri(android.content.Intent);
-    method public abstract void pinSlice(android.net.Uri);
-    method public abstract void registerSliceCallback(android.net.Uri, androidx.slice.SliceManager.SliceCallback);
-    method public abstract void registerSliceCallback(android.net.Uri, java.util.concurrent.Executor, androidx.slice.SliceManager.SliceCallback);
-    method public abstract void revokeSlicePermission(java.lang.String, android.net.Uri);
-    method public abstract void unpinSlice(android.net.Uri);
-    method public abstract void unregisterSliceCallback(android.net.Uri, androidx.slice.SliceManager.SliceCallback);
-  }
-
-  public static abstract interface SliceManager.SliceCallback {
-    method public abstract void onSliceUpdated(androidx.slice.Slice);
-  }
-
   public class SliceMetadata {
     method public static androidx.slice.SliceMetadata from(android.content.Context, androidx.slice.Slice);
     method public long getExpiry();
@@ -76,6 +54,23 @@ package androidx.slice {
   }
 
   public static class SliceUtils.SliceParseException extends java.lang.Exception {
+  }
+
+  public abstract class SliceViewManager {
+    method public abstract androidx.slice.Slice bindSlice(android.net.Uri);
+    method public abstract androidx.slice.Slice bindSlice(android.content.Intent);
+    method public static androidx.slice.SliceViewManager getInstance(android.content.Context);
+    method public abstract java.util.Collection<android.net.Uri> getSliceDescendants(android.net.Uri);
+    method public abstract android.net.Uri mapIntentToUri(android.content.Intent);
+    method public abstract void pinSlice(android.net.Uri);
+    method public abstract void registerSliceCallback(android.net.Uri, androidx.slice.SliceViewManager.SliceCallback);
+    method public abstract void registerSliceCallback(android.net.Uri, java.util.concurrent.Executor, androidx.slice.SliceViewManager.SliceCallback);
+    method public abstract void unpinSlice(android.net.Uri);
+    method public abstract void unregisterSliceCallback(android.net.Uri, androidx.slice.SliceViewManager.SliceCallback);
+  }
+
+  public static abstract interface SliceViewManager.SliceCallback {
+    method public abstract void onSliceUpdated(androidx.slice.Slice);
   }
 
 }
