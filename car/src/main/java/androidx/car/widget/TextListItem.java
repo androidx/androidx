@@ -246,7 +246,10 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     }
 
     private void setOnClickListener() {
-        mBinders.add(vh -> vh.itemView.setOnClickListener(mOnClickListener));
+        mBinders.add(vh -> {
+            vh.itemView.setOnClickListener(mOnClickListener);
+            vh.itemView.setClickable(mOnClickListener != null);
+        });
     }
 
     private void setPrimaryIconContent() {
