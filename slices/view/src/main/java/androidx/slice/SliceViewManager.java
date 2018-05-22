@@ -18,37 +18,33 @@ package androidx.slice;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
-import androidx.core.content.PermissionChecker;
 import androidx.core.os.BuildCompat;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
  * Class to handle interactions with {@link Slice}s.
  * <p>
- * The SliceManager manages permissions and pinned state for slices.
+ * The SliceViewManager manages permissions and pinned state for slices.
  */
-public abstract class SliceManager {
+public abstract class SliceViewManager {
 
     /**
-     * Get a {@link SliceManager}.
+     * Get a {@link SliceViewManager}.
      */
     @SuppressWarnings("NewApi")
-    public static @NonNull SliceManager getInstance(@NonNull Context context) {
+    public static @NonNull SliceViewManager getInstance(@NonNull Context context) {
         if (BuildCompat.isAtLeastP()) {
-            return new SliceManagerWrapper(context);
+            return new SliceViewManagerWrapper(context);
         } else {
-            return new SliceManagerCompat(context);
+            return new SliceViewManagerCompat(context);
         }
     }
 
@@ -56,7 +52,7 @@ public abstract class SliceManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    SliceManager() {
+    SliceViewManager() {
     }
 
     /**
@@ -123,15 +119,6 @@ public abstract class SliceManager {
     public abstract void unpinSlice(@NonNull Uri uri);
 
     /**
-     * Get the current set of specs for a pinned slice.
-     * <p>
-     * This is the set of specs supported for a specific pinned slice. It will take
-     * into account all clients and returns only specs supported by all.
-     * @see SliceSpec
-     */
-    public abstract @NonNull Set<SliceSpec> getPinnedSpecs(@NonNull Uri uri);
-
-    /**
      * Turns a slice Uri into slice content.
      *
      * @param uri The URI to a slice provider
@@ -177,50 +164,6 @@ public abstract class SliceManager {
     public abstract @Nullable Uri mapIntentToUri(@NonNull Intent intent);
 
     /**
-     * Determine whether a particular process and user ID has been granted
-     * permission to access a specific slice URI.
-     *
-     * @param uri The uri that is being checked.
-     * @param pid The process ID being checked against.  Must be &gt; 0.
-     * @param uid The user ID being checked against.  A uid of 0 is the root
-     * user, which will pass every permission check.
-     *
-     * @return {@link PackageManager#PERMISSION_GRANTED} if the given
-     * pid/uid is allowed to access that uri, or
-     * {@link PackageManager#PERMISSION_DENIED} if it is not.
-     *
-     * @see #grantSlicePermission(String, Uri)
-     */
-    @PermissionChecker.PermissionResult
-    public abstract int checkSlicePermission(@NonNull Uri uri, int pid, int uid);
-
-    /**
-     * Grant permission to access a specific slice Uri to another package.
-     *
-     * @param toPackage The package you would like to allow to access the Uri.
-     * @param uri The Uri you would like to grant access to.
-     *
-     * @see #revokeSlicePermission
-     */
-    public abstract void grantSlicePermission(@NonNull String toPackage, @NonNull Uri uri);
-
-    /**
-     * Remove permissions to access a particular content provider Uri
-     * that were previously added with {@link #grantSlicePermission} for a specific target
-     * package.  The given Uri will match all previously granted Uris that are the same or a
-     * sub-path of the given Uri.  That is, revoking "content://foo/target" will
-     * revoke both "content://foo/target" and "content://foo/target/sub", but not
-     * "content://foo".  It will not remove any prefix grants that exist at a
-     * higher level.
-     *
-     * @param toPackage The package you would like to allow to access the Uri.
-     * @param uri The Uri you would like to revoke access to.
-     *
-     * @see #grantSlicePermission
-     */
-    public abstract void revokeSlicePermission(@NonNull String toPackage, @NonNull Uri uri);
-
-    /**
      * Obtains a list of slices that are descendants of the specified Uri.
      * <p>
      * Not all slice providers will implement this functionality, in which case,
@@ -232,12 +175,6 @@ public abstract class SliceManager {
      */
     @WorkerThread
     public abstract @NonNull Collection<Uri> getSliceDescendants(@NonNull Uri uri);
-
-    /**
-     * Get the list of currently pinned slices for this app.
-     * @see SliceProvider#onSlicePinned
-     */
-    public abstract @NonNull List<Uri> getPinnedSlices();
 
     /**
      * Class that listens to changes in {@link Slice}s.

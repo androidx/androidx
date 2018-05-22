@@ -16,22 +16,14 @@
 
 package androidx.slice;
 
-import static androidx.slice.SliceConvert.unwrap;
-import static androidx.slice.widget.SliceLiveData.SUPPORTED_SPECS;
-
-import android.app.slice.SliceSpec;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.PermissionChecker;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -40,53 +32,23 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(api = 28)
-class SliceManagerWrapper extends SliceManagerBase {
+class SliceManagerWrapper extends SliceManager {
 
     private final android.app.slice.SliceManager mManager;
-    private final Set<SliceSpec> mSpecs;
+    private final Context mContext;
 
     SliceManagerWrapper(Context context) {
         this(context, context.getSystemService(android.app.slice.SliceManager.class));
     }
 
     SliceManagerWrapper(Context context, android.app.slice.SliceManager manager) {
-        super(context);
+        mContext = context;
         mManager = manager;
-        mSpecs = unwrap(SUPPORTED_SPECS);
-    }
-
-    @Override
-    public void pinSlice(@NonNull Uri uri) {
-        mManager.pinSlice(uri, mSpecs);
-    }
-
-    @Override
-    public void unpinSlice(@NonNull Uri uri) {
-        mManager.unpinSlice(uri);
     }
 
     @Override
     public @NonNull Set<androidx.slice.SliceSpec> getPinnedSpecs(@NonNull Uri uri) {
-        // Disabled while we update APIs.
-        //return SliceConvert.wrap(mManager.getPinnedSpecs(uri));
-        return Collections.EMPTY_SET;
-    }
-
-    @Nullable
-    @Override
-    public androidx.slice.Slice bindSlice(@NonNull Uri uri) {
-        return SliceConvert.wrap(mManager.bindSlice(uri, mSpecs));
-    }
-
-    @Nullable
-    @Override
-    public androidx.slice.Slice bindSlice(@NonNull Intent intent) {
-        return SliceConvert.wrap(mManager.bindSlice(intent, mSpecs));
-    }
-
-    @Override
-    public Collection<Uri> getSliceDescendants(Uri uri) {
-        return mManager.getSliceDescendants(uri);
+        return SliceConvert.wrap(mManager.getPinnedSpecs(uri));
     }
 
     @Override
@@ -103,12 +65,6 @@ class SliceManagerWrapper extends SliceManagerBase {
     @Override
     public void revokeSlicePermission(@NonNull String toPackage, @NonNull Uri uri) {
         mManager.revokeSlicePermission(toPackage, uri);
-    }
-
-    @Nullable
-    @Override
-    public Uri mapIntentToUri(@NonNull Intent intent) {
-        return mManager.mapIntentToUri(intent);
     }
 
     @Override

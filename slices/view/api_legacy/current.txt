@@ -3,13 +3,13 @@ package androidx.slice {
   public abstract class SliceManager {
     method public abstract androidx.slice.Slice bindSlice(android.net.Uri);
     method public abstract androidx.slice.Slice bindSlice(android.content.Intent);
-    method public static androidx.slice.SliceManager getInstance(android.content.Context);
+    method public static androidx.slice.SliceViewManager getInstance(android.content.Context);
     method public abstract android.net.Uri mapIntentToUri(android.content.Intent);
     method public abstract void pinSlice(android.net.Uri);
-    method public abstract void registerSliceCallback(android.net.Uri, androidx.slice.SliceManager.SliceCallback);
-    method public abstract void registerSliceCallback(android.net.Uri, java.util.concurrent.Executor, androidx.slice.SliceManager.SliceCallback);
+    method public abstract void registerSliceCallback(android.net.Uri, androidx.slice.SliceViewManager.SliceCallback);
+    method public abstract void registerSliceCallback(android.net.Uri, java.util.concurrent.Executor, androidx.slice.SliceViewManager.SliceCallback);
     method public abstract void unpinSlice(android.net.Uri);
-    method public abstract void unregisterSliceCallback(android.net.Uri, androidx.slice.SliceManager.SliceCallback);
+    method public abstract void unregisterSliceCallback(android.net.Uri, androidx.slice.SliceViewManager.SliceCallback);
   }
 
   public static abstract interface SliceManager.SliceCallback {

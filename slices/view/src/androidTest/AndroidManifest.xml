@@ -22,7 +22,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <application
         android:label="Slice Render Test">
-        <provider android:name="androidx.slice.SliceManagerTest$TestSliceProvider"
+        <provider android:name="androidx.slice.SliceViewManagerTest$TestSliceProvider"
                   android:authorities="androidx.slice.view.test"
                   android:exported="true">
             <intent-filter>

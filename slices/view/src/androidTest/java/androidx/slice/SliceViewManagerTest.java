@@ -16,8 +16,6 @@
 
 package androidx.slice;
 
-import static androidx.slice.compat.SliceProviderCompat.PERMS_PREFIX;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
@@ -39,7 +37,6 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
 import androidx.core.os.BuildCompat;
-import androidx.slice.compat.CompatPermissionManager;
 import androidx.slice.render.SliceRenderActivity;
 
 import org.junit.Before;
@@ -53,16 +50,18 @@ import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class SliceManagerTest {
+public class SliceViewManagerTest {
 
     private final Context mContext = InstrumentationRegistry.getContext();
     private SliceProvider mSliceProvider;
+    private SliceViewManager mViewManager;
     private SliceManager mManager;
 
     @Before
     public void setup() {
         TestSliceProvider.sSliceProviderReceiver = mSliceProvider = mock(SliceProvider.class);
         mManager = SliceManager.getInstance(mContext);
+        mViewManager = SliceViewManager.getInstance(mContext);
     }
 
     @Test
@@ -72,10 +71,10 @@ public class SliceManagerTest {
                 .authority(mContext.getPackageName())
                 .build();
         try {
-            mManager.pinSlice(uri);
+            mViewManager.pinSlice(uri);
             verify(mSliceProvider, timeout(2000)).onSlicePinned(eq(uri));
         } finally {
-            mManager.unpinSlice(uri);
+            mViewManager.unpinSlice(uri);
         }
     }
 
@@ -85,10 +84,10 @@ public class SliceManagerTest {
                 .scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(mContext.getPackageName())
                 .build();
-        mManager.pinSlice(uri);
+        mViewManager.pinSlice(uri);
         verify(mSliceProvider, timeout(2000)).onSlicePinned(eq(uri));
         clearInvocations(mSliceProvider);
-        mManager.unpinSlice(uri);
+        mViewManager.unpinSlice(uri);
         verify(mSliceProvider, timeout(2000)).onSliceUnpinned(eq(uri));
     }
 
@@ -100,8 +99,8 @@ public class SliceManagerTest {
                 .build();
         Uri longerUri = uri.buildUpon().appendPath("something").build();
         try {
-            mManager.pinSlice(uri);
-            mManager.pinSlice(longerUri);
+            mViewManager.pinSlice(uri);
+            mViewManager.pinSlice(longerUri);
             verify(mSliceProvider, timeout(2000)).onSlicePinned(eq(longerUri));
 
             List<Uri> uris = mManager.getPinnedSlices();
@@ -109,8 +108,8 @@ public class SliceManagerTest {
             assertTrue(uris.contains(uri));
             assertTrue(uris.contains(longerUri));
         } finally {
-            mManager.unpinSlice(uri);
-            mManager.unpinSlice(longerUri);
+            mViewManager.unpinSlice(uri);
+            mViewManager.unpinSlice(longerUri);
         }
     }
 
@@ -124,9 +123,9 @@ public class SliceManagerTest {
                 .authority(mContext.getPackageName())
                 .build();
         Slice s = new Slice.Builder(uri).build();
-        SliceManager.SliceCallback callback = mock(SliceManager.SliceCallback.class);
+        SliceViewManager.SliceCallback callback = mock(SliceViewManager.SliceCallback.class);
         when(mSliceProvider.onBindSlice(eq(uri))).thenReturn(s);
-        mManager.registerSliceCallback(uri, new Executor() {
+        mViewManager.registerSliceCallback(uri, new Executor() {
             @Override
             public void execute(@NonNull Runnable command) {
                 command.run();
@@ -147,18 +146,18 @@ public class SliceManagerTest {
                 .scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(mContext.getPackageName())
                 .build();
-        mManager.pinSlice(uri);
+        mViewManager.pinSlice(uri);
         verify(mSliceProvider).onSlicePinned(eq(uri));
 
         // Disabled while we update APIs.
-        //assertEquals(SliceLiveData.SUPPORTED_SPECS, mManager.getPinnedSpecs(uri));
+        //assertEquals(SliceLiveData.SUPPORTED_SPECS, mViewManager.getPinnedSpecs(uri));
     }
 
     @Test
     public void testMapIntentToUriStatic() {
         Uri expected = Uri.parse("content://androidx.slice.view.test/render");
 
-        Uri uri = mManager.mapIntentToUri(new Intent(mContext, SliceRenderActivity.class));
+        Uri uri = mViewManager.mapIntentToUri(new Intent(mContext, SliceRenderActivity.class));
 
         assertEquals(expected, uri);
     }
@@ -170,7 +169,7 @@ public class SliceManagerTest {
                 .setPackage(mContext.getPackageName());
 
         when(mSliceProvider.onMapIntentToUri(eq(intent))).thenReturn(expected);
-        Uri uri = mManager.mapIntentToUri(intent);
+        Uri uri = mViewManager.mapIntentToUri(intent);
 
         verify(mSliceProvider).onMapIntentToUri(eq(intent));
         assertEquals(expected, uri);
@@ -190,7 +189,7 @@ public class SliceManagerTest {
         when(mSliceProvider.onGetSliceDescendants(any(Uri.class)))
                 .thenReturn(collection);
 
-        Collection<Uri> allUris = mManager.getSliceDescendants(uri);
+        Collection<Uri> allUris = mViewManager.getSliceDescendants(uri);
 
         assertEquals(allUris, collection);
         verify(mSliceProvider).onGetSliceDescendants(eq(uri));
@@ -237,12 +236,6 @@ public class SliceManagerTest {
             if (sSliceProviderReceiver != null) {
                 sSliceProviderReceiver.onSliceUnpinned(sliceUri);
             }
-        }
-
-        protected CompatPermissionManager onCreatePermissionManager(
-                String[] autoGrantPermissions) {
-            return new CompatPermissionManager(getContext(), PERMS_PREFIX + getClass().getName(),
-                    -1 /* Different uid to run permissions */, autoGrantPermissions);
         }
 
         @Override

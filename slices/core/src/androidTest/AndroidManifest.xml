@@ -24,6 +24,9 @@
             android:authorities="androidx.slice.core.test"
             android:process=":provider"
             android:exported="true" />
+        <provider android:name="androidx.slice.SlicePermissionTest$PermissionProvider"
+            android:authorities="androidx.slice.core.permission"
+            android:exported="true" />
     </application>
 
 </manifest>
