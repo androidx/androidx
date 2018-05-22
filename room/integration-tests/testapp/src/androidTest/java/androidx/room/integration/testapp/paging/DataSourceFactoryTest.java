@@ -121,7 +121,7 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
         testOwner.handleEvent(Lifecycle.Event.ON_START);
         drain();
 
-        PagedList<User> pagedList1 = observer.get();
+        final PagedList<User> pagedList1 = observer.get();
         assertThat(pagedList1, is(notNullValue()));
 
         assertThat(pagedList1.size(), is(96));
@@ -139,11 +139,13 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
         observer.reset();
         // now invalidate the database but don't get the new paged list
         mUserDao.updateById(50, "foo");
+        drain(); // Sync with InvalidationTracker
         assertThat(getAndLoad(pagedList1, 70), nullValue());
         drain();
         assertThat(getAndLoad(pagedList1, 70), nullValue());
-        PagedList<User> pagedList = observer.get();
-        assertThat(getAndLoad(pagedList, 70), notNullValue());
+        final PagedList<User> pagedList = observer.get();
+        assertThat(getAndLoad(pagedList, 50), notNullValue());
+        assertThat(getAndLoad(pagedList, 70), nullValue());
     }
 
     private <T> T getAndLoad(PagedList<T> list, int pos) {
