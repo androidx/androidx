@@ -75,8 +75,7 @@ public class ConstraintTrackingWorker extends Worker implements WorkConstraintsC
                 getApplicationContext(),
                 className,
                 getId(),
-                getInputData(),
-                getRuntimeExtras());
+                getExtras());
 
         if (mDelegate == null) {
             Log.d(TAG, "No worker to delegate to.");
