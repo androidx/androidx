@@ -344,8 +344,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
                 : 0;
         final int heightAvailable = MeasureSpec.getSize(heightMeasureSpec);
         final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        final int maxHeight = heightMode == MeasureSpec.UNSPECIFIED
-                ? -1 // no max
+        LayoutParams lp = getLayoutParams();
+        final int maxHeight = (lp != null && lp.height == LayoutParams.WRAP_CONTENT)
+                || heightMode == MeasureSpec.UNSPECIFIED
+                ? -1 // no max, be default sizes
                 : heightAvailable;
         final int sliceHeight = getHeightForMode(maxHeight);
         // Remove the padding from our available height
@@ -362,8 +364,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             // Not enough space available for slice in current mode
             if (getMode() == MODE_LARGE
                     && heightAvailable >= mLargeHeight + actionHeight) {
-                // It's just a slice with scrolling content; cap it to normal height
-                height = Math.min(mLargeHeight, sliceHeight);
+                height = sliceHeight;
             } else if (getMode() == MODE_SHORTCUT) {
                 // TODO: consider scaling the shortcut to fit if too small
                 height = mShortcutSize;
