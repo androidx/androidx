@@ -37,6 +37,7 @@ import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.State;
 import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.Extras;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.WorkerWrapper;
@@ -143,8 +144,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        input,
-                        null);
+                        new Extras(input, Collections.<String>emptyList(), null));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
@@ -189,8 +189,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        input,
-                        null);
+                        new Extras(input, Collections.<String>emptyList(), null));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
@@ -234,8 +233,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        input,
-                        null);
+                        new Extras(input, Collections.<String>emptyList(), null));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
@@ -287,8 +285,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         workSpecId,
-                        input,
-                        null);
+                        new Extras(input, Collections.<String>emptyList(), null));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
