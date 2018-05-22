@@ -34,9 +34,9 @@
         <!-- The strategy to be used when fetching font data from a font provider in XML layouts.
         This attribute is ignored when the resource is loaded from code, as it is equivalent to the
         choice of API between {@link
-    androidx.core.contenttent.res.ResourcesCompat#getFont(Context, int)} (blocking) and
+    androidx.core.content.res.ResourcesCompat#getFont(Context, int)} (blocking) and
         {@link
-    androidx.core.contenttent.res.ResourcesCompat#getFont(Context, int, FontCallback, Handler)}
+    androidx.core.content.res.ResourcesCompat#getFont(Context, int, FontCallback, Handler)}
         (async). -->
         <attr name="fontProviderFetchStrategy">
             <!-- The blocking font fetch works as follows.
