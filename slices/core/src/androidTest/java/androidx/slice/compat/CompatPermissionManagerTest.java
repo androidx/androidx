@@ -21,9 +21,11 @@ import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -37,6 +39,8 @@ import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -74,7 +78,15 @@ public class CompatPermissionManagerTest {
 
             @Override
             public PackageManager getPackageManager() {
-                PackageManager pm = spy(super.getPackageManager());
+                final PackageManager realPm = super.getPackageManager();
+                PackageManager pm = mock(PackageManager.class, withSettings()
+                        .defaultAnswer(new Answer() {
+                            @Override
+                            public Object answer(InvocationOnMock invocation) throws Throwable {
+                                return invocation.getMethod().invoke(realPm,
+                                        invocation.getArguments());
+                            }
+                        }));
                 when(pm.getPackagesForUid(grantedUid)).thenReturn(new String[] { "grant_pkg"});
                 when(pm.getPackagesForUid(nonGrantedUid)).thenReturn(new String[] { "other_pkg"});
                 return pm;
