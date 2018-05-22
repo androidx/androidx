@@ -73,7 +73,7 @@ public class TextListItemActivity extends Activity {
             if (useEmptyIcon[0]) {
                 toBeUpdated.setPrimaryActionEmptyIcon();
             } else {
-                toBeUpdated.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+                toBeUpdated.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             }
             useEmptyIcon[0] = !useEmptyIcon[0];
 
@@ -114,25 +114,33 @@ public class TextListItemActivity extends Activity {
             TextListItem item;
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
-            item.setTitle("clickable single line with full icon and one action");
-            item.setAction("card height", true, mGetParentHeight);
-            mItems.add(item);
-
-            item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(mContext.getDrawable(R.drawable.pressed_icon), true);
-            item.setTitle("primary action set by drawable");
+            item.setPrimaryActionIcon(mContext.getDrawable(R.drawable.pressed_icon));
+            item.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+            item.setTitle("single line with clickable primary icon");
             item.addViewBinder(vh -> vh.getPrimaryIcon().setClickable(true));
             mItems.add(item);
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            item.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+            item.setTitle("single line with large icon and one action");
+            item.setAction("card height", true, mGetParentHeight);
+            mItems.add(item);
+
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            item.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
+            item.setTitle("single line with medium icon");
+            mItems.add(item);
+
+            item = new TextListItem(mContext);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setTitle("clickable single line with small icon and clickable end icon");
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true, mGetParentHeight);
             mItems.add(item);
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setTitle("single line without a list divider");
             item.setHideDivider(true);
             mItems.add(item);
@@ -197,14 +205,15 @@ public class TextListItemActivity extends Activity {
             mItems.add(item);
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            item.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
             item.setTitle("double line with full icon and no end icon divider");
             item.setBody("one line text");
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false, mGetParentHeight);
             mItems.add(item);
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setTitle("double line with small icon and one action");
             item.setBody("one line text");
             item.setAction("card height", true, mGetParentHeight);
@@ -212,7 +221,7 @@ public class TextListItemActivity extends Activity {
 
             String tenChars = "Ten Chars.";
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setTitle("Card with small icon and text longer than limit");
             item.setBody(TextUtils.join("", Collections.nCopies(20, tenChars)));
             item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, true, mGetParentHeight);
@@ -249,13 +258,14 @@ public class TextListItemActivity extends Activity {
             mItems.add(item);
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+            item.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
             item.setBody("Only body - no title is set");
             item.setAction("card height", true, mGetParentHeight);
             mItems.add(item);
 
             item = new TextListItem(mContext);
-            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setBody("Only body - no title. " + mContext.getString(R.string.long_text));
             mItems.add(item);
 
