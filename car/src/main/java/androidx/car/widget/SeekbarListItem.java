@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
@@ -599,8 +600,8 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
         }
 
         @Override
-        protected void complyWithUxRestrictions(CarUxRestrictions restrictions) {
-            CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
+        protected void applyUxRestrictions(@NonNull CarUxRestrictions restrictions) {
+            CarUxRestrictionsUtils.apply(itemView.getContext(), restrictions, getText());
         }
 
         public RelativeLayout getContainerLayout() {

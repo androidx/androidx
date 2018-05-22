@@ -801,7 +801,7 @@ public class TextListItemTest {
         // Default behavior without UXR is unrestricted.
         assertThat(viewHolder.getBody().getText(), is(equalTo(longText)));
 
-        viewHolder.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
+        viewHolder.applyUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
         refreshUi();
 
         // Verify that the body text length is limited.
@@ -822,11 +822,11 @@ public class TextListItemTest {
 
         // Toggle UX restrictions between fully restricted and unrestricted should not affect
         // existing filters.
-        viewHolder.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
+        viewHolder.applyUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
         refreshUi();
         assertTrue(Arrays.asList(viewHolder.getBody().getFilters()).contains(filter));
 
-        viewHolder.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getBaseline());
+        viewHolder.applyUxRestrictions(CarUxRestrictionsTestUtils.getBaseline());
         refreshUi();
         assertTrue(Arrays.asList(viewHolder.getBody().getFilters()).contains(filter));
     }

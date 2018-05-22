@@ -23,14 +23,14 @@ import android.content.Context;
 import android.text.InputFilter;
 import android.widget.TextView;
 
+import androidx.annotation.RestrictTo;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import androidx.annotation.RestrictTo;
-
 /**
- * Utility class that helps {@code View}s comply with {@link CarUxRestrictions}.
+ * Utility class that helps applying {@link CarUxRestrictions} to {@code View}s.
  *
  * @hide
  */
@@ -42,15 +42,15 @@ public class CarUxRestrictionsUtils {
     private static InputFilter sStringLengthFilter;
 
     /**
-     * Updates a {@code TextView} to comply with active UX restrictions.
+     * Applies active UX restrictions to a {@code TextView}.
      *
      * <p>Adds/removes a {@link android.text.InputFilter.LengthFilter} that truncates the text
      * in {@code TextView}.
      *
      * @param carUxRestrictions current Car UX restrictions.
-     * @param tv TextView to be updated to comply with UX restrictions.
+     * @param tv TextView that UX restrictions should be applied to.
      */
-    public static void comply(Context context, CarUxRestrictions carUxRestrictions, TextView tv) {
+    public static void apply(Context context, CarUxRestrictions carUxRestrictions, TextView tv) {
         if (sStringLengthFilter == null) {
             int lengthLimit = carUxRestrictions.getMaxRestrictedStringLength();
             sStringLengthFilter = new InputFilter.LengthFilter(lengthLimit);

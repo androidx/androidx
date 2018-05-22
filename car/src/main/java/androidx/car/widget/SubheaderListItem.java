@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import androidx.annotation.DimenRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
@@ -198,15 +199,15 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
         }
 
         /**
-         * Update children views to comply with car UX restrictions.
+         * Applies car UX restrictions to child views.
          *
          * <p>{@code Text} might be truncated to meet length limit required by regulation.
          *
          * @param restrictions current car UX restrictions.
          */
         @Override
-        protected void complyWithUxRestrictions(CarUxRestrictions restrictions) {
-            CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
+        protected void applyUxRestrictions(@NonNull CarUxRestrictions restrictions) {
+            CarUxRestrictionsUtils.apply(itemView.getContext(), restrictions, getText());
         }
 
         public TextView getText() {

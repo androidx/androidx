@@ -276,7 +276,7 @@ public class ListItemAdapter extends
 
         // Car may not be initialized thus current UXR will not be available.
         if (mCurrentUxRestrictions != null) {
-            holder.complyWithUxRestrictions(mCurrentUxRestrictions);
+            holder.applyUxRestrictions(mCurrentUxRestrictions);
         }
 
         ListItem item = mItemProvider.get(position);

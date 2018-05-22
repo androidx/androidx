@@ -4,6 +4,7 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.view.View;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
@@ -248,10 +249,10 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
         }
 
         /**
-         * Update children views to comply with UX restriction changes.
+         * Applies UX restriction changes to child views.
          *
          * @param restrictions current car UX restrictions.
          */
-        protected abstract void complyWithUxRestrictions(CarUxRestrictions restrictions);
+        protected abstract void applyUxRestrictions(@NonNull CarUxRestrictions restrictions);
     }
 }
