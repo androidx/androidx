@@ -105,7 +105,7 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
 
             Drawable d = mSliceAction.getIcon().loadDrawable(getContext());
             ((ImageView) mActionView).setImageDrawable(d);
-            if (color != -1 && mSliceAction.getImageMode() == ICON_IMAGE) {
+            if (color != -1 && mSliceAction.getImageMode() == ICON_IMAGE && d != null) {
                 // TODO - Consider allowing option for untinted custom toggles
                 DrawableCompat.setTint(d, color);
             }
