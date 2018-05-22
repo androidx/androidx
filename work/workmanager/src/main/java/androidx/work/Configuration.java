@@ -59,6 +59,19 @@ public final class Configuration {
          * @param executor An {@link Executor} for processing work
          * @return This {@link Builder} instance
          */
+        public Builder setExecutor(@NonNull Executor executor) {
+            mExecutor = executor;
+            return this;
+        }
+
+        /**
+         * Specifies a custom {@link Executor} for WorkManager.
+         *
+         * @param executor An {@link Executor} for processing work
+         * @return This {@link Builder} instance
+         * @deprecated Use the {@link Configuration.Builder#setExecutor(Executor)} method instead
+         */
+        @Deprecated
         public Builder withExecutor(@NonNull Executor executor) {
             mExecutor = executor;
             return this;
