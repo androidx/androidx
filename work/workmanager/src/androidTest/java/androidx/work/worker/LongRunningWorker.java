@@ -16,12 +16,14 @@
 
 package androidx.work.worker;
 
+import android.support.annotation.NonNull;
+
 import androidx.work.Worker;
 
 public class LongRunningWorker extends Worker {
 
     @Override
-    public WorkerResult doWork() {
+    public @NonNull WorkerResult doWork() {
         try {
             Thread.sleep(5000L);
         } catch (InterruptedException e) {

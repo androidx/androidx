@@ -363,11 +363,11 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
     /**
      * @param workSpecId The {@link WorkSpec} id to start
-     * @param runtimeExtras The {@link RuntimeExtras} associated with this work
+     * @param runtimeExtras The {@link Extras.RuntimeExtras} associated with this work
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void startWork(String workSpecId, RuntimeExtras runtimeExtras) {
+    public void startWork(String workSpecId, Extras.RuntimeExtras runtimeExtras) {
         mTaskExecutor.executeOnBackgroundThread(
                 new StartWorkRunnable(this, workSpecId, runtimeExtras));
     }
