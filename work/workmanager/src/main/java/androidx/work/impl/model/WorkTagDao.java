@@ -46,4 +46,13 @@ public interface WorkTagDao {
      */
     @Query("SELECT work_spec_id FROM worktag WHERE tag=:tag")
     List<String> getWorkSpecIdsWithTag(String tag);
+
+    /**
+     * Retrieves all tags for a given {@link WorkSpec} id.
+     *
+     * @param id The id of the {@link WorkSpec}
+     * @return A list of tags for that {@link WorkSpec}
+     */
+    @Query("SELECT DISTINCT tag FROM worktag WHERE work_spec_id=:id")
+    List<String> getTagsForWorkSpecId(String id);
 }
