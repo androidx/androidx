@@ -44,6 +44,7 @@ public abstract class Worker {
     private @NonNull String mId;
     private @NonNull Extras mExtras;
     private @NonNull Data mOutputData = Data.EMPTY;
+    private volatile boolean mStopped;
 
     public final @NonNull Context getApplicationContext() {
         return mAppContext;
@@ -115,6 +116,39 @@ public abstract class Worker {
 
     public final @NonNull Data getOutputData() {
         return mOutputData;
+    }
+
+    /**
+     * Returns {@code true} if this Worker has been told to stop.  This could be because of an
+     * explicit cancellation signal by the user, or because the system has decided to preempt the
+     * task. In these cases, the results of the work will be ignored by WorkManager and it is safe
+     * to stop the computation.
+     *
+     * @return {@code true} if the work operation has been interrupted
+     */
+    public final boolean isStopped() {
+        return mStopped;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public final void stop() {
+        mStopped = true;
+        onStopped();
+    }
+
+    /**
+     * This method is invoked when this Worker has been told to stop.  This could happen due
+     * to an explicit cancellation signal by the user, or because the system has decided to preempt
+     * the task.  In these cases, the results of the work will be ignored by WorkManager.  All
+     * processing in this method should be lightweight - there are no contractual guarantees about
+     * which thread will invoke this call, so this should not be a long-running or blocking
+     * operation.
+     */
+    public void onStopped() {
+        // Do nothing by default.
     }
 
     @Keep

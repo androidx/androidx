@@ -183,6 +183,10 @@ public class WorkerWrapper implements Runnable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void interrupt() {
         mInterrupted = true;
+        // Worker can be null if run() hasn't been called yet.
+        if (mWorker != null) {
+            mWorker.stop();
+        }
     }
 
     private void notifyIncorrectStatus() {
