@@ -97,7 +97,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
 
         Context context = InstrumentationRegistry.getTargetContext();
         Configuration configuration = new Configuration.Builder()
-                .withExecutor(Executors.newSingleThreadExecutor())
+                .setExecutor(Executors.newSingleThreadExecutor())
                 .build();
         mWorkManagerImpl = new WorkManagerImpl(context, configuration);
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
