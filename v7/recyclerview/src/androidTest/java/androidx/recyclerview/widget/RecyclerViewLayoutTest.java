@@ -4896,8 +4896,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 final View view = recycler.getViewForPosition(0);
                 addView(view);
                 measureChildWithMargins(view, 0, 0);
-                view.layout(0, -20, view.getWidth(),
-                        -20 + view.getHeight());// ignore decors on purpose
+                view.layout(0, -20, view.getMeasuredWidth(),
+                        -20 + view.getMeasuredHeight()); // ignore decors on purpose
                 layoutLatch.countDown();
             }
 
