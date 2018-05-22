@@ -379,10 +379,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         final ProgressBar progressBar = isSeekBar
                 ? new SeekBar(getContext())
                 : new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
-        if (mTintColor != -1) {
-            Drawable drawable = DrawableCompat.wrap(progressBar.getProgressDrawable());
-            DrawableCompat.setTint(drawable, mTintColor);
-            progressBar.setProgressDrawable(drawable);
+        Drawable progressDrawable = DrawableCompat.wrap(progressBar.getProgressDrawable());
+        if (mTintColor != -1 && progressDrawable != null) {
+            DrawableCompat.setTint(progressDrawable, mTintColor);
+            progressBar.setProgressDrawable(progressDrawable);
         }
         // TODO: Need to handle custom accessibility for min
         SliceItem min = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MIN);
@@ -405,12 +405,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             SliceItem thumb = mRowContent.getInputRangeThumb();
             SeekBar seekBar = (SeekBar) mRangeBar;
             if (thumb != null) {
-                seekBar.setThumb(thumb.getIcon().loadDrawable(getContext()));
+                Drawable d = thumb.getIcon().loadDrawable(getContext());
+                if (d != null) {
+                    seekBar.setThumb(d);
+                }
             }
-            if (mTintColor != -1) {
-                Drawable drawable = DrawableCompat.wrap(seekBar.getThumb());
-                DrawableCompat.setTint(drawable, mTintColor);
-                seekBar.setThumb(drawable);
+            Drawable thumbDrawable = DrawableCompat.wrap(seekBar.getThumb());
+            if (mTintColor != -1 && thumbDrawable != null) {
+                DrawableCompat.setTint(thumbDrawable, mTintColor);
+                seekBar.setThumb(thumbDrawable);
             }
             final int finalMinValue = minValue;
             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
