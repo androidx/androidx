@@ -222,3 +222,10 @@ includeProject(":webview-support-interfaces", new File(externalRoot, "webview_su
 ///// FLATFOOT START
 
 ///// FLATFOOT END
+
+// fake project which is used for docs generation from prebuilts
+// we need real android project to generate R.java, aidl etc files that mentioned in sources
+if (!startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
+    // we don't need it in ide, so we don't configure it there
+    includeProject(":docs-fake", "docs-fake")
+}
