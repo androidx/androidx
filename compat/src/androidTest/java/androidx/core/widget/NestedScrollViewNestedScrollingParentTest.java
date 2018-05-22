@@ -698,6 +698,95 @@ public class NestedScrollViewNestedScrollingParentTest extends
                 @Nullable int[] offsetInWindow, int type) {
             return false;
         }
+
+        @Override
+        public void setNestedScrollingEnabled(boolean enabled) {
+
+        }
+
+        @Override
+        public boolean isNestedScrollingEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean startNestedScroll(int axes) {
+            return false;
+        }
+
+        @Override
+        public void stopNestedScroll() {
+
+        }
+
+        @Override
+        public boolean hasNestedScrollingParent() {
+            return false;
+        }
+
+        @Override
+        public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+                int dyUnconsumed, int[] offsetInWindow) {
+            return false;
+        }
+
+        @Override
+        public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed,
+                int[] offsetInWindow) {
+            return false;
+        }
+
+        @Override
+        public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
+            return false;
+        }
+
+        @Override
+        public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
+            return false;
+        }
+
+        @Override
+        public boolean onStartNestedScroll(View child, View target, int axes) {
+            return false;
+        }
+
+        @Override
+        public void onNestedScrollAccepted(View child, View target, int axes) {
+
+        }
+
+        @Override
+        public void onStopNestedScroll(View target) {
+
+        }
+
+        @Override
+        public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+                int dyUnconsumed) {
+
+        }
+
+        @Override
+        public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+
+        }
+
+        @Override
+        public boolean onNestedFling(View target, float velocityX, float velocityY,
+                boolean consumed) {
+            return false;
+        }
+
+        @Override
+        public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+            return false;
+        }
+
+        @Override
+        public int getNestedScrollAxes() {
+            return 0;
+        }
     }
 
 }
