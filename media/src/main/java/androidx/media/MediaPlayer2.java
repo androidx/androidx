@@ -373,7 +373,7 @@ public abstract class MediaPlayer2 {
      * Returns a {@link BaseMediaPlayer} implementation which runs based on
      * this MediaPlayer2 instance.
      */
-    public abstract BaseMediaPlayer getMediaPlayerInterface();
+    public abstract BaseMediaPlayer getBaseMediaPlayer();
 
     /**
      * Releases the resources held by this {@code MediaPlayer2} object.

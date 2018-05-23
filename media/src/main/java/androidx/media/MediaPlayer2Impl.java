@@ -188,7 +188,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * this MediaPlayer2 instance.
      */
     @Override
-    public BaseMediaPlayer getMediaPlayerInterface() {
+    public BaseMediaPlayer getBaseMediaPlayer() {
         synchronized (mLock) {
             if (mBaseMediaPlayerImpl == null) {
                 mBaseMediaPlayerImpl = new BaseMediaPlayerImpl();

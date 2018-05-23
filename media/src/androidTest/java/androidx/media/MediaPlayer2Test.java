@@ -1919,7 +1919,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             mEventCallbacks.add(ecb);
         }
 
-        BaseMediaPlayer playerBase = mPlayer.getMediaPlayerInterface();
+        BaseMediaPlayer playerBase = mPlayer.getBaseMediaPlayer();
         assertEquals(BaseMediaPlayer.BUFFERING_STATE_UNKNOWN, playerBase.getBufferingState());
         assertEquals(BaseMediaPlayer.PLAYER_STATE_IDLE, playerBase.getPlayerState());
         prepareCompleted.reset();
@@ -2008,7 +2008,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 onSeekCompleteCalled.signal();
             }
         };
-        BaseMediaPlayer basePlayer = mPlayer.getMediaPlayerInterface();
+        BaseMediaPlayer basePlayer = mPlayer.getBaseMediaPlayer();
         ExecutorService executor = Executors.newFixedThreadPool(1);
         basePlayer.registerPlayerEventCallback(executor, callback);
 
