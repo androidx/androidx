@@ -23,6 +23,12 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class holding the pages of data backing a PagedList, presenting sparse loaded data as a List.
+ * <p>
+ * It has two modes of operation: contiguous and non-contiguous (tiled). This class only holds
+ * data, and does not have any notion of the ideas of async loads, or prefetching.
+ */
 final class PagedStorage<T> extends AbstractList<T> {
     /**
      * Lists instances are compared (with instance equality) to PLACEHOLDER_LIST to check if an item
@@ -50,6 +56,14 @@ final class PagedStorage<T> extends AbstractList<T> {
 
     private int mPositionOffset;
     /**
+     * Number of loaded items held by {@link #mPages}. When tiling, doesn't count unloaded pages in
+     * {@link #mPages}. If tiling is disabled, same as {@link #mStorageCount}.
+     *
+     * This count is the one used for trimming.
+     */
+    private int mLoadedCount;
+
+    /**
      * Number of items represented by {@link #mPages}. If tiling is enabled, unloaded items in
      * {@link #mPages} may be null, but this value still counts them.
      */
@@ -66,6 +80,7 @@ final class PagedStorage<T> extends AbstractList<T> {
         mPages = new ArrayList<>();
         mTrailingNullCount = 0;
         mPositionOffset = 0;
+        mLoadedCount = 0;
         mStorageCount = 0;
         mPageSize = 1;
         mNumberPrepended = 0;
@@ -82,6 +97,7 @@ final class PagedStorage<T> extends AbstractList<T> {
         mPages = new ArrayList<>(other.mPages);
         mTrailingNullCount = other.mTrailingNullCount;
         mPositionOffset = other.mPositionOffset;
+        mLoadedCount = other.mLoadedCount;
         mStorageCount = other.mStorageCount;
         mPageSize = other.mPageSize;
         mNumberPrepended = other.mNumberPrepended;
@@ -99,9 +115,10 @@ final class PagedStorage<T> extends AbstractList<T> {
         mTrailingNullCount = trailingNulls;
 
         mPositionOffset = positionOffset;
-        mStorageCount = page.size();
+        mLoadedCount = page.size();
+        mStorageCount = mLoadedCount;
 
-        // initialized as tiled. There may be 3 nulls, 2 items, but we still call this tiled
+                // initialized as tiled. There may be 3 nulls, 2 items, but we still call this tiled
         // even if it will break if nulls convert.
         mPageSize = page.size();
 
@@ -194,6 +211,8 @@ final class PagedStorage<T> extends AbstractList<T> {
         void onPageAppended(int endPosition, int changed, int added);
         void onPagePlaceholderInserted(int pageIndex);
         void onPageInserted(int start, int count);
+        void onPagesRemoved(int startOfDrops, int count);
+        void onPagesSwappedToPlaceholder(int startOfDrops, int count);
     }
 
     int getPositionOffset() {
@@ -230,6 +249,69 @@ final class PagedStorage<T> extends AbstractList<T> {
         return total;
     }
 
+    boolean needsTrimFromFront(int maxSize, int requiredRemaining)  {
+        return (mLoadedCount > maxSize
+                && mPages.size() > 2
+                && mLoadedCount - mPages.get(0).size() >= requiredRemaining);
+    }
+
+    boolean needsTrimFromEnd(int maxSize, int requiredRemaining)  {
+        return (mLoadedCount > maxSize
+                && mPages.size() > 2
+                && mLoadedCount - mPages.get(mPages.size() - 1).size() >= requiredRemaining);
+    }
+
+    void trimFromFront(boolean insertNulls, int maxSize, int requiredRemaining,
+            @NonNull Callback callback) {
+        int totalRemoved = 0;
+        while (needsTrimFromFront(maxSize, requiredRemaining)
+                || mPages.get(0) == PLACEHOLDER_LIST) {
+            List page = mPages.remove(0);
+            int removed = (page == PLACEHOLDER_LIST) ? mPageSize : page.size();
+            totalRemoved += removed;
+            mStorageCount -= removed;
+            mLoadedCount -= page.size();
+        }
+
+        if (totalRemoved > 0) {
+            if (insertNulls) {
+                // replace removed items with nulls
+                int previousLeadingNulls = mLeadingNullCount;
+                mLeadingNullCount += totalRemoved;
+                callback.onPagesSwappedToPlaceholder(previousLeadingNulls, totalRemoved);
+            } else {
+                // simply remove, and handle offset
+                mPositionOffset += totalRemoved;
+                callback.onPagesRemoved(mLeadingNullCount, totalRemoved);
+            }
+        }
+    }
+
+    void trimFromEnd(boolean insertNulls, int maxSize, int requiredRemaining,
+            @NonNull Callback callback) {
+        int totalRemoved = 0;
+        while (needsTrimFromEnd(maxSize, requiredRemaining)
+                || mPages.get(mPages.size() - 1) == PLACEHOLDER_LIST) {
+            List page = mPages.remove(mPages.size() - 1);
+            int removed = (page == PLACEHOLDER_LIST) ? mPageSize : page.size();
+            totalRemoved += removed;
+            mStorageCount -= removed;
+            mLoadedCount -= page.size();
+        }
+
+        if (totalRemoved > 0) {
+            int newEndPosition = mLeadingNullCount + mStorageCount;
+            if (insertNulls) {
+                // replace removed items with nulls
+                mTrailingNullCount += totalRemoved;
+                callback.onPagesSwappedToPlaceholder(newEndPosition, totalRemoved);
+            } else {
+                // items were just removed, signal
+                callback.onPagesRemoved(newEndPosition, totalRemoved);
+            }
+        }
+    }
+
     // ---------------- Contiguous API -------------------
 
     T getFirstLoadedItem() {
@@ -262,6 +344,7 @@ final class PagedStorage<T> extends AbstractList<T> {
         }
 
         mPages.add(0, page);
+        mLoadedCount += count;
         mStorageCount += count;
 
         final int changedCount = Math.min(mLeadingNullCount, count);
@@ -293,6 +376,7 @@ final class PagedStorage<T> extends AbstractList<T> {
         }
 
         mPages.add(page);
+        mLoadedCount += count;
         mStorageCount += count;
 
         final int changedCount = Math.min(mTrailingNullCount, count);
@@ -364,8 +448,9 @@ final class PagedStorage<T> extends AbstractList<T> {
                     "Invalid position " + position + ": data already loaded");
         }
         mPages.set(localPageIndex, page);
+        mLoadedCount += newPageSize;
         if (callback != null) {
-            callback.onPageInserted(position, page.size());
+            callback.onPageInserted(position, newPageSize);
         }
     }
 
