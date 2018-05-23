@@ -20,11 +20,14 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SimpleArrayMap;
+import androidx.core.view.KeyEventDispatcher;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
@@ -40,7 +43,8 @@ import androidx.lifecycle.ReportFragment;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public class ComponentActivity extends Activity implements LifecycleOwner {
+public class ComponentActivity extends Activity
+        implements LifecycleOwner, KeyEventDispatcher.Component {
     /**
      * Storage for {@link ExtraData} instances.
      *
@@ -93,6 +97,33 @@ public class ComponentActivity extends Activity implements LifecycleOwner {
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycleRegistry;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public boolean superDispatchKeyEvent(KeyEvent event) {
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean dispatchKeyShortcutEvent(KeyEvent event) {
+        View decor = getWindow().getDecorView();
+        if (decor != null && KeyEventDispatcher.dispatchBeforeHierarchy(decor, event)) {
+            return true;
+        }
+        return super.dispatchKeyShortcutEvent(event);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        View decor = getWindow().getDecorView();
+        if (decor != null && KeyEventDispatcher.dispatchBeforeHierarchy(decor, event)) {
+            return true;
+        }
+        return KeyEventDispatcher.dispatchKeyEvent(this, decor, this, event);
     }
 
     /**

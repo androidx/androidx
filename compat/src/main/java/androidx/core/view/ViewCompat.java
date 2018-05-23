@@ -32,7 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.SparseBooleanArray;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -3490,35 +3490,16 @@ public class ViewCompat {
         }
     }
 
-    /**
-     * @see #dispatchUnhandledKeyEventPost
-     */
     @UiThread
-    public static boolean dispatchUnhandledKeyEventPre(View root, KeyEvent evt) {
+    static boolean dispatchUnhandledKeyEventBeforeHierarchy(View root, KeyEvent evt) {
         if (Build.VERSION.SDK_INT >= 28) {
             return false;
         }
-        return UnhandledKeyEventManager.at(root).hasFocus()
-                && UnhandledKeyEventManager.at(root).dispatch(root, evt);
+        return UnhandledKeyEventManager.at(root).preDispatch(evt);
     }
 
-    /**
-     * If not using AppCompatDelegate, override {@link android.app.Activity#dispatchKeyEvent} like:
-     * <pre>
-     * {@code
-     * {@literal @}Override
-     * public boolean dispatchKeyEvent(KeyEvent event) {
-     *     View root = getWindow().getDecorView();
-     *     return ViewCompat.preDispatchUnhandledKeyEvent(root, event)
-     *             || super.dispatchKeyEvent(event)
-     *             || ViewCompat.postDispatchUnhandledKeyEvent(root, event);
-     * }
-     * </pre>
-     * By doing this, dispatch order won't be exactly the same as if using delegate, but it will
-     * be pretty close.
-     */
     @UiThread
-    public static boolean dispatchUnhandledKeyEventPost(View root, KeyEvent evt) {
+    static boolean dispatchUnhandledKeyEventBeforeCallback(View root, KeyEvent evt) {
         if (Build.VERSION.SDK_INT >= 28) {
             return false;
         }
@@ -3536,12 +3517,19 @@ public class ViewCompat {
         @Nullable
         private WeakHashMap<View, Boolean> mViewsContainingListeners = null;
 
-        private SparseBooleanArray mCapturedKeys = null;
-        private WeakReference<View> mCurrentReceiver = null;
+        // Keeps track of which Views have unhandled key focus for which keys. This doesn't
+        // include modifiers.
+        private SparseArray<WeakReference<View>> mCapturedKeys = null;
 
-        private SparseBooleanArray getCapturedKeys() {
+        // Set to the last KeyEvent which went through preDispatch. Currently, it's difficult to
+        // unify the "earliest" point we can handle a KeyEvent in all code-paths. However, this
+        // de-duplicating behavior is left as an implementation detail only since things may
+        // become cleaner as more of supportlib moves towards the component model.
+        private WeakReference<KeyEvent> mLastDispatchedPreViewKeyEvent = null;
+
+        private SparseArray<WeakReference<View>> getCapturedKeys() {
             if (mCapturedKeys == null) {
-                mCapturedKeys = new SparseBooleanArray();
+                mCapturedKeys = new SparseArray<>();
             }
             return mCapturedKeys;
         }
@@ -3556,36 +3544,20 @@ public class ViewCompat {
             return manager;
         }
 
-        private void updateCaptureState(KeyEvent event) {
-            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                getCapturedKeys().append(event.getKeyCode(), true);
-            } else if (event.getAction() == KeyEvent.ACTION_UP) {
-                getCapturedKeys().delete(event.getKeyCode());
-            }
-        }
-
         boolean dispatch(View root, KeyEvent event) {
-            updateCaptureState(event);
-
-            if (mCurrentReceiver != null) {
-                View target = mCurrentReceiver.get();
-                if (getCapturedKeys().size() == 0) {
-                    mCurrentReceiver = null;
-                }
-                if (target != null && ViewCompat.isAttachedToWindow(target)) {
-                    return onUnhandledKeyEvent(target, event);
-                }
-                // consume anyways so that we don't feed uncaptured key events to other views
-                return true;
-            }
-
-            if (event.getAction() == KeyEvent.ACTION_DOWN && getCapturedKeys().size() == 1) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 recalcViewsWithUnhandled();
             }
 
             View consumer = dispatchInOrder(root, event);
-            if (consumer != null) {
-                mCurrentReceiver = new WeakReference<>(consumer);
+
+            // If an unhandled listener handles one, then keep track of it so that the consuming
+            // view is first to receive its repeats and release as well.
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                int keycode = event.getKeyCode();
+                if (consumer != null && !KeyEvent.isModifierKey(keycode)) {
+                    getCapturedKeys().put(keycode, new WeakReference<>(consumer));
+                }
             }
             return consumer != null;
         }
@@ -3612,11 +3584,44 @@ public class ViewCompat {
             return null;
         }
 
-        boolean hasFocus() {
-            return mCurrentReceiver != null;
+        /**
+         * Called before the event gets dispatched to the view hierarchy
+         * @return {@code true} if an unhandled handler has focus and consumed the event
+         */
+        boolean preDispatch(KeyEvent event) {
+            // De-duplicate calls to preDispatch. See comment on mLastDispatchedPreViewKeyEvent.
+            if (mLastDispatchedPreViewKeyEvent != null
+                    && mLastDispatchedPreViewKeyEvent.get() == event) {
+                return false;
+            }
+            mLastDispatchedPreViewKeyEvent = new WeakReference<>(event);
+
+            // Always clean-up 'up' events since it's possible for earlier dispatch stages to
+            // consume them without consuming the corresponding 'down' event.
+            WeakReference<View> currentReceiver = null;
+            SparseArray<WeakReference<View>> capturedKeys = getCapturedKeys();
+            if (event.getAction() == KeyEvent.ACTION_UP) {
+                int idx = capturedKeys.indexOfKey(event.getKeyCode());
+                if (idx >= 0) {
+                    currentReceiver = capturedKeys.valueAt(idx);
+                    capturedKeys.removeAt(idx);
+                }
+            }
+            if (currentReceiver == null) {
+                currentReceiver = capturedKeys.get(event.getKeyCode());
+            }
+            if (currentReceiver != null) {
+                View target = currentReceiver.get();
+                if (target != null && ViewCompat.isAttachedToWindow(target)) {
+                    onUnhandledKeyEvent(target, event);
+                }
+                // consume anyways so that we don't feed uncaptured key events to other views
+                return true;
+            }
+            return false;
         }
 
-        boolean onUnhandledKeyEvent(@NonNull View v, @NonNull KeyEvent event) {
+        private boolean onUnhandledKeyEvent(@NonNull View v, @NonNull KeyEvent event) {
             @SuppressWarnings("unchecked")
             ArrayList<OnUnhandledKeyEventListenerCompat> viewListeners =
                     (ArrayList<OnUnhandledKeyEventListenerCompat>)

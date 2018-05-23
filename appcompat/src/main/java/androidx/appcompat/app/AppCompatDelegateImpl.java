@@ -95,6 +95,7 @@ import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.appcompat.widget.ViewStubCompat;
 import androidx.appcompat.widget.ViewUtils;
 import androidx.core.app.NavUtils;
+import androidx.core.view.KeyEventDispatcher;
 import androidx.core.view.LayoutInflaterCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
@@ -1158,9 +1159,14 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     boolean dispatchKeyEvent(KeyEvent event) {
-        View root = mWindow.getDecorView();
-        if (ViewCompat.dispatchUnhandledKeyEventPre(root, event)) {
-            return true;
+        // Check AppCompatDialog directly since it isn't able to implement KeyEventDispatcher
+        // while it is @hide.
+        if (mOriginalWindowCallback instanceof KeyEventDispatcher.Component
+                || mOriginalWindowCallback instanceof AppCompatDialog) {
+            View root = mWindow.getDecorView();
+            if (root != null && KeyEventDispatcher.dispatchBeforeHierarchy(root, event)) {
+                return true;
+            }
         }
 
         if (event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
@@ -1174,11 +1180,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         final int action = event.getAction();
         final boolean isDown = action == KeyEvent.ACTION_DOWN;
 
-        if (isDown ? onKeyDown(keyCode, event) : onKeyUp(keyCode, event)) {
-            return true;
-        }
-        // This whole dispatchKeyEvent occurs before the callback
-        return ViewCompat.dispatchUnhandledKeyEventPost(root, event);
+        return (isDown ? onKeyDown(keyCode, event) : onKeyUp(keyCode, event));
     }
 
     boolean onKeyUp(int keyCode, KeyEvent event) {

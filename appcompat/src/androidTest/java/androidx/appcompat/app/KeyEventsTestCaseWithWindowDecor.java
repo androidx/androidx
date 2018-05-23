@@ -62,7 +62,7 @@ public class KeyEventsTestCaseWithWindowDecor extends BaseKeyEventsTestCase<Wind
         mockView2.respondToDown = true;
         instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B);
         assertTrue(mockView2.gotDown);
-        mockView2.respondToDown = false;
+        mockView2.reset();
 
         ViewCompat.addOnUnhandledKeyEventListener(mockView1, listener);
 
@@ -80,6 +80,35 @@ public class KeyEventsTestCaseWithWindowDecor extends BaseKeyEventsTestCase<Wind
         instrumentation.waitForIdleSync();
         instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B);
         assertTrue(listener.fired());
+        listener.reset();
+
+        // Views should still take precedence
+        mockView2.respondToDown = true;
+        mockView2.respondToUp = true;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mockView2.requestFocus();
+            }
+        });
+        instrumentation.waitForIdleSync();
+        assertTrue(mockView2.isFocused());
+        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B);
+        assertTrue(mockView2.gotDown);
+        assertFalse(listener.fired());
+
+        // Still receives fallback with focused view
+        mockView2.reset();
+        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B);
+        assertTrue(listener.fired());
+        listener.reset();
+
+        // Receives events before Window.Callback (eg BACK)
+        listener.mReturnVal = true;
+        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        assertTrue(listener.fired());
+        assertFalse(mActivityTestRule.getActivity().wasOnBackPressedCalled());
+        listener.mReturnVal = false;
         listener.reset();
 
         // If removed, it should not receive fallbacks anymore
@@ -127,12 +156,19 @@ public class KeyEventsTestCaseWithWindowDecor extends BaseKeyEventsTestCase<Wind
         }
 
         public boolean respondToDown = false;
+        public boolean respondToUp = false;
         public boolean gotDown = false;
+
+        public void reset() {
+            respondToUp = respondToDown = gotDown = false;
+        }
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent evt) {
             if (evt.getAction() == KeyEvent.ACTION_DOWN && respondToDown) {
                 gotDown = true;
+                return true;
+            } else if (evt.getAction() == KeyEvent.ACTION_UP && respondToUp) {
                 return true;
             }
             return super.dispatchKeyEvent(evt);
