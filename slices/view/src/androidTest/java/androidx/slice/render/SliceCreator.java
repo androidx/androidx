@@ -84,6 +84,7 @@ public class SliceCreator {
             "error",
             "rtlgrid",
             "translate",
+            "slices",
     };
 
     private final Context mContext;
@@ -154,6 +155,8 @@ public class SliceCreator {
                 return createTranslationSlice(sliceUri);
             case "/rtlgrid":
                 return createRtlGridSlice(sliceUri);
+            case "/slices":
+                return createFoodOptionsSlice(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -641,6 +644,49 @@ public class SliceCreator {
                         .addEndItem(getSpeakWordAction("مرحبا"))
                         .setLayoutDirection(View.LAYOUT_DIRECTION_RTL))
                 .build();
+    }
+
+    private Slice createFoodOptionsSlice(Uri sliceUri) {
+        int[] pizzaResId = new int[] {R.drawable.pizza3, R.drawable.pizza2, R.drawable.pizza1,
+                R.drawable.pizza4};
+        String[] titles = new String[] {"Sung's Pizza", "Slice of Life", "Ideal Triangles",
+                "Meeting place"};
+        String[] subtitles = new String[] {"5 stars", "5 stars", "4 stars",
+                "4 stars"};
+
+        int count = 4; // How many things show in the grid
+        StringBuilder summary = new StringBuilder();
+        String subtitle = count + " nearby restaurants";
+        for (int i = 0; i < count; i++) {
+            summary.append(titles[i]);
+            if (i != count - 1) {
+                summary.append(", ");
+            }
+        }
+        SliceAction primaryAction = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "open nearby pizza places"),
+                IconCompat.createWithResource(getContext(), R.drawable.pizza3),
+                LARGE_IMAGE,
+                "Nearby Pizza");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setAccentColor(0xff4285F4);
+        lb.setHeader(new ListBuilder.HeaderBuilder(lb)
+                .setTitle("Pizza near you")
+                .setSubtitle(subtitle)
+                .setSummary(summary.toString())
+                .setPrimaryAction(primaryAction));
+
+        GridRowBuilder grb = new GridRowBuilder(lb);
+        for (int i = 0; i < count; i++) {
+            final int index = i;
+            grb.addCell(new GridRowBuilder.CellBuilder(grb)
+                    .addImage(IconCompat.createWithResource(
+                            getContext(), pizzaResId[index]), LARGE_IMAGE)
+                    .addTitleText(titles[index])
+                    .addText(subtitles[index]));
+        }
+        lb.addGridRow(grb);
+        return lb.build();
     }
 
     private SliceAction getSpeakWordAction(String word) {
