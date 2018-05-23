@@ -18,7 +18,6 @@ package androidx.car.drawer;
 
 import android.animation.ValueAnimator;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -30,8 +29,8 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.car.R;
-import androidx.car.widget.ClickThroughToolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.appbar.AppBarLayout;
@@ -66,20 +65,10 @@ import com.google.android.material.appbar.AppBarLayout;
  */
 public class CarDrawerActivity extends AppCompatActivity {
     private static final int ANIMATION_DURATION_MS = 100;
-    private static final float DRAWER_OPEN_OFFSET = 0.25f;
 
     private CarDrawerController mDrawerController;
     private AppBarLayout mAppBarLayout;
-
-    /**
-     * Whether or not the drawer is considered opened. This value is only set and unset when the
-     * drawer has passed the {@link #DRAWER_OPEN_OFFSET}.
-     */
-    private boolean mDrawerOpen;
-    private float mAppBarElevation;
-
-    private ClickThroughToolbar mToolbar;
-    private boolean mToolbarCollapsible;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,15 +82,15 @@ public class CarDrawerActivity extends AppCompatActivity {
 
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
-                this /* activity */,
-                drawerLayout, /* DrawerLayout object */
+                /* activity= */ this,
+                drawerLayout,
                 R.string.car_drawer_open,
                 R.string.car_drawer_close);
 
         mToolbar = findViewById(R.id.car_toolbar);
         setSupportActionBar(mToolbar);
 
-        mDrawerController = new CarDrawerController(mToolbar, drawerLayout, drawerToggle);
+        mDrawerController = new CarDrawerController(drawerLayout, drawerToggle);
         CarDrawerAdapter rootAdapter = getRootAdapter();
         if (rootAdapter != null) {
             mDrawerController.setRootAdapter(rootAdapter);
@@ -109,44 +98,6 @@ public class CarDrawerActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-
-        mDrawerController.addDrawerListener(new DrawerLayout.DrawerListener() {
-            private final int mClosedDrawerToolbarColor = getThemeColorPrimary();
-
-            @Override
-            public void onDrawerSlide(View view, float slideOffset) {
-                if (slideOffset >= DRAWER_OPEN_OFFSET) {
-                    // If this is the first time the drawer is considered open, then save the
-                    // value of the elevation to restore later.
-                    if (!mDrawerOpen) {
-                        mDrawerOpen = true;
-                        mAppBarElevation = mAppBarLayout.getElevation();
-                    }
-
-                    mAppBarLayout.setBackgroundColor(Color.TRANSPARENT);
-                    setToolbarElevation(0);
-                    setToolbarAlwaysShowInternal();
-                } else if (mDrawerOpen) {
-                    // Only reset the state of the AppBar if the drawer has reached the open state.
-                    mDrawerOpen = false;
-                    mAppBarLayout.setBackgroundColor(mClosedDrawerToolbarColor);
-                    setToolbarElevation(mAppBarElevation);
-
-                    if (mToolbarCollapsible) {
-                        setToolbarCollapsibleInternal();
-                    }
-                }
-            }
-
-            @Override
-            public void onDrawerOpened(View view) {}
-
-            @Override
-            public void onDrawerClosed(View view) {}
-
-            @Override
-            public void onDrawerStateChanged(int i) {}
-        });
     }
 
     /**
@@ -202,18 +153,6 @@ public class CarDrawerActivity extends AppCompatActivity {
     }
 
     /**
-     * Sets whether clicks on the toolbar of this view will pass through to any views underneath it.
-     * By default, the toolbar will not allow clicks to pass through. This is the equivalent of
-     * passing {@code false} to this method.
-     *
-     * @param clickThrough {@code true} if clicks will pass through; {@code false} for the toolbar
-     *                     to eat all clicks.
-     */
-    public void setToolbarClickThrough(boolean clickThrough) {
-        mToolbar.setClickPassThrough(clickThrough);
-    }
-
-    /**
      * Sets the elevation on the toolbar of this Activity.
      *
      * @param elevation The elevation to set.
@@ -244,16 +183,6 @@ public class CarDrawerActivity extends AppCompatActivity {
      * Activity is scrolled, the toolbar will collapse and show itself accordingly.
      */
     public void setToolbarCollapsible() {
-        mToolbarCollapsible = true;
-        setToolbarCollapsibleInternal();
-    }
-
-    /**
-     * An internal-use method that sets the toolbar as collapsible. This version of the method
-     * does not override {@link #mToolbarCollapsible}, and thus retains whatever value a user
-     * of this Activity has set.
-     */
-    private void setToolbarCollapsibleInternal() {
         AppBarLayout.LayoutParams params =
                 (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
         params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
@@ -265,16 +194,6 @@ public class CarDrawerActivity extends AppCompatActivity {
      * scrolled. This is the default behavior.
      */
     public void setToolbarAlwaysShow() {
-        mToolbarCollapsible = false;
-        setToolbarAlwaysShowInternal();
-    }
-
-    /**
-     * An internal-use method that sets the toolbar to always show. This version of the method does
-     * not override {@link #mToolbarCollapsible}, and thus retains whatever value a user of this
-     * Activity has set.
-     */
-    private void setToolbarAlwaysShowInternal() {
         AppBarLayout.LayoutParams params =
                 (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
         params.setScrollFlags(0);
