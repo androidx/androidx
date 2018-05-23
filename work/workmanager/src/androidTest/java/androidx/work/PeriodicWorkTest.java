@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
@@ -147,5 +148,24 @@ public class PeriodicWorkTest extends WorkManagerTest {
         assertThat(getWorkSpec(periodicWork).intervalDuration,
                 is(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS));
         assertThat(getWorkSpec(periodicWork).flexDuration, is(testFlex));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    public void testBuild_setPeriodic_withDurationParameters() {
+        Duration repeatInterval = Duration.ofDays(2).plusHours(3);
+        Duration flexInterval = Duration.ofHours(1).plusMinutes(2);
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                repeatInterval,
+                flexInterval)
+                .build();
+        assertThat(
+                getWorkSpec(periodicWork).intervalDuration,
+                is(TimeUnit.HOURS.toMillis((2 * 24) + 3)));
+        assertThat(
+                getWorkSpec(periodicWork).flexDuration,
+                is(TimeUnit.MINUTES.toMillis((1 * 60) + 2)));
     }
 }

@@ -16,11 +16,13 @@
 package androidx.work;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
 import androidx.work.impl.model.WorkSpec;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -191,6 +193,26 @@ public abstract class WorkRequest {
          */
         public B keepResultsForAtLeast(long duration, @NonNull TimeUnit timeUnit) {
             mWorkSpec.minimumRetentionDuration = timeUnit.toMillis(duration);
+            return getThis();
+        }
+
+        /**
+         * Specifies that the results of this work should be kept for at least the specified amount
+         * of time.  After this time has elapsed, the results may be pruned at the discretion of
+         * WorkManager when there are no pending dependent jobs.
+         *
+         * When the results of a work are pruned, it becomes impossible to query for its
+         * {@link WorkStatus}.
+         *
+         * Specifying a long duration here may adversely affect performance in terms of app storage
+         * and database query time.
+         *
+         * @param duration The minimum duration of time to keep the results of this work
+         * @return The current {@link Builder}
+         */
+        @RequiresApi(26)
+        public B keepResultsForAtLeast(@NonNull Duration duration) {
+            mWorkSpec.minimumRetentionDuration = duration.toMillis();
             return getThis();
         }
 

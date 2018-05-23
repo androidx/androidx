@@ -17,7 +17,9 @@ package androidx.work;
 
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -68,6 +70,26 @@ public final class PeriodicWorkRequest extends WorkRequest {
         }
 
         /**
+         * Creates a {@link PeriodicWorkRequest} to run periodically once every interval period. The
+         * {@link PeriodicWorkRequest} is guaranteed to run exactly one time during this interval.
+         * The {@code intervalMillis} must be greater than or equal to
+         * {@link PeriodicWorkRequest#MIN_PERIODIC_INTERVAL_MILLIS}. It may run immediately, at the
+         * end of the period, or any time in between so long as the other conditions are satisfied
+         * at the time. The run time of the {@link PeriodicWorkRequest} can be restricted to a flex
+         * period within an interval.
+         *
+         * @param workerClass The {@link Worker} class to run with this job
+         * @param repeatInterval The repeat interval
+         */
+        @RequiresApi(26)
+        public Builder(
+                @NonNull Class<? extends Worker> workerClass,
+                @NonNull Duration repeatInterval) {
+            super(workerClass);
+            mWorkSpec.setPeriodic(repeatInterval.toMillis());
+        }
+
+        /**
          * Creates a {@link PeriodicWorkRequest} to run periodically once within the
          * <strong>flex period</strong> of every interval period. See diagram below. The flex period
          * begins at {@code intervalMillis - flexMillis} to the end of the interval.
@@ -99,6 +121,35 @@ public final class PeriodicWorkRequest extends WorkRequest {
             mWorkSpec.setPeriodic(
                     repeatIntervalTimeUnit.toMillis(repeatInterval),
                     flexIntervalTimeUnit.toMillis(flexInterval));
+        }
+
+        /**
+         * Creates a {@link PeriodicWorkRequest} to run periodically once within the
+         * <strong>flex period</strong> of every interval period. See diagram below. The flex period
+         * begins at {@code intervalMillis - flexMillis} to the end of the interval.
+         * {@code intervalMillis} must be greater than or equal to
+         * {@link PeriodicWorkRequest#MIN_PERIODIC_INTERVAL_MILLIS} and {@code flexMillis} must
+         * be greater than or equal to {@link PeriodicWorkRequest#MIN_PERIODIC_FLEX_MILLIS}.
+         *
+         * <p><pre>
+         * [     before flex     |     flex     ][     before flex     |     flex     ]...
+         * [   cannot run work   | can run work ][   cannot run work   | can run work ]...
+         * \____________________________________/\____________________________________/...
+         *                interval 1                            interval 2             ...(repeat)
+         * </pre></p>
+         *
+         * @param workerClass The {@link Worker} class to run with this job
+         * @param repeatInterval The repeat interval
+         * @param flexInterval The duration in for which this work repeats from the end of the
+         *                     {@code repeatInterval}
+         */
+        @RequiresApi(26)
+        public Builder(
+                @NonNull Class<? extends Worker> workerClass,
+                @NonNull Duration repeatInterval,
+                @NonNull Duration flexInterval) {
+            super(workerClass);
+            mWorkSpec.setPeriodic(repeatInterval.toMillis(), flexInterval.toMillis());
         }
 
         @Override
