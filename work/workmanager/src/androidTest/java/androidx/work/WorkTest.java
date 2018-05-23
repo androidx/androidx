@@ -29,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
@@ -50,6 +51,17 @@ public class WorkTest extends WorkManagerTest {
                 .setInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS)
                 .build();
         assertThat(getWorkSpec(work).initialDelay, is(expectedInitialDelay));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testBuild_withInitialDelayUsingDurationParameter() {
+        OneTimeWorkRequest work = mBuilder
+                .setInitialDelay(Duration.ofHours(2).plusMinutes(3))
+                .build();
+        assertThat(
+                getWorkSpec(work).initialDelay,
+                is(TimeUnit.MINUTES.toMillis((2 * 60) + 3)));
     }
 
     @Test
