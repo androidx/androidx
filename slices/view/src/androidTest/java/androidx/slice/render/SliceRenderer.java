@@ -182,13 +182,16 @@ public class SliceRenderer {
     private Slice serAndUnSer(Slice s) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            SliceUtils.serializeSlice(s, mContext, outputStream, "UTF-8",
+            SliceUtils.serializeSlice(s, mContext, outputStream,
                     new SliceUtils.SerializeOptions()
+                            .setMaxImageWidth(500)
+                            .setMaxImageHeight(500)
                             .setImageMode(SliceUtils.SerializeOptions.MODE_CONVERT)
-                            .setActionMode(SliceUtils.SerializeOptions.MODE_CONVERT));
+                            .setActionMode(SliceUtils.SerializeOptions.MODE_CONVERT)
+                            .setImageConversionFormat(Bitmap.CompressFormat.JPEG, 50));
 
             byte[] bytes = outputStream.toByteArray();
-            Log.d(TAG, "Serialized: " + new String(bytes));
+            Log.d(TAG, "Serialized: " + bytes.length);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
             return SliceUtils.parseSlice(mContext, inputStream, "UTF-8",
                     new SliceUtils.SliceActionListener() {

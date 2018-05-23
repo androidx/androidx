@@ -120,7 +120,11 @@ class VersionedParcelStream extends VersionedParcel {
         try {
             while (true) {
                 int fieldInfo = mMasterInput.readInt();
-                buffer = new InputBuffer(fieldInfo, mMasterInput);
+                int size = fieldInfo & 0xffff;
+                if (size == 0xffff) {
+                    size = mMasterInput.readInt();
+                }
+                buffer = new InputBuffer((fieldInfo >> 16) & 0xffff, size, mMasterInput);
                 if (buffer.mFieldId == fieldId) {
                     mCurrentInput = buffer.mInputStream;
                     return true;
@@ -488,8 +492,12 @@ class VersionedParcelStream extends VersionedParcel {
 
         void flushField() throws IOException {
             mDataStream.flush();
-            int fieldInfo = (mFieldId << 16) | mOutput.size();
+            int size = mOutput.size();
+            int fieldInfo = (mFieldId << 16) | (size >= 0xffff ? 0xffff : size);
             mTarget.writeInt(fieldInfo);
+            if (size >= 0xffff) {
+                mTarget.writeInt(size);
+            }
             mOutput.writeTo(mTarget);
         }
     }
@@ -499,9 +507,9 @@ class VersionedParcelStream extends VersionedParcel {
         private final int mSize;
         private final int mFieldId;
 
-        InputBuffer(int fieldInfo, DataInputStream inputStream) throws IOException {
-            mSize = fieldInfo & 0xffff;
-            mFieldId = (fieldInfo >> 16) & 0xffff;
+        InputBuffer(int fieldId, int size, DataInputStream inputStream) throws IOException {
+            mSize = size;
+            mFieldId = fieldId;
             byte[] data = new byte[mSize];
             inputStream.readFully(data);
             mInputStream = new DataInputStream(new ByteArrayInputStream(data));

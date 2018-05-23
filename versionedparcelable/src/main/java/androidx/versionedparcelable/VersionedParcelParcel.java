@@ -57,10 +57,8 @@ class VersionedParcelParcel extends VersionedParcel {
     private int readUntilField(int fieldId) {
         while (mNextRead < mEnd) {
             mParcel.setDataPosition(mNextRead);
-            int fieldInfo = mParcel.readInt();
-
-            int fid = (fieldInfo >> 16) & 0xffff;
-            int size = fieldInfo & 0xffff;
+            int size = mParcel.readInt();
+            int fid = mParcel.readInt();
             if (DEBUG) Log.d(TAG, mPrefix + "Found field " + fieldId + " : " + size);
 
             mNextRead = mNextRead + size;
@@ -86,7 +84,8 @@ class VersionedParcelParcel extends VersionedParcel {
         mCurrentField = fieldId;
         mPositionLookup.put(fieldId, mParcel.dataPosition());
         if (DEBUG) Log.d(TAG, mPrefix + "Starting " + fieldId + " : " + mParcel.dataPosition());
-        writeInt(0); // Placeholder for field id/size
+        writeInt(0); // Placeholder for field size
+        writeInt(fieldId);
     }
 
     @Override
@@ -100,7 +99,7 @@ class VersionedParcelParcel extends VersionedParcel {
                         + mParcel.dataPosition() + " " + size);
             }
             mParcel.setDataPosition(currentFieldPosition);
-            mParcel.writeInt((mCurrentField << 16) | size);
+            mParcel.writeInt(size);
             mParcel.setDataPosition(position);
         }
     }
