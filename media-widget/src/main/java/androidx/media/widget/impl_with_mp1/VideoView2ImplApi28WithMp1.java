@@ -30,6 +30,7 @@ import android.view.ViewGroup.LayoutParams;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.media.SubtitleData2;
 import androidx.media.subtitle.Cea708CaptionRenderer;
 import androidx.media.subtitle.ClosedCaptionRenderer;
 import androidx.media.subtitle.SubtitleController;
@@ -201,7 +202,7 @@ class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
                     for (Pair<Integer, SubtitleTrack> p : mSubtitleTrackIndices) {
                         if (p.first == index) {
                             SubtitleTrack track = p.second;
-                            track.onData(data);
+                            track.onData(new SubtitleData2(data));
                         }
                     }
                 }

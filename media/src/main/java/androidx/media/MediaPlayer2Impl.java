@@ -692,8 +692,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     /**
-     * Sets playback rate using {@link PlaybackParams}. The object sets its internal
-     * PlaybackParams to the input, except that the object remembers previous speed
+     * Sets playback rate using {@link PlaybackParams2}. The object sets its internal
+     * PlaybackParams2 to the input, except that the object remembers previous speed
      * when input speed is zero. This allows the object to resume at previous speed
      * when play() is called. Calling it before the object is prepared does not change
      * the object state. After the object is prepared, calling it with zero speed is
@@ -706,11 +706,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * @throws IllegalArgumentException if params is not supported.
      */
     @Override
-    public void setPlaybackParams(@NonNull final PlaybackParams params) {
+    public void setPlaybackParams(@NonNull final PlaybackParams2 params) {
         addTask(new Task(CALL_COMPLETED_SET_PLAYBACK_PARAMS, false) {
             @Override
             void process() {
-                setPlaybackParamsInternal(params);
+                setPlaybackParamsInternal(params.getPlaybackParams());
             }
         });
     }
@@ -724,39 +724,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      */
     @Override
     @NonNull
-    public PlaybackParams getPlaybackParams() {
-        return mPlayer.getPlaybackParams();
-    }
-
-    /**
-     * Sets A/V sync mode.
-     *
-     * @param params the A/V sync params to apply
-     * @throws IllegalStateException if the internal player engine has not been
-     * initialized.
-     * @throws IllegalArgumentException if params are not supported.
-     */
-    @Override
-    public void setSyncParams(@NonNull final SyncParams params) {
-        addTask(new Task(CALL_COMPLETED_SET_SYNC_PARAMS, false) {
-            @Override
-            void process() {
-                mPlayer.setSyncParams(params);
-            }
-        });
-    }
-
-    /**
-     * Gets the A/V sync mode.
-     *
-     * @return the A/V sync params
-     * @throws IllegalStateException if the internal player engine has not been
-     *                               initialized.
-     */
-    @Override
-    @NonNull
-    public SyncParams getSyncParams() {
-        return mPlayer.getSyncParams();
+    public PlaybackParams2 getPlaybackParams() {
+        return new PlaybackParams2.Builder(mPlayer.getPlaybackParams()).build();
     }
 
     /**
@@ -800,9 +769,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     /**
-     * Get current playback position as a {@link MediaTimestamp}.
+     * Get current playback position as a {@link MediaTimestamp2}.
      * <p>
-     * The MediaTimestamp represents how the media time correlates to the system time in
+     * The MediaTimestamp2 represents how the media time correlates to the system time in
      * a linear fashion using an anchor and a clock rate. During regular playback, the media
      * time moves fairly constantly (though the anchor frame may be rebased to a current
      * system time, the linear correlation stays steady). Therefore, this method does not
@@ -810,15 +779,15 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * <p>
      * To help users get current playback position, this method always anchors the timestamp
      * to the current {@link System#nanoTime system time}, so
-     * {@link MediaTimestamp#getAnchorMediaTimeUs} can be used as current playback position.
+     * {@link MediaTimestamp2#getAnchorMediaTimeUs} can be used as current playback position.
      *
-     * @return a MediaTimestamp object if a timestamp is available, or {@code null} if no timestamp
+     * @return a MediaTimestamp2 object if a timestamp is available, or {@code null} if no timestamp
      * is available, e.g. because the media player has not been initialized.
-     * @see MediaTimestamp
+     * @see MediaTimestamp2
      */
     @Override
     @Nullable
-    public MediaTimestamp getTimestamp() {
+    public MediaTimestamp2 getTimestamp() {
         return mPlayer.getTimestamp();
     }
 
@@ -1704,7 +1673,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                             @Override
                             public void notify(EventCallback cb) {
                                 cb.onMediaTimeDiscontinuity(
-                                        MediaPlayer2Impl.this, src.getDSD(), timestamp);
+                                        MediaPlayer2Impl.this, src.getDSD(),
+                                        new MediaTimestamp2(timestamp));
                             }
                         });
                         setEndPositionTimerIfNeeded(completionListener, src, timestamp);
@@ -1716,7 +1686,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(EventCallback cb) {
-                        cb.onSubtitleData(MediaPlayer2Impl.this, src.getDSD(), data);
+                        cb.onSubtitleData(
+                                MediaPlayer2Impl.this, src.getDSD(), new SubtitleData2(data));
                     }
                 });
             }
@@ -2351,8 +2322,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             setBufferingState(src.mPlayer, BaseMediaPlayer.BUFFERING_STATE_UNKNOWN);
         }
 
-        synchronized MediaTimestamp getTimestamp() {
-            return getCurrentPlayer().getTimestamp();
+        synchronized MediaTimestamp2 getTimestamp() {
+            MediaTimestamp t = getCurrentPlayer().getTimestamp();
+            return (t == null) ? null : new MediaTimestamp2(t);
         }
 
         synchronized void setAudioSessionId(int sessionId) {
@@ -2595,7 +2567,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         @Override
         public void setPlaybackSpeed(float speed) {
-            MediaPlayer2Impl.this.setPlaybackParams(getPlaybackParams().setSpeed(speed));
+            MediaPlayer2Impl.this.setPlaybackParams(
+                    new PlaybackParams2.Builder(
+                            getPlaybackParams().getPlaybackParams()).setSpeed(speed).build());
         }
 
         @Override

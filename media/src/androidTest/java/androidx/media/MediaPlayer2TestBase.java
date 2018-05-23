@@ -28,8 +28,6 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.media.AudioManager;
-import android.media.MediaTimestamp;
-import android.media.SubtitleData;
 import android.media.TimedMetaData;
 import android.net.Uri;
 import android.os.PersistableBundle;
@@ -340,7 +338,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
 
             @Override
             public void onMediaTimeDiscontinuity(MediaPlayer2 mp, DataSourceDesc dsd,
-                    MediaTimestamp timestamp) {
+                    MediaTimestamp2 timestamp) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
                         ecb.onMediaTimeDiscontinuity(mp, dsd, timestamp);
@@ -358,7 +356,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             }
             @Override
             public  void onSubtitleData(MediaPlayer2 mp, DataSourceDesc dsd,
-                    final SubtitleData data) {
+                    final SubtitleData2 data) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
                         ecb.onSubtitleData(mp, dsd, data);
