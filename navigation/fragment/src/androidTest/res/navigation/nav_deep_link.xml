@@ -18,9 +18,37 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             app:startDestination="@+id/start_test">
 
-    <test android:id="@+id/start_test" />
+    <test android:id="@+id/start_test">
+        <deepLink app:uri="www.example.com/start/{test}" />
+    </test>
 
     <test android:id="@+id/deep_link_test">
-        <deepLink app:uri="www.example.com/{test}" />
+        <deepLink app:uri="www.example.com/deep_link/{test}" />
     </test>
+
+    <navigation android:id="@+id/nested_graph"
+            app:startDestination="@id/nested_start_test">
+        <test android:id="@+id/nested_start_test">
+            <deepLink app:uri="www.example.com/nested_start/{test}" />
+        </test>
+
+        <test android:id="@+id/nested_deep_link_test">
+            <deepLink app:uri="www.example.com/nested_deep_link/{test}" />
+        </test>
+    </navigation>
+
+    <navigation android:id="@+id/double_nested_graph_parent"
+            app:startDestination="@id/double_nested_graph">
+
+        <navigation android:id="@+id/double_nested_graph"
+                    app:startDestination="@id/double_nested_start_test">
+            <test android:id="@+id/double_nested_start_test">
+                <deepLink app:uri="www.example.com/double_nested_start/{test}" />
+            </test>
+
+            <test android:id="@+id/double_nested_deep_link_test">
+                <deepLink app:uri="www.example.com/double_nested_deep_link/{test}" />
+            </test>
+        </navigation>
+    </navigation>
 </navigation>
