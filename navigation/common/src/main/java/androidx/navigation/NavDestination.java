@@ -30,10 +30,10 @@ import android.support.v4.util.Pair;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 
+import androidx.navigation.common.R;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-
-import androidx.navigation.common.R;
 
 /**
  * NavDestination represents one node within an overall navigation graph.
@@ -253,10 +253,14 @@ public class NavDestination {
     @NonNull
     int[] buildDeepLinkIds() {
         ArrayDeque<NavDestination> hierarchy = new ArrayDeque<>();
-        hierarchy.add(this);
-        while (hierarchy.peekFirst().getParent() != null) {
-            hierarchy.addFirst(hierarchy.peekFirst().getParent());
-        }
+        NavDestination current = this;
+        do {
+            NavGraph parent = current.getParent();
+            if (parent == null || parent.getStartDestination() != current.getId()) {
+                hierarchy.addFirst(current);
+            }
+            current = parent;
+        } while (current != null);
         int[] deepLinkIds = new int[hierarchy.size()];
         int index = 0;
         for (NavDestination destination : hierarchy) {

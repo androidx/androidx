@@ -32,15 +32,15 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.TaskStackBuilder;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
 import androidx.navigation.NavController;
 import androidx.navigation.NavDeepLinkBuilder;
 import androidx.navigation.fragment.test.BaseNavigationActivity;
 import androidx.navigation.fragment.test.R;
 import androidx.navigation.testing.TestNavigator;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 @SmallTest
 public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
@@ -65,49 +65,139 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
     }
 
     @Test
+    public void testStartDestinationDeeplink() throws Throwable {
+        assertDeeplink(R.id.start_test, 1);
+    }
+
+    @Test
     public void testDeeplink() throws Throwable {
+        assertDeeplink(R.id.deep_link_test, 2);
+    }
+
+    @Test
+    public void testNestedStartDestinationDeeplink() throws Throwable {
+        assertDeeplink(R.id.nested_start_test, 2);
+    }
+
+    @Test
+    public void testNestedDeeplink() throws Throwable {
+        assertDeeplink(R.id.nested_deep_link_test, 3);
+    }
+
+    @Test
+    public void testDoubleNestedStartDestinationDeeplink() throws Throwable {
+        assertDeeplink(R.id.double_nested_start_test, 2);
+    }
+
+    @Test
+    public void testDoubleNestedDeeplink() throws Throwable {
+        assertDeeplink(R.id.double_nested_deep_link_test, 3);
+    }
+
+    private void assertDeeplink(@IdRes int destId, int expectedStackSize) throws Throwable {
         BaseNavigationActivity activity = launchDeepLink(R.navigation.nav_deep_link,
-                R.id.deep_link_test, null);
+                destId, null);
         NavController navController = activity.getNavController();
 
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
+        assertThat(navController.getCurrentDestination().getId(), is(destId));
         TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(2));
+        assertThat(navigator.mBackStack.size(), is(expectedStackSize));
 
         // Test that the deep link Intent was passed through even though we don't pass in any args
+        //noinspection ConstantConditions
         Intent deepLinkIntent = navigator.mBackStack.peekLast().second
                 .getParcelable(NavController.KEY_DEEP_LINK_INTENT);
         assertThat(deepLinkIntent, is(notNullValue(Intent.class)));
-        //noinspection ConstantConditions
         assertThat(deepLinkIntent.getAction(), is(TEST_DEEP_LINK_ACTION));
+    }
+
+    @Test
+    public void testStartDestinationDeeplinkWithArgs() throws Throwable {
+        assertDeepLinkWithArgs(R.id.start_test, 1);
     }
 
     @Test
     public void testDeeplinkWithArgs() throws Throwable {
+        assertDeepLinkWithArgs(R.id.deep_link_test, 2);
+    }
+
+    @Test
+    public void testNestedStartDestinationDeeplinkWithArgs() throws Throwable {
+        assertDeepLinkWithArgs(R.id.nested_start_test, 2);
+    }
+
+    @Test
+    public void testNestedDeeplinkWithArgs() throws Throwable {
+        assertDeepLinkWithArgs(R.id.nested_deep_link_test, 3);
+    }
+
+    @Test
+    public void testDoubleNestedStartDestinationDeeplinkWithArgs() throws Throwable {
+        assertDeepLinkWithArgs(R.id.double_nested_start_test, 2);
+    }
+
+    @Test
+    public void testDoubleNestedDeeplinkWithArgs() throws Throwable {
+        assertDeepLinkWithArgs(R.id.double_nested_deep_link_test, 3);
+    }
+
+    private void assertDeepLinkWithArgs(@IdRes int destId, int expectedStackSize) throws Throwable {
         Bundle args = new Bundle();
         args.putString(TEST_ARG, TEST_ARG_VALUE);
         BaseNavigationActivity activity = launchDeepLink(R.navigation.nav_deep_link,
-                R.id.deep_link_test, args);
+                destId, args);
         NavController navController = activity.getNavController();
 
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
+        assertThat(navController.getCurrentDestination().getId(), is(destId));
         TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(2));
+        assertThat(navigator.mBackStack.size(), is(expectedStackSize));
+        //noinspection ConstantConditions
         assertThat(navigator.mBackStack.peekLast().second.getString(TEST_ARG), is(TEST_ARG_VALUE));
 
         // Test that the deep link Intent was passed in alongside our args
+        //noinspection ConstantConditions
         Intent deepLinkIntent = navigator.mBackStack.peekLast().second
                 .getParcelable(NavController.KEY_DEEP_LINK_INTENT);
         assertThat(deepLinkIntent, is(notNullValue(Intent.class)));
-        //noinspection ConstantConditions
         assertThat(deepLinkIntent.getAction(), is(TEST_DEEP_LINK_ACTION));
     }
 
     @Test
+    public void testStartDestinationUriDeepLink() throws Throwable {
+        assertUriDeepLink("start",
+                R.id.start_test, 1);
+    }
+
+    @Test
     public void testUriDeepLink() throws Throwable {
-        Uri deepLinkUri = Uri.parse("http://www.example.com/" + TEST_ARG_VALUE);
+        assertUriDeepLink("deep_link", R.id.deep_link_test, 2);
+    }
+
+    @Test
+    public void testNestedStartDestinationUriDeepLink() throws Throwable {
+        assertUriDeepLink("nested_start", R.id.nested_start_test, 2);
+    }
+
+    @Test
+    public void testNestedUriDeepLink() throws Throwable {
+        assertUriDeepLink("nested_deep_link", R.id.nested_deep_link_test, 3);
+    }
+
+    @Test
+    public void testDoubleNestedStartDestinationUriDeepLink() throws Throwable {
+        assertUriDeepLink("double_nested_start", R.id.double_nested_start_test, 2);
+    }
+
+    @Test
+    public void testDoubleNestedUriDeepLink() throws Throwable {
+        assertUriDeepLink("double_nested_deep_link", R.id.double_nested_deep_link_test, 3);
+    }
+
+    private void assertUriDeepLink(String path, @IdRes int destId, int expectedStackSize)
+            throws Throwable {
+        Uri deepLinkUri = Uri.parse("http://www.example.com/" + path + "/" + TEST_ARG_VALUE);
         Intent intent = new Intent(Intent.ACTION_VIEW, deepLinkUri)
                 .setComponent(new ComponentName(mInstrumentation.getContext(),
                         getActivityClass()))
@@ -116,17 +206,18 @@ public abstract class BaseNavControllerTest<A extends BaseNavigationActivity> {
         NavController navController = activity.getNavController();
         navController.setGraph(R.navigation.nav_deep_link);
 
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
+        assertThat(navController.getCurrentDestination().getId(), is(destId));
         TestNavigator navigator = navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(2));
+        assertThat(navigator.mBackStack.size(), is(expectedStackSize));
+        //noinspection ConstantConditions
         assertThat(navigator.mBackStack.peekLast().second.getString(TEST_ARG), is(TEST_ARG_VALUE));
 
         // Test that the deep link Intent was passed in alongside our args
+        //noinspection ConstantConditions
         Intent deepLinkIntent = navigator.mBackStack.peekLast().second
                 .getParcelable(NavController.KEY_DEEP_LINK_INTENT);
         assertThat(deepLinkIntent, is(notNullValue(Intent.class)));
-        //noinspection ConstantConditions
         assertThat(deepLinkIntent.getData(), is(deepLinkUri));
     }
 
