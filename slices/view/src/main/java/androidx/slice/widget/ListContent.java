@@ -210,8 +210,9 @@ public class ListContent {
         boolean bigEnoughToScroll = desiredHeight - maxLargeHeight >= mMinScrollHeight;
 
         // Adjust for scrolling
-        int height = bigEnoughToScroll ? maxLargeHeight : maxHeight == -1
-                ? desiredHeight : Math.min(maxLargeHeight, desiredHeight);
+        int height = bigEnoughToScroll ? maxLargeHeight
+                : maxHeight == -1 ? desiredHeight
+                : Math.min(maxLargeHeight, desiredHeight);
         if (!scrollable) {
             height = getListHeight(getItemsForNonScrollingList(height));
         }
