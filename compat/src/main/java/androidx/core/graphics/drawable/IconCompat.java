@@ -748,7 +748,7 @@ public class IconCompat extends CustomVersionedParcelable {
                 mObj1 = new String(mData, Charset.forName("UTF-16"));
                 break;
             case TYPE_DATA:
-                mData = (byte[]) mObj1;
+                mObj1 = mData;
                 break;
         }
     }
