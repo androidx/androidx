@@ -152,6 +152,7 @@ public class MigrationTestHelper extends TestWatcher {
                 true,
                 RoomDatabase.JournalMode.TRUNCATE,
                 ArchTaskExecutor.getIOThreadExecutor(),
+                false,
                 true,
                 false,
                 Collections.<Integer>emptySet());
@@ -207,6 +208,7 @@ public class MigrationTestHelper extends TestWatcher {
                 true,
                 RoomDatabase.JournalMode.TRUNCATE,
                 ArchTaskExecutor.getIOThreadExecutor(),
+                false,
                 true,
                 false,
                 Collections.<Integer>emptySet());

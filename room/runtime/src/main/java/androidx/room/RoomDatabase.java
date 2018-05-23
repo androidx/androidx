@@ -130,6 +130,10 @@ public abstract class RoomDatabase {
         mQueryExecutor = configuration.queryExecutor;
         mAllowMainThreadQueries = configuration.allowMainThreadQueries;
         mWriteAheadLoggingEnabled = wal;
+        if (configuration.multiInstanceInvalidation) {
+            mInvalidationTracker.startMultiInstanceInvalidation(configuration.context,
+                    configuration.name);
+        }
     }
 
     /**
@@ -195,6 +199,7 @@ public abstract class RoomDatabase {
         if (isOpen()) {
             try {
                 mCloseLock.lock();
+                mInvalidationTracker.stopMultiInstanceInvalidation();
                 mOpenHelper.close();
             } finally {
                 mCloseLock.unlock();
@@ -228,8 +233,7 @@ public abstract class RoomDatabase {
      * Convenience method to query the database with arguments.
      *
      * @param query The sql query
-     * @param args The bind arguments for the placeholders in the query
-     *
+     * @param args  The bind arguments for the placeholders in the query
      * @return A Cursor obtained by running the given query in the Room database.
      */
     public Cursor query(String query, @Nullable Object[] args) {
@@ -432,6 +436,7 @@ public abstract class RoomDatabase {
         private SupportSQLiteOpenHelper.Factory mFactory;
         private boolean mAllowMainThreadQueries;
         private JournalMode mJournalMode;
+        private boolean mMultiInstanceInvalidation;
         private boolean mRequireMigration;
         private boolean mAllowDestructiveMigrationOnDowngrade;
         /**
@@ -488,11 +493,11 @@ public abstract class RoomDatabase {
          * @return this
          */
         @NonNull
-        public Builder<T> addMigrations(@NonNull  Migration... migrations) {
+        public Builder<T> addMigrations(@NonNull Migration... migrations) {
             if (mMigrationStartAndEndVersions == null) {
                 mMigrationStartAndEndVersions = new HashSet<>();
             }
-            for (Migration migration: migrations) {
+            for (Migration migration : migrations) {
                 mMigrationStartAndEndVersions.add(migration.startVersion);
                 mMigrationStartAndEndVersions.add(migration.endVersion);
             }
@@ -555,6 +560,25 @@ public abstract class RoomDatabase {
         @NonNull
         public Builder<T> setQueryExecutor(@NonNull Executor executor) {
             mQueryExecutor = executor;
+            return this;
+        }
+
+        /**
+         * Sets whether table invalidation in this instance of {@link RoomDatabase} should be
+         * broadcast and synchronized with other instances of the same {@link RoomDatabase},
+         * including those in a separate process. In order to enable multi-instance invalidation,
+         * this has to be turned on both ends.
+         * <p>
+         * This is not enabled by default.
+         * <p>
+         * This does not work for in-memory databases. This does not work between database instances
+         * targeting different database files.
+         *
+         * @return this
+         */
+        @NonNull
+        public Builder<T> enableMultiInstanceInvalidation() {
+            mMultiInstanceInvalidation = mName != null;
             return this;
         }
 
@@ -692,7 +716,9 @@ public abstract class RoomDatabase {
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(mContext, mName, mFactory, mMigrationContainer,
                             mCallbacks, mAllowMainThreadQueries, mJournalMode.resolve(mContext),
-                            mQueryExecutor, mRequireMigration,
+                            mQueryExecutor,
+                            mMultiInstanceInvalidation,
+                            mRequireMigration,
                             mAllowDestructiveMigrationOnDowngrade, mMigrationsNotRequiredFrom);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);

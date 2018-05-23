@@ -74,6 +74,13 @@ public class DatabaseConfiguration {
     public final Executor queryExecutor;
 
     /**
+     * If true, table invalidation in an instance of {@link RoomDatabase} is broadcast and
+     * synchronized with other instances of the same {@link RoomDatabase} file, including those
+     * in a separate process.
+     */
+    public final boolean multiInstanceInvalidation;
+
+    /**
      * If true, Room should crash if a migration is missing.
      */
     public final boolean requireMigration;
@@ -117,6 +124,7 @@ public class DatabaseConfiguration {
             boolean allowMainThreadQueries,
             RoomDatabase.JournalMode journalMode,
             @NonNull Executor queryExecutor,
+            boolean multiInstanceInvalidation,
             boolean requireMigration,
             boolean allowDestructiveMigrationOnDowngrade,
             @Nullable Set<Integer> migrationNotRequiredFrom) {
@@ -128,6 +136,7 @@ public class DatabaseConfiguration {
         this.allowMainThreadQueries = allowMainThreadQueries;
         this.journalMode = journalMode;
         this.queryExecutor = queryExecutor;
+        this.multiInstanceInvalidation = multiInstanceInvalidation;
         this.requireMigration = requireMigration;
         this.allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade;
         this.mMigrationNotRequiredFrom = migrationNotRequiredFrom;

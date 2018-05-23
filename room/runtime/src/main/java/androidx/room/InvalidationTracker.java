@@ -16,6 +16,7 @@
 
 package androidx.room;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
@@ -59,6 +60,8 @@ import java.util.concurrent.locks.Lock;
 // UPDATE or INSERT action within the body of the trigger. However if an ON CONFLICT clause is
 // specified as part of the statement causing the trigger to fire, then conflict handling policy of
 // the outer statement is used instead.
+// When multi-instance invalidation is turned on, MultiInstanceInvalidationClient will be created.
+// It works as an Observer, and notifies other instances of table invalidation.
 public class InvalidationTracker {
 
     private static final String[] TRIGGERS = new String[]{"UPDATE", "DELETE", "INSERT"};
@@ -91,7 +94,7 @@ public class InvalidationTracker {
     @NonNull
     @VisibleForTesting
     ArrayMap<String, Integer> mTableIdLookup;
-    private String[] mTableNames;
+    final String[] mTableNames;
 
     @NonNull
     @VisibleForTesting
@@ -119,6 +122,8 @@ public class InvalidationTracker {
     // should be accessed with synchronization only.
     @VisibleForTesting
     final SafeIterableMap<Observer, ObserverWrapper> mObserverMap = new SafeIterableMap<>();
+
+    private MultiInstanceInvalidationClient mMultiInstanceInvalidationClient;
 
     /**
      * Used by the generated code.
@@ -166,6 +171,18 @@ public class InvalidationTracker {
             syncTriggers(database);
             mCleanupStatement = database.compileStatement(CLEANUP_SQL);
             mInitialized = true;
+        }
+    }
+
+    void startMultiInstanceInvalidation(Context context, String name) {
+        mMultiInstanceInvalidationClient = new MultiInstanceInvalidationClient(context, name, this,
+                mDatabase.getQueryExecutor());
+    }
+
+    void stopMultiInstanceInvalidation() {
+        if (mMultiInstanceInvalidationClient != null) {
+            mMultiInstanceInvalidationClient.stop();
+            mMultiInstanceInvalidationClient = null;
         }
     }
 
@@ -349,7 +366,7 @@ public class InvalidationTracker {
             if (hasUpdatedTable) {
                 synchronized (mObserverMap) {
                     for (Map.Entry<Observer, ObserverWrapper> entry : mObserverMap) {
-                        entry.getValue().checkForInvalidation(mTableVersions);
+                        entry.getValue().notifyByTableVersions(mTableVersions);
                     }
                 }
             }
@@ -401,6 +418,28 @@ public class InvalidationTracker {
     public void refreshVersionsSync() {
         syncTriggers();
         mRefreshRunnable.run();
+    }
+
+    /**
+     * Notifies all the registered {@link Observer}s of table changes.
+     * <p>
+     * This can be used for notifying invalidation that cannot be detected by this
+     * {@link InvalidationTracker}, for example, invalidation from another process.
+     *
+     * @param tables The invalidated tables.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public void notifyObserversByTableNames(String... tables) {
+        synchronized (mObserverMap) {
+            for (Map.Entry<Observer, ObserverWrapper> entry : mObserverMap) {
+                if (!entry.getKey().isRemote()) {
+                    entry.getValue().notifyByTableNames(tables);
+                }
+            }
+        }
     }
 
     void syncTriggers(SupportSQLiteDatabase database) {
@@ -493,7 +532,13 @@ public class InvalidationTracker {
             }
         }
 
-        void checkForInvalidation(long[] versions) {
+        /**
+         * Updates the table versions and notifies the underlying {@link #mObserver} if any of the
+         * observed tables are invalidated.
+         *
+         *  @param versions The table versions.
+         */
+        void notifyByTableVersions(long[] versions) {
             Set<String> invalidatedTables = null;
             final int size = mTableIds.length;
             for (int index = 0; index < size; index++) {
@@ -511,6 +556,41 @@ public class InvalidationTracker {
                         }
                         invalidatedTables.add(mTableNames[index]);
                     }
+                }
+            }
+            if (invalidatedTables != null) {
+                mObserver.onInvalidated(invalidatedTables);
+            }
+        }
+
+        /**
+         * Notifies the underlying {@link #mObserver} if it observes any of the specified
+         * {@code tables}.
+         *
+         * @param tables The invalidated table names.
+         */
+        void notifyByTableNames(String[] tables) {
+            Set<String> invalidatedTables = null;
+            if (mTableNames.length == 1) {
+                for (String table : tables) {
+                    if (table.equalsIgnoreCase(mTableNames[0])) {
+                        // Optimization for a single-table observer
+                        invalidatedTables = mSingleTableSet;
+                        break;
+                    }
+                }
+            } else {
+                ArraySet<String> set = new ArraySet<>();
+                for (String table : tables) {
+                    for (String ourTable : mTableNames) {
+                        if (ourTable.equalsIgnoreCase(table)) {
+                            set.add(ourTable);
+                            break;
+                        }
+                    }
+                }
+                if (set.size() > 0) {
+                    invalidatedTables = set;
                 }
             }
             if (invalidatedTables != null) {
@@ -554,8 +634,11 @@ public class InvalidationTracker {
          *               multiple tables and want to know which table is invalidated.
          */
         public abstract void onInvalidated(@NonNull Set<String> tables);
-    }
 
+        boolean isRemote() {
+            return false;
+        }
+    }
 
     /**
      * Keeps a list of tables we should observe. Invalidation tracker lazily syncs this list w/
@@ -671,7 +754,7 @@ public class InvalidationTracker {
     /**
      * An Observer wrapper that keeps a weak reference to the given object.
      * <p>
-     * This class with automatically unsubscribe when the wrapped observer goes out of memory.
+     * This class will automatically unsubscribe when the wrapped observer goes out of memory.
      */
     static class WeakObserver extends Observer {
         final InvalidationTracker mTracker;
