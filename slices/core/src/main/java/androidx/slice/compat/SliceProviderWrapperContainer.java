@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -44,6 +45,7 @@ public class SliceProviderWrapperContainer {
     /**
      */
     public static class SliceProviderWrapper extends SliceProvider {
+        private static final String TAG = "SliceProviderWrapper";
 
         private androidx.slice.SliceProvider mSliceProvider;
 
@@ -69,6 +71,9 @@ public class SliceProviderWrapperContainer {
             androidx.slice.SliceProvider.setSpecs(wrap(supportedVersions));
             try {
                 return SliceConvert.unwrap(mSliceProvider.onBindSlice(sliceUri));
+            } catch (Exception e) {
+                Log.wtf(TAG, "Slice with URI " + sliceUri.toString() + " is invalid.", e);
+                return null;
             } finally {
                 androidx.slice.SliceProvider.setSpecs(null);
             }
