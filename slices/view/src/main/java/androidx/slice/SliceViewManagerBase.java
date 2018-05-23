@@ -64,18 +64,22 @@ public abstract class SliceViewManagerBase extends SliceViewManager {
 
     @Override
     public void unregisterSliceCallback(@NonNull Uri uri, @NonNull SliceCallback callback) {
-        SliceListenerImpl impl = mListenerLookup.remove(new Pair<>(uri, callback));
-        if (impl != null) impl.stopListening();
+        synchronized (mListenerLookup) {
+            SliceListenerImpl impl = mListenerLookup.remove(new Pair<>(uri, callback));
+            if (impl != null) impl.stopListening();
+        }
     }
 
 
     private SliceListenerImpl getListener(Uri uri, SliceCallback callback,
             SliceListenerImpl listener) {
         Pair<Uri, SliceCallback> key = new Pair<>(uri, callback);
-        if (mListenerLookup.containsKey(key)) {
-            mListenerLookup.get(key).stopListening();
+        synchronized (mListenerLookup) {
+            if (mListenerLookup.containsKey(key)) {
+                mListenerLookup.get(key).stopListening();
+            }
+            mListenerLookup.put(key, listener);
         }
-        mListenerLookup.put(key, listener);
         return listener;
     }
 
