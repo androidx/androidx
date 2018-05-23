@@ -164,7 +164,8 @@ public class SliceXmlTest {
 
         SliceItem action = SliceQuery.find(after, FORMAT_ACTION);
         action.fireAction(null, null);
-        verify(listener).onSliceAction(eq(Uri.parse("content://pkg/slice/action")));
+        verify(listener).onSliceAction(eq(Uri.parse("content://pkg/slice/action")),
+                (Context) eq(null), (Intent) eq(null));
     }
 
     @Test
@@ -175,7 +176,7 @@ public class SliceXmlTest {
         // Create a slice containing all the types in a hierarchy.
         Slice before = new Slice.Builder(Uri.parse("content://pkg/slice"))
                 .addSubSlice(new Slice.Builder(Uri.parse("content://pkg/slice/sub"))
-                        .addTimestamp(System.currentTimeMillis(), null, "Hint")
+                        .addLong(System.currentTimeMillis(), null, "Hint")
                         .build())
                 .addIcon(IconCompat.createWithBitmap(b), null)
                 .addText("Some text", null)
@@ -204,7 +205,8 @@ public class SliceXmlTest {
 
         SliceItem action = SliceQuery.find(after, FORMAT_ACTION);
         action.fireAction(null, null);
-        verify(listener).onSliceAction(eq(Uri.parse("content://pkg/slice/action")));
+        verify(listener).onSliceAction(eq(Uri.parse("content://pkg/slice/action")),
+                (Context) eq(null), (Intent) eq(null));
     }
 
     private void assertEquivalent(Slice desired, Slice actual) {

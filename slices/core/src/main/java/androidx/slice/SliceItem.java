@@ -30,18 +30,17 @@ import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.NonParcelField;
@@ -144,7 +143,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public SliceItem(Consumer<Uri> action, Slice slice, String format, String subType,
+    public SliceItem(ActionHandler action, Slice slice, String format, String subType,
             @Slice.SliceHint String[] hints) {
         this(new Pair<Object, Slice>(action, slice), format, subType, hints);
     }
@@ -219,15 +218,17 @@ public final class SliceItem extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
+     * Trigger the action on this SliceItem.
+     * @param context The Context to use when sending the PendingIntent.
+     * @param i The intent to use when sending the PendingIntent.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void fireAction(Context context, Intent i) throws PendingIntent.CanceledException {
+    public void fireAction(@Nullable Context context, @Nullable Intent i)
+            throws PendingIntent.CanceledException {
         Object action = ((Pair<Object, Slice>) mObj).first;
         if (action instanceof PendingIntent) {
             ((PendingIntent) action).send(context, 0, i, null, null);
         } else {
-            ((Consumer<Uri>) action).accept(getSlice().getUri());
+            ((ActionHandler) action).onAction(this, context, i);
         }
     }
 
@@ -466,5 +467,16 @@ public final class SliceItem extends CustomVersionedParcelable {
     public void onPostParceling() {
         mObj = mHolder.getObj(mFormat);
         mHolder = null;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public interface ActionHandler {
+        /**
+         * Called when a pending intent would be sent on a real slice.
+         */
+        void onAction(SliceItem item, Context context, Intent intent);
     }
 }

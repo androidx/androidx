@@ -22,6 +22,7 @@ import static org.xmlpull.v1.XmlPullParser.TEXT;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -38,7 +39,6 @@ import android.util.Base64;
 
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.util.Consumer;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -199,10 +199,10 @@ class SliceXml {
             } else if (type == START_TAG && TAG_SLICE.equals(parser.getName())) {
                 b.addSubSlice(parseSlice(context, parser, listener), subtype);
             } else if (type == START_TAG && TAG_ACTION.equals(parser.getName())) {
-                b.addAction(new Consumer<Uri>() {
+                b.addAction(new SliceItem.ActionHandler() {
                     @Override
-                    public void accept(Uri uri) {
-                        listener.onSliceAction(uri);
+                    public void onAction(SliceItem item, Context context, Intent intent) {
+                        listener.onSliceAction(item.getSlice().getUri(), context, intent);
                     }
                 }, parseSlice(context, parser, listener), subtype);
             }

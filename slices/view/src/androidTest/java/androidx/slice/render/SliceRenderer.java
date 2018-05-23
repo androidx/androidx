@@ -20,6 +20,8 @@ import static android.view.View.MeasureSpec.makeMeasureSpec;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
@@ -196,7 +198,7 @@ public class SliceRenderer {
             return SliceUtils.parseSlice(mContext, inputStream, "UTF-8",
                     new SliceUtils.SliceActionListener() {
                         @Override
-                        public void onSliceAction(Uri actionUri) { }
+                        public void onSliceAction(Uri actionUri, Context context, Intent intent) { }
                     });
         } catch (Exception e) {
             throw new RuntimeException(e);
