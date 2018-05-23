@@ -17,7 +17,6 @@
 package com.android.tools.build.jetifier.core
 
 import com.android.tools.build.jetifier.core.config.Config
-import com.android.tools.build.jetifier.core.proguard.ProGuardTypesMap
 import com.android.tools.build.jetifier.core.rule.RewriteRule
 import com.android.tools.build.jetifier.core.rule.RewriteRulesMap
 import com.android.tools.build.jetifier.core.type.JavaType
@@ -131,14 +130,10 @@ class TypeRewriterTest {
             typesMap: TypesMap = TypesMap.EMPTY,
             rewriteRulesMap: RewriteRulesMap = RewriteRulesMap.EMPTY,
             useFallback: Boolean = false) {
-        val config = Config(
+        val config = Config.fromOptional(
             restrictToPackagePrefixes = setOf(packagePrefix),
             rulesMap = rewriteRulesMap,
-            slRules = emptyList(),
-            pomRewriteRules = emptySet(),
-            typesMap = typesMap,
-            proGuardMap = ProGuardTypesMap.EMPTY,
-            packageMap = PackageMap.EMPTY
+            typesMap = typesMap
         )
 
         val rewriter = TypeRewriter(config, useFallback)
