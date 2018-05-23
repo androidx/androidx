@@ -14,13 +14,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<LinearLayout
+<merge
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:layout_height="match_parent" >
 
     <ImageButton
         android:id="@+id/page_up"
@@ -42,26 +39,15 @@
         android:focusable="false"
         android:hapticFeedbackEnabled="false"
         android:gravity="center"
-        android:layout_marginBottom="@dimen/car_padding_3"
-        android:layout_marginTop="@dimen/car_padding_3"
-        android:visibility="gone"
-        android:text="A" />
+        android:text="@string/alpha_jump_placeholder_text"
+        android:visibility="gone" />
 
-    <FrameLayout
-        android:id="@+id/filler"
-        android:layout_width="match_parent"
+    <View
+        android:id="@+id/scrollbar_thumb"
+        android:layout_width="@dimen/car_scroll_bar_thumb_width"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginBottom="@dimen/car_padding_2"
-        android:layout_marginTop="@dimen/car_padding_2" >
-
-        <View
-            android:id="@+id/scrollbar_thumb"
-            android:layout_width="@dimen/car_scroll_bar_thumb_width"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/car_scrollbar_thumb" />
-    </FrameLayout>
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/car_scrollbar_thumb" />
 
     <ImageButton
         android:id="@+id/page_down"
@@ -72,4 +58,4 @@
         android:hapticFeedbackEnabled="false"
         android:src="@drawable/ic_down"
         android:scaleType="centerInside" />
-</LinearLayout>
+</merge>
