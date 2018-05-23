@@ -46,8 +46,12 @@
     <!-- Grid view sizes-->
     <!-- Height of a grid row displaying only text or only small images (but not both) -->
     <dimen name="abc_slice_grid_min_height">60dp</dimen>
-    <!-- Height of a grid row displaying only large images -->
+    <!-- Height of a grid row displaying only large images; also used for min-width of large images
+         to calculate # of images in a row -->
     <dimen name="abc_slice_grid_image_only_height">86dp</dimen>
+    <!-- Minimum width of a cell displaying an icon / small image; used to calculate #
+         of images in a row -->
+    <dimen name="abc_slice_grid_image_min_width">60dp</dimen>
     <!-- Height of a grid row showing one text item along with a large image -->
     <dimen name="abc_slice_grid_image_text_height">120dp</dimen>
     <!-- Height of a grid row showing two text items along with a large image -->
