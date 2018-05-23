@@ -2385,8 +2385,12 @@ public class NotificationCompat {
             setGroupConversation(isGroupConversation());
 
             if (Build.VERSION.SDK_INT >= 24) {
-                Notification.MessagingStyle style =
-                        new Notification.MessagingStyle(mUser.getName());
+                Notification.MessagingStyle frameworkStyle;
+                if (Build.VERSION.SDK_INT >= 28) {
+                    frameworkStyle = new Notification.MessagingStyle(mUser.toAndroidPerson());
+                } else {
+                    frameworkStyle = new Notification.MessagingStyle(mUser.getName());
+                }
 
                 // In SDK < 28, base Android will assume a MessagingStyle notification is a group
                 // chat if the conversation title is set. In compat, this isn't the case as we've
@@ -2396,29 +2400,43 @@ public class NotificationCompat {
                 // Notification content title so Android won't think it's a group conversation.
                 if (mIsGroupConversation || Build.VERSION.SDK_INT >= 28) {
                     // If group or non-legacy, set MessagingStyle#mConversationTitle.
-                    style.setConversationTitle(mConversationTitle);
+                    frameworkStyle.setConversationTitle(mConversationTitle);
                 }
 
                 // For SDK >= 28, we can simply denote the group conversation status regardless of
                 // if we set the conversation title or not.
                 if (Build.VERSION.SDK_INT >= 28) {
-                    style.setGroupConversation(mIsGroupConversation);
+                    frameworkStyle.setGroupConversation(mIsGroupConversation);
                 }
 
-                for (MessagingStyle.Message message : mMessages) {
-                    CharSequence name = null;
-                    if (message.getPerson() != null) {
-                        name = message.getPerson().getName();
+                for (MessagingStyle.Message compatMessage : mMessages) {
+                    Notification.MessagingStyle.Message frameworkMessage;
+
+                    // Use Person for P and above
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        Person compatMessagePerson = compatMessage.getPerson();
+                        frameworkMessage = new Notification.MessagingStyle.Message(
+                                compatMessage.getText(),
+                                compatMessage.getTimestamp(),
+                                compatMessagePerson == null
+                                        ? null
+                                        : compatMessagePerson.toAndroidPerson());
+                    } else {
+                        CharSequence name = null;
+                        if (compatMessage.getPerson() != null) {
+                            name = compatMessage.getPerson().getName();
+                        }
+                        frameworkMessage = new Notification.MessagingStyle.Message(
+                                compatMessage.getText(), compatMessage.getTimestamp(), name);
                     }
-                    Notification.MessagingStyle.Message frameworkMessage =
-                            new Notification.MessagingStyle.Message(
-                                    message.getText(), message.getTimestamp(), name);
-                    if (message.getDataMimeType() != null) {
-                        frameworkMessage.setData(message.getDataMimeType(), message.getDataUri());
+
+                    if (compatMessage.getDataMimeType() != null) {
+                        frameworkMessage.setData(
+                                compatMessage.getDataMimeType(), compatMessage.getDataUri());
                     }
-                    style.addMessage(frameworkMessage);
+                    frameworkStyle.addMessage(frameworkMessage);
                 }
-                style.setBuilder(builder.getBuilder());
+                frameworkStyle.setBuilder(builder.getBuilder());
             } else {
                 MessagingStyle.Message latestIncomingMessage = findLatestIncomingMessage();
                 // Set the title
@@ -2572,6 +2590,7 @@ public class NotificationCompat {
             static final String KEY_DATA_URI= "uri";
             static final String KEY_EXTRAS_BUNDLE = "extras";
             static final String KEY_PERSON = "person";
+            static final String KEY_NOTIFICATION_PERSON = "sender_person";
 
             private final CharSequence mText;
             private final long mTimestamp;
@@ -2713,7 +2732,13 @@ public class NotificationCompat {
                     // We must add both as Frameworks depends on this extra directly in order to
                     // render properly.
                     bundle.putCharSequence(KEY_SENDER, mPerson.getName());
-                    bundle.putBundle(KEY_PERSON, mPerson.toBundle());
+
+                    // Write person to native notification
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        bundle.putParcelable(KEY_NOTIFICATION_PERSON, mPerson.toAndroidPerson());
+                    } else {
+                        bundle.putBundle(KEY_PERSON, mPerson.toBundle());
+                    }
                 }
                 if (mDataMimeType != null) {
                     bundle.putString(KEY_DATA_MIME_TYPE, mDataMimeType);
@@ -2760,7 +2785,13 @@ public class NotificationCompat {
 
                     Person person = null;
                     if (bundle.containsKey(KEY_PERSON)) {
+                        // Person written via compat
                         person = Person.fromBundle(bundle.getBundle(KEY_PERSON));
+                    } else if (bundle.containsKey(KEY_NOTIFICATION_PERSON)
+                            && Build.VERSION.SDK_INT >= 28) {
+                        // Person written via non-compat, or >= P
+                        person = Person.fromAndroidPerson(
+                                (android.app.Person) bundle.getParcelable(KEY_NOTIFICATION_PERSON));
                     } else if (bundle.containsKey(KEY_SENDER)) {
                         // Legacy person
                         person = new Person.Builder()
