@@ -77,18 +77,12 @@ public class FragmentActivity extends ComponentActivity implements
     static final String REQUEST_FRAGMENT_WHO_TAG = "android:support:request_fragment_who";
     static final int MAX_NUM_PENDING_FRAGMENT_ACTIVITY_RESULTS = 0xffff - 1;
 
-    static final int MSG_REALLY_STOPPED = 1;
     static final int MSG_RESUME_PENDING = 2;
 
     final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_REALLY_STOPPED:
-                    if (mStopped) {
-                        doReallyStop(false);
-                    }
-                    break;
                 case MSG_RESUME_PENDING:
                     onResumeFragments();
                     mFragments.execPendingActions();
@@ -106,8 +100,6 @@ public class FragmentActivity extends ComponentActivity implements
     boolean mCreated;
     boolean mResumed;
     boolean mStopped = true;
-    boolean mReallyStopped = true;
-    boolean mRetaining;
 
     boolean mRequestedPermissionsFromFragment;
 
@@ -410,9 +402,7 @@ public class FragmentActivity extends ComponentActivity implements
     protected void onDestroy() {
         super.onDestroy();
 
-        doReallyStop(false);
-
-        if (mViewModelStore != null && !mRetaining) {
+        if (mViewModelStore != null && !isChangingConfigurations()) {
             mViewModelStore.clear();
         }
 
@@ -566,10 +556,6 @@ public class FragmentActivity extends ComponentActivity implements
      */
     @Override
     public final Object onRetainNonConfigurationInstance() {
-        if (mStopped) {
-            doReallyStop(true);
-        }
-
         Object custom = onRetainCustomNonConfigurationInstance();
 
         FragmentManagerNonConfig fragments = mFragments.retainNestedNonConfig();
@@ -618,8 +604,6 @@ public class FragmentActivity extends ComponentActivity implements
         super.onStart();
 
         mStopped = false;
-        mReallyStopped = false;
-        mHandler.removeMessages(MSG_REALLY_STOPPED);
 
         if (!mCreated) {
             mCreated = true;
@@ -643,7 +627,6 @@ public class FragmentActivity extends ComponentActivity implements
 
         mStopped = true;
         markFragmentsCreated();
-        mHandler.sendEmptyMessage(MSG_REALLY_STOPPED);
 
         mFragments.dispatchStop();
     }
@@ -705,30 +688,9 @@ public class FragmentActivity extends ComponentActivity implements
         writer.print(innerPrefix); writer.print("mCreated=");
                 writer.print(mCreated); writer.print(" mResumed=");
                 writer.print(mResumed); writer.print(" mStopped=");
-                writer.print(mStopped); writer.print(" mReallyStopped=");
-                writer.println(mReallyStopped);
+                writer.print(mStopped);
         LoaderManager.getInstance(this).dump(innerPrefix, fd, writer, args);
         mFragments.getSupportFragmentManager().dump(prefix, fd, writer, args);
-    }
-
-    void doReallyStop(boolean retaining) {
-        if (!mReallyStopped) {
-            mReallyStopped = true;
-            mRetaining = retaining;
-            mHandler.removeMessages(MSG_REALLY_STOPPED);
-            onReallyStop();
-        }
-    }
-
-    /**
-     * Pre-HC, we didn't have a way to determine whether an activity was
-     * being stopped for a config change or not until we saw
-     * onRetainNonConfigurationInstance() called after onStop().  However
-     * we need to know this, to know whether to retain fragments.  This will
-     * tell us what we need to know.
-     */
-    void onReallyStop() {
-        mFragments.dispatchReallyStop();
     }
 
     // ------------------------------------------------------------------------
