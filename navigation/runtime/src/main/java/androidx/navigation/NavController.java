@@ -478,8 +478,9 @@ public class NavController {
                 navigate(mGraph.getStartDestination(), bundle, new NavOptions.Builder()
                         .setClearTask(true).setEnterAnim(0).setExitAnim(0).build());
             }
-            while (mBackStack.size() < deepLink.length) {
-                int destinationId = deepLink[mBackStack.size()];
+            int index = 0;
+            while (index < deepLink.length) {
+                int destinationId = deepLink[index++];
                 NavDestination node = findDestination(destinationId);
                 if (node == null) {
                     throw new IllegalStateException("unknown destination during deep link: "
