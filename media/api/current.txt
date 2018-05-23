@@ -950,12 +950,11 @@ package androidx.media {
     method public float getMaxPlayerVolume();
     method public abstract androidx.media.BaseMediaPlayer getMediaPlayerInterface();
     method public abstract android.os.PersistableBundle getMetrics();
-    method public abstract android.media.PlaybackParams getPlaybackParams();
+    method public abstract androidx.media.PlaybackParams2 getPlaybackParams();
     method public abstract float getPlayerVolume();
     method public abstract int getSelectedTrack(int);
     method public abstract int getState();
-    method public abstract android.media.SyncParams getSyncParams();
-    method public abstract android.media.MediaTimestamp getTimestamp();
+    method public abstract androidx.media.MediaTimestamp2 getTimestamp();
     method public abstract java.util.List<androidx.media.MediaPlayer2.TrackInfo> getTrackInfo();
     method public abstract int getVideoHeight();
     method public abstract int getVideoWidth();
@@ -982,10 +981,9 @@ package androidx.media {
     method public abstract void setNextDataSource(androidx.media.DataSourceDesc);
     method public abstract void setNextDataSources(java.util.List<androidx.media.DataSourceDesc>);
     method public abstract void setOnDrmConfigHelper(androidx.media.MediaPlayer2.OnDrmConfigHelper);
-    method public abstract void setPlaybackParams(android.media.PlaybackParams);
+    method public abstract void setPlaybackParams(androidx.media.PlaybackParams2);
     method public abstract void setPlayerVolume(float);
     method public abstract void setSurface(android.view.Surface);
-    method public abstract void setSyncParams(android.media.SyncParams);
     method public abstract void skipToNext();
     field public static final int CALL_COMPLETED_ATTACH_AUX_EFFECT = 1; // 0x1
     field public static final int CALL_COMPLETED_DESELECT_TRACK = 2; // 0x2
@@ -1004,7 +1002,6 @@ package androidx.media {
     field public static final int CALL_COMPLETED_SET_PLAYBACK_PARAMS = 24; // 0x18
     field public static final int CALL_COMPLETED_SET_PLAYER_VOLUME = 26; // 0x1a
     field public static final int CALL_COMPLETED_SET_SURFACE = 27; // 0x1b
-    field public static final int CALL_COMPLETED_SET_SYNC_PARAMS = 28; // 0x1c
     field public static final int CALL_COMPLETED_SKIP_TO_NEXT = 29; // 0x1d
     field public static final int CALL_STATUS_BAD_VALUE = 2; // 0x2
     field public static final int CALL_STATUS_ERROR_IO = 4; // 0x4
@@ -1069,8 +1066,8 @@ package androidx.media {
     method public void onCommandLabelReached(androidx.media.MediaPlayer2, java.lang.Object);
     method public void onError(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, int, int);
     method public void onInfo(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, int, int);
-    method public void onMediaTimeDiscontinuity(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, android.media.MediaTimestamp);
-    method public void onSubtitleData(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, android.media.SubtitleData);
+    method public void onMediaTimeDiscontinuity(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, androidx.media.MediaTimestamp2);
+    method public void onSubtitleData(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, androidx.media.SubtitleData2);
     method public void onTimedMetaDataAvailable(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, android.media.TimedMetaData);
     method public void onVideoSizeChanged(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, int, int);
   }
@@ -1315,6 +1312,30 @@ package androidx.media {
     method public int getNotificationId();
   }
 
+  public final class MediaTimestamp2 {
+    method public long getAnchorMediaTimeUs();
+    method public long getAnchorSytemNanoTime();
+    method public float getMediaClockRate();
+    field public static final androidx.media.MediaTimestamp2 TIMESTAMP_UNKNOWN;
+  }
+
+  public final class PlaybackParams2 {
+    method public java.lang.Integer getAudioFallbackMode();
+    method public java.lang.Float getPitch();
+    method public java.lang.Float getSpeed();
+    field public static final int AUDIO_FALLBACK_MODE_DEFAULT = 0; // 0x0
+    field public static final int AUDIO_FALLBACK_MODE_FAIL = 2; // 0x2
+    field public static final int AUDIO_FALLBACK_MODE_MUTE = 1; // 0x1
+  }
+
+  public static final class PlaybackParams2.Builder {
+    ctor public PlaybackParams2.Builder();
+    method public androidx.media.PlaybackParams2 build();
+    method public androidx.media.PlaybackParams2.Builder setAudioFallbackMode(int);
+    method public androidx.media.PlaybackParams2.Builder setPitch(float);
+    method public androidx.media.PlaybackParams2.Builder setSpeed(float);
+  }
+
   public final class Rating2 {
     method public static androidx.media.Rating2 fromBundle(android.os.Bundle);
     method public float getPercentRating();
@@ -1412,6 +1433,16 @@ package androidx.media {
     field public static final int TYPE_LIBRARY_SERVICE = 2; // 0x2
     field public static final int TYPE_SESSION = 0; // 0x0
     field public static final int TYPE_SESSION_SERVICE = 1; // 0x1
+  }
+
+  public final class SubtitleData2 {
+    method public byte[] getData();
+    method public long getDurationUs();
+    method public long getStartTimeUs();
+    method public int getTrackIndex();
+    field public static final java.lang.String MIMETYPE_TEXT_CEA_608 = "text/cea-608";
+    field public static final java.lang.String MIMETYPE_TEXT_CEA_708 = "text/cea-708";
+    field public static final java.lang.String MIMETYPE_TEXT_VTT = "text/vtt";
   }
 
   public abstract class VolumeProviderCompat {

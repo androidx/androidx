@@ -34,7 +34,6 @@ import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCES;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PARAMS;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_PLAYER_VOLUME;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_SURFACE;
-import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_SYNC_PARAMS;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SKIP_TO_NEXT;
 import static androidx.media.MediaPlayer2.CALL_STATUS_NO_ERROR;
 import static androidx.media.MediaPlayer2.MEDIAPLAYER2_STATE_ERROR;
@@ -47,8 +46,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
 
-import android.media.PlaybackParams;
-import android.media.SyncParams;
 import android.os.Build;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
@@ -380,7 +377,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sSetPlaybackParamsOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.setPlaybackParams(new PlaybackParams().setSpeed(1.0f));
+            player.setPlaybackParams(new PlaybackParams2.Builder().setSpeed(1.0f).build());
         }
 
         @Override
@@ -392,28 +389,6 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
         @Override
         public void doOperation(MediaPlayer2 player) {
             player.getPlaybackParams();
-        }
-
-        @Override
-        public Integer getCallCompleteCode() {
-            return null;
-        }
-    };
-    private static final PlayerOperation sSetSyncParamsOperation = new PlayerOperation() {
-        @Override
-        public void doOperation(MediaPlayer2 player) {
-            player.setSyncParams(new SyncParams());
-        }
-
-        @Override
-        public Integer getCallCompleteCode() {
-            return CALL_COMPLETED_SET_SYNC_PARAMS;
-        }
-    };
-    private static final PlayerOperation sGetSyncParamsOperation = new PlayerOperation() {
-        @Override
-        public void doOperation(MediaPlayer2 player) {
-            player.getSyncParams();
         }
 
         @Override
@@ -717,18 +692,6 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
                 { sGetPlaybackParamsOperation, MEDIAPLAYER2_STATE_PAUSED, true },
                 { sGetPlaybackParamsOperation, MEDIAPLAYER2_STATE_PLAYING, true },
                 { sGetPlaybackParamsOperation, MEDIAPLAYER2_STATE_ERROR, true },
-
-                { sSetSyncParamsOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetSyncParamsOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetSyncParamsOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetSyncParamsOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetSyncParamsOperation, MEDIAPLAYER2_STATE_ERROR, true },
-
-                { sGetSyncParamsOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetSyncParamsOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetSyncParamsOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetSyncParamsOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetSyncParamsOperation, MEDIAPLAYER2_STATE_ERROR, true },
 
                 { sGetTimestampOperation, MEDIAPLAYER2_STATE_IDLE, true },
                 { sGetTimestampOperation, MEDIAPLAYER2_STATE_PREPARED, true },
