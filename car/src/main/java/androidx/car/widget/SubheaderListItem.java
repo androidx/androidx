@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import androidx.annotation.DimenRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
@@ -53,6 +54,7 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
     }
 
     private final Context mContext;
+    private boolean mIsEnabled = true;
 
     private final List<ViewBinder<ViewHolder>> mBinders = new ArrayList<>();
 
@@ -119,6 +121,11 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
         return ListItemAdapter.LIST_ITEM_TYPE_SUBHEADER;
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        mIsEnabled = enabled;
+    }
+
     /**
      * Calculates layout params for views in {@link ViewHolder}.
      */
@@ -147,6 +154,8 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
         for (ViewBinder binder : mBinders) {
             binder.bind(viewHolder);
         }
+
+        viewHolder.getText().setEnabled(mIsEnabled);
     }
 
     private void setItemLayoutHeight() {
@@ -209,6 +218,7 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
             CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
         }
 
+        @NonNull
         public TextView getText() {
             return mText;
         }

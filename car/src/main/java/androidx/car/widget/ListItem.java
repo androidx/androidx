@@ -90,6 +90,16 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
         return mBodyTextAppearance;
     }
 
+    /**
+     * Sets the enabled state of the bound {@link ViewHolder}.
+     *
+     * <p>All visible children views of {@code ViewHolder} should be set to {@code enabled}. Caller
+     * is responsible for notifying {@link ListItemAdapter} about data change.
+     *
+     * <p>Disabled items are usually styled at 50% opacity. Consider similar styling for
+     * consistency.
+     */
+    public abstract void setEnabled(boolean enabled);
 
     /**
      * Marks this item as dirty so {@link #resolveDirtyState()} is required in next bind() call.

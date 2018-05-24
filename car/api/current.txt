@@ -229,6 +229,7 @@ package androidx.car.widget {
     method protected abstract void onBind(VH);
     method public boolean removeViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>);
     method protected abstract void resolveDirtyState();
+    method public abstract void setEnabled(boolean);
     method public void setHideDivider(boolean);
     method public boolean shouldHideDivider();
   }
@@ -393,6 +394,7 @@ package androidx.car.widget {
     method public int getViewType();
     method protected void onBind(androidx.car.widget.SeekbarListItem.ViewHolder);
     method protected void resolveDirtyState();
+    method public void setEnabled(boolean);
     method public void setMax(int);
     method public void setOnSeekBarChangeListener(android.widget.SeekBar.OnSeekBarChangeListener);
     method public void setPrimaryActionEmptyIcon();
@@ -419,6 +421,7 @@ package androidx.car.widget {
     method public android.widget.ImageView getSupplementalIcon();
     method public android.view.View getSupplementalIconDivider();
     method public android.widget.TextView getText();
+    method public android.view.View[] getWidgetViews();
   }
 
   public class SubheaderListItem extends androidx.car.widget.ListItem {
@@ -427,8 +430,10 @@ package androidx.car.widget {
     method public int getViewType();
     method protected void onBind(androidx.car.widget.SubheaderListItem.ViewHolder);
     method protected void resolveDirtyState();
+    method public void setEnabled(boolean);
     method public void setText(java.lang.String);
     method public void setTextStartMarginType(int);
+    method public final boolean shouldHideDivider();
     field public static final int TEXT_START_MARGIN_TYPE_LARGE = 2; // 0x2
     field public static final int TEXT_START_MARGIN_TYPE_NONE = 0; // 0x0
     field public static final int TEXT_START_MARGIN_TYPE_SMALL = 1; // 0x1
@@ -453,6 +458,7 @@ package androidx.car.widget {
     method public void setActions(java.lang.String, boolean, android.view.View.OnClickListener, java.lang.String, boolean, android.view.View.OnClickListener);
     method public void setBody(java.lang.String);
     method public void setBody(java.lang.String, boolean);
+    method public void setEnabled(boolean);
     method public void setOnClickListener(android.view.View.OnClickListener);
     method public void setPrimaryActionEmptyIcon();
     method public void setPrimaryActionIcon(int, boolean);

@@ -35,6 +35,7 @@ import android.widget.TextView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
@@ -103,6 +104,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private static final int SUPPLEMENTAL_ACTION_SWITCH = 4;
 
     private final Context mContext;
+    private boolean mIsEnabled = true;
 
     private final List<ViewBinder<ViewHolder>> mBinders = new ArrayList<>();
 
@@ -175,6 +177,12 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         for (ViewBinder binder : mBinders) {
             binder.bind(viewHolder);
         }
+
+        for (View v : viewHolder.getWidgetViews()) {
+            v.setEnabled(mIsEnabled);
+        }
+        // TextListItem supports clicking on the item so we also update the entire itemView.
+        viewHolder.itemView.setEnabled(mIsEnabled);
     }
 
     /** Sets the title text appearance from the specified style resource. */
@@ -191,14 +199,13 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         setTextContent();
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        mIsEnabled = enabled;
+    }
+
     private void hideSubViews(ViewHolder vh) {
-        View[] subviews = new View[] {
-                vh.getPrimaryIcon(),
-                vh.getTitle(), vh.getBody(),
-                vh.getSupplementalIcon(), vh.getSupplementalIconDivider(),
-                vh.getSwitch(), vh.getSwitchDivider(),
-                vh.getAction1(), vh.getAction1Divider(), vh.getAction2(), vh.getAction2Divider()};
-        for (View v : subviews) {
+        for (View v : vh.getWidgetViews()) {
             v.setVisibility(View.GONE);
         }
     }
@@ -822,6 +829,8 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      */
     public static class ViewHolder extends ListItem.ViewHolder {
 
+        private final View[] mWidgetViews;
+
         private RelativeLayout mContainerLayout;
 
         private ImageView mPrimaryIcon;
@@ -867,6 +876,18 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
             MinTouchTargetHelper.ensureThat(mSupplementalIcon)
                     .hasMinTouchSize(minTouchSize);
+
+            // Each line groups relevant child views in an effort to help keep this view array
+            // updated with actual child views in the ViewHolder.
+            mWidgetViews = new View[]{
+                    // Primary action.
+                    mPrimaryIcon,
+                    // Text.
+                    mTitle, mBody,
+                    // Supplemental actions include icon, action button, and switch.
+                    mSupplementalIcon, mSupplementalIconDivider,
+                    mAction1, mAction1Divider, mAction2, mAction2Divider,
+                    mSwitch, mSwitchDivider};
         }
 
         /**
@@ -881,52 +902,69 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getBody());
         }
 
+        @NonNull
         public RelativeLayout getContainerLayout() {
             return mContainerLayout;
         }
 
+        @NonNull
         public ImageView getPrimaryIcon() {
             return mPrimaryIcon;
         }
 
+        @NonNull
         public TextView getTitle() {
             return mTitle;
         }
 
+        @NonNull
         public TextView getBody() {
             return mBody;
         }
 
+        @NonNull
         public ImageView getSupplementalIcon() {
             return mSupplementalIcon;
         }
 
+        @NonNull
         public View getSupplementalIconDivider() {
             return mSupplementalIconDivider;
         }
 
+        @NonNull
         public View getSwitchDivider() {
             return mSwitchDivider;
         }
 
+        @NonNull
         public Switch getSwitch() {
             return mSwitch;
         }
 
+        @NonNull
         public Button getAction1() {
             return mAction1;
         }
 
+        @NonNull
         public View getAction1Divider() {
             return mAction1Divider;
         }
 
+        @NonNull
         public Button getAction2() {
             return mAction2;
         }
 
+        @NonNull
         public View getAction2Divider() {
             return mAction2Divider;
+        }
+
+        @NonNull
+        private View[] getWidgetViews() {
+            return mWidgetViews;
         }
     }
 }

@@ -267,6 +267,17 @@ public class TextListItemActivity extends Activity {
             });
             mItems.add(item);
 
+            item = new TextListItem(mContext);
+            item.setOnClickListener(v -> {
+                throw new RuntimeException("This item should not be clickable");
+            });
+            item.setTitle("Disabled item");
+            item.setAction("action", false, v -> {
+                throw new RuntimeException("This button should not be clickable");
+            });
+            item.setEnabled(false);
+            mItems.add(item);
+
             mListProvider = new ListItemProvider.ListProvider(mItems);
         }
 
