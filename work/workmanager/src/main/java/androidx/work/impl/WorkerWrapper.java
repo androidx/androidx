@@ -43,6 +43,7 @@ import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A runnable that looks up the {@link WorkSpec} from the database for a given id, instantiates
@@ -373,7 +374,7 @@ public class WorkerWrapper implements Runnable {
             @NonNull WorkSpec workSpec,
             @NonNull Extras extras) {
         String workerClassName = workSpec.workerClassName;
-        String workSpecId = workSpec.id;
+        UUID workSpecId = UUID.fromString(workSpec.id);
         return workerFromClassName(
                 context,
                 workerClassName,
@@ -397,7 +398,7 @@ public class WorkerWrapper implements Runnable {
     public static Worker workerFromClassName(
             @NonNull Context context,
             @NonNull String workerClassName,
-            @NonNull String workSpecId,
+            @NonNull UUID workSpecId,
             @NonNull Extras extras) {
         Context appContext = context.getApplicationContext();
         try {
@@ -406,7 +407,7 @@ public class WorkerWrapper implements Runnable {
             Method internalInitMethod = Worker.class.getDeclaredMethod(
                     "internalInit",
                     Context.class,
-                    String.class,
+                    UUID.class,
                     Extras.class);
             internalInitMethod.setAccessible(true);
             internalInitMethod.invoke(

@@ -28,6 +28,7 @@ import android.support.annotation.WorkerThread;
 import androidx.work.impl.Extras;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * The basic unit of work.
@@ -41,7 +42,7 @@ public abstract class Worker {
     }
 
     private @NonNull Context mAppContext;
-    private @NonNull String mId;
+    private @NonNull UUID mId;
     private @NonNull Extras mExtras;
     private @NonNull Data mOutputData = Data.EMPTY;
     private volatile boolean mStopped;
@@ -50,7 +51,12 @@ public abstract class Worker {
         return mAppContext;
     }
 
-    public final @NonNull String getId() {
+    /**
+     * Gets the ID of the {@link WorkRequest} that created this Worker.
+     *
+     * @return The ID of the creating {@link WorkRequest}
+     */
+    public final @NonNull UUID getId() {
         return mId;
     }
 
@@ -154,7 +160,7 @@ public abstract class Worker {
     @Keep
     private void internalInit(
             @NonNull Context appContext,
-            @NonNull String id,
+            @NonNull UUID id,
             @NonNull Extras extras) {
         mAppContext = appContext;
         mId = id;
