@@ -18,7 +18,6 @@ package com.android.tools.build.jetifier.processor.transform.resource
 
 import com.android.tools.build.jetifier.core.PackageMap
 import com.android.tools.build.jetifier.core.config.Config
-import com.android.tools.build.jetifier.core.proguard.ProGuardTypesMap
 import com.android.tools.build.jetifier.core.rule.RewriteRule
 import com.android.tools.build.jetifier.core.rule.RewriteRulesMap
 import com.android.tools.build.jetifier.core.type.JavaType
@@ -389,13 +388,10 @@ class XmlResourcesTransformerTest {
             "$expectedXml\n"
 
         val typeMap = TypesMap(typesMap.map { JavaType(it.key) to JavaType(it.value) }.toMap())
-        val config = Config(
+        val config = Config.fromOptional(
             restrictToPackagePrefixes = prefixes,
             rulesMap = rulesMap,
-            slRules = emptyList(),
-            pomRewriteRules = emptySet(),
             typesMap = typeMap,
-            proGuardMap = ProGuardTypesMap.EMPTY,
             packageMap = packageMap
         )
         val context = TransformationContext(

@@ -16,14 +16,10 @@
 
 package com.android.tools.build.jetifier.processor.transform.pom
 
-import com.android.tools.build.jetifier.core.PackageMap
 import com.android.tools.build.jetifier.core.config.Config
-import com.android.tools.build.jetifier.core.pom.DependencyVersionsMap
+import com.android.tools.build.jetifier.core.pom.DependencyVersions
 import com.android.tools.build.jetifier.core.pom.PomDependency
 import com.android.tools.build.jetifier.core.pom.PomRewriteRule
-import com.android.tools.build.jetifier.core.proguard.ProGuardTypesMap
-import com.android.tools.build.jetifier.core.rule.RewriteRulesMap
-import com.android.tools.build.jetifier.core.type.TypesMap
 import com.android.tools.build.jetifier.processor.archive.ArchiveFile
 import com.android.tools.build.jetifier.processor.transform.TransformationContext
 import com.google.common.truth.Truth
@@ -115,7 +111,7 @@ class PomDocumentTest {
                         version = "{newSlVersion}")
                 )
             ),
-            versionsMap = DependencyVersionsMap(newSlVersion = "1.0.0-test")
+            versions = DependencyVersions(mapOf("newSlVersion" to "1.0.0-test"))
         )
     }
 
@@ -273,7 +269,7 @@ class PomDocumentTest {
         givenXml: String,
         expectedXml: String,
         rules: Set<PomRewriteRule>,
-        versionsMap: DependencyVersionsMap = DependencyVersionsMap.LATEST
+        versions: DependencyVersions = DependencyVersions.EMPTY
     ) {
         val given =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -303,15 +299,10 @@ class PomDocumentTest {
 
         val file = ArchiveFile(Paths.get("pom.xml"), given.toByteArray())
         val pomDocument = PomDocument.loadFrom(file)
-        val config = Config(
+        val config = Config.fromOptional(
             restrictToPackagePrefixes = emptySet(),
-            rulesMap = RewriteRulesMap.EMPTY,
-            typesMap = TypesMap.EMPTY,
-            slRules = emptyList(),
-            pomRewriteRules = rules,
-            proGuardMap = ProGuardTypesMap.EMPTY,
-            packageMap = PackageMap.EMPTY)
-        val context = TransformationContext(config, versionsMap = versionsMap)
+            pomRewriteRules = rules)
+        val context = TransformationContext(config, versions = versions)
         pomDocument.applyRules(context)
         pomDocument.saveBackToFileIfNeeded()
         var strResult = file.data.toString(StandardCharsets.UTF_8)

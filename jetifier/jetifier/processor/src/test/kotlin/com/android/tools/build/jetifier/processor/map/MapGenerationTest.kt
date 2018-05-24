@@ -17,11 +17,9 @@
 package com.android.tools.build.jetifier.processor.map
 
 import com.android.tools.build.jetifier.core.config.Config
-import com.android.tools.build.jetifier.core.proguard.ProGuardTypesMap
 import com.android.tools.build.jetifier.core.rule.RewriteRule
 import com.android.tools.build.jetifier.core.rule.RewriteRulesMap
 import com.android.tools.build.jetifier.core.type.JavaType
-import com.android.tools.build.jetifier.core.type.TypesMap
 import com.android.tools.build.jetifier.processor.type.MapGeneratorRemapper
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -156,13 +154,9 @@ class MapGenerationTest {
                 }
 
                 fun mapInto(types: Map<String, String>): Step2 {
-                    val config = Config(
+                    val config = Config.fromOptional(
                         restrictToPackagePrefixes = prefixes,
-                        rulesMap = RewriteRulesMap(rules),
-                        slRules = emptyList(),
-                        pomRewriteRules = emptySet(),
-                        typesMap = TypesMap.EMPTY,
-                        proGuardMap = ProGuardTypesMap.EMPTY)
+                        rulesMap = RewriteRulesMap(rules))
                     val scanner = MapGeneratorRemapper(config)
 
                     allTypes.forEach { scanner.rewriteType(it) }

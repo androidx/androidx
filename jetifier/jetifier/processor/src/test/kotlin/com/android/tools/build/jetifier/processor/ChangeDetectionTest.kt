@@ -16,11 +16,9 @@
 
 package com.android.tools.build.jetifier.processor
 
-import com.android.tools.build.jetifier.core.PackageMap
 import com.android.tools.build.jetifier.core.config.Config
 import com.android.tools.build.jetifier.core.pom.PomDependency
 import com.android.tools.build.jetifier.core.pom.PomRewriteRule
-import com.android.tools.build.jetifier.core.proguard.ProGuardTypesMap
 import com.android.tools.build.jetifier.core.rule.RewriteRule
 import com.android.tools.build.jetifier.core.rule.RewriteRulesMap
 import com.android.tools.build.jetifier.core.type.JavaType
@@ -39,13 +37,13 @@ import java.nio.file.Paths
  */
 class ChangeDetectionTest {
 
-    private val prefRewriteConfig = Config(
+    private val prefRewriteConfig = Config.fromOptional(
         restrictToPackagePrefixes = setOf("android/support/v7/preference"),
         rulesMap =
-        RewriteRulesMap(
-            RewriteRule(from = "android/support/v7/preference/Preference(.+)", to = "ignore"),
-            RewriteRule(from = "(.*)/R(.*)", to = "ignore")
-        ),
+            RewriteRulesMap(
+                RewriteRule(from = "android/support/v7/preference/Preference(.+)", to = "ignore"),
+                RewriteRule(from = "(.*)/R(.*)", to = "ignore")
+            ),
         slRules = listOf(),
         pomRewriteRules = setOf(
             PomRewriteRule(
@@ -56,10 +54,8 @@ class ChangeDetectionTest {
             )),
         typesMap = TypesMap(
             JavaType("android/support/v7/preference/Preference")
-                    to JavaType("android/test/pref/Preference")
-        ),
-        proGuardMap = ProGuardTypesMap.EMPTY,
-        packageMap = PackageMap.EMPTY
+                to JavaType("android/test/pref/Preference")
+        )
     )
 
     @Test
