@@ -48,14 +48,6 @@ class Processor private constructor(
         private const val TAG = "Processor"
 
         /**
-         * Value of "restrictToPackagePrefixes" config for reversed jetification.
-         */
-        private val REVERSE_RESTRICT_TO_PACKAGE = setOf(
-            "androidx/",
-            "com/google/android/material/"
-        )
-
-        /**
          * Transformers to be used when refactoring general libraries.
          */
         private fun createTransformers(context: TransformationContext) = listOf(
@@ -108,7 +100,8 @@ class Processor private constructor(
 
             if (reversedMode) {
                 newConfig = Config(
-                    restrictToPackagePrefixes = REVERSE_RESTRICT_TO_PACKAGE,
+                    restrictToPackagePrefixes = config.reversedRestrictToPackagePrefixes,
+                    reversedRestrictToPackagePrefixes = config.restrictToPackagePrefixes,
                     rulesMap = config.rulesMap.reverse().appendRules(config.slRules),
                     slRules = config.slRules,
                     pomRewriteRules = config.pomRewriteRules.map { it.getReversed() }.toSet(),

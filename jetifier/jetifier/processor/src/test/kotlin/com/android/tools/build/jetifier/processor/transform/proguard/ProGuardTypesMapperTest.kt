@@ -86,7 +86,7 @@ class ProGuardTypesMapperTest {
             .getsRewrittenTo("keep.me.**")
     }
 
-    @Test fun proGuard_typeMapper_differentPrefix_notRewritten() {
+    @Test fun proGuard_typeMapper_differentPrefix_stillRewritten() {
         ProGuardTester()
             .forGivenPrefixes(
                 "support/"
@@ -95,7 +95,7 @@ class ProGuardTypesMapperTest {
                 "hello/Activity" to "test/Activity"
             )
             .testThatGivenType("hello.Activity")
-            .getsRewrittenTo("hello.Activity")
+            .getsRewrittenTo("test.Activity")
     }
 
     @Test fun proGuard_typeMapper_differentPrefix_wildcard_getsRewritten() {
