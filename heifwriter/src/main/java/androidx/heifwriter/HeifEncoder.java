@@ -17,7 +17,6 @@
 package androidx.heifwriter;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.Image;
@@ -310,31 +309,34 @@ public final class HeifEncoder implements AutoCloseable,
         if (useSurfaceInternally) {
             mEncoderSurface = mEncoder.createInputSurface();
 
-            boolean copyTiles = useGrid && !useHeicEncoder;
+            boolean copyTiles = (useGrid && !useHeicEncoder) || (inputMode == INPUT_MODE_BITMAP);
             mEOSTracker = new SurfaceEOSTracker(copyTiles);
 
-            if (inputMode == INPUT_MODE_SURFACE) {
-                if (copyTiles) {
-                    mEncoderEglSurface = new EglWindowSurface(mEncoderSurface);
-                    mEncoderEglSurface.makeCurrent();
+            if (copyTiles) {
+                mEncoderEglSurface = new EglWindowSurface(mEncoderSurface);
+                mEncoderEglSurface.makeCurrent();
 
-                    mRectBlt = new EglRectBlt(
-                            new Texture2dProgram(Texture2dProgram.TEXTURE_EXT), mWidth, mHeight);
+                mRectBlt = new EglRectBlt(
+                        new Texture2dProgram((inputMode == INPUT_MODE_BITMAP)
+                                ? Texture2dProgram.TEXTURE_2D
+                                : Texture2dProgram.TEXTURE_EXT),
+                        mWidth, mHeight);
 
-                    mTextureId = mRectBlt.createTextureObject();
+                mTextureId = mRectBlt.createTextureObject();
 
+                if (inputMode == INPUT_MODE_SURFACE) {
                     // use single buffer mode to block on input
                     mInputTexture = new SurfaceTexture(mTextureId, true);
                     mInputTexture.setOnFrameAvailableListener(this);
                     mInputTexture.setDefaultBufferSize(mWidth, mHeight);
                     mInputSurface = new Surface(mInputTexture);
-
-                    // make uncurrent since onFrameAvailable could be called on arbituray thread.
-                    // making the context current on a different thread will cause error.
-                    mEncoderEglSurface.makeUnCurrent();
-                } else {
-                    mInputSurface = mEncoderSurface;
                 }
+
+                // make uncurrent since onFrameAvailable could be called on arbituray thread.
+                // making the context current on a different thread will cause error.
+                mEncoderEglSurface.makeUnCurrent();
+            } else {
+                mInputSurface = mEncoderSurface;
             }
         } else {
             for (int i = 0; i < INPUT_BUFFER_POOL_SIZE; i++) {
@@ -344,6 +346,26 @@ public final class HeifEncoder implements AutoCloseable,
 
         mDstRect = new Rect(0, 0, mGridWidth, mGridHeight);
         mSrcRect = new Rect();
+    }
+
+    /**
+     * Copies from source frame to encoder inputs using GL. The source could be either
+     * client's input surface, or the input bitmap loaded to texture.
+     */
+    private void copyTilesGL() {
+        GLES20.glViewport(0, 0, mGridWidth, mGridHeight);
+
+        for (int row = 0; row < mGridRows; row++) {
+            for (int col = 0; col < mGridCols; col++) {
+                int left = col * mGridWidth;
+                int top = row * mGridHeight;
+                mSrcRect.set(left, top, left + mGridWidth, top + mGridHeight);
+                mRectBlt.copyRect(mTextureId, Texture2dProgram.V_FLIP_MATRIX, mSrcRect);
+                mEncoderEglSurface.setPresentationTime(
+                        1000 * computePresentationTime(mInputIndex++));
+                mEncoderEglSurface.swapBuffers();
+            }
+        }
     }
 
     @Override
@@ -366,20 +388,7 @@ public final class HeifEncoder implements AutoCloseable,
                     computePresentationTime(mInputIndex + mNumTiles - 1));
 
             if (takeFrame) {
-                // Copies from surface texture to encoder inputs using GL.
-                GLES20.glViewport(0, 0, mGridWidth, mGridHeight);
-
-                for (int row = 0; row < mGridRows; row++) {
-                    for (int col = 0; col < mGridCols; col++) {
-                        int left = col * mGridWidth;
-                        int top = row * mGridHeight;
-                        mSrcRect.set(left, top, left + mGridWidth, top + mGridHeight);
-                        mRectBlt.copyRect(mTextureId, Texture2dProgram.V_FLIP_MATRIX, mSrcRect);
-                        mEncoderEglSurface.setPresentationTime(
-                                1000 * computePresentationTime(mInputIndex++));
-                        mEncoderEglSurface.swapBuffers();
-                    }
-                }
+                copyTilesGL();
             }
 
             surfaceTexture.releaseTexImage();
@@ -459,22 +468,25 @@ public final class HeifEncoder implements AutoCloseable,
         }
 
         boolean takeFrame = mEOSTracker.updateLastInputAndEncoderTime(
-                computePresentationTime(mInputIndex),
+                computePresentationTime(mInputIndex) * 1000,
                 computePresentationTime(mInputIndex + mNumTiles - 1));
 
         if (!takeFrame) return;
 
         synchronized (this) {
-            for (int row = 0; row < mGridRows; row++) {
-                for (int col = 0; col < mGridCols; col++) {
-                    int left = col * mGridWidth;
-                    int top = row * mGridHeight;
-                    mSrcRect.set(left, top, left + mGridWidth, top + mGridHeight);
-                    Canvas canvas = mEncoderSurface.lockCanvas(null);
-                    canvas.drawBitmap(bitmap, mSrcRect, mDstRect, null);
-                    mEncoderSurface.unlockCanvasAndPost(canvas);
-                }
+            if (mEncoderEglSurface == null) {
+                return;
             }
+
+            mEncoderEglSurface.makeCurrent();
+
+            mRectBlt.loadTexture(mTextureId, bitmap);
+
+            copyTilesGL();
+
+            // make uncurrent since the onFrameAvailable could be called on arbituray thread.
+            // making the context current on a different thread will cause error.
+            mEncoderEglSurface.makeUnCurrent();
         }
     }
 

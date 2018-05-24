@@ -16,8 +16,10 @@
 
 package androidx.heifwriter;
 
+import android.graphics.Bitmap;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -192,6 +194,17 @@ public class Texture2dProgram {
         checkGlError("glTexParameter");
 
         return texId;
+    }
+
+    /**
+     * Bind texture and load bitmap.
+     * @param texId texture id for the texture.
+     * @param bitmap bitmap to load.
+     */
+    public void loadTexture(int texId, Bitmap bitmap) {
+        // load the bitmap to texture
+        GLES20.glBindTexture(mTextureTarget, texId);
+        GLUtils.texImage2D(mTextureTarget, 0, bitmap, 0);
     }
 
     /**
