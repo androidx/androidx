@@ -19,6 +19,7 @@ package androidx.slice.core;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 
+import android.net.Uri;
 import android.text.TextUtils;
 
 import androidx.annotation.RestrictTo;
@@ -322,6 +323,23 @@ public class SliceQuery {
             if (r != null) return r;
         }
         return def;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static SliceItem findItem(Slice s, final Uri uri) {
+        return findFirst(filter(stream(s), new Filter<SliceItem>() {
+            @Override
+            public boolean filter(SliceItem input) {
+                if (FORMAT_ACTION.equals(input.getFormat()) || FORMAT_SLICE.equals(
+                        input.getFormat())) {
+                    return uri.equals(input.getSlice().getUri());
+                }
+                return false;
+            }
+        }), null);
     }
 
     private interface Filter<T> {

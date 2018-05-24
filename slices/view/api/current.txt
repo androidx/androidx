@@ -25,6 +25,10 @@ package androidx.slice {
     field public static final int LOADED_PARTIAL = 1; // 0x1
   }
 
+  public class SliceStructure {
+    ctor public SliceStructure(androidx.slice.Slice);
+  }
+
   public class SliceUtils {
     method public static deprecated int getLoadingState(androidx.slice.Slice);
     method public static deprecated java.util.List<androidx.slice.SliceItem> getSliceActions(androidx.slice.Slice);
@@ -50,7 +54,7 @@ package androidx.slice {
   }
 
   public static abstract interface SliceUtils.SliceActionListener {
-    method public abstract void onSliceAction(android.net.Uri);
+    method public abstract void onSliceAction(android.net.Uri, android.content.Context, android.content.Intent);
   }
 
   public static class SliceUtils.SliceParseException extends java.lang.Exception {
@@ -109,7 +113,19 @@ package androidx.slice.widget {
 
   public final class SliceLiveData {
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromIntent(android.content.Context, android.content.Intent);
+    method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromStream(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener);
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromUri(android.content.Context, android.net.Uri);
+  }
+
+  public static abstract interface SliceLiveData.OnErrorListener {
+    method public abstract void onSliceError(int, java.lang.Throwable);
+    field public static final int ERROR_INVALID_INPUT = 3; // 0x3
+    field public static final int ERROR_SLICE_NO_LONGER_PRESENT = 2; // 0x2
+    field public static final int ERROR_STRUCTURE_CHANGED = 1; // 0x1
+    field public static final int ERROR_UNKNOWN = 0; // 0x0
+  }
+
+  public static abstract class SliceLiveData.OnErrorListener.ErrorType implements java.lang.annotation.Annotation {
   }
 
   public class SliceView extends android.view.ViewGroup implements androidx.lifecycle.Observer android.view.View.OnClickListener {

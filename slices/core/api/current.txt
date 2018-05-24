@@ -12,6 +12,7 @@ package androidx.slice {
   }
 
   public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+    method public void fireAction(android.content.Context, android.content.Intent) throws android.app.PendingIntent.CanceledException;
     method public android.app.PendingIntent getAction();
     method public java.lang.String getFormat();
     method public java.util.List<java.lang.String> getHints();

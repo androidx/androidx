@@ -36,6 +36,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
@@ -46,7 +47,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 import androidx.slice.core.SliceQuery;
 import androidx.versionedparcelable.ParcelUtils;
@@ -153,10 +153,10 @@ public class SliceUtils {
                             // Just ignore it.
                             break;
                         case SerializeOptions.MODE_CONVERT:
-                            Consumer<Uri> action = new Consumer<Uri>() {
+                            SliceItem.ActionHandler action = new SliceItem.ActionHandler() {
                                 @Override
-                                public void accept(Uri uri) {
-                                    // Empty listener to indicate we can serialize this.
+                                public void onAction(SliceItem item, Context context,
+                                        Intent intent) {
                                 }
                             };
                             builder.addAction(action, convert(context, item.getSlice(), options),
@@ -215,10 +215,10 @@ public class SliceUtils {
         bufferedInputStream.reset();
         if (usesParcel) {
             Slice slice = ParcelUtils.fromInputStream(bufferedInputStream);
-            setActions(slice, new Consumer<Uri>() {
+            setActions(slice, new SliceItem.ActionHandler() {
                 @Override
-                public void accept(Uri uri) {
-                    listener.onSliceAction(uri);
+                public void onAction(SliceItem item, Context context, Intent intent) {
+                    listener.onSliceAction(item.getSlice().getUri(), context, intent);
                 }
             });
             return slice;
@@ -226,7 +226,7 @@ public class SliceUtils {
         return SliceXml.parseSlice(context, bufferedInputStream, encoding, listener);
     }
 
-    private static void setActions(Slice slice, Consumer<Uri> listener) {
+    private static void setActions(Slice slice, SliceItem.ActionHandler listener) {
         for (SliceItem sliceItem : slice.getItems()) {
             switch (sliceItem.getFormat()) {
                 case FORMAT_ACTION:
@@ -517,8 +517,10 @@ public class SliceUtils {
          * Called when an action is triggered on a slice parsed with
          * {@link #parseSlice(Context, InputStream, String, SliceActionListener)}.
          * @param actionUri The uri of the action selected.
+         * @param context The context passed to {@link SliceItem#fireAction(Context, Intent)}
+         * @param intent The intent passed to {@link SliceItem#fireAction(Context, Intent)}
          */
-        void onSliceAction(Uri actionUri);
+        void onSliceAction(Uri actionUri, Context context, Intent intent);
     }
 
     /**
