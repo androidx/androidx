@@ -271,6 +271,9 @@ public class SliceProviderCompat {
             SliceProvider.setSpecs(specs);
             try {
                 return mProvider.onBindSlice(sliceUri);
+            } catch (Exception e) {
+                Log.wtf(TAG, "Slice with URI " + sliceUri.toString() + " is invalid.", e);
+                return null;
             } finally {
                 SliceProvider.setSpecs(null);
                 mHandler.removeCallbacks(mAnr);
