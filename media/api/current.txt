@@ -940,6 +940,7 @@ package androidx.media {
     method public abstract void deselectTrack(int);
     method public abstract androidx.media.AudioAttributesCompat getAudioAttributes();
     method public abstract int getAudioSessionId();
+    method public abstract androidx.media.BaseMediaPlayer getBaseMediaPlayer();
     method public abstract long getBufferedPosition();
     method public abstract androidx.media.DataSourceDesc getCurrentDataSource();
     method public abstract long getCurrentPosition();
@@ -948,7 +949,6 @@ package androidx.media {
     method public abstract java.lang.String getDrmPropertyString(java.lang.String) throws androidx.media.MediaPlayer2.NoDrmSchemeException;
     method public abstract long getDuration();
     method public float getMaxPlayerVolume();
-    method public abstract androidx.media.BaseMediaPlayer getMediaPlayerInterface();
     method public abstract android.os.PersistableBundle getMetrics();
     method public abstract androidx.media.PlaybackParams2 getPlaybackParams();
     method public abstract float getPlayerVolume();
