@@ -20,6 +20,10 @@ import static android.os.Build.VERSION.SDK_INT;
 
 import static androidx.slice.render.SliceRenderer.SCREENSHOT_DIR;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,8 +31,10 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.GrantPermissionRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -46,6 +52,10 @@ public class RenderTest {
 
     private final Context mContext = InstrumentationRegistry.getContext();
 
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule =
+            GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
     @Test
     public void testRender() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
@@ -61,6 +71,7 @@ public class RenderTest {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
         latch.await(30000, TimeUnit.MILLISECONDS);
+        assertEquals(0, latch.getCount());
         String path = new File(mContext.getFilesDir(), SCREENSHOT_DIR).getAbsolutePath();
         if (SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand(
@@ -75,7 +86,7 @@ public class RenderTest {
     public static void copyDirectory(File sourceLocation, File targetLocation) throws Exception {
         if (sourceLocation.isDirectory()) {
             if (!targetLocation.exists()) {
-                targetLocation.mkdirs();
+                assertTrue(targetLocation.mkdirs());
             }
 
             String[] children = sourceLocation.list();
