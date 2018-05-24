@@ -30,14 +30,14 @@ class TypeRewriter(private val config: Config, private val useFallback: Boolean)
     }
 
     fun rewriteType(type: JavaType): JavaType? {
-        if (!config.isEligibleForRewrite(type)) {
-            return type
-        }
-
         val result = config.typesMap.mapType(type)
         if (result != null) {
             Log.i(TAG, "Map: %s -> %s", type, result)
             return result
+        }
+
+        if (!config.isEligibleForRewrite(type)) {
+            return type
         }
 
         if (!useFallback) {
