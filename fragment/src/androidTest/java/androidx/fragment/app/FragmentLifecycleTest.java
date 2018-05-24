@@ -384,7 +384,6 @@ public class FragmentLifecycleTest {
         final Parcelable savedState = fc1.saveAllState();
         final FragmentManagerNonConfig nonconf = fc1.retainNestedNonConfig();
         fc1.dispatchStop();
-        fc1.dispatchReallyStop();
         fc1.dispatchDestroy();
 
         // Create the new controller and restore state
@@ -444,7 +443,6 @@ public class FragmentLifecycleTest {
         fc2.dispatchPause();
         fc2.saveAllState();
         fc2.dispatchStop();
-        fc2.dispatchReallyStop();
         fc2.dispatchDestroy();
 
         assertTrue("grandparent not destroyed", restoredGrandparent.mCalledOnDestroy);
@@ -555,7 +553,6 @@ public class FragmentLifecycleTest {
         verify(mockRecursiveLc, times(1)).onFragmentStopped(fm, fragment);
         verify(mockRecursiveLc, times(1)).onFragmentStopped(fm, childFragment);
 
-        fc.dispatchReallyStop();
         fc.dispatchDestroy();
 
         verify(mockLc, times(1)).onFragmentDestroyed(fm, fragment);
@@ -591,7 +588,6 @@ public class FragmentLifecycleTest {
                 fragment.mCalledOnAttachFragment);
 
         fc.dispatchStop();
-        fc.dispatchReallyStop();
         fc.dispatchDestroy();
     }
 
@@ -748,7 +744,6 @@ public class FragmentLifecycleTest {
         assertTrue("fragment reported state not saved after saveAllState", f.isStateSaved());
 
         fc.dispatchStop();
-        fc.dispatchReallyStop();
 
         assertTrue("fragment reported state not saved after stop", f.isStateSaved());
 
@@ -784,7 +779,6 @@ public class FragmentLifecycleTest {
         assertTrue("fragment allowed setArguments after state save", threw);
 
         fc.dispatchStop();
-        fc.dispatchReallyStop();
 
         threw = false;
         try {
@@ -840,7 +834,6 @@ public class FragmentLifecycleTest {
         final Parcelable savedState = fc1.saveAllState();
         final FragmentManagerNonConfig nonconf = fc1.retainNestedNonConfig();
         fc1.dispatchStop();
-        fc1.dispatchReallyStop();
         fc1.dispatchDestroy();
 
         final FragmentController fc2 = FragmentController.createController(
@@ -862,7 +855,6 @@ public class FragmentLifecycleTest {
         fc2.dispatchPause();
         fc2.saveAllState();
         fc2.dispatchStop();
-        fc2.dispatchReallyStop();
         fc2.dispatchDestroy();
     }
 
@@ -902,7 +894,6 @@ public class FragmentLifecycleTest {
         final Parcelable savedState = fc1.saveAllState();
         final FragmentManagerNonConfig nonconf = fc1.retainNestedNonConfig();
         fc1.dispatchStop();
-        fc1.dispatchReallyStop();
         fc1.dispatchDestroy();
 
         final FragmentController fc2 = FragmentController.createController(
@@ -924,7 +915,6 @@ public class FragmentLifecycleTest {
         fc2.dispatchPause();
         fc2.saveAllState();
         fc2.dispatchStop();
-        fc2.dispatchReallyStop();
         fc2.dispatchDestroy();
     }
 
@@ -1297,7 +1287,6 @@ public class FragmentLifecycleTest {
         fc.dispatchPause();
         final Parcelable savedState = fc.saveAllState();
         fc.dispatchStop();
-        fc.dispatchReallyStop();
         fc.dispatchDestroy();
         return savedState;
     }

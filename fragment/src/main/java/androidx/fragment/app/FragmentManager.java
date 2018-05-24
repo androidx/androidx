@@ -1332,8 +1332,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
         // Defer start if requested; don't allow it to move to STARTED or higher
         // if it's not already started.
-        if (f.mDeferStart && f.mState < Fragment.STARTED && newState > Fragment.STOPPED) {
-            newState = Fragment.STOPPED;
+        if (f.mDeferStart && f.mState < Fragment.STARTED && newState > Fragment.ACTIVITY_CREATED) {
+            newState = Fragment.ACTIVITY_CREATED;
         }
         if (f.mState <= newState) {
             // For fragments that are created from a layout, when restoring from
@@ -1375,8 +1375,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             }
                             if (!f.mUserVisibleHint) {
                                 f.mDeferStart = true;
-                                if (newState > Fragment.STOPPED) {
-                                    newState = Fragment.STOPPED;
+                                if (newState > Fragment.ACTIVITY_CREATED) {
+                                    newState = Fragment.ACTIVITY_CREATED;
                                 }
                             }
                         }
@@ -1490,11 +1490,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     // fall through
                 case Fragment.ACTIVITY_CREATED:
                     if (newState > Fragment.ACTIVITY_CREATED) {
-                        f.mState = Fragment.STOPPED;
-                    }
-                    // fall through
-                case Fragment.STOPPED:
-                    if (newState > Fragment.STOPPED) {
                         if (DEBUG) Log.v(TAG, "moveto STARTED: " + f);
                         f.performStart();
                         dispatchOnFragmentStarted(f, false);
@@ -1523,12 +1518,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         if (DEBUG) Log.v(TAG, "movefrom STARTED: " + f);
                         f.performStop();
                         dispatchOnFragmentStopped(f, false);
-                    }
-                    // fall through
-                case Fragment.STOPPED:
-                    if (newState < Fragment.STOPPED) {
-                        if (DEBUG) Log.v(TAG, "movefrom STOPPED: " + f);
-                        f.performReallyStop();
                     }
                     // fall through
                 case Fragment.ACTIVITY_CREATED:
@@ -3256,10 +3245,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     public void dispatchStop() {
         mStopped = true;
-        dispatchStateChange(Fragment.STOPPED);
-    }
-
-    public void dispatchReallyStop() {
         dispatchStateChange(Fragment.ACTIVITY_CREATED);
     }
 
