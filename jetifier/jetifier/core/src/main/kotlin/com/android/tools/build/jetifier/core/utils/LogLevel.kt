@@ -20,6 +20,5 @@ enum class LogLevel(val priority: Int) {
     ERROR(0),
     WARNING(1),
     INFO(2),
-    VERBOSE(3),
-    DEBUG(4),
+    VERBOSE(3)
 }

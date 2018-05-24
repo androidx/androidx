@@ -52,10 +52,10 @@ data class PomDependency(
      * Returns a new dependency created by taking all the items from the [input] dependency and then
      * overwriting these with all of its non-null items.
      */
-    fun rewrite(input: PomDependency, versionsMap: DependencyVersionsMap): PomDependency {
+    fun rewrite(input: PomDependency, versions: DependencyVersions): PomDependency {
         var newVersion = input.version
         if (version != null) {
-            newVersion = versionsMap.applyOnVersionRef(version!!)
+            newVersion = versions.applyOnVersionRef(version!!)
         }
 
         return PomDependency(

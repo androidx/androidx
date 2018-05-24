@@ -146,7 +146,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
         val rule = context.config.pomRewriteRules.firstOrNull { it.matches(dependency) }
         if (rule != null) {
             // Replace with new dependencies
-            return rule.to.rewrite(dependency, context.versionsMap)
+            return rule.to.rewrite(dependency, context.versions)
         }
 
         val matchesPrefix = context.config.restrictToPackagePrefixesWithDots.any {

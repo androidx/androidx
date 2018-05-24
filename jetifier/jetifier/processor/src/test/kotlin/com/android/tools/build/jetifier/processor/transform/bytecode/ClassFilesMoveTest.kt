@@ -17,7 +17,6 @@
 package com.android.tools.build.jetifier.processor.transform.bytecode
 
 import com.android.tools.build.jetifier.core.config.Config
-import com.android.tools.build.jetifier.core.proguard.ProGuardTypesMap
 import com.android.tools.build.jetifier.core.rule.RewriteRule
 import com.android.tools.build.jetifier.core.rule.RewriteRulesMap
 import com.android.tools.build.jetifier.core.type.JavaType
@@ -37,7 +36,7 @@ import java.io.File
 class ClassFilesMoveTest {
 
     companion object {
-        private val TEST_CONFIG = Config(
+        private val TEST_CONFIG = Config.fromOptional(
             restrictToPackagePrefixes = setOf("android/support"),
             rulesMap = RewriteRulesMap(
                 RewriteRule("android/support/annotation/(.*)", "ignore"),
@@ -49,7 +48,6 @@ class ClassFilesMoveTest {
                 RewriteRule("android/support/v7/preference/R(.*)", "ignore"),
                 RewriteRule("android/support/v4/(.*)", "ignore")
             ),
-            pomRewriteRules = emptySet(),
             typesMap = TypesMap(mapOf(
                 "android/support/v7/preference/Preference"
                         to "androidx/support/preference/Preference",
@@ -65,8 +63,7 @@ class ClassFilesMoveTest {
                         to "androidx/support/preference/SwitchPreference",
                 "android/support/v7/preference/PreferenceDataStore"
                         to "androidx/support/preference/PreferenceDataStore"
-            ).map { JavaType(it.key) to JavaType(it.value) }.toMap()),
-            proGuardMap = ProGuardTypesMap.EMPTY
+            ).map { JavaType(it.key) to JavaType(it.value) }.toMap())
         )
     }
 
