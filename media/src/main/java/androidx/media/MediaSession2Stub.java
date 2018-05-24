@@ -143,7 +143,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             @NonNull final SessionRunnable runnable) {
         final ControllerInfo controller;
         synchronized (mLock) {
-            controller = mControllers.get(caller);
+            controller = caller == null ? null : mControllers.get(caller.asBinder());
         }
         if (mSession.isClosed() || controller == null) {
             return;
