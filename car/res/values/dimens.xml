@@ -182,10 +182,6 @@ limitations under the License.
     <!-- Size of progress-bar in Drawer -->
     <dimen name="car_drawer_progress_bar_size">48dp</dimen>
 
-    <!-- The ending margin of the drawer. Is is the amount that the navigation drawer does not
-       cover the screen. -->
-    <dimen name="car_drawer_margin_end">96dp</dimen>
-
     <!-- Drawer Max Width -->
     <dimen name="car_drawer_max_width">720dp</dimen>
 
