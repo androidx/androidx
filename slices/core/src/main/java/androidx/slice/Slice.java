@@ -59,7 +59,6 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.BuildCompat;
-import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 import androidx.slice.compat.SliceProviderCompat;
 import androidx.versionedparcelable.ParcelField;
@@ -314,8 +313,9 @@ public final class Slice implements VersionedParcelable {
          * Add an action to the slice being constructed
          * @param subType Optional template-specific type information
          * @see {@link SliceItem#getSubType()}
+         * @param action Callback to be triggered when a pending intent would normally be fired.
          */
-        public Slice.Builder addAction(@NonNull Consumer<Uri> action,
+        public Slice.Builder addAction(@NonNull SliceItem.ActionHandler action,
                 @NonNull Slice s, @Nullable String subType) {
             Preconditions.checkNotNull(s);
             @SliceHint String[] hints = s != null
