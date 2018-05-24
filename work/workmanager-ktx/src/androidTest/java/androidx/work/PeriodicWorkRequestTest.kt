@@ -16,12 +16,14 @@
 
 package androidx.work
 
+import android.support.test.filters.SdkSuppress
 import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import androidx.work.workers.TestWorker
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
@@ -35,10 +37,24 @@ class PeriodicWorkRequestTest {
         val workRequest = builder.build()
         assertEquals(workRequest.workSpec.workerClassName, TestWorker::class.java.name)
         assertEquals(workRequest.workSpec.isPeriodic, true)
+        assertEquals(workRequest.workSpec.intervalDuration, TimeUnit.MINUTES.toMillis(15))
+        assertEquals(workRequest.workSpec.flexDuration, TimeUnit.MINUTES.toMillis(15))
     }
 
     @Test
-    fun testPeriodicWorkRequestBuilderWithFlexTime() {
+    @SdkSuppress(minSdkVersion = 26)
+    fun testPeriodicWorkRequestBuilder_withDuration() {
+        val repeatInterval = Duration.ofDays(2).plusHours(3)
+        val builder = PeriodicWorkRequestBuilder<TestWorker>(repeatInterval)
+        val workRequest = builder.build()
+        assertEquals(workRequest.workSpec.workerClassName, TestWorker::class.java.name)
+        assertEquals(workRequest.workSpec.isPeriodic, true)
+        assertEquals(workRequest.workSpec.intervalDuration, repeatInterval.toMillis())
+        assertEquals(workRequest.workSpec.flexDuration, repeatInterval.toMillis())
+    }
+
+    @Test
+    fun testPeriodicWorkRequestBuilder_withFlexTime() {
         val builder = PeriodicWorkRequestBuilder<TestWorker>(
                 repeatInterval = 15L,
                 repeatIntervalTimeUnit = TimeUnit.MINUTES,
@@ -48,5 +64,20 @@ class PeriodicWorkRequestTest {
         assertEquals(workRequest.workSpec.workerClassName, TestWorker::class.java.name)
         assertEquals(workRequest.workSpec.isPeriodic, true)
         assertEquals(workRequest.workSpec.flexDuration, TimeUnit.MINUTES.toMillis(10))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun testPeriodicWorkRequestBuilder_withFlexTimeandDuration() {
+        val repeatInterval = Duration.ofHours(3).plusMinutes(25)
+        val flexInterval = repeatInterval.minusMinutes(15)
+        val builder = PeriodicWorkRequestBuilder<TestWorker>(
+                repeatInterval = repeatInterval,
+                flexTimeInterval = flexInterval)
+        val workRequest = builder.build()
+        assertEquals(workRequest.workSpec.workerClassName, TestWorker::class.java.name)
+        assertEquals(workRequest.workSpec.isPeriodic, true)
+        assertEquals(workRequest.workSpec.intervalDuration, repeatInterval.toMillis())
+        assertEquals(workRequest.workSpec.flexDuration, flexInterval.toMillis())
     }
 }
