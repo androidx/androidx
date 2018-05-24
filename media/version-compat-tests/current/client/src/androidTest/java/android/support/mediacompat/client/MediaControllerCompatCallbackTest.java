@@ -72,6 +72,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.mediacompat.testlib.util.PollingCheck;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -560,6 +561,7 @@ public class MediaControllerCompatCallbackTest {
 
     @Test
     @SmallTest
+    @FlakyTest
     public void testSessionReady() throws Exception {
         if (android.os.Build.VERSION.SDK_INT < 21) {
             return;

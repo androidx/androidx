@@ -110,7 +110,6 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -147,11 +146,9 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests {@link MediaController2.ControllerCallback}.
  */
-// TODO(jaewan): Fix flaky failure -- see MediaController2Impl.getController()
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@FlakyTest
 public class MediaController2CallbackTest extends MediaSession2TestBase {
 
     private MediaController2 mController;
