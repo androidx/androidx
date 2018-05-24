@@ -81,7 +81,7 @@ public class CarUxRestrictionsHelper {
      * Stops monitoring any changes in {@link CarUxRestrictions}.
      *
      * <p>This method should be called from {@code Activity}'s {@link Activity#onStop()}, or at the
-     * time of this adapter being discarded.
+     * time of being discarded.
      */
     public void stop() {
         if (mCarUxRestrictionsManager != null) {
