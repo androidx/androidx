@@ -54,6 +54,7 @@ import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.compat.SliceProviderWrapperContainer;
 import androidx.slice.core.R;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -165,7 +166,8 @@ public abstract class SliceProvider extends ContentProvider implements
 
     @Override
     public final boolean onCreate() {
-        mPinnedSliceUris = SliceManager.getInstance(getContext()).getPinnedSlices();
+        mPinnedSliceUris = new ArrayList<>(SliceManager.getInstance(
+                getContext()).getPinnedSlices());
         if (!BuildCompat.isAtLeastP()) {
             mCompat = new SliceProviderCompat(this,
                     onCreatePermissionManager(mAutoGrantPermissions), getContext());
