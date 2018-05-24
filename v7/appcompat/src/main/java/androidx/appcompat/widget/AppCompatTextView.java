@@ -41,6 +41,9 @@ import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.AutoSizeableTextView;
 import androidx.core.widget.TextViewCompat;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 /**
  * A {@link TextView} which supports compatible features on older versions of the platform,
  * including:
@@ -69,6 +72,8 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
+
+    private @Nullable Future<PrecomputedTextCompat> mPrecomputedTextFuture;
 
     public AppCompatTextView(Context context) {
         this(context, null);
@@ -443,7 +448,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     }
 
     /**
-     * Sets the PrecomputedTextCompat to the TextView
+     * Sets the PrecomputedTextCompat to the TextView.
      *
      * If the given PrecomputeTextCompat is not compatible with textView, throws an
      * IllegalArgumentException.
@@ -454,4 +459,46 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     public void setPrecomputedText(@NonNull PrecomputedTextCompat precomputed) {
         TextViewCompat.setPrecomputedText(this, precomputed);
     }
+
+    private void consumeTextFutureAndSetBlocking() {
+        if (mPrecomputedTextFuture != null) {
+            try {
+                Future<PrecomputedTextCompat> future = mPrecomputedTextFuture;
+                mPrecomputedTextFuture = null;
+                TextViewCompat.setPrecomputedText(this, future.get());
+            } catch (InterruptedException | ExecutionException e) {
+                // ignore
+            }
+        }
+    }
+
+    @Override
+    public CharSequence getText() {
+        consumeTextFutureAndSetBlocking();
+        return super.getText();
+    }
+
+    /**
+     * Set the precomputed text future.
+     *
+     * This method sets future of the precomputed text instead of immediately applying text to the
+     * TextView. Anything layout related property changes, text size, typeface, letter spacing, etc
+     * after this method call will causes IllegalArgumentException during View measurement.
+     *
+     * See {@link PrecomputedTextCompat#getTextFuture} for more detail.
+     *
+     * @param future a future for the precomputed text
+     * @see PrecomputedTextCompat#getTextFuture
+     */
+    public void setTextFuture(@NonNull Future<PrecomputedTextCompat> future) {
+        mPrecomputedTextFuture = future;
+        requestLayout();
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        consumeTextFutureAndSetBlocking();
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
 }

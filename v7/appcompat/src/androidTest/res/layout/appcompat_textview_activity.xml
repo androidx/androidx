@@ -269,6 +269,12 @@
             android:lineSpacingExtra="1dp"
             android:lineSpacingMultiplier="0.5"
             app:lineHeight="@dimen/textview_lineHeight" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textview_set_text_async"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sample_text1"/>
     </LinearLayout>
 
 </ScrollView>
