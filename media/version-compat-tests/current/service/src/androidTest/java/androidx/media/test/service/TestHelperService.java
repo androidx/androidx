@@ -84,7 +84,7 @@ public class TestHelperService extends Service {
     private static final String TAG = "TestHelperService_serviceApp";
 
     Map<String, MediaSession2> mSession2Map = new HashMap<>();
-    RemoteMediaSession2 mSession2Binder;
+    RemoteMediaSession2Stub mSession2Binder;
 
     SyncHandler mHandler;
     Executor mExecutor;
@@ -92,7 +92,7 @@ public class TestHelperService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mSession2Binder = new RemoteMediaSession2();
+        mSession2Binder = new RemoteMediaSession2Stub();
         mHandler = new SyncHandler(getMainLooper());
         mExecutor = new Executor() {
             @Override
@@ -117,7 +117,7 @@ public class TestHelperService extends Service {
         }
     }
 
-    private class RemoteMediaSession2 extends ISession2.Stub {
+    private class RemoteMediaSession2Stub extends ISession2.Stub {
 
         @Override
         public void create(final String sessionId) throws RemoteException {

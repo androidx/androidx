@@ -101,13 +101,13 @@ public final class MediaTestUtils {
         return new DataSourceDesc.Builder().setDataSource(new FileDescriptor()).build();
     }
 
-    public static ArrayList<Parcelable> playlistToParcelableArrayList(List<MediaItem2> playlist) {
+    public static List<Bundle> playlistToBundleList(List<MediaItem2> playlist) {
         if (playlist == null) {
             return null;
         }
-        ArrayList<Parcelable> result = new ArrayList<>();
-        for (MediaItem2 item : playlist) {
-            result.add(item.toBundle());
+        List<Bundle> result = new ArrayList<>();
+        for (int i = 0; i < playlist.size(); i++) {
+            result.add(playlist.get(i).toBundle());
         }
         return result;
     }

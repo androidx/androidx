@@ -18,21 +18,11 @@ package androidx.media.test.service;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
-import static androidx.media.test.lib.CommonConstants.KEY_SEEK_POSITION;
-import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
-import static androidx.media.test.lib.MediaController2Constants.PAUSE;
-import static androidx.media.test.lib.MediaController2Constants.PLAY;
-import static androidx.media.test.lib.MediaController2Constants.PREPARE;
-import static androidx.media.test.lib.MediaController2Constants.RESET;
-import static androidx.media.test.lib.MediaController2Constants.SEEK_TO;
-import static androidx.media.test.lib.MediaController2Constants.SET_PLAYBACK_SPEED;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.os.Build;
-import android.os.Bundle;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -57,8 +47,9 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 public class BaseMediaPlayerTest extends MediaSession2TestBase {
 
-    private MediaSession2 mSession;
-    private MockPlayer mPlayer;
+    MediaSession2 mSession;
+    MockPlayer mPlayer;
+    RemoteMediaController2 mController2;
 
     @Before
     @Override
@@ -81,7 +72,7 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
         TestServiceRegistry.getInstance().setHandler(sHandler);
 
         // Create a default MediaController2 in client app.
-        mTestHelper.createMediaController2(mSession.getToken());
+        mController2 = createRemoteController2(mSession.getToken());
     }
 
     @After
@@ -103,7 +94,7 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
 
     @Test
     public void testPlayByController() {
-        mTestHelper.callMediaController2Method(PLAY, null);
+        mController2.play();
         try {
             assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
@@ -121,7 +112,7 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
 
     @Test
     public void testPauseByController() {
-        mTestHelper.callMediaController2Method(PAUSE, null);
+        mController2.pause();
         try {
             assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
@@ -139,7 +130,7 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
 
     @Test
     public void testResetByController() {
-        mTestHelper.callMediaController2Method(RESET, null);
+        mController2.reset();
         try {
             assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
@@ -157,7 +148,7 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
 
     @Test
     public void testPrepareByController() {
-        mTestHelper.callMediaController2Method(PREPARE, null);
+        mController2.prepare();
         try {
             assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
@@ -178,9 +169,7 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
     @Test
     public void testSeekToByController() {
         final long seekPosition = 12125L;
-        Bundle args = new Bundle();
-        args.putLong(KEY_SEEK_POSITION, seekPosition);
-        mTestHelper.callMediaController2Method(SEEK_TO, args);
+        mController2.seekTo(seekPosition);
         try {
             assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
@@ -202,9 +191,7 @@ public class BaseMediaPlayerTest extends MediaSession2TestBase {
     @Test
     public void testSetPlaybackSpeedByController() throws Exception {
         final float speed = 1.5f;
-        Bundle args = new Bundle();
-        args.putFloat(KEY_SPEED, speed);
-        mTestHelper.callMediaController2Method(SET_PLAYBACK_SPEED, args);
+        mController2.setPlaybackSpeed(speed);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(speed, mPlayer.mPlaybackSpeed, 0.0f);
     }
