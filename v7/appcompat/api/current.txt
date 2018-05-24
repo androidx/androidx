@@ -604,6 +604,7 @@ package androidx.appcompat.widget {
     method public void setSupportBackgroundTintList(android.content.res.ColorStateList);
     method public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode);
     method public void setTextAppearance(android.content.Context, int);
+    method public void setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat>);
     method public void setTextMetricsParamsCompat(androidx.core.text.PrecomputedTextCompat.Params);
   }
 
