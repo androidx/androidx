@@ -129,6 +129,7 @@ public class AudioFocusHandler {
                 new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         private final OnAudioFocusChangeListener mAudioFocusListener = new AudioFocusListener();
         private final Object mLock = new Object();
+        private final Context mContext;
         private final MediaSession2 mSession;
         private final AudioManager mAudioManager;
 
@@ -142,6 +143,7 @@ public class AudioFocusHandler {
         private boolean mHasRegisteredReceiver;
 
         AudioFocusHandlerImplBase(Context context, MediaSession2 session) {
+            mContext = context;
             mSession = session;
 
             // Cannot use session.getContext() because session's impl isn't initialized at this
@@ -149,37 +151,41 @@ public class AudioFocusHandler {
             mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         }
 
-        private void updateAudioAttributesIfNeeded() {
-            final AudioAttributesCompat attributes;
+        private AudioAttributesCompat getAudioAttributesNotLocked() {
             if (mSession.getVolumeProvider() != null) {
                 // Remote session. Ignore audio attributes.
-                attributes = null;
-            } else {
-                BaseMediaPlayer player = mSession.getPlayer();
-                attributes = player == null ? null : player.getAudioAttributes();
+                return null;
             }
-            synchronized (mLock) {
-                if (ObjectsCompat.equals(attributes, mAudioAttributes)) {
-                    // It's the same.
-                    return;
-                }
-                // Keep cache of the audio attributes. Otherwise audio attributes may be changed
-                // between the audio focus request and audio focus change, resulting the unexpected
-                // situation.
-                mAudioAttributes = attributes;
-                if (mHasAudioFocus) {
-                    mHasAudioFocus = requestAudioFocusLocked();
-                    if (!mHasAudioFocus) {
-                        Log.w(TAG, "Failed to regain audio focus.");
-                    }
+            BaseMediaPlayer player = mSession.getPlayer();
+            return player == null ? null : player.getAudioAttributes();
+        }
+
+        @GuardedBy("mLock")
+        private void updateAudioAttributesIfNeededLocked(AudioAttributesCompat attributes) {
+            if (ObjectsCompat.equals(attributes, mAudioAttributes)) {
+                // It's the same.
+                return;
+            }
+            // Keep cache of the audio attributes. Otherwise audio attributes may be changed
+            // between the audio focus request and audio focus change, resulting the unexpected
+            // situation.
+            mAudioAttributes = attributes;
+            if (mHasAudioFocus) {
+                mHasAudioFocus = requestAudioFocusLocked();
+                if (!mHasAudioFocus) {
+                    Log.w(TAG, "Failed to regain audio focus.");
                 }
             }
         }
 
         @Override
         public boolean onPlayRequested() {
-            updateAudioAttributesIfNeeded();
+            // Instead of registering a listener for audio attribute changes, grabs the new one
+            // here.
+            final AudioAttributesCompat attr = getAudioAttributesNotLocked();
             synchronized (mLock) {
+                updateAudioAttributesIfNeededLocked(attr);
+                // Try getting audio focus.
                 if (!requestAudioFocusLocked()) {
                     return false;
                 }
@@ -197,23 +203,32 @@ public class AudioFocusHandler {
 
         @Override
         public void onPlayerStateChanged(int playerState) {
-            synchronized (mLock) {
-                switch (playerState) {
-                    case PLAYER_STATE_IDLE:
+            switch (playerState) {
+                case PLAYER_STATE_IDLE: {
+                    synchronized (mLock) {
                         abandonAudioFocusLocked();
-                        break;
-                    case PLAYER_STATE_PAUSED:
-                        updateAudioAttributesIfNeeded();
+                    }
+                    break;
+                }
+                case PLAYER_STATE_PAUSED: {
+                    final AudioAttributesCompat attr = getAudioAttributesNotLocked();
+                    synchronized (mLock) {
+                        updateAudioAttributesIfNeededLocked(attr);
                         unregisterReceiverLocked();
-                        break;
-                    case PLAYER_STATE_PLAYING:
-                        updateAudioAttributesIfNeeded();
+                    }
+                    break;
+                }
+                case PLAYER_STATE_PLAYING: {
+                    final AudioAttributesCompat attr = getAudioAttributesNotLocked();
+                    synchronized (mLock) {
+                        updateAudioAttributesIfNeededLocked(attr);
                         registerReceiverLocked();
-                        break;
-                    case PLAYER_STATE_ERROR:
-                        abandonAudioFocusLocked();
-                        unregisterReceiverLocked();
-                        break;
+                    }
+                    break;
+                }
+                case PLAYER_STATE_ERROR: {
+                    close();
+                    break;
                 }
             }
         }
@@ -228,7 +243,7 @@ public class AudioFocusHandler {
 
         @Override
         public void sendIntent(Intent intent) {
-            mBecomingNoisyIntentReceiver.onReceive(mSession.getContext(), intent);
+            mBecomingNoisyIntentReceiver.onReceive(mContext, intent);
         }
 
         /**
@@ -288,7 +303,7 @@ public class AudioFocusHandler {
             }
             // Registering the receiver multiple-times may not be allowed for newer platform.
             // Register only when it's not registered.
-            mSession.getContext().registerReceiver(mBecomingNoisyIntentReceiver, mIntentFilter);
+            mContext.registerReceiver(mBecomingNoisyIntentReceiver, mIntentFilter);
             mHasRegisteredReceiver = true;
         }
 
@@ -300,7 +315,7 @@ public class AudioFocusHandler {
             if (DEBUG) {
                 Log.d(TAG, "unregistering noisy intent");
             }
-            mSession.getContext().unregisterReceiver(mBecomingNoisyIntentReceiver);
+            mContext.unregisterReceiver(mBecomingNoisyIntentReceiver);
             mHasRegisteredReceiver = false;
         }
 
@@ -443,26 +458,28 @@ public class AudioFocusHandler {
                         }
                         break;
                     case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                        final boolean pause;
                         synchronized (mLock) {
                             if (mAudioAttributes == null) {
                                 // This shouldn't happen. Just ignoring for now.
                                 break;
                             }
-                            if (mAudioAttributes.getContentType()
-                                    == AudioAttributesCompat.CONTENT_TYPE_SPEECH) {
-                                mSession.pause();
-                            } else {
-                                BaseMediaPlayer player = mSession.getPlayer();
-                                if (player != null) {
-                                    // Lower the volume by the factor
-                                    final float currentVolume = player.getPlayerVolume();
-                                    final float duckingVolume = currentVolume * VOLUME_DUCK_FACTOR;
-                                    synchronized (mLock) {
-                                        mPlayerVolumeBeforeDucking = currentVolume;
-                                        mPlayerDuckingVolume = duckingVolume;
-                                    }
-                                    player.setPlayerVolume(duckingVolume);
+                            pause = (mAudioAttributes.getContentType()
+                                    == AudioAttributesCompat.CONTENT_TYPE_SPEECH);
+                        }
+                        if (pause) {
+                            mSession.pause();
+                        } else {
+                            BaseMediaPlayer player = mSession.getPlayer();
+                            if (player != null) {
+                                // Lower the volume by the factor
+                                final float currentVolume = player.getPlayerVolume();
+                                final float duckingVolume = currentVolume * VOLUME_DUCK_FACTOR;
+                                synchronized (mLock) {
+                                    mPlayerVolumeBeforeDucking = currentVolume;
+                                    mPlayerDuckingVolume = duckingVolume;
                                 }
+                                player.setPlayerVolume(duckingVolume);
                             }
                         }
                         break;
