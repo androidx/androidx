@@ -1372,9 +1372,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     private void setPlaybackParamsInternal(final PlaybackParams params) {
-        PlaybackParams current = mPlayer.getPlaybackParams();
+        PlaybackParams current = null;
+        try {
+            current = mPlayer.getPlaybackParams();
+        } catch (IllegalStateException e) {
+            // Do nothing.
+        }
         mPlayer.setPlaybackParams(params);
-        if (current.getSpeed() != params.getSpeed()) {
+        if (current != null && current.getSpeed() != params.getSpeed()) {
             notifyPlayerEvent(new PlayerEventNotifier() {
                 @Override
                 public void notify(PlayerEventCallback cb) {
@@ -1997,6 +2002,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         Integer mAudioSessionId;
         SyncParams mSyncParams;
         PlaybackParams mPlaybackParams;
+        PlaybackParams mPlaybackParamsToSetAfterSetDataSource;
 
         MediaPlayerSourceQueue() {
             mQueue.add(new MediaPlayerSource(null));
@@ -2018,6 +2024,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 setUpListeners(mQueue.get(0));
             }
             handleDataSource(mQueue.get(0));
+            if (mPlaybackParamsToSetAfterSetDataSource != null) {
+                getCurrentPlayer().setPlaybackParams(mPlaybackParamsToSetAfterSetDataSource);
+                mPlaybackParams = mPlaybackParamsToSetAfterSetDataSource;
+                mPlaybackParamsToSetAfterSetDataSource = null;
+            }
         }
 
         synchronized DataSourceError setNext(DataSourceDesc dsd) {
@@ -2264,7 +2275,13 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized void setPlaybackParams(PlaybackParams playbackParams) {
-            getCurrentPlayer().setPlaybackParams(playbackParams);
+            try {
+                getCurrentPlayer().setPlaybackParams(playbackParams);
+            } catch (IllegalStateException e) {
+                // Keep the value so that it can be set later.
+                mPlaybackParamsToSetAfterSetDataSource = playbackParams;
+                return;
+            }
             mPlaybackParams = playbackParams;
         }
 
@@ -2335,6 +2352,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         synchronized void setAudioSessionId(int sessionId) {
             getCurrentPlayer().setAudioSessionId(sessionId);
+            mAudioSessionId = Integer.valueOf(sessionId);
         }
 
         synchronized int getAudioSessionId() {
