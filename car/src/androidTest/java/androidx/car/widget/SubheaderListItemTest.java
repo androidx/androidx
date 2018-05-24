@@ -22,12 +22,15 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import android.content.pm.PackageManager;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
+import androidx.car.test.R;
 
 import org.junit.Assume;
 import org.junit.Before;
@@ -38,8 +41,6 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import androidx.car.test.R;
 
 /**
  * Tests the layout configuration in {@link SubheaderListItem}.
@@ -135,5 +136,16 @@ public class SubheaderListItemTest {
 
         assertThat(getViewHolderAtPosition(0).getText().getLeft(),
                 is(equalTo(getTextViewHolderAtPosition(1).getTitle().getLeft())));
+    }
+
+    @Test
+    public void testDisabledItemDisablesViewHolder() {
+        SubheaderListItem item = new SubheaderListItem(mActivity, "text");
+        item.setEnabled(false);
+
+        setupPagedListView(Arrays.asList(item));
+
+        SubheaderListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertFalse(viewHolder.getText().isEnabled());
     }
 }

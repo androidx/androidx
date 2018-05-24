@@ -221,6 +221,23 @@ public class SeekbarListItemTest {
     }
 
     @Test
+    public void testDisabledItemDisablesViewHolder() {
+        SeekbarListItem item = new SeekbarListItem(mActivity);
+        item.setText("text");
+        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item.setSupplementalIcon(android.R.drawable.sym_def_app_icon, false);
+        item.setEnabled(false);
+
+        setupPagedListView(Arrays.asList(item));
+
+        SeekbarListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertFalse(viewHolder.getSeekBar().isEnabled());
+        assertFalse(viewHolder.getText().isEnabled());
+        assertFalse(viewHolder.getPrimaryIcon().isEnabled());
+        assertFalse(viewHolder.getSupplementalIcon().isEnabled());
+    }
+
+    @Test
     public void testPrimaryIconIsNotClickableWithoutListener() {
         SeekbarListItem item0 = initSeekbarListItem();
         item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
