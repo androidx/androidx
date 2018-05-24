@@ -143,7 +143,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
-                        workSpecId,
+                        work.getId(),
                         new Extras(input, Collections.<String>emptyList(), null));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
@@ -188,7 +188,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
-                        workSpecId,
+                        work.getId(),
                         new Extras(input, Collections.<String>emptyList(), null));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
@@ -232,7 +232,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
-                        workSpecId,
+                        work.getId(),
                         new Extras(input, Collections.<String>emptyList(), null));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
@@ -284,7 +284,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                 (ConstraintTrackingWorker) WorkerWrapper.workerFromClassName(
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
-                        workSpecId,
+                        work.getId(),
                         new Extras(input, Collections.<String>emptyList(), null));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
