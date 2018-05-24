@@ -17,15 +17,15 @@
 package androidx.car.drawer;
 
 import android.car.drivingstate.CarUxRestrictions;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Re-usable {@link RecyclerView.ViewHolder} for displaying items in the
@@ -89,13 +89,13 @@ public class DrawerItemViewHolder extends RecyclerView.ViewHolder {
     }
 
     /**
-     * Update children views to comply with car UX restrictions.
+     * Applies car UX restrictions to children views.
      *
      * <p>{@code Text} might be truncated to meet length limit required by regulation.
      *
      * @param restrictions current car UX restrictions.
      */
-    void complyWithUxRestrictions(CarUxRestrictions restrictions) {
-        CarUxRestrictionsUtils.comply(itemView.getContext(), restrictions, getText());
+    void applyUxRestrictions(@NonNull CarUxRestrictions restrictions) {
+        CarUxRestrictionsUtils.apply(itemView.getContext(), restrictions, getText());
     }
 }

@@ -188,7 +188,7 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
     public final void onBindViewHolder(DrawerItemViewHolder holder, int position) {
         // Car may not be initialized thus current UXR will not be available.
         if (mCurrentUxRestrictions != null) {
-            holder.complyWithUxRestrictions(mCurrentUxRestrictions);
+            holder.applyUxRestrictions(mCurrentUxRestrictions);
         }
 
         if (shouldShowDisabledListItem()) {

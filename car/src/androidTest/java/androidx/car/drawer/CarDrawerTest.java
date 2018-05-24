@@ -33,16 +33,16 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.car.test.R;
+import androidx.car.utils.CarUxRestrictionsTestUtils;
+import androidx.car.widget.PagedListView;
+
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.car.test.R;
-import androidx.car.utils.CarUxRestrictionsTestUtils;
-import androidx.car.widget.PagedListView;
 
 /**
  * Unit tests for classes under {@link androidx.car.drawer}.
@@ -119,7 +119,7 @@ public final class CarDrawerTest {
         DrawerItemViewHolder vh = getViewHolderAtPositionInDrawer(0);
         final String originalText = (String) vh.getText().getText();
 
-        vh.complyWithUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
+        vh.applyUxRestrictions(CarUxRestrictionsTestUtils.getFullyRestricted());
         refreshUi();
 
         assumeThat(vh.getText().getText().length(), is(lessThan(originalText.length())));
