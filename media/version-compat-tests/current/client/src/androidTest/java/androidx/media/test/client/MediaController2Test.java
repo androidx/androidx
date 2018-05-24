@@ -49,7 +49,6 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.mediacompat.testlib.util.PollingCheck;
-import android.support.test.filters.FlakyTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -71,11 +70,9 @@ import java.lang.reflect.Method;
 /**
  * Tests {@link MediaController2}.
  */
-// TODO(jaewan): Fix flaky failure -- see MediaController2Impl.getController()
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@FlakyTest
 public class MediaController2Test extends MediaSession2TestBase {
 
     AudioManager mAudioManager;

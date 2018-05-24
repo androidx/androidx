@@ -33,7 +33,6 @@ import static org.junit.Assert.fail;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.support.test.filters.FlakyTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -53,11 +52,9 @@ import java.util.concurrent.TimeUnit;
  * Tests whether the methods of {@link BaseMediaPlayer} are triggered by the
  * session/controller.
  */
-// TODO(jaewan): Fix flaky failure -- see MediaController2Impl.getController()
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@FlakyTest
 public class BaseMediaPlayerTest extends MediaSession2TestBase {
 
     private MediaSession2 mSession;

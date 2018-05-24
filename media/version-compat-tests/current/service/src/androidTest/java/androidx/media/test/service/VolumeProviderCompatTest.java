@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.test.filters.FlakyTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -49,11 +48,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests whether the methods of {@link VolumeProviderCompat} are triggered by the controller.
  */
-// TODO(jaewan): Fix flaky failure -- see MediaController2Impl.getController()
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@FlakyTest
 public class VolumeProviderCompatTest extends MediaSession2TestBase {
 
     MediaSession2 mSession;
