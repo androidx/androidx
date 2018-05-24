@@ -16,8 +16,6 @@
 
 package androidx.lifecycle;
 
-import androidx.annotation.Nullable;
-
 /**
  * A simple callback that can receive from {@link LiveData}.
  *
@@ -30,5 +28,5 @@ public interface Observer<T> {
      * Called when the data is changed.
      * @param t  The new data
      */
-    void onChanged(@Nullable T t);
+    void onChanged(T t);
 }
