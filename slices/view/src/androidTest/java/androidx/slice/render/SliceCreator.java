@@ -27,9 +27,6 @@ import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
@@ -206,33 +203,24 @@ public class SliceCreator {
                 .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_1),
                         LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(toBitmap(getContext(), R.drawable.slices_2),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_2),
                                 LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(toBitmap(getContext(), R.drawable.slices_3),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_3),
                                 LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(toBitmap(getContext(), R.drawable.slices_4),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_4),
                                 LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(toBitmap(getContext(), R.drawable.slices_2),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_2),
                                 LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(toBitmap(getContext(), R.drawable.slices_3),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_3),
                                 LARGE_IMAGE))
                 .addCell(new GridRowBuilder.CellBuilder(gb)
-                        .addImage(toBitmap(getContext(), R.drawable.slices_4),
+                        .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_4),
                                 LARGE_IMAGE));
         return b.addGridRow(gb).build();
-    }
-
-    private IconCompat toBitmap(Context context, int resource) {
-        Drawable d = context.getDrawable(resource);
-        Bitmap b = Bitmap.createBitmap(d.getIntrinsicWidth(), d.getIntrinsicHeight(),
-                Bitmap.Config.ARGB_8888);
-        d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
-        d.draw(new Canvas(b));
-        return IconCompat.createWithBitmap(b);
     }
 
     private Slice createSubSlice(Uri sliceUri, boolean customSeeMore) {
