@@ -32,19 +32,24 @@ import java.util.regex.Pattern
 /**
  * The main and only one configuration that is used by the tool and all its transformers.
  *
- * [restrictToPackagePrefixes] Package prefixes that limit the scope of the rewriting
- * [rulesMap] Rules to scan support libraries to generate [TypesMap]
- * [slRules] List of rules used when rewriting the support library itself in the reversed mode to
- * ignore packages that don't need rewriting anymore.
- * [pomRewriteRules] Rules to rewrite POM files
- * [typesMap] Map of all java types and fields to be used to rewrite libraries.
- * [proGuardMap] Proguard types map to be used for ProGuard files rewriting.
- * [versionsMap] Pre-defined maps of versions to be substituted in pom dependency rules.
- * [packageMap] Package map to be used to rewrite packages, used only during the support library
- * rewrite.
+ * @param restrictToPackagePrefixes Package prefixes that limit the scope of the rewriting. In most
+ *  cases the rules have priority over this. We use this mainly to determine if we are actually
+ *  missing a rule in case we fail to rewrite.
+ * @param reversedRestrictToPackagePrefixes Same as [restrictToPackagePrefixes] but used when
+ *  running in reversed mode.
+ * @param rulesMap Rules to scan support libraries to generate [TypesMap]
+ * @param slRule List of rules used when rewriting the support library itself in the reversed mode
+ *  to ignore packages that don't need rewriting anymore.
+ * @param pomRewriteRules Rules to rewrite POM files
+ * @param typesMap Map of all java types and fields to be used to rewrite libraries.
+ * @param proGuardMap Proguard types map to be used for ProGuard files rewriting.
+ * @param versionsMap Pre-defined maps of versions to be substituted in pom dependency rules.
+ * @param packageMap Package map to be used to rewrite packages, used only during the support
+ *  library rewrite.
  */
 data class Config(
     val restrictToPackagePrefixes: Set<String>,
+    val reversedRestrictToPackagePrefixes: Set<String>,
     val rulesMap: RewriteRulesMap,
     val slRules: List<RewriteRule>,
     val pomRewriteRules: Set<PomRewriteRule>,
@@ -66,7 +71,7 @@ data class Config(
     }
 
     // Merges all packages prefixes into one regEx pattern
-    val packagePrefixPattern = Pattern.compile(
+    private val packagePrefixPattern = Pattern.compile(
         "^(" + restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$")
 
     val restrictToPackagePrefixesWithDots: List<String> = restrictToPackagePrefixes
@@ -80,6 +85,7 @@ data class Config(
 
         fun fromOptional(
             restrictToPackagePrefixes: Set<String> = emptySet(),
+            reversedRestrictToPackagesPrefixes: Set<String> = emptySet(),
             rulesMap: RewriteRulesMap = RewriteRulesMap.EMPTY,
             slRules: List<RewriteRule> = emptyList(),
             pomRewriteRules: Set<PomRewriteRule> = emptySet(),
@@ -90,6 +96,7 @@ data class Config(
         ): Config {
             return Config(
                 restrictToPackagePrefixes = restrictToPackagePrefixes,
+                reversedRestrictToPackagePrefixes = reversedRestrictToPackagesPrefixes,
                 rulesMap = rulesMap,
                 slRules = slRules,
                 pomRewriteRules = pomRewriteRules,
@@ -102,8 +109,17 @@ data class Config(
     }
 
     fun setNewMap(mappings: TypesMap): Config {
-        return Config(restrictToPackagePrefixes, rulesMap, slRules, pomRewriteRules,
-            mappings, proGuardMap, versionsMap, packageMap)
+        return Config(
+            restrictToPackagePrefixes = restrictToPackagePrefixes,
+            reversedRestrictToPackagePrefixes = reversedRestrictToPackagePrefixes,
+            rulesMap = rulesMap,
+            slRules = slRules,
+            pomRewriteRules = pomRewriteRules,
+            typesMap = mappings,
+            proGuardMap = proGuardMap,
+            versionsMap = versionsMap,
+            packageMap = packageMap
+        )
     }
 
     /**
@@ -138,11 +154,7 @@ data class Config(
     }
 
     fun isEligibleForRewrite(type: PackageName): Boolean {
-        if (!type.fullName.contains('/')) {
-            return false
-        }
-
-        if (!isEligibleForRewriteInternal(type.fullName)) {
+        if (!isEligibleForRewriteInternal(type.fullName + "/")) {
             return false
         }
 
@@ -163,6 +175,7 @@ data class Config(
     fun toJson(): JsonData {
         return JsonData(
             restrictToPackagePrefixes.toList(),
+            reversedRestrictToPackagePrefixes.toList(),
             rulesMap.toJson().rules.toList(),
             slRules.map { it.toJson() }.toList(),
             pomRewriteRules.map { it.toJson() }.toList(),
@@ -178,6 +191,9 @@ data class Config(
     data class JsonData(
         @SerializedName("restrictToPackagePrefixes")
         val restrictToPackages: List<String?>,
+
+        @SerializedName("reversedRestrictToPackagePrefixes")
+        val reversedRestrictToPackages: List<String?>,
 
         @SerializedName("rules")
         val rules: List<RewriteRule.JsonData?>?,
@@ -201,6 +217,8 @@ data class Config(
         fun toConfig(): Config {
             return Config(
                 restrictToPackagePrefixes = restrictToPackages.filterNotNull().toSet(),
+                reversedRestrictToPackagePrefixes = reversedRestrictToPackages
+                    .filterNotNull().toSet(),
                 rulesMap = rules
                     ?.let { RewriteRulesMap(it.filterNotNull().map { it.toRule() }.toList()) }
                     ?: RewriteRulesMap.EMPTY,

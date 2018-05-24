@@ -159,17 +159,22 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
     }
 
     private fun rewritePackage(packageName: String, fileName: String): String {
-        val pckg = PackageName.fromDotVersion(packageName)
-        if (!context.config.isEligibleForRewrite(pckg)) {
+        if (!packageName.contains('.')) {
+            // Single word packages are not something we need or should rewrite
             return packageName
         }
+
+        val pckg = PackageName.fromDotVersion(packageName)
 
         val result = context.config.packageMap.getPackageFor(pckg)
         if (result != null) {
             return result.toDotNotation()
         }
 
-        context.reportNoPackageMappingFoundFailure(TAG, packageName, fileName)
+        if (context.config.isEligibleForRewrite(pckg)) {
+            context.reportNoPackageMappingFoundFailure(TAG, packageName, fileName)
+        }
+
         return packageName
     }
 }

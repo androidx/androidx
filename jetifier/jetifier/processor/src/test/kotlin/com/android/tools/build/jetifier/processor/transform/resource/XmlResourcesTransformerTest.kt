@@ -31,18 +31,6 @@ import java.nio.file.Paths
 
 class XmlResourcesTransformerTest {
 
-    @Test fun layout_noPrefix_noChange() {
-        testRewriteToTheSame(
-            givenAndExpectedXml =
-                "<android.support.v7.preference.Preference>\n" +
-                "</android.support.v7.preference.Preference>",
-            prefixes = setOf(),
-            map = mapOf(
-                "android/support/v7/preference/Preference" to "android/test/pref/Preference"
-            )
-        )
-    }
-
     @Test fun layout_noRule_noChange() {
         testRewriteToTheSame(
             givenAndExpectedXml =
@@ -54,13 +42,16 @@ class XmlResourcesTransformerTest {
         )
     }
 
-    @Test fun layout_notApplicablePrefix_noChange() {
-        testRewriteToTheSame(
-            givenAndExpectedXml =
+    @Test fun layout_notApplicablePrefix_shouldStillWork() {
+        testRewrite(
+            givenXml =
                 "<android.support.v7.preference.Preference>\n" +
                 "</android.support.v7.preference.Preference>",
+            expectedXml =
+                "<android.test.pref.Preference>\n" +
+                "</android.test.pref.Preference>",
             prefixes = setOf("android/support/v14/"),
-            map = mapOf(
+            typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "android/test/pref/Preference"
             )
         )
@@ -187,7 +178,7 @@ class XmlResourcesTransformerTest {
         )
     }
 
-    @Test fun layout_twoPrefixes_threeRules_multipleRewrites() {
+    @Test fun layout_twoPrefixes_threeRules_ignoreRule_multipleRewrites() {
         testRewrite(
             givenXml =
                 "<android.support.v7.preference.Preference>\n" +
@@ -217,15 +208,15 @@ class XmlResourcesTransformerTest {
                 "android/support/v7/",
                 "android/support/v14/"
             ),
+            rulesMap = RewriteRulesMap(
+                RewriteRule(from = "android/support/v21/(.*)", to = "ignore")),
             typesMap = mapOf(
                 "android/support/v7/preference/ListPreference"
                     to "android/test/pref/ListPref",
                 "android/support/v7/preference/Preference"
                     to "android/test/pref/Preference",
                 "android/support/v14/preference/DialogPreference"
-                    to "android/test14/pref/DialogPreference",
-                "android/support/v21/preference/DialogPreference"
-                    to "android/test21/pref/DialogPreference"
+                    to "android/test14/pref/DialogPreference"
             )
         )
     }
@@ -244,6 +235,32 @@ class XmlResourcesTransformerTest {
                 "</manifest>",
             prefixes = setOf(
                 "android/support"
+            ),
+            typesMap = mapOf(
+            ),
+            packageMap = PackageMap(listOf(
+                PackageMap.PackageRule(
+                    from = "android/support/v7/preference",
+                    to = "androidx/preference")
+            )),
+            rewritingSupportLib = true
+        )
+    }
+
+    @Test fun manifestFile_packageRewrite_prefixMismatchShouldNotAffectRewrite() {
+        testRewrite(
+            givenXml =
+                "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                "          package=\"android.support.v7.preference\">\n" +
+                "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
+                "</manifest>",
+            expectedXml =
+                "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n" +
+                "          package=\"androidx.preference\">\n" +
+                "    <uses-sdk android:minSdkVersion=\"14\"/>\n" +
+                "</manifest>",
+            prefixes = setOf(
+                "android/something/else"
             ),
             typesMap = mapOf(
             ),

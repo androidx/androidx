@@ -25,6 +25,7 @@ class ConfigParserTest {
         val confStr =
             "{\n" +
             "    restrictToPackagePrefixes: [\"android/support/\"],\n" +
+            "    reversedRestrictToPackagePrefixes: [\"androidx/\"],\n" +
             "    # Sample comment \n" +
             "    rules: [\n" +
             "        {\n" +
@@ -60,6 +61,7 @@ class ConfigParserTest {
 
         Truth.assertThat(config).isNotNull()
         Truth.assertThat(config!!.restrictToPackagePrefixes.first()).isEqualTo("android/support/")
+        Truth.assertThat(config!!.reversedRestrictToPackagePrefixes.first()).isEqualTo("androidx/")
         Truth.assertThat(config.rulesMap.rewriteRules.size).isEqualTo(2)
         Truth.assertThat(config.versionsMap.data.size).isEqualTo(1)
         Truth.assertThat(config.versionsMap.data["latestReleased"])
