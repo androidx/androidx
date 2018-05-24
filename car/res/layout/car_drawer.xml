@@ -19,7 +19,6 @@ limitations under the License.
     android:id="@+id/drawer_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginEnd="@dimen/car_drawer_margin_end"
     android:background="?attr/drawerBackgroundColor"
     android:paddingTop="@dimen/car_app_bar_height" >
 
@@ -27,7 +26,8 @@ limitations under the License.
       android:id="@+id/drawer_list"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      app:listEndMargin="@dimen/car_drawer_margin_end"
+      app:dividerStartMargin="@dimen/car_keyline_1"
+      app:dividerEndMargin="@dimen/car_keyline_1"
       app:gutter="start"
       style="?attr/drawerListStyle" />
 
