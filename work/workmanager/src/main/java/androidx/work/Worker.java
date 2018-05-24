@@ -29,24 +29,54 @@ import androidx.work.impl.Extras;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
- * The basic unit of work.
+ * The basic object that performs work.  Worker classes are instantiated at runtime by
+ * {@link WorkManager} and the {@link #doWork()} method is called on a background thread.  In case
+ * the work is pre-empted for any reason, the same instance of Worker is not reused.  This means
+ * that {@link #doWork()} is called exactly once per Worker instance.
  */
 public abstract class Worker {
 
+    /**
+     * The result of the Worker's computation that is returned in the {@link #doWork()} method.
+     */
     public enum WorkerResult {
+        /**
+         * Used to indicate that the work completed successfully.  Any work that depends on this
+         * can be executed as long as all of its other dependencies and constraints are met.
+         */
         SUCCESS,
+
+        /**
+         * Used to indicate that the work completed with a permanent failure.  Any work that depends
+         * on this will also be marked as failed and will not be run.
+         */
         FAILURE,
+
+        /**
+         * Used to indicate that the work encountered a transient failure and should be retried with
+         * backoff specified in
+         * {@link WorkRequest.Builder#setBackoffCriteria(BackoffPolicy, long, TimeUnit)}.
+         */
         RETRY
     }
 
+    @SuppressWarnings("NullableProblems")   // Set by internalInit
     private @NonNull Context mAppContext;
+    @SuppressWarnings("NullableProblems")   // Set by internalInit
     private @NonNull UUID mId;
+    @SuppressWarnings("NullableProblems")   // Set by internalInit
     private @NonNull Extras mExtras;
     private @NonNull Data mOutputData = Data.EMPTY;
     private volatile boolean mStopped;
 
+    /**
+     * Gets the application {@link Context}.
+     *
+     * @return The application {@link Context}
+     */
     public final @NonNull Context getApplicationContext() {
         return mAppContext;
     }
@@ -60,20 +90,44 @@ public abstract class Worker {
         return mId;
     }
 
+    /**
+     * Gets the input data.  Note that in the case that there are multiple prerequisites for this
+     * Worker, the input data has been run through an {@link InputMerger}.
+     *
+     * @return The input data for this work
+     * @see OneTimeWorkRequest.Builder#setInputMerger(Class)
+     */
     public final @NonNull Data getInputData() {
         return mExtras.getInputData();
     }
 
+    /**
+     * Gets a {@link Set} of tags associated with this Worker's {@link WorkRequest}.
+     *
+     * @return The {@link Set} of tags associated with this Worker's {@link WorkRequest}
+     * @see WorkRequest.Builder#addTag(String)
+     */
     public final @NonNull Set<String> getTags() {
         return mExtras.getTags();
     }
 
+    /**
+     * Gets the array of content {@link Uri}s that caused this Worker to execute
+     *
+     * @return The array of content {@link Uri}s that caused this Worker to execute
+     * @see Constraints.Builder#addContentUriTrigger(Uri, boolean)
+     */
     @RequiresApi(24)
     public final @Nullable Uri[] getTriggeredContentUris() {
         Extras.RuntimeExtras runtimeExtras = mExtras.getRuntimeExtras();
         return (runtimeExtras == null) ? null : runtimeExtras.triggeredContentUris;
     }
 
+    /**
+     * Gets the array of content authorities that caused this Worker to execute
+     *
+     * @return The array of content authorities that caused this Worker to execute
+     */
     @RequiresApi(24)
     public final @Nullable String[] getTriggeredContentAuthorities() {
         Extras.RuntimeExtras runtimeExtras = mExtras.getRuntimeExtras();
