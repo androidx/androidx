@@ -17,6 +17,7 @@
 package com.android.tools.build.jetifier.core.config
 
 import com.android.tools.build.jetifier.core.PackageMap
+import com.android.tools.build.jetifier.core.pom.DependencyVersionsMap
 import com.android.tools.build.jetifier.core.pom.PomRewriteRule
 import com.android.tools.build.jetifier.core.proguard.ProGuardType
 import com.android.tools.build.jetifier.core.proguard.ProGuardTypesMap
@@ -37,6 +38,8 @@ import java.util.regex.Pattern
  * ignore packages that don't need rewriting anymore.
  * [pomRewriteRules] Rules to rewrite POM files
  * [typesMap] Map of all java types and fields to be used to rewrite libraries.
+ * [proGuardMap] Proguard types map to be used for ProGuard files rewriting.
+ * [versionsMap] Pre-defined maps of versions to be substituted in pom dependency rules.
  * [packageMap] Package map to be used to rewrite packages, used only during the support library
  * rewrite.
  */
@@ -47,6 +50,7 @@ data class Config(
     val pomRewriteRules: Set<PomRewriteRule>,
     val typesMap: TypesMap,
     val proGuardMap: ProGuardTypesMap,
+    val versionsMap: DependencyVersionsMap,
     val packageMap: PackageMap = PackageMap(PackageMap.DEFAULT_RULES)
 ) {
 
@@ -63,29 +67,43 @@ data class Config(
 
     // Merges all packages prefixes into one regEx pattern
     val packagePrefixPattern = Pattern.compile(
-            "^(" + restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$")
+        "^(" + restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$")
 
     val restrictToPackagePrefixesWithDots: List<String> = restrictToPackagePrefixes
-            .map { it.replace("/", ".") }
+        .map { it.replace("/", ".") }
 
     companion object {
         /** Path to the default config file located within the jar file. */
         const val DEFAULT_CONFIG_RES_PATH = "/default.generated.config"
 
-        val EMPTY = Config(
-            restrictToPackagePrefixes = emptySet(),
-            rulesMap = RewriteRulesMap.EMPTY,
-            slRules = emptyList(),
-            pomRewriteRules = emptySet(),
-            typesMap = TypesMap.EMPTY,
-            proGuardMap = ProGuardTypesMap.EMPTY,
-            packageMap = PackageMap.EMPTY
-        )
+        val EMPTY = fromOptional()
+
+        fun fromOptional(
+            restrictToPackagePrefixes: Set<String> = emptySet(),
+            rulesMap: RewriteRulesMap = RewriteRulesMap.EMPTY,
+            slRules: List<RewriteRule> = emptyList(),
+            pomRewriteRules: Set<PomRewriteRule> = emptySet(),
+            typesMap: TypesMap = TypesMap.EMPTY,
+            proGuardMap: ProGuardTypesMap = ProGuardTypesMap.EMPTY,
+            versionsMap: DependencyVersionsMap = DependencyVersionsMap.EMPTY,
+            packageMap: PackageMap = PackageMap.EMPTY
+        ): Config {
+            return Config(
+                restrictToPackagePrefixes = restrictToPackagePrefixes,
+                rulesMap = rulesMap,
+                slRules = slRules,
+                pomRewriteRules = pomRewriteRules,
+                typesMap = typesMap,
+                proGuardMap = proGuardMap,
+                versionsMap = versionsMap,
+                packageMap = packageMap
+            )
+        }
     }
 
     fun setNewMap(mappings: TypesMap): Config {
         return Config(restrictToPackagePrefixes, rulesMap, slRules, pomRewriteRules,
-            mappings, proGuardMap)
+            mappings, proGuardMap, versionsMap, packageMap)
     }
 
     /**
@@ -148,6 +166,7 @@ data class Config(
             rulesMap.toJson().rules.toList(),
             slRules.map { it.toJson() }.toList(),
             pomRewriteRules.map { it.toJson() }.toList(),
+            versionsMap.data,
             typesMap.toJson(),
             proGuardMap.toJson()
         )
@@ -157,33 +176,41 @@ data class Config(
      * JSON data model for [Config].
      */
     data class JsonData(
-            @SerializedName("restrictToPackagePrefixes")
-            val restrictToPackages: List<String?>,
+        @SerializedName("restrictToPackagePrefixes")
+        val restrictToPackages: List<String?>,
 
-            @SerializedName("rules")
-            val rules: List<RewriteRule.JsonData?>?,
+        @SerializedName("rules")
+        val rules: List<RewriteRule.JsonData?>?,
 
-            @SerializedName("slRules")
-            val slRules: List<RewriteRule.JsonData?>?,
+        @SerializedName("slRules")
+        val slRules: List<RewriteRule.JsonData?>?,
 
-            @SerializedName("pomRules")
-            val pomRules: List<PomRewriteRule.JsonData?>,
+        @SerializedName("pomRules")
+        val pomRules: List<PomRewriteRule.JsonData?>,
 
-            @SerializedName("map")
-            val mappings: TypesMap.JsonData? = null,
+        @SerializedName("versions")
+        val versions: Map<String, Map<String, String>>? = null,
 
-            @SerializedName("proGuardMap")
-            val proGuardMap: ProGuardTypesMap.JsonData? = null
+        @SerializedName("map")
+        val mappings: TypesMap.JsonData? = null,
+
+        @SerializedName("proGuardMap")
+        val proGuardMap: ProGuardTypesMap.JsonData? = null
     ) {
         /** Creates instance of [Config] */
         fun toConfig(): Config {
-
             return Config(
                 restrictToPackagePrefixes = restrictToPackages.filterNotNull().toSet(),
-                rulesMap = RewriteRulesMap(
-                    rules?.filterNotNull()?.map { it.toRule() }?.toList() ?: emptyList()),
-                slRules = slRules?.filterNotNull()?.map { it.toRule() }?.toList() ?: emptyList(),
+                rulesMap = rules
+                    ?.let { RewriteRulesMap(it.filterNotNull().map { it.toRule() }.toList()) }
+                    ?: RewriteRulesMap.EMPTY,
+                slRules = slRules
+                    ?.let { it.filterNotNull().map { it.toRule() }.toList() }
+                    ?: emptyList(),
                 pomRewriteRules = pomRules.filterNotNull().map { it.toRule() }.toSet(),
+                versionsMap = versions
+                    ?.let { DependencyVersionsMap(versions) }
+                    ?: DependencyVersionsMap.EMPTY,
                 typesMap = mappings?.toMappings() ?: TypesMap.EMPTY,
                 proGuardMap = proGuardMap?.toMappings() ?: ProGuardTypesMap.EMPTY
             )

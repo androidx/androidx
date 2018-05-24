@@ -79,13 +79,11 @@ class ProGuardTester {
     }
 
     private fun createConfig(): Config {
-        return Config(
+        return Config.fromOptional(
             restrictToPackagePrefixes = prefixes,
             rulesMap = RewriteRulesMap(rewriteRules
                 .map { RewriteRule(it.first, it.second) }
                 .toList()),
-            slRules = emptyList(),
-            pomRewriteRules = emptySet(),
             typesMap = TypesMap(
                 types = javaTypes.map { JavaType(it.first) to JavaType(it.second) }.toMap()
             ),

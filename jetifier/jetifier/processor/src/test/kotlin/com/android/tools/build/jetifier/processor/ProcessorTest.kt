@@ -20,9 +20,6 @@ import com.android.tools.build.jetifier.core.config.Config
 import com.android.tools.build.jetifier.core.config.ConfigParser
 import com.android.tools.build.jetifier.core.pom.PomDependency
 import com.android.tools.build.jetifier.core.pom.PomRewriteRule
-import com.android.tools.build.jetifier.core.proguard.ProGuardTypesMap
-import com.android.tools.build.jetifier.core.rule.RewriteRulesMap
-import com.android.tools.build.jetifier.core.type.TypesMap
 import com.google.common.truth.Truth
 import org.junit.Test
 import java.io.File
@@ -65,15 +62,11 @@ class ProcessorTest {
     fun processor_isOldOrNewDependencyFile_shouldDetectProperly() {
 
         val processor = Processor.createProcessor(
-            Config(
-                restrictToPackagePrefixes = emptySet(),
-                rulesMap = RewriteRulesMap.EMPTY,
-                slRules = emptyList(),
+            Config.fromOptional(
                 pomRewriteRules = setOf(PomRewriteRule(
                     from = PomDependency("test.group", "artifactTest", "1.0.0"),
-                    to = PomDependency("test2.group2", "artifactTest2", "1.0.0"))),
-                typesMap = TypesMap.EMPTY,
-                proGuardMap = ProGuardTypesMap.EMPTY
+                    to = PomDependency("test2.group2", "artifactTest2", "1.0.0")
+                ))
             )
         )
 

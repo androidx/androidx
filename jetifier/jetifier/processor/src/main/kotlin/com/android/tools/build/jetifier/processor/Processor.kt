@@ -17,7 +17,7 @@
 package com.android.tools.build.jetifier.processor
 
 import com.android.tools.build.jetifier.core.config.Config
-import com.android.tools.build.jetifier.core.pom.DependencyVersionsMap
+import com.android.tools.build.jetifier.core.pom.DependencyVersions
 import com.android.tools.build.jetifier.core.pom.PomDependency
 import com.android.tools.build.jetifier.core.utils.Log
 import com.android.tools.build.jetifier.processor.archive.Archive
@@ -91,14 +91,20 @@ class Processor private constructor(
             reversedMode: Boolean = false,
             rewritingSupportLib: Boolean = false,
             useFallbackIfTypeIsMissing: Boolean = true,
-            versionsMap: DependencyVersionsMap = DependencyVersionsMap.LATEST_RELEASED,
+            versionSetName: String? = null,
             dataBindingVersion: String? = null
         ): Processor {
             var newConfig = config
 
-            if (dataBindingVersion != null) {
-                versionsMap.setDataBindingVersion(dataBindingVersion)
-            }
+            val versionsMap = DependencyVersions
+                .parseFromVersionSetTypeId(
+                    versionsMap = config.versionsMap,
+                    versionSetType = versionSetName
+                )
+                .replaceVersionIfAny(
+                    forVariable = DependencyVersions.DATA_BINDING_VAR_NAME,
+                    newVersion = dataBindingVersion
+                )
 
             if (reversedMode) {
                 newConfig = Config(
@@ -108,6 +114,7 @@ class Processor private constructor(
                     pomRewriteRules = config.pomRewriteRules.map { it.getReversed() }.toSet(),
                     typesMap = config.typesMap.reverseMapOrDie(),
                     proGuardMap = config.proGuardMap.reverseMap(),
+                    versionsMap = config.versionsMap,
                     packageMap = config.packageMap.reverse()
                 )
             }
@@ -117,7 +124,7 @@ class Processor private constructor(
                 rewritingSupportLib = rewritingSupportLib,
                 isInReversedMode = reversedMode,
                 useFallbackIfTypeIsMissing = useFallbackIfTypeIsMissing,
-                versionsMap = versionsMap)
+                versions = versionsMap)
             val transformers = if (rewritingSupportLib) {
                 createSLTransformers(context)
             } else {
@@ -234,7 +241,7 @@ class Processor private constructor(
             .firstOrNull { it.matches(inputDependency) } ?: return null
 
         return resultRule.to
-            .rewrite(inputDependency, context.versionsMap)
+            .rewrite(inputDependency, context.versions)
             .toStringNotation()
     }
 
@@ -251,8 +258,8 @@ class Processor private constructor(
             .filter { !filterOutBaseLibrary || !(it.from.artifactId == "baseLibrary"
                     && it.from.groupId == "com.android.databinding") }
             .map {
-                (context.versionsMap.applyOnConfigPomDep(it.from).toStringNotationWithoutVersion()
-                    to context.versionsMap.applyOnConfigPomDep(it.to).toStringNotation()) }
+                (context.versions.applyOnConfigPomDep(it.from).toStringNotationWithoutVersion()
+                    to context.versions.applyOnConfigPomDep(it.to).toStringNotation()) }
             .toMap()
     }
 
