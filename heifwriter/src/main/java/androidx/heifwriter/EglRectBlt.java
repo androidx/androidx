@@ -16,6 +16,7 @@
 
 package androidx.heifwriter;
 
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 
 import java.nio.ByteBuffer;
@@ -100,6 +101,13 @@ public class EglRectBlt {
      */
     public int createTextureObject() {
         return mProgram.createTextureObject();
+    }
+
+    /**
+     * Load texture from a bitmap.
+     */
+    public void loadTexture(int texId, Bitmap bitmap) {
+        mProgram.loadTexture(texId, bitmap);
     }
 
     /**
