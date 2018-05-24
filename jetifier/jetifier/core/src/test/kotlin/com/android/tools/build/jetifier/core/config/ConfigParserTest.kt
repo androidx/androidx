@@ -43,7 +43,12 @@ class ConfigParserTest {
             "            to: {groupId: \"g\", artifactId: \"a\", version: \"2.0\"} \n" +
             "        }\n" +
             "    ],\n" +
-            "   proGuardMap: {\n" +
+            "    versions: {\n" +
+            "        \"latestReleased\": {\n" +
+            "            \"something\": \"1.0.0\"\n" +
+            "        }\n" +
+            "    }," +
+            "    proGuardMap: {\n" +
             "       rules: {\n" +
             "           \"android/support/**\": [\"androidx/**\"]\n" +
             "       }\n" +
@@ -51,11 +56,19 @@ class ConfigParserTest {
             "}"
 
         val config = ConfigParser.parseFromString(confStr)
+        val jsonConfig = config!!.toJson()
 
         Truth.assertThat(config).isNotNull()
         Truth.assertThat(config!!.restrictToPackagePrefixes.first()).isEqualTo("android/support/")
         Truth.assertThat(config.rulesMap.rewriteRules.size).isEqualTo(2)
+        Truth.assertThat(config.versionsMap.data.size).isEqualTo(1)
+        Truth.assertThat(config.versionsMap.data["latestReleased"])
+            .containsExactly("something", "1.0.0")
         Truth.assertThat(config.proGuardMap.toJson().rules.size).isEqualTo(1)
+
+        Truth.assertThat(jsonConfig.versions!!.size).isEqualTo(1)
+        Truth.assertThat(jsonConfig.versions!!["latestReleased"])
+            .containsExactly("something", "1.0.0")
     }
 
     @Test(expected = IllegalArgumentException::class)

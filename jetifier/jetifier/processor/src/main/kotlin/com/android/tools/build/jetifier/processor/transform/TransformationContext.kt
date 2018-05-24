@@ -18,7 +18,7 @@ package com.android.tools.build.jetifier.processor.transform
 
 import com.android.tools.build.jetifier.core.TypeRewriter
 import com.android.tools.build.jetifier.core.config.Config
-import com.android.tools.build.jetifier.core.pom.DependencyVersionsMap
+import com.android.tools.build.jetifier.core.pom.DependencyVersions
 import com.android.tools.build.jetifier.core.type.JavaType
 import com.android.tools.build.jetifier.core.utils.Log
 import java.util.regex.Pattern
@@ -34,7 +34,7 @@ class TransformationContext(
      * Whether to use fallback if type in our scope is missing instead of throwing an exception.
      */
     val useFallbackIfTypeIsMissing: Boolean = true,
-    val versionsMap: DependencyVersionsMap = DependencyVersionsMap.LATEST_RELEASED
+    val versions: DependencyVersions = DependencyVersions.EMPTY
 ) {
 
     // Merges all packages prefixes into one regEx pattern
