@@ -847,6 +847,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
          * You must at minimum specify page size with {@link #setPageSize(int)}.
          */
         public static final class Builder {
+            static final int DEFAULT_INITIAL_PAGE_MULTIPLIER = 3;
+
             private int mPageSize = -1;
             private int mPrefetchDistance = -1;
             private int mInitialLoadSizeHint = -1;
@@ -1007,7 +1009,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
                     mPrefetchDistance = mPageSize;
                 }
                 if (mInitialLoadSizeHint < 0) {
-                    mInitialLoadSizeHint = mPageSize * 3;
+                    mInitialLoadSizeHint = mPageSize * DEFAULT_INITIAL_PAGE_MULTIPLIER;
                 }
                 if (!mEnablePlaceholders && mPrefetchDistance == 0) {
                     throw new IllegalArgumentException("Placeholders and prefetch are the only ways"

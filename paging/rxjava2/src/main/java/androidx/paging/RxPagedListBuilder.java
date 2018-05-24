@@ -148,7 +148,9 @@ public final class RxPagedListBuilder<Key, Value> {
      * The built observable/flowable will be observed on this scheduler, so that the thread
      * receiving PagedLists will also receive the internal updates to the PagedList.
      *
-     * @param scheduler Scheduler for background DataSource loading.
+     * @param scheduler Scheduler that receives PagedList updates, and where
+     *                  {@link PagedList.Callback} calls are dispatched. Generally, this is the
+     *                  UI/main thread.
      * @return this
      */
     public RxPagedListBuilder<Key, Value> setNotifyScheduler(
@@ -174,7 +176,8 @@ public final class RxPagedListBuilder<Key, Value> {
      * <p>
      * The built observable/flowable will be subscribed on this scheduler.
      *
-     * @param scheduler Scheduler for background DataSource loading.
+     * @param scheduler Scheduler used to fetch from DataSources, generally a background
+     *                  thread pool for e.g. I/O or network loading.
      * @return this
      */
     @SuppressWarnings({"unused", "WeakerAccess"})
