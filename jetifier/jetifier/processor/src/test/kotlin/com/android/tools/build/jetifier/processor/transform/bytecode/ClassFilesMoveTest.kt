@@ -38,6 +38,7 @@ class ClassFilesMoveTest {
     companion object {
         private val TEST_CONFIG = Config.fromOptional(
             restrictToPackagePrefixes = setOf("android/support"),
+            reversedRestrictToPackagesPrefixes = setOf("androidx"),
             rulesMap = RewriteRulesMap(
                 RewriteRule("android/support/annotation/(.*)", "ignore"),
                 RewriteRule("android/support/v7/preference/R(.*)", "ignore"),

@@ -37,10 +37,10 @@ class TypeRewriterTest {
         )
     }
 
-    @Test fun prefixNotAllowedForRewrite() {
+    @Test fun prefixAllowedForRewrite() {
         testRewrite(
             from = "test.sample.Class",
-            to = "test.sample.Class",
+            to = "test.sample2.Class2",
             packagePrefix = "notTest/",
             typesMap = TypesMap(
                 JavaType.fromDotVersion("test.sample.Class")
