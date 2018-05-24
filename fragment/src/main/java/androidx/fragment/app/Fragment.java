@@ -91,10 +91,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     static final int INITIALIZING = 0;     // Not yet created.
     static final int CREATED = 1;          // Created.
-    static final int ACTIVITY_CREATED = 2; // The activity has finished its creation.
-    static final int STOPPED = 3;          // Fully created, not started.
-    static final int STARTED = 4;          // Created and started, not resumed.
-    static final int RESUMED = 5;          // Created started and resumed.
+    static final int ACTIVITY_CREATED = 2; // Fully created, not started.
+    static final int STARTED = 3;          // Created and started, not resumed.
+    static final int RESUMED = 4;          // Created started and resumed.
 
     int mState = INITIALIZING;
 
@@ -2641,20 +2640,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mChildFragmentManager != null) {
             mChildFragmentManager.dispatchStop();
         }
-        mState = STOPPED;
+        mState = ACTIVITY_CREATED;
         mCalled = false;
         onStop();
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onStop()");
         }
-    }
-
-    void performReallyStop() {
-        if (mChildFragmentManager != null) {
-            mChildFragmentManager.dispatchReallyStop();
-        }
-        mState = ACTIVITY_CREATED;
     }
 
     void performDestroyView() {
