@@ -27,13 +27,11 @@ import androidx.navigation.safe.args.generator.models.Destination
 import androidx.navigation.safe.args.generator.models.ResReference
 import com.squareup.javapoet.ClassName
 import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
 
 @RunWith(JUnit4::class)
 class NavParserTest {
@@ -41,8 +39,8 @@ class NavParserTest {
     @Test
     fun test() {
         val id: (String) -> ResReference = { id -> ResReference("a.b", "id", id) }
-        val navGraph = parseNavigationFile(File("src/tests/test-data/naive_test.xml"), "a.b",
-                "foo.app")
+        val navGraph = NavParser.parseNavigationFile(testData("naive_test.xml"),
+            "a.b", "foo.app")
 
         val nameFirst = ClassName.get("androidx.navigation.testapp", "MainFragment")
         val nameNext = ClassName.get("foo.app", "NextFragment")
@@ -78,14 +76,12 @@ class NavParserTest {
 
     @Test
     fun testIntValueParsing() {
-        val error = errorOf({ parseIntValue("foo") })
-        assertThat(error, instanceOf(IllegalArgumentException::class.java))
+        assertThat(parseIntValue("foo"), nullValue())
         assertThat(parseIntValue("10"), `is`(IntValue("10")))
         assertThat(parseIntValue("-10"), `is`(IntValue("-10")))
         assertThat(parseIntValue("0xA"), `is`(IntValue("0xA")))
         assertThat(parseIntValue("0xFFFFFFFF"), `is`(IntValue("0xFFFFFFFF")))
-        assertThat(errorOf({ parseIntValue("0x1FFFFFFFF") }),
-                instanceOf(IllegalArgumentException::class.java))
+        assertThat(parseIntValue("0x1FFFFFFFF"), nullValue())
     }
 
     @Test
@@ -113,15 +109,5 @@ class NavParserTest {
         assertThat(infer(".4"), `is`(floatArg(".4")))
         assertThat(infer("true"), `is`(boolArg("true")))
         assertThat(infer("false"), `is`(boolArg("false")))
-    }
-
-    private fun errorOf(f: () -> Unit, message: String = ""): Exception {
-        try {
-            f()
-            Assert.fail(message)
-            throw Error()
-        } catch (e: Exception) {
-            return e
-        }
     }
 }
