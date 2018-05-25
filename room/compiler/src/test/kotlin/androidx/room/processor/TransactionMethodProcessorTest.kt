@@ -103,7 +103,7 @@ class TransactionMethodProcessorTest {
                                                                     Transaction::class.java)
                                                         }
                                         )
-                                    }.filter { it.second.isNotEmpty() }.first()
+                                    }.first { it.second.isNotEmpty() }
                             val processor = TransactionMethodProcessor(
                                     baseContext = invocation.context,
                                     containing = MoreTypes.asDeclared(owner.asType()),

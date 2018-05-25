@@ -32,11 +32,11 @@ object SuppressWarningProcessor {
         val annotation = MoreElements.getAnnotationMirror(element,
                 SuppressWarnings::class.java).orNull()
         return if (annotation == null) {
-            emptySet<Warning>()
+            emptySet()
         } else {
             val value = AnnotationMirrors.getAnnotationValue(annotation, "value")
             if (value == null) {
-                emptySet<Warning>()
+                emptySet()
             } else {
                 VISITOR.visit(value)
             }
@@ -46,9 +46,9 @@ object SuppressWarningProcessor {
     private object VISITOR : SimpleAnnotationValueVisitor6<Set<Warning>, String>() {
         override fun visitArray(values: List<AnnotationValue>?, elementName: String?
         ): Set<Warning> {
-            return values?.map {
+            return values?.mapNotNull {
                 Warning.fromPublicKey(it.value.toString())
-            }?.filterNotNull()?.toSet() ?: emptySet()
+            }?.toSet() ?: emptySet()
         }
 
         override fun defaultAction(o: Any?, p: String?): Set<Warning> {

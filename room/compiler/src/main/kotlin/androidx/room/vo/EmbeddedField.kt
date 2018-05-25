@@ -33,16 +33,6 @@ data class EmbeddedField(val field: Field, val prefix: String = "",
         parent?.mRootParent ?: this
     }
 
-    fun isDescendantOf(other: EmbeddedField): Boolean {
-        if (parent == other) {
-            return true
-        } else if (parent == null) {
-            return false
-        } else {
-            return parent.isDescendantOf(other)
-        }
-    }
-
     fun isNonNullRecursively(): Boolean {
         return field.nonNull && (parent == null || parent.isNonNullRecursively())
     }

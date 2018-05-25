@@ -39,22 +39,14 @@ object SupportDbTypeNames {
             ClassName.get("androidx.sqlite.db", "SupportSQLiteOpenHelper")
     val SQLITE_OPEN_HELPER_CALLBACK: ClassName =
             ClassName.get("androidx.sqlite.db", "SupportSQLiteOpenHelper.Callback")
-    val SQLITE_OPEN_HELPER_FACTORY: ClassName =
-            ClassName.get("androidx.sqlite.db", "SupportSQLiteOpenHelper.Factory")
     val SQLITE_OPEN_HELPER_CONFIG: ClassName =
             ClassName.get("androidx.sqlite.db", "SupportSQLiteOpenHelper.Configuration")
-    val SQLITE_OPEN_HELPER_CONFIG_BUILDER: ClassName =
-            ClassName.get("androidx.sqlite.db",
-                    "SupportSQLiteOpenHelper.Configuration.Builder")
     val QUERY: ClassName =
             ClassName.get("androidx.sqlite.db", "SupportSQLiteQuery")
 }
 
 object RoomTypeNames {
     val STRING_UTIL: ClassName = ClassName.get("androidx.room.util", "StringUtil")
-    val CURSOR_CONVERTER: ClassName =
-            ClassName.get("androidx.room", "CursorConverter")
-    val ROOM: ClassName = ClassName.get("androidx.room", "Room")
     val ROOM_DB: ClassName = ClassName.get("androidx.room", "RoomDatabase")
     val ROOM_DB_CONFIG: ClassName = ClassName.get("androidx.room",
             "DatabaseConfiguration")
@@ -84,11 +76,6 @@ object RoomTypeNames {
             ClassName.get("androidx.room.util", "TableInfo.Index")
     val LIMIT_OFFSET_DATA_SOURCE: ClassName =
             ClassName.get("androidx.room.paging", "LimitOffsetDataSource")
-}
-
-object ArchTypeNames {
-    val APP_EXECUTOR: ClassName =
-            ClassName.get("androidx.arch.core.executor", "ArchTaskExecutor")
 }
 
 object PagingTypeNames {
