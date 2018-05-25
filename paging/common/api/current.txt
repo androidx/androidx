@@ -126,8 +126,10 @@ package androidx.paging {
   }
 
   public static class PagedList.Config {
+    field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
     field public final boolean enablePlaceholders;
     field public final int initialLoadSizeHint;
+    field public final int maxSize;
     field public final int pageSize;
     field public final int prefetchDistance;
   }
@@ -137,6 +139,7 @@ package androidx.paging {
     method public androidx.paging.PagedList.Config build();
     method public androidx.paging.PagedList.Config.Builder setEnablePlaceholders(boolean);
     method public androidx.paging.PagedList.Config.Builder setInitialLoadSizeHint(int);
+    method public androidx.paging.PagedList.Config.Builder setMaxSize(int);
     method public androidx.paging.PagedList.Config.Builder setPageSize(int);
     method public androidx.paging.PagedList.Config.Builder setPrefetchDistance(int);
   }
