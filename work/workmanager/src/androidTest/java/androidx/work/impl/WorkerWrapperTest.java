@@ -707,9 +707,10 @@ public class WorkerWrapperTest extends DatabaseTest {
                 new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
         insertWork(work);
 
-        Worker worker = WorkerWrapper.workerFromClassName(mContext,
+        Worker worker = WorkerWrapper.workerFromClassName(
+                mContext,
                 InterruptionAwareWorker.class.getName(),
-                work.getStringId(),
+                work.getId(),
                 new Extras(Data.EMPTY, Collections.<String>emptyList(), null));
         assertThat(worker, is(notNullValue()));
         assertThat(worker.isStopped(), is(false));
