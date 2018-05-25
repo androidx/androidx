@@ -197,7 +197,7 @@ package androidx.fragment.app {
     method public void dispatchPause();
     method public void dispatchPictureInPictureModeChanged(boolean);
     method public boolean dispatchPrepareOptionsMenu(android.view.Menu);
-    method public void dispatchReallyStop();
+    method public deprecated void dispatchReallyStop();
     method public void dispatchResume();
     method public void dispatchStart();
     method public void dispatchStop();

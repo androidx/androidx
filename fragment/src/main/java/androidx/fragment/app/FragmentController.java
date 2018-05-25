@@ -245,8 +245,11 @@ public class FragmentController {
         mHost.mFragmentManager.dispatchStop();
     }
 
+    /**
+     * @deprecated This functionality has been rolled into {@link #dispatchStop()}.
+     */
+    @Deprecated
     public void dispatchReallyStop() {
-        mHost.mFragmentManager.dispatchReallyStop();
     }
 
     /**
