@@ -225,7 +225,3 @@ includeProject(":webview-support-interfaces", new File(externalRoot, "webview_su
 ///// FLATFOOT START
 
 ///// FLATFOOT END
-
-// fake project which is used for docs generation from prebuilts
-// we need real android project to generate R.java, aidl etc files that mentioned in sources
-includeProject(":docs-fake", "docs-fake")
