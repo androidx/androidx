@@ -35,7 +35,7 @@ class NavGeneratorTest {
     @Test
     fun test() {
         val javaNames = generateSafeArgs("foo", "foo.flavor",
-                File("src/tests/test-data/naive_test.xml"), workingDir.root)
+            testData("naive_test.xml"), workingDir.root)
 
         val expectedSet = setOf(
                 "androidx.navigation.testapp.MainFragmentDirections",

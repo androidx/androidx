@@ -41,6 +41,5 @@ class WritableValueTest {
     fun testReferenceWrite() {
         assertThat(ReferenceValue(ResReference("foo", "id", "bla")).write().toString(),
                 `is`("foo.R.id.bla"))
-        assertThat(ReferenceValue(null).write().toString(), `is`("0"))
     }
 }
