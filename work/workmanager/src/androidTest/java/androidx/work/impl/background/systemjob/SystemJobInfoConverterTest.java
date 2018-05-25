@@ -25,6 +25,7 @@ import static androidx.work.NetworkType.UNMETERED;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +38,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.work.BackoffPolicy;
+import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
@@ -68,6 +70,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         mMockIdGenerator = mock(IdGenerator.class);
         mConverter = new SystemJobInfoConverter(
                 InstrumentationRegistry.getTargetContext(),
+                new Configuration.Builder().build(),
                 mMockIdGenerator);
     }
 
@@ -76,7 +79,8 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     public void testConvert_ids() {
         final String expectedWorkSpecId = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
         final int expectedJobId = 101;
-        when(mMockIdGenerator.nextJobSchedulerId()).thenReturn(expectedJobId);
+        when(mMockIdGenerator.nextJobSchedulerIdWithRange(anyInt(), anyInt()))
+                .thenReturn(expectedJobId);
         WorkSpec workSpec = new WorkSpec(expectedWorkSpecId, TestWorker.class.getName());
         JobInfo jobInfo = mConverter.convert(workSpec);
         String actualWorkSpecId = jobInfo.getExtras().getString(

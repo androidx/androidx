@@ -29,6 +29,7 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import androidx.work.BackoffPolicy;
+import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
 import androidx.work.NetworkType;
@@ -47,6 +48,7 @@ class SystemJobInfoConverter {
     static final String EXTRA_IS_PERIODIC = "EXTRA_IS_PERIODIC";
 
     private final ComponentName mWorkServiceComponent;
+    private final Configuration mConfiguration;
     private final IdGenerator mIdGenerator;
 
     /**
@@ -54,14 +56,19 @@ class SystemJobInfoConverter {
      *
      * @param context A non-null {@link Context}.
      */
-    SystemJobInfoConverter(@NonNull Context context) {
-        this(context, new IdGenerator(context));
+    SystemJobInfoConverter(@NonNull Context context, @NonNull Configuration configuration) {
+        this(context, configuration, new IdGenerator(context));
     }
 
     @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-    SystemJobInfoConverter(@NonNull Context context, IdGenerator idGenerator) {
+    SystemJobInfoConverter(
+            @NonNull Context context,
+            @NonNull Configuration configuration,
+            @NonNull IdGenerator idGenerator) {
+
         Context appContext = context.getApplicationContext();
         mWorkServiceComponent = new ComponentName(appContext, SystemJobService.class);
+        mConfiguration = configuration;
         mIdGenerator = idGenerator;
     }
 
@@ -75,7 +82,9 @@ class SystemJobInfoConverter {
      */
     JobInfo convert(WorkSpec workSpec) {
         Constraints constraints = workSpec.constraints;
-        int jobId = mIdGenerator.nextJobSchedulerId();
+        int jobId = mIdGenerator.nextJobSchedulerIdWithRange(
+                mConfiguration.getMinJobSchedulerID(),
+                mConfiguration.getMaxJobSchedulerID());
         // TODO(janclarin): Support newer required network types if unsupported by API version.
         int jobInfoNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
         PersistableBundle extras = new PersistableBundle();
