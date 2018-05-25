@@ -17,4 +17,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.textclassifier.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+
+    <application>
+        <service android:name="androidx.textclassifier.service.DummyTextClassifierService">
+            <intent-filter>
+                <action android:name="androidx.textclassifier.TextClassifierService" />
+            </intent-filter>
+        </service>
+
+    </application>
 </manifest>
