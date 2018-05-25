@@ -147,20 +147,18 @@ class PojoProcessor(
 
         val embeddedFields =
                 allFields[Embedded::class]
-                        ?.map {
+                        ?.mapNotNull {
                             processEmbeddedField(declaredType, it)
                         }
-                        ?.filterNotNull()
                         ?: emptyList()
 
         val subFields = embeddedFields.flatMap { it.pojo.fields }
         val fields = myFields + subFields
 
         val myRelationsList = allFields[Relation::class]
-                ?.map {
+                ?.mapNotNull {
                     processRelationField(fields, declaredType, it)
                 }
-                ?.filterNotNull()
                 ?: emptyList()
 
         val subRelations = embeddedFields.flatMap { it.pojo.relations }

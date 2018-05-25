@@ -36,7 +36,7 @@ class OptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryRes
             outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
             val valueVarName = scope.getTmpVar("_value")
-            resultAdapter?.convert(valueVarName, cursorVarName, scope)
+            resultAdapter.convert(valueVarName, cursorVarName, scope)
             addStatement(
                     "final $T $L = $T.ofNullable($L)",
                     ParameterizedTypeName.get(CommonTypeNames.OPTIONAL, type?.typeName()),

@@ -50,7 +50,7 @@ class PojoRowAdapter(
         val unusedColumns = arrayListOf<String>()
         val matchedFields: List<Field>
         if (info != null) {
-            matchedFields = info.columns.map { column ->
+            matchedFields = info.columns.mapNotNull { column ->
                 // first check remaining, otherwise check any. maybe developer wants to map the same
                 // column into 2 fields. (if they want to post process etc)
                 val field = remainingFields.firstOrNull { it.columnName == column.name } ?:
@@ -62,7 +62,7 @@ class PojoRowAdapter(
                     remainingFields.remove(field)
                     field
                 }
-            }.filterNotNull()
+            }
             if (unusedColumns.isNotEmpty() || remainingFields.isNotEmpty()) {
                 val warningMsg = ProcessorErrors.cursorPojoMismatch(
                         pojoTypeName = pojo.typeName,

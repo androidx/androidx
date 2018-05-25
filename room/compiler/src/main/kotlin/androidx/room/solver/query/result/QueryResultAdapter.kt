@@ -24,6 +24,6 @@ import androidx.room.solver.CodeGenScope
 abstract class QueryResultAdapter(val rowAdapter: RowAdapter?) {
     abstract fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope)
     fun accessedTableNames(): List<String> {
-        return (rowAdapter as? PojoRowAdapter)?.relationTableNames() ?: emptyList<String>()
+        return (rowAdapter as? PojoRowAdapter)?.relationTableNames() ?: emptyList()
     }
 }
