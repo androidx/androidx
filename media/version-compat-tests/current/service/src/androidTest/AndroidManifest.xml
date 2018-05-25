@@ -45,7 +45,7 @@
         <service android:name="androidx.media.test.service.TestHelperService">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
-                <action android:name="androidx.media.test.action.TEST_HELPER" />
+                <action android:name="androidx.media.test.action.MEDIA_SESSION2" />
             </intent-filter>
         </service>
     </application>

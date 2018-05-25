@@ -18,88 +18,27 @@ package androidx.media.test.service;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
-import static androidx.media.test.lib.CommonConstants.ACTION_TEST_HELPER;
+import static androidx.media.test.lib.CommonConstants.ACTION_MEDIA_SESSION2;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_DSD;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_DSD;
-import static androidx.media.test.lib.CommonConstants.KEY_ARGUMENTS;
 import static androidx.media.test.lib.CommonConstants.KEY_AUDIO_ATTRIBUTES;
 import static androidx.media.test.lib.CommonConstants.KEY_BUFFERED_POSITION;
 import static androidx.media.test.lib.CommonConstants.KEY_BUFFERING_STATE;
-import static androidx.media.test.lib.CommonConstants.KEY_COMMAND_BUTTON_LIST;
-import static androidx.media.test.lib.CommonConstants.KEY_COMMAND_GROUP;
 import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_POSITION;
 import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_VOLUME;
-import static androidx.media.test.lib.CommonConstants.KEY_CUSTOM_COMMAND;
-import static androidx.media.test.lib.CommonConstants.KEY_DURATION;
-import static androidx.media.test.lib.CommonConstants.KEY_ERROR_CODE;
-import static androidx.media.test.lib.CommonConstants.KEY_EXTRAS;
-import static androidx.media.test.lib.CommonConstants.KEY_ITEM_INDEX;
 import static androidx.media.test.lib.CommonConstants.KEY_MAX_VOLUME;
 import static androidx.media.test.lib.CommonConstants.KEY_MEDIA_ITEM;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
-import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST_METADATA;
-import static androidx.media.test.lib.CommonConstants.KEY_REPEAT_MODE;
-import static androidx.media.test.lib.CommonConstants.KEY_RESULT_RECEIVER;
-import static androidx.media.test.lib.CommonConstants.KEY_ROUTE_LIST;
-import static androidx.media.test.lib.CommonConstants.KEY_SEEK_POSITION;
-import static androidx.media.test.lib.CommonConstants.KEY_SHUFFLE_MODE;
 import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
 import static androidx.media.test.lib.CommonConstants.KEY_STREAM;
 import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_BUFFERED_STATE_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_CURRENT_DATA_SOURCE_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_MEDIA_PREPARED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_PLAYBACK_SPEED_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_PLAYER_STATE_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_SEEK_COMPLETED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .SET_BUFFERED_POSITION_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .SET_CURRENT_MEDIA_ITEM_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .SET_CURRENT_POSITION_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .SET_DURATION_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .SET_PLAYBACK_SPEED_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .NOTIFY_PLAYLIST_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .NOTIFY_PLAYLIST_METADATA_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .NOTIFY_REPEAT_MODE_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .NOTIFY_SHUFFLE_MODE_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .SET_PLAYLIST_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .SET_PLAYLIST_METADATA_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .SET_REPEAT_MODE_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .SET_SHUFFLE_MODE_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.CLOSE;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
+import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
         .CUSTOM_METHOD_SET_MULTIPLE_VALUES;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.NOTIFY_ERROR;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
-        .NOTIFY_ROUTES_INFO_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.SEND_CUSTOM_COMMAND;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
-        .SEND_CUSTOM_COMMAND_TO_ONE_CONTROLLER;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.SET_ALLOWED_COMMANDS;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.SET_CUSTOM_LAYOUT;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.UPDATE_PLAYER;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
+import static androidx.media.test.lib.MediaSession2Constants.CustomCommands.UPDATE_PLAYER;
+import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
         .UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
+import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
         .UPDATE_PLAYER_WITH_VOLUME_PROVIDER;
 import static androidx.media.test.lib.MediaSession2Constants
         .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
@@ -114,16 +53,15 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
-import android.support.mediacompat.testlib.IServiceAppTestHelperService;
+import android.support.mediacompat.testlib.ISession2;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.MediaSession2;
-import androidx.media.MediaSession2.CommandButton;
+import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.SessionCommand2;
 import androidx.media.SessionCommandGroup2;
 import androidx.media.VolumeProviderCompat;
@@ -131,7 +69,10 @@ import androidx.media.test.lib.MockActivity;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 
 import java.io.FileDescriptor;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -142,20 +83,16 @@ public class TestHelperService extends Service {
 
     private static final String TAG = "TestHelperService_serviceApp";
 
-    MediaSession2 mSession2;
-    MockPlayer mPlayer;
-    MockPlaylistAgent mPlaylistAgent;
-    ServiceBinder mBinder;
+    Map<String, MediaSession2> mSession2Map = new HashMap<>();
+    RemoteMediaSession2 mSession2Binder;
 
     SyncHandler mHandler;
     Executor mExecutor;
 
-    MediaSession2.ControllerInfo mControllerInfo;
-
     @Override
     public void onCreate() {
         super.onCreate();
-        mBinder = new ServiceBinder();
+        mSession2Binder = new RemoteMediaSession2();
         mHandler = new SyncHandler(getMainLooper());
         mExecutor = new Executor() {
             @Override
@@ -167,32 +104,27 @@ public class TestHelperService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        if (ACTION_TEST_HELPER.equals(intent.getAction())) {
-            return mBinder;
+        if (ACTION_MEDIA_SESSION2.equals(intent.getAction())) {
+            return mSession2Binder;
         }
         return null;
     }
 
     @Override
     public void onDestroy() {
-        if (mSession2 != null) {
-            mSession2.close();
+        for (MediaSession2 session2 : mSession2Map.values()) {
+            session2.close();
         }
     }
 
-    private class ServiceBinder extends IServiceAppTestHelperService.Stub {
-        @Override
-        public Bundle createMediaSession2(String sessionId) throws RemoteException {
-            if (mSession2 != null) {
-                mSession2.close();
-            }
+    private class RemoteMediaSession2 extends ISession2.Stub {
 
-            mPlayer = new MockPlayer(0);
-            mPlaylistAgent = new MockPlaylistAgent();
+        @Override
+        public void create(final String sessionId) throws RemoteException {
             final MediaSession2.Builder builder = new MediaSession2.Builder(TestHelperService.this)
                     .setId(sessionId)
-                    .setPlayer(mPlayer)
-                    .setPlaylistAgent(mPlaylistAgent);
+                    .setPlayer(new MockPlayer(0))
+                    .setPlaylistAgent(new MockPlaylistAgent());
 
             switch (sessionId) {
                 case TEST_GET_SESSION_ACTIVITY: {
@@ -232,41 +164,33 @@ public class TestHelperService extends Service {
                 mHandler.postAndSync(new Runnable() {
                     @Override
                     public void run() {
-                        mSession2 = builder.build();
+                        MediaSession2 session2 = builder.build();
+                        mSession2Map.put(sessionId, session2);
                     }
                 });
             } catch (InterruptedException ex) {
                 Log.e(TAG, "InterruptedException occurred while creating MediaSession2", ex);
             }
-
-            return mSession2.getToken().toBundle();
         }
 
         @Override
-        public void closeMediaSession2() throws RemoteException {
-            if (mSession2 != null) {
-                mSession2.close();
-            }
-        }
-
-        @Override
-        public void callMediaSession2Method(int method, @NonNull Bundle args)
+        public void runCustomTestCommands(String sessionId, int command, Bundle args)
                 throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
             args.setClassLoader(MediaSession2.class.getClassLoader());
 
-            switch (method) {
-                // TODO: Unite UPDATE_PLAYER* constants into one which can be generally used.
+            switch (command) {
                 case UPDATE_PLAYER: {
-                    MockPlayer player = new MockPlayer(0);
-                    player.mLastPlayerState = args.getInt(KEY_PLAYER_STATE);
-                    player.setAudioAttributes(AudioAttributesCompat.fromBundle(
+                    MockPlayer newPlayer = new MockPlayer(0);
+                    newPlayer.mLastPlayerState = args.getInt(KEY_PLAYER_STATE);
+                    newPlayer.setAudioAttributes(AudioAttributesCompat.fromBundle(
                             (Bundle) args.getParcelable(KEY_AUDIO_ATTRIBUTES)));
 
-                    MockPlaylistAgent agent = new MockPlaylistAgent();
-                    agent.mPlaylist = MediaTestUtils.playlistFromParcelableList(
+                    MockPlaylistAgent newAgent = new MockPlaylistAgent();
+                    newAgent.mPlaylist = MediaTestUtils.playlistFromParcelableList(
                             args.getParcelableArrayList(KEY_PLAYLIST), false /* createDsd */);
 
-                    mSession2.updatePlayer(player, agent, null);
+                    session2.updatePlayer(newPlayer, newAgent, null);
                     break;
                 }
                 case UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE: {
@@ -275,9 +199,9 @@ public class TestHelperService extends Service {
                     AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                             .setLegacyStreamType(stream)
                             .build();
-                    MockPlayer player = new MockPlayer(0);
-                    player.setAudioAttributes(attrs);
-                    mSession2.updatePlayer(player, null, null);
+                    MockPlayer newPlayer = new MockPlayer(0);
+                    newPlayer.setAudioAttributes(attrs);
+                    session2.updatePlayer(newPlayer, null, null);
                     break;
                 }
                 case UPDATE_PLAYER_WITH_VOLUME_PROVIDER: {
@@ -285,203 +209,292 @@ public class TestHelperService extends Service {
                             args.getInt(KEY_VOLUME_CONTROL_TYPE),
                             args.getInt(KEY_MAX_VOLUME),
                             args.getInt(KEY_CURRENT_VOLUME)) {};
-
-                    MockPlayer player = new MockPlayer(0);
-                    player.setAudioAttributes(AudioAttributesCompat.fromBundle(
+                    MockPlayer newPlayer = new MockPlayer(0);
+                    newPlayer.setAudioAttributes(AudioAttributesCompat.fromBundle(
                             (Bundle) args.getParcelable(KEY_AUDIO_ATTRIBUTES)));
-                    mSession2.updatePlayer(player, null, vp);
-                    break;
-                }
-                case SEND_CUSTOM_COMMAND: {
-                    SessionCommand2 customCommand =
-                            SessionCommand2.fromBundle(args.getBundle(KEY_CUSTOM_COMMAND));
-                    Bundle arguments = args.getBundle(KEY_ARGUMENTS);
-                    mSession2.sendCustomCommand(customCommand, arguments);
-                    break;
-                } case SEND_CUSTOM_COMMAND_TO_ONE_CONTROLLER: {
-                    SessionCommand2 customCommand =
-                            SessionCommand2.fromBundle(args.getBundle(KEY_CUSTOM_COMMAND));
-                    Bundle arguments = args.getBundle(KEY_ARGUMENTS);
-                    ResultReceiver resultReceiver = args.getParcelable(KEY_RESULT_RECEIVER);
-                    mSession2.sendCustomCommand(
-                            getTestControllerInfo(), customCommand, arguments, resultReceiver);
-                    break;
-                }
-                case CLOSE: {
-                    mSession2.close();
-                    break;
-                }
-                case NOTIFY_ERROR: {
-                    int errorCode = args.getInt(KEY_ERROR_CODE);
-                    Bundle extras = args.getBundle(KEY_EXTRAS);
-                    mSession2.notifyError(errorCode, extras);
-                    break;
-                }
-                case SET_ALLOWED_COMMANDS: {
-                    SessionCommandGroup2 commandGroup =
-                            SessionCommandGroup2.fromBundle(args.getBundle(KEY_COMMAND_GROUP));
-                    mSession2.setAllowedCommands(getTestControllerInfo(), commandGroup);
-                    break;
-                }
-                case NOTIFY_ROUTES_INFO_CHANGED: {
-                    List<Bundle> routes = args.getParcelableArrayList(KEY_ROUTE_LIST);
-                    mSession2.notifyRoutesInfoChanged(getTestControllerInfo(), routes);
-                    break;
-                }
-                case SET_CUSTOM_LAYOUT: {
-                    List<CommandButton> buttons = MediaTestUtils.buttonListFromParcelableArrayList(
-                            args.getParcelableArrayList(KEY_COMMAND_BUTTON_LIST));
-                    mSession2.setCustomLayout(getTestControllerInfo(), buttons);
+                    session2.updatePlayer(newPlayer, null, vp);
                     break;
                 }
                 case CUSTOM_METHOD_SET_MULTIPLE_VALUES: {
-                    mPlayer.mLastPlayerState = args.getInt(KEY_PLAYER_STATE);
-                    mPlayer.mLastBufferingState = args.getInt(KEY_BUFFERING_STATE);
-                    mPlayer.mCurrentPosition = args.getLong(KEY_CURRENT_POSITION);
-                    mPlayer.mBufferedPosition = args.getLong(KEY_BUFFERED_POSITION);
-                    mPlayer.mPlaybackSpeed = args.getFloat(KEY_SPEED);
-                    mPlaylistAgent.mCurrentMediaItem =
-                            MediaItem2.fromBundle(args.getBundle(KEY_MEDIA_ITEM));
+                    MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+                    MockPlayer player = (MockPlayer) session2.getPlayer();
+
+                    player.mLastPlayerState = args.getInt(KEY_PLAYER_STATE);
+                    player.mLastBufferingState = args.getInt(KEY_BUFFERING_STATE);
+                    player.mCurrentPosition = args.getLong(KEY_CURRENT_POSITION);
+                    player.mBufferedPosition = args.getLong(KEY_BUFFERED_POSITION);
+                    player.mPlaybackSpeed = args.getFloat(KEY_SPEED);
+                    agent.mCurrentMediaItem = MediaItem2.fromBundle(args.getBundle(KEY_MEDIA_ITEM));
                     break;
                 }
             }
+        }
 
+        /**
+         * {@link MediaSession2} methods.
+         */
+
+        @Override
+        public Bundle getToken(String sessionId) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            return session2 != null ? session2.getToken().toBundle() : null;
         }
 
         @Override
-        public void callBaseMediaPlayerMethod(int method, @NonNull Bundle args)
+        public void sendCustomCommand(String sessionId, Bundle command, Bundle args)
                 throws RemoteException {
-            if (mSession2 == null) {
-                Log.d(TAG, "callBaseMediaPlayerMethod() called when session is null.");
-                return;
-            }
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            session2.sendCustomCommand(SessionCommand2.fromBundle(command), args);
+        }
 
-            switch (method) {
-                case SET_CURRENT_POSITION_MANUALLY: {
-                    mPlayer.mCurrentPosition = args.getLong(KEY_CURRENT_POSITION);
+        @Override
+        public void sendCustomCommand2(String sessionId, Bundle controller, Bundle command,
+                Bundle args, ResultReceiver receiver) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            ControllerInfo info = getTestControllerInfo(session2);
+            session2.sendCustomCommand(info, SessionCommand2.fromBundle(command), args, receiver);
+        }
+
+        @Override
+        public void close(String sessionId) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            session2.close();
+        }
+
+        @Override
+        public void notifyError(String sessionId, int errorCode, Bundle extras)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            session2.notifyError(errorCode, extras);
+        }
+
+        @Override
+        public void setAllowedCommands(String sessionId, Bundle controller, Bundle commands)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            ControllerInfo info = getTestControllerInfo(session2);
+            session2.setAllowedCommands(info, SessionCommandGroup2.fromBundle(commands));
+        }
+
+        @Override
+        public void notifyRoutesInfoChanged(String sessionId, Bundle controller,
+                List<Bundle> routes) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            ControllerInfo info = getTestControllerInfo(session2);
+            session2.notifyRoutesInfoChanged(info, routes);
+        }
+
+        @Override
+        public void setCustomLayout(String sessionId, Bundle controller, List<Bundle> layout)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            ControllerInfo info = getTestControllerInfo(session2);
+            session2.setCustomLayout(info, MediaTestUtils.buttonListFromBundleList(layout));
+        }
+
+        /**
+         * {@link MockPlayer} methods.
+         */
+
+        @Override
+        public void setCurrentPosition(String sessionId, long pos) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.mCurrentPosition = pos;
+        }
+
+        @Override
+        public void setBufferedPosition(String sessionId, long pos) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.mBufferedPosition = pos;
+        }
+
+        @Override
+        public void setDuration(String sessionId, long duration) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.mDuration = duration;
+        }
+
+        @Override
+        public void setPlaybackSpeed(String sessionId, float speed) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.mPlaybackSpeed = speed;
+        }
+
+        @Override
+        public void notifySeekCompleted(String sessionId, long pos) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.notifySeekCompleted(pos);
+        }
+
+        @Override
+        public void notifyBufferingStateChanged(String sessionId, int itemIndex, int buffState)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.notifyBufferingStateChanged(
+                    agent.getPlaylist().get(itemIndex).getDataSourceDesc(), buffState);
+        }
+
+        @Override
+        public void notifyPlayerStateChanged(String sessionId, int state) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.notifyPlayerStateChanged(state);
+        }
+
+        @Override
+        public void notifyPlaybackSpeedChanged(String sessionId, float speed)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.notifyPlaybackSpeedChanged(speed);
+        }
+
+        @Override
+        public void notifyCurrentDataSourceChanged(String sessionId, int index)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            switch (index) {
+                case INDEX_FOR_UNKONWN_DSD:
+                    player.notifyCurrentDataSourceChanged(new DataSourceDesc.Builder()
+                            .setDataSource(new FileDescriptor())
+                            .build());
                     break;
-                }
-                case NOTIFY_SEEK_COMPLETED: {
-                    mPlayer.notifySeekCompleted(args.getLong(KEY_SEEK_POSITION));
+                case INDEX_FOR_NULL_DSD:
+                    player.notifyCurrentDataSourceChanged(null);
                     break;
-                }
-                case SET_BUFFERED_POSITION_MANUALLY: {
-                    mPlayer.mBufferedPosition = args.getLong(KEY_BUFFERED_POSITION);
+                default:
+                    player.notifyCurrentDataSourceChanged(
+                            agent.getPlaylist().get(index).getDataSourceDesc());
                     break;
-                }
-                case NOTIFY_BUFFERED_STATE_CHANGED: {
-                    final int index = args.getInt(KEY_ITEM_INDEX);
-                    DataSourceDesc dsd =
-                            mPlaylistAgent.getPlaylist().get(index).getDataSourceDesc();
-                    mPlayer.notifyBufferingStateChanged(dsd, args.getInt(KEY_BUFFERING_STATE));
-                    break;
-                }
-                case NOTIFY_PLAYER_STATE_CHANGED: {
-                    mPlayer.notifyPlayerStateChanged(args.getInt(KEY_PLAYER_STATE));
-                    break;
-                }
-                case NOTIFY_CURRENT_DATA_SOURCE_CHANGED: {
-                    int itemIndex = args.getInt(KEY_ITEM_INDEX);
-                    switch (itemIndex) {
-                        case INDEX_FOR_UNKONWN_DSD:
-                            mPlayer.notifyCurrentDataSourceChanged(new DataSourceDesc.Builder()
-                                            .setDataSource(new FileDescriptor())
-                                            .build());
-                            break;
-                        case INDEX_FOR_NULL_DSD:
-                            mPlayer.notifyCurrentDataSourceChanged(null);
-                            break;
-                        default:
-                            mPlayer.notifyCurrentDataSourceChanged(mPlaylistAgent.getPlaylist()
-                                    .get(itemIndex).getDataSourceDesc());
-                            break;
-                    }
-                    break;
-                }
-                case SET_PLAYBACK_SPEED_MANUALLY: {
-                    mPlayer.mPlaybackSpeed = args.getFloat(KEY_SPEED);
-                    break;
-                }
-                case NOTIFY_PLAYBACK_SPEED_CHANGED: {
-                    mPlayer.notifyPlaybackSpeedChanged(args.getFloat(KEY_SPEED));
-                    break;
-                }
-                case SET_DURATION_MANUALLY: {
-                    mPlayer.mDuration = args.getLong(KEY_DURATION);
-                    break;
-                }
-                case NOTIFY_MEDIA_PREPARED: {
-                    int itemIndex = args.getInt(KEY_ITEM_INDEX);
-                    mPlayer.notifyMediaPrepared(
-                            mPlaylistAgent.mPlaylist.get(itemIndex).getDataSourceDesc());
-                    break;
-                }
             }
         }
 
         @Override
-        public void callMediaPlaylistAgentMethod(int method, @NonNull Bundle args)
-                throws RemoteException {
-            if (mSession2 == null) {
-                Log.d(TAG, "callMediaPlaylistAgentMethod() called when session is null.");
-                return;
-            }
-
-            switch (method) {
-                case SET_PLAYLIST_MANUALLY: {
-                    List<MediaItem2> playlist = MediaTestUtils.playlistFromParcelableList(
-                            args.getParcelableArrayList(KEY_PLAYLIST), true /* createDsd */);
-                    mPlaylistAgent.mPlaylist = playlist;
-                    break;
-                }
-                case NOTIFY_PLAYLIST_CHANGED: {
-                    mPlaylistAgent.notifyPlaylistChanged();
-                    break;
-                }
-                case SET_PLAYLIST_METADATA_MANUALLY: {
-                    mPlaylistAgent.mMetadata = MediaMetadata2.fromBundle(
-                            args.getBundle(KEY_PLAYLIST_METADATA));
-                    break;
-                }
-                case NOTIFY_PLAYLIST_METADATA_CHANGED: {
-                    mPlaylistAgent.notifyPlaylistMetadataChanged();
-                    break;
-                }
-                case SET_SHUFFLE_MODE_MANUALLY: {
-                    mPlaylistAgent.mShuffleMode = args.getInt(KEY_SHUFFLE_MODE);
-                    break;
-                }
-                case NOTIFY_SHUFFLE_MODE_CHANGED: {
-                    mPlaylistAgent.notifyShuffleModeChanged();
-                    break;
-                }
-                case SET_REPEAT_MODE_MANUALLY: {
-                    mPlaylistAgent.mRepeatMode = args.getInt(KEY_REPEAT_MODE);
-                    break;
-                }
-                case NOTIFY_REPEAT_MODE_CHANGED: {
-                    mPlaylistAgent.notifyRepeatModeChanged();
-                    break;
-                }
-                case SET_CURRENT_MEDIA_ITEM_MANUALLY: {
-                    int itemIndex = args.getInt(KEY_ITEM_INDEX);
-                    mPlaylistAgent.mCurrentMediaItem = mPlaylistAgent.mPlaylist.get(itemIndex);
-                    break;
-                }
-            }
+        public void notifyMediaPrepared(String sessionId, int index) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            player.notifyMediaPrepared(agent.getPlaylist().get(index).getDataSourceDesc());
         }
 
-        private MediaSession2.ControllerInfo getTestControllerInfo() {
-            if (mSession2 == null) {
-                return null;
+        /**
+         * {@link MockPlaylistAgent} methods.
+         */
+
+        @Override
+        public void setPlaylist(String sessionId, List<Bundle> playlist)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+
+            List<MediaItem2> list = new ArrayList<>();
+            for (Bundle bundle : playlist) {
+                list.add(MediaItem2.fromBundle(bundle));
             }
-            for (MediaSession2.ControllerInfo info : mSession2.getConnectedControllers()) {
-                if (CLIENT_PACKAGE_NAME.equals(info.getPackageName())) {
-                    return info;
-                }
+            agent.mPlaylist = list;
+        }
+
+        @Override
+        public void setPlaylistWithNewDsd(String sessionId, List<Bundle> playlist)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+
+            List<MediaItem2> list = new ArrayList<>();
+            for (Bundle bundle : playlist) {
+                MediaItem2 item = MediaItem2.fromBundle(bundle);
+                list.add(new MediaItem2.Builder(item.getFlags())
+                        .setMediaId(item.getMediaId())
+                        .setMetadata(item.getMetadata())
+                        .setDataSourceDesc(createNewDsd())
+                        .build());
             }
-            Log.e(TAG, "Test controller was not found in connected controllers.");
+            agent.mPlaylist = list;
+        }
+
+        @Override
+        public void setPlaylistMetadata(String sessionId, Bundle metadata)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            agent.mMetadata = MediaMetadata2.fromBundle(metadata);
+        }
+
+        @Override
+        public void setShuffleMode(String sessionId, int shuffleMode)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            agent.mShuffleMode = shuffleMode;
+        }
+
+        @Override
+        public void setRepeatMode(String sessionId, int repeatMode) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            agent.mRepeatMode = repeatMode;
+        }
+
+        @Override
+        public void setCurrentMediaItem(String sessionId, int index)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            agent.mCurrentMediaItem = agent.mPlaylist.get(index);
+        }
+
+        @Override
+        public void notifyPlaylistChanged(String sessionId) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            agent.notifyPlaylistChanged();
+        }
+
+        @Override
+        public void notifyPlaylistMetadataChanged(String sessionId) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            agent.notifyPlaylistMetadataChanged();
+        }
+
+        @Override
+        public void notifyShuffleModeChanged(String sessionId) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            agent.notifyShuffleModeChanged();
+        }
+
+        @Override
+        public void notifyRepeatModeChanged(String sessionId) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
+            agent.notifyRepeatModeChanged();
+        }
+    }
+
+    private MediaSession2.ControllerInfo getTestControllerInfo(MediaSession2 session2) {
+        if (session2 == null) {
             return null;
         }
+        for (MediaSession2.ControllerInfo info : session2.getConnectedControllers()) {
+            if (CLIENT_PACKAGE_NAME.equals(info.getPackageName())) {
+                return info;
+            }
+        }
+        Log.e(TAG, "Test controller was not found in connected controllers.");
+        return null;
+    }
+
+    private DataSourceDesc createNewDsd() {
+        return new DataSourceDesc.Builder().setDataSource(new FileDescriptor()).build();
     }
 }

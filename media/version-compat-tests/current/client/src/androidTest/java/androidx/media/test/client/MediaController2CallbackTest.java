@@ -24,78 +24,15 @@ import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_DSD;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_DSD;
 import static androidx.media.test.lib.CommonConstants.KEY_ARGUMENTS;
 import static androidx.media.test.lib.CommonConstants.KEY_AUDIO_ATTRIBUTES;
-import static androidx.media.test.lib.CommonConstants.KEY_BUFFERED_POSITION;
-import static androidx.media.test.lib.CommonConstants.KEY_BUFFERING_STATE;
-import static androidx.media.test.lib.CommonConstants.KEY_COMMAND_BUTTON_LIST;
-import static androidx.media.test.lib.CommonConstants.KEY_COMMAND_GROUP;
-import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_POSITION;
 import static androidx.media.test.lib.CommonConstants.KEY_CURRENT_VOLUME;
 import static androidx.media.test.lib.CommonConstants.KEY_CUSTOM_COMMAND;
-import static androidx.media.test.lib.CommonConstants.KEY_DURATION;
-import static androidx.media.test.lib.CommonConstants.KEY_ERROR_CODE;
-import static androidx.media.test.lib.CommonConstants.KEY_EXTRAS;
-import static androidx.media.test.lib.CommonConstants.KEY_ITEM_INDEX;
 import static androidx.media.test.lib.CommonConstants.KEY_MAX_VOLUME;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
-import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST_METADATA;
-import static androidx.media.test.lib.CommonConstants.KEY_REPEAT_MODE;
 import static androidx.media.test.lib.CommonConstants.KEY_RESULT_RECEIVER;
-import static androidx.media.test.lib.CommonConstants.KEY_ROUTE_LIST;
-import static androidx.media.test.lib.CommonConstants.KEY_SEEK_POSITION;
-import static androidx.media.test.lib.CommonConstants.KEY_SHUFFLE_MODE;
-import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
 import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_BUFFERED_STATE_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_CURRENT_DATA_SOURCE_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_MEDIA_PREPARED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_PLAYBACK_SPEED_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_PLAYER_STATE_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .NOTIFY_SEEK_COMPLETED;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .SET_BUFFERED_POSITION_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .SET_CURRENT_MEDIA_ITEM_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .SET_CURRENT_POSITION_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .SET_DURATION_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.BaseMediaPlayerMethods
-        .SET_PLAYBACK_SPEED_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .NOTIFY_PLAYLIST_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .NOTIFY_PLAYLIST_METADATA_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .NOTIFY_REPEAT_MODE_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .NOTIFY_SHUFFLE_MODE_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .SET_PLAYLIST_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .SET_PLAYLIST_METADATA_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .SET_REPEAT_MODE_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.PlaylistAgentMethods
-        .SET_SHUFFLE_MODE_MANUALLY;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.CLOSE;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.NOTIFY_ERROR;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
-        .NOTIFY_ROUTES_INFO_CHANGED;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.SEND_CUSTOM_COMMAND;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
-        .SEND_CUSTOM_COMMAND_TO_ONE_CONTROLLER;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.SET_ALLOWED_COMMANDS;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.SET_CUSTOM_LAYOUT;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.UPDATE_PLAYER;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
+import static androidx.media.test.lib.MediaSession2Constants.CustomCommands.UPDATE_PLAYER;
+import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
         .UPDATE_PLAYER_WITH_VOLUME_PROVIDER;
 import static androidx.media.test.lib.MediaSession2Constants
         .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
@@ -125,6 +62,7 @@ import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.MediaPlaylistAgent;
 import androidx.media.MediaSession2;
+import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.SessionCommand2;
 import androidx.media.SessionCommandGroup2;
 import androidx.media.SessionToken2;
@@ -151,6 +89,9 @@ import java.util.concurrent.atomic.AtomicReference;
 @SmallTest
 public class MediaController2CallbackTest extends MediaSession2TestBase {
 
+    // Since ControllerInfo cannot be passed, we just pass null and the service app chooses the
+    // right controller by using the package name.
+    private static final ControllerInfo TEST_CONTROLLER_INFO = null;
     private MediaController2 mController;
 
     @Before
@@ -170,15 +111,19 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         // createController() uses controller callback to wait until the controller becomes
         // available.
-        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
+        MediaController2 controller = createController(mRemoteSession2.getToken());
         assertNotNull(controller);
     }
 
     @Test
     public void testConnection_sessionRejects() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(
-                mTestHelper.createMediaSession2(TEST_CONTROLLER_CALLBACK_SESSION_REJECTS),
+        RemoteMediaSession2 session2 =
+                new RemoteMediaSession2(TEST_CONTROLLER_CALLBACK_SESSION_REJECTS, mContext);
+        assertTrue(session2.connect(WAIT_TIME_MS));
+        session2.create();
+
+        MediaController2 controller = createController(session2.getToken(),
                 false /* waitForConnect */, null);
         assertNotNull(controller);
         waitForConnect(controller, false /* expected */);
@@ -188,16 +133,16 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testConnection_sessionClosed() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
+        MediaController2 controller = createController(mRemoteSession2.getToken());
 
-        mTestHelper.callMediaSession2Method(CLOSE, null);
+        mRemoteSession2.close();
         waitForDisconnect(controller, true);
     }
 
     @Test
     public void testConnection_controllerClosed() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
+        MediaController2 controller = createController(mRemoteSession2.getToken());
 
         controller.close();
         waitForDisconnect(controller, true);
@@ -207,7 +152,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @LargeTest
     public void testNoInteractionAfterSessionClose_session() throws InterruptedException {
         prepareLooper();
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+        SessionToken2 token = mRemoteSession2.getToken();
         mController = createController(token);
         testControllerAfterSessionIsClosed(token.getId());
     }
@@ -216,7 +161,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @LargeTest
     public void testNoInteractionAfterControllerClose_session() throws InterruptedException {
         prepareLooper();
-        final SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+        final SessionToken2 token = mRemoteSession2.getToken();
         mController = createController(token);
 
         mController.close();
@@ -236,7 +181,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_RING).build();
         final CountDownLatch latch = new CountDownLatch(3);
-        mController = createController(mTestHelper.createDefaultMediaSession2(),
+        mController = createController(mRemoteSession2.getToken(),
                 true /* waitForConnect */, new MediaController2.ControllerCallback() {
                     @Override
                     public void onPlayerStateChanged(MediaController2 controller, int state) {
@@ -269,29 +214,22 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                 KEY_PLAYLIST, MediaTestUtils.playlistToParcelableArrayList(testPlaylist));
         args.putBundle(KEY_AUDIO_ATTRIBUTES, testAudioAttributes.toBundle());
 
-        mTestHelper.callMediaSession2Method(UPDATE_PLAYER, args);
+        mRemoteSession2.runCustomTestCommands(UPDATE_PLAYER, args);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
     public void testOnCurrentMediaItemChanged() throws Exception {
         prepareLooper();
-        final SessionToken2 token =
-                mTestHelper.createMediaSession2("testOnCurrentMediaItemChanged");
-
         final int listSize = 5;
         final List<MediaItem2> list = MediaTestUtils.createPlaylist(listSize);
-
-        Bundle setPlaylistArgs = new Bundle();
-        setPlaylistArgs.putParcelableArrayList(
-                KEY_PLAYLIST, MediaTestUtils.playlistToParcelableArrayList(list));
-        mTestHelper.callMediaPlaylistAgentMethod(SET_PLAYLIST_MANUALLY, setPlaylistArgs);
+        mRemoteSession2.getMockPlaylistAgent().setPlaylistNewDsd(list);
 
         final int currentItemIndex = 3;
         final MediaItem2 currentItem = list.get(currentItemIndex);
         final CountDownLatch latchForControllerCallback = new CountDownLatch(2);
-        final MediaController2 controller = createController(
-                token, true, new MediaController2.ControllerCallback() {
+        MediaController2 controller = createController(
+                mRemoteSession2.getToken(), true, new MediaController2.ControllerCallback() {
                     @Override
                     public void onCurrentMediaItemChanged(MediaController2 controller,
                             MediaItem2 item) {
@@ -305,22 +243,14 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                         latchForControllerCallback.countDown();
                     }
                 });
-        Bundle args = new Bundle();
-
         // Player notifies with the unknown dsd. Should be ignored.
-        args.putInt(KEY_ITEM_INDEX, INDEX_FOR_UNKONWN_DSD);
-        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_CURRENT_DATA_SOURCE_CHANGED, args);
+        mRemoteSession2.getMockPlayer().notifyCurrentDataSourceChanged(INDEX_FOR_UNKONWN_DSD);
 
         // Known DSD should be notified through the onCurrentMediaItemChanged.
-        args.clear();
-        args.putInt(KEY_ITEM_INDEX, currentItemIndex);
-        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_CURRENT_DATA_SOURCE_CHANGED, args);
+        mRemoteSession2.getMockPlayer().notifyCurrentDataSourceChanged(currentItemIndex);
 
         // Null DSD becomes null MediaItem2.
-        args.clear();
-        args.putInt(KEY_ITEM_INDEX, INDEX_FOR_NULL_DSD);
-        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_CURRENT_DATA_SOURCE_CHANGED, args);
-
+        mRemoteSession2.getMockPlayer().notifyCurrentDataSourceChanged(INDEX_FOR_NULL_DSD);
         assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -331,15 +261,11 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     public void testOnPlaybackSpeedChanged() throws Exception {
         prepareLooper();
         final float speed = 1.5f;
-        final SessionToken2 token = mTestHelper.createDefaultMediaSession2();
-
-        Bundle setPlaybackSpeedArgs = new Bundle();
-        setPlaybackSpeedArgs.putFloat(KEY_SPEED, speed);
-        mTestHelper.callBaseMediaPlayerMethod(SET_PLAYBACK_SPEED_MANUALLY, setPlaybackSpeedArgs);
+        mRemoteSession2.getMockPlayer().setPlaybackSpeed(speed);
 
         final CountDownLatch latchForControllerCallback = new CountDownLatch(1);
-        final MediaController2 controller = createController(
-                token, true, new MediaController2.ControllerCallback() {
+        MediaController2 controller = createController(
+                mRemoteSession2.getToken(), true, new MediaController2.ControllerCallback() {
                     @Override
                     public void onPlaybackSpeedChanged(MediaController2 controller,
                             float speedOut) {
@@ -347,10 +273,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                         latchForControllerCallback.countDown();
                     }
                 });
-
-        Bundle args = new Bundle();
-        args.putFloat(KEY_SPEED, speed);
-        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_PLAYBACK_SPEED_CHANGED, args);
+        mRemoteSession2.getMockPlayer().notifyPlaybackSpeedChanged(speed);
         assertTrue(latchForControllerCallback.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
     }
@@ -361,7 +284,6 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPlaybackInfoChanged() throws Exception {
         prepareLooper();
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
 
         final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setContentType(CONTENT_TYPE_MUSIC)
@@ -383,14 +305,14 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        final MediaController2 controller = createController(token, true, callback);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
 
         Bundle args = new Bundle();
         args.putInt(KEY_MAX_VOLUME, maxVolume);
         args.putInt(KEY_CURRENT_VOLUME, currentVolume);
         args.putInt(KEY_VOLUME_CONTROL_TYPE, volumeControlType);
         args.putParcelable(KEY_AUDIO_ATTRIBUTES, attrs.toBundle());
-        mTestHelper.callMediaSession2Method(UPDATE_PLAYER_WITH_VOLUME_PROVIDER, args);
+        mRemoteSession2.runCustomTestCommands(UPDATE_PLAYER_WITH_VOLUME_PROVIDER, args);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         PlaybackInfo info = controller.getPlaybackInfo();
@@ -426,18 +348,10 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                         latch.countDown();
                     }
                 };
+        mRemoteSession2.getMockPlaylistAgent().setPlaylist(testList);
 
-        // Create a session.
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
-
-        Bundle setPlaylistArgs = new Bundle();
-        setPlaylistArgs.putParcelableArrayList(
-                KEY_PLAYLIST, MediaTestUtils.playlistToParcelableArrayList(testList));
-        mTestHelper.callMediaPlaylistAgentMethod(
-                PlaylistAgentMethods.SET_PLAYLIST_MANUALLY, setPlaylistArgs);
-
-        MediaController2 controller = createController(token, true, callback);
-        mTestHelper.callMediaPlaylistAgentMethod(NOTIFY_PLAYLIST_CHANGED, null);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.getMockPlaylistAgent().notifyPlaylistChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(listFromCallback.get(), controller.getPlaylist());
     }
@@ -445,29 +359,21 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPlaylistChanged_byPlayerNotifyMediaPrepared() throws Exception {
         prepareLooper();
-        final SessionToken2 token = mTestHelper.createDefaultMediaSession2();
 
         final long testDuration = 9999;
         final List<MediaItem2> playlist = MediaTestUtils.createPlaylist(2);
         final int testItemIndex = 1;
-        final MediaItem2 testItem = playlist.get(testItemIndex);
         final CountDownLatch latch = new CountDownLatch(1);
 
-        Bundle args = new Bundle();
-        args.putParcelableArrayList(
-                KEY_PLAYLIST, MediaTestUtils.playlistToParcelableArrayList(playlist));
-        mTestHelper.callMediaPlaylistAgentMethod(SET_PLAYLIST_MANUALLY, args);
+        RemoteMediaSession2.RemoteMockPlaylistAgent agent = mRemoteSession2.getMockPlaylistAgent();
+        agent.setPlaylistNewDsd(playlist);
+        agent.setCurrentMediaItem(testItemIndex);
 
-        args.clear();
-        args.putInt(KEY_ITEM_INDEX, testItemIndex);
-        mTestHelper.callMediaPlaylistAgentMethod(SET_CURRENT_MEDIA_ITEM_MANUALLY, args);
-
-        args.clear();
-        args.putLong(KEY_DURATION, testDuration);
-        mTestHelper.callBaseMediaPlayerMethod(SET_DURATION_MANUALLY, args);
+        RemoteMediaSession2.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
+        player.setDuration(testDuration);
 
         MediaController2 controller = createController(
-                token, true, new MediaController2.ControllerCallback() {
+                mRemoteSession2.getToken(), true, new MediaController2.ControllerCallback() {
                     @Override
                     public void onPlaylistChanged(MediaController2 controller,
                             List<MediaItem2> list, MediaMetadata2 metadata) {
@@ -476,7 +382,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
 
                         // The duration info should be passed through this callback.
                         MediaItem2 itemOut = list.get(testItemIndex);
-                        assertEquals(testItem.getMediaId(), itemOut.getMediaId());
+                        assertEquals(playlist.get(testItemIndex).getMediaId(),
+                                itemOut.getMediaId());
                         assertNotNull(itemOut.getMetadata());
                         assertEquals(testDuration,
                                 itemOut.getMetadata().getLong(METADATA_KEY_DURATION));
@@ -484,9 +391,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     }
                 });
 
-        Bundle notifyMediaPreparedArgs = new Bundle();
-        notifyMediaPreparedArgs.putInt(KEY_ITEM_INDEX, testItemIndex);
-        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_MEDIA_PREPARED, notifyMediaPreparedArgs);
+        player.notifyMediaPrepared(testItemIndex);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -510,16 +415,11 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                         latch.countDown();
                     }
                 };
+        RemoteMediaSession2.RemoteMockPlaylistAgent agent = mRemoteSession2.getMockPlaylistAgent();
+        agent.setPlaylistMetadata(testMetadata);
 
-        // Create a session.
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
-
-        Bundle setMetadataArgs = new Bundle();
-        setMetadataArgs.putBundle(KEY_PLAYLIST_METADATA, testMetadata.toBundle());
-        mTestHelper.callMediaPlaylistAgentMethod(SET_PLAYLIST_METADATA_MANUALLY, setMetadataArgs);
-
-        MediaController2 controller = createController(token, true, callback);
-        mTestHelper.callMediaPlaylistAgentMethod(NOTIFY_PLAYLIST_METADATA_CHANGED, null);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        agent.notifyPlaylistMetadataChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(metadataFromCallback.get().getMediaId(),
                 controller.getPlaylistMetadata().getMediaId());
@@ -536,6 +436,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPlaylistMetadataChanged_sessionSetPlaylist() throws InterruptedException {
         // TODO: Implement
+        // Create session with ID TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST.
     }
 
     /**
@@ -554,15 +455,11 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                         latch.countDown();
                     }
                 };
+        RemoteMediaSession2.RemoteMockPlaylistAgent agent = mRemoteSession2.getMockPlaylistAgent();
+        agent.setShuffleMode(testShuffleMode);
 
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
-
-        Bundle args = new Bundle();
-        args.putInt(KEY_SHUFFLE_MODE, testShuffleMode);
-        mTestHelper.callMediaPlaylistAgentMethod(SET_SHUFFLE_MODE_MANUALLY, args);
-
-        MediaController2 controller = createController(token, true, callback);
-        mTestHelper.callMediaPlaylistAgentMethod(NOTIFY_SHUFFLE_MODE_CHANGED, null);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        agent.notifyShuffleModeChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(testShuffleMode, controller.getShuffleMode());
     }
@@ -584,14 +481,11 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     }
                 };
 
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+        RemoteMediaSession2.RemoteMockPlaylistAgent agent = mRemoteSession2.getMockPlaylistAgent();
+        agent.setRepeatMode(testRepeatMode);
 
-        Bundle args = new Bundle();
-        args.putInt(KEY_REPEAT_MODE, testRepeatMode);
-        mTestHelper.callMediaPlaylistAgentMethod(SET_REPEAT_MODE_MANUALLY, args);
-
-        MediaController2 controller = createController(token, true, callback);
-        mTestHelper.callMediaPlaylistAgentMethod(NOTIFY_REPEAT_MODE_CHANGED, null);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        agent.notifyRepeatModeChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(testRepeatMode, controller.getRepeatMode());
     }
@@ -613,37 +507,30 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+        mRemoteSession2.getMockPlayer().setCurrentPosition(testPosition);
 
-        Bundle setCurrentPositionArgs = new Bundle();
-        setCurrentPositionArgs.putLong(KEY_CURRENT_POSITION, testPosition);
-        mTestHelper.callBaseMediaPlayerMethod(
-                SET_CURRENT_POSITION_MANUALLY, setCurrentPositionArgs);
-
-        final MediaController2 controller = createController(token, true, callback);
-
-        Bundle notifySeekCompletedArgs = new Bundle();
-        notifySeekCompletedArgs.putLong(KEY_SEEK_POSITION, testSeekPosition);
-        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_SEEK_COMPLETED, notifySeekCompletedArgs);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.getMockPlayer().notifySeekCompleted(testSeekPosition);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
     public void testOnBufferingStateChanged() throws InterruptedException {
         prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+
         final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(3);
         final int targetItemIndex = 0;
-        final MediaItem2 testItem = testPlaylist.get(targetItemIndex);
         final int testBufferingState = BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
-        final CountDownLatch latch = new CountDownLatch(1);
+
         final MediaController2.ControllerCallback callback =
                 new MediaController2.ControllerCallback() {
             @Override
             public void onBufferingStateChanged(MediaController2 controller, MediaItem2 item,
                     int state) {
                 controller.setTimeDiff(0L);
-                assertEquals(testItem.getMediaId(), item.getMediaId());
+                assertEquals(testPlaylist.get(targetItemIndex).getMediaId(), item.getMediaId());
                 assertEquals(testBufferingState, state);
                 assertEquals(testBufferingState, controller.getBufferingState());
                 assertEquals(testBufferingPosition, controller.getBufferedPosition());
@@ -651,26 +538,15 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+        mRemoteSession2.getMockPlaylistAgent().setPlaylistNewDsd(testPlaylist);
 
-        Bundle setPlaylistArgs = new Bundle();
-        setPlaylistArgs.putParcelableArrayList(KEY_PLAYLIST,
-                MediaTestUtils.playlistToParcelableArrayList(testPlaylist));
-        mTestHelper.callMediaPlaylistAgentMethod(SET_PLAYLIST_MANUALLY, setPlaylistArgs);
+        RemoteMediaSession2.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
+        player.setBufferedPosition(testBufferingPosition);
 
-        Bundle setBufferedPositionArgs = new Bundle();
-        setBufferedPositionArgs.putLong(KEY_BUFFERED_POSITION, testBufferingPosition);
-        mTestHelper.callBaseMediaPlayerMethod(SET_BUFFERED_POSITION_MANUALLY,
-                setBufferedPositionArgs);
-
-        final MediaController2 controller = createController(token, true, callback);
-        Bundle notifyBufferingStateChangedArgs = new Bundle();
-        notifyBufferingStateChangedArgs.putInt(KEY_BUFFERING_STATE, testBufferingState);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
         // Since we cannot pass the DataSourceDesc directly, send the item index so that the player
         // can select which item's state change should be notified.
-        notifyBufferingStateChangedArgs.putInt(KEY_ITEM_INDEX, targetItemIndex);
-        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_BUFFERED_STATE_CHANGED,
-                notifyBufferingStateChangedArgs);
+        player.notifyBufferingStateChanged(targetItemIndex, testBufferingState);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -692,19 +568,10 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+        mRemoteSession2.getMockPlayer().setCurrentPosition(testPosition);
 
-        Bundle setCurrentPositionArgs = new Bundle();
-        setCurrentPositionArgs.putLong(KEY_CURRENT_POSITION, testPosition);
-        mTestHelper.callBaseMediaPlayerMethod(
-                SET_CURRENT_POSITION_MANUALLY, setCurrentPositionArgs);
-
-        final MediaController2 controller = createController(token, true, callback);
-
-        Bundle notifyPlayerStateArgs = new Bundle();
-        notifyPlayerStateArgs.putInt(KEY_PLAYER_STATE, testPlayerState);
-        mTestHelper.callBaseMediaPlayerMethod(NOTIFY_PLAYER_STATE_CHANGED,
-                notifyPlayerStateArgs);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.getMockPlayer().notifyPlayerStateChanged(testPlayerState);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -725,13 +592,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        final MediaController2 controller =
-                createController(mTestHelper.createDefaultMediaSession2(), true, callback);
-
-        Bundle args = new Bundle();
-        args.putInt(KEY_ERROR_CODE, errorCode);
-        args.putBundle(KEY_EXTRAS, extras);
-        mTestHelper.callMediaSession2Method(NOTIFY_ERROR, args);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.notifyError(errorCode, extras);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -762,12 +624,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
-        final MediaController2 controller =
-                createController(mTestHelper.createDefaultMediaSession2(), true, callback);
-
-        Bundle args = new Bundle();
-        args.putBundle(KEY_COMMAND_GROUP, commands.toBundle());
-        mTestHelper.callMediaSession2Method(SET_ALLOWED_COMMANDS, args);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.setAllowedCommands(TEST_CONTROLLER_INFO, commands);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -790,18 +648,17 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                 latch.countDown();
             }
         };
-        final MediaController2 controller =
-                createController(mTestHelper.createDefaultMediaSession2(), true, callback);
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
 
         Bundle args = new Bundle();
         args.putBundle(KEY_CUSTOM_COMMAND, testCommand.toBundle());
         args.putBundle(KEY_ARGUMENTS, testArgs);
         // TODO(jaewan): Test with multiple controllers
-        mTestHelper.callMediaSession2Method(SEND_CUSTOM_COMMAND, args);
+        mRemoteSession2.sendCustomCommand(testCommand, testArgs);
 
         // TODO(jaewan): Test receivers as well.
         args.putParcelable(KEY_RESULT_RECEIVER, null);
-        mTestHelper.callMediaSession2Method(SEND_CUSTOM_COMMAND_TO_ONE_CONTROLLER, args);
+        mRemoteSession2.sendCustomCommand(TEST_CONTROLLER_INFO, testCommand, testArgs, null);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -831,12 +688,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
         final MediaController2 controller =
-                createController(mTestHelper.createDefaultMediaSession2(), true, callback);
-
-        Bundle args = new Bundle();
-        args.putParcelableArrayList(KEY_COMMAND_BUTTON_LIST,
-                MediaTestUtils.buttonListToParcelableArrayList(buttons));
-        mTestHelper.callMediaSession2Method(SET_CUSTOM_LAYOUT, args);
+                createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.setCustomLayout(TEST_CONTROLLER_INFO, buttons);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -854,24 +707,21 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
         final MediaController2 controller =
-                createController(mTestHelper.createDefaultMediaSession2(), true, callback);
-
-        Bundle args = new Bundle();
-        args.putBundle(KEY_ROUTE_LIST, null);
-        mTestHelper.callMediaSession2Method(NOTIFY_ROUTES_INFO_CHANGED, args);
+                createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.notifyRoutesInfoChanged(TEST_CONTROLLER_INFO, null /* routeList */);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     private void testControllerAfterSessionIsClosed(String id) throws InterruptedException {
         // This cause session service to be died.
-        mTestHelper.callMediaSession2Method(CLOSE, null);
+        mRemoteSession2.close();
         waitForDisconnect(mController, true);
         testNoInteraction();
 
         // Ensure that the controller cannot use newly create session with the same ID.
         // Recreated session has different session stub, so previously created controller
         // shouldn't be available.
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
+        SessionToken2 token = mRemoteSession2.getToken();
         assertEquals(id, token.getId());
         testNoInteraction();
     }
@@ -892,9 +742,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         });
         SessionCommand2 customCommand = new SessionCommand2("testNoInteraction", null);
 
-        Bundle args = new Bundle();
-        args.putBundle(KEY_CUSTOM_COMMAND, customCommand.toBundle());
-        mTestHelper.callMediaSession2Method(SEND_CUSTOM_COMMAND, args);
+        mRemoteSession2.sendCustomCommand(customCommand, null);
 
         assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         setRunnableForOnCustomCommand(mController, null);
