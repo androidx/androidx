@@ -101,9 +101,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
         context.checker.check(allStatic || constructors.isEmpty() || constructors.any {
             it.parameters.isEmpty()
         }, element, TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR)
-        return converterMethods.map {
-            processMethod(declaredType, it)
-        }.filterNotNull()
+        return converterMethods.mapNotNull { processMethod(declaredType, it) }
     }
 
     private fun processMethod(

@@ -56,8 +56,7 @@ class Checks(private val logger: RLog) {
         val failed = check(typeName !is TypeVariableName, element, errorMsg, args)
         if (typeName is ParameterizedTypeName) {
             val nestedFailure = typeName.typeArguments
-                    .map { notUnbound(it, element, errorMsg, args) }
-                    .any { it == true }
+                    .any { notUnbound(it, element, errorMsg, args) }
             return !(failed || nestedFailure)
         }
         return !failed

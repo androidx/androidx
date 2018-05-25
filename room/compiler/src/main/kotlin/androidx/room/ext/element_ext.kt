@@ -74,10 +74,10 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: Proces
 private val TO_LIST_OF_TYPES = object
     : SimpleAnnotationValueVisitor6<List<TypeMirror>, Void?>() {
     override fun visitArray(values: MutableList<out AnnotationValue>?, p: Void?): List<TypeMirror> {
-        return values?.map {
+        return values?.mapNotNull {
             val tmp = TO_TYPE.visit(it)
             tmp
-        }?.filterNotNull() ?: emptyList()
+        } ?: emptyList()
     }
 
     override fun defaultAction(o: Any?, p: Void?): List<TypeMirror>? {
@@ -144,9 +144,9 @@ private val ANNOTATION_VALUE_TO_STRING_VISITOR = object
 private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object
     : SimpleAnnotationValueVisitor6<List<String>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<String> {
-        return vals?.map {
+        return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_STRING_VISITOR.visit(it)
-        }?.filterNotNull() ?: emptyList()
+        } ?: emptyList()
     }
 }
 

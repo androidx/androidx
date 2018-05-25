@@ -839,7 +839,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                                         it.hasAnnotation(Query::class)
                                     }
                             )
-                        }.filter { it.second.isNotEmpty() }.first()
+                        }.first { it.second.isNotEmpty() }
                     val verifier = if (enableVerification) {
                         createVerifierFromEntities(invocation)
                     } else {
