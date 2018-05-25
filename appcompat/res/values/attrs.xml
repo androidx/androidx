@@ -1161,15 +1161,6 @@
         <attr name="allowStacking" format="boolean" />
     </declare-styleable>
 
-    <!-- Attributes that can be assigned to a ColorStateList item. -->
-    <declare-styleable name="ColorStateListItem">
-        <!-- Base color for this state. -->
-        <attr name="android:color" />
-        <!-- Alpha multiplier applied to the base color. -->
-        <attr name="alpha" format="float" />
-        <attr name="android:alpha"/>
-    </declare-styleable>
-
     <declare-styleable name="AppCompatImageView">
         <attr name="android:src"/>
         <!-- Sets a drawable as the content of this ImageView. Allows the use of vector drawable

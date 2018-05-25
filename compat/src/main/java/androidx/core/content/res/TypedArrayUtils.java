@@ -127,6 +127,33 @@ public class TypedArrayUtils {
     }
 
     /**
+     * Retrieves a complex color attribute value. In addition to the styleable resource ID, we also
+     * make sure that the attribute name matches.
+     *
+     * @return a complex color value form the {@link TypedArray} with the specified {@code resId},
+     * or containing {@code defaultValue} if it does not exist.
+     */
+    public static ComplexColorCompat getNamedComplexColor(@NonNull TypedArray a,
+            @NonNull XmlPullParser parser, @Nullable Resources.Theme theme,
+            @NonNull String attrName, @StyleableRes int resId, @ColorInt int defaultValue) {
+        if (hasAttribute(parser, attrName)) {
+            // first check if is a simple color
+            final TypedValue value = new TypedValue();
+            a.getValue(resId, value);
+            if (value.type >= TypedValue.TYPE_FIRST_COLOR_INT
+                    && value.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                return ComplexColorCompat.from(value.data);
+            }
+
+            // not a simple color, attempt to inflate complex types
+            final ComplexColorCompat complexColor = ComplexColorCompat.inflate(a.getResources(),
+                    a.getResourceId(resId, 0), theme);
+            if (complexColor != null) return complexColor;
+        }
+        return ComplexColorCompat.from(defaultValue);
+    }
+
+    /**
      * Retrieves a resource ID attribute value. In addition to the styleable resource ID, we also
      * make sure that the attribute name matches.
      *

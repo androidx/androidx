@@ -50,7 +50,6 @@
      <public type="attr" name="actionViewClass"/>
      <public type="attr" name="alertDialogStyle"/>
      <public type="attr" name="alertDialogTheme"/>
-     <public type="attr" name="alpha"/>
      <public type="attr" name="arrowHeadLength"/>
      <public type="attr" name="arrowShaftLength"/>
      <public type="attr" name="autoCompleteTextViewStyle"/>

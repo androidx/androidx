@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appcompat.content.res;
+package androidx.core.content.res;
 
 import java.lang.reflect.Array;
 
