@@ -1609,14 +1609,14 @@ public class MediaControlView2 extends BaseLayout {
             };
 
     void updateDuration() {
-        if (mController.hasMetadata()) {
+        if (mController != null && mController.hasMetadata()) {
             mDuration = mController.getDurationMs();
             setProgress();
         }
     }
 
     void updateTitle() {
-        if (mController.hasMetadata()) {
+        if (mController != null && mController.hasMetadata()) {
             mTitleView.setText(mController.getTitle());
         }
     }
