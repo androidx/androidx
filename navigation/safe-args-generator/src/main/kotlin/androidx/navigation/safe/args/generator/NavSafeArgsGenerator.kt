@@ -23,7 +23,7 @@ import java.io.File
 fun generateSafeArgs(
         rFilePackage: String, applicationId: String,
         navigationXml: File, outputDir: File): List<String> {
-    val rawDestination = parseNavigationFile(navigationXml, rFilePackage, applicationId)
+    val rawDestination = NavParser.parseNavigationFile(navigationXml, rFilePackage, applicationId)
     val resolvedDestination = resolveArguments(rawDestination)
     val javaFiles = mutableSetOf<JavaFile>()
     fun writeJavaFiles(destination: Destination) {
