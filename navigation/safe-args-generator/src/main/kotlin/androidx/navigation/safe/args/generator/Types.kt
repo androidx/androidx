@@ -29,24 +29,28 @@ enum class NavType {
         override fun typeName(): TypeName = TypeName.INT
         override fun bundlePutMethod() = "putInt"
         override fun bundleGetMethod() = "getInt"
+        override fun toString() = "integer"
     },
 
     FLOAT {
         override fun typeName(): TypeName = TypeName.FLOAT
         override fun bundlePutMethod() = "putFloat"
         override fun bundleGetMethod() = "getFloat"
+        override fun toString() = "float"
     },
 
     STRING {
         override fun typeName(): TypeName = ClassName.get(String::class.java)
         override fun bundlePutMethod() = "putString"
         override fun bundleGetMethod() = "getString"
+        override fun toString() = "string"
     },
 
     BOOLEAN {
         override fun typeName(): TypeName = TypeName.BOOLEAN
         override fun bundlePutMethod() = "putBoolean"
         override fun bundleGetMethod() = "getBoolean"
+        override fun toString() = "boolean"
     },
 
     REFERENCE {
@@ -56,18 +60,31 @@ enum class NavType {
 
         override fun bundlePutMethod() = "putInt"
         override fun bundleGetMethod() = "getInt"
+        override fun toString() = "reference"
     };
 
     abstract fun typeName(): TypeName
     abstract fun bundlePutMethod(): String
     abstract fun bundleGetMethod(): String
+
+    companion object {
+        fun from(name: String?) = when (name) {
+            "integer" -> NavType.INT
+            "float" -> NavType.FLOAT
+            "boolean" -> NavType.BOOLEAN
+            "reference" -> NavType.REFERENCE
+            "string" -> NavType.STRING
+            null -> NavType.STRING
+            else -> null
+        }
+    }
 }
 
 sealed class WriteableValue {
     abstract fun write(): CodeBlock
 }
 
-data class ReferenceValue(private val resReference: ResReference?) : WriteableValue() {
+data class ReferenceValue(private val resReference: ResReference) : WriteableValue() {
     override fun write(): CodeBlock = CodeBlock.of(resReference.accessor())
 }
 

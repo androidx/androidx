@@ -31,8 +31,6 @@ sourceSets {
 dependencies {
     compile(XPP3)
     compile(XMLPULL)
-    compile(XPP3)
-    compile(XMLPULL)
     compile(KOTLIN_STDLIB)
 
     compile(JAVAPOET)
