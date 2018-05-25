@@ -285,7 +285,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                                                                     annotation.java)
                                                         }
                                         )
-                                    }.filter { it.second.isNotEmpty() }.first()
+                                    }.first { it.second.isNotEmpty() }
                             val processed = process(
                                     baseContext = invocation.context,
                                     containing = MoreTypes.asDeclared(owner.asType()),

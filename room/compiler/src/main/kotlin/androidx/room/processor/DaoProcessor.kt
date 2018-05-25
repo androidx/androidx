@@ -139,12 +139,10 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
                 .filter { it.kind == ElementKind.CONSTRUCTOR }
                 .map { MoreElements.asExecutable(it) }
         val typeUtils = context.processingEnv.typeUtils
-        val goodConstructor = constructors
-                .filter {
-                    it.parameters.size == 1
-                            && typeUtils.isAssignable(dbType, it.parameters[0].asType())
-                }
-                .firstOrNull()
+        val goodConstructor = constructors.firstOrNull {
+            it.parameters.size == 1
+                    && typeUtils.isAssignable(dbType, it.parameters[0].asType())
+        }
         val constructorParamType = if (goodConstructor != null) {
             goodConstructor.parameters[0].asType().typeName()
         } else {

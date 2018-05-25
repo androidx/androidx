@@ -338,9 +338,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     private fun fieldsByName(entity: Pojo, vararg fieldNames: String): List<Field> {
-        return fieldNames
-                .map { name -> entity.fields.find { it.name == name } }
-                .filterNotNull()
+        return fieldNames.mapNotNull { name -> entity.fields.find { it.name == name } }
     }
 
     @Test
@@ -1186,7 +1184,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             public String id;
             @PrimaryKey
             public String anotherId;
-            """) { entity, _ ->
+            """) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("id"))
                 .and().withErrorContaining(ProcessorErrors.primaryKeyNull("anotherId"))
     }
@@ -1200,7 +1198,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             public String id;
             @PrimaryKey
             public String anotherId;
-            """) { entity, _ ->
+            """) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("anotherId"))
     }
 
@@ -1864,6 +1862,8 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format(
                         "foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
     }
+
+    @Test
     fun okTableName() {
         val annotation = mapOf("tableName" to "\"foo bar\"")
         singleEntity(

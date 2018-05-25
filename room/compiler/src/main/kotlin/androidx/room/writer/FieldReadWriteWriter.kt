@@ -226,14 +226,14 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                                 scope = scope)
                     }
                     // assign sub modes to fields if they were not part of the constructor.
-                    node.subNodes.map {
+                    node.subNodes.mapNotNull {
                         val setter = it.fieldParent?.setter
                         if (setter != null && setter.callType != CallType.CONSTRUCTOR) {
                             Pair(it.varName, setter)
                         } else {
                             null
                         }
-                    }.filterNotNull().forEach { (varName, setter) ->
+                    }.forEach { (varName, setter) ->
                         setter.writeSet(
                                 ownerVar = node.varName,
                                 inVar = varName,
