@@ -840,31 +840,6 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
             mControllerCompatCallback = new ControllerCompatCallback();
             mControllerCompat.registerCallback(mControllerCompatCallback, mHandler);
         }
-
-        if (controllerCompat.isSessionReady()) {
-            sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
-                @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    if (!mHandlerThread.isAlive()) {
-                        return;
-                    }
-                    switch (resultCode) {
-                        case CONNECT_RESULT_CONNECTED:
-                            onConnectedNotLocked(resultData);
-                            break;
-                        case CONNECT_RESULT_DISCONNECTED:
-                            mCallbackExecutor.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mCallback.onDisconnected(mInstance);
-                                }
-                            });
-                            close();
-                            break;
-                    }
-                }
-            });
-        }
     }
 
     private void connectToService() {
