@@ -16,10 +16,20 @@
 
 package androidx.car.moderator;
 
+import android.app.Activity;
+import android.car.Car;
+import android.car.CarNotConnectedException;
 import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.CarUxRestrictionsManager;
+import android.car.settings.CarConfigurationManager;
+import android.car.settings.SpeedBumpConfiguration;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.ServiceConnection;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Handler;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,14 +37,16 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
 import androidx.car.R;
-import androidx.car.utils.CarUxRestrictionsHelper;
 
 /**
  * A controller for the actual monitoring of when interaction should be allowed in a
  * {@link SpeedBumpView}.
  */
 class SpeedBumpController {
+    private static final String TAG = "SpeedBumpController";
+
     /**
      * The number of permitted actions that are acquired per second that the user has not
      * interacted with the {@code SpeedBumpView}.
@@ -65,7 +77,8 @@ class SpeedBumpController {
     private final View mLockoutMessageView;
     private final ImageView mLockoutImageView;
 
-    private final CarUxRestrictionsHelper mUxRestrictionsHelper;
+    @Nullable private final Car mCar;
+    @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
 
     /**
      * Creates the {@code SpeedBumpController} and associate it with the given
@@ -81,25 +94,55 @@ class SpeedBumpController {
         mLockOutMessageDurationMs =
                 mContext.getResources().getInteger(R.integer.speed_bump_lock_out_duration_ms);
 
-        mUxRestrictionsHelper = new CarUxRestrictionsHelper(mContext,
-                carUxRestrictions -> updateUnlimitedModeEnabled(carUxRestrictions));
+        mCar = Car.createCar(mContext, mServiceConnection);
 
         // By default, no limiting until UXR restrictions kick in.
         mContentRateLimiter.setUnlimitedMode(true);
     }
 
     /**
-     * Starts this {@code SpeedBumpController} for monitoring any changes in driving restrictions.
+     * Starts monitoring any changes in {@link CarUxRestrictions}.
+     *
+     * <p>This method can be called from {@code Activity}'s {@link Activity#onStart()}, or at the
+     * time of construction.
+     *
+     * <p>This method must be accompanied with a matching {@link #stop()} to avoid leak.
      */
     void start() {
-        mUxRestrictionsHelper.start();
+        try {
+            if (mCar != null && !mCar.isConnected()) {
+                mCar.connect();
+            }
+        } catch (IllegalStateException e) {
+            // Do nothing.
+            Log.w(TAG, "start(); cannot connect to Car");
+        }
     }
 
     /**
-     * Stops this {@code SpeedBumpController} from monitoring any changes in driving restrictions.
+     * Stops monitoring any changes in {@link CarUxRestrictions}.
+     *
+     * <p>This method should be called from {@code Activity}'s {@link Activity#onStop()}, or at the
+     * time of this adapter being discarded.
      */
     void stop() {
-        mUxRestrictionsHelper.stop();
+        if (mCarUxRestrictionsManager != null) {
+            try {
+                mCarUxRestrictionsManager.unregisterListener();
+            } catch (CarNotConnectedException e) {
+                // Do nothing.
+                Log.w(TAG, "stop(); cannot unregister listener.");
+            }
+            mCarUxRestrictionsManager = null;
+        }
+        try {
+            if (mCar != null && mCar.isConnected()) {
+                mCar.disconnect();
+            }
+        } catch (IllegalStateException e) {
+            // Do nothing.
+            Log.w(TAG, "stop(); cannot disconnect from Car.");
+        }
     }
 
     /**
@@ -213,4 +256,37 @@ class SpeedBumpController {
         // If driver optimization is not required, then there is no need to limit anything.
         mContentRateLimiter.setUnlimitedMode(!restrictions.isRequiresDistractionOptimization());
     }
+
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            try {
+                mCarUxRestrictionsManager = (CarUxRestrictionsManager)
+                        mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
+                mCarUxRestrictionsManager.registerListener(
+                        SpeedBumpController.this::updateUnlimitedModeEnabled);
+
+                updateUnlimitedModeEnabled(mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
+
+                CarConfigurationManager configManager = (CarConfigurationManager)
+                        mCar.getCarManager(Car.CAR_CONFIGURATION_SERVICE);
+                SpeedBumpConfiguration speedBumpConfiguration =
+                        configManager.getSpeedBumpConfiguration();
+
+                mContentRateLimiter.setAcquiredPermitsRate(
+                        speedBumpConfiguration.getAcquiredPermitsPerSecond());
+                mContentRateLimiter.setMaxStoredPermits(
+                        speedBumpConfiguration.getMaxPermitPool());
+                mContentRateLimiter.setPermitFillDelay(
+                        speedBumpConfiguration.getPermitFillDelay());
+            } catch (CarNotConnectedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mCarUxRestrictionsManager = null;
+        }
+    };
 }
