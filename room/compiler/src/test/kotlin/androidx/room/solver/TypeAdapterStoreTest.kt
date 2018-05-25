@@ -298,7 +298,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun findDataSourceFactory() {
-        simpleRun(jfos = COMMON.DATA_SOURCE_FACTORY) {
+        simpleRun(jfos = *arrayOf(COMMON.DATA_SOURCE_FACTORY)) {
             invocation ->
             val pagedListProvider = invocation.processingEnv.elementUtils
                     .getTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY.toString())

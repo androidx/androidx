@@ -31,7 +31,7 @@ private fun String.toCamelCaseAsVar(): String {
 private fun List<String>.joinToCamelCase(): String = when (size) {
     0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
     1 -> this[0].toCamelCase()
-    else -> this.map { it.toCamelCase() }.joinToString("")
+    else -> this.joinToString("") { it.toCamelCase() }
 }
 
 private fun List<String>.joinToCamelCaseAsVar(): String = when (size) {

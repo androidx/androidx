@@ -296,7 +296,7 @@ class QueryWriterTest {
                                                                     Query::class.java)
                                                         }
                                         )
-                                    }.filter { it.second.isNotEmpty() }.first()
+                                    }.first { it.second.isNotEmpty() }
                             val parser = QueryMethodProcessor(
                                     baseContext = invocation.context,
                                     containing = MoreTypes.asDeclared(owner.asType()),
