@@ -25,6 +25,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import androidx.work.Configuration;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
@@ -45,9 +46,9 @@ public class SystemJobScheduler implements Scheduler {
     private final JobScheduler mJobScheduler;
     private final SystemJobInfoConverter mSystemJobInfoConverter;
 
-    public SystemJobScheduler(Context context) {
+    public SystemJobScheduler(@NonNull Context context, @NonNull Configuration configuration) {
         this((JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE),
-                new SystemJobInfoConverter(context));
+                new SystemJobInfoConverter(context, configuration));
     }
 
     @VisibleForTesting

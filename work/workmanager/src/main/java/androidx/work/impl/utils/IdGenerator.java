@@ -27,11 +27,14 @@ import android.support.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IdGenerator {
+
+    /** The initial id used for JobInfos, Firebase Jobs & and Alarms. */
+    public static final int INITIAL_ID = 0;
+
     static final String PREFERENCE_FILE_KEY = "androidx.work.util.id";
     static final String NEXT_JOB_SCHEDULER_ID_KEY = "next_job_scheduler_id";
     static final String NEXT_FIREBASE_ALARM_ID_KEY = "next_firebase_alarm_id";
     static final String NEXT_ALARM_MANAGER_ID_KEY = "next_alarm_manager_id";
-    static final int INITIAL_ID = 0;
 
     private SharedPreferences mSharedPrefs;
 
@@ -45,11 +48,17 @@ public class IdGenerator {
     }
 
     /**
-     * Generates IDs for {@link android.app.job.JobScheduler} jobs.
+     * Generates IDs for {@link android.app.job.JobInfo} jobs given a reserved range.
      */
-    public int nextJobSchedulerId() {
+    public int nextJobSchedulerIdWithRange(int minInclusive, int maxInclusive) {
         synchronized (IdGenerator.class) {
-            return nextId(NEXT_JOB_SCHEDULER_ID_KEY);
+            int id = nextId(NEXT_JOB_SCHEDULER_ID_KEY);
+            if (id < minInclusive || id > maxInclusive) {
+                // outside the range, re-start at minInclusive.
+                id = minInclusive;
+                update(NEXT_JOB_SCHEDULER_ID_KEY, id + 1);
+            }
+            return id;
         }
     }
 
@@ -80,7 +89,11 @@ public class IdGenerator {
     private int nextId(String key) {
         int id = mSharedPrefs.getInt(key, INITIAL_ID);
         int nextId = (id == Integer.MAX_VALUE) ? INITIAL_ID : id + 1;
-        mSharedPrefs.edit().putInt(key, nextId).apply();
+        update(key, nextId);
         return id;
+    }
+
+    private void update(String key, int value) {
+        mSharedPrefs.edit().putInt(key, value).apply();
     }
 }

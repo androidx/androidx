@@ -16,12 +16,16 @@
 
 package androidx.work.impl.utils;
 
+import static androidx.work.impl.utils.IdGenerator.INITIAL_ID;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import static java.lang.Integer.MAX_VALUE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -57,22 +61,50 @@ public class IdGeneratorTest {
 
     @Test
     public void testNextId_returnsInitialIdWhenNoStoredNextId() {
-        assertThat(mIdGenerator.nextJobSchedulerId(), is(IdGenerator.INITIAL_ID));
+        int nextId = mIdGenerator.nextJobSchedulerIdWithRange(INITIAL_ID, MAX_VALUE);
+        assertThat(nextId, is(INITIAL_ID));
     }
 
     @Test
     public void testNextId_returnsStoredNextId() {
         int expectedId = 100;
         storeNextIdInSharedPrefs(expectedId);
-        assertThat(mIdGenerator.nextJobSchedulerId(), is(expectedId));
+        int nextId = mIdGenerator.nextJobSchedulerIdWithRange(INITIAL_ID, MAX_VALUE);
+        assertThat(nextId, is(expectedId));
     }
 
     @Test
     public void testNextId_returnsInitialIdAfterReturningMaxInteger() {
-        int expectedId = Integer.MAX_VALUE;
+        int expectedId = MAX_VALUE;
         storeNextIdInSharedPrefs(expectedId);
-        assertThat(mIdGenerator.nextJobSchedulerId(), is(expectedId));
-        assertThat(mIdGenerator.nextJobSchedulerId(), is(IdGenerator.INITIAL_ID));
+        int nextId = mIdGenerator.nextJobSchedulerIdWithRange(INITIAL_ID, MAX_VALUE);
+        assertThat(nextId, is(MAX_VALUE));
+        nextId = mIdGenerator.nextJobSchedulerIdWithRange(INITIAL_ID, MAX_VALUE);
+        assertThat(nextId, is(INITIAL_ID));
+    }
+
+    @Test
+    public void testNextId_belowMinRange() {
+        storeNextIdInSharedPrefs(2);
+        assertThat(mIdGenerator.nextJobSchedulerIdWithRange(10, 100), is(10));
+    }
+
+    @Test
+    public void testNextId_aboveMaxRange() {
+        storeNextIdInSharedPrefs(100);
+        assertThat(mIdGenerator.nextJobSchedulerIdWithRange(10, 100), is(100));
+    }
+
+    @Test
+    public void testNextId_aboveMaxRange2() {
+        storeNextIdInSharedPrefs(110);
+        assertThat(mIdGenerator.nextJobSchedulerIdWithRange(10, 100), is(10));
+    }
+
+    @Test
+    public void testNextId_withinRange() {
+        storeNextIdInSharedPrefs(20);
+        assertThat(mIdGenerator.nextJobSchedulerIdWithRange(10, 100), is(20));
     }
 
     /**
