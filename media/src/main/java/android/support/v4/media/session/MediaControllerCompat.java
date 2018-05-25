@@ -42,6 +42,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -819,7 +820,7 @@ public final class MediaControllerCompat {
 
         @Override
         public void binderDied() {
-            onSessionDestroyed();
+            postToHandler(MessageHandler.MSG_DESTROYED, null, null);
         }
 
         /**
@@ -846,6 +847,7 @@ public final class MediaControllerCompat {
             }
         }
 
+        // Callback methods in this class are run on handler which was given to registerCallback().
         private static class StubApi21 implements MediaControllerCompatApi21.Callback {
             private final WeakReference<MediaControllerCompat.Callback> mCallback;
 
@@ -1467,9 +1469,10 @@ public final class MediaControllerCompat {
             try {
                 mBinder.asBinder().linkToDeath(callback, 0);
                 mBinder.registerCallbackListener((IMediaControllerCallback) callback.mCallbackObj);
+                callback.postToHandler(Callback.MessageHandler.MSG_SESSION_READY, null, null);
             } catch (RemoteException e) {
                 Log.e(TAG, "Dead object in registerCallback.", e);
-                callback.onSessionDestroyed();
+                callback.postToHandler(Callback.MessageHandler.MSG_DESTROYED, null, null);
             }
         }
 
@@ -1939,6 +1942,9 @@ public final class MediaControllerCompat {
     static class MediaControllerImplApi21 implements MediaControllerImpl {
         protected final Object mControllerObj;
 
+        private final Object mLock = new Object();
+
+        @GuardedBy("mLock")
         private final List<Callback> mPendingCallbacks = new ArrayList<>();
 
         private HashMap<Callback, ExtraCallback> mCallbackMap = new HashMap<>();
@@ -1960,17 +1966,19 @@ public final class MediaControllerCompat {
         public final void registerCallback(Callback callback, Handler handler) {
             MediaControllerCompatApi21.registerCallback(
                     mControllerObj, callback.mCallbackObj, handler);
-            if (mSessionToken.getExtraBinder() != null) {
-                ExtraCallback extraCallback = new ExtraCallback(callback);
-                mCallbackMap.put(callback, extraCallback);
-                callback.mIControllerCallback = extraCallback;
-                try {
-                    mSessionToken.getExtraBinder().registerCallbackListener(extraCallback);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Dead object in registerCallback.", e);
-                }
-            } else {
-                synchronized (mPendingCallbacks) {
+            synchronized (mLock) {
+                if (mSessionToken.getExtraBinder() != null) {
+                    ExtraCallback extraCallback = new ExtraCallback(callback);
+                    mCallbackMap.put(callback, extraCallback);
+                    callback.mIControllerCallback = extraCallback;
+                    try {
+                        mSessionToken.getExtraBinder().registerCallbackListener(extraCallback);
+                        callback.postToHandler(
+                                Callback.MessageHandler.MSG_SESSION_READY, null, null);
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "Dead object in registerCallback.", e);
+                    }
+                } else {
                     callback.mIControllerCallback = null;
                     mPendingCallbacks.add(callback);
                 }
@@ -1980,18 +1988,19 @@ public final class MediaControllerCompat {
         @Override
         public final void unregisterCallback(Callback callback) {
             MediaControllerCompatApi21.unregisterCallback(mControllerObj, callback.mCallbackObj);
-            if (mSessionToken.getExtraBinder() != null) {
-                try {
-                    ExtraCallback extraCallback = mCallbackMap.remove(callback);
-                    if (extraCallback != null) {
-                        callback.mIControllerCallback = null;
-                        mSessionToken.getExtraBinder().unregisterCallbackListener(extraCallback);
+            synchronized (mLock) {
+                if (mSessionToken.getExtraBinder() != null) {
+                    try {
+                        ExtraCallback extraCallback = mCallbackMap.remove(callback);
+                        if (extraCallback != null) {
+                            callback.mIControllerCallback = null;
+                            mSessionToken.getExtraBinder().unregisterCallbackListener(
+                                    extraCallback);
+                        }
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "Dead object in unregisterCallback.", e);
                     }
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Dead object in unregisterCallback.", e);
-                }
-            } else {
-                synchronized (mPendingCallbacks) {
+                } else {
                     mPendingCallbacks.remove(callback);
                 }
             }
@@ -2183,25 +2192,24 @@ public final class MediaControllerCompat {
             sendCommand(COMMAND_GET_EXTRA_BINDER, null, new ExtraBinderRequestResultReceiver(this));
         }
 
-        private void processPendingCallbacks() {
+        @GuardedBy("mLock")
+        private void processPendingCallbacksLocked() {
             if (mSessionToken.getExtraBinder() == null) {
                 return;
             }
-            synchronized (mPendingCallbacks) {
-                for (Callback callback : mPendingCallbacks) {
-                    ExtraCallback extraCallback = new ExtraCallback(callback);
-                    mCallbackMap.put(callback, extraCallback);
-                    callback.mIControllerCallback = extraCallback;
-                    try {
-                        mSessionToken.getExtraBinder().registerCallbackListener(extraCallback);
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "Dead object in registerCallback.", e);
-                        break;
-                    }
-                    callback.onSessionReady();
+            for (Callback callback : mPendingCallbacks) {
+                ExtraCallback extraCallback = new ExtraCallback(callback);
+                mCallbackMap.put(callback, extraCallback);
+                callback.mIControllerCallback = extraCallback;
+                try {
+                    mSessionToken.getExtraBinder().registerCallbackListener(extraCallback);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in registerCallback.", e);
+                    break;
                 }
-                mPendingCallbacks.clear();
+                callback.postToHandler(Callback.MessageHandler.MSG_SESSION_READY, null, null);
             }
+            mPendingCallbacks.clear();
         }
 
         private static class ExtraBinderRequestResultReceiver extends ResultReceiver {
@@ -2218,11 +2226,16 @@ public final class MediaControllerCompat {
                 if (mediaControllerImpl == null || resultData == null) {
                     return;
                 }
-                mediaControllerImpl.mSessionToken.setExtraBinder(IMediaSession.Stub.asInterface(
-                        BundleCompat.getBinder(resultData, MediaSessionCompat.KEY_EXTRA_BINDER)));
-                mediaControllerImpl.mSessionToken.setSessionToken2(SessionToken2.fromBundle(
-                        resultData.getBundle(MediaSessionCompat.KEY_SESSION_TOKEN2)));
-                mediaControllerImpl.processPendingCallbacks();
+                synchronized (mediaControllerImpl.mLock) {
+                    mediaControllerImpl.mSessionToken.setExtraBinder(
+                            IMediaSession.Stub.asInterface(
+                                    BundleCompat.getBinder(
+                                            resultData, MediaSessionCompat.KEY_EXTRA_BINDER)));
+                    mediaControllerImpl.mSessionToken.setSessionToken2(
+                            SessionToken2.fromBundle(
+                                    resultData.getBundle(MediaSessionCompat.KEY_SESSION_TOKEN2)));
+                    mediaControllerImpl.processPendingCallbacksLocked();
+                }
             }
         }
 
