@@ -51,147 +51,119 @@ import java.util.concurrent.Executor;
  * <li><a href="#PlayerStates">Player states</a>
  * <li><a href="#Valid_and_Invalid_States">Valid and Invalid States</a>
  * <li><a href="#Permissions">Permissions</a>
- * <li><a href="#Callbacks">Register informational and error callbacks</a>
+ * <li><a href="#callbacks">Callbacks</a>
  * </ol>
  *
- * <a name="PlayerStates"></a>
- * <h3>Player states</h3>
+ *
+ * <h3 id="PlayerStates">Player states</h3>
  *
  * <p>Playback control of audio/video files and streams is managed as a state
- * machine. MediaPlayer2 object has the following states:</p>
- * <ul>
- *     <li>{@link #MEDIAPLAYER2_STATE_IDLE}: When a MediaPlayer2 object is just created using
- *         {@link #create()} or after {@link #reset()} is called, it is in the <strong>Idle</strong>
- *         state; and Once {@link #close()} is called, it can no longer be used and there is no way
- *         to bring it back to any other state.
- *         <ul>
- *         <li>Calling {@link #setDataSource(DataSourceDesc)} and {@link #prepare()} transfers a
- *         MediaPlayer2 object in the <strong>Idle</strong> state to the <strong>Prepared</strong>
- *         state. It is good programming practice to register a event callback for
- *         {@link EventCallback#onCallCompleted} and
- *         look out for {@link #CALL_STATUS_BAD_VALUE} and {@link #CALL_STATUS_ERROR_IO} that may be
- *         caused from {@link #setDataSource}.
- *         </li>
- *         <li>It is also recommended that once
- *         a MediaPlayer2 object is no longer being used, call {@link #close()} immediately
- *         so that resources used by the internal player engine associated with the
- *         MediaPlayer2 object can be released immediately. Resource may include
- *         singleton resources such as hardware acceleration components and
- *         failure to call {@link #close()} may cause subsequent instances of
- *         MediaPlayer2 objects to fallback to software implementations or fail
- *         altogether. </li>
- *         </ul>
- *         </li>
- *     <li>{@link #MEDIAPLAYER2_STATE_ERROR}: In general, some playback control operation may fail
- *         due to various
- *         reasons, such as unsupported audio/video format, poorly interleaved
- *         audio/video, resolution too high, streaming timeout, and the like.
- *         Thus, error reporting and recovery is an important concern under
- *         these circumstances. Sometimes, due to programming errors, invoking a playback
- *         control operation in an invalid state may also occur. Under all these
- *         error conditions, the player goes to <strong>Error</strong> state and invokes a user
- *         supplied {@link EventCallback#onError}} method if an event callback has been
- *         registered beforehand via {@link #setEventCallback}.
- *         <ul>
- *         <li>It is important to note that once an error occurs, the
- *         MediaPlayer2 object enters the <strong>Error</strong> state (except as noted
- *         above), even if a callback has not been registered by the application.</li>
- *         <li>In order to reuse a MediaPlayer2 object that is in the <strong>
- *         Error</strong> state and recover from the error,
- *         {@link #reset()} can be called to restore the object to its <strong>Idle</strong>
- *         state.</li>
- *         <li>It is good programming practice to have your application
- *         register an {@link EventCallback} to look out for error callbacks from
- *         the internal player engine.</li>
- *         <li> {@link EventCallback#onCallCompleted} is called with
- *         {@link #CALL_STATUS_INVALID_OPERATION} on programming errors such as calling
- *         {@link #prepare()} and {@link #setDataSource(DataSourceDesc)} methods in an invalid
- *         state. </li>
- *         </ul>
- *         </li>
- *     <li>{@link #MEDIAPLAYER2_STATE_PREPARED}: A MediaPlayer object must first enter the
- *         <strong>Prepared</strong> state before playback can be started.
- *         <ul>
- *         <li>The <strong>Paused</strong> state can be reached by calling {@link #prepare()}. Note
+ * machine. MediaPlayer2 object has the following five states:</p>
+ * <ol>
+ *     <li><p>{@link #MEDIAPLAYER2_STATE_IDLE}: MediaPlayer2 is in the <strong>Idle</strong>
+ *         state after you create it using
+ *         {@link #create()}, or after calling {@link #reset()}.</p>
+ *
+ *         <p>While in this state, you should call
+ *         {@link #setDataSource(DataSourceDesc) setDataSource()}. It is a good
+ *         programming practice to register an {@link EventCallback#onCallCompleted onCallCompleted}
+ *         <a href="#callback">callback</a> and watch for {@link #CALL_STATUS_BAD_VALUE} and
+ *         {@link #CALL_STATUS_ERROR_IO}, which might be caused by <code>setDataSource</code>.
+ *         </p>
+ *
+ *         <p>Calling {@link #prepare()} transfers a MediaPlayer2 object to
+ *         the <strong>Prepared</strong> state. Note
  *         that {@link #prepare()} is asynchronous. When the preparation completes,
- *         the internal player engine then calls a user supplied callback method,
- *         {@link EventCallback#onInfo} interface with {@link #MEDIA_INFO_PREPARED},
- *         if a MediaPlayer2EventCallback is registered beforehand via
- *         {@link #setEventCallback(Executor, EventCallback)}.</li>
- *         <li>While in the <em>Prepared</em> state, properties
- *         such as audio/sound volume, screenOnWhilePlaying, looping can be
- *         adjusted by invoking the corresponding set methods.</li>
+ *         If you register a {@link EventCallback#onInfo} <a href="#callback">callback</a>
+ *         the player executes the callback
+ *         with {@link #MEDIA_INFO_PREPARED} before transitioning to the
+ *         <strong>Prepared</strong> state.</p>
+ *         </li>
+ *
+ *     <li>{@link #MEDIAPLAYER2_STATE_PREPARED}: A MediaPlayer object must be in the
+ *         <strong>Prepared</strong> state before playback can be started for the first time.
+ *         While in this state, you can set player properties
+ *         such as audio/sound volume and looping by invoking the corresponding set methods.
+ *         Calling {@link #play()} transfers a MediaPlayer2 object to
+ *         the <strong>Playing</strong> state.
+ *      </li>
+ *
+ *     <li>{@link #MEDIAPLAYER2_STATE_PLAYING}:
+ *         <p>The player plays the data source while in this state.
+ *         If you register an {@link EventCallback#onInfo} <a href="#callback">callback</a>
+ *         the player regularly executes the callback with
+ *         {@link #MEDIA_INFO_BUFFERING_UPDATE}.
+ *         This allows applications to keep track of the buffering status
+ *         while streaming audio/video.</p>
+ *
+ *         <p> When the playback reaches the end of stream, the behavior depends on whether or
+ *         not you've enabled looping by calling {@link #loopCurrent(boolean)}:</p>
+ *         <ul>
+ *         <li>If the looping mode was set to <code>false</code> the player will transfer
+ *         to the <strong>Paused</strong> state. If you registered an {@link EventCallback#onInfo}
+ *         <a href="#callback">callback</a>
+ *         the player calls the callback with {@link #MEDIA_INFO_PLAYBACK_COMPLETE} before entering
+ *         the <strong>Paused</strong> state.
+ *         </li>
+ *         <li>If the looping mode was set to <code>true</code>,
+ *         the MediaPlayer2 object remains in the <strong>Playing</strong> state and replays its
+ *         data source from the beginning.</li>
  *         </ul>
  *         </li>
- *     <li>{@link #MEDIAPLAYER2_STATE_PLAYING}: To start the playback, {@link #play()} must be
- *         called. Once {@link #play()} is processed
- *         successfully by the internal media engine, <strong>Playing</strong> state will be
- *         notified with {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged}
- *         callback.
- *         In addition to the callback, {@link #getState()} can be called to test
- *         whether the MediaPlayer2 object is in the <strong>Started</strong> state.
- *         <ul>
- *         <li>While in the <strong>Playing</strong> state, the internal player engine calls
- *         a user supplied callback method EventCallback.onInfo() with
- *         {@link #MEDIA_INFO_BUFFERING_UPDATE} if an EventCallback has been
- *         registered beforehand via
- *         {@link #setEventCallback(Executor, EventCallback)}.
- *         This callback allows applications to keep track of the buffering status
- *         while streaming audio/video.</li>
- *         <li>Calling {@link #play()} has not effect
- *         on a MediaPlayer2 object that is already in the <strong>Playing</strong> state.</li>
- *         </ul>
- *         </li>
- *     <li>{@link #MEDIAPLAYER2_STATE_PAUSED}: Playback can be paused via {@link #pause()}. Note
- *         that {@link #pause()} is asynchronous. Once {@link #pause()} is processed successfully by
- *         the internal media engine, <strong>Paused</strong> state will be notified with
- *         {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged} callback.
- *         In addition to the callback, {@link #getState()} can also be used to test
- *         whether the MediaPlayer2 object is in the <strong>Paused</strong> state.
- *         <ul>
- *         <li>Calling {@link #play()} to resume playback for a paused
- *         MediaPlayer object, and the resumed playback
- *         position is the same as where it was paused. When {@link #play()} is processed
- *         successfully, the paused MediaPlayer object goes back to the <em>Playing</em> state.</li>
- *         <li>Calling {@link #pause()} has no effect on
- *         a MediaPlayer object that is already in the <em>Paused</em> state.</li>
- *         </ul>
- *         </li>
- *     <li>The playback position can be adjusted with a call to {@link #seekTo}.
- *         <ul>
- *         <li>Although the asynchronous {@link #seekTo} call returns right away,
- *         the actual seek operation may take a while to
- *         finish, especially for audio/video being streamed. When the actual
- *         seek operation completes, the internal player engine calls a user
- *         supplied EventCallback.onCallCompleted() with
- *         {@link #CALL_COMPLETED_SEEK_TO}
- *         if an EventCallback has been registered beforehand via
- *         {@link #setEventCallback(Executor, EventCallback)}.</li>
- *         <li>Please note that {@link #seekTo(long, int)} can also be called in
- *         <strong>Prepared</strong> and <strong>Paused</strong> state.
- *         When {@link #seekTo(long, int)} is called in those states,
- *         one video frame will be displayed if the stream has video and the requested
- *         position is valid.
- *         </li>
- *         <li>Furthermore, the actual current playback position
- *         can be retrieved with a call to {@link #getCurrentPosition()}, which
- *         is helpful for applications such as a Music player that need to keep
- *         track of the playback progress.</li>
- *         </ul>
- *         </li>
- *     <li>When the playback reaches the end of stream, the playback completes.
- *         <ul>
- *         <li>If current source is set to loop by {@link #loopCurrent(boolean)},
- *         the MediaPlayer2 object shall remain in the <strong>Playing</strong> state.</li>
- *         <li>If the looping mode was set to <var>false
- *         </var>, the player engine calls a user supplied callback method,
- *         {@link EventCallback#onInfo} with {@link #MEDIA_INFO_PLAYBACK_COMPLETE},
- *         if an EventCallback is registered beforehand via
- *         {@link #setEventCallback(Executor, EventCallback)}.
- *         The invoke of the callback signals that the object is now in the <strong>Paused</strong>
- *         state.</li>
- *         <li>While in the <strong>Paused</strong> state, calling {@link #play()} can restart the
- *         playback from the beginning of the audio/video source.</li>
+ *
+ *     <li>{@link #MEDIAPLAYER2_STATE_PAUSED}: Audio/video playback pauses while in this state.
+ *         Call {@link #play()} to resume playback from the position where it paused.</li>
+ *
+ *     <li>{@link #MEDIAPLAYER2_STATE_ERROR}: <p>In general, playback might fail due to various
+ *          reasons such as unsupported audio/video format, poorly interleaved
+ *          audio/video, resolution too high, streaming timeout, and others.
+ *          In addition, due to programming errors, a playback
+ *          control operation might be performed from an <a href="#invalid_state">invalid state</a>.
+ *          In these cases the player transitions to the <strong>Error</strong> state.</p>
+ *
+ *          <p>If you register an {@link EventCallback#onError}} <a href="#callback">callback</a>
+ *          the callback will be performed when entering the state. When programming errors happen,
+ *          such as calling {@link #prepare()} and {@link #setDataSource(DataSourceDesc)} methods
+ *          from an <a href="#invalid_state">invalid state</a>, The callback is called with
+ *          {@link #CALL_STATUS_INVALID_OPERATION} . The MediaPlayer2 object enters the
+ *          <strong>Error</strong> whether or not a callback exists. </p>
+ *
+ *          <p>To recover from an error and reuse a MediaPlayer2 object that is in the <strong>
+ *          Error</strong> state,
+ *          call {@link #reset()}. The object will return to the <strong>Idle</strong>
+ *          state and all state information will be lost.</p>
+ *          </li>
+ * </ol>
+ *
+ * <p>You should follow these best practices when coding an app that uses MediaPlayer2:</p>
+ *
+ * <ul>
+ *
+ * <li>State changes are asynchronous. Once the player finishes the following playback control
+ * operations; {@link #prepare}, {@link #play}, {@link #pause}, and {@link #reset}, the player
+ * will change state and send notification to {@link EventCallback#onCallCompleted} callback.
+ * Call {@link #getState()} from your code to determine the state.</li>
+ *
+ * <li>When  a MediaPlayer2 object is no longer being used, call {@link #close()} as soon as
+ * possible to release the resources used by the internal player engine associated with the
+ * MediaPlayer2. Failure to call {@link #close()} may cause subsequent instances of MediaPlayer2
+ * objects to fallback to software implementations or fail altogether. You cannot use MediaPlayer2
+ * after you call {@link #close()}. There is no way to bring it back to any other state.</li>
+ *
+ * <li>The current playback position can be retrieved with a call to {@link #getCurrentPosition()},
+ * which is helpful for applications such as a Music player that need to keep track of the playback
+ * progress.</li>
+ *
+ * <li>The playback position can be adjusted with a call to {@link #seekTo}. Although the
+ * asynchronous {@link #seekTo} call returns right away, the actual seek operation may take a
+ * while to finish, especially for audio/video being streamed. If you register an
+ * {@link EventCallback#onCallCompleted} <a href="#callback">callback</a>, the callback is
+ * called When the seek operation completes with {@link #CALL_COMPLETED_SEEK_TO}.</li>
+ *
+ * <li>You can call {@link #seekTo(long, int)} from the <strong>Prepared</strong> and
+ * <strong>Paused</strong> states. In these cases, if you are playing a video stream and
+ * the requested position is valid  one video frame is displayed.</li>
+ *
  * </ul>
  *
  * <a name="Valid_and_Invalid_States"></a>
@@ -332,25 +304,20 @@ import java.util.concurrent.Executor;
  *     <td>{} </p></td></tr>
  * </table>
  *
- * <a name="Permissions"></a>
- * <h3>Permissions</h3>
+ * <h3 id="Permissions">Permissions</h3>
  * <p>This class requires the {@link android.Manifest.permission#INTERNET} permission
  * when used with network-based content.
  *
- * <a name="Callbacks"></a>
- * <h3>Callbacks</h3>
- * <p>Applications may want to register for informational and error
- * events in order to be informed of some internal state update and
- * possible runtime errors during playback or streaming. Registration for
- * these events is done by properly setting the appropriate listeners (via calls
- * to
- * {@link #setEventCallback(Executor, EventCallback)},
+ * <h3 id="callback">Callbacks</h3>
+ * <p>Many errors do not result in a transition to the  <strong>Error</strong> state.
+ * It is good programming practice to register callback listeners using
+ * {@link #setEventCallback(Executor, EventCallback)} and
  * {@link #setDrmEventCallback(Executor, DrmEventCallback)}).
- * In order to receive the respective callback
- * associated with these listeners, applications are required to create
- * MediaPlayer2 objects on a thread with its own Looper running (main UI
- * thread by default has a Looper running).
+ * You can receive a callback at any time and from any state.</p>
  *
+ * <p>In order for callbacks to work, your app must create
+ * MediaPlayer2 objects on a thread that has its own running Looper. This can be done on the main UI
+ * thread, which has a Looper.</p>
  */
 @TargetApi(Build.VERSION_CODES.P)
 public abstract class MediaPlayer2 {
