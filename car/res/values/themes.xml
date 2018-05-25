@@ -73,8 +73,8 @@ limitations under the License.
     <style name="Theme.Car.NoActionBar.Drawer">
         <item name="drawerArrowStyle">@style/Widget.Car.DrawerArrowToggle</item>
         <item name="drawerBackgroundColor">@color/car_card</item>
-        <item name="drawerOpenHeaderColor">@color/car_title2</item>
-        <item name="drawerClosedHeaderColor">@color/car_title2_light</item>
+        <item name="drawerRippleColor">@color/car_card_ripple_background</item>
+        <item name="drawerHeaderColor">@color/car_title2</item>
         <item name="drawerItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="drawerItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
         <item name="drawerListStyle">@style/Widget.Car.List</item>
@@ -88,8 +88,8 @@ limitations under the License.
     <style name="Theme.Car.Dark.NoActionBar.Drawer">
         <item name="drawerArrowStyle">@style/Widget.Car.DrawerArrowToggle</item>
         <item name="drawerBackgroundColor">@color/car_card_dark</item>
-        <item name="drawerOpenHeaderColor">@color/car_title2_light</item>
-        <item name="drawerClosedHeaderColor">@color/car_title2_light</item>
+        <item name="drawerRippleColor">@color/car_card_ripple_background_light</item>
+        <item name="drawerHeaderColor">@color/car_title2_light</item>
         <item name="drawerItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="drawerItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
         <item name="drawerListStyle">@style/Widget.Car.Light.List.LightDivider</item>

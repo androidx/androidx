@@ -201,10 +201,10 @@ limitations under the License.
 
         <!-- The background color of the drawer. -->
         <attr name="drawerBackgroundColor" format="color"/>
-        <!-- The color of the header text and arrow in the drawer when it is open. -->
-        <attr name="drawerOpenHeaderColor" format="color"/>
-        <!-- The color of the header text and arrow in the drawer when it is closed. -->
-        <attr name="drawerClosedHeaderColor" format="color"/>
+        <!-- The color of the header text and arrow in the drawer. -->
+        <attr name="drawerHeaderColor" format="color"/>
+        <!-- The ripple color for items in the drawer. -->
+        <attr name="drawerRippleColor" format="color"/>
         <!-- The TextAppearance of each item's title text in the drawer list. -->
         <attr name="drawerItemTitleTextAppearance" format="reference"/>
         <!-- The TextAppearance of each item's body text in the drawer list. -->
