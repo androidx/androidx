@@ -58,8 +58,7 @@ class Context private constructor(
             logger = RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null),
             typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
             inheritedAdapterStore = null,
-            cache = Cache(null, LinkedHashSet(), emptySet())) {
-    }
+            cache = Cache(null, LinkedHashSet(), emptySet()))
 
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
         val STRING: TypeMirror by lazy {

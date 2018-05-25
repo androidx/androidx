@@ -96,7 +96,7 @@ class TypeAdapterStore private constructor(
                     typeConverters = store.typeConverters)
         }
 
-        fun create(context: Context, @VisibleForTesting vararg extras: Any): TypeAdapterStore {
+        fun create(context: Context, vararg extras: Any): TypeAdapterStore {
             val adapters = arrayListOf<ColumnTypeAdapter>()
             val converters = arrayListOf<TypeConverter>()
 
@@ -250,10 +250,9 @@ class TypeAdapterStore private constructor(
 
     private fun findDirectAdapterFor(
             out: TypeMirror, affinity: SQLTypeAffinity?): ColumnTypeAdapter? {
-        val adapter = getAllColumnAdapters(out).firstOrNull {
+        return getAllColumnAdapters(out).firstOrNull {
             affinity == null || it.typeAffinity == affinity
         }
-        return adapter
     }
 
     fun findTypeConverter(input: TypeMirror, output: TypeMirror): TypeConverter? {
@@ -316,7 +315,6 @@ class TypeAdapterStore private constructor(
      * Find a converter from cursor to the given type mirror.
      * If there is information about the query result, we try to use it to accept *any* POJO.
      */
-    @VisibleForTesting
     fun findRowAdapter(typeMirror: TypeMirror, query: ParsedQuery): RowAdapter? {
         if (typeMirror.kind == TypeKind.ERROR) {
             return null

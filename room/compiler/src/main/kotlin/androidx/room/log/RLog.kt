@@ -84,7 +84,7 @@ class RLog(val messager: Messager, val suppressedWarnings: Set<Warning>,
         private val messages = mutableMapOf<Diagnostic.Kind, MutableList<Pair<String, Element?>>> ()
         override fun printMessage(kind: Diagnostic.Kind, msg: String, element: Element?) {
             messages.getOrPut(kind, {
-                arrayListOf<Pair<String, Element?>>()
+                arrayListOf()
             }).add(Pair(msg, element))
         }
 

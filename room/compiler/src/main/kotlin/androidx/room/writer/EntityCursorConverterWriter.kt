@@ -22,7 +22,6 @@ import androidx.room.ext.N
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
-import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Entity
 import androidx.room.vo.FieldWithIndex
 import com.squareup.javapoet.CodeBlock
@@ -46,14 +45,6 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
             addModifiers(PRIVATE)
             returns(entity.typeName)
             addCode(buildConvertMethodBody(writer, cursorParam))
-        }
-    }
-
-    private fun depth(parent: EmbeddedField?): Int {
-        return if (parent == null) {
-            0
-        } else {
-            1 + depth(parent.parent)
         }
     }
 

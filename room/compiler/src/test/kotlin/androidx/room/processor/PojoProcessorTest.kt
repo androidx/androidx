@@ -632,7 +632,7 @@ class PojoProcessorTest {
             """
         singleRun(pojoCode) { pojo ->
             assertThat(pojo.constructor, notNullValue())
-            assertThat(pojo.constructor?.params, `is`(emptyList<Constructor.Param>()))
+            assertThat(pojo.constructor?.params, `is`(emptyList()))
         }.compilesWithoutError()
     }
 

@@ -49,7 +49,7 @@ abstract class BaseEntityParserTest {
             attributesReplacement = ""
         } else {
             attributesReplacement = "(" +
-                    attributes.entries.map { "${it.key} = ${it.value}" }.joinToString(",") +
+                    attributes.entries.joinToString(",") { "${it.key} = ${it.value}" } +
                     ")".trimIndent()
         }
         val baseClassReplacement: String

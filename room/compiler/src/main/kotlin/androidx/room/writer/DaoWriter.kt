@@ -354,7 +354,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                         addCode(createInsertionMethodBody(insertionMethod, fields))
                     }.build()
                     PreparedStmtQuery(fields, methodImpl)
-                }.filterNotNull()
+                }
     }
 
     private fun createInsertionMethodBody(
@@ -430,7 +430,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
             methods: List<T>, methodPrefix: String,
             implCallback: (T, Entity) -> TypeSpec
     ): List<PreparedStmtQuery> {
-        return methods.map { method ->
+        return methods.mapNotNull { method ->
             val entities = method.entities
 
             if (entities.isEmpty()) {
@@ -446,7 +446,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                 }.build()
                 PreparedStmtQuery(fields, methodSpec)
             }
-        }.filterNotNull()
+        }
     }
 
     private fun createDeleteOrUpdateMethodBody(
