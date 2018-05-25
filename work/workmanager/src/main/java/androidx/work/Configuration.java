@@ -18,6 +18,8 @@ package androidx.work;
 
 import android.support.annotation.NonNull;
 
+import androidx.work.impl.utils.IdGenerator;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -27,6 +29,8 @@ import java.util.concurrent.Executors;
 public final class Configuration {
 
     private final Executor mExecutor;
+    private final int mMinJobSchedulerId;
+    private final int mMaxJobSchedulerId;
 
     private Configuration(@NonNull Configuration.Builder builder) {
         if (builder.mExecutor == null) {
@@ -34,10 +38,41 @@ public final class Configuration {
         } else {
             mExecutor = builder.mExecutor;
         }
+        mMinJobSchedulerId = builder.mMinJobSchedulerId;
+        mMaxJobSchedulerId = builder.mMaxJobSchedulerId;
     }
 
+    /**
+     * @return The {@link Executor} used by {@link WorkManager} to execute {@link Worker}s.
+     */
     public @NonNull Executor getExecutor() {
         return mExecutor;
+    }
+
+    /**
+     * @return The first valid id (inclusive) used by {@link WorkManager} when
+     * creating new instances of {@link android.app.job.JobInfo}s.
+     *
+     * If the current {@code jobId} goes beyond the bounds of the defined range of
+     * ({@link Configuration.Builder#getMinJobSchedulerID()},
+     *  {@link Configuration.Builder#getMaxJobSchedulerID()}), it is reset to
+     *  ({@link Configuration.Builder#getMinJobSchedulerID()}).
+     */
+    public int getMinJobSchedulerID() {
+        return mMinJobSchedulerId;
+    }
+
+    /**
+     * @return The last valid id (inclusive) used by {@link WorkManager} when
+     * creating new instances of {@link android.app.job.JobInfo}s.
+     *
+     * If the current {@code jobId} goes beyond the bounds of the defined range of
+     * ({@link Configuration.Builder#getMinJobSchedulerID()},
+     *  {@link Configuration.Builder#getMaxJobSchedulerID()}), it is reset to
+     *  ({@link Configuration.Builder#getMinJobSchedulerID()}).
+     */
+    public int getMaxJobSchedulerID() {
+        return mMaxJobSchedulerId;
     }
 
     private Executor createDefaultExecutor() {
@@ -51,6 +86,8 @@ public final class Configuration {
      */
     public static final class Builder {
 
+        int mMinJobSchedulerId = IdGenerator.INITIAL_ID;
+        int mMaxJobSchedulerId = Integer.MAX_VALUE;
         Executor mExecutor;
 
         /**
@@ -61,6 +98,26 @@ public final class Configuration {
          */
         public Builder setExecutor(@NonNull Executor executor) {
             mExecutor = executor;
+            return this;
+        }
+
+        /**
+         * Specifies the range of {@link android.app.job.JobInfo} IDs that can be used by
+         * {@link WorkManager}. {@link WorkManager} needs a range of at least {@code 1000} IDs.
+         *
+         * @param minJobSchedulerId The first valid {@link android.app.job.JobInfo} ID inclusive.
+         * @param maxJobSchedulerId The last valid {@link android.app.job.JobInfo} ID inclusive.
+         * @return This {@link Builder} instance
+         * @throws IllegalArgumentException when the size of the range is < 1000
+         */
+        public Builder setJobSchedulerJobIdRange(int minJobSchedulerId, int maxJobSchedulerId) {
+            if ((maxJobSchedulerId - minJobSchedulerId) < 1000) {
+                throw new IllegalArgumentException(
+                        "WorkManager needs a range of at least 1000 job ids.");
+            }
+
+            mMinJobSchedulerId = minJobSchedulerId;
+            mMaxJobSchedulerId = maxJobSchedulerId;
             return this;
         }
 
