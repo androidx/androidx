@@ -138,14 +138,13 @@ public final class MediaTestUtils {
         return result;
     }
 
-    public static List<CommandButton> buttonListFromParcelableArrayList(
-            List<Parcelable> parcelables) {
-        if (parcelables == null) {
+    public static List<CommandButton> buttonListFromBundleList(List<Bundle> bundleList) {
+        if (bundleList == null) {
             return null;
         }
         List<CommandButton> result = new ArrayList<>();
-        for (Parcelable button : parcelables) {
-            result.add(CommandButton.fromBundle((Bundle) button));
+        for (int i = 0; i < bundleList.size(); i++) {
+            result.add(CommandButton.fromBundle(bundleList.get(i)));
         }
         return result;
     }

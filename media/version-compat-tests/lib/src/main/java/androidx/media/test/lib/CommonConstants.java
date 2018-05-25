@@ -29,8 +29,10 @@ public class CommonConstants {
             new ComponentName(IntentUtil.CLIENT_PACKAGE_NAME,
                     "androidx.media.test.client.TestHelperService");
     public static final String ACTION_TEST_HELPER = "androidx.media.action.test.TEST_HELPER";
+    public static final String ACTION_MEDIA_SESSION2 = "androidx.media.action.test.MEDIA_SESSION2";
 
     // Keys for arguments.
+    public static final String KEY_SESSION_ID = "sessionId";
     public static final String KEY_STREAM = "stream";
     public static final String KEY_AUDIO_ATTRIBUTES = "audioAttributes";
     public static final String KEY_PLAYER_STATE = "playerState";

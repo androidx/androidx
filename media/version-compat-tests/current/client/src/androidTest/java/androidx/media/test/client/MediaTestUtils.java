@@ -134,4 +134,15 @@ public final class MediaTestUtils {
         }
         return result;
     }
+
+    public static List<Bundle> mediaItem2ListToBundleList(List<MediaItem2> list) {
+        if (list == null) {
+            return null;
+        }
+        List<Bundle> result = new ArrayList<>();
+        for (MediaItem2 item : list) {
+            result.add(item.toBundle());
+        }
+        return result;
+    }
 }

@@ -29,11 +29,10 @@ import static androidx.media.test.lib.CommonConstants.KEY_MEDIA_ITEM;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
 import static androidx.media.test.lib.CommonConstants.KEY_STREAM;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.CLOSE;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
+import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
         .CUSTOM_METHOD_SET_MULTIPLE_VALUES;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods.UPDATE_PLAYER;
-import static androidx.media.test.lib.MediaSession2Constants.Session2Methods
+import static androidx.media.test.lib.MediaSession2Constants.CustomCommands.UPDATE_PLAYER;
+import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
         .UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE;
 import static androidx.media.test.lib.MediaSession2Constants.TEST_GET_SESSION_ACTIVITY;
 
@@ -58,7 +57,6 @@ import androidx.media.BaseMediaPlayer;
 import androidx.media.MediaController2;
 import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaItem2;
-import androidx.media.SessionToken2;
 
 import org.junit.After;
 import org.junit.Before;
@@ -111,12 +109,15 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGetSessionActivity() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(
-                mTestHelper.createMediaSession2(TEST_GET_SESSION_ACTIVITY));
+        RemoteMediaSession2 session2 = new RemoteMediaSession2(TEST_GET_SESSION_ACTIVITY, mContext);
+        assertTrue(session2.connect(WAIT_TIME_MS));
+        session2.create();
+
+        MediaController2 controller = createController(session2.getToken());
         PendingIntent sessionActivity = controller.getSessionActivity();
         assertEquals(SERVICE_PACKAGE_NAME, sessionActivity.getCreatorPackage());
         // TODO: Add getPid/getUid in TestHelperService and compare them.
-        // assertEquals(mTestHelper.getUid(), sessionActivity.getCreatorUid());
+        // assertEquals(mRemoteSession2.getUid(), sessionActivity.getCreatorUid());
     }
 
     @Test
@@ -127,7 +128,7 @@ public class MediaController2Test extends MediaSession2TestBase {
             return;
         }
 
-        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
+        MediaController2 controller = createController(mRemoteSession2.getToken());
 
         // Here, we intentionally choose STREAM_ALARM in order not to consider
         // 'Do Not Disturb' or 'Volume limit'.
@@ -140,7 +141,7 @@ public class MediaController2Test extends MediaSession2TestBase {
 
         Bundle args = new Bundle();
         args.putInt(KEY_STREAM, stream);
-        mTestHelper.callMediaSession2Method(UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE, args);
+        mRemoteSession2.runCustomTestCommands(UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE, args);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int targetVolume = originalVolume == minVolume
@@ -166,7 +167,7 @@ public class MediaController2Test extends MediaSession2TestBase {
             return;
         }
 
-        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
+        MediaController2 controller = createController(mRemoteSession2.getToken());
 
         // Here, we intentionally choose STREAM_ALARM in order not to consider
         // 'Do Not Disturb' or 'Volume limit'.
@@ -179,7 +180,7 @@ public class MediaController2Test extends MediaSession2TestBase {
 
         Bundle args = new Bundle();
         args.putInt(KEY_STREAM, stream);
-        mTestHelper.callMediaSession2Method(UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE, args);
+        mRemoteSession2.runCustomTestCommands(UPDATE_PLAYER_FOR_SETTING_STREAM_TYPE, args);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int direction = originalVolume == minVolume
@@ -201,17 +202,17 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGetPackageName() throws Exception {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
+        MediaController2 controller = createController(mRemoteSession2.getToken());
         assertEquals(SERVICE_PACKAGE_NAME, controller.getSessionToken().getPackageName());
     }
 
     @Test
     public void testIsConnected() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
+        MediaController2 controller = createController(mRemoteSession2.getToken());
         assertTrue(controller.isConnected());
 
-        mTestHelper.callMediaSession2Method(CLOSE, null);
+        mRemoteSession2.close();
         waitForDisconnect(controller, true);
         assertFalse(controller.isConnected());
     }
@@ -219,7 +220,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testClose_beforeConnected() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2(),
+        MediaController2 controller = createController(mRemoteSession2.getToken(),
                 false /* waitForConnect */, null /* callback */);
         controller.close();
     }
@@ -227,7 +228,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testClose_twice() throws InterruptedException {
         prepareLooper();
-        MediaController2 controller = createController(mTestHelper.createDefaultMediaSession2());
+        MediaController2 controller = createController(mRemoteSession2.getToken());
         controller.close();
         controller.close();
     }
@@ -243,8 +244,6 @@ public class MediaController2Test extends MediaSession2TestBase {
         final long timeDiff = 102;
         final MediaItem2 currentMediaItem = MediaTestUtils.createMediaItemWithMetadata();
 
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
-
         Bundle args = new Bundle();
         args.putInt(KEY_PLAYER_STATE, state);
         args.putInt(KEY_BUFFERING_STATE, bufferingState);
@@ -252,9 +251,9 @@ public class MediaController2Test extends MediaSession2TestBase {
         args.putLong(KEY_BUFFERED_POSITION, bufferedPosition);
         args.putFloat(KEY_SPEED, speed);
         args.putBundle(KEY_MEDIA_ITEM, currentMediaItem.toBundle());
-        mTestHelper.callMediaSession2Method(CUSTOM_METHOD_SET_MULTIPLE_VALUES, args);
+        mRemoteSession2.runCustomTestCommands(CUSTOM_METHOD_SET_MULTIPLE_VALUES, args);
 
-        MediaController2 controller = createController(token);
+        MediaController2 controller = createController(mRemoteSession2.getToken());
         controller.setTimeDiff(timeDiff);
         assertEquals(state, controller.getPlayerState());
         assertEquals(bufferedPosition, controller.getBufferedPosition());
@@ -266,17 +265,15 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGetPlaybackInfo() throws Exception {
         prepareLooper();
-        SessionToken2 token = mTestHelper.createDefaultMediaSession2();
-
         final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setContentType(CONTENT_TYPE_MUSIC)
                 .build();
 
         Bundle args = new Bundle();
         args.putBundle(KEY_AUDIO_ATTRIBUTES, attrs.toBundle());
-        mTestHelper.callMediaSession2Method(UPDATE_PLAYER, args);
+        mRemoteSession2.runCustomTestCommands(UPDATE_PLAYER, args);
 
-        final MediaController2 controller = createController(token);
+        final MediaController2 controller = createController(mRemoteSession2.getToken());
         PlaybackInfo info = controller.getPlaybackInfo();
         assertNotNull(info);
         assertEquals(PlaybackInfo.PLAYBACK_TYPE_LOCAL, info.getPlaybackType());

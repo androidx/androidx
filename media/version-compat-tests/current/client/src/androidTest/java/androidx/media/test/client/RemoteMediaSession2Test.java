@@ -25,7 +25,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
-import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -40,33 +39,34 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.Executor;
 
-/** Test {@link ClientTestHelper}. */
+/** Test {@link RemoteMediaSession2}. */
 @RunWith(AndroidJUnit4.class)
-public class ClientTestHelperTest {
+public class RemoteMediaSession2Test {
     private static final int TIME_OUT_MS = 3000;
 
     private Context mContext;
-    private ClientTestHelper mTestHelper;
+    private RemoteMediaSession2 mRemoteSession2;
 
     @Before
     public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext();
-        mTestHelper = new ClientTestHelper(mContext);
-        boolean connected = mTestHelper.connect(TIME_OUT_MS);
+        mRemoteSession2 = new RemoteMediaSession2(DEFAULT_TEST_NAME, mContext);
+        boolean connected = mRemoteSession2.connect(TIME_OUT_MS);
         if (!connected) {
             fail("Failed to connect to TestHelperService.");
         }
+        mRemoteSession2.create();
     }
 
     @After
     public void cleanUp() {
-        mTestHelper.disconnect(true);
+        mRemoteSession2.disconnect(true);
     }
 
     @Test
     @SmallTest
     public void testGettingToken() {
-        SessionToken2 token = mTestHelper.createMediaSession2(DEFAULT_TEST_NAME);
+        SessionToken2 token = mRemoteSession2.getToken();
         assertNotNull(token);
         assertEquals(SERVICE_PACKAGE_NAME, token.getPackageName());
     }
@@ -74,8 +74,7 @@ public class ClientTestHelperTest {
     @Test
     @SmallTest
     public void testCreatingController() {
-        Looper.prepare();
-        SessionToken2 token = mTestHelper.createMediaSession2(DEFAULT_TEST_NAME);
+        SessionToken2 token = mRemoteSession2.getToken();
         assertNotNull(token);
         MediaController2 controller = new MediaController2(mContext, token, new Executor() {
             @Override
