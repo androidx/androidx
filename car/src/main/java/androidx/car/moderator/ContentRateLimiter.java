@@ -20,6 +20,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.util.Log;
 
+import androidx.annotation.FloatRange;
+import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
@@ -42,19 +44,19 @@ public class ContentRateLimiter {
     private static final String TAG = "ContentRateLimiter";
 
     /** The maximum number of stored permits. */
-    private final double mMaxStoredPermits;
+    private double mMaxStoredPermits;
 
     /**
      * The interval between two unit requests at our stable rate. For example, a stable rate of
      * 5 permits per second has a stable interval of 200ms.
      */
-    private final long mStableIntervalMs;
+    private long mStableIntervalMs;
 
     /**
      * The amount of time to wait between when a permit is acquired and when the model starts
      * refilling.
      */
-    private final long mFillDelayMs;
+    private long mFillDelayMs;
 
     /** Unlimited mode. Once enabled, any number of permits can be acquired and consumed. */
     private boolean mUnlimitedModeEnabled;
@@ -91,8 +93,10 @@ public class ContentRateLimiter {
      * @param fillDelayMs The amount of time to wait between when a permit is acquired and when
      *                    the number of available permits start refilling.
      */
-    public ContentRateLimiter(double acquiredPermitsPerSecond, double maxStoredPermits,
-            long fillDelayMs) {
+    public ContentRateLimiter(
+            @FloatRange(from = 0, fromInclusive = false) double acquiredPermitsPerSecond,
+            @FloatRange(from = 0) double maxStoredPermits,
+            @IntRange(from = 0) long fillDelayMs) {
         this(acquiredPermitsPerSecond, maxStoredPermits, fillDelayMs,
                 new SystemClockTimeProvider());
     }
@@ -100,24 +104,61 @@ public class ContentRateLimiter {
     // A constructor that allows for the SystemClockTimeProvider to be provided. This is needed for
     // testing so that the unit test does not rely on the actual SystemClock.
     @VisibleForTesting
-    ContentRateLimiter(double acquiredPermitsPerSecond, double maxStoredPermits,
-            long fillDelayMs, ElapsedTimeProvider elapsedTimeProvider) {
+    ContentRateLimiter(
+            @FloatRange(from = 0, fromInclusive = false) double acquiredPermitsPerSecond,
+            @FloatRange(from = 0) double maxStoredPermits,
+            @IntRange(from = 0) long fillDelayMs,
+            ElapsedTimeProvider elapsedTimeProvider) {
+        mElapsedTimeProvider = elapsedTimeProvider;
+        mResumeIncrementingMs = mElapsedTimeProvider.getElapsedRealtime();
+        setAcquiredPermitsRate(acquiredPermitsPerSecond);
+        setMaxStoredPermits(maxStoredPermits);
+        setPermitFillDelay(fillDelayMs);
+
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
             Log.v(TAG, String.format("permitsPerSecond: %f maxStoredPermits: %f, fillDelayMs %d",
                     acquiredPermitsPerSecond, maxStoredPermits, fillDelayMs));
         }
+    }
 
+    /**
+     * Sets the amount of permits that are acquired each second. These permits are acquired when
+     * the {@code ContentRateLimiter} is not being interacted with. That is, the
+     * {@link #tryAcquire()} or {@link #tryAcquire(int)} methods have not been called.
+     *
+     * @param acquiredPermitsPerSecond The number of permits acquired each second. Must be greater
+     *                                 than zero.
+     */
+    public void setAcquiredPermitsRate(
+            @FloatRange(from = 0, fromInclusive = false) double acquiredPermitsPerSecond) {
         Preconditions.checkArgument(acquiredPermitsPerSecond > 0);
-        Preconditions.checkArgument(maxStoredPermits >= 0);
-        Preconditions.checkArgument(fillDelayMs >= 0);
-
         mStableIntervalMs = (long) (SECONDS.toMillis(1L) / acquiredPermitsPerSecond);
+    }
+
+    /**
+     * The maximum amount of permits that can be stored. Permits are accumulated when the
+     * the {@code ContentRateLimiter} is not being interacted with. That is, the
+     * {@link #tryAcquire()} or {@link #tryAcquire(int)} methods have not been called.
+     *
+     * @param maxStoredPermits The maximum number of stored permits. Must be greater than or equal
+     *                         to zero.
+     */
+    public void setMaxStoredPermits(@FloatRange(from = 0) double maxStoredPermits) {
+        Preconditions.checkArgument(maxStoredPermits >= 0);
         mMaxStoredPermits = maxStoredPermits;
         mLastCalculatedPermitCount = maxStoredPermits;
-        mFillDelayMs = fillDelayMs;
+    }
 
-        mElapsedTimeProvider = elapsedTimeProvider;
-        mResumeIncrementingMs = mElapsedTimeProvider.getElapsedRealtime();
+    /**
+     * Sets delay before permits begin accumulating. This is the delay after a {@link #tryAcquire()}
+     * or {@link #tryAcquire(int)} has been called. After the given delay, permits will be
+     * accumulated at the rate set by {@link #setAcquiredPermitsRate(double)}.
+     *
+     * @param fillDelayMs The delay in milliseconds before permits accumulate.
+     */
+    public void setPermitFillDelay(@IntRange(from = 0) long fillDelayMs) {
+        Preconditions.checkArgument(fillDelayMs >= 0);
+        mFillDelayMs = fillDelayMs;
     }
 
     /** Gets the current number of stored permits ready to be used. */
