@@ -35,6 +35,7 @@ limitations under the License.
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="start"
+            android:layout_marginEnd="@dimen/car_margin"
             layout="@layout/car_drawer" />
     </androidx.drawerlayout.widget.DrawerLayout>
 
