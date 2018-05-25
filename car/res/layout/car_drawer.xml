@@ -19,13 +19,46 @@ limitations under the License.
     android:id="@+id/drawer_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/drawerBackgroundColor"
-    android:paddingTop="@dimen/car_app_bar_height" >
+    android:background="?attr/drawerBackgroundColor" >
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/car_app_bar_height"
+      android:layout_gravity="top|start"
+      android:gravity="center_horizontal"
+      android:orientation="horizontal" >
+
+    <FrameLayout
+        android:layout_width="@dimen/car_margin"
+        android:layout_height="match_parent">
+
+      <ImageButton
+          android:id="@+id/drawer_back_button"
+          android:background="@drawable/car_drawer_button_ripple_background"
+          android:layout_width="@dimen/car_primary_icon_size"
+          android:layout_height="@dimen/car_primary_icon_size"
+          android:layout_gravity="center"
+          android:tint="@color/car_tint"
+          android:src="@drawable/ic_nav_arrow_back"
+          android:scaleType="fitCenter" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/drawer_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:includeFontPadding="false"
+        android:textColor="?attr/drawerHeaderColor"
+        android:textAppearance="@style/TextAppearance.Car.Title2" />
+  </LinearLayout>
 
   <androidx.car.widget.PagedListView
       android:id="@+id/drawer_list"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
+      android:layout_marginTop="@dimen/car_app_bar_height"
+      android:layout_gravity="top|start"
       app:dividerStartMargin="@dimen/car_keyline_1"
       app:dividerEndMargin="@dimen/car_keyline_1"
       app:gutter="start"

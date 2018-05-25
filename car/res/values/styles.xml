@@ -226,7 +226,7 @@ limitations under the License.
 
     <!-- The style for the menu bar (i.e. hamburger) and back arrow in the navigation drawer. -->
     <style name="Widget.Car.DrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
-        <item name="color">@color/car_title_light</item>
+        <item name="color">@color/car_title2</item>
         <item name="spinBars">true</item>
         <item name="barLength">@dimen/car_menu_bar_length</item>
         <item name="thickness">@dimen/car_arrow_thickness</item>
