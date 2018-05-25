@@ -39,6 +39,7 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.WorkManagerImpl;
@@ -64,6 +65,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @Before
     public void setUp() {
         Context context = InstrumentationRegistry.getTargetContext();
+        Configuration configuration = new Configuration.Builder().build();
         mJobScheduler = mock(JobScheduler.class);
         doReturn(RESULT_SUCCESS).when(mJobScheduler).schedule(any(JobInfo.class));
 
@@ -81,7 +83,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
 
         mSystemJobScheduler =
                 spy(new SystemJobScheduler(mJobScheduler,
-                        new SystemJobInfoConverter(context)));
+                        new SystemJobInfoConverter(context, configuration)));
 
         doNothing().when(mSystemJobScheduler).scheduleInternal(any(WorkSpec.class));
     }
