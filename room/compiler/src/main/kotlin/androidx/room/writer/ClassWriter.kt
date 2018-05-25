@@ -64,7 +64,7 @@ abstract class ClassWriter(private val className: ClassName) {
                                                   processingEnv: ProcessingEnvironment) {
         val generatedAnnotationAvailable = processingEnv
                 .elementUtils
-                .getTypeElement(GENERATED_PACKAGE + "." + GENERATED_NAME) != null
+                .getTypeElement("$GENERATED_PACKAGE.$GENERATED_NAME") != null
         if (generatedAnnotationAvailable) {
             val className = ClassName.get(GENERATED_PACKAGE, GENERATED_NAME)
             val generatedAnnotationSpec =

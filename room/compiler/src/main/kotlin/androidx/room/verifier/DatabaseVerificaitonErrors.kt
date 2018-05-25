@@ -19,11 +19,6 @@ package androidx.room.verifier
 import java.sql.SQLException
 
 object DatabaseVerificaitonErrors {
-    private val CANNOT_CREATE_TABLE: String = "Create table statement had an error: %s"
-    fun cannotCreateTable(exception: SQLException): String {
-        return CANNOT_CREATE_TABLE.format(exception.message)
-    }
-
     private val CANNOT_VERIFY_QUERY: String = "There is a problem with the query: %s"
     fun cannotVerifyQuery(exception: SQLException): String {
         return CANNOT_VERIFY_QUERY.format(exception.message)
@@ -34,7 +29,4 @@ object DatabaseVerificaitonErrors {
     fun cannotCreateConnection(exception: Exception): String {
         return CANNOT_CREATE_SQLITE_CONNECTION.format(exception.message)
     }
-
-    val CANNOT_GET_TMP_JAVA_DIR = "Cannot read tmp java dir which is necessary to load sqlite" +
-            " lib. Database SQL verification will be disabled"
 }

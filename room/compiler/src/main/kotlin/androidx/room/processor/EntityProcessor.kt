@@ -89,8 +89,7 @@ class EntityProcessor(baseContext: Context,
                 ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
 
         val fieldIndices = pojo.fields
-                .filter { it.indexed }
-                .map {
+                .filter { it.indexed }.mapNotNull {
                     if (it.parent != null) {
                         it.indexed = false
                         context.logger.w(Warning.INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED, it.element,
@@ -112,7 +111,7 @@ class EntityProcessor(baseContext: Context,
                                 columnNames = listOf(it.columnName)
                         )
                     }
-                }.filterNotNull()
+                }
         val superIndices = loadSuperIndices(element.superclass, tableName, inheritSuperIndices)
         val indexInputs = entityIndices + fieldIndices + superIndices
         val indices = validateAndCreateIndices(indexInputs, pojo)
@@ -215,7 +214,7 @@ class EntityProcessor(baseContext: Context,
                 return@map null
             }
             val tableName = extractTableName(parentElement, parentAnnotation)
-            val fields = it.childColumns.map { columnName ->
+            val fields = it.childColumns.mapNotNull { columnName ->
                 val field = pojo.fields.find { it.columnName == columnName }
                 if (field == null) {
                     context.logger.e(pojo.element,
@@ -223,7 +222,7 @@ class EntityProcessor(baseContext: Context,
                                     pojo.fields.map { it.columnName }))
                 }
                 field
-            }.filterNotNull()
+            }
             if (fields.size != it.childColumns.size) {
                 return@map null
             }
@@ -284,7 +283,7 @@ class EntityProcessor(baseContext: Context,
      * Check fields for @PrimaryKey.
      */
     private fun collectPrimaryKeysFromPrimaryKeyAnnotations(fields: List<Field>): List<PrimaryKey> {
-        return fields.map { field ->
+        return fields.mapNotNull { field ->
             MoreElements.getAnnotationMirror(field.element,
                     androidx.room.PrimaryKey::class.java).orNull()?.let {
                 if (field.parent != null) {
@@ -305,7 +304,7 @@ class EntityProcessor(baseContext: Context,
                                     .getAsBoolean(false))
                 }
             }
-        }.filterNotNull()
+        }
     }
 
     /**
@@ -318,20 +317,20 @@ class EntityProcessor(baseContext: Context,
             val primaryKeyColumns = AnnotationMirrors.getAnnotationValue(it, "primaryKeys")
                     .getAsStringList()
             if (primaryKeyColumns.isEmpty()) {
-                emptyList<PrimaryKey>()
+                emptyList()
             } else {
-                val fields = primaryKeyColumns.map { pKeyColumnName ->
+                val fields = primaryKeyColumns.mapNotNull { pKeyColumnName ->
                     val field = availableFields.firstOrNull { it.columnName == pKeyColumnName }
                     context.checker.check(field != null, typeElement,
                             ProcessorErrors.primaryKeyColumnDoesNotExist(pKeyColumnName,
                                     availableFields.map { it.columnName }))
                     field
-                }.filterNotNull()
+                }
                 listOf(PrimaryKey(declaredIn = typeElement,
                         fields = fields,
                         autoGenerateId = false))
             }
-        } ?: emptyList<PrimaryKey>()
+        } ?: emptyList()
         // checks supers.
         val mySuper = typeElement.superclass
         val superPKeys = if (mySuper != null && mySuper.kind != TypeKind.NONE) {
@@ -349,7 +348,7 @@ class EntityProcessor(baseContext: Context,
 
     private fun collectPrimaryKeysFromEmbeddedFields(
             embeddedFields: List<EmbeddedField>): List<PrimaryKey> {
-        return embeddedFields.map { embeddedField ->
+        return embeddedFields.mapNotNull { embeddedField ->
             MoreElements.getAnnotationMirror(embeddedField.field.element,
                     androidx.room.PrimaryKey::class.java).orNull()?.let {
                 val autoGenerate = AnnotationMirrors
@@ -361,7 +360,7 @@ class EntityProcessor(baseContext: Context,
                         fields = embeddedField.pojo.fields,
                         autoGenerateId = autoGenerate)
             }
-        }.filterNotNull()
+        }
     }
 
     // start from my element and check if anywhere in the list we can find the only well defined
@@ -400,10 +399,10 @@ class EntityProcessor(baseContext: Context,
     private fun validateAndCreateIndices(
             inputs: List<IndexInput>, pojo: Pojo): List<Index> {
         // check for columns
-        val indices = inputs.map { input ->
+        val indices = inputs.mapNotNull { input ->
             context.checker.check(input.columnNames.isNotEmpty(), element,
                     INDEX_COLUMNS_CANNOT_BE_EMPTY)
-            val fields = input.columnNames.map { columnName ->
+            val fields = input.columnNames.mapNotNull { columnName ->
                 val field = pojo.fields.firstOrNull {
                     it.columnName == columnName
                 }
@@ -412,13 +411,13 @@ class EntityProcessor(baseContext: Context,
                                 columnName, pojo.fields.map { it.columnName }
                         ))
                 field
-            }.filterNotNull()
+            }
             if (fields.isEmpty()) {
                 null
             } else {
                 Index(name = input.name, unique = input.unique, fields = fields)
             }
-        }.filterNotNull()
+        }
 
         // check for duplicate indices
         indices
@@ -503,9 +502,9 @@ class EntityProcessor(baseContext: Context,
                     values: MutableList<out AnnotationValue>?,
                     tableName: String
             ): List<IndexInput> {
-                return values?.map {
+                return values?.mapNotNull {
                     INDEX_VISITOR.visit(it, tableName)
-                }?.filterNotNull() ?: emptyList<IndexInput>()
+                } ?: emptyList()
             }
         }
 
@@ -539,9 +538,9 @@ class EntityProcessor(baseContext: Context,
                     values: MutableList<out AnnotationValue>?,
                     void: Void?
             ): List<ForeignKeyInput> {
-                return values?.map {
+                return values?.mapNotNull {
                     FOREIGN_KEY_VISITOR.visit(it)
-                }?.filterNotNull() ?: emptyList<ForeignKeyInput>()
+                } ?: emptyList()
             }
         }
 

@@ -124,7 +124,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                                     entity.element.qualifiedName.toString()))
                     return@foreignKeyLoop
                 }
-                val parentFields = foreignKey.parentColumns.map { columnName ->
+                val parentFields = foreignKey.parentColumns.mapNotNull { columnName ->
                     val parentField = parent.fields.find {
                         it.columnName == columnName
                     }
@@ -136,7 +136,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                                         allColumns = parent.fields.map { it.columnName }))
                     }
                     parentField
-                }.filterNotNull()
+                }
                 if (parentFields.size != foreignKey.parentColumns.size) {
                     return@foreignKeyLoop
                 }

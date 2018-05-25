@@ -61,9 +61,7 @@ class Entity(
         return if (primaryKey.fields.isEmpty() || primaryKey.autoGenerateId) {
             null
         } else {
-            val keys = primaryKey.fields
-                    .map { "`${it.columnName}`" }
-                    .joinToString(", ")
+            val keys = primaryKey.fields.joinToString(", ") { "`${it.columnName}`" }
             "PRIMARY KEY($keys)"
         }
     }

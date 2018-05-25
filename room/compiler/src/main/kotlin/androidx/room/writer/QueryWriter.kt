@@ -41,8 +41,7 @@ class QueryWriter constructor(val parameters: List<QueryParameter>,
                               val query: ParsedQuery) {
 
     constructor(queryMethod: QueryMethod) : this(queryMethod.parameters,
-            queryMethod.sectionToParamMapping, queryMethod.query) {
-    }
+            queryMethod.sectionToParamMapping, queryMethod.query)
 
     fun prepareReadAndBind(outSqlQueryName: String, outRoomSQLiteQueryVar: String,
                            scope: CodeGenScope) {
