@@ -62,6 +62,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23;
 
     private Context mContext;
+    private Configuration mConfiguration;
     private WorkDatabase mWorkDatabase;
     private TaskExecutor mTaskExecutor;
     private List<Scheduler> mSchedulers;
@@ -156,6 +157,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
 
         context = context.getApplicationContext();
         mContext = context;
+        mConfiguration = configuration;
         mWorkDatabase = WorkDatabase.create(context, useTestDatabase);
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
         mProcessor = new Processor(
@@ -187,7 +189,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         // Initialized at construction time. So no need to synchronize.
         if (mSchedulers == null) {
             mSchedulers = Arrays.asList(
-                    Schedulers.createBestAvailableBackgroundScheduler(mContext),
+                    Schedulers.createBestAvailableBackgroundScheduler(mContext, mConfiguration),
                     new GreedyScheduler(mContext, this));
         }
         return mSchedulers;
