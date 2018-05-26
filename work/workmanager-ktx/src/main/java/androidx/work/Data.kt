@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// Always inline ktx extension methods unless we have additional call site costs.
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.work
 
 /**

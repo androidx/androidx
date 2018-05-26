@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// Always inline ktx extension methods unless we have additional call site costs.
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.work
 
 import android.support.annotation.NonNull
@@ -29,4 +32,5 @@ inline fun <reified W : Worker> OneTimeWorkRequestBuilder() =
  * Sets an [InputMerger] on the [OneTimeWorkRequest.Builder].
  */
 inline fun OneTimeWorkRequest.Builder.setInputMerger(
-        @NonNull inputMerger: KClass<out InputMerger>) = setInputMerger(inputMerger.java)
+    @NonNull inputMerger: KClass<out InputMerger>
+) = setInputMerger(inputMerger.java)
