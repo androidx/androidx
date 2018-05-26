@@ -52,6 +52,8 @@
 
     <!-- String for the drawer demo -->
     <string name="drawer_demo_activity_title">Drawer Demo</string>
+    <string name="drawer_demo_activity_drawer_title">Drawer</string>
+    <string name="drawer_demo_activity_drawer_sub_title">Sub Drawer</string>
     <string name="drawer_demo_root_item_label">Item %1$d</string>
     <string name="drawer_demo_subitem_label">SubItem %1$d</string>
 

@@ -46,7 +46,7 @@ public class DrawerDemoActivity extends CarDrawerActivity {
 
         DrawerRootAdapter(Context context) {
             super(context, /* showDisabledListOnEmpty= */ true);
-            setTitle(getString(R.string.drawer_demo_activity_title));
+            setTitle(getString(R.string.drawer_demo_activity_drawer_title));
         }
 
         @Override
@@ -74,7 +74,7 @@ public class DrawerDemoActivity extends CarDrawerActivity {
 
         SubItemAdapter(Context context) {
             super(context, /* showDisabledListOnEmpty= */ true);
-            setTitle(getString(R.string.drawer_demo_activity_title));
+            setTitle(getString(R.string.drawer_demo_activity_drawer_sub_title));
         }
 
         @Override
