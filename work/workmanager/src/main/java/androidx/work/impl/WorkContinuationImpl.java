@@ -115,7 +115,8 @@ public class WorkContinuationImpl extends WorkContinuation
                 null);
     }
 
-    WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
+    WorkContinuationImpl(
+            @NonNull WorkManagerImpl workManagerImpl,
             String name,
             ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<? extends WorkRequest> work) {
