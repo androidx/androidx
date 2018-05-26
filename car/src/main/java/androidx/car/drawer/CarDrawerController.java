@@ -19,15 +19,14 @@ package androidx.car.drawer;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.AnimRes;
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -53,9 +52,6 @@ public class CarDrawerController {
     @AnimRes
     private static final int NAVIGATE_UP_ANIM = R.anim.fade_in_trans_left_layout_anim;
 
-    /** The amount that the drawer has been opened before its color should be switched. */
-    private static final float COLOR_SWITCH_SLIDE_OFFSET = 0.25f;
-
     /**
      * A representation of the hierarchy of navigation being displayed in the list. The ordering of
      * this stack is the order that the user has visited each level. When the user navigates up,
@@ -65,16 +61,22 @@ public class CarDrawerController {
 
     private final Context mContext;
 
-    private final Toolbar mToolbar;
+    private final TextView mTitleView;
     private final DrawerLayout mDrawerLayout;
     private final ActionBarDrawerToggle mDrawerToggle;
 
     private final PagedListView mDrawerList;
     private final ProgressBar mProgressBar;
-    private final View mDrawerContent;
 
-    @ColorInt private int mClosedDrawerHeaderColor;
-    @ColorInt private int mOpenDrawerHeaderColor;
+    /**
+     * @deprecated Use {@link #CarDrawerController(DrawerLayout, ActionBarDrawerToggle)} instead.
+     *             The {@code Toolbar} is no longer needed and will be ignored.
+     */
+    @Deprecated
+    public CarDrawerController(@Nullable Toolbar toolbar, @NonNull DrawerLayout drawerLayout,
+            @NonNull ActionBarDrawerToggle drawerToggle) {
+        this(drawerLayout, drawerToggle);
+    }
 
     /**
      * Creates a {@link CarDrawerController} that will control the navigation of the drawer given by
@@ -84,40 +86,28 @@ public class CarDrawerController {
      * {@code R.layout.car_drawer} or ensure that it three children that have the IDs found in that
      * layout.
      *
-     * @param toolbar The {@link Toolbar} that will serve as the action bar for an Activity.
      * @param drawerLayout The top-level container for the window content that shows the
-     * interactive drawer.
-     * @param drawerToggle The {@link ActionBarDrawerToggle} that bridges the given {@code toolbar}
-     * and {@code drawerLayout}.
+     *                     interactive drawer.
+     * @param drawerToggle The {@link ActionBarDrawerToggle} that will open the drawer.
      */
-    public CarDrawerController(Toolbar toolbar,
-            DrawerLayout drawerLayout,
-            ActionBarDrawerToggle drawerToggle) {
-        mToolbar = toolbar;
+    public CarDrawerController(@NonNull DrawerLayout drawerLayout,
+            @NonNull ActionBarDrawerToggle drawerToggle) {
         mContext = drawerLayout.getContext();
         mDrawerToggle = drawerToggle;
         mDrawerLayout = drawerLayout;
 
-        mDrawerContent = drawerLayout.findViewById(R.id.drawer_content);
+        mTitleView = drawerLayout.findViewById(R.id.drawer_title);
         mDrawerList = drawerLayout.findViewById(R.id.drawer_list);
         mDrawerList.setMaxPages(PagedListView.ItemCap.UNLIMITED);
         mProgressBar = drawerLayout.findViewById(R.id.drawer_progress);
 
-        resolveThemeColors();
+        drawerLayout.findViewById(R.id.drawer_back_button).setOnClickListener(v -> {
+            if (!maybeHandleUpClick()) {
+                closeDrawer();
+            }
+        });
+
         setupDrawerToggling();
-
-        // Update the colors of the drawer title and arrow. Since this is called when the controller
-        // is first created, the drawer will be closed.
-        updateTitleAndArrowColor(/* drawerOpen= */ false);
-    }
-
-    private void resolveThemeColors() {
-        TypedValue outValue = new TypedValue();
-        mContext.getTheme().resolveAttribute(R.attr.drawerOpenHeaderColor, outValue, true);
-        mOpenDrawerHeaderColor = mContext.getColor(outValue.resourceId);
-
-        mContext.getTheme().resolveAttribute(R.attr.drawerClosedHeaderColor, outValue, true);
-        mClosedDrawerHeaderColor = mContext.getColor(outValue.resourceId);
     }
 
     /**
@@ -202,8 +192,8 @@ public class CarDrawerController {
      * controller's internal Toolbar.
      */
     private void setToolbarTitleFrom(CarDrawerAdapter adapter) {
-        mToolbar.setTitle(adapter.getTitle());
-        adapter.setTitleChangeListener(mToolbar::setTitle);
+        mTitleView.setText(adapter.getTitle());
+        adapter.setTitleChangeListener(mTitleView::setText);
     }
 
     /**
@@ -215,11 +205,7 @@ public class CarDrawerController {
         mDrawerLayout.addDrawerListener(
                 new DrawerLayout.DrawerListener() {
                     @Override
-                    public void onDrawerSlide(View drawerView, float slideOffset) {
-                        // Correctly set the title and arrow colors as they are different between
-                        // the open and close states.
-                        updateTitleAndArrowColor(slideOffset >= COLOR_SWITCH_SLIDE_OFFSET);
-                    }
+                    public void onDrawerSlide(View drawerView, float slideOffset) {}
 
                     @Override
                     public void onDrawerClosed(View drawerView) {
@@ -236,13 +222,6 @@ public class CarDrawerController {
                 });
     }
 
-    /** Sets the title and arrow color of the drawer depending on if it is open or not. */
-    private void updateTitleAndArrowColor(boolean drawerOpen) {
-        int titleColor = drawerOpen ? mOpenDrawerHeaderColor : mClosedDrawerHeaderColor;
-        mToolbar.setTitleTextColor(titleColor);
-        mDrawerToggle.getDrawerArrowDrawable().setColor(titleColor);
-    }
-
     /**
      * Synchronizes the display of the drawer with its linked {@link DrawerLayout}.
      *
@@ -254,11 +233,6 @@ public class CarDrawerController {
      */
     public void syncState() {
         mDrawerToggle.syncState();
-
-        // In case we're restarting after a config change (e.g. day, night switch), set colors
-        // again. Doing it here so that Drawer state is fully synced and we know if its open or not.
-        // NOTE: isDrawerOpen must be passed the second child of the DrawerLayout.
-        updateTitleAndArrowColor(mDrawerLayout.isDrawerOpen(mDrawerContent));
     }
 
     /**
@@ -270,6 +244,18 @@ public class CarDrawerController {
     public void onConfigurationChanged(Configuration newConfig) {
         // Pass any configuration change to the drawer toggle.
         mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    /**
+     * Sets the given adapter as the one displaying the current contents of the drawer.
+     *
+     * <p>The drawer's title will also be derived from the given adapter.
+     */
+    private void setDisplayAdapter(CarDrawerAdapter adapter) {
+        setToolbarTitleFrom(adapter);
+        // NOTE: We don't use swapAdapter() since different levels in the Drawer may switch between
+        // car_drawer_list_item_normal, car_drawer_list_item_small and car_list_empty layouts.
+        mDrawerList.getRecyclerView().setAdapter(adapter);
     }
 
     /**
@@ -287,18 +273,6 @@ public class CarDrawerController {
 
         // DrawerToggle gets next chance to handle up-clicks (and any other clicks).
         return mDrawerToggle.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Sets the given adapter as the one displaying the current contents of the drawer.
-     *
-     * <p>The drawer's title will also be derived from the given adapter.
-     */
-    private void setDisplayAdapter(CarDrawerAdapter adapter) {
-        setToolbarTitleFrom(adapter);
-        // NOTE: We don't use swapAdapter() since different levels in the Drawer may switch between
-        // car_drawer_list_item_normal, car_drawer_list_item_small and car_list_empty layouts.
-        mDrawerList.getRecyclerView().setAdapter(adapter);
     }
 
     /**
