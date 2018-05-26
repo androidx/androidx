@@ -49,6 +49,30 @@ public interface SynchronousWorkManager {
     void enqueueSync(@NonNull List<? extends WorkRequest> workRequest);
 
     /**
+     * This method allows you to synchronously enqueue a uniquely-named {@link PeriodicWorkRequest},
+     * where only one PeriodicWorkRequest of a particular name can be active at a time.  For
+     * example, you may only want one sync operation to be active.  If there is one pending, you can
+     * choose to let it run or replace it with your new work.
+     *
+     * This method is expected to be called from a background thread.
+     *
+     * The {@code uniqueWorkName} uniquely identifies this PeriodicWorkRequest.
+     *
+     * @param uniqueWorkName A unique name which for this operation
+     * @param existingPeriodicWorkPolicy An {@link ExistingPeriodicWorkPolicy}
+     * @param periodicWork A {@link PeriodicWorkRequest} to enqueue. {@code REPLACE} ensures that if
+     *                     there is pending work labelled with {@code uniqueWorkName}, it will be
+     *                     cancelled and the new work will run. {@code KEEP} will run the new
+     *                     PeriodicWorkRequest only if there is no pending work labelled with
+     *                     {@code uniqueWorkName}.
+     */
+    @WorkerThread
+    void enqueueUniquePeriodicWorkSync(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
+            @NonNull PeriodicWorkRequest periodicWork);
+
+    /**
      * Cancels work with the given id in a synchronous fashion if it isn't finished.  Note that
      * cancellation is dependent on timing (for example, the work could have completed in a
      * different thread just as you issue this call).  Use {@link #getStatusByIdSync(UUID)} to

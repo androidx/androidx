@@ -26,8 +26,10 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import androidx.work.Configuration;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.R;
 import androidx.work.SynchronousWorkManager;
 import androidx.work.WorkContinuation;
@@ -214,8 +216,8 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public void enqueue(@NonNull List<? extends WorkRequest> baseWork) {
-        new WorkContinuationImpl(this, baseWork).enqueue();
+    public void enqueue(@NonNull List<? extends WorkRequest> workRequests) {
+        new WorkContinuationImpl(this, workRequests).enqueue();
     }
 
     @Override
@@ -240,6 +242,48 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<OneTimeWorkRequest> work) {
         return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work);
+    }
+
+    @Override
+    public void enqueueUniquePeriodicWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
+            @NonNull PeriodicWorkRequest periodicWork) {
+        createWorkContinuationForUniquePeriodicWork(
+                uniqueWorkName,
+                existingPeriodicWorkPolicy,
+                periodicWork)
+                .enqueue();
+    }
+
+    @Override
+    public void enqueueUniquePeriodicWorkSync(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
+            @NonNull PeriodicWorkRequest periodicWork) {
+        assertBackgroundThread("Cannot enqueueUniquePeriodicWorkSync on main thread!");
+        createWorkContinuationForUniquePeriodicWork(
+                uniqueWorkName,
+                existingPeriodicWorkPolicy,
+                periodicWork)
+                .enqueueSync();
+    }
+
+    private WorkContinuationImpl createWorkContinuationForUniquePeriodicWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
+            @NonNull PeriodicWorkRequest periodicWork) {
+        ExistingWorkPolicy existingWorkPolicy;
+        if (existingPeriodicWorkPolicy == ExistingPeriodicWorkPolicy.KEEP) {
+            existingWorkPolicy = ExistingWorkPolicy.KEEP;
+        } else {
+            existingWorkPolicy = ExistingWorkPolicy.REPLACE;
+        }
+        return new WorkContinuationImpl(
+                this,
+                uniqueWorkName,
+                existingWorkPolicy,
+                Collections.singletonList(periodicWork));
     }
 
     @Override
