@@ -88,7 +88,7 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
     /**
      * Notifies that {@code ON_DESTROY} event occurred.
      * <p>
-     * This method will be called before the {@link LifecycleOwner}'s {@code onStop} method
+     * This method will be called before the {@link LifecycleOwner}'s {@code onDestroy} method
      * is called.
      *
      * @param owner the component, whose state was changed
