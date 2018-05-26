@@ -17,10 +17,10 @@
 package androidx.work;
 
 /**
- * An enum that determines what to do with existing {@link OneTimeWorkRequest}s with the same unique
- * name in case of a collision.
+ * An enum that determines what to do with existing {@link PeriodicWorkRequest}s with the same
+ * unique name in case of a collision.
  */
-public enum ExistingWorkPolicy {
+public enum ExistingPeriodicWorkPolicy {
 
     /**
      * If there is existing pending work with the same unique name, cancel and delete it.  Then,
@@ -32,12 +32,5 @@ public enum ExistingWorkPolicy {
      * If there is existing pending work with the same unique name, do nothing.  Otherwise, insert
      * the newly-specified work.
      */
-    KEEP,
-
-    /**
-     * If there is existing pending work with the same unique name, append the newly-specified work
-     * as a child of all the leaves of that work sequence.  Otherwise, insert the newly-specified
-     * work as the start of a new sequence.
-     */
-    APPEND
+    KEEP
 }
