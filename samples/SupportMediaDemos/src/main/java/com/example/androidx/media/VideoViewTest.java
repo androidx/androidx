@@ -100,30 +100,11 @@ public class VideoViewTest extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if (mVideoView.isAttachedToWindow()) {
-            mVideoView.getMediaController().getTransportControls().play();
-            mVideoView.getMediaController().registerCallback(mMediaControllerCallback);
-        } else {
-            mVideoView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-                @Override
-                public void onViewAttachedToWindow(View v) {
-                    mVideoView.getMediaController().registerCallback(mMediaControllerCallback);
-                    mVideoView.getMediaController().getTransportControls().play();
-                }
-
-                @Override
-                public void onViewDetachedFromWindow(View v) {
-                    // No need to remove callback here since MediaSession has already been
-                    // destroyed.
-                }
-            });
-        }
         setTitle(getViewTypeString(mVideoView));
     }
 
     @Override
     protected void onPause() {
-        mVideoView.getMediaController().getTransportControls().pause();
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onPause();
     }
@@ -131,8 +112,6 @@ public class VideoViewTest extends FragmentActivity {
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy");
-        mVideoView.getMediaController().unregisterCallback(mMediaControllerCallback);
-        mVideoView.getMediaController().getTransportControls().stop();
         super.onDestroy();
     }
 

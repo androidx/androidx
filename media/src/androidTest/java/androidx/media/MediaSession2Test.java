@@ -541,6 +541,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         prepareLooper();
         final long testDuration = 9999;
         mPlayer.mDuration = testDuration;
+        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
         assertEquals(testDuration, mSession.getDuration());
     }
 
@@ -553,6 +554,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
 
         mPlayer.mDuration = testDuration;
+        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PAUSED;
         mMockAgent.setPlaylist(list, null);
         mMockAgent.mCurrentMediaItem = testItem;
 
@@ -591,6 +593,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         prepareLooper();
         final float speed = 1.5f;
         mPlayer.setPlaybackSpeed(speed);
+        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
         assertEquals(speed, mSession.getPlaybackSpeed(), 0.0f);
     }
 
@@ -646,6 +649,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         prepareLooper();
         final long position = 150000;
         mPlayer.mCurrentPosition = position;
+        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
         assertEquals(position, mSession.getCurrentPosition());
     }
 
@@ -654,6 +658,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         prepareLooper();
         final long bufferedPosition = 900000;
         mPlayer.mBufferedPosition = bufferedPosition;
+        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
         assertEquals(bufferedPosition, mSession.getBufferedPosition());
     }
 

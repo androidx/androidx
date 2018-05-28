@@ -22,9 +22,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -45,9 +43,7 @@ import androidx.media.SessionToken2;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 /**
  * Displays a video file.  VideoView2 class is a ViewGroup class which is wrapping
@@ -99,7 +95,7 @@ import java.util.concurrent.Executor;
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
  */
-@RequiresApi(21) // TODO correct minSdk API use incompatibilities and remove before release.
+@RequiresApi(21)  // It can be lowered, using MP1 and MS1, without graurantee subtitle feature.
 public class VideoView2 extends BaseLayout {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
@@ -126,7 +122,7 @@ public class VideoView2 extends BaseLayout {
 
     private static final String TAG = "VideoView2";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-    private static final boolean USE_MP2 = Log.isLoggable("VV2MP2", Log.DEBUG);
+    private static final boolean USE_MP1 = Log.isLoggable("VV2MP1", Log.DEBUG);
 
     private VideoView2Impl mImpl;
 
@@ -141,15 +137,21 @@ public class VideoView2 extends BaseLayout {
     public VideoView2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         if (android.os.Build.VERSION.SDK_INT >= 28) {
-            if (USE_MP2) {
-                Log.d(TAG, "Create VideoView2ImplBase");
-                mImpl = new VideoView2ImplBase();
-            } else {
-                Log.d(TAG, "Create VideoView2ImplApi28WithMp1");
+            if (USE_MP1) {
+                if (DEBUG) {
+                    Log.d(TAG, "Create VideoView2ImplApi28WithMp1");
+                }
                 mImpl = new VideoView2ImplApi28WithMp1();
+            } else {
+                if (DEBUG) {
+                    Log.d(TAG, "Create VideoView2ImplBase");
+                }
+                mImpl = new VideoView2ImplBase();
             }
         } else {
-            Log.d(TAG, "Create VideoView2ImplBaseWithMp1");
+            if (DEBUG) {
+                Log.d(TAG, "Create VideoView2ImplBaseWithMp1");
+            }
             mImpl = new VideoView2ImplBaseWithMp1();
         }
         mImpl.initialize(this, context, attrs, defStyleAttr);
@@ -183,7 +185,7 @@ public class VideoView2 extends BaseLayout {
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setMediaMetadata(MediaMetadata2 metadata) {
-      //mProvider.setMediaMetadata_impl(metadata);
+        mImpl.setMediaMetadata(metadata);
     }
 
     /**
@@ -221,7 +223,7 @@ public class VideoView2 extends BaseLayout {
      */
     @RestrictTo(LIBRARY_GROUP)
     public SessionToken2 getMediaSessionToken() {
-        return null;
+        return mImpl.getMediaSessionToken();
     }
 
     /**
@@ -264,27 +266,6 @@ public class VideoView2 extends BaseLayout {
      */
     public float getSpeed() {
         return mImpl.getSpeed();
-    }
-
-    /**
-     * Sets which type of audio focus will be requested during the playback, or configures playback
-     * to not request audio focus. Valid values for focus requests are
-     * {@link AudioManager#AUDIOFOCUS_GAIN}, {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT},
-     * {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}, and
-     * {@link AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}. Or use
-     * {@link AudioManager#AUDIOFOCUS_NONE} to express that audio focus should not be
-     * requested when playback starts. You can for instance use this when playing a silent animation
-     * through this class, and you don't want to affect other audio applications playing in the
-     * background.
-     *
-     * @param focusGain the type of audio focus gain that will be requested, or
-     *                  {@link AudioManager#AUDIOFOCUS_NONE} to disable the use audio focus during
-     *                  playback.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setAudioFocusRequest(int focusGain) {
-        mImpl.setAudioFocusRequest(focusGain);
     }
 
     /**
@@ -380,22 +361,6 @@ public class VideoView2 extends BaseLayout {
     }
 
     /**
-     * Sets custom actions which will be shown as custom buttons in {@link MediaControlView2}.
-     *
-     * @param actionList A list of {@link PlaybackStateCompat.CustomAction}. The return value of
-     *                   {@link PlaybackStateCompat.CustomAction#getIcon()} will be used to draw
-     *                   buttons in {@link MediaControlView2}.
-     * @param executor executor to run callbacks on.
-     * @param listener A listener to be called when a custom button is clicked.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setCustomActions(List<PlaybackStateCompat.CustomAction> actionList,
-            Executor executor, OnCustomActionListener listener) {
-        mImpl.setCustomActions(actionList, executor, listener);
-    }
-
-    /**
      * Registers a callback to be invoked when a view type change is done.
      * {@see #setViewType(int)}
      * @param l The callback that will be run
@@ -465,21 +430,5 @@ public class VideoView2 extends BaseLayout {
          * </ul>
          */
         void onViewTypeChanged(View view, @ViewType int viewType);
-    }
-
-    /**
-     * Interface definition of a callback to be invoked to inform that a custom action is performed.
-     * @hide  TODO remove
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public interface OnCustomActionListener {
-        /**
-         * Called to indicate that a custom action is performed.
-         *
-         * @param action The action that was originally sent in the
-         *               {@link PlaybackStateCompat.CustomAction}.
-         * @param extras Optional extras.
-         */
-        void onCustomAction(String action, Bundle extras);
     }
 }
