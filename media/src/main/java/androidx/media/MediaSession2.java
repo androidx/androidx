@@ -1678,8 +1678,8 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
                 throw new IllegalArgumentException("context shouldn't be null");
             }
             mContext = context;
-            // Ensure MediaSessionCompat non-null or empty
-            mId = TAG;
+            // Ensure non-null id.
+            mId = "";
         }
 
         /**

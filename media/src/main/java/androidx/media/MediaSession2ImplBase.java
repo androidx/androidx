@@ -63,6 +63,9 @@ import java.util.concurrent.Executor;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
+    private static final String DEFAULT_MEDIA_SESSION_TAG_PREFIX = "android.media.session2.id";
+    private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
+
     static final String TAG = "MS2ImplBase";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
@@ -137,7 +140,9 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             mSessionToken = new SessionToken2(new SessionToken2ImplBase(Process.myUid(),
                     TYPE_SESSION, context.getPackageName(), null, id, mSession2Stub));
         }
-        mSessionCompat = new MediaSessionCompat(context, id, mSessionToken);
+        String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
+                new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
+        mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mSessionToken);
         mSessionCompat.setCallback(mSessionLegacyStub, mHandler);
         mSessionCompat.setSessionActivity(sessionActivity);
         updatePlayer(player, playlistAgent, volumeProvider);
