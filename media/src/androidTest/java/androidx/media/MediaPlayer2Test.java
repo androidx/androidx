@@ -39,12 +39,14 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.media.BaseMediaPlayer.PlayerEventCallback;
 import androidx.media.TestUtils.Monitor;
 import androidx.media.test.R;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -650,9 +652,59 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         playVideoTest(R.raw.testvideo, 352, 288);
     }
 
+    @Test
+    @SmallTest
+    @Ignore // See b/80285140
+    public void testGetDuration() throws Exception {
+        if (!checkLoadResource(R.raw.testvideo)) {
+            return;
+        }
+        final int expectedDuration = 11047;
+        final int tolerance = 70;
+
+        final Monitor prepareCompleted = new Monitor();
+        PlayerEventCallback callback = new PlayerEventCallback() {
+            public void onMediaPrepared(@NonNull BaseMediaPlayer mpb,
+                    @NonNull DataSourceDesc dsd) {
+                prepareCompleted.signal();
+            }
+        };
+        mPlayer.setSurface(mActivity.getSurfaceHolder2().getSurface());
+        BaseMediaPlayer basePlayer = mPlayer.getBaseMediaPlayer();
+        basePlayer.registerPlayerEventCallback(mExecutor, callback);
+        assertEquals(BaseMediaPlayer.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
+        // TODO: this line causes test failure. (b/80285140)
+        assertEquals(BaseMediaPlayer.UNKNOWN_TIME, basePlayer.getDuration());
+
+        basePlayer.prepare();
+        assertTrue(prepareCompleted.waitForSignal());
+        assertEquals(BaseMediaPlayer.PLAYER_STATE_PAUSED, basePlayer.getPlayerState());
+        assertEquals(expectedDuration, basePlayer.getDuration(), tolerance);
+    }
+
+    @Test
+    @SmallTest
+    @Ignore // See b/80285140
+    public void testGetCurrentPosition() throws Exception {
+        BaseMediaPlayer basePlayer = mPlayer.getBaseMediaPlayer();
+        assertEquals(BaseMediaPlayer.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
+        // TODO: this line causes test failure. (b/80285140)
+        assertEquals(BaseMediaPlayer.UNKNOWN_TIME, basePlayer.getCurrentPosition());
+    }
+
+    @Test
+    @SmallTest
+    @Ignore // See b/80285140
+    public void testGetBufferedPosition() throws Exception {
+        BaseMediaPlayer basePlayer = mPlayer.getBaseMediaPlayer();
+        assertEquals(BaseMediaPlayer.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
+        // TODO: this line causes test failure. (b/80285140)
+        assertEquals(BaseMediaPlayer.UNKNOWN_TIME, basePlayer.getBufferedPosition());
+    }
+
     /**
-     * Test for reseting a surface during video playback
-     * After reseting, the video should continue playing
+     * Test for resetting a surface during video playback
+     * After resetting, the video should continue playing
      * from the time setDisplay() was called
      */
     @Test
