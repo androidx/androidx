@@ -18,6 +18,7 @@ package androidx.media;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -2028,6 +2029,14 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         PlayerEventCallback callback = new PlayerEventCallback() {
             @Override
             public void onCurrentDataSourceChanged(BaseMediaPlayer mpb, DataSourceDesc dsd) {
+                switch (onDsdChangedCalled.getNumSignal()) {
+                    case 0:
+                        assertEquals(dsd2, dsd);
+                        break;
+                    case 1:
+                        assertNull(dsd);
+                        break;
+                }
                 onDsdChangedCalled.signal();
             }
 
@@ -2093,7 +2102,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         } while (Math.abs(playbackSpeed.get() - 0.5f) > FLOAT_TOLERANCE);
 
         basePlayer.skipToNext();
-        assertTrue(onDsdChangedCalled.waitForSignal(1000));
+        basePlayer.play();
+        assertEquals(2, onDsdChangedCalled.waitForCountedSignals(2));
 
         basePlayer.reset();
 

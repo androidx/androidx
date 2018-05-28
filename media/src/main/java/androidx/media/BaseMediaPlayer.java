@@ -302,9 +302,13 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
     public abstract static class PlayerEventCallback {
         /**
          * Called when the player's current data source has changed.
+         * <p>
+         * When the playback completes, and no other source is about to be played next (i.e.
+         * playback reached the end of the list of sources to play), this callback will be invoked
+         * with a {@code null} dsd.
          *
          * @param mpb the player whose data source changed.
-         * @param dsd the new current data source. null, if no more data sources available.
+         * @param dsd the new current data source. {@code null}, if no more data sources available.
          */
         public void onCurrentDataSourceChanged(@NonNull BaseMediaPlayer mpb,
                 @Nullable DataSourceDesc dsd) { }
