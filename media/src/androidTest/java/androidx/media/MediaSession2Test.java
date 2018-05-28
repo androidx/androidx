@@ -122,6 +122,21 @@ public class MediaSession2Test extends MediaSession2TestBase {
     }
 
     @Test
+    public void testBuilder_emptyStringAsId() throws Exception {
+        prepareLooper();
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+                .setPlayer(mPlayer).setId("").build()) {
+            // Using empty string as Id shouldn't crash.
+        }
+    }
+
+    @Test
+    public void testDefaultId() {
+        prepareLooper();
+        assertEquals("", mSession.getToken().getId());
+    }
+
+    @Test
     public void testPlayerStateChange() throws Exception {
         prepareLooper();
         final int targetState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
