@@ -2127,6 +2127,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     setMp2State(mp, MEDIAPLAYER2_STATE_PAUSED);
 
                     final DataSourceDesc dsd = mQueue.get(0).getDSD();
+                    notifyPlayerEvent(new PlayerEventNotifier() {
+                        @Override
+                        public void notify(PlayerEventCallback cb) {
+                            cb.onCurrentDataSourceChanged(mBaseMediaPlayerImpl, null);
+                        }
+                    });
                     notifyMediaPlayer2Event(new Mp2EventNotifier() {
                         @Override
                         public void notify(EventCallback callback) {
