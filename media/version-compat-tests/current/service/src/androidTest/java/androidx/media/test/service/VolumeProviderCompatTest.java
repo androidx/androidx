@@ -18,17 +18,11 @@ package androidx.media.test.service;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
-import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_DIRECTION;
-import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_VALUE;
-import static androidx.media.test.lib.MediaController2Constants.ADJUST_VOLUME;
-import static androidx.media.test.lib.MediaController2Constants.SET_VOLUME_TO;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.media.AudioManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -54,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 public class VolumeProviderCompatTest extends MediaSession2TestBase {
 
     MediaSession2 mSession;
+    RemoteMediaController2 mController2;
 
     @Before
     @Override
@@ -75,7 +70,7 @@ public class VolumeProviderCompatTest extends MediaSession2TestBase {
                 }).build();
         TestServiceRegistry.getInstance().setHandler(sHandler);
         // Create a default MediaController2 in client app.
-        mTestHelper.createMediaController2(mSession.getToken());
+        mController2 = createRemoteController2(mSession.getToken());
     }
 
     @After
@@ -100,9 +95,7 @@ public class VolumeProviderCompatTest extends MediaSession2TestBase {
         mSession.updatePlayer(new MockPlayer(0), null, volumeProvider);
 
         final int targetVolume = 50;
-        Bundle args = new Bundle();
-        args.putInt(KEY_VOLUME_VALUE, targetVolume);
-        mTestHelper.callMediaController2Method(SET_VOLUME_TO, args);
+        mController2.setVolumeTo(targetVolume, 0 /* flags */);
 
         assertTrue(volumeProvider.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(volumeProvider.mSetVolumeToCalled);
@@ -119,11 +112,9 @@ public class VolumeProviderCompatTest extends MediaSession2TestBase {
                 new TestVolumeProvider(volumeControlType, maxVolume, currentVolume);
 
         mSession.updatePlayer(new MockPlayer(0), null, volumeProvider);
-        final int direction = AudioManager.ADJUST_RAISE;
 
-        Bundle args = new Bundle();
-        args.putInt(KEY_VOLUME_DIRECTION, direction);
-        mTestHelper.callMediaController2Method(ADJUST_VOLUME, args);
+        final int direction = AudioManager.ADJUST_RAISE;
+        mController2.adjustVolume(direction, 0 /* flags */);
 
         assertTrue(volumeProvider.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(volumeProvider.mAdjustVolumeCalled);

@@ -24,10 +24,10 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="androidx.media.test.client.TestHelperService">
+        <service android:name="androidx.media.test.client.RemoteMediaController2Service">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
-                <action android:name="androidx.media.test.action.TEST_HELPER" />
+                <action android:name="androidx.media.test.action.MEDIA_CONTROLLER2" />
             </intent-filter>
         </service>
     </application>

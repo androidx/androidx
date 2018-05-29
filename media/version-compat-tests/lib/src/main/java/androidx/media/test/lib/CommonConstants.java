@@ -25,46 +25,27 @@ public class CommonConstants {
     public static final ComponentName SERVICE_APP_TEST_HELPER_SERVICE_COMPONENT_NAME =
             new ComponentName(IntentUtil.SERVICE_PACKAGE_NAME,
                     "androidx.media.test.service.TestHelperService");
-    public static final ComponentName CLIENT_APP_TEST_HELPER_SERVICE_COMPONENT_NAME =
+    public static final ComponentName CLIENT_APP_REMOTE_MEDIA_CONTROLLER2_SERVICE_COMPONENT_NAME =
             new ComponentName(IntentUtil.CLIENT_PACKAGE_NAME,
-                    "androidx.media.test.client.TestHelperService");
-    public static final String ACTION_TEST_HELPER = "androidx.media.action.test.TEST_HELPER";
-    public static final String ACTION_MEDIA_SESSION2 = "androidx.media.action.test.MEDIA_SESSION2";
+                    "androidx.media.test.client.RemoteMediaController2Service");
+
+    public static final String ACTION_MEDIA_SESSION2 = "androidx.media.test.action.MEDIA_SESSION2";
+    public static final String ACTION_MEDIA_CONTROLLER2 =
+            "androidx.media.test.action.MEDIA_CONTROLLER2";
 
     // Keys for arguments.
-    public static final String KEY_SESSION_ID = "sessionId";
     public static final String KEY_STREAM = "stream";
     public static final String KEY_AUDIO_ATTRIBUTES = "audioAttributes";
     public static final String KEY_PLAYER_STATE = "playerState";
     public static final String KEY_PLAYLIST = "playlist";
-    public static final String KEY_PLAYLIST_METADATA = "playlistMetadata";
-    public static final String KEY_SHUFFLE_MODE = "shuffleMode";
-    public static final String KEY_REPEAT_MODE = "repeatMode";
     public static final String KEY_CURRENT_POSITION = "currentPosition";
-    public static final String KEY_SEEK_POSITION = "seekPosition";
     public static final String KEY_CUSTOM_COMMAND = "customCommand";
     public static final String KEY_BUFFERED_POSITION = "bufferedPosition";
     public static final String KEY_BUFFERING_STATE = "bufferingState";
     public static final String KEY_SPEED = "speed";
     public static final String KEY_MEDIA_ITEM = "mediaItem";
-    public static final String KEY_ITEM_INDEX = "itemIndex";
-    public static final String KEY_VOLUME_VALUE = "volumeValue";
-    public static final String KEY_VOLUME_DIRECTION = "volumeDirection";
-    public static final String KEY_FLAGS = "flags";
-    public static final String KEY_COMMAND = "command";
-    public static final String KEY_COMMAND_GROUP = "commandGroup";
     public static final String KEY_ARGUMENTS = "arguments";
     public static final String KEY_RESULT_RECEIVER = "resultReceiver";
-    public static final String KEY_QUERY = "query";
-    public static final String KEY_EXTRAS = "extras";
-    public static final String KEY_URI = "uri";
-    public static final String KEY_MEDIA_ID = "mediaId";
-    public static final String KEY_RATING = "rating";
-    public static final String KEY_ROUTE = "route";
-    public static final String KEY_ROUTE_LIST = "routeList";
-    public static final String KEY_ERROR_CODE = "errorCode";
-    public static final String KEY_COMMAND_BUTTON_LIST = "commandButtonList";
-    public static final String KEY_DURATION = "duration";
     public static final String KEY_MAX_VOLUME = "maxVolume";
     public static final String KEY_CURRENT_VOLUME = "currentVolume";
     public static final String KEY_VOLUME_CONTROL_TYPE = "volumeControlType";

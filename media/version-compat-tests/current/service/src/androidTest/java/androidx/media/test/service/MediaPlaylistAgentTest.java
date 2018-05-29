@@ -18,23 +18,6 @@ package androidx.media.test.service;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
-import static androidx.media.test.lib.CommonConstants.KEY_ITEM_INDEX;
-import static androidx.media.test.lib.CommonConstants.KEY_MEDIA_ITEM;
-import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
-import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST_METADATA;
-import static androidx.media.test.lib.CommonConstants.KEY_REPEAT_MODE;
-import static androidx.media.test.lib.CommonConstants.KEY_SHUFFLE_MODE;
-import static androidx.media.test.lib.MediaController2Constants.ADD_PLAYLIST_ITEM;
-import static androidx.media.test.lib.MediaController2Constants.REMOVE_PLAYLIST_ITEM;
-import static androidx.media.test.lib.MediaController2Constants.REPLACE_PLAYLIST_ITEM;
-import static androidx.media.test.lib.MediaController2Constants.SET_PLAYLIST;
-import static androidx.media.test.lib.MediaController2Constants.SET_REPEAT_MODE;
-import static androidx.media.test.lib.MediaController2Constants.SET_SHUFFLE_MODE;
-import static androidx.media.test.lib.MediaController2Constants.SKIP_TO_NEXT_ITEM;
-import static androidx.media.test.lib.MediaController2Constants.SKIP_TO_PLAYLIST_ITEM;
-import static androidx.media.test.lib.MediaController2Constants.SKIP_TO_PREVIOUS_ITEM;
-import static androidx.media.test.lib.MediaController2Constants.UPDATE_PLAYLIST_METADATA;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -42,7 +25,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
-import android.os.Bundle;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -72,6 +54,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
 
     MediaSession2 mSession;
     MockPlaylistAgent mMockAgent;
+    RemoteMediaController2 mController2;
 
     @Before
     @Override
@@ -93,7 +76,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
                 }).build();
         TestServiceRegistry.getInstance().setHandler(sHandler);
         // Create a default MediaController2 in client app.
-        mTestHelper.createMediaController2(mSession.getToken());
+        mController2 = createRemoteController2(mSession.getToken());
     }
 
     @After
@@ -119,10 +102,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
     @Test
     public void testSetPlaylistByController() throws InterruptedException {
         final List<MediaItem2> list = MediaTestUtils.createPlaylist(2);
-        Bundle args = new Bundle();
-        args.putParcelableArrayList(
-                KEY_PLAYLIST, MediaTestUtils.playlistToParcelableArrayList(list));
-        mTestHelper.callMediaController2Method(SET_PLAYLIST, args);
+        mController2.setPlaylist(list, null /* metadata */);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mMockAgent.mSetPlaylistCalled);
@@ -148,10 +128,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
     @Test
     public void testUpdatePlaylistMetadataByController() throws InterruptedException {
         final MediaMetadata2 testMetadata = MediaTestUtils.createMetadata();
-
-        Bundle args = new Bundle();
-        args.putBundle(KEY_PLAYLIST_METADATA, testMetadata.toBundle());
-        mTestHelper.callMediaController2Method(UPDATE_PLAYLIST_METADATA, args);
+        mController2.updatePlaylistMetadata(testMetadata);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mMockAgent.mUpdatePlaylistMetadataCalled);
@@ -175,10 +152,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
         final int testIndex = 12;
         final MediaItem2 testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
 
-        Bundle args = new Bundle();
-        args.putInt(KEY_ITEM_INDEX, testIndex);
-        args.putBundle(KEY_MEDIA_ITEM, testMediaItem.toBundle());
-        mTestHelper.callMediaController2Method(ADD_PLAYLIST_ITEM, args);
+        mController2.addPlaylistItem(testIndex, testMediaItem);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mMockAgent.mAddPlaylistItemCalled);
@@ -201,9 +175,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
         mMockAgent.mPlaylist = MediaTestUtils.createPlaylist(2);
         MediaItem2 targetItem = mMockAgent.mPlaylist.get(0);
 
-        Bundle args = new Bundle();
-        args.putBundle(KEY_MEDIA_ITEM, targetItem.toBundle());
-        mTestHelper.callMediaController2Method(REMOVE_PLAYLIST_ITEM, args);
+        mController2.removePlaylistItem(targetItem);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mMockAgent.mRemovePlaylistItemCalled);
@@ -226,10 +198,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
         final int testIndex = 12;
         final MediaItem2 testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
 
-        Bundle args = new Bundle();
-        args.putInt(KEY_ITEM_INDEX, testIndex);
-        args.putBundle(KEY_MEDIA_ITEM, testMediaItem.toBundle());
-        mTestHelper.callMediaController2Method(REPLACE_PLAYLIST_ITEM, args);
+        mController2.replacePlaylistItem(testIndex, testMediaItem);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mMockAgent.mReplacePlaylistItemCalled);
@@ -246,7 +215,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
 
     @Test
     public void testSkipToPreviousItemByController() throws InterruptedException {
-        mTestHelper.callMediaController2Method(SKIP_TO_PREVIOUS_ITEM, null);
+        mController2.skipToPreviousItem();
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mMockAgent.mSkipToPreviousItemCalled);
     }
@@ -260,7 +229,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
 
     @Test
     public void testSkipToNextItemByController() throws InterruptedException {
-        mTestHelper.callMediaController2Method(SKIP_TO_NEXT_ITEM, null);
+        mController2.skipToNextItem();
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mMockAgent.mSkipToNextItemCalled);
     }
@@ -277,10 +246,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
     @Test
     public void testSkipToPlaylistItemByController() throws InterruptedException {
         MediaItem2 targetItem = MediaTestUtils.createMediaItemWithMetadata();
-
-        Bundle args = new Bundle();
-        args.putBundle(KEY_MEDIA_ITEM, targetItem.toBundle());
-        mTestHelper.callMediaController2Method(SKIP_TO_PLAYLIST_ITEM, args);
+        mController2.skipToPlaylistItem(targetItem);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mMockAgent.mSkipToPlaylistItemCalled);
@@ -299,10 +265,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
     @Test
     public void testSetShuffleModeByController() throws InterruptedException {
         final int testShuffleMode = MediaPlaylistAgent.SHUFFLE_MODE_GROUP;
-
-        Bundle args = new Bundle();
-        args.putInt(KEY_SHUFFLE_MODE, testShuffleMode);
-        mTestHelper.callMediaController2Method(SET_SHUFFLE_MODE, args);
+        mController2.setShuffleMode(testShuffleMode);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mMockAgent.mSetShuffleModeCalled);
@@ -321,10 +284,7 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
     @Test
     public void testSetRepeatModeByController() throws InterruptedException {
         final int testRepeatMode = MediaPlaylistAgent.REPEAT_MODE_GROUP;
-
-        Bundle args = new Bundle();
-        args.putInt(KEY_REPEAT_MODE, testRepeatMode);
-        mTestHelper.callMediaController2Method(SET_REPEAT_MODE, args);
+        mController2.setRepeatMode(testRepeatMode);
         assertTrue(mMockAgent.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mMockAgent.mSetRepeatModeCalled);

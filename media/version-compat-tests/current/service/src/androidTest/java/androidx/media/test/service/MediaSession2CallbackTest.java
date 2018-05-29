@@ -18,32 +18,6 @@ package androidx.media.test.service;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
-import static androidx.media.test.lib.CommonConstants.KEY_ARGUMENTS;
-import static androidx.media.test.lib.CommonConstants.KEY_COMMAND;
-import static androidx.media.test.lib.CommonConstants.KEY_EXTRAS;
-import static androidx.media.test.lib.CommonConstants.KEY_MEDIA_ID;
-import static androidx.media.test.lib.CommonConstants.KEY_QUERY;
-import static androidx.media.test.lib.CommonConstants.KEY_RATING;
-import static androidx.media.test.lib.CommonConstants.KEY_RESULT_RECEIVER;
-import static androidx.media.test.lib.CommonConstants.KEY_ROUTE;
-import static androidx.media.test.lib.CommonConstants.KEY_URI;
-import static androidx.media.test.lib.MediaController2Constants.CLOSE;
-import static androidx.media.test.lib.MediaController2Constants.FAST_FORWARD;
-import static androidx.media.test.lib.MediaController2Constants.PAUSE;
-import static androidx.media.test.lib.MediaController2Constants.PLAY;
-import static androidx.media.test.lib.MediaController2Constants.PLAY_FROM_MEDIA_ID;
-import static androidx.media.test.lib.MediaController2Constants.PLAY_FROM_SEARCH;
-import static androidx.media.test.lib.MediaController2Constants.PLAY_FROM_URI;
-import static androidx.media.test.lib.MediaController2Constants.PREPARE_FROM_MEDIA_ID;
-import static androidx.media.test.lib.MediaController2Constants.PREPARE_FROM_SEARCH;
-import static androidx.media.test.lib.MediaController2Constants.PREPARE_FROM_URI;
-import static androidx.media.test.lib.MediaController2Constants.REWIND;
-import static androidx.media.test.lib.MediaController2Constants.SELECT_ROUTE;
-import static androidx.media.test.lib.MediaController2Constants.SEND_CUSTOM_COMMAND;
-import static androidx.media.test.lib.MediaController2Constants.SET_RATING;
-import static androidx.media.test.lib.MediaController2Constants.SUBSCRIBE_ROUTES_INFO;
-import static androidx.media.test.lib.MediaController2Constants.UNSUBSCRIBE_ROUTES_INFO;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -92,6 +66,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
 
     MockPlayer mPlayer;
     MockPlaylistAgent mMockAgent;
+    RemoteMediaController2 mController2;
 
     @Before
     @Override
@@ -120,16 +95,16 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnCommandRequest")
                 .build();
-        mTestHelper.createMediaController2(session.getToken());
+        mController2 = createRemoteController2(session.getToken());
 
-        mTestHelper.callMediaController2Method(PAUSE, null);
+        mController2.pause();
         assertFalse(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertFalse(mPlayer.mPauseCalled);
         assertEquals(1, callback.commands.size());
         assertEquals(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE,
                 (long) callback.commands.get(0).getCommandCode());
 
-        mTestHelper.callMediaController2Method(PLAY, null);
+        mController2.play();
         assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPlayCalled);
         assertFalse(mPlayer.mPauseCalled);
@@ -165,13 +140,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnCustomCommand")
                 .build();
-        mTestHelper.createMediaController2(session.getToken());
-
-        Bundle args = new Bundle();
-        args.putBundle(KEY_COMMAND, testCommand.toBundle());
-        args.putBundle(KEY_ARGUMENTS, testArgs);
-        args.putParcelable(KEY_RESULT_RECEIVER, null);
-        mTestHelper.callMediaController2Method(SEND_CUSTOM_COMMAND, args);
+        mController2 = createRemoteController2(session.getToken());
+        mController2.sendCustomCommand(testCommand, testArgs, null /* ResultReceiver */);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -190,8 +160,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnFastForward").build()) {
-            mTestHelper.createMediaController2(session.getToken());
-            mTestHelper.callMediaController2Method(FAST_FORWARD, null);
+            mController2 = createRemoteController2(session.getToken());
+            mController2.fastForward();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -211,8 +181,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnRewind").build()) {
-            mTestHelper.createMediaController2(session.getToken());
-            mTestHelper.callMediaController2Method(REWIND, null);
+            mController2 = createRemoteController2(session.getToken());
+            mController2.rewind();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -220,17 +190,16 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPlayFromSearch() throws InterruptedException {
         prepareLooper();
-        final String request = "random query";
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
+        final String testQuery = "random query";
+        final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
             @Override
             public void onPlayFromSearch(MediaSession2 session, ControllerInfo controller,
                     String query, Bundle extras) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, query);
-                assertTrue(TestUtils.equals(bundle, extras));
+                assertEquals(testQuery, query);
+                assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
             }
         };
@@ -238,12 +207,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPlayFromSearch").build()) {
-            mTestHelper.createMediaController2(session.getToken());
+            mController2 = createRemoteController2(session.getToken());
 
-            Bundle args = new Bundle();
-            args.putString(KEY_QUERY, request);
-            args.putBundle(KEY_EXTRAS, bundle);
-            mTestHelper.callMediaController2Method(PLAY_FROM_SEARCH, args);
+            mController2.playFromSearch(testQuery, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -251,17 +217,16 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPlayFromUri() throws InterruptedException {
         prepareLooper();
-        final Uri request = Uri.parse("foo://boo");
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
+        final Uri testUri = Uri.parse("foo://boo");
+        final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
             @Override
             public void onPlayFromUri(MediaSession2 session, ControllerInfo controller, Uri uri,
                     Bundle extras) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, uri);
-                assertTrue(TestUtils.equals(bundle, extras));
+                assertEquals(testUri, uri);
+                assertTrue(TestUtils.equals(extras, extras));
                 latch.countDown();
             }
         };
@@ -270,12 +235,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPlayFromUri")
                 .build()) {
-            mTestHelper.createMediaController2(session.getToken());
+            mController2 = createRemoteController2(session.getToken());
 
-            Bundle args = new Bundle();
-            args.putParcelable(KEY_URI, request);
-            args.putBundle(KEY_EXTRAS, bundle);
-            mTestHelper.callMediaController2Method(PLAY_FROM_URI, args);
+            mController2.playFromUri(testUri, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -283,17 +245,16 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPlayFromMediaId() throws InterruptedException {
         prepareLooper();
-        final String request = "media_id";
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
+        final String testMediaId = "media_id";
+        final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
             @Override
             public void onPlayFromMediaId(MediaSession2 session, ControllerInfo controller,
                     String mediaId, Bundle extras) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, mediaId);
-                assertTrue(TestUtils.equals(bundle, extras));
+                assertEquals(mediaId, mediaId);
+                assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
             }
         };
@@ -301,12 +262,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPlayFromMediaId").build()) {
-            mTestHelper.createMediaController2(session.getToken());
+            mController2 = createRemoteController2(session.getToken());
 
-            Bundle args = new Bundle();
-            args.putString(KEY_MEDIA_ID, request);
-            args.putBundle(KEY_EXTRAS, bundle);
-            mTestHelper.callMediaController2Method(PLAY_FROM_MEDIA_ID, args);
+            mController2.playFromMediaId(testMediaId, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -314,17 +272,16 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPrepareFromSearch() throws InterruptedException {
         prepareLooper();
-        final String request = "random query";
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
+        final String testQuery = "random query";
+        final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
             @Override
             public void onPrepareFromSearch(MediaSession2 session, ControllerInfo controller,
                     String query, Bundle extras) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, query);
-                assertTrue(TestUtils.equals(bundle, extras));
+                assertEquals(testQuery, query);
+                assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
             }
         };
@@ -332,12 +289,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPrepareFromSearch").build()) {
-            mTestHelper.createMediaController2(session.getToken());
+            mController2 = createRemoteController2(session.getToken());
 
-            Bundle args = new Bundle();
-            args.putString(KEY_QUERY, request);
-            args.putBundle(KEY_EXTRAS, bundle);
-            mTestHelper.callMediaController2Method(PREPARE_FROM_SEARCH, args);
+            mController2.prepareFromSearch(testQuery, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -345,17 +299,16 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPrepareFromUri() throws InterruptedException {
         prepareLooper();
-        final Uri request = Uri.parse("foo://boo");
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
+        final Uri testUri = Uri.parse("foo://boo");
+        final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
             @Override
             public void onPrepareFromUri(MediaSession2 session, ControllerInfo controller, Uri uri,
                     Bundle extras) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, uri);
-                assertTrue(TestUtils.equals(bundle, extras));
+                assertEquals(testUri, uri);
+                assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
             }
         };
@@ -363,12 +316,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPrepareFromUri").build()) {
-            mTestHelper.createMediaController2(session.getToken());
+            mController2 = createRemoteController2(session.getToken());
 
-            Bundle args = new Bundle();
-            args.putParcelable(KEY_URI, request);
-            args.putBundle(KEY_EXTRAS, bundle);
-            mTestHelper.callMediaController2Method(PREPARE_FROM_URI, args);
+            mController2.prepareFromUri(testUri, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -376,17 +326,16 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPrepareFromMediaId() throws InterruptedException {
         prepareLooper();
-        final String request = "media_id";
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
+        final String testMediaId = "media_id";
+        final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
             @Override
             public void onPrepareFromMediaId(MediaSession2 session, ControllerInfo controller,
                     String mediaId, Bundle extras) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, mediaId);
-                assertTrue(TestUtils.equals(bundle, extras));
+                assertEquals(testMediaId, mediaId);
+                assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
             }
         };
@@ -394,12 +343,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPrepareFromMediaId").build()) {
-            mTestHelper.createMediaController2(session.getToken());
+            mController2 = createRemoteController2(session.getToken());
 
-            Bundle args = new Bundle();
-            args.putString(KEY_MEDIA_ID, request);
-            args.putBundle(KEY_EXTRAS, bundle);
-            mTestHelper.callMediaController2Method(PREPARE_FROM_MEDIA_ID, args);
+            mController2.prepareFromMediaId(testMediaId, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -409,17 +355,17 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         final int ratingType = Rating2.RATING_5_STARS;
         final float ratingValue = 3.5f;
-        final Rating2 rating = Rating2.newStarRating(ratingType, ratingValue);
-        final String mediaId = "media_id";
+        final Rating2 testRating = Rating2.newStarRating(ratingType, ratingValue);
+        final String testMediaId = "media_id";
 
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
             @Override
             public void onSetRating(MediaSession2 session, ControllerInfo controller,
-                    String mediaIdOut, Rating2 ratingOut) {
+                    String mediaId, Rating2 rating) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(mediaId, mediaIdOut);
-                assertEquals(rating, ratingOut);
+                assertEquals(testMediaId, mediaId);
+                assertEquals(testRating, rating);
                 latch.countDown();
             }
         };
@@ -428,12 +374,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setPlayer(mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSetRating").build()) {
-            mTestHelper.createMediaController2(session.getToken());
+            mController2 = createRemoteController2(session.getToken());
 
-            Bundle args = new Bundle();
-            args.putString(KEY_MEDIA_ID, mediaId);
-            args.putBundle(KEY_RATING, rating.toBundle());
-            mTestHelper.callMediaController2Method(SET_RATING, args);
+            mController2.setRating(testMediaId, testRating);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -454,10 +397,10 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSubscribeRoutesInfo")
                 .build();
-        mTestHelper.createMediaController2(session.getToken());
+        mController2 = createRemoteController2(session.getToken());
 
         callback.resetLatchCount(1);
-        mTestHelper.callMediaController2Method(SUBSCRIBE_ROUTES_INFO, null);
+        mController2.subscribeRoutesInfo();
         assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -477,24 +420,23 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnUnsubscribeRoutesInfo")
                 .build();
-        mTestHelper.createMediaController2(session.getToken());
+        mController2 = createRemoteController2(session.getToken());
 
         callback.resetLatchCount(1);
-        mTestHelper.callMediaController2Method(UNSUBSCRIBE_ROUTES_INFO, null);
+        mController2.unsubscribeRoutesInfo();
         assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
     public void testOnSelectRoute() throws InterruptedException {
         prepareLooper();
-        final Bundle testRoute = new Bundle();
-        testRoute.putString("id", "testOnSelectRoute");
+        final Bundle testRoute = TestUtils.createTestBundle();
         final TestSessionCallback callback = new TestSessionCallback() {
             @Override
             public void onSelectRoute(@NonNull MediaSession2 session,
                     @NonNull ControllerInfo controller, @NonNull Bundle route) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
-                assertTrue(TestUtils.equals(route, testRoute));
+                assertTrue(TestUtils.equals(testRoute, route));
                 mLatch.countDown();
             }
         };
@@ -503,12 +445,10 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSelectRoute")
                 .build();
-        mTestHelper.createMediaController2(session.getToken());
+        mController2 = createRemoteController2(session.getToken());
 
         callback.resetLatchCount(1);
-        Bundle args = new Bundle();
-        args.putBundle(KEY_ROUTE, testRoute);
-        mTestHelper.callMediaController2Method(SELECT_ROUTE, args);
+        mController2.selectRoute(testRoute);
         assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -585,7 +525,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                         return super.onConnect(session, controller);
                     }
                 }).build()) {
-            mTestHelper.createMediaController2(session.getToken(), false /* waitForConnect */);
+            mController2 = createRemoteController2(
+                    session.getToken(), false /* waitForConnection */);
             assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -606,8 +547,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                         latch.countDown();
                     }
                 }).build()) {
-            mTestHelper.createMediaController2(session.getToken());
-            mTestHelper.callMediaController2Method(CLOSE, null);
+            mController2 = createRemoteController2(session.getToken());
+            mController2.close();
             assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         }
     }
