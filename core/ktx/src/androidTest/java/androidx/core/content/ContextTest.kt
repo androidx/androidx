@@ -42,7 +42,7 @@ class ContextTest {
                 return if (name == "unit") Unit else null
             }
         }
-        val actual = context.systemService<Unit>()
+        val actual = context.getSystemService<Unit>()
         assertEquals(Unit::class.java, lookup)
         assertSame(Unit, actual)
     }

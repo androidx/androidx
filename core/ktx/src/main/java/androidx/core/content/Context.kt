@@ -34,6 +34,11 @@ import androidx.annotation.StyleRes
  */
 @RequiresApi(23)
 @Suppress("HasPlatformType") // Intentionally propagating platform type with unknown nullability.
+inline fun <reified T> Context.getSystemService() = getSystemService(T::class.java)
+
+@Deprecated("Use getSystemService", ReplaceWith("this.getSystemService<T>()"))
+@RequiresApi(23)
+@Suppress("HasPlatformType") // Intentionally propagating platform type with unknown nullability.
 inline fun <reified T> Context.systemService() = getSystemService(T::class.java)
 
 /**
