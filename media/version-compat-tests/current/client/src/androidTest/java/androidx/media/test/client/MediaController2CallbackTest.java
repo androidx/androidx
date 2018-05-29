@@ -120,8 +120,6 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         RemoteMediaSession2 session2 =
                 new RemoteMediaSession2(TEST_CONTROLLER_CALLBACK_SESSION_REJECTS, mContext);
-        assertTrue(session2.connect(WAIT_TIME_MS));
-        session2.create();
 
         MediaController2 controller = createController(session2.getToken(),
                 false /* waitForConnect */, null);

@@ -19,7 +19,7 @@ package android.support.mediacompat.testlib;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-interface ISession2 {
+interface IRemoteMediaSession2 {
 
     void create(String sessionId);
     void runCustomTestCommands(String sessionId, int command, in Bundle args);

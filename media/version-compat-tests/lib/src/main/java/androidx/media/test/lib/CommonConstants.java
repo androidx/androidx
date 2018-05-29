@@ -21,10 +21,9 @@ import android.support.mediacompat.testlib.util.IntentUtil;
 
 public class CommonConstants {
 
-    // Constants for using TestHelper/TestHelperService
-    public static final ComponentName SERVICE_APP_TEST_HELPER_SERVICE_COMPONENT_NAME =
+    public static final ComponentName SERVICE_APP_REMOTE_MEDIA_SESSION2_SERVICE_COMPONENT_NAME =
             new ComponentName(IntentUtil.SERVICE_PACKAGE_NAME,
-                    "androidx.media.test.service.TestHelperService");
+                    "androidx.media.test.service.RemoteMediaSession2Service");
     public static final ComponentName CLIENT_APP_REMOTE_MEDIA_CONTROLLER2_SERVICE_COMPONENT_NAME =
             new ComponentName(IntentUtil.CLIENT_PACKAGE_NAME,
                     "androidx.media.test.client.RemoteMediaController2Service");

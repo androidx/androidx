@@ -53,7 +53,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
-import android.support.mediacompat.testlib.ISession2;
+import android.support.mediacompat.testlib.IRemoteMediaSession2;
 import android.util.Log;
 
 import androidx.media.AudioAttributesCompat;
@@ -79,9 +79,9 @@ import java.util.concurrent.Executor;
  * A Service that creates {@link MediaSession2} and calls its methods according to the client app's
  * requests.
  */
-public class TestHelperService extends Service {
+public class RemoteMediaSession2Service extends Service {
 
-    private static final String TAG = "TestHelperService_serviceApp";
+    private static final String TAG = "RemoteMediaSession2Service";
 
     Map<String, MediaSession2> mSession2Map = new HashMap<>();
     RemoteMediaSession2Stub mSession2Binder;
@@ -117,21 +117,23 @@ public class TestHelperService extends Service {
         }
     }
 
-    private class RemoteMediaSession2Stub extends ISession2.Stub {
-
+    private class RemoteMediaSession2Stub extends IRemoteMediaSession2.Stub {
         @Override
         public void create(final String sessionId) throws RemoteException {
-            final MediaSession2.Builder builder = new MediaSession2.Builder(TestHelperService.this)
-                    .setId(sessionId)
-                    .setPlayer(new MockPlayer(0))
-                    .setPlaylistAgent(new MockPlaylistAgent());
+            final MediaSession2.Builder builder =
+                    new MediaSession2.Builder(RemoteMediaSession2Service.this)
+                            .setId(sessionId)
+                            .setPlayer(new MockPlayer(0))
+                            .setPlaylistAgent(new MockPlaylistAgent());
 
             switch (sessionId) {
                 case TEST_GET_SESSION_ACTIVITY: {
-                    final Intent sessionActivity = new Intent(TestHelperService.this,
+                    final Intent sessionActivity = new Intent(RemoteMediaSession2Service.this,
                             MockActivity.class);
-                    PendingIntent pendingIntent = PendingIntent.getActivity(TestHelperService.this,
-                            0 /* requestCode */, sessionActivity, 0 /* flags */);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(
+                            RemoteMediaSession2Service.this,
+                            0 /* requestCode */,
+                            sessionActivity, 0 /* flags */);
                     builder.setSessionActivity(pendingIntent);
                     break;
                 }

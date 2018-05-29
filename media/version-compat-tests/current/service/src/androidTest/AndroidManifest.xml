@@ -42,7 +42,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="androidx.media.test.service.TestHelperService">
+        <service android:name="androidx.media.test.service.RemoteMediaSession2Service">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
                 <action android:name="androidx.media.test.action.MEDIA_SESSION2" />
