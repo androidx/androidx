@@ -702,6 +702,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
 
         mPlayer.mDuration = testDuration;
+        mPlayer.mLastPlayerState = BaseMediaPlayer.PLAYER_STATE_PAUSED;
         mMockAgent.setPlaylist(list, null);
         mMockAgent.mCurrentMediaItem = testItem;
 
