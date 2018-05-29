@@ -371,7 +371,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
 
         RemoteMediaSession2.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
         player.setDuration(testDuration);
-
+        player.notifyPlayerStateChanged(BaseMediaPlayer.PLAYER_STATE_PAUSED);
         MediaController2 controller = createController(
                 mRemoteSession2.getToken(), true, new MediaController2.ControllerCallback() {
                     @Override
@@ -507,6 +507,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             }
         };
 
+        mRemoteSession2.getMockPlayer()
+                .notifyPlayerStateChanged(BaseMediaPlayer.PLAYER_STATE_PAUSED);
         mRemoteSession2.getMockPlayer().setCurrentPosition(testPosition);
 
         MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
