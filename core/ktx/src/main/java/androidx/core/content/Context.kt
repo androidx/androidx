@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import androidx.annotation.AttrRes
-import androidx.annotation.RequiresApi
 import androidx.annotation.StyleRes
 
 /**
@@ -32,14 +31,12 @@ import androidx.annotation.StyleRes
  *
  * @see Context.getSystemService(Class)
  */
-@RequiresApi(23)
-@Suppress("HasPlatformType") // Intentionally propagating platform type with unknown nullability.
-inline fun <reified T> Context.getSystemService() = getSystemService(T::class.java)
+inline fun <reified T> Context.getSystemService(): T? =
+        ContextCompat.getSystemService(this, T::class.java)
 
 @Deprecated("Use getSystemService", ReplaceWith("this.getSystemService<T>()"))
-@RequiresApi(23)
-@Suppress("HasPlatformType") // Intentionally propagating platform type with unknown nullability.
-inline fun <reified T> Context.systemService() = getSystemService(T::class.java)
+inline fun <reified T> Context.systemService(): T? =
+        ContextCompat.getSystemService(this, T::class.java)
 
 /**
  * Executes [block] on a [TypedArray] receiver. The [TypedArray] holds the attribute
