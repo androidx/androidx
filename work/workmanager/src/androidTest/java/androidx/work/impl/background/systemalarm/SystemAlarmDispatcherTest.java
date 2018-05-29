@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -311,6 +312,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     @Test
+    @LargeTest
     public void testDelayMet_withUnMetConstraint() throws InterruptedException {
         when(mBatteryChargingTracker.getInitialState()).thenReturn(false);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
