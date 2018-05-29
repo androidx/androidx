@@ -16,5 +16,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" package="total.fake.sad">
 
-    <application tools:ignore="AllowBackup,GoogleAppIndexingWarning,MissingApplicationIcon"/>
+    <application tools:ignore="AllowBackup,GoogleAppIndexingWarning,MissingApplicationIcon"
+                 tools:replace="android:appComponentFactory"
+                 android:appComponentFactory="androidx.core.app.CoreComponentFactory"/>
 </manifest>
