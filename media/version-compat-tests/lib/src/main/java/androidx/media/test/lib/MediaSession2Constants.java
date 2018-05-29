@@ -21,7 +21,6 @@ package androidx.media.test.lib;
  */
 public class MediaSession2Constants {
 
-    // TODO: Should the Test method names belong to another file?
     // Test method names
     public static final String TEST_GET_SESSION_ACTIVITY = "testGetSessionActivity";
     public static final String TEST_CONTROLLER_CALLBACK_SESSION_REJECTS =

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.media.test.client;
+package androidx.media.test.client.tests;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_MUSIC;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_FIXED;
+import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media.test.lib.CommonConstants.KEY_AUDIO_ATTRIBUTES;
 import static androidx.media.test.lib.CommonConstants.KEY_BUFFERED_POSITION;
 import static androidx.media.test.lib.CommonConstants.KEY_BUFFERING_STATE;
@@ -57,6 +58,8 @@ import androidx.media.BaseMediaPlayer;
 import androidx.media.MediaController2;
 import androidx.media.MediaController2.PlaybackInfo;
 import androidx.media.MediaItem2;
+import androidx.media.test.client.MediaTestUtils;
+import androidx.media.test.client.RemoteMediaSession2;
 
 import org.junit.After;
 import org.junit.Before;
@@ -74,18 +77,21 @@ import java.lang.reflect.Method;
 public class MediaController2Test extends MediaSession2TestBase {
 
     AudioManager mAudioManager;
+    RemoteMediaSession2 mRemoteSession2;
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        mRemoteSession2 = new RemoteMediaSession2(DEFAULT_TEST_NAME, mContext);
     }
 
     @After
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
+        mRemoteSession2.cleanUp();
     }
 
     /**

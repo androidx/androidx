@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.test.client;
-
-import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
+package androidx.media.test.client.tests;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -70,7 +68,6 @@ abstract class MediaSession2TestBase {
     static Executor sHandlerExecutor;
 
     Context mContext;
-    RemoteMediaSession2 mRemoteSession2;
     private List<MediaController2> mControllers = new ArrayList<>();
 
     interface TestControllerInterface {
@@ -144,7 +141,6 @@ abstract class MediaSession2TestBase {
     @CallSuper
     public void setUp() throws Exception {
         mContext = InstrumentationRegistry.getTargetContext();
-        mRemoteSession2 = new RemoteMediaSession2(DEFAULT_TEST_NAME, mContext);
     }
 
     @CallSuper
@@ -152,7 +148,6 @@ abstract class MediaSession2TestBase {
         for (int i = 0; i < mControllers.size(); i++) {
             mControllers.get(i).close();
         }
-        mRemoteSession2.cleanUp();
     }
 
     final MediaController2 createController(SessionToken2 token) throws InterruptedException {

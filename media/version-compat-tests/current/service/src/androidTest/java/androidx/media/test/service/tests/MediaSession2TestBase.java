@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.test.service;
+package androidx.media.test.service.tests;
 
 import android.content.Context;
 import android.os.Build;
@@ -26,6 +26,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.media.SessionToken2;
 import androidx.media.test.lib.TestUtils.SyncHandler;
+import androidx.media.test.service.RemoteMediaController2;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

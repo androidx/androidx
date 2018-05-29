@@ -29,8 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TestUtils {
 
-    private static final int WAIT_TIME_MS = 1000;
-    private static final int WAIT_SERVICE_TIME_MS = 5000;
+    public static final int WAIT_TIME_MS = 1000;
 
     /**
      * Compares contents of two bundles.

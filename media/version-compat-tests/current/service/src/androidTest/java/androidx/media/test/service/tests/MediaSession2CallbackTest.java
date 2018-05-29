@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.test.service;
+package androidx.media.test.service.tests;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
@@ -43,6 +43,11 @@ import androidx.media.Rating2;
 import androidx.media.SessionCommand2;
 import androidx.media.SessionCommandGroup2;
 import androidx.media.test.lib.TestUtils;
+import androidx.media.test.service.MediaTestUtils;
+import androidx.media.test.service.MockPlayer;
+import androidx.media.test.service.MockPlaylistAgent;
+import androidx.media.test.service.RemoteMediaController2;
+import androidx.media.test.service.TestServiceRegistry;
 
 import org.junit.After;
 import org.junit.Before;

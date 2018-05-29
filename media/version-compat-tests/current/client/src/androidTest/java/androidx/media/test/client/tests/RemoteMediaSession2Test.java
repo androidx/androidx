@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.test.client;
+package androidx.media.test.client.tests;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 
@@ -30,6 +30,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.media.MediaController2;
 import androidx.media.SessionToken2;
+import androidx.media.test.client.RemoteMediaSession2;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,7 +42,6 @@ import java.util.concurrent.Executor;
 /** Test {@link RemoteMediaSession2}. */
 @RunWith(AndroidJUnit4.class)
 public class RemoteMediaSession2Test {
-    private static final int TIME_OUT_MS = 3000;
 
     private Context mContext;
     private RemoteMediaSession2 mRemoteSession2;
