@@ -110,8 +110,6 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testGetSessionActivity() throws InterruptedException {
         prepareLooper();
         RemoteMediaSession2 session2 = new RemoteMediaSession2(TEST_GET_SESSION_ACTIVITY, mContext);
-        assertTrue(session2.connect(WAIT_TIME_MS));
-        session2.create();
 
         MediaController2 controller = createController(session2.getToken());
         PendingIntent sessionActivity = controller.getSessionActivity();

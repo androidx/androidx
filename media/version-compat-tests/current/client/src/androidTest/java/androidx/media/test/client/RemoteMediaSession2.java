@@ -16,9 +16,12 @@
 
 package androidx.media.test.client;
 
+import static androidx.media.test.client.MediaSession2TestBase.WAIT_TIME_MS;
 import static androidx.media.test.lib.CommonConstants.ACTION_MEDIA_SESSION2;
 import static androidx.media.test.lib.CommonConstants
-        .SERVICE_APP_TEST_HELPER_SERVICE_COMPONENT_NAME;
+        .SERVICE_APP_REMOTE_MEDIA_SESSION2_SERVICE_COMPONENT_NAME;
+
+import static junit.framework.TestCase.fail;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -28,7 +31,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
-import android.support.mediacompat.testlib.ISession2;
+import android.support.mediacompat.testlib.IRemoteMediaSession2;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -49,7 +52,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents remote {@link MediaSession2} in the service app's TestHelperService.
+ * Represents remote {@link MediaSession2} in the service app's RemoteMediaSession2Service.
  * Users can run {@link MediaSession2} methods remotely with this object.
  */
 public class RemoteMediaSession2 {
@@ -59,82 +62,31 @@ public class RemoteMediaSession2 {
     private Context mContext;
     private String mSessionId;
     private ServiceConnection mServiceConnection;
-    private ISession2 mBinder;
+    private IRemoteMediaSession2 mBinder;
     private RemoteMockPlayer mRemotePlayer;
     private RemoteMockPlaylistAgent mRemotePlaylistAgent;
 
     private CountDownLatch mCountDownLatch;
 
+    /**
+     * Create a {@link MediaSession2} in the service app.
+     * Should NOT be called in main thread.
+     */
     public RemoteMediaSession2(@NonNull String sessionId, Context context) {
         mSessionId = sessionId;
         mContext = context;
-
         mCountDownLatch = new CountDownLatch(1);
-        mRemotePlayer = new RemoteMockPlayer();
-        mRemotePlaylistAgent = new RemoteMockPlaylistAgent();
-    }
-
-    /**
-     * Connects to service app's TestHelperService.
-     * Should NOT be called in main thread.
-     *
-     * @return true if connected successfully, false if failed to connect.
-     */
-    public boolean connect(int timeoutMs) {
         mServiceConnection = new MyServiceConnection();
 
-        final Intent intent = new Intent(ACTION_MEDIA_SESSION2);
-        intent.setComponent(SERVICE_APP_TEST_HELPER_SERVICE_COMPONENT_NAME);
-
-        boolean bound = false;
-        try {
-            bound = mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        } catch (Exception ex) {
-            Log.e(TAG, "Failed binding to the TestHelperService of the service app");
+        if (!connect()) {
+            fail("Failed to connect to the RemoteMediaSession2Service.");
         }
-
-        if (bound) {
-            try {
-                mCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException ex) {
-                Log.e(TAG, "InterruptedException while waiting for onServiceConnected.", ex);
-            }
-        }
-        return mBinder != null;
+        create();
     }
 
-    /**
-     * Disconnects from service app's TestHelperService.
-     *
-     * @param closeSession2 true if the remote session should be closed before disconnecting,
-     *                      false otherwise.
-     */
-    public void disconnect(boolean closeSession2) {
-        if (closeSession2) {
-            try {
-                if (mBinder != null) {
-                    mBinder.close(mSessionId);
-                }
-            } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to close the remote session");
-            }
-        }
-        if (mServiceConnection != null) {
-            mContext.unbindService(mServiceConnection);
-        }
-        mServiceConnection = null;
-    }
-
-    /**
-     * Create a {@link MediaSession2} in the service app.
-     * Should be used after successful connection through {@link #connect(int)}.
-     */
-    public void create() {
-        try {
-            mBinder.create(mSessionId);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to get session token. sessionId=" + mSessionId);
-        }
+    public void cleanUp() {
+        close();
+        disconnect();
     }
 
     /**
@@ -439,12 +391,67 @@ public class RemoteMediaSession2 {
         }
     }
 
+    ///////////////////////////////
+    ////    Private methods    ////
+    ///////////////////////////////
+
+    /**
+     * Connects to service app's RemoteMediaSession2Service.
+     * Should NOT be called in main thread.
+     *
+     * @return true if connected successfully, false if failed to connect.
+     */
+    private boolean connect() {
+        final Intent intent = new Intent(ACTION_MEDIA_SESSION2);
+        intent.setComponent(SERVICE_APP_REMOTE_MEDIA_SESSION2_SERVICE_COMPONENT_NAME);
+
+        boolean bound = false;
+        try {
+            bound = mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed binding to the RemoteMediaSession2Service of the service app");
+        }
+
+        if (bound) {
+            try {
+                mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ex) {
+                Log.e(TAG, "InterruptedException while waiting for onServiceConnected.", ex);
+            }
+        }
+        return mBinder != null;
+    }
+
+    /**
+     * Disconnects from service app's RemoteMediaSession2Service.
+     */
+    private void disconnect() {
+        if (mServiceConnection != null) {
+            mContext.unbindService(mServiceConnection);
+        }
+        mServiceConnection = null;
+    }
+
+    /**
+     * Create a {@link MediaSession2} in the service app.
+     * Should be used after successful connection through {@link #connect}.
+     */
+    private void create() {
+        try {
+            mBinder.create(mSessionId);
+            mRemotePlayer = new RemoteMockPlayer();
+            mRemotePlaylistAgent = new RemoteMockPlaylistAgent();
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to get session token. sessionId=" + mSessionId);
+        }
+    }
+
     // These methods will run on main thread.
     class MyServiceConnection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG, "Connected to service app's TestHelperService.");
-            mBinder = ISession2.Stub.asInterface(service);
+            Log.d(TAG, "Connected to service app's RemoteMediaSession2Service.");
+            mBinder = IRemoteMediaSession2.Stub.asInterface(service);
             mCountDownLatch.countDown();
         }
 

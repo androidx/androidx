@@ -22,7 +22,6 @@ import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -51,16 +50,11 @@ public class RemoteMediaSession2Test {
     public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext();
         mRemoteSession2 = new RemoteMediaSession2(DEFAULT_TEST_NAME, mContext);
-        boolean connected = mRemoteSession2.connect(TIME_OUT_MS);
-        if (!connected) {
-            fail("Failed to connect to TestHelperService.");
-        }
-        mRemoteSession2.create();
     }
 
     @After
     public void cleanUp() {
-        mRemoteSession2.disconnect(true);
+        mRemoteSession2.cleanUp();
     }
 
     @Test
