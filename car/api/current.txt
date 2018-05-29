@@ -268,15 +268,15 @@ package androidx.car.widget {
     field public static final int SOLID = 0; // 0x0
   }
 
-  public abstract class ListItemProvider {
+  public abstract class ListItemProvider<VH extends androidx.car.widget.ListItem.ViewHolder> {
     ctor public ListItemProvider();
-    method public abstract androidx.car.widget.ListItem get(int);
+    method public abstract androidx.car.widget.ListItem<VH> get(int);
     method public abstract int size();
   }
 
-  public static class ListItemProvider.ListProvider extends androidx.car.widget.ListItemProvider {
-    ctor public ListItemProvider.ListProvider(java.util.List<androidx.car.widget.ListItem>);
-    method public androidx.car.widget.ListItem get(int);
+  public static class ListItemProvider.ListProvider<VH extends androidx.car.widget.ListItem.ViewHolder> extends androidx.car.widget.ListItemProvider {
+    ctor public ListItemProvider.ListProvider(java.util.List<androidx.car.widget.ListItem<VH>>);
+    method public androidx.car.widget.ListItem<VH> get(int);
     method public int size();
   }
 
