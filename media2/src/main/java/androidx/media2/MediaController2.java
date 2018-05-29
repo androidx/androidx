@@ -497,6 +497,9 @@ public class MediaController2 implements AutoCloseable {
         if (command == null) {
             throw new IllegalArgumentException("command shouldn't be null");
         }
+        if (command.getCommandCode() != SessionCommand2.COMMAND_CODE_CUSTOM) {
+            throw new IllegalArgumentException("command should be a custom command");
+        }
         mImpl.sendCustomCommand(command, args, cb);
     }
 
@@ -1024,13 +1027,13 @@ public class MediaController2 implements AutoCloseable {
         private final AudioAttributesCompat mAudioAttrsCompat;
 
         /**
-         * The session uses remote playback.
-         */
-        public static final int PLAYBACK_TYPE_REMOTE = 2;
-        /**
          * The session uses local playback.
          */
         public static final int PLAYBACK_TYPE_LOCAL = 1;
+        /**
+         * The session uses remote playback.
+         */
+        public static final int PLAYBACK_TYPE_REMOTE = 2;
 
         PlaybackInfo(int playbackType, AudioAttributesCompat attrs, int controlType, int max,
                 int current) {

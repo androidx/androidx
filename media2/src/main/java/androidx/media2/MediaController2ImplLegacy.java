@@ -17,92 +17,25 @@
 package androidx.media2;
 
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
+import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID;
+import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 
 import static androidx.media2.BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
+import static androidx.media2.BaseMediaPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.BaseMediaPlayer.UNKNOWN_TIME;
-import static androidx.media2.MediaConstants2.ARGUMENT_ALLOWED_COMMANDS;
-import static androidx.media2.MediaConstants2.ARGUMENT_ARGUMENTS;
-import static androidx.media2.MediaConstants2.ARGUMENT_BUFFERING_STATE;
-import static androidx.media2.MediaConstants2.ARGUMENT_COMMAND_BUTTONS;
 import static androidx.media2.MediaConstants2.ARGUMENT_COMMAND_CODE;
-import static androidx.media2.MediaConstants2.ARGUMENT_CUSTOM_COMMAND;
-import static androidx.media2.MediaConstants2.ARGUMENT_ERROR_CODE;
-import static androidx.media2.MediaConstants2.ARGUMENT_EXTRAS;
 import static androidx.media2.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
-import static androidx.media2.MediaConstants2.ARGUMENT_MEDIA_ID;
-import static androidx.media2.MediaConstants2.ARGUMENT_MEDIA_ITEM;
 import static androidx.media2.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media2.MediaConstants2.ARGUMENT_PID;
-import static androidx.media2.MediaConstants2.ARGUMENT_PLAYBACK_INFO;
-import static androidx.media2.MediaConstants2.ARGUMENT_PLAYBACK_SPEED;
-import static androidx.media2.MediaConstants2.ARGUMENT_PLAYBACK_STATE_COMPAT;
-import static androidx.media2.MediaConstants2.ARGUMENT_PLAYER_STATE;
-import static androidx.media2.MediaConstants2.ARGUMENT_PLAYLIST;
-import static androidx.media2.MediaConstants2.ARGUMENT_PLAYLIST_INDEX;
-import static androidx.media2.MediaConstants2.ARGUMENT_PLAYLIST_METADATA;
-import static androidx.media2.MediaConstants2.ARGUMENT_QUERY;
-import static androidx.media2.MediaConstants2.ARGUMENT_RATING;
-import static androidx.media2.MediaConstants2.ARGUMENT_REPEAT_MODE;
-import static androidx.media2.MediaConstants2.ARGUMENT_RESULT_RECEIVER;
 import static androidx.media2.MediaConstants2.ARGUMENT_ROUTE_BUNDLE;
-import static androidx.media2.MediaConstants2.ARGUMENT_SEEK_POSITION;
-import static androidx.media2.MediaConstants2.ARGUMENT_SHUFFLE_MODE;
 import static androidx.media2.MediaConstants2.ARGUMENT_UID;
-import static androidx.media2.MediaConstants2.ARGUMENT_URI;
-import static androidx.media2.MediaConstants2.ARGUMENT_VOLUME;
-import static androidx.media2.MediaConstants2.ARGUMENT_VOLUME_DIRECTION;
-import static androidx.media2.MediaConstants2.ARGUMENT_VOLUME_FLAGS;
-import static androidx.media2.MediaConstants2.CONNECT_RESULT_CONNECTED;
-import static androidx.media2.MediaConstants2.CONNECT_RESULT_DISCONNECTED;
 import static androidx.media2.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
-import static androidx.media2.MediaConstants2.CONTROLLER_COMMAND_BY_CUSTOM_COMMAND;
-import static androidx.media2.MediaConstants2.CONTROLLER_COMMAND_CONNECT;
-import static androidx.media2.MediaConstants2.CONTROLLER_COMMAND_DISCONNECT;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_BUFFERING_STATE_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_ERROR;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_PLAYER_STATE_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_REPEAT_MODE_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_ROUTES_INFO_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_SEEK_COMPLETED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_SEND_CUSTOM_COMMAND;
-import static androidx.media2.MediaConstants2.SESSION_EVENT_SET_CUSTOM_LAYOUT;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_RESET;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYBACK_SET_SPEED;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_ADD_ITEM;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_REMOVE_ITEM;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_REPLACE_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_LIST_METADATA;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_REWIND;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SET_RATING;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -115,11 +48,11 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
-import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
@@ -134,9 +67,9 @@ import androidx.media2.MediaController2.VolumeDirection;
 import androidx.media2.MediaController2.VolumeFlags;
 import androidx.media2.MediaPlaylistAgent.RepeatMode;
 import androidx.media2.MediaPlaylistAgent.ShuffleMode;
-import androidx.media2.MediaSession2.CommandButton;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -144,6 +77,12 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
 
     private static final String TAG = "MC2ImplLegacy";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+
+    private static final long POSITION_DIFF_TOLERANCE = 100;
+    private static final String SESSION_COMMAND_ON_EXTRA_CHANGED =
+            "android.media.session.command.ON_EXTRA_CHANGED";
+    private static final String SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED =
+            "android.media.session.command.ON_CAPTIONING_ENALBED_CHANGED";
 
     // Note: Using {@code null} doesn't helpful here because MediaBrowserServiceCompat always wraps
     //       the rootHints so it becomes non-null.
@@ -179,6 +118,8 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     List<MediaItem2> mPlaylist;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    List<QueueItem> mQueue;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaMetadata2 mPlaylistMetadata;
@@ -197,6 +138,14 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mBufferingState;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mCurrentMediaItemIndex;
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaItem2 mSkipToPlaylistItem;
+    @GuardedBy("mLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    long mBufferedPosition;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     PlaybackInfo mPlaybackInfo;
@@ -263,9 +212,6 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
 
             mIsReleased = true;
 
-            // Send command before the unregister callback to use mIControllerCallback in the
-            // callback.
-            sendCommand(CONTROLLER_COMMAND_DISCONNECT);
             if (mControllerCompat != null) {
                 mControllerCompat.unregisterCallback(mControllerCompatCallback);
             }
@@ -306,7 +252,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            sendCommand(COMMAND_CODE_PLAYBACK_PLAY);
+            mControllerCompat.getTransportControls().play();
         }
     }
 
@@ -317,7 +263,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            sendCommand(COMMAND_CODE_PLAYBACK_PAUSE);
+            mControllerCompat.getTransportControls().pause();
         }
     }
 
@@ -328,7 +274,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            sendCommand(COMMAND_CODE_PLAYBACK_RESET);
+            mControllerCompat.getTransportControls().stop();
         }
     }
 
@@ -339,7 +285,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            sendCommand(COMMAND_CODE_PLAYBACK_PREPARE);
+            mControllerCompat.getTransportControls().prepare();
         }
     }
 
@@ -350,7 +296,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            sendCommand(COMMAND_CODE_SESSION_FAST_FORWARD);
+            mControllerCompat.getTransportControls().fastForward();
         }
     }
 
@@ -361,7 +307,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            sendCommand(COMMAND_CODE_SESSION_REWIND);
+            mControllerCompat.getTransportControls().rewind();
         }
     }
 
@@ -372,9 +318,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle args = new Bundle();
-            args.putLong(ARGUMENT_SEEK_POSITION, pos);
-            sendCommand(COMMAND_CODE_PLAYBACK_SEEK_TO, args);
+            mControllerCompat.getTransportControls().seekTo(pos);
         }
     }
 
@@ -395,10 +339,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle args = new Bundle();
-            args.putString(ARGUMENT_MEDIA_ID, mediaId);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID, args);
+            mControllerCompat.getTransportControls().playFromMediaId(mediaId, extras);
         }
     }
 
@@ -409,10 +350,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle args = new Bundle();
-            args.putString(ARGUMENT_QUERY, query);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH, args);
+            mControllerCompat.getTransportControls().playFromSearch(query, extras);
         }
     }
 
@@ -423,10 +361,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle args = new Bundle();
-            args.putParcelable(ARGUMENT_URI, uri);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PLAY_FROM_URI, args);
+            mControllerCompat.getTransportControls().playFromUri(uri, extras);
         }
     }
 
@@ -437,10 +372,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle args = new Bundle();
-            args.putString(ARGUMENT_MEDIA_ID, mediaId);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID, args);
+            mControllerCompat.getTransportControls().prepareFromMediaId(mediaId, extras);
         }
     }
 
@@ -451,10 +383,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle args = new Bundle();
-            args.putString(ARGUMENT_QUERY, query);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH, args);
+            mControllerCompat.getTransportControls().prepareFromSearch(query, extras);
         }
     }
 
@@ -465,10 +394,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle args = new Bundle();
-            args.putParcelable(ARGUMENT_URI, uri);
-            args.putBundle(ARGUMENT_EXTRAS, extras);
-            sendCommand(COMMAND_CODE_SESSION_PREPARE_FROM_URI, args);
+            mControllerCompat.getTransportControls().prepareFromUri(uri, extras);
         }
     }
 
@@ -479,10 +405,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle args = new Bundle();
-            args.putInt(ARGUMENT_VOLUME, value);
-            args.putInt(ARGUMENT_VOLUME_FLAGS, flags);
-            sendCommand(COMMAND_CODE_VOLUME_SET_VOLUME, args);
+            mControllerCompat.setVolumeTo(value, flags);
         }
     }
 
@@ -493,10 +416,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle args = new Bundle();
-            args.putInt(ARGUMENT_VOLUME_DIRECTION, direction);
-            args.putInt(ARGUMENT_VOLUME_FLAGS, flags);
-            sendCommand(COMMAND_CODE_VOLUME_ADJUST_VOLUME, args);
+            mControllerCompat.adjustVolume(direction, flags);
         }
     }
 
@@ -514,6 +434,10 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     @Override
     public int getPlayerState() {
         synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return BaseMediaPlayer.PLAYER_STATE_ERROR;
+            }
             return mPlayerState;
         }
     }
@@ -521,6 +445,10 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     @Override
     public long getDuration() {
         synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return UNKNOWN_TIME;
+            }
             if (mMediaMetadataCompat != null
                     && mMediaMetadataCompat.containsKey(METADATA_KEY_DURATION)) {
                 return mMediaMetadataCompat.getLong(METADATA_KEY_DURATION);
@@ -537,12 +465,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 return UNKNOWN_TIME;
             }
             if (mPlaybackStateCompat != null) {
-                long timeDiff = (mInstance.mTimeDiff != null) ? mInstance.mTimeDiff
-                        : SystemClock.elapsedRealtime()
-                                - mPlaybackStateCompat.getLastPositionUpdateTime();
-                long expectedPosition = mPlaybackStateCompat.getPosition()
-                        + (long) (mPlaybackStateCompat.getPlaybackSpeed() * timeDiff);
-                return Math.max(0, expectedPosition);
+                return mPlaybackStateCompat.getCurrentPosition(mInstance.mTimeDiff);
             }
             return UNKNOWN_TIME;
         }
@@ -561,15 +484,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
 
     @Override
     public void setPlaybackSpeed(float speed) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return;
-            }
-            Bundle args = new Bundle();
-            args.putFloat(ARGUMENT_PLAYBACK_SPEED, speed);
-            sendCommand(COMMAND_CODE_PLAYBACK_SET_SPEED, args);
-        }
+        // Unsupported action
     }
 
     @Override
@@ -579,7 +494,8 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return BUFFERING_STATE_UNKNOWN;
             }
-            return mBufferingState;
+            return mPlaybackStateCompat == null ? BaseMediaPlayer.BUFFERING_STATE_UNKNOWN
+                    : MediaUtils2.toBufferingState(mPlaybackStateCompat.getState());
         }
     }
 
@@ -598,6 +514,10 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     @Override
     public @Nullable PlaybackInfo getPlaybackInfo() {
         synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return null;
+            }
             return mPlaybackInfo;
         }
     }
@@ -609,10 +529,10 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle args = new Bundle();
-            args.putString(ARGUMENT_MEDIA_ID, mediaId);
-            args.putBundle(ARGUMENT_RATING, rating.toBundle());
-            sendCommand(COMMAND_CODE_SESSION_SET_RATING, args);
+            if (mCurrentMediaItem != null && mediaId.equals(mCurrentMediaItem.getMediaId())) {
+                mControllerCompat.getTransportControls().setRating(
+                        MediaUtils2.convertToRatingCompat(rating));
+            }
         }
     }
 
@@ -624,130 +544,206 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return;
             }
-            Bundle bundle = new Bundle();
-            bundle.putBundle(ARGUMENT_CUSTOM_COMMAND, command.toBundle());
-            bundle.putBundle(ARGUMENT_ARGUMENTS, args);
-            sendCommand(CONTROLLER_COMMAND_BY_CUSTOM_COMMAND, bundle, cb);
+            mControllerCompat.sendCommand(command.getCustomCommand(), args, cb);
         }
     }
 
     @Override
     public @Nullable List<MediaItem2> getPlaylist() {
         synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return null;
+            }
             return mPlaylist;
         }
     }
 
     @Override
     public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
-        Bundle args = new Bundle();
-        args.putParcelableArray(ARGUMENT_PLAYLIST,
-                MediaUtils2.convertMediaItem2ListToParcelableArray(list));
-        args.putBundle(ARGUMENT_PLAYLIST_METADATA, metadata == null ? null : metadata.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_SET_LIST, args);
+        // Unsupported action.
     }
 
     @Override
     public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
-        Bundle args = new Bundle();
-        args.putBundle(ARGUMENT_PLAYLIST_METADATA, metadata == null ? null : metadata.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_SET_LIST_METADATA, args);
+        // Unsupported action.
     }
 
     @Override
     public @Nullable MediaMetadata2 getPlaylistMetadata() {
         synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return null;
+            }
             return mPlaylistMetadata;
         }
     }
 
     @Override
     public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
-        Bundle args = new Bundle();
-        args.putInt(ARGUMENT_PLAYLIST_INDEX, index);
-        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_ADD_ITEM, args);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            mControllerCompat.addQueueItem(
+                    MediaUtils2.convertToMediaMetadataCompat(item.getMetadata()).getDescription(),
+                    index);
+        }
     }
 
     @Override
     public void removePlaylistItem(@NonNull MediaItem2 item) {
-        Bundle args = new Bundle();
-        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_REMOVE_ITEM, args);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            mControllerCompat.removeQueueItem(
+                    MediaUtils2.convertToQueueItem(item).getDescription());
+        }
     }
 
     @Override
     public void replacePlaylistItem(int index, @NonNull MediaItem2 item) {
-        Bundle args = new Bundle();
-        args.putInt(ARGUMENT_PLAYLIST_INDEX, index);
-        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_REPLACE_ITEM, args);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            if (mPlaylist == null || mPlaylist.size() <= index) {
+                return;
+            }
+            removePlaylistItem(mPlaylist.get(index));
+            addPlaylistItem(index, item);
+        }
     }
 
     @Override
     public MediaItem2 getCurrentMediaItem() {
         synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return null;
+            }
             return mCurrentMediaItem;
         }
     }
 
     @Override
     public void skipToPreviousItem() {
-        sendCommand(COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            mControllerCompat.getTransportControls().skipToPrevious();
+        }
     }
 
     @Override
     public void skipToNextItem() {
-        sendCommand(COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            mControllerCompat.getTransportControls().skipToNext();
+        }
     }
 
     @Override
     public void skipToPlaylistItem(@NonNull MediaItem2 item) {
-        Bundle args = new Bundle();
-        args.putBundle(ARGUMENT_MEDIA_ITEM, item.toBundle());
-        sendCommand(COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM, args);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            mSkipToPlaylistItem = item;
+            mControllerCompat.getTransportControls().skipToQueueItem(
+                    MediaUtils2.convertToQueueItem(item).getQueueId());
+        }
     }
 
     @Override
     public @RepeatMode int getRepeatMode() {
         synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return MediaPlaylistAgent.REPEAT_MODE_NONE;
+            }
             return mRepeatMode;
         }
     }
 
     @Override
     public void setRepeatMode(@RepeatMode int repeatMode) {
-        Bundle args = new Bundle();
-        args.putInt(ARGUMENT_REPEAT_MODE, repeatMode);
-        sendCommand(COMMAND_CODE_PLAYLIST_SET_REPEAT_MODE, args);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            // MediaPlaylistAgent.RepeatMode has the same values with
+            // PlaybackStateCompat.RepeatMode.
+            mControllerCompat.getTransportControls().setRepeatMode(repeatMode);
+        }
     }
 
     @Override
     public @ShuffleMode int getShuffleMode() {
         synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return MediaPlaylistAgent.SHUFFLE_MODE_NONE;
+            }
             return mShuffleMode;
         }
     }
 
     @Override
     public void setShuffleMode(@ShuffleMode int shuffleMode) {
-        Bundle args = new Bundle();
-        args.putInt(ARGUMENT_SHUFFLE_MODE, shuffleMode);
-        sendCommand(COMMAND_CODE_PLAYLIST_SET_SHUFFLE_MODE, args);
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+            // MediaPlaylistAgent.ShuffleMode has the same values with
+            // PlaybackStateCompat.ShuffleMode.
+            mControllerCompat.getTransportControls().setShuffleMode(shuffleMode);
+        }
     }
 
     @Override
     public void subscribeRoutesInfo() {
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+        }
         sendCommand(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
     }
 
     @Override
     public void unsubscribeRoutesInfo() {
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+        }
         sendCommand(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
     }
 
     @Override
     public void selectRoute(@NonNull Bundle route) {
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return;
+            }
+        }
         Bundle args = new Bundle();
         args.putBundle(ARGUMENT_ROUTE_BUNDLE, route);
         sendCommand(COMMAND_CODE_SESSION_SELECT_ROUTE, args);
@@ -781,69 +777,67 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     }
 
     // Should be used without a lock to prevent potential deadlock.
-    void onConnectedNotLocked(Bundle data) {
-        data.setClassLoader(MediaSession2.class.getClassLoader());
-        // is enough or should we pass it while connecting?
-        final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
-                data.getBundle(ARGUMENT_ALLOWED_COMMANDS));
-        final int playerState = data.getInt(ARGUMENT_PLAYER_STATE);
-        final MediaItem2 currentMediaItem = MediaItem2.fromBundle(
-                data.getBundle(ARGUMENT_MEDIA_ITEM));
-        final int bufferingState = data.getInt(ARGUMENT_BUFFERING_STATE);
-        final PlaybackStateCompat playbackStateCompat = data.getParcelable(
-                ARGUMENT_PLAYBACK_STATE_COMPAT);
-        final int repeatMode = data.getInt(ARGUMENT_REPEAT_MODE);
-        final int shuffleMode = data.getInt(ARGUMENT_SHUFFLE_MODE);
-        final List<MediaItem2> playlist = MediaUtils2.convertToMediaItem2List(
-                data.getParcelableArray(ARGUMENT_PLAYLIST));
-        final PlaybackInfo playbackInfo =
-                PlaybackInfo.fromBundle(data.getBundle(ARGUMENT_PLAYBACK_INFO));
-        final MediaMetadata2 metadata = MediaMetadata2.fromBundle(
-                data.getBundle(ARGUMENT_PLAYLIST_METADATA));
+    void onConnectedNotLocked() {
         if (DEBUG) {
-            Log.d(TAG, "onConnectedNotLocked token=" + mToken
-                    + ", allowedCommands=" + allowedCommands);
+            Log.d(TAG, "onConnectedNotLocked token=" + mToken);
         }
-        boolean close = false;
-        try {
-            synchronized (mLock) {
-                if (mIsReleased) {
-                    return;
-                }
-                if (mConnected) {
-                    Log.e(TAG, "Cannot be notified about the connection result many times."
-                            + " Probably a bug or malicious app.");
-                    close = true;
-                    return;
-                }
-                mAllowedCommands = allowedCommands;
-                mPlayerState = playerState;
-                mCurrentMediaItem = currentMediaItem;
-                mBufferingState = bufferingState;
-                mPlaybackStateCompat = playbackStateCompat;
-                mRepeatMode = repeatMode;
-                mShuffleMode = shuffleMode;
-                mPlaylist = playlist;
-                mPlaylistMetadata = metadata;
-                mConnected = true;
-                mPlaybackInfo = playbackInfo;
+        final SessionCommandGroup2 allowedCommands = new SessionCommandGroup2();
+
+        synchronized (mLock) {
+            if (mIsReleased || mConnected) {
+                return;
             }
-            mCallbackExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    // Note: We may trigger ControllerCallbacks with the initial values
-                    // But it's hard to define the order of the controller callbacks
-                    // Only notify about the
-                    mCallback.onConnected(mInstance, allowedCommands);
-                }
-            });
-        } finally {
-            if (close) {
-                // Trick to call release() without holding the lock, to prevent potential deadlock
-                // with the developer's custom lock within the ControllerCallback.onDisconnected().
-                close();
+            long sessionFlags = mControllerCompat.getFlags();
+            allowedCommands.addAllPlaybackCommands();
+            allowedCommands.addAllVolumeCommands();
+            allowedCommands.addAllSessionCommands();
+
+            allowedCommands.removeCommand(COMMAND_CODE_PLAYBACK_SET_SPEED);
+            allowedCommands.removeCommand(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
+            allowedCommands.removeCommand(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
+            allowedCommands.removeCommand(COMMAND_CODE_SESSION_SELECT_ROUTE);
+
+            if ((sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0) {
+                allowedCommands.addAllPlaylistCommands();
+                allowedCommands.removeCommand(COMMAND_CODE_PLAYLIST_SET_LIST);
+                allowedCommands.removeCommand(COMMAND_CODE_PLAYLIST_SET_LIST_METADATA);
             }
+
+            allowedCommands.addCommand(new SessionCommand2(SESSION_COMMAND_ON_EXTRA_CHANGED, null));
+            allowedCommands.addCommand(
+                    new SessionCommand2(SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED, null));
+
+            mAllowedCommands = allowedCommands;
+
+            mPlaybackStateCompat = mControllerCompat.getPlaybackState();
+            if (mPlaybackStateCompat == null) {
+                mPlayerState = PLAYER_STATE_IDLE;
+                mBufferedPosition = UNKNOWN_TIME;
+            } else {
+                mPlayerState = MediaUtils2.convertToPlayerState(mPlaybackStateCompat.getState());
+                mBufferedPosition = mPlaybackStateCompat.getBufferedPosition();
+            }
+
+            mPlaybackInfo = MediaUtils2.toPlaybackInfo2(mControllerCompat.getPlaybackInfo());
+
+            mRepeatMode = mControllerCompat.getRepeatMode();
+            mShuffleMode = mControllerCompat.getShuffleMode();
+
+            mPlaylist = MediaUtils2.convertQueueItemListToMediaItem2List(
+                    mControllerCompat.getQueue());
+            mPlaylistMetadata = MediaUtils2.convertToMediaMetadata2(
+                    mControllerCompat.getQueueTitle());
+
+            // Call this after set playlist.
+            setCurrentMediaItemLocked(mControllerCompat.getMetadata());
+            mConnected = true;
         }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mCallback.onConnected(mInstance, allowedCommands);
+            }
+        });
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -913,6 +907,68 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
         controller.sendCommand(command, args, receiver);
     }
 
+    @SuppressWarnings({"GuardedBy", "WeakerAccess"}) /* WeakerAccess for synthetic access */
+    void setCurrentMediaItemLocked(MediaMetadataCompat metadata) {
+        mMediaMetadataCompat = metadata;
+        if (metadata == null) {
+            mCurrentMediaItemIndex = -1;
+            mCurrentMediaItem = null;
+            return;
+        }
+
+        if (mPlaylist == null) {
+            mCurrentMediaItemIndex = -1;
+            mCurrentMediaItem = MediaUtils2.convertToMediaItem2(metadata);
+            return;
+        }
+
+        String mediaId = metadata.getString(METADATA_KEY_MEDIA_ID);
+        if (mPlaybackStateCompat != null) {
+            // If playback state is updated before, compare UUID using queue id and media id.
+            UUID uuid = MediaUtils2.createUuidByQueueIdAndMediaId(
+                    mPlaybackStateCompat.getActiveQueueItemId(), mediaId);
+            for (int i = 0; i < mPlaylist.size(); ++i) {
+                MediaItem2 item = mPlaylist.get(i);
+                if (item != null && uuid.equals(item.getUuid())) {
+                    mCurrentMediaItem = item;
+                    mCurrentMediaItemIndex = i;
+                    return;
+                }
+            }
+        }
+
+        if (mediaId == null) {
+            mCurrentMediaItemIndex = -1;
+            mCurrentMediaItem = MediaUtils2.convertToMediaItem2(metadata);
+            return;
+        }
+
+        // Need to find the media item in the playlist using mediaId.
+        // Note that there can be multiple media items with the same media id.
+        if (mSkipToPlaylistItem != null && mediaId.equals(mSkipToPlaylistItem.getMediaId())) {
+            // metadata changed after skipToPlaylistIItem() was called.
+            mCurrentMediaItem = mSkipToPlaylistItem;
+            mCurrentMediaItemIndex = mPlaylist.indexOf(mSkipToPlaylistItem);
+            mSkipToPlaylistItem = null;
+            return;
+        }
+
+        MediaItem2 item;
+        // Find mediaId from the playlist.
+        for (int i = 0; i < mPlaylist.size(); ++i) {
+            item = mPlaylist.get(i);
+            if (item != null && mediaId.equals(item.getMediaId())) {
+                mCurrentMediaItemIndex = i;
+                mCurrentMediaItem = item;
+                return;
+            }
+        }
+
+        // Failed to find media item from the playlist.
+        mCurrentMediaItemIndex = -1;
+        mCurrentMediaItem = MediaUtils2.convertToMediaItem2(mMediaMetadataCompat);
+    }
+
     private class ConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
         ConnectionCallback() {
         }
@@ -944,28 +1000,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
 
         @Override
         public void onSessionReady() {
-            sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
-                @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    if (!mHandlerThread.isAlive()) {
-                        return;
-                    }
-                    switch (resultCode) {
-                        case CONNECT_RESULT_CONNECTED:
-                            onConnectedNotLocked(resultData);
-                            break;
-                        case CONNECT_RESULT_DISCONNECTED:
-                            mCallbackExecutor.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mCallback.onDisconnected(mInstance);
-                                }
-                            });
-                            close();
-                            break;
-                    }
-                }
-            });
+            onConnectedNotLocked();
         }
 
         @Override
@@ -974,255 +1009,193 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
         }
 
         @Override
-        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+        public void onSessionEvent(final String event, final Bundle extras) {
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onCustomCommand(mInstance, new SessionCommand2(event, null), extras,
+                            null);
+                }
+            });
+        }
+
+        @Override
+        public void onPlaybackStateChanged(final PlaybackStateCompat state) {
+            final PlaybackStateCompat prevState;
+            final MediaItem2 currentItem;
             synchronized (mLock) {
+                prevState = mPlaybackStateCompat;
                 mPlaybackStateCompat = state;
+                mPlayerState = MediaUtils2.convertToPlayerState(state.getState());
+                mBufferedPosition = state.getBufferedPosition();
+
+                if (mQueue != null) {
+                    for (int i = 0; i < mQueue.size(); ++i) {
+                        if (mQueue.get(i).getQueueId() == state.getActiveQueueItemId()) {
+                            mCurrentMediaItemIndex = i;
+                            mCurrentMediaItem = mPlaylist.get(i);
+                        }
+                    }
+                }
+                currentItem = mCurrentMediaItem;
+            }
+            if (state == null) {
+                if (prevState != null) {
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onPlayerStateChanged(mInstance,
+                                    PLAYER_STATE_IDLE);
+                        }
+                    });
+                }
+                return;
+            }
+            if (prevState == null || prevState.getState() != state.getState()) {
+                mCallbackExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onPlayerStateChanged(
+                                mInstance, MediaUtils2.convertToPlayerState(state.getState()));
+                    }
+                });
+            }
+            if (prevState == null || prevState.getPlaybackSpeed() != state.getPlaybackSpeed()) {
+                mCallbackExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onPlaybackSpeedChanged(mInstance, state.getPlaybackSpeed());
+                    }
+                });
+            }
+
+            if (prevState != null) {
+                final long currentPosition = state.getCurrentPosition(mInstance.mTimeDiff);
+                long positionDiff = Math.abs(currentPosition
+                        - prevState.getCurrentPosition(mInstance.mTimeDiff));
+                if (positionDiff > POSITION_DIFF_TOLERANCE) {
+                    mCallbackExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCallback.onSeekCompleted(mInstance, currentPosition);
+                        }
+                    });
+                }
+            }
+
+            // Update buffering state if needed
+            final int bufferingState = MediaUtils2.toBufferingState(state.getState());
+            final int prevBufferingState = prevState == null
+                    ? BaseMediaPlayer.BUFFERING_STATE_UNKNOWN
+                    : MediaUtils2.toBufferingState(prevState.getState());
+            if (bufferingState != prevBufferingState) {
+                mCallbackExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onBufferingStateChanged(mInstance, currentItem, bufferingState);
+                    }
+                });
             }
         }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             synchronized (mLock) {
-                mMediaMetadataCompat = metadata;
+                setCurrentMediaItemLocked(metadata);
             }
         }
 
         @Override
-        public void onSessionEvent(String event, Bundle extras) {
-            if (extras != null) {
-                extras.setClassLoader(MediaSession2.class.getClassLoader());
+        public void onQueueChanged(List<QueueItem> queue) {
+            final List<MediaItem2> playlist;
+            final MediaMetadata2 playlistMetadata;
+            synchronized (mLock) {
+                mQueue = queue;
+                mPlaylist = MediaUtils2.convertQueueItemListToMediaItem2List(queue);
+                playlist = mPlaylist;
+                playlistMetadata = mPlaylistMetadata;
             }
-            switch (event) {
-                case SESSION_EVENT_ON_ALLOWED_COMMANDS_CHANGED: {
-                    final SessionCommandGroup2 allowedCommands = SessionCommandGroup2.fromBundle(
-                            extras.getBundle(ARGUMENT_ALLOWED_COMMANDS));
-                    synchronized (mLock) {
-                        mAllowedCommands = allowedCommands;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onAllowedCommandsChanged(mInstance, allowedCommands);
-                        }
-                    });
-                    break;
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onPlaylistChanged(mInstance, playlist, playlistMetadata);
                 }
-                case SESSION_EVENT_ON_PLAYER_STATE_CHANGED: {
-                    final int playerState = extras.getInt(ARGUMENT_PLAYER_STATE);
-                    PlaybackStateCompat state =
-                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
-                    if (state == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mPlayerState = playerState;
-                        mPlaybackStateCompat = state;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onPlayerStateChanged(mInstance, playerState);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_CURRENT_MEDIA_ITEM_CHANGED: {
-                    final MediaItem2 item = MediaItem2.fromBundle(
-                            extras.getBundle(ARGUMENT_MEDIA_ITEM));
-                    synchronized (mLock) {
-                        mCurrentMediaItem = item;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onCurrentMediaItemChanged(mInstance, item);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_ERROR: {
-                    final int errorCode = extras.getInt(ARGUMENT_ERROR_CODE);
-                    final Bundle errorExtras = extras.getBundle(ARGUMENT_EXTRAS);
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onError(mInstance, errorCode, errorExtras);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_ROUTES_INFO_CHANGED: {
-                    final List<Bundle> routes = MediaUtils2.convertToBundleList(
-                            extras.getParcelableArray(ARGUMENT_ROUTE_BUNDLE));
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onRoutesInfoChanged(mInstance, routes);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_PLAYLIST_CHANGED: {
-                    final MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
-                            extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
-                    final List<MediaItem2> playlist = MediaUtils2.convertToMediaItem2List(
-                            extras.getParcelableArray(ARGUMENT_PLAYLIST));
-                    synchronized (mLock) {
-                        mPlaylist = playlist;
-                        mPlaylistMetadata = playlistMetadata;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onPlaylistChanged(mInstance, playlist, playlistMetadata);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_PLAYLIST_METADATA_CHANGED: {
-                    final MediaMetadata2 playlistMetadata = MediaMetadata2.fromBundle(
-                            extras.getBundle(ARGUMENT_PLAYLIST_METADATA));
-                    synchronized (mLock) {
-                        mPlaylistMetadata = playlistMetadata;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onPlaylistMetadataChanged(mInstance, playlistMetadata);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_REPEAT_MODE_CHANGED: {
-                    final int repeatMode = extras.getInt(ARGUMENT_REPEAT_MODE);
-                    synchronized (mLock) {
-                        mRepeatMode = repeatMode;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onRepeatModeChanged(mInstance, repeatMode);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_SHUFFLE_MODE_CHANGED: {
-                    final int shuffleMode = extras.getInt(ARGUMENT_SHUFFLE_MODE);
-                    synchronized (mLock) {
-                        mShuffleMode = shuffleMode;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onShuffleModeChanged(mInstance, shuffleMode);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_SEND_CUSTOM_COMMAND: {
-                    Bundle commandBundle = extras.getBundle(ARGUMENT_CUSTOM_COMMAND);
-                    if (commandBundle == null) {
-                        return;
-                    }
-                    final SessionCommand2 command = SessionCommand2.fromBundle(commandBundle);
-                    final Bundle args = extras.getBundle(ARGUMENT_ARGUMENTS);
-                    final ResultReceiver receiver = extras.getParcelable(ARGUMENT_RESULT_RECEIVER);
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onCustomCommand(mInstance, command, args, receiver);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_SET_CUSTOM_LAYOUT: {
-                    final List<CommandButton> layout = MediaUtils2.convertToCommandButtonList(
-                            extras.getParcelableArray(ARGUMENT_COMMAND_BUTTONS));
-                    if (layout == null) {
-                        return;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onCustomLayoutChanged(mInstance, layout);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_PLAYBACK_INFO_CHANGED: {
-                    final PlaybackInfo info = PlaybackInfo.fromBundle(
-                            extras.getBundle(ARGUMENT_PLAYBACK_INFO));
-                    if (info == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mPlaybackInfo = info;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onPlaybackInfoChanged(mInstance, info);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_PLAYBACK_SPEED_CHANGED: {
-                    final PlaybackStateCompat state =
-                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
-                    if (state == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mPlaybackStateCompat = state;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onPlaybackSpeedChanged(mInstance, state.getPlaybackSpeed());
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_BUFFERING_STATE_CHANGED: {
-                    final MediaItem2 item = MediaItem2.fromBundle(
-                            extras.getBundle(ARGUMENT_MEDIA_ITEM));
-                    final int bufferingState = extras.getInt(ARGUMENT_BUFFERING_STATE);
-                    PlaybackStateCompat state =
-                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
-                    if (item == null || state == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mBufferingState = bufferingState;
-                        mPlaybackStateCompat = state;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onBufferingStateChanged(mInstance, item, bufferingState);
-                        }
-                    });
-                    break;
-                }
-                case SESSION_EVENT_ON_SEEK_COMPLETED: {
-                    final long position = extras.getLong(ARGUMENT_SEEK_POSITION);
-                    PlaybackStateCompat state =
-                            extras.getParcelable(ARGUMENT_PLAYBACK_STATE_COMPAT);
-                    if (state == null) {
-                        return;
-                    }
-                    synchronized (mLock) {
-                        mPlaybackStateCompat = state;
-                    }
-                    mCallbackExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mCallback.onSeekCompleted(mInstance, position);
-                        }
-                    });
-                    break;
-                }
+            });
+        }
+
+        @Override
+        public void onQueueTitleChanged(CharSequence title) {
+            final MediaMetadata2 playlistMetadata;
+            synchronized (mLock) {
+                mPlaylistMetadata = MediaUtils2.convertToMediaMetadata2(title);
+                playlistMetadata = mPlaylistMetadata;
             }
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onPlaylistMetadataChanged(mInstance, playlistMetadata);
+                }
+            });
+        }
+
+        @Override
+        public void onExtrasChanged(final Bundle extras) {
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onCustomCommand(mInstance,
+                            new SessionCommand2(SESSION_COMMAND_ON_EXTRA_CHANGED, null),
+                            extras, null);
+                }
+            });
+        }
+
+        @Override
+        public void onAudioInfoChanged(final MediaControllerCompat.PlaybackInfo info) {
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onPlaybackInfoChanged(mInstance, MediaUtils2.toPlaybackInfo2(info));
+                }
+            });
+        }
+
+        @Override
+        public void onCaptioningEnabledChanged(boolean enabled) {
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onCustomCommand(mInstance,
+                            new SessionCommand2(SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED,
+                                    null), null, null);
+                }
+            });
+        }
+
+        @Override
+        public void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode final int repeatMode) {
+            synchronized (mLock) {
+                mRepeatMode = repeatMode;
+            }
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onRepeatModeChanged(mInstance, repeatMode);
+                }
+            });
+        }
+
+        @Override
+        public void onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode final int shuffleMode) {
+            synchronized (mLock) {
+                mShuffleMode = shuffleMode;
+            }
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mCallback.onShuffleModeChanged(mInstance, shuffleMode);
+                }
+            });
         }
     }
 }

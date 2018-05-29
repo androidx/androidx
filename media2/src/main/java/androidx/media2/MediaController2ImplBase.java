@@ -472,15 +472,13 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
 
     @Override
     public void setPlaybackSpeed(float speed) {
-        synchronized (mLock) {
-            final IMediaSession2 iSession2 =
-                    getSessionInterfaceIfAble(COMMAND_CODE_PLAYBACK_SET_SPEED);
-            if (iSession2 != null) {
-                try {
-                    iSession2.setPlaybackSpeed(mControllerStub, speed);
-                } catch (RemoteException e) {
-                    Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-                }
+        final IMediaSession2 iSession2 =
+                getSessionInterfaceIfAble(COMMAND_CODE_PLAYBACK_SET_SPEED);
+        if (iSession2 != null) {
+            try {
+                iSession2.setPlaybackSpeed(mControllerStub, speed);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
         }
     }
@@ -633,13 +631,11 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     public void skipToPreviousItem() {
         final IMediaSession2 iSession2 =
                 getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SKIP_TO_PREV_ITEM);
-        synchronized (mLock) {
-            if (iSession2 != null) {
-                try {
-                    iSession2.skipToPreviousItem(mControllerStub);
-                } catch (RemoteException e) {
-                    Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-                }
+        if (iSession2 != null) {
+            try {
+                iSession2.skipToPreviousItem(mControllerStub);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
         }
     }
@@ -648,13 +644,11 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     public void skipToNextItem() {
         final IMediaSession2 iSession2 =
                 getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SKIP_TO_NEXT_ITEM);
-        synchronized (mLock) {
-            if (iSession2 != null) {
-                try {
-                    mISession2.skipToNextItem(mControllerStub);
-                } catch (RemoteException e) {
-                    Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-                }
+        if (iSession2 != null) {
+            try {
+                iSession2.skipToNextItem(mControllerStub);
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
         }
     }
@@ -663,13 +657,11 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     public void skipToPlaylistItem(@NonNull MediaItem2 item) {
         final IMediaSession2 iSession2 =
                 getSessionInterfaceIfAble(COMMAND_CODE_PLAYLIST_SKIP_TO_PLAYLIST_ITEM);
-        synchronized (mLock) {
-            if (iSession2 != null) {
-                try {
-                    mISession2.skipToPlaylistItem(mControllerStub, item.toBundle());
-                } catch (RemoteException e) {
-                    Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-                }
+        if (iSession2 != null) {
+            try {
+                iSession2.skipToPlaylistItem(mControllerStub, item.toBundle());
+            } catch (RemoteException e) {
+                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
             }
         }
     }
@@ -803,7 +795,7 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
             if (!result) {
                 Log.w(TAG, "bind to " + mToken + " failed");
             } else if (DEBUG) {
-                Log.d(TAG, "bind to " + mToken + " success");
+                Log.d(TAG, "bind to " + mToken + " succeeded");
             }
         }
     }
@@ -1044,6 +1036,7 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
             Log.d(TAG, "onConnectedNotLocked sessionBinder=" + sessionBinder
                     + ", allowedCommands=" + allowedCommands);
         }
+        // 'close' is used in try-finally
         boolean close = false;
         try {
             if (sessionBinder == null || allowedCommands == null) {
@@ -1089,9 +1082,6 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    // Note: We may trigger ControllerCallbacks with the initial values
-                    // But it's hard to define the order of the controller callbacks
-                    // Only notify about the
                     mCallback.onConnected(mInstance, allowedCommands);
                 }
             });

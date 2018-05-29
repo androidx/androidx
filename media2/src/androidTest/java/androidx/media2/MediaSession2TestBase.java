@@ -212,12 +212,14 @@ abstract class MediaSession2TestBase extends MediaTestBase {
         @Override
         public void onConnected(MediaController2 controller, SessionCommandGroup2 commands) {
             connectLatch.countDown();
+            mCallbackProxy.onConnected(controller, commands);
         }
 
         @CallSuper
         @Override
         public void onDisconnected(MediaController2 controller) {
             disconnectLatch.countDown();
+            mCallbackProxy.onDisconnected(controller);
         }
 
         @Override
