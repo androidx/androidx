@@ -49,6 +49,8 @@ import android.net.Uri;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Clock;
@@ -58,6 +60,7 @@ import androidx.slice.SliceSpec;
 import androidx.slice.SystemClock;
 import androidx.slice.builders.SliceAction;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -324,6 +327,12 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     public void setTtl(long ttl) {
         long expiry = ttl == INFINITY ? INFINITY : getClock().currentTimeMillis() + ttl;
         getBuilder().addTimestamp(expiry, SUBTYPE_MILLIS, HINT_TTL);
+    }
+
+    @Override
+    @RequiresApi(26)
+    public void setTtl(@Nullable Duration ttl) {
+        setTtl(ttl == null ? INFINITY : ttl.toMillis());
     }
 
     @Override

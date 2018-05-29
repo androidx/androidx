@@ -41,6 +41,7 @@ import androidx.slice.core.SliceHints;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -186,6 +187,22 @@ public class ListBuilder extends TemplateSliceBuilder {
      * @param ttl the length in milliseconds that the content in this slice can live for.
      */
     public ListBuilder(@NonNull Context context, @NonNull Uri uri, long ttl) {
+        super(context, uri);
+        mImpl.setTtl(ttl);
+    }
+
+    /**
+     * Create a builder which will construct a slice that will display rows of content.
+     * <p>
+     * A slice requires an associated time-to-live, i.e. how long the data contained in the slice
+     * can remain fresh. If your slice has content that is not time sensitive, set {@link Duration}
+     * to null and the TTL will be {@link #INFINITY}.
+     *
+     * @param uri Uri to tag for this slice.
+     * @param ttl the {@link Duration} that the content in this slice can live for.
+     */
+    @RequiresApi(26)
+    public ListBuilder(@NonNull Context context, @NonNull Uri uri, @Nullable Duration ttl) {
         super(context, uri);
         mImpl.setTtl(ttl);
     }
