@@ -36,6 +36,7 @@ interface IRemoteMediaSession2 {
     void setCustomLayout(String sessionId, in Bundle controller, in List<Bundle> layout);
 
     // MockPlayer Methods
+    void setPlayerState(String sessionId, int state);
     void setCurrentPosition(String sessionId, long pos);
     void setBufferedPosition(String sessionId, long pos);
     void setDuration(String sessionId, long duration);
