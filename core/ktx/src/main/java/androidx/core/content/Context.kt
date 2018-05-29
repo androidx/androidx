@@ -64,12 +64,7 @@ inline fun Context.withStyledAttributes(
     @StyleRes defStyleRes: Int = 0,
     block: TypedArray.() -> Unit
 ) {
-    val typedArray = obtainStyledAttributes(set, attrs, defStyleAttr, defStyleRes)
-    try {
-        typedArray.block()
-    } finally {
-        typedArray.recycle()
-    }
+    obtainStyledAttributes(set, attrs, defStyleAttr, defStyleRes).apply(block).recycle()
 }
 
 /**
@@ -86,10 +81,5 @@ inline fun Context.withStyledAttributes(
     attrs: IntArray,
     block: TypedArray.() -> Unit
 ) {
-    val typedArray = obtainStyledAttributes(resourceId, attrs)
-    try {
-        typedArray.block()
-    } finally {
-        typedArray.recycle()
-    }
+    obtainStyledAttributes(resourceId, attrs).apply(block).recycle()
 }
