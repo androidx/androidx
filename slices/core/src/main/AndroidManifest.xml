@@ -16,7 +16,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.slice.core">
     <application>
-        <activity android:name="androidx.slice.compat.SlicePermissionActivity">
+        <activity android:name="androidx.slice.compat.SlicePermissionActivity"
+            android:excludeFromRecents="true">
         </activity>
     </application>
 </manifest>
