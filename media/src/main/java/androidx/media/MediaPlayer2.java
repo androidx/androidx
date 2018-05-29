@@ -220,8 +220,8 @@ import java.util.concurrent.Executor;
  *     <td>{Prepared, Paused, Playing} </p></td>
  *     <td>{Idle, Error} </p></td></tr>
  * <tr><td>getCurrentPosition </p></td>
- *     <td>{Idle, Prepared, Paused, Playing} </p></td>
- *     <td>{Error} </p></td></tr>
+ *     <td>{Prepared, Paused, Playing} </p></td>
+ *     <td>{Idle, Error} </p></td></tr>
  * <tr><td>getDuration </p></td>
  *     <td>{Prepared, Paused, Playing} </p></td>
  *     <td>{Idle, Error} </p></td></tr>
@@ -250,12 +250,6 @@ import java.util.concurrent.Executor;
  *     <td>{Idle, Prepared, Paused, Playing} </p></td>
  *     <td>{Error} </p></td></tr>
  * <tr><td>loopCurrent </p></td>
- *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
- *     <td>{} </p></td></tr>
- * <tr><td>setPlaybackSpeed </p></td>
- *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
- *     <td>{} </p></td></tr>
- * <tr><td>getPlaybackSpeed </p></td>
  *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
  *     <td>{} </p></td></tr>
  * <tr><td>isReversePlaybackSupported </p></td>

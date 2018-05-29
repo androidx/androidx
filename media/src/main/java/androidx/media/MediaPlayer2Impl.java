@@ -375,7 +375,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @Override
-    public @NonNull AudioAttributesCompat getAudioAttributes() {
+    public @Nullable AudioAttributesCompat getAudioAttributes() {
         return mPlayer.getAudioAttributes();
     }
 
@@ -2087,14 +2087,29 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized long getCurrentPosition() {
+            // Throws an ISE here rather than relying on MediaPlayer1 implementation which returns
+            // a garbage value in the IDLE state.
+            if (getFirst().mMp2State == MEDIAPLAYER2_STATE_IDLE) {
+                throw new IllegalStateException();
+            }
             return getCurrentPlayer().getCurrentPosition();
         }
 
         synchronized long getDuration() {
+            // Throws an ISE here rather than relying on MediaPlayer1 implementation which returns
+            // a garbage value in the IDLE state.
+            if (getFirst().mMp2State == MEDIAPLAYER2_STATE_IDLE) {
+                throw new IllegalStateException();
+            }
             return getCurrentPlayer().getDuration();
         }
 
         synchronized long getBufferedPosition() {
+            // Throws an ISE here rather than relying on MediaPlayer1 implementation which returns
+            // a garbage value in the IDLE state.
+            if (getFirst().mMp2State == MEDIAPLAYER2_STATE_IDLE) {
+                throw new IllegalStateException();
+            }
             MediaPlayerSource src = mQueue.get(0);
             return (long) src.mPlayer.getDuration() * src.mBufferedPercentage.get() / 100;
         }
@@ -2531,17 +2546,29 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         @Override
         public long getCurrentPosition() {
-            return MediaPlayer2Impl.this.getCurrentPosition();
+            try {
+                return MediaPlayer2Impl.this.getCurrentPosition();
+            } catch (IllegalStateException e) {
+                return BaseMediaPlayer.UNKNOWN_TIME;
+            }
         }
 
         @Override
         public long getDuration() {
-            return MediaPlayer2Impl.this.getDuration();
+            try {
+                return MediaPlayer2Impl.this.getDuration();
+            } catch (IllegalStateException e) {
+                return BaseMediaPlayer.UNKNOWN_TIME;
+            }
         }
 
         @Override
         public long getBufferedPosition() {
-            return MediaPlayer2Impl.this.getBufferedPosition();
+            try {
+                return MediaPlayer2Impl.this.getBufferedPosition();
+            } catch (IllegalStateException e) {
+                return BaseMediaPlayer.UNKNOWN_TIME;
+            }
         }
 
         @Override
@@ -2598,7 +2625,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         @Override
         public float getPlaybackSpeed() {
-            return MediaPlayer2Impl.this.getPlaybackParams().getSpeed();
+            try {
+                return MediaPlayer2Impl.this.getPlaybackParams().getSpeed();
+            } catch (IllegalStateException e) {
+                return super.getPlaybackSpeed();
+            }
         }
 
         @Override
