@@ -221,6 +221,14 @@ public class RemoteMediaSession2 {
 
     public class RemoteMockPlayer {
 
+        public void setPlayerState(int state) {
+            try {
+                mBinder.setPlayerState(mSessionId, state);
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call setCurrentPosition()");
+            }
+        }
+
         public void setCurrentPosition(long pos) {
             try {
                 mBinder.setCurrentPosition(mSessionId, pos);

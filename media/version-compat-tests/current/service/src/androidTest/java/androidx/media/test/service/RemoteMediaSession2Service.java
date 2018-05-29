@@ -299,6 +299,13 @@ public class RemoteMediaSession2Service extends Service {
          */
 
         @Override
+        public void setPlayerState(String sessionId, int state) {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.mLastPlayerState = state;
+        }
+
+        @Override
         public void setCurrentPosition(String sessionId, long pos) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlayer player = (MockPlayer) session2.getPlayer();
