@@ -16,6 +16,7 @@
 
 package androidx.print;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -87,11 +88,13 @@ public final class PrintHelper {
     /**
      * this is a black and white image
      */
+    @TargetApi(19) // Keep lint quiet about using API 19+ constant.
     public static final int COLOR_MODE_MONOCHROME = PrintAttributes.COLOR_MODE_MONOCHROME;
 
     /**
      * this is a color image (default)
      */
+    @TargetApi(19) // Keep lint quiet about using API 19+ constant.
     public static final int COLOR_MODE_COLOR = PrintAttributes.COLOR_MODE_COLOR;
 
     /**
@@ -489,10 +492,14 @@ public final class PrintHelper {
             }.execute();
         }
 
+        @SuppressWarnings("deprecation") // Call to requestCancelDecode()
         private void cancelLoad() {
             synchronized (mLock) { // prevent race with set null below
                 if (mDecodeOptions != null) {
-                    mDecodeOptions.requestCancelDecode();
+                    if (Build.VERSION.SDK_INT < 24) {
+                        // This only affects API 23 and older.
+                        mDecodeOptions.requestCancelDecode();
+                    }
                     mDecodeOptions = null;
                 }
             }
