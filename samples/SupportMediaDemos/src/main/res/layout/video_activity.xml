@@ -20,6 +20,7 @@
     android:id="@+id/video_player_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:keepScreenOn="true"
     android:background="#3F51B5">
 
     <!-- MediaControlView will be created manually in code -->

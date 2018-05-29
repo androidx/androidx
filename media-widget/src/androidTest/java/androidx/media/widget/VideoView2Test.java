@@ -21,6 +21,7 @@ import static android.content.Context.KEYGUARD_SERVICE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -40,6 +41,7 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
@@ -137,14 +139,12 @@ public class VideoView2Test {
             }
         });
         mInstrumentation.waitForIdleSync();
-/*
         final View.OnAttachStateChangeListener mockAttachListener =
                 mock(View.OnAttachStateChangeListener.class);
         if (!mVideoView.isAttachedToWindow()) {
             mVideoView.addOnAttachStateChangeListener(mockAttachListener);
             verify(mockAttachListener, timeout(TIME_OUT)).onViewAttachedToWindow(same(mVideoView));
         }
-        */
     }
 
     @After
@@ -170,7 +170,6 @@ public class VideoView2Test {
 
     @UiThreadTest
     @Test
-    @Ignore
     public void testConstructor() {
         new VideoView2(mActivity);
         new VideoView2(mActivity, null);
@@ -178,7 +177,6 @@ public class VideoView2Test {
     }
 
     @Test
-    @Ignore
     public void testPlayVideo() throws Throwable {
         // Don't run the test if the codec isn't supported.
         if (!hasCodec()) {
@@ -186,7 +184,10 @@ public class VideoView2Test {
             return;
         }
 
-        Looper.prepare();
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
+
         final MediaController2.ControllerCallback mockControllerCallback =
                 mock(MediaController2.ControllerCallback.class);
         final MediaController2.ControllerCallback callbackHelper =
@@ -224,18 +225,19 @@ public class VideoView2Test {
         verify(mockControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
                 any(MediaController2.class), any(SessionCommandGroup2.class));
 
+        verify(mockControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
+                any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PAUSED));
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mController.play();
             }
         });
-        verify(mockControllerCallback, timeout(TIME_OUT).atLeast(1)).onPlayerStateChanged(
+        verify(mockControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
                 any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PLAYING));
     }
 
     @Test
-    @Ignore
     public void testMediaPlayerAndSession() throws Throwable {
         if (!hasCodec()) {
             Log.i(TAG, "SKIPPING testMediaPlayerAndController(): codec is not supported");
@@ -346,9 +348,11 @@ public class VideoView2Test {
         verify(mockControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
                 any(MediaController2.class), any(SessionCommandGroup2.class));
 
+        /* b/80282274
         verify(mockSessionCallback, timeout(TIME_OUT).atLeastOnce()).onPlaylistChanged(
                 any(MediaSession2.class), any(MediaPlaylistAgent.class), any(List.class),
                 any(MediaMetadata2.class));
+                */
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -360,17 +364,16 @@ public class VideoView2Test {
                 any(MediaPlayer2.class), any(DataSourceDesc.class),
                 eq(MediaPlayer2.MEDIA_INFO_PREPARED), anyInt());
 
-        Log.d(TAG, "PlayerState: " + mController.getPlayerState());
         verify(mockSessionCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
                 any(MediaSession2.class), any(BaseMediaPlayer.class),
                 eq(BaseMediaPlayer.PLAYER_STATE_PAUSED));
 
         verify(mockControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
                 any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PAUSED));
+
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
                 mController.play();
             }
         });
@@ -381,7 +384,6 @@ public class VideoView2Test {
 
         verify(mockControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
                 any(MediaController2.class), eq(BaseMediaPlayer.PLAYER_STATE_PLAYING));
-
     }
 
     @Test

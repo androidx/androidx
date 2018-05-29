@@ -2278,12 +2278,7 @@ public class MediaControlView2 extends BaseLayout {
         }
         @Override
         public int getDurationMs() {
-            if (mMediaMetadata2 != null) {
-                if (mMediaMetadata2.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
-                    return (int) mMediaMetadata2.getLong(MediaMetadata2.METADATA_KEY_DURATION);
-                }
-            }
-            return -1;
+            return (int) mController2.getDuration();
         }
         @Override
         public String getTitle() {

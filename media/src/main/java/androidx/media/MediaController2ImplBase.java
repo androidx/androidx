@@ -433,7 +433,8 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     @Override
     public long getDuration() {
         synchronized (mLock) {
-            MediaMetadata2 metadata = mCurrentMediaItem.getMetadata();
+            MediaMetadata2 metadata = mCurrentMediaItem == null ? null
+                    : mCurrentMediaItem.getMetadata();
             if (metadata != null && metadata.containsKey(METADATA_KEY_DURATION)) {
                 return metadata.getLong(METADATA_KEY_DURATION);
             }

@@ -28,7 +28,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -592,6 +591,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (mMediaSession != null) {
                 mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(), null, null);
             }
+        } else {
+            if (!mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer)) {
+                Log.w(TAG, "failed to assign surface");
+            }
         }
 
         if (mMediaSession == null) {
@@ -842,14 +845,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      */
     private void resetPlayer() {
         if (mMediaPlayer != null) {
-            final MediaPlayer2 player = mMediaPlayer;
-            new AsyncTask<MediaPlayer2, Void, Void>() {
-                @Override
-                protected Void doInBackground(MediaPlayer2... players) {
-                    players[0].reset();
-                    return null;
-                }
-            }.executeOnExecutor(mCallbackExecutor, player);
+            mMediaPlayer.reset();
             mTextureView.setMediaPlayer(null);
             mSurfaceView.setMediaPlayer(null);
             mCurrentState = STATE_IDLE;
