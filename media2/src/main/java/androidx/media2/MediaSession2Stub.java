@@ -40,7 +40,6 @@ import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
-import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.SupportLibraryImpl;
@@ -360,14 +359,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        VolumeProviderCompat volumeProvider = mSession.getVolumeProvider();
-                        if (volumeProvider == null) {
-                            MediaSessionCompat sessionCompat = mSession.getSessionCompat();
-                            if (sessionCompat != null) {
-                                sessionCompat.getController().setVolumeTo(value, flags);
-                            }
-                        } else {
-                            volumeProvider.onSetVolumeTo(value);
+                        MediaSessionCompat sessionCompat = mSession.getSessionCompat();
+                        if (sessionCompat != null) {
+                            sessionCompat.getController().setVolumeTo(value, flags);
                         }
                     }
                 });
@@ -380,15 +374,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionRunnable() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        VolumeProviderCompat volumeProvider = mSession.getVolumeProvider();
-                        if (volumeProvider == null) {
-                            MediaSessionCompat sessionCompat = mSession.getSessionCompat();
-                            if (sessionCompat != null) {
-                                sessionCompat.getController().adjustVolume(
-                                        direction, flags);
-                            }
-                        } else {
-                            volumeProvider.onAdjustVolume(direction);
+                        MediaSessionCompat sessionCompat = mSession.getSessionCompat();
+                        if (sessionCompat != null) {
+                            sessionCompat.getController().adjustVolume(direction, flags);
                         }
                     }
                 });

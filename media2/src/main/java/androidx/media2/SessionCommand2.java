@@ -118,20 +118,27 @@ public final class SessionCommand2 {
     public static final int COMMAND_CODE_PLAYBACK_SEEK_TO = 9;
 
     /**
-     * Command code for both {@link MediaController2#setVolumeTo(int, int)}.
+     * Command code for {@link MediaController2#setVolumeTo(int, int)}.
      * <p>
-     * Command would set the device volume or send to the volume provider directly if the session
-     * doesn't reject the request through the
-     * {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)}.
+     * <p>
+     * If the session doesn't reject the request through the
+     * {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)},
+     * command would adjust the device volume. It would send to the player directly only if it's
+     * remote player. See RouteMediaPlayer for a remote player.
+     *
+     * @see androidx.mediarouter.media.RouteMediaPlayer#setPlayerVolume()
      */
     public static final int COMMAND_CODE_VOLUME_SET_VOLUME = 10;
 
     /**
-     * Command code for both {@link MediaController2#adjustVolume(int, int)}.
+     * Command code for {@link MediaController2#adjustVolume(int, int)}.
      * <p>
-     * Command would adjust the device volume or send to the volume provider directly if the session
-     * doesn't reject the request through the
-     * {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)}.
+     * If the session doesn't reject the request through the
+     * {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo, SessionCommand2)},
+     * command would adjust the device volume. It would send to the player directly only if it's
+     * remote player. See RouteMediaPlayer for a remote player.
+     *
+     * @see androidx.mediarouter.media.RouteMediaPlayer#adjustPlayerVolume()
      */
     public static final int COMMAND_CODE_VOLUME_ADJUST_VOLUME = 11;
 

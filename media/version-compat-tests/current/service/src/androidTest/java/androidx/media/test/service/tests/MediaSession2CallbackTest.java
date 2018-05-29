@@ -778,8 +778,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         final BadPlayer player = new BadPlayer(0);
 
         MediaSession2 session = null;
-        session.updatePlayer(player, null, null);
-        session.updatePlayer(mPlayer, null, null);
+        session.updatePlayer(player, null);
+        session.updatePlayer(mPlayer, null);
         player.notifyPlayerStateChanged(BaseMediaPlayer.PLAYER_STATE_PAUSED);
         assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }

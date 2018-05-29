@@ -91,10 +91,9 @@ import java.util.concurrent.RejectedExecutionException;
  * <a name="AudioFocusAndNoisyIntent"></a>
  * <h3>Audio focus and noisy intent</h3>
  * <p>
- * MediaSession2 automatically handles audio focus and noisy intent if a
- * {@link AudioAttributesCompat} is set to the underlying {@link BaseMediaPlayer} before the
- * session is created, and playback started with the session. Whenever the audio attribute is
- * changed, call {@link #updatePlayer} to tell changes.
+ * MediaSession2 handles audio focus and noisy intent with {@link AudioAttributesCompat} set to the
+ * underlying {@link BaseMediaPlayer} by default. You need to set the audio attribute before the
+ * session is created, and playback started with the session.
  * <p>
  * For information about the detailed behavior, read following developers guide.
  * <ol>
@@ -198,19 +197,17 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
     private final SupportLibraryImpl mImpl;
 
     MediaSession2(Context context, String id, BaseMediaPlayer player,
-            MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
-            PendingIntent sessionActivity, Executor callbackExecutor,
-            SessionCallback callback) {
+            MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
+            Executor callbackExecutor, SessionCallback callback) {
         mImpl = createImpl(context, id, player, playlistAgent,
-                volumeProvider, sessionActivity, callbackExecutor, callback);
+                sessionActivity, callbackExecutor, callback);
     }
 
     SupportLibraryImpl createImpl(Context context, String id, BaseMediaPlayer player,
-            MediaPlaylistAgent playlistAgent, VolumeProviderCompat volumeProvider,
-            PendingIntent sessionActivity, Executor callbackExecutor,
-            SessionCallback callback) {
+            MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
+            Executor callbackExecutor, SessionCallback callback) {
         return new MediaSession2ImplBase(this, context, id, player, playlistAgent,
-                volumeProvider, sessionActivity, callbackExecutor, callback);
+                sessionActivity, callbackExecutor, callback);
     }
 
     SupportLibraryImpl getImpl() {
@@ -230,13 +227,10 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      *
      * @param player a {@link BaseMediaPlayer} that handles actual media playback in your app
      * @param playlistAgent a {@link MediaPlaylistAgent} that manages playlist of the {@code player}
-     * @param volumeProvider a {@link VolumeProviderCompat}. If {@code null}, system will adjust the
-     *                       appropriate stream volume for this session's player.
      */
     public void updatePlayer(@NonNull BaseMediaPlayer player,
-            @Nullable MediaPlaylistAgent playlistAgent,
-            @Nullable VolumeProviderCompat volumeProvider) {
-        mImpl.updatePlayer(player, playlistAgent, volumeProvider);
+            @Nullable MediaPlaylistAgent playlistAgent) {
+        mImpl.updatePlayer(player, playlistAgent);
     }
 
     @Override
@@ -260,13 +254,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
      */
     public @NonNull MediaPlaylistAgent getPlaylistAgent() {
         return mImpl.getPlaylistAgent();
-    }
-
-    /**
-     * @return volume provider
-     */
-    public @Nullable VolumeProviderCompat getVolumeProvider() {
-        return mImpl.getVolumeProvider();
     }
 
     /**
@@ -1247,11 +1234,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         }
 
         @Override
-        public @NonNull Builder setVolumeProvider(@Nullable VolumeProviderCompat volumeProvider) {
-            return super.setVolumeProvider(volumeProvider);
-        }
-
-        @Override
         public @NonNull Builder setSessionActivity(@Nullable PendingIntent pi) {
             return super.setSessionActivity(pi);
         }
@@ -1275,8 +1257,8 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
             if (mCallback == null) {
                 mCallback = new SessionCallback() {};
             }
-            return new MediaSession2(mContext, mId, mPlayer, mPlaylistAgent, mVolumeProvider,
-                    mSessionActivity, mCallbackExecutor, mCallback);
+            return new MediaSession2(mContext, mId, mPlayer, mPlaylistAgent, mSessionActivity,
+                    mCallbackExecutor, mCallback);
         }
     }
 
@@ -1603,11 +1585,9 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
 
     interface SupportLibraryImpl extends MediaInterface2.SessionPlayer, AutoCloseable {
         void updatePlayer(@NonNull BaseMediaPlayer player,
-                @Nullable MediaPlaylistAgent playlistAgent,
-                @Nullable VolumeProviderCompat volumeProvider);
+                @Nullable MediaPlaylistAgent playlistAgent);
         @NonNull BaseMediaPlayer getPlayer();
         @NonNull MediaPlaylistAgent getPlaylistAgent();
-        @Nullable VolumeProviderCompat getVolumeProvider();
         @NonNull SessionToken2 getToken();
         @NonNull List<ControllerInfo> getConnectedControllers();
 
@@ -1706,17 +1686,6 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
                 throw new IllegalArgumentException("playlistAgent shouldn't be null");
             }
             mPlaylistAgent = playlistAgent;
-            return (U) this;
-        }
-
-        /**
-         * Sets the {@link VolumeProviderCompat} for this session to handle volume events. If not
-         * set, system will adjust the appropriate stream volume for this session's player.
-         *
-         * @param volumeProvider The provider that will receive volume button events.
-         */
-        @NonNull U setVolumeProvider(@Nullable VolumeProviderCompat volumeProvider) {
-            mVolumeProvider = volumeProvider;
             return (U) this;
         }
 

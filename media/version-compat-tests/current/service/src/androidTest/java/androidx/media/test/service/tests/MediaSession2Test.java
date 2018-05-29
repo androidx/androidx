@@ -229,12 +229,12 @@ public class MediaSession2Test extends MediaSession2TestBase {
         MockPlayer player = new MockPlayer(0);
 
         // Test if setPlayer doesn't crash with various situations.
-        mSession.updatePlayer(mPlayer, null, null);
+        mSession.updatePlayer(mPlayer, null);
         assertEquals(mPlayer, mSession.getPlayer());
         MediaPlaylistAgent agent = mSession.getPlaylistAgent();
         assertNotNull(agent);
 
-        mSession.updatePlayer(player, null, null);
+        mSession.updatePlayer(player, null);
         assertEquals(player, mSession.getPlayer());
         assertNotNull(mSession.getPlaylistAgent());
         assertNotEquals(agent, mSession.getPlaylistAgent());
