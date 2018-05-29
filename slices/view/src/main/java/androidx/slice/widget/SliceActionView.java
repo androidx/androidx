@@ -170,7 +170,9 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
             if (mSliceAction.isToggle()) {
                 // Update the intent extra state
                 boolean isChecked = ((Checkable) mActionView).isChecked();
-                Intent i = new Intent().putExtra(EXTRA_TOGGLE_STATE, isChecked);
+                Intent i = new Intent()
+                        .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                        .putExtra(EXTRA_TOGGLE_STATE, isChecked);
                 mSliceAction.getActionItem().fireAction(getContext(), i);
 
                 // Update event info state

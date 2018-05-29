@@ -42,6 +42,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
@@ -63,6 +64,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.SliceItem;
+import androidx.slice.SliceStructure;
 import androidx.slice.core.SliceAction;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
@@ -82,7 +84,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private static final String TAG = "RowView";
 
     // The number of items that fit on the right hand side of a small slice
+    // TODO: this should be based on available width
     private static final int MAX_END_ITEMS = 3;
+    // How frequently (ms) intent can be sent in response to slider moving.
+    private static final int SLIDER_INTERVAL = 200;
 
     private LinearLayout mRootView;
     private LinearLayout mStartContainer;
@@ -102,6 +107,18 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private boolean mIsHeader;
     private List<SliceAction> mHeaderActions;
     private boolean mIsSingleItem;
+
+    // Indicates if there's a slider in this row that is currently being interacted with.
+    private boolean mIsRangeSliding;
+    // Indicates that there was an update to the row but we skipped it while the slice was
+    // being interacted with.
+    private boolean mRangeHasPendingUpdate;
+    private boolean mRangeUpdaterRunning;
+    private Handler mHandler;
+    private long mLastSentRangeUpdate;
+    private int mRangeValue;
+    private int mRangeMinValue;
+    private SliceItem mRangeItem;
 
     private int mImageSize;
     private int mIconSize;
@@ -166,7 +183,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         super.setTint(tintColor);
         if (mRowContent != null) {
             // TODO -- can be smarter about this
-            populateViews();
+            populateViews(true);
         }
     }
 
@@ -174,7 +191,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     public void setSliceActions(List<SliceAction> actions) {
         mHeaderActions = actions;
         if (mRowContent != null) {
-            populateViews();
+            populateViews(true);
         }
     }
 
@@ -182,7 +199,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     public void setShowLastUpdated(boolean showLastUpdated) {
         super.setShowLastUpdated(showLastUpdated);
         if (mRowContent != null) {
-            populateViews();
+            populateViews(true);
         }
     }
 
@@ -223,15 +240,30 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     public void setSliceItem(SliceItem slice, boolean isHeader, int index,
             int rowCount, SliceView.OnSliceActionListener observer) {
         setSliceActionListener(observer);
+
+        boolean isUpdate = false;
+        if (slice != null && mRowContent != null && mRowContent.isValid()) {
+            // Might be same slice
+            SliceStructure prevSs = mRowContent != null
+                    ? new SliceStructure(mRowContent.getSlice()) : null;
+            boolean sameSliceId = mRowContent.getSlice().getSlice().getUri().equals(
+                    slice.getSlice().getUri());
+            boolean sameStructure = new SliceStructure(slice.getSlice()).equals(prevSs);
+            isUpdate = sameSliceId && sameStructure;
+        }
+        mRowContent = new RowContent(getContext(), slice, mIsHeader);
         mRowIndex = index;
         mIsHeader = ListContent.isValidHeader(slice);
         mHeaderActions = null;
-        mRowContent = new RowContent(getContext(), slice, mIsHeader);
-        populateViews();
+        populateViews(isUpdate);
     }
 
-    private void populateViews() {
-        resetView();
+    private void populateViews(boolean isUpdate) {
+        boolean skipSliderUpdate = isUpdate && mIsRangeSliding;
+        if (!skipSliderUpdate) {
+            resetView();
+        }
+
         if (mRowContent.getLayoutDirItem() != null) {
             setLayoutDirection(mRowContent.getLayoutDirItem().getInt());
         }
@@ -282,7 +314,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             if (mRowAction != null) {
                 setViewClickable(mRootView, true);
             }
-            addRange(range);
+            if (!skipSliderUpdate) {
+                determineRangeValues(range);
+                addRange(range);
+            }
             return;
         }
 
@@ -374,7 +409,32 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mLastUpdatedText.requestLayout();
     }
 
+    private void determineRangeValues(SliceItem rangeItem) {
+        if (rangeItem == null) {
+            mRangeMinValue = 0;
+            mRangeValue = 0;
+            return;
+        }
+        mRangeItem = rangeItem;
+
+        SliceItem min = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_MIN);
+        int minValue = 0;
+        if (min != null) {
+            minValue = min.getInt();
+        }
+        mRangeMinValue = minValue;
+
+        SliceItem progress = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_VALUE);
+        if (progress != null) {
+            mRangeValue = progress.getInt() - minValue;
+        }
+    }
+
     private void addRange(final SliceItem range) {
+        if (mHandler == null) {
+            mHandler = new Handler();
+        }
+
         final boolean isSeekBar = FORMAT_ACTION.equals(range.getFormat());
         final ProgressBar progressBar = isSeekBar
                 ? new SeekBar(getContext())
@@ -384,20 +444,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             DrawableCompat.setTint(progressDrawable, mTintColor);
             progressBar.setProgressDrawable(progressDrawable);
         }
-        // TODO: Need to handle custom accessibility for min
-        SliceItem min = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MIN);
-        int minValue = 0;
-        if (min != null) {
-            minValue = min.getInt();
-        }
         SliceItem max = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MAX);
         if (max != null) {
-            progressBar.setMax(max.getInt() - minValue);
+            progressBar.setMax(max.getInt() - mRangeMinValue);
         }
-        SliceItem progress = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_VALUE);
-        if (progress != null) {
-            progressBar.setProgress(progress.getInt() - minValue);
-        }
+        progressBar.setProgress(mRangeValue);
         progressBar.setVisibility(View.VISIBLE);
         addView(progressBar);
         mRangeBar = progressBar;
@@ -415,24 +466,20 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 DrawableCompat.setTint(thumbDrawable, mTintColor);
                 seekBar.setThumb(thumbDrawable);
             }
-            final int finalMinValue = minValue;
-            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    progress += finalMinValue;
-                    try {
-                        // TODO: sending this PendingIntent should be rate limited.
-                        range.fireAction(getContext(),
-                                new Intent().putExtra(EXTRA_RANGE_VALUE, progress));
-                    } catch (CanceledException e) { }
-                }
+            seekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
+        }
+    }
 
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) { }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) { }
-            });
+    private void sendSliderValue() {
+        if (mRangeItem != null) {
+            try {
+                mLastSentRangeUpdate = System.currentTimeMillis();
+                mRangeItem.fireAction(getContext(),
+                        new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                                .putExtra(EXTRA_RANGE_VALUE, mRangeValue));
+            } catch (CanceledException e) {
+                Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+            }
         }
     }
 
@@ -581,13 +628,62 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mToggles.clear();
         mRowAction = null;
         mDivider.setVisibility(GONE);
-        if (mRangeBar != null) {
-            removeView(mRangeBar);
-            mRangeBar = null;
-        }
         if (mSeeMoreView != null) {
             mRootView.removeView(mSeeMoreView);
             mSeeMoreView = null;
         }
+        mIsRangeSliding = false;
+        mRangeHasPendingUpdate = false;
+        mRangeItem = null;
+        mRangeMinValue = 0;
+        mRangeValue = 0;
+        mLastSentRangeUpdate = 0;
+        mHandler = null;
+        if (mRangeBar != null) {
+            removeView(mRangeBar);
+            mRangeBar = null;
+        }
     }
+
+    private Runnable mRangeUpdater = new Runnable() {
+        @Override
+        public void run() {
+            sendSliderValue();
+            mRangeUpdaterRunning = false;
+        }
+    };
+
+    private SeekBar.OnSeekBarChangeListener mSeekBarChangeListener =
+            new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    mRangeValue = progress + mRangeMinValue;
+                    final long now = System.currentTimeMillis();
+                    if (mLastSentRangeUpdate != 0 && now - mLastSentRangeUpdate > SLIDER_INTERVAL) {
+                        mRangeUpdaterRunning = false;
+                        mHandler.removeCallbacks(mRangeUpdater);
+                        sendSliderValue();
+                    } else if (!mRangeUpdaterRunning) {
+                        mRangeUpdaterRunning = true;
+                        mHandler.postDelayed(mRangeUpdater, SLIDER_INTERVAL);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                    mIsRangeSliding = true;
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    mIsRangeSliding = false;
+                    if (mRangeUpdaterRunning || mRangeHasPendingUpdate) {
+                        mRangeUpdaterRunning = false;
+                        mRangeHasPendingUpdate = false;
+                        mHandler.removeCallbacks(mRangeUpdater);
+                        mRangeValue = seekBar.getProgress() + mRangeMinValue;
+                        sendSliderValue();
+                    }
+                }
+            };
 }

@@ -22,6 +22,7 @@ import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 import static com.example.androidx.slice.demos.SampleSliceProvider.EXTRA_ITEM_INDEX;
 import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
 import static com.example.androidx.slice.demos.SampleSliceProvider.sGroceryList;
+import static com.example.androidx.slice.demos.SampleSliceProvider.sStarRating;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -63,7 +64,9 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
                 break;
             case SampleSliceProvider.ACTION_TOAST_RANGE_VALUE:
                 int range = i.getExtras().getInt(EXTRA_RANGE_VALUE, 0);
+                sStarRating = range;
                 Toast.makeText(context, "value: " + range, Toast.LENGTH_SHORT).show();
+                context.getContentResolver().notifyChange(getUri("inputrange", context), null);
                 break;
         }
     }
