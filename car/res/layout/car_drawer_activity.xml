@@ -48,10 +48,13 @@ limitations under the License.
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <include
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:layout_marginEnd="@dimen/car_margin"
-        layout="@layout/car_drawer" />
+        android:maxWidth="@dimen/car_drawer_max_width">
+
+        <include layout="@layout/car_drawer" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.drawerlayout.widget.DrawerLayout>
