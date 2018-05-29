@@ -32,10 +32,12 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.DimenRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.utils.CarUxRestrictionsUtils;
@@ -82,14 +84,34 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
     @Retention(SOURCE)
     @IntDef({
+            PRIMARY_ACTION_ICON_SIZE_SMALL, PRIMARY_ACTION_ICON_SIZE_MEDIUM,
+            PRIMARY_ACTION_ICON_SIZE_LARGE})
+    private @interface PrimaryActionIconSize {}
+
+    /**
+     * Small sized icon is the mostly commonly used size. It's the same as supplemental action icon.
+     */
+    public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0;
+    /**
+     * Medium sized icon is slightly bigger than {@code SMALL} ones. It is intended for profile
+     * pictures (avatar), in which case caller is responsible for passing in a circular image.
+     */
+    public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1;
+    /**
+     * Large sized icon is as tall as a list item with only {@code title} text. It is intended for
+     * album art.
+     */
+    public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2;
+
+    @Retention(SOURCE)
+    @IntDef({
             PRIMARY_ACTION_TYPE_NO_ICON, PRIMARY_ACTION_TYPE_EMPTY_ICON,
-            PRIMARY_ACTION_TYPE_LARGE_ICON, PRIMARY_ACTION_TYPE_SMALL_ICON})
+            PRIMARY_ACTION_TYPE_ICON})
     private @interface PrimaryActionType {}
 
     private static final int PRIMARY_ACTION_TYPE_NO_ICON = 0;
     private static final int PRIMARY_ACTION_TYPE_EMPTY_ICON = 1;
-    private static final int PRIMARY_ACTION_TYPE_LARGE_ICON = 2;
-    private static final int PRIMARY_ACTION_TYPE_SMALL_ICON = 3;
+    private static final int PRIMARY_ACTION_TYPE_ICON = 2;
 
     @Retention(SOURCE)
     @IntDef({SUPPLEMENTAL_ACTION_NO_ACTION, SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON,
@@ -112,6 +134,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
     @PrimaryActionType private int mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
     private Drawable mPrimaryActionIconDrawable;
+    @PrimaryActionIconSize private int mPrimaryActionIconSize = PRIMARY_ACTION_ICON_SIZE_SMALL;
 
     private String mTitle;
     private String mBody;
@@ -261,8 +284,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
     private void setPrimaryIconContent() {
         switch (mPrimaryActionType) {
-            case PRIMARY_ACTION_TYPE_SMALL_ICON:
-            case PRIMARY_ACTION_TYPE_LARGE_ICON:
+            case PRIMARY_ACTION_TYPE_ICON:
                 mBinders.add(vh -> {
                     vh.getPrimaryIcon().setVisibility(View.VISIBLE);
 
@@ -279,72 +301,73 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     }
 
     /**
-     * Sets layout params of primary icon.
+     * Sets the size, start margin, and vertical position of primary icon.
      *
      * <p>Large icon will have no start margin, and always align center vertically.
      *
-     * <p>Small icon will have start margin. When body text is present small icon uses a top
-     * margin otherwise align center vertically.
+     * <p>Small/medium icon will have start margin, and uses a top margin such that it is "pinned"
+     * at the same position in list item regardless of item height.
      */
     private void setPrimaryIconLayout() {
-        // Set all relevant fields in layout params to avoid carried over params when the item
-        // gets bound to a recycled view holder.
-        switch (mPrimaryActionType) {
-            case PRIMARY_ACTION_TYPE_SMALL_ICON:
-                mBinders.add(vh -> {
-                    int iconSize = mContext.getResources().getDimensionPixelSize(
-                            R.dimen.car_primary_icon_size);
-                    // Icon size.
-                    RelativeLayout.LayoutParams layoutParams =
-                            (RelativeLayout.LayoutParams) vh.getPrimaryIcon().getLayoutParams();
-                    layoutParams.height = layoutParams.width = iconSize;
+        if (mPrimaryActionType == PRIMARY_ACTION_TYPE_EMPTY_ICON
+                || mPrimaryActionType == PRIMARY_ACTION_TYPE_NO_ICON) {
+            return;
+        }
 
-                    // Start margin.
-                    layoutParams.setMarginStart(mContext.getResources().getDimensionPixelSize(
-                                            R.dimen.car_keyline_1));
-
-                    if (!TextUtils.isEmpty(mBody)) {
-                        // Set icon top margin so that the icon remains in the same position it
-                        // would've been in for non-long-text item, namely so that the center
-                        // line of icon matches that of line item.
-                        layoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
-                        int itemHeight = mContext.getResources().getDimensionPixelSize(
-                                     R.dimen.car_double_line_list_item_height);
-                        layoutParams.topMargin = (itemHeight - iconSize) / 2;
-                    } else {
-                        // If the icon can be centered vertically, leave the work for framework.
-                        layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
-                        layoutParams.topMargin = 0;
-                    }
-                    vh.getPrimaryIcon().requestLayout();
-                });
+        // Size of icon.
+        @DimenRes int sizeResId;
+        switch (mPrimaryActionIconSize) {
+            case PRIMARY_ACTION_ICON_SIZE_SMALL:
+                sizeResId = R.dimen.car_primary_icon_size;
                 break;
-            case PRIMARY_ACTION_TYPE_LARGE_ICON:
-                mBinders.add(vh -> {
-                    int iconSize = mContext.getResources().getDimensionPixelSize(
-                               R.dimen.car_single_line_list_item_height);
-                    // Icon size.
-                    RelativeLayout.LayoutParams layoutParams =
-                            (RelativeLayout.LayoutParams) vh.getPrimaryIcon().getLayoutParams();
-                    layoutParams.height = layoutParams.width = iconSize;
-
-                    // No start margin.
-                    layoutParams.setMarginStart(0);
-
-                    // Always centered vertically.
-                    layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
-                    layoutParams.topMargin = 0;
-
-                    vh.getPrimaryIcon().requestLayout();
-                });
+            case PRIMARY_ACTION_ICON_SIZE_MEDIUM:
+                sizeResId = R.dimen.car_avatar_icon_size;
                 break;
-            case PRIMARY_ACTION_TYPE_EMPTY_ICON:
-            case PRIMARY_ACTION_TYPE_NO_ICON:
-                // Do nothing.
+            case PRIMARY_ACTION_ICON_SIZE_LARGE:
+                sizeResId = R.dimen.car_single_line_list_item_height;
                 break;
             default:
-                throw new IllegalStateException("Unknown primary action type.");
+                throw new IllegalStateException("Unknown primary action icon size.");
         }
+        int iconSize = mContext.getResources().getDimensionPixelSize(sizeResId);
+
+        // Start margin of icon.
+        int startMargin;
+        switch (mPrimaryActionIconSize) {
+            case PRIMARY_ACTION_ICON_SIZE_SMALL:
+            case PRIMARY_ACTION_ICON_SIZE_MEDIUM:
+                startMargin = mContext.getResources().getDimensionPixelSize(R.dimen.car_keyline_1);
+                break;
+            case PRIMARY_ACTION_ICON_SIZE_LARGE:
+                startMargin = 0;
+                break;
+            default:
+                throw new IllegalStateException("Unknown primary action icon size.");
+        }
+
+        mBinders.add(vh -> {
+            RelativeLayout.LayoutParams layoutParams =
+                    (RelativeLayout.LayoutParams) vh.getPrimaryIcon().getLayoutParams();
+            layoutParams.height = layoutParams.width = iconSize;
+            layoutParams.setMarginStart(startMargin);
+
+            // Set all relevant fields in layout params to avoid carried over params when the item
+            // gets bound to a recycled view holder.
+            if (mPrimaryActionIconSize == PRIMARY_ACTION_ICON_SIZE_LARGE) {
+                // Large icon is always centered vertically.
+                layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+                layoutParams.topMargin = 0;
+            } else {
+                // Pin the icon to the same position it would've been in for non-long-text item,
+                // namely so that the center line of icon matches that of line item.
+                layoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
+
+                int itemHeight = mContext.getResources().getDimensionPixelSize(
+                        R.dimen.car_double_line_list_item_height);
+                layoutParams.topMargin = (itemHeight - iconSize) / 2;
+            }
+            vh.getPrimaryIcon().requestLayout();
+        });
     }
 
     private void setTextContent() {
@@ -378,7 +401,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * Sets start margin of text view depending on icon type.
      */
     private void setTextStartMargin() {
-        final int startMarginResId;
+        @DimenRes int startMarginResId;
         switch (mPrimaryActionType) {
             case PRIMARY_ACTION_TYPE_NO_ICON:
                 startMarginResId = R.dimen.car_keyline_1;
@@ -386,11 +409,10 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             case PRIMARY_ACTION_TYPE_EMPTY_ICON:
                 startMarginResId = R.dimen.car_keyline_3;
                 break;
-            case PRIMARY_ACTION_TYPE_SMALL_ICON:
-                startMarginResId = R.dimen.car_keyline_3;
-                break;
-            case PRIMARY_ACTION_TYPE_LARGE_ICON:
-                startMarginResId = R.dimen.car_keyline_4;
+            case PRIMARY_ACTION_TYPE_ICON:
+                startMarginResId = mPrimaryActionIconSize == PRIMARY_ACTION_ICON_SIZE_LARGE
+                        ? R.dimen.car_keyline_4
+                        : R.dimen.car_keyline_3;  // Small and medium sized icon.
                 break;
             default:
                 throw new IllegalStateException("Unknown primary action type.");
@@ -609,9 +631,14 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      *
      * @param iconResId the resource identifier of the drawable.
      * @param useLargeIcon the size of primary icon. Large Icon is a square as tall as an item.
+     *
+     * @deprecated use {@link #setPrimaryActionIconSize(int)} instead.
      */
+    @Deprecated
     public void setPrimaryActionIcon(@DrawableRes int iconResId, boolean useLargeIcon) {
-        setPrimaryActionIcon(mContext.getDrawable(iconResId), useLargeIcon);
+        setPrimaryActionIcon(iconResId);
+        setPrimaryActionIconSize(useLargeIcon
+                ? PRIMARY_ACTION_ICON_SIZE_LARGE : PRIMARY_ACTION_ICON_SIZE_SMALL);
     }
 
     /**
@@ -619,13 +646,46 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      *
      * @param drawable the Drawable to set, or null to clear the content.
      * @param useLargeIcon the size of primary icon. Large Icon is a square as tall as an item.
+     *
+     * @deprecated use {@link #setPrimaryActionIconSize(int)} instead.
      */
+    @Deprecated
     public void setPrimaryActionIcon(Drawable drawable, boolean useLargeIcon) {
-        mPrimaryActionType = useLargeIcon
-                ? PRIMARY_ACTION_TYPE_LARGE_ICON
-                : PRIMARY_ACTION_TYPE_SMALL_ICON;
+        setPrimaryActionIcon(drawable);
+        setPrimaryActionIconSize(useLargeIcon
+                ? PRIMARY_ACTION_ICON_SIZE_LARGE : PRIMARY_ACTION_ICON_SIZE_SMALL);
+    }
+
+    /**
+     * Sets {@code Primary Action} to be represented by an icon.
+     *
+     * @param iconResId the resource identifier of the drawable.
+     */
+    public void setPrimaryActionIcon(@DrawableRes int iconResId) {
+        setPrimaryActionIcon(mContext.getDrawable(iconResId));
+    }
+
+    /**
+     * Sets {@code Primary Action} to be represented by an icon.
+     *
+     * @param drawable the Drawable to set, or null to clear the content.
+     */
+    public void setPrimaryActionIcon(@Nullable Drawable drawable) {
+        mPrimaryActionType = PRIMARY_ACTION_TYPE_ICON;
         mPrimaryActionIconDrawable = drawable;
 
+        markDirty();
+    }
+
+    /**
+     * Sets the size of {@code Primary Action Icon}.
+     *
+     * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
+     */
+    public void setPrimaryActionIconSize(@PrimaryActionIconSize int size) {
+        mPrimaryActionIconSize = size;
         markDirty();
     }
 

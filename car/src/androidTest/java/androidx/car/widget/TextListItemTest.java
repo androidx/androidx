@@ -23,6 +23,7 @@ import static android.support.test.espresso.contrib.RecyclerViewActions.scrollTo
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
@@ -146,10 +147,11 @@ public class TextListItemTest {
     @Test
     public void testPrimaryActionVisible() {
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
+        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item0.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
         TextListItem item1 = new TextListItem(mActivity);
-        item1.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+        item1.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
 
         List<TextListItem> items = Arrays.asList(item0, item1);
         setupPagedListView(items);
@@ -313,10 +315,11 @@ public class TextListItemTest {
     @Test
     public void testTextStartMarginMatchesPrimaryActionType() {
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
+        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item0.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
         TextListItem item1 = new TextListItem(mActivity);
-        item1.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+        item1.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
 
         TextListItem item2 = new TextListItem(mActivity);
         item2.setPrimaryActionEmptyIcon();
@@ -409,7 +412,8 @@ public class TextListItemTest {
                 android.R.drawable.sym_def_app_icon, null);
 
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setPrimaryActionIcon(drawable, true);
+        item0.setPrimaryActionIcon(drawable);
+        item0.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
         List<TextListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
@@ -419,9 +423,37 @@ public class TextListItemTest {
     }
 
     @Test
+    public void testPrimaryIconSizesInIncreasingOrder() {
+        TextListItem small = new TextListItem(mActivity);
+        small.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        small.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+
+        TextListItem medium = new TextListItem(mActivity);
+        medium.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        medium.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
+
+        TextListItem large = new TextListItem(mActivity);
+        large.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        large.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+
+        List<TextListItem> items = Arrays.asList(small, medium, large);
+        setupPagedListView(items);
+
+        TextListItem.ViewHolder smallVH = getViewHolderAtPosition(0);
+        TextListItem.ViewHolder mediumVH = getViewHolderAtPosition(1);
+        TextListItem.ViewHolder largeVH = getViewHolderAtPosition(2);
+
+        assertThat(largeVH.getPrimaryIcon().getHeight(), is(greaterThan(
+                mediumVH.getPrimaryIcon().getHeight())));
+        assertThat(mediumVH.getPrimaryIcon().getHeight(), is(greaterThan(
+                smallVH.getPrimaryIcon().getHeight())));
+    }
+
+    @Test
     public void testLargePrimaryIconHasNoStartMargin() {
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
+        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item0.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
         List<TextListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
@@ -432,17 +464,25 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testSmallPrimaryIconStartMargin() {
+    public void testSmallAndMediumPrimaryIconStartMargin() {
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
 
-        List<TextListItem> items = Arrays.asList(item0);
+        TextListItem item1 = new TextListItem(mActivity);
+        item1.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item1.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
+
+        List<TextListItem> items = Arrays.asList(item0, item1);
         setupPagedListView(items);
 
         int expected = InstrumentationRegistry.getContext().getResources().getDimensionPixelSize(
                 R.dimen.car_keyline_1);
 
         TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        assertThat(((ViewGroup.MarginLayoutParams) viewHolder.getPrimaryIcon().getLayoutParams())
+                .getMarginStart(), is(equalTo(expected)));
+
+        viewHolder = getViewHolderAtPosition(1);
         assertThat(((ViewGroup.MarginLayoutParams) viewHolder.getPrimaryIcon().getLayoutParams())
                 .getMarginStart(), is(equalTo(expected)));
     }
@@ -454,29 +494,29 @@ public class TextListItemTest {
 
         // Single line item.
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+        item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
         item0.setTitle("one line text");
 
         // Double line item with one line text.
         TextListItem item1 = new TextListItem(mActivity);
-        item1.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+        item1.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
         item1.setTitle("one line text");
         item1.setBody("one line text");
 
         // Double line item with long text.
         TextListItem item2 = new TextListItem(mActivity);
-        item2.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+        item2.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
         item2.setTitle("one line text");
         item2.setBody(longText);
 
         // Body text only - long text.
         TextListItem item3 = new TextListItem(mActivity);
-        item3.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+        item3.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
         item3.setBody(longText);
 
         // Body text only - one line text.
         TextListItem item4 = new TextListItem(mActivity);
-        item4.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+        item4.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
         item4.setBody("one line text");
 
         List<TextListItem> items = Arrays.asList(item0, item1, item2, item3, item4);
@@ -734,13 +774,14 @@ public class TextListItemTest {
     @Test
     public void testNoCarriedOverLayoutParamsForPrimaryIcon() throws Throwable {
         TextListItem smallIcon = new TextListItem(mActivity);
-        smallIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, false);
+        smallIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
         smallIcon.setBody("body");  // Small icon of items with body text should use top margin.
         setupPagedListView(Arrays.asList(smallIcon));
 
         // Manually rebind the view holder.
         TextListItem largeIcon = new TextListItem(mActivity);
-        largeIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, true);
+        largeIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        largeIcon.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
         TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         mActivityRule.runOnUiThread(() -> largeIcon.bind(viewHolder));
 
