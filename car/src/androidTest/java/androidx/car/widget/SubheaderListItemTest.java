@@ -115,7 +115,7 @@ public class SubheaderListItemTest {
 
         TextListItem item = new TextListItem(mActivity);
         item.setTitle("title");
-        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, /* useLargeIcon= */ false);
+        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
 
         setupPagedListView(Arrays.asList(subheader, item));
 
@@ -130,7 +130,8 @@ public class SubheaderListItemTest {
 
         TextListItem item = new TextListItem(mActivity);
         item.setTitle("title");
-        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon, /* useLargeIcon= */ true);
+        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
+        item.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
         setupPagedListView(Arrays.asList(subheader, item));
 

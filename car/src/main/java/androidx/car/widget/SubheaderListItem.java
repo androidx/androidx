@@ -86,12 +86,12 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
      */
     public static final int TEXT_START_MARGIN_TYPE_NONE = 0;
     /**
-     * Sets start margin of text the same as {@link TextListItem#setPrimaryActionIcon(int, boolean)}
+     * Sets start margin of text the same as {@link TextListItem#setPrimaryActionIcon(int)}
      * with {@code useLargeIcon} set to {@code false}.
      */
     public static final int TEXT_START_MARGIN_TYPE_SMALL = 1;
     /**
-     * Sets start margin of text the same as {@link TextListItem#setPrimaryActionIcon(int, boolean)}
+     * Sets start margin of text the same as {@link TextListItem#setPrimaryActionIcon(int)}
      * with {@code useLargeIcon} set to {@code true}.
      */
     public static final int TEXT_START_MARGIN_TYPE_LARGE = 2;

@@ -69,6 +69,7 @@ limitations under the License.
     <!-- Icons and Buttons -->
     <!-- Icons -->
     <dimen name="car_primary_icon_size">44dp</dimen>
+    <dimen name="car_avatar_icon_size">56dp</dimen>
     <dimen name="car_secondary_icon_size">24dp</dimen>
     <dimen name="car_fab_icon_size">76dp</dimen>
     <dimen name="car_app_icon_size">76dp</dimen>

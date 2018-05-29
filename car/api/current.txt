@@ -464,8 +464,11 @@ package androidx.car.widget {
     method public void setEnabled(boolean);
     method public void setOnClickListener(android.view.View.OnClickListener);
     method public void setPrimaryActionEmptyIcon();
-    method public void setPrimaryActionIcon(int, boolean);
-    method public void setPrimaryActionIcon(android.graphics.drawable.Drawable, boolean);
+    method public deprecated void setPrimaryActionIcon(int, boolean);
+    method public deprecated void setPrimaryActionIcon(android.graphics.drawable.Drawable, boolean);
+    method public void setPrimaryActionIcon(int);
+    method public void setPrimaryActionIcon(android.graphics.drawable.Drawable);
+    method public void setPrimaryActionIconSize(int);
     method public void setPrimaryActionNoIcon();
     method public void setSupplementalIcon(int, boolean);
     method public void setSupplementalIcon(android.graphics.drawable.Drawable, boolean);
@@ -474,6 +477,9 @@ package androidx.car.widget {
     method public void setSwitch(boolean, boolean, android.widget.CompoundButton.OnCheckedChangeListener);
     method public void setSwitchState(boolean);
     method public void setTitle(java.lang.String);
+    field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
+    field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
+    field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
   }
 
   public static class TextListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
