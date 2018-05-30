@@ -16,6 +16,7 @@
 
 package androidx.navigation;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -24,7 +25,6 @@ import android.os.Bundle;
 import android.support.annotation.NavigationRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.annotation.SuppressLint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -222,6 +222,7 @@ public class NavInflater {
         a.recycle();
     }
 
+    @SuppressWarnings("deprecation")
     private void inflateAction(Resources res, NavDestination dest, AttributeSet attrs) {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavAction);
         final int id = a.getResourceId(R.styleable.NavAction_android_id, 0);

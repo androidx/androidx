@@ -59,6 +59,7 @@ class NavOptionsBuilder {
      * This functions similarly to how [android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK]
      * works with activites.
      */
+    @Deprecated("Use popUpTo with the root of the graph and inclusive set to true")
     var clearTask = false
 
     /**
@@ -99,6 +100,7 @@ class NavOptionsBuilder {
     internal fun build() = builder.apply {
         setLaunchSingleTop(launchSingleTop)
         setLaunchDocument(launchDocument)
+        @Suppress("DEPRECATION")
         setClearTask(clearTask)
         setPopUpTo(popUpTo, inclusive)
     }.build()
