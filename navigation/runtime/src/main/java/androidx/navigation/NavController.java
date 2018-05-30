@@ -476,7 +476,8 @@ public class NavController {
             // Start with a cleared task starting at our root when we're on our own task
             if (!mBackStack.isEmpty()) {
                 navigate(mGraph.getStartDestination(), bundle, new NavOptions.Builder()
-                        .setClearTask(true).setEnterAnim(0).setExitAnim(0).build());
+                        .setPopUpTo(mGraph.getId(), true)
+                        .setEnterAnim(0).setExitAnim(0).build());
             }
             int index = 0;
             while (index < deepLink.length) {
@@ -506,7 +507,8 @@ public class NavController {
             } else {
                 // Navigate to the last NavDestination, clearing any existing destinations
                 node.navigate(bundle, new NavOptions.Builder()
-                        .setClearTask(true).setEnterAnim(0).setExitAnim(0).build());
+                        .setPopUpTo(mGraph.getId(), true)
+                        .setEnterAnim(0).setExitAnim(0).build());
             }
         }
         return true;
@@ -576,6 +578,7 @@ public class NavController {
      * @param args arguments to pass to the destination
      * @param navOptions special options for this navigation operation
      */
+    @SuppressWarnings("deprecation")
     public void navigate(@IdRes int resId, @Nullable Bundle args, @Nullable NavOptions navOptions) {
         NavDestination currentNode = mBackStack.isEmpty() ? mGraph : mBackStack.peekLast();
         if (currentNode == null) {
@@ -611,8 +614,7 @@ public class NavController {
         if (navOptions != null) {
             if (navOptions.shouldClearTask()) {
                 // Start with a clean slate
-                popBackStack(0, true);
-                mBackStack.clear();
+                popBackStack(mGraph.getId(), true);
             } else if (navOptions.getPopUpTo() != 0) {
                 popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
             }
