@@ -16,17 +16,21 @@
 
 package androidx.car.widget;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 /**
  * Supplies data as {@link ListItem}.
+ *
+ * @param <VH> class that extends {@link ListItem.ViewHolder}.
  */
-public abstract class ListItemProvider {
+public abstract class ListItemProvider<VH extends ListItem.ViewHolder> {
 
     /**
      * Returns {@link ListItem} at requested position.
      */
-    public abstract ListItem get(int position);
+    public abstract ListItem<VH> get(int position);
 
     /**
      * @return number of total items.
@@ -35,16 +39,18 @@ public abstract class ListItemProvider {
 
     /**
      * A simple provider that wraps around a list.
+     *
+     * @param <VH> class that extends {@link ListItem.ViewHolder}.
      */
-    public static class ListProvider extends ListItemProvider {
-        private final List<ListItem> mItems;
+    public static class ListProvider<VH extends ListItem.ViewHolder> extends ListItemProvider {
+        private final List<ListItem<VH>> mItems;
 
-        public ListProvider(List<ListItem> items) {
+        public ListProvider(@NonNull List<ListItem<VH>> items) {
             mItems = items;
         }
 
         @Override
-        public ListItem get(int position) {
+        public ListItem<VH> get(int position) {
             return mItems.get(position);
         }
 
@@ -54,3 +60,4 @@ public abstract class ListItemProvider {
         }
     }
 }
+
