@@ -23,10 +23,13 @@ import android.net.Uri;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.builders.SliceAction;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -106,6 +109,16 @@ public interface ListBuilder {
      * @param ttl the length in milliseconds that this content can live for.
      */
     void setTtl(long ttl);
+
+    /**
+     * Sets the time-to-live for this slice, i.e. how long the data contained in the slice
+     * can remain fresh.
+     *
+     * @param ttl the {@link Duration} that this content can live for. Null duration indicates
+     *            infinite time-to-live.
+     */
+    @RequiresApi(26)
+    void setTtl(@Nullable Duration ttl);
 
     /**
      * Sets whether this slice indicates an error, i.e. the normal contents of this slice are

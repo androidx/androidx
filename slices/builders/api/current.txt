@@ -64,6 +64,7 @@ package androidx.slice.builders {
   public class ListBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor public deprecated ListBuilder(android.content.Context, android.net.Uri);
     ctor public ListBuilder(android.content.Context, android.net.Uri, long);
+    ctor public ListBuilder(android.content.Context, android.net.Uri, java.time.Duration);
     method public androidx.slice.builders.ListBuilder addAction(androidx.slice.builders.SliceAction);
     method public deprecated androidx.slice.builders.ListBuilder addGrid(androidx.slice.builders.GridBuilder);
     method public deprecated androidx.slice.builders.ListBuilder addGrid(androidx.core.util.Consumer<androidx.slice.builders.GridBuilder>);

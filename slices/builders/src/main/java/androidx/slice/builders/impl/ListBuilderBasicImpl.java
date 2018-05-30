@@ -26,12 +26,15 @@ import android.net.Uri;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
 import androidx.slice.builders.SliceAction;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -118,6 +121,11 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
      */
     @Override
     public void setTtl(long ttl) {
+    }
+
+    @Override
+    @RequiresApi(26)
+    public void setTtl(@Nullable Duration ttl) {
     }
 
     @Override
