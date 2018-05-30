@@ -434,11 +434,8 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             player = mPlayer;
         }
         if (player != null) {
-            if (mAudioFocusHandler.onPauseRequested()) {
-                player.pause();
-            } else {
-                Log.w(TAG, "pause() wouldn't be called of the failure in audio focus");
-            }
+            mAudioFocusHandler.onPauseRequested();
+            player.pause();
         } else if (DEBUG) {
             Log.d(TAG, "API calls after the close()", new IllegalStateException());
         }
