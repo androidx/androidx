@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.media.test.client;
+package androidx.media.test.client.tests;
 
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
 import static androidx.media.MediaMetadata2.METADATA_KEY_DURATION;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_DSD;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_DSD;
 import static androidx.media.test.lib.CommonConstants.KEY_ARGUMENTS;
@@ -66,6 +67,8 @@ import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.SessionCommand2;
 import androidx.media.SessionCommandGroup2;
 import androidx.media.SessionToken2;
+import androidx.media.test.client.MediaTestUtils;
+import androidx.media.test.client.RemoteMediaSession2;
 import androidx.media.test.lib.TestUtils;
 
 import org.junit.After;
@@ -91,19 +94,22 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
 
     // Since ControllerInfo cannot be passed, we just pass null and the service app chooses the
     // right controller by using the package name.
-    private static final ControllerInfo TEST_CONTROLLER_INFO = null;
-    private MediaController2 mController;
+    static final ControllerInfo TEST_CONTROLLER_INFO = null;
+    RemoteMediaSession2 mRemoteSession2;
+    MediaController2 mController;
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        mRemoteSession2 = new RemoteMediaSession2(DEFAULT_TEST_NAME, mContext);
     }
 
     @After
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
+        mRemoteSession2.cleanUp();
     }
 
     @Test

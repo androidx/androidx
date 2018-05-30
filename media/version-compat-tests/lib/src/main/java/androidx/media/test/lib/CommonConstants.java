@@ -21,16 +21,21 @@ import android.support.mediacompat.testlib.util.IntentUtil;
 
 public class CommonConstants {
 
-    public static final ComponentName SERVICE_APP_REMOTE_MEDIA_SESSION2_SERVICE_COMPONENT_NAME =
-            new ComponentName(IntentUtil.SERVICE_PACKAGE_NAME,
-                    "androidx.media.test.service.RemoteMediaSession2Service");
-    public static final ComponentName CLIENT_APP_REMOTE_MEDIA_CONTROLLER2_SERVICE_COMPONENT_NAME =
-            new ComponentName(IntentUtil.CLIENT_PACKAGE_NAME,
-                    "androidx.media.test.client.RemoteMediaController2Service");
+    public static final ComponentName REMOTE_MEDIA_SESSION2_SERVICE = new ComponentName(
+            IntentUtil.SERVICE_PACKAGE_NAME,
+            "androidx.media.test.service.RemoteMediaSession2Service");
+    public static final ComponentName REMOTE_MEDIA_CONTROLLER2_SERVICE = new ComponentName(
+            IntentUtil.CLIENT_PACKAGE_NAME,
+            "androidx.media.test.client.RemoteMediaController2Service");
+    public static final ComponentName REMOTE_MEDIA_SESSION_COMPAT_SERVICE = new ComponentName(
+            IntentUtil.SERVICE_PACKAGE_NAME,
+            "androidx.media.test.service.RemoteMediaSessionCompatService");
 
     public static final String ACTION_MEDIA_SESSION2 = "androidx.media.test.action.MEDIA_SESSION2";
     public static final String ACTION_MEDIA_CONTROLLER2 =
             "androidx.media.test.action.MEDIA_CONTROLLER2";
+    public static final String ACTION_MEDIA_SESSION_COMPAT =
+            "androidx.media.test.action.MEDIA_SESSION_COMPAT";
 
     // Keys for arguments.
     public static final String KEY_STREAM = "stream";
@@ -48,6 +53,12 @@ public class CommonConstants {
     public static final String KEY_MAX_VOLUME = "maxVolume";
     public static final String KEY_CURRENT_VOLUME = "currentVolume";
     public static final String KEY_VOLUME_CONTROL_TYPE = "volumeControlType";
+
+    // SessionCompat arguments
+    public static final String KEY_SESSION_COMPAT_TOKEN = "sessionCompatToken";
+    public static final String KEY_PLAYBACK_STATE_COMPAT = "playbackStateCompat";
+    public static final String KEY_METADATA_COMPAT = "metadataCompat";
+    public static final String KEY_QUEUE = "queue";
 
     public static final int INDEX_FOR_UNKONWN_DSD = -1;
     public static final int INDEX_FOR_NULL_DSD = -2;

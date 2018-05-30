@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.test.service;
+package androidx.media.test.service.tests;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
@@ -30,6 +30,10 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.media.BaseMediaPlayer;
 import androidx.media.MediaSession2;
 import androidx.media.SessionCommandGroup2;
+import androidx.media.test.service.MockPlayer;
+import androidx.media.test.service.MockPlaylistAgent;
+import androidx.media.test.service.RemoteMediaController2;
+import androidx.media.test.service.TestServiceRegistry;
 
 import org.junit.After;
 import org.junit.Before;

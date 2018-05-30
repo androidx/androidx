@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.test.client;
+package androidx.media.test.client.tests;
 
 import androidx.media.MediaController2;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.test.service;
+package androidx.media.test.service.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -34,6 +34,9 @@ import androidx.media.MediaMetadata2;
 import androidx.media.MediaPlaylistAgent;
 import androidx.media.MediaSession2;
 import androidx.media.SessionCommandGroup2;
+import androidx.media.test.service.MediaTestUtils;
+import androidx.media.test.service.MockPlayer;
+import androidx.media.test.service.MockPlaylistAgent;
 
 import org.junit.After;
 import org.junit.Before;
