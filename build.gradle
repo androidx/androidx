@@ -46,14 +46,16 @@ init.setupRepoOutAndBuildNumber()
 
 init.configureSubProjects()
 
-init.configureBuildOnServer()
+def buildTask = init.configureBuildOnServer()
 
 init.setupRelease()
 
 apply from: 'buildSrc/jetify.gradle'
 
-init.enableDoclavaAndJDiff(this, new DacOptions("androidx", "ANDROIDX_DATA"),
+def allDocs = init.enableDoclavaAndJDiff(this, new DacOptions("androidx", "ANDROIDX_DATA"),
         [PublishDocsRulesKt.RELEASE_RULE])
+
+buildTask.dependsOn(allDocs)
 
 ///// FLATFOOT START
 

@@ -28,7 +28,7 @@ init.setupRepoOutAndBuildNumber()
 init.configureSubProjects()
 init.setupRelease()
 // always build offline docs for flatfoot specific builds.
-init.enableDoclavaAndJDiff(this, new DacOptions("android/arch", "ARCH_DATA"))
+def allDocsTask = init.enableDoclavaAndJDiff(this, new DacOptions("android/arch", "ARCH_DATA"))
 
 // flatfoot docs
 def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArchive", type : Zip) {
@@ -38,7 +38,7 @@ def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArc
 }
 
 buildServerAnchorTask.dependsOn zipFlatfootDocsTask
-zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
+zipFlatfootDocsTask.dependsOn allDocsTask
 buildServerAnchorTask.dependsOn createDiffArchive
 buildServerAnchorTask.dependsOn createArchive
 rootProject.tasks.whenTaskAdded { task ->
