@@ -15,7 +15,6 @@
  */
 
 import androidx.build.DacOptions
-import androidx.build.license.CheckExternalDependencyLicensesTask
 
 apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
 init.setSdkInLocalPropertiesFile()
@@ -30,7 +29,6 @@ init.configureSubProjects()
 init.setupRelease()
 // always build offline docs for flatfoot specific builds.
 init.enableDoclavaAndJDiff(this, new DacOptions("android/arch", "ARCH_DATA"))
-rootProject.tasks["generateDocs"].exclude '**/R.java'
 
 // flatfoot docs
 def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArchive", type : Zip) {

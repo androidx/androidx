@@ -15,6 +15,7 @@
  */
 
 import androidx.build.DacOptions
+import androidx.build.PublishDocsRulesKt
 
 def currentJvmVersion = org.gradle.api.JavaVersion.current()
 if (currentJvmVersion.getMajorVersion() != "8") {
@@ -51,7 +52,8 @@ init.setupRelease()
 
 apply from: 'buildSrc/jetify.gradle'
 
-init.enableDoclavaAndJDiff(this, new DacOptions("androidx", "ANDROIDX_DATA"))
+init.enableDoclavaAndJDiff(this, new DacOptions("androidx", "ANDROIDX_DATA"),
+        [PublishDocsRulesKt.RELEASE_RULE])
 
 ///// FLATFOOT START
 
