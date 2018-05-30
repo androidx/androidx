@@ -46,6 +46,7 @@ class NavOptionsTest {
                 navOptions.shouldLaunchDocument())
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun clearTask() {
         val navOptions = navOptions {

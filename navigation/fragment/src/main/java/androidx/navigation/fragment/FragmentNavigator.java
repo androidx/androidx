@@ -29,13 +29,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 
-import java.util.HashMap;
-
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigator;
 import androidx.navigation.NavigatorProvider;
+
+import java.util.HashMap;
 
 /**
  * Navigator that navigates through {@link FragmentTransaction fragment transactions}. Every
@@ -105,6 +105,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void navigate(@NonNull Destination destination, @Nullable Bundle args,
                             @Nullable NavOptions navOptions) {

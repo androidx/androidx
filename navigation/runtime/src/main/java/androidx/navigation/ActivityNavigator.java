@@ -83,6 +83,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void navigate(@NonNull Destination destination, @Nullable Bundle args,
             @Nullable NavOptions navOptions) {

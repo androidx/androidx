@@ -141,7 +141,10 @@ public class NavOptions {
      * <p>
      * This functions similarly to how {@link android.content.Intent#FLAG_ACTIVITY_CLEAR_TASK}
      * works with activites.
+     * @deprecated This is synonymous with {@link #getPopUpTo()} with the root of the graph and
+     * using {@link #isPopUpToInclusive()}.
      */
+    @Deprecated
     public boolean shouldClearTask() {
         return (mLaunchMode & LAUNCH_CLEAR_TASK) != 0;
     }
@@ -293,7 +296,12 @@ public class NavOptions {
          *
          * @param clearTask
          * @return
+         * @deprecated Use {@link #setPopUpTo(int, boolean)} with the
+         * {@link NavDestination#getId() id} of the
+         * {@link androidx.navigation.NavController#getGraph() NavController's graph}
+         * and set inclusive to true.
          */
+        @Deprecated
         @NonNull
         public Builder setClearTask(boolean clearTask) {
             if (clearTask) {
