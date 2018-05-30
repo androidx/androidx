@@ -16,6 +16,7 @@
 
 package androidx.paging;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListUpdateCallback;
@@ -169,5 +170,38 @@ class PagedStorageDiffHelper {
         } else {
             diffResult.dispatchUpdatesTo(callback);
         }
+    }
+
+    /**
+     * Given an oldPosition representing an anchor in the old data set, computes its new position
+     * after the diff, or a guess if it no longer exists.
+     */
+    static int transformAnchorIndex(@NonNull DiffUtil.DiffResult diffResult,
+            @NonNull PagedStorage oldList, @NonNull PagedStorage newList, final int oldPosition) {
+        // diffResult's indices starting after nulls, need to transform to diffutil indices
+        // (see also dispatchDiff(), which adds this offset when dispatching)
+        int diffIndex = oldPosition - oldList.getLeadingNullCount();
+
+        // if our anchor is non-null, use it or close item's position in new list
+        if (diffIndex >= 0 && diffIndex < oldList.getStorageCount()) {
+            // search outward from old position for position that maps
+            for (int i = 0; i < 30; i++) {
+                int positionToTry = diffIndex + (i / 2 * (i % 2 == 1 ? -1 : 1));
+
+                // reject if (null) item was not passed to DiffUtil, and wouldn't be in the result
+                if (positionToTry < 0 || positionToTry >= oldList.getStorageCount()) {
+                    continue;
+                }
+
+                int result = diffResult.convertOldPositionToNew(positionToTry);
+                if (result != -1) {
+                    // also need to transform from diffutil output indices to newList
+                    return result + newList.getLeadingNullCount();
+                }
+            }
+        }
+
+        // not anchored to an item in new list, so just reuse position (clamped to newList size)
+        return Math.max(0, Math.min(oldPosition, newList.size() - 1));
     }
 }
