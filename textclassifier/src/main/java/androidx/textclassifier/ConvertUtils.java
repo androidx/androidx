@@ -18,13 +18,17 @@ package androidx.textclassifier;
 
 import android.os.LocaleList;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.collection.ArrayMap;
 import androidx.core.os.LocaleListCompat;
+import androidx.core.util.Preconditions;
 
 import java.time.ZonedDateTime;
 import java.util.Calendar;
+import java.util.Map;
 
 /**
  * Provides utils to convert between platform and support library objects.
@@ -52,15 +56,29 @@ final class ConvertUtils {
         if (entityConfig == null) {
             return null;
         }
-        return TextClassifier.EntityConfig.Convert.toPlatform(entityConfig);
+        return entityConfig.toPlatform();
     }
 
     @Nullable
-    static ZonedDateTime buildZonedDateTimeFromCalendar(
+    static ZonedDateTime createZonedDateTimeFromCalendar(
             @Nullable Calendar calendar) {
         if (calendar == null) {
             return null;
         }
         return ZonedDateTime.ofInstant(calendar.toInstant(), calendar.getTimeZone().toZoneId());
+    }
+
+    @NonNull
+    static Map<String, Float> createFloatMapFromTextLinks(
+            @NonNull android.view.textclassifier.TextLinks.TextLink textLink) {
+        Preconditions.checkNotNull(textLink);
+
+        final int entityCount = textLink.getEntityCount();
+        Map<String, Float> floatMap = new ArrayMap<>();
+        for (int i = 0; i < entityCount; i++) {
+            String entity = textLink.getEntity(i);
+            floatMap.put(entity, textLink.getConfidenceScore(entity));
+        }
+        return floatMap;
     }
 }

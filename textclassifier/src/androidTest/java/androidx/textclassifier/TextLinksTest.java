@@ -197,8 +197,7 @@ public final class TextLinksTest {
     public void testConvertToPlatformRequest() {
         TextLinks.Request request = createTextLinksRequest();
 
-        android.view.textclassifier.TextLinks.Request platformRequest =
-                TextLinks.Request.Convert.toPlatform(request);
+        android.view.textclassifier.TextLinks.Request platformRequest = request.toPlatform();
         assertEquals(FULL_TEXT, platformRequest.getText());
         assertEquals(LANGUAGE_TAGS, platformRequest.getDefaultLocales().toLanguageTags());
         assertThat(platformRequest.getEntityConfig().getHints()).containsExactly("hints");
@@ -216,7 +215,7 @@ public final class TextLinksTest {
                         .addLink(5, 12, getEntityScores(.8f, .1f, .5f))
                         .build();
 
-        TextLinks textLinks = TextLinks.Convert.fromPlatform(platformTextLinks, FULL_TEXT);
+        TextLinks textLinks = TextLinks.fromPlatform(platformTextLinks, FULL_TEXT);
         assertTextLinks(textLinks);
     }
 

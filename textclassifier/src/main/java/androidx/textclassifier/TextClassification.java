@@ -16,9 +16,7 @@
 
 package androidx.textclassifier;
 
-import static androidx.textclassifier.ConvertUtils.buildZonedDateTimeFromCalendar;
-import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
-
+import android.annotation.SuppressLint;
 import android.app.RemoteAction;
 import android.os.Bundle;
 
@@ -194,57 +192,54 @@ public final class TextClassification {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(28)
-    static final class Convert {
+    @NonNull
+    static TextClassification fromPlatform(
+            @NonNull android.view.textclassifier.TextClassification textClassification) {
+        Preconditions.checkNotNull(textClassification);
 
-        private Convert() {
+        Builder builder = new TextClassification.Builder()
+                .setText(textClassification.getText())
+                .setId(textClassification.getId());
+
+        final int entityCount = textClassification.getEntityCount();
+        for (int i = 0; i < entityCount; i++) {
+            String entity = textClassification.getEntity(i);
+            builder.setEntityType(entity, textClassification.getConfidenceScore(entity));
         }
 
-        @NonNull
-        static TextClassification fromPlatform(
-                @NonNull android.view.textclassifier.TextClassification textClassification) {
-            Preconditions.checkNotNull(textClassification);
-
-            Builder builder = new TextClassification.Builder()
-                    .setText(textClassification.getText())
-                    .setId(textClassification.getId());
-
-            final int entityCount = textClassification.getEntityCount();
-            for (int i = 0; i < entityCount; i++) {
-                String entity = textClassification.getEntity(i);
-                builder.setEntityType(entity, textClassification.getConfidenceScore(entity));
-            }
-
-            List<RemoteAction> actions = textClassification.getActions();
-            for (RemoteAction action: actions) {
-                builder.addAction(RemoteActionCompat.createFromRemoteAction(action));
-            }
-
-            return builder.build();
+        List<RemoteAction> actions = textClassification.getActions();
+        for (RemoteAction action : actions) {
+            builder.addAction(RemoteActionCompat.createFromRemoteAction(action));
         }
 
-        @NonNull
-        static android.view.textclassifier.TextClassification toPlatform(
-                @NonNull TextClassification textClassification) {
-            Preconditions.checkNotNull(textClassification);
+        return builder.build();
+    }
 
-            android.view.textclassifier.TextClassification.Builder builder =
-                    new android.view.textclassifier.TextClassification.Builder()
-                    .setText(textClassification.getText())
-                    .setId(textClassification.getId());
+    /**
+     * @hide
+     */
+    @SuppressLint("WrongConstant") // Lint does not know @EntityType in platform and here are same.
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(28)
+    @NonNull
+    android.view.textclassifier.TextClassification toPlatform() {
+        android.view.textclassifier.TextClassification.Builder builder =
+                new android.view.textclassifier.TextClassification.Builder()
+                        .setText(getText())
+                        .setId(getId());
 
-            final int entityCount = textClassification.getEntityCount();
-            for (int i = 0; i < entityCount; i++) {
-                String entity = textClassification.getEntity(i);
-                builder.setEntityType(entity, textClassification.getConfidenceScore(entity));
-            }
-
-            List<RemoteActionCompat> actions = textClassification.getActions();
-            for (RemoteActionCompat action: actions) {
-                builder.addAction(action.toRemoteAction());
-            }
-
-            return builder.build();
+        final int entityCount = getEntityCount();
+        for (int i = 0; i < entityCount; i++) {
+            String entity = getEntity(i);
+            builder.setEntityType(entity, getConfidenceScore(entity));
         }
+
+        List<RemoteActionCompat> actions = getActions();
+        for (RemoteActionCompat action : actions) {
+            builder.addAction(action.toRemoteAction());
+        }
+
+        return builder.build();
     }
 
     /**
@@ -403,22 +398,13 @@ public final class TextClassification {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
-        static final class Convert {
-
-            private Convert() {
-            }
-
-            @NonNull
-            static android.view.textclassifier.TextClassification.Request toPlatform(
-                    @NonNull Request request) {
-                Preconditions.checkNotNull(request);
-
-                return new android.view.textclassifier.TextClassification.Request.Builder(
-                        request.mText, request.mStartIndex, request.mEndIndex)
-                        .setDefaultLocales(unwrapLocalListCompat(request.getDefaultLocales()))
-                        .setReferenceTime(buildZonedDateTimeFromCalendar(request.mReferenceTime))
-                        .build();
-            }
+        @NonNull
+        android.view.textclassifier.TextClassification.Request toPlatform() {
+            return new android.view.textclassifier.TextClassification.Request.Builder(
+                    mText, mStartIndex, mEndIndex)
+                    .setDefaultLocales(ConvertUtils.unwrapLocalListCompat(getDefaultLocales()))
+                    .setReferenceTime(ConvertUtils.createZonedDateTimeFromCalendar(mReferenceTime))
+                    .build();
         }
 
         /**

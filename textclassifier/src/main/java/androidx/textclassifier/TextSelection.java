@@ -16,8 +16,7 @@
 
 package androidx.textclassifier;
 
-import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
-
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.FloatRange;
@@ -155,50 +154,46 @@ public final class TextSelection {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(28)
-    static final class Convert {
+    @NonNull
+    static TextSelection fromPlatform(
+            @NonNull android.view.textclassifier.TextSelection textSelection) {
+        Preconditions.checkNotNull(textSelection);
 
-        private Convert() {
+        Builder builder = new Builder(
+                textSelection.getSelectionStartIndex(), textSelection.getSelectionEndIndex())
+                .setId(textSelection.getId());
+
+        final int entityCount = textSelection.getEntityCount();
+        for (int i = 0; i < entityCount; i++) {
+            String entity = textSelection.getEntity(i);
+            builder.setEntityType(entity, textSelection.getConfidenceScore(entity));
         }
 
-        @NonNull
-        static TextSelection fromPlatform(
-                @NonNull android.view.textclassifier.TextSelection textSelection) {
-            Preconditions.checkNotNull(textSelection);
+        return builder.build();
+    }
 
-            Builder builder = new Builder(
-                    textSelection.getSelectionStartIndex(), textSelection.getSelectionEndIndex())
-                    .setId(textSelection.getId());
-
-            final int entityCount = textSelection.getEntityCount();
-            for (int i = 0; i < entityCount; i++) {
-                String entity = textSelection.getEntity(i);
-                builder.setEntityType(entity, textSelection.getConfidenceScore(entity));
-            }
-
-            return builder.build();
+    /**
+     * @hide
+     */
+    @SuppressLint("WrongConstant") // Lint does not know @EntityType in platform and here are same.
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(28)
+    @NonNull
+    android.view.textclassifier.TextSelection toPlatform() {
+        android.view.textclassifier.TextSelection.Builder builder =
+                new android.view.textclassifier.TextSelection.Builder(
+                        getSelectionStartIndex(),
+                        getSelectionEndIndex());
+        if (getId() != null) {
+            builder.setId(getId());
         }
 
-        @NonNull
-        static android.view.textclassifier.TextSelection toPlatform(
-                @NonNull TextSelection textSelection) {
-            Preconditions.checkNotNull(textSelection);
-
-            android.view.textclassifier.TextSelection.Builder builder =
-                    new android.view.textclassifier.TextSelection.Builder(
-                            textSelection.getSelectionStartIndex(),
-                            textSelection.getSelectionEndIndex());
-            if (textSelection.getId() != null) {
-                builder.setId(textSelection.getId());
-            }
-
-            final int entityCount = textSelection.getEntityCount();
-            for (int i = 0; i < entityCount; i++) {
-                String entity = textSelection.getEntity(i);
-                builder.setEntityType(entity, textSelection.getConfidenceScore(entity));
-            }
-
-            return builder.build();
+        final int entityCount = getEntityCount();
+        for (int i = 0; i < entityCount; i++) {
+            String entity = getEntity(i);
+            builder.setEntityType(entity, getConfidenceScore(entity));
         }
+        return builder.build();
     }
 
     /**
@@ -324,21 +319,12 @@ public final class TextSelection {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
-        static final class Convert {
-
-            private Convert() {
-            }
-
-            @NonNull
-            static android.view.textclassifier.TextSelection.Request toPlatform(
-                    @NonNull Request request) {
-                Preconditions.checkNotNull(request);
-
-                return new android.view.textclassifier.TextSelection.Request.Builder(
-                        request.mText, request.mStartIndex, request.mEndIndex)
-                        .setDefaultLocales(unwrapLocalListCompat(request.mDefaultLocales))
-                        .build();
-            }
+        @NonNull
+        android.view.textclassifier.TextSelection.Request toPlatform() {
+            return new android.view.textclassifier.TextSelection.Request.Builder(
+                    mText, mStartIndex, mEndIndex)
+                    .setDefaultLocales(ConvertUtils.unwrapLocalListCompat(mDefaultLocales))
+                    .build();
         }
 
         /**

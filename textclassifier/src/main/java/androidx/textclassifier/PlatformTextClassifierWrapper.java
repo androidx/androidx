@@ -47,9 +47,8 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     public TextSelection suggestSelection(@NonNull TextSelection.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();
-        return TextSelection.Convert.fromPlatform(
-                mPlatformTextClassifier.suggestSelection(
-                        TextSelection.Request.Convert.toPlatform(request)));
+        return TextSelection.fromPlatform(
+                mPlatformTextClassifier.suggestSelection(request.toPlatform()));
     }
 
     /** @inheritDoc */
@@ -59,9 +58,8 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     public TextClassification classifyText(@NonNull TextClassification.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();
-        return TextClassification.Convert.fromPlatform(
-                mPlatformTextClassifier.classifyText(
-                        TextClassification.Request.Convert.toPlatform(request)));
+        return TextClassification.fromPlatform(
+                mPlatformTextClassifier.classifyText(request.toPlatform()));
     }
 
     /** @inheritDoc */
@@ -71,8 +69,8 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     public TextLinks generateLinks(@NonNull TextLinks.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();
-        return TextLinks.Convert.fromPlatform(mPlatformTextClassifier.generateLinks(
-                TextLinks.Request.Convert.toPlatform(request)), request.getText());
+        return TextLinks.fromPlatform(mPlatformTextClassifier.generateLinks(
+                request.toPlatform()), request.getText());
     }
 
     /** @inheritDoc */
@@ -103,7 +101,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
         @Override
         public void reportSelectionEvent(@NonNull SelectionEvent event) {
             Preconditions.checkNotNull(event);
-            mPlatformTextClassifier.onSelectionEvent(SelectionEvent.Convert.toPlatform(event));
+            mPlatformTextClassifier.onSelectionEvent(event.toPlatform());
         }
 
         @Override

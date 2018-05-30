@@ -475,26 +475,19 @@ public abstract class TextClassifier {
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
-        static class Convert {
-
-            private Convert() {
+        @NonNull
+        public android.view.textclassifier.TextClassifier.EntityConfig toPlatform() {
+            if (mIncludeDefaultEntityTypes) {
+                return android.view.textclassifier.TextClassifier.EntityConfig.create(
+                        mHints,
+                        mIncludedEntityTypes,
+                        mExcludedEntityTypes
+                );
             }
-
-            @NonNull
-            public static android.view.textclassifier.TextClassifier.EntityConfig toPlatform(
-                    @NonNull EntityConfig entityConfig) {
-                if (entityConfig.mIncludeDefaultEntityTypes) {
-                    return android.view.textclassifier.TextClassifier.EntityConfig.create(
-                            entityConfig.mHints,
-                            entityConfig.mIncludedEntityTypes,
-                            entityConfig.mExcludedEntityTypes
-                    );
-                }
-                Set<String> entitiesSet = new ArraySet<>(entityConfig.mIncludedEntityTypes);
-                entitiesSet.removeAll(entityConfig.mExcludedEntityTypes);
-                return android.view.textclassifier.TextClassifier.EntityConfig
-                        .createWithExplicitEntityList(new ArrayList<>(entitiesSet));
-            }
+            Set<String> entitiesSet = new ArraySet<>(mIncludedEntityTypes);
+            entitiesSet.removeAll(mExcludedEntityTypes);
+            return android.view.textclassifier.TextClassifier.EntityConfig
+                    .createWithExplicitEntityList(new ArrayList<>(entitiesSet));
         }
     }
 }

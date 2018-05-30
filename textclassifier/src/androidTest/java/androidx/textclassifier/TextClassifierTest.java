@@ -91,7 +91,7 @@ public class TextClassifierTest {
                 .build();
 
         android.view.textclassifier.TextClassifier.EntityConfig platformEntityConfig =
-                TextClassifier.EntityConfig.Convert.toPlatform(entityConfig);
+                entityConfig.toPlatform();
 
         assertThat(platformEntityConfig.getHints()).isEmpty();
         assertThat(platformEntityConfig.resolveEntityListModifications(Arrays.asList("extra")))
@@ -108,7 +108,7 @@ public class TextClassifierTest {
                 .build();
 
         android.view.textclassifier.TextClassifier.EntityConfig platformEntityConfig =
-                TextClassifier.EntityConfig.Convert.toPlatform(entityConfig);
+                entityConfig.toPlatform();
 
         assertThat(platformEntityConfig.getHints()).containsExactly("hint");
         assertThat(platformEntityConfig.resolveEntityListModifications(Arrays.asList("extra")))

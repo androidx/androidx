@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.collection.ArrayMap;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
 import androidx.textclassifier.TextClassifier.EntityConfig;
@@ -409,21 +408,12 @@ public final class TextLinks {
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
-        static final class Convert {
-
-            private Convert() {
-            }
-
-            @NonNull
-            static android.view.textclassifier.TextLinks.Request toPlatform(
-                    @NonNull Request request) {
-                Preconditions.checkNotNull(request);
-
-                return new android.view.textclassifier.TextLinks.Request.Builder(request.getText())
-                        .setDefaultLocales(unwrapLocalListCompat(request.getDefaultLocales()))
-                        .setEntityConfig(toPlatformEntityConfig(request.getEntityConfig()))
-                        .build();
-            }
+        @NonNull
+        android.view.textclassifier.TextLinks.Request toPlatform() {
+            return new android.view.textclassifier.TextLinks.Request.Builder(getText())
+                    .setDefaultLocales(unwrapLocalListCompat(getDefaultLocales()))
+                    .setEntityConfig(toPlatformEntityConfig(getEntityConfig()))
+                    .build();
         }
     }
 
@@ -516,40 +506,20 @@ public final class TextLinks {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(28)
-    static final class Convert {
+    @NonNull
+    // TODO: In Q, we should make getText public and use it here.
+    static TextLinks fromPlatform(
+            @NonNull android.view.textclassifier.TextLinks textLinks,
+            @NonNull CharSequence requestText) {
+        Preconditions.checkNotNull(textLinks);
+        Preconditions.checkNotNull(requestText);
 
-        private Convert() {
+        Collection<android.view.textclassifier.TextLinks.TextLink> links = textLinks.getLinks();
+        TextLinks.Builder builder = new TextLinks.Builder(requestText.toString());
+        for (android.view.textclassifier.TextLinks.TextLink link : links) {
+            builder.addLink(link.getStart(), link.getEnd(),
+                    ConvertUtils.createFloatMapFromTextLinks(link));
         }
-
-        // TODO: In Q, we should make getText public and use it here.
-        @NonNull
-        static TextLinks fromPlatform(
-                @NonNull android.view.textclassifier.TextLinks textLinks,
-                @NonNull CharSequence requestText) {
-            Preconditions.checkNotNull(textLinks);
-            Preconditions.checkNotNull(requestText);
-
-            Collection<android.view.textclassifier.TextLinks.TextLink> links = textLinks.getLinks();
-            TextLinks.Builder builder = new TextLinks.Builder(requestText.toString());
-            for (android.view.textclassifier.TextLinks.TextLink link : links) {
-                builder.addLink(link.getStart(), link.getEnd(),
-                        constructFloatMapFromTextLinks(link));
-            }
-            return builder.build();
-        }
-
-        @NonNull
-        private static Map<String, Float> constructFloatMapFromTextLinks(
-                @NonNull android.view.textclassifier.TextLinks.TextLink textLink) {
-            Preconditions.checkNotNull(textLink);
-
-            final int entityCount = textLink.getEntityCount();
-            Map<String, Float> floatMap = new ArrayMap<>();
-            for (int i = 0; i < entityCount; i++) {
-                String entity = textLink.getEntity(i);
-                floatMap.put(entity, textLink.getConfidenceScore(entity));
-            }
-            return floatMap;
-        }
+        return builder.build();
     }
 }
