@@ -205,47 +205,6 @@ public final class DividerVisibilityManagerTest {
         assertThat(lower - upper, is(greaterThan(0)));
     }
 
-    @Test
-    public void testSubheaderHidesDividerBefore() throws Throwable {
-        TextListItem itemBefore = new TextListItem(mActivity);
-
-        // Explicitly set this item as wanting to show its divider.
-        itemBefore.setHideDivider(false);
-
-        SubheaderListItem subheader = new SubheaderListItem(mActivity, "Subheader");
-
-        ListItemProvider provider = new ListItemProvider.ListProvider(
-                Arrays.asList(itemBefore, subheader));
-
-        mActivityRule.runOnUiThread(
-                () -> mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider)));
-
-        PagedListView.DividerVisibilityManager dvm = (PagedListView.DividerVisibilityManager)
-                mPagedListView.getAdapter();
-
-        assertThat(dvm, is(notNullValue()));
-
-        // Assert that the divider for the first item should be hidden.
-        assertThat(dvm.shouldHideDivider(0), is(true));
-    }
-
-    @Test
-    public void testSubheaderHidesDividerAfter() throws Throwable {
-        SubheaderListItem subheader = new SubheaderListItem(mActivity, "Subheader");
-        ListItemProvider provider = new ListItemProvider.ListProvider(Arrays.asList(subheader));
-
-        mActivityRule.runOnUiThread(
-                () -> mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider)));
-
-        PagedListView.DividerVisibilityManager dvm = (PagedListView.DividerVisibilityManager)
-                mPagedListView.getAdapter();
-
-        assertThat(dvm, is(notNullValue()));
-
-        // Assert that the divider is hidden for the first item, which is the subheader.
-        assertThat(dvm.shouldHideDivider(0), is(true));
-    }
-
     private class TestDividerVisibilityManager implements PagedListView.DividerVisibilityManager {
         @Override
         public boolean shouldHideDivider(int position) {
