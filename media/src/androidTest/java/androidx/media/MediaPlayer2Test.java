@@ -47,7 +47,6 @@ import androidx.media.test.R;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -655,7 +654,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @SmallTest
-    @Ignore // See b/80285140
     public void testGetDuration() throws Exception {
         if (!checkLoadResource(R.raw.testvideo)) {
             return;
@@ -674,7 +672,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         BaseMediaPlayer basePlayer = mPlayer.getBaseMediaPlayer();
         basePlayer.registerPlayerEventCallback(mExecutor, callback);
         assertEquals(BaseMediaPlayer.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
-        // TODO: this line causes test failure. (b/80285140)
         assertEquals(BaseMediaPlayer.UNKNOWN_TIME, basePlayer.getDuration());
 
         basePlayer.prepare();
@@ -685,22 +682,30 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @SmallTest
-    @Ignore // See b/80285140
     public void testGetCurrentPosition() throws Exception {
         BaseMediaPlayer basePlayer = mPlayer.getBaseMediaPlayer();
         assertEquals(BaseMediaPlayer.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
-        // TODO: this line causes test failure. (b/80285140)
         assertEquals(BaseMediaPlayer.UNKNOWN_TIME, basePlayer.getCurrentPosition());
     }
 
     @Test
     @SmallTest
-    @Ignore // See b/80285140
     public void testGetBufferedPosition() throws Exception {
         BaseMediaPlayer basePlayer = mPlayer.getBaseMediaPlayer();
         assertEquals(BaseMediaPlayer.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
-        // TODO: this line causes test failure. (b/80285140)
         assertEquals(BaseMediaPlayer.UNKNOWN_TIME, basePlayer.getBufferedPosition());
+    }
+
+    @Test
+    @SmallTest
+    public void testGetPlaybackSpeed() throws Exception {
+        BaseMediaPlayer basePlayer = mPlayer.getBaseMediaPlayer();
+        assertEquals(BaseMediaPlayer.PLAYER_STATE_IDLE, basePlayer.getPlayerState());
+        try {
+            basePlayer.getPlaybackSpeed();
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     /**
