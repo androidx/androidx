@@ -356,10 +356,22 @@ public final class PagedListViewTest {
     }
 
     @Test
-    public void testDefaultScrollBarTopMargin() {
+    public void testNoVerticalPaddingOnScrollBar() {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
-        onView(withId(R.id.paged_scroll_view)).check(matches(withTopMargin(0)));
+        onView(withId(R.id.paged_scroll_view))
+                .check(matches(withTopPadding(0)))
+                .check(matches(withBottomPadding(0)));
+    }
+
+    @Test
+    public void testDefaultScrollBarTopMargin() {
+        Resources res = InstrumentationRegistry.getContext().getResources();
+        int defaultTopMargin = res.getDimensionPixelSize(R.dimen.car_padding_4);
+
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+        onView(withId(R.id.paged_scroll_view)).check(matches(withTopMargin(defaultTopMargin)));
     }
 
     @Test
@@ -796,6 +808,46 @@ public final class PagedListViewTest {
                 ViewGroup.MarginLayoutParams params =
                         (ViewGroup.MarginLayoutParams) view.getLayoutParams();
                 return topMargin == params.topMargin;
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches {@link View}s that have the given top padding.
+     *
+     * @param topPadding The top padding value to match to.
+     */
+    @NonNull
+    public static Matcher<View> withTopPadding(int topPadding) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with top padding: " + topPadding);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                return topPadding == view.getPaddingTop();
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches {@link View}s that have the given bottom padding.
+     *
+     * @param bottomPadding The bottom padding value to match to.
+     */
+    @NonNull
+    public static Matcher<View> withBottomPadding(int bottomPadding) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with bottom padding: " + bottomPadding);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                return bottomPadding == view.getPaddingBottom();
             }
         };
     }

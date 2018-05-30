@@ -31,7 +31,6 @@
         android:id="@+id/paged_scroll_view"
         android:layout_width="@dimen/car_margin"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/car_padding_4"
-        android:paddingTop="@dimen/car_padding_4"
+        android:layout_marginVertical="@dimen/car_padding_4"
         android:visibility="gone" />
 </merge>
