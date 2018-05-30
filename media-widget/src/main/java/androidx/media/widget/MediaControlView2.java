@@ -259,6 +259,7 @@ public class MediaControlView2 extends BaseLayout {
     private ControllerInterface mController;
     private OnFullScreenListener mOnFullScreenListener;
     private AccessibilityManager mAccessibilityManager;
+    private SessionCommandGroup2 mAllowedCommands;
     private int mDuration;
     private int mPrevState;
     private int mPrevWidth;
@@ -2000,6 +2001,56 @@ public class MediaControlView2 extends BaseLayout {
         postDelayed(mHideMainBars, mShowControllerIntervalMs);
     }
 
+    private void updateAllowedCommands(SessionCommandGroup2 commands) {
+        if (DEBUG) {
+            Log.d(TAG, "updateAllowedCommands(): commands: " + commands);
+        }
+
+        if (mAllowedCommands == commands) {
+            return;
+        }
+        mAllowedCommands = commands;
+
+        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE)) {
+            mPlayPauseButton.setVisibility(View.VISIBLE);
+        } else {
+            mPlayPauseButton.setVisibility(View.GONE);
+        }
+        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND)
+                && mMediaType != MEDIA_TYPE_MUSIC) {
+            if (mRewButton != null) {
+                mRewButton.setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (mRewButton != null) {
+                mRewButton.setVisibility(View.GONE);
+            }
+        }
+        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD)
+                && mMediaType != MEDIA_TYPE_MUSIC) {
+            if (mFfwdButton != null) {
+                mFfwdButton.setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (mFfwdButton != null) {
+                mFfwdButton.setVisibility(View.GONE);
+            }
+        }
+        mSeekAvailable = commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO);
+
+        if (commands.hasCommand(new SessionCommand2(COMMAND_SHOW_SUBTITLE, null))
+                && commands.hasCommand(new SessionCommand2(COMMAND_HIDE_SUBTITLE, null))) {
+            mSubtitleButton.setVisibility(View.VISIBLE);
+        } else {
+            mSubtitleButton.setVisibility(View.GONE);
+        }
+        if (commands.hasCommand(new SessionCommand2(COMMAND_MUTE, null))
+                && commands.hasCommand(new SessionCommand2(COMMAND_UNMUTE, null))) {
+            mMuteButton.setVisibility(View.VISIBLE);
+        } else {
+            mMuteButton.setVisibility(View.GONE);
+        }
+    }
 
     private class SettingsAdapter extends BaseAdapter {
         private List<Integer> mIconIds;
@@ -2178,7 +2229,6 @@ public class MediaControlView2 extends BaseLayout {
         private int mPlaybackState;
         private MediaMetadata2 mMediaMetadata2;
         private Executor mCallbackExecutor;
-        private SessionCommandGroup2 mAllowedCommands;
 
         Controller2(SessionToken2 token) {
             mCallbackExecutor =  MainHandlerExecutor
@@ -2364,41 +2414,15 @@ public class MediaControlView2 extends BaseLayout {
             }
 
             @Override
+            public void onConnected(@NonNull MediaController2 controller,
+                    @NonNull SessionCommandGroup2 allowedCommands) {
+                updateAllowedCommands(allowedCommands);
+            }
+
+            @Override
             public void onAllowedCommandsChanged(@NonNull MediaController2 controller,
                     @NonNull SessionCommandGroup2 commands) {
-                if (DEBUG) {
-                    Log.d(TAG, "onAllowedCommandsChanged(): commands: " + commands);
-                }
-                if (mAllowedCommands.equals(commands)) {
-                    return;
-                }
-                mAllowedCommands = commands;
-                if (commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE)) {
-                    mPlayPauseButton.setVisibility(View.VISIBLE);
-                } else {
-                    mPlayPauseButton.setVisibility(View.GONE);
-                }
-                if (commands.hasCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND)
-                        && mMediaType != MEDIA_TYPE_MUSIC) {
-                    if (mRewButton != null) {
-                        mRewButton.setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    if (mRewButton != null) {
-                        mRewButton.setVisibility(View.GONE);
-                    }
-                }
-                if (commands.hasCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD)
-                        && mMediaType != MEDIA_TYPE_MUSIC) {
-                    if (mFfwdButton != null) {
-                        mFfwdButton.setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    if (mFfwdButton != null) {
-                        mFfwdButton.setVisibility(View.GONE);
-                    }
-                }
-                mSeekAvailable = commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO);
+                updateAllowedCommands(commands);
             }
 
             @Override
