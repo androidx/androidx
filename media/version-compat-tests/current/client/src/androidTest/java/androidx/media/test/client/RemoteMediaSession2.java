@@ -16,10 +16,9 @@
 
 package androidx.media.test.client;
 
-import static androidx.media.test.client.MediaSession2TestBase.WAIT_TIME_MS;
 import static androidx.media.test.lib.CommonConstants.ACTION_MEDIA_SESSION2;
-import static androidx.media.test.lib.CommonConstants
-        .SERVICE_APP_REMOTE_MEDIA_SESSION2_SERVICE_COMPONENT_NAME;
+import static androidx.media.test.lib.CommonConstants.REMOTE_MEDIA_SESSION2_SERVICE;
+import static androidx.media.test.lib.TestUtils.WAIT_TIME_MS;
 
 import static junit.framework.TestCase.fail;
 
@@ -59,13 +58,13 @@ public class RemoteMediaSession2 {
 
     private static final String TAG = "RemoteMediaSession2";
 
-    private Context mContext;
-    private String mSessionId;
+    private final Context mContext;
+    private final String mSessionId;
+
     private ServiceConnection mServiceConnection;
     private IRemoteMediaSession2 mBinder;
     private RemoteMockPlayer mRemotePlayer;
     private RemoteMockPlaylistAgent mRemotePlaylistAgent;
-
     private CountDownLatch mCountDownLatch;
 
     /**
@@ -411,7 +410,7 @@ public class RemoteMediaSession2 {
      */
     private boolean connect() {
         final Intent intent = new Intent(ACTION_MEDIA_SESSION2);
-        intent.setComponent(SERVICE_APP_REMOTE_MEDIA_SESSION2_SERVICE_COMPONENT_NAME);
+        intent.setComponent(REMOTE_MEDIA_SESSION2_SERVICE);
 
         boolean bound = false;
         try {

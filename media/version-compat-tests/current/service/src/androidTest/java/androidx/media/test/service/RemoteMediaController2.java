@@ -17,8 +17,8 @@
 package androidx.media.test.service;
 
 import static androidx.media.test.lib.CommonConstants.ACTION_MEDIA_CONTROLLER2;
-import static androidx.media.test.lib.CommonConstants.CLIENT_APP_REMOTE_MEDIA_CONTROLLER2_SERVICE_COMPONENT_NAME;
-import static androidx.media.test.service.MediaSession2TestBase.WAIT_TIME_MS;
+import static androidx.media.test.lib.CommonConstants.REMOTE_MEDIA_CONTROLLER2_SERVICE;
+import static androidx.media.test.lib.TestUtils.WAIT_TIME_MS;
 
 import static junit.framework.TestCase.fail;
 
@@ -379,7 +379,7 @@ public class RemoteMediaController2 {
      */
     private boolean connect() {
         final Intent intent = new Intent(ACTION_MEDIA_CONTROLLER2);
-        intent.setComponent(CLIENT_APP_REMOTE_MEDIA_CONTROLLER2_SERVICE_COMPONENT_NAME);
+        intent.setComponent(REMOTE_MEDIA_CONTROLLER2_SERVICE);
 
         boolean bound = false;
         try {

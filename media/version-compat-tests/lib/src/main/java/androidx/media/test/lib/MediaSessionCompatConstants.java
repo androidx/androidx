@@ -17,10 +17,10 @@
 package androidx.media.test.lib;
 
 /**
- * Constants for calling MediaController2 methods.
+ * Constants for calling MediaSessionCompat methods.
  */
-public class MediaController2Constants {
+public class MediaSessionCompatConstants {
 
-    private MediaController2Constants() {
+    private MediaSessionCompatConstants() {
     }
 }
