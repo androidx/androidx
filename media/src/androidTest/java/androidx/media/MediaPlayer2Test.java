@@ -57,6 +57,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.BlockingDeque;
@@ -965,6 +966,94 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             assertFalse("second dsd completed", onCompletion2Called.isSignalled());
         }
         onPlaylistEndCalled.waitForSignal();
+
+        mPlayer.reset();
+    }
+
+    @Test
+    @LargeTest
+    public void testSetNextDataSource() throws Exception {
+        final DataSourceDesc dsd1 = createDataSourceDesc(
+                R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
+        final DataSourceDesc dsd2 = createDataSourceDesc(
+                R.raw.testvideo);
+
+        final Monitor onPlaybackCompletedCalled = new Monitor();
+        final List<DataSourceDesc> playedDSDs = new ArrayList<>();
+        MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
+            @Override
+            public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
+                if (what == MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCE
+                        || what == MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCES) {
+                    if (status != MediaPlayer2.CALL_STATUS_NO_ERROR) {
+                        fail("Unexpected status code: " + status);
+                    }
+                }
+            }
+
+            @Override
+            public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                if (what == MediaPlayer2.MEDIA_INFO_PLAYBACK_COMPLETE) {
+                    playedDSDs.add(dsd);
+                    onPlaybackCompletedCalled.signal();
+                }
+            }
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
+
+        onPlaybackCompletedCalled.reset();
+        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+        mPlayer.setDataSource(dsd1);
+        mPlayer.setNextDataSource(dsd1);
+        mPlayer.setNextDataSources(Arrays.asList(dsd2, dsd1));
+        mPlayer.prepare();
+        mPlayer.play();
+        onPlaybackCompletedCalled.waitForCountedSignals(3);
+        assertEquals(3, playedDSDs.size());
+        assertEquals(dsd1, playedDSDs.get(0));
+        assertEquals(dsd2, playedDSDs.get(1));
+        assertEquals(dsd1, playedDSDs.get(2));
+
+        mPlayer.reset();
+    }
+
+    @Test
+    @LargeTest
+    public void testSetNextDataSourceBeforeSetDataSource() throws Exception {
+        final DataSourceDesc dsd1 = createDataSourceDesc(
+                R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
+        final DataSourceDesc dsd2 = createDataSourceDesc(
+                R.raw.testvideo);
+
+        final Monitor onCallCompletedCalled = new Monitor();
+        final List<DataSourceDesc> playedDSDs = new ArrayList<>();
+        MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
+            @Override
+            public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
+                if (what == MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCE
+                        || what == MediaPlayer2.CALL_COMPLETED_SET_NEXT_DATA_SOURCES) {
+                    if (status == MediaPlayer2.CALL_STATUS_INVALID_OPERATION) {
+                        // expected
+                        onCallCompletedCalled.signal();
+                    } else {
+                        fail("Unexpected status code: " + status);
+                    }
+                }
+            }
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
+
+        onCallCompletedCalled.reset();
+        mPlayer.setNextDataSource(dsd1);
+        assertTrue(onCallCompletedCalled.waitForSignal());
+
+        onCallCompletedCalled.reset();
+        mPlayer.setNextDataSources(Arrays.asList(dsd2, dsd1));
+        assertTrue(onCallCompletedCalled.waitForSignal());
 
         mPlayer.reset();
     }
