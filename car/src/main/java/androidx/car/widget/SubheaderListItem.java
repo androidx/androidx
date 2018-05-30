@@ -41,8 +41,6 @@ import java.util.List;
  *
  * <p>A sub-header list item consists of a one-line text. Its margin can be adjusted to match the
  * rest of {@link ListItem} through {@link #setTextStartMarginType(int)}.
- *
- * <p>A sub-header will also always hide its divider.
  */
 public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
 
@@ -62,6 +60,7 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
     private String mText;
 
     public SubheaderListItem(Context context, String text) {
+
         mContext = context;
         mText = text;
         mTextStartMarginType = TEXT_START_MARGIN_TYPE_NONE;
@@ -135,15 +134,6 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
 
         setItemLayoutHeight();
         setText();
-    }
-
-    /**
-     * {@code SubheaderListItem}s should always have its divider hidden. This method will always
-     * return {@code true}.
-     */
-    @Override
-    public final boolean shouldHideDivider() {
-        return true;
     }
 
     /**
