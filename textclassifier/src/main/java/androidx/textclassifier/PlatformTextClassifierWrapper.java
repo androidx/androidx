@@ -35,6 +35,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
 
     public PlatformTextClassifierWrapper(
             @NonNull android.view.textclassifier.TextClassifier platformTextClassifier) {
+        super(new ProxySessionStrategy(platformTextClassifier));
         Preconditions.checkNotNull(platformTextClassifier);
         mPlatformTextClassifier = platformTextClassifier;
     }
@@ -78,15 +79,32 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
         return mPlatformTextClassifier.getMaxGenerateLinksTextLength();
     }
 
-    /** @inheritDoc */
-    @Override
-    public void destroy() {
-        mPlatformTextClassifier.destroy();
-    }
+    /**
+     * Delegates session handling to {@link android.view.textclassifier.TextClassifier}.
+     */
+    private static class ProxySessionStrategy implements SessionStrategy {
+        private final android.view.textclassifier.TextClassifier mPlatformTextClassifier;
 
-    /** @inheritDoc */
-    @Override
-    public boolean isDestroyed() {
-        return mPlatformTextClassifier.isDestroyed();
+        ProxySessionStrategy(
+                @NonNull android.view.textclassifier.TextClassifier textClassifier) {
+            Preconditions.checkNotNull(textClassifier);
+            mPlatformTextClassifier = textClassifier;
+        }
+
+        @Override
+        public void destroy() {
+            mPlatformTextClassifier.destroy();
+        }
+
+        @Override
+        public void reportSelectionEvent(@NonNull SelectionEvent event) {
+            Preconditions.checkNotNull(event);
+            mPlatformTextClassifier.onSelectionEvent(SelectionEvent.Convert.toPlatform(event));
+        }
+
+        @Override
+        public boolean isDestroyed() {
+            return mPlatformTextClassifier.isDestroyed();
+        }
     }
 }

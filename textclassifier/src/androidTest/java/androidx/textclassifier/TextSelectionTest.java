@@ -119,6 +119,23 @@ public final class TextSelectionTest {
 
         TextSelection textSelection = TextSelection.Convert.fromPlatform(platformTextSelection);
 
+        assertTextSelection(textSelection);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void testToPlatform() {
+        TextSelection reference = createTextSelection();
+
+        android.view.textclassifier.TextSelection platformTextSelection =
+                TextSelection.Convert.toPlatform(reference);
+        TextSelection textSelection = TextSelection.Convert.fromPlatform(platformTextSelection);
+
+        assertTextSelection(textSelection);
+
+    }
+
+    private void assertTextSelection(TextSelection textSelection) {
         assertThat(textSelection.getEntityCount()).isEqualTo(3);
         assertThat(textSelection.getEntity(0)).isEqualTo(TextClassifier.TYPE_ADDRESS);
         assertThat(textSelection.getEntity(1)).isEqualTo(TextClassifier.TYPE_PHONE);

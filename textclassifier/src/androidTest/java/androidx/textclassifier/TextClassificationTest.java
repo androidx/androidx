@@ -150,6 +150,20 @@ public final class TextClassificationTest {
         assertTextClassification(textClassification);
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void testConvertToPlatformTextClassification() {
+        TextClassification reference = createTextClassification();
+
+        android.view.textclassifier.TextClassification platformTextClassification =
+                TextClassification.Convert.toPlatform(reference);
+
+        TextClassification textClassification =
+                TextClassification.Convert.fromPlatform(platformTextClassification);
+
+        assertTextClassification(textClassification);
+    }
+
     private static TextClassification.Request createTextClassificationRequest() {
         return new TextClassification.Request.Builder(TEXT, START_INDEX, END_INDEX)
                 .setDefaultLocales(LOCALE_LIST)

@@ -26,6 +26,9 @@ import android.os.Bundle;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.core.os.BuildCompat;
+
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,7 +36,6 @@ import org.junit.runner.RunWith;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class SelectionEventTest {
-    private static final String TEXT = "text";
     private static final int START = 1;
     private static final int END = 3;
     private static final int SMART_START = 0;
@@ -43,6 +45,7 @@ public class SelectionEventTest {
     private static final String RESULT_ID = "result_id";
     private static final int EVENT_INDEX = 7;
     private static final int INVOCATION = INVOCATION_MANUAL;
+    private static final String TEXT = "Testing for some funny texts";
     private static final TextClassificationSessionId SESSION_ID =
             new TextClassificationSessionId("session");
     private static final TextClassificationContext TEXT_CLASSIFICATION_CONTEXT =
@@ -52,7 +55,6 @@ public class SelectionEventTest {
     public void testToBundle() {
         SelectionEvent selectionEvent =
                 SelectionEvent.createSelectionActionEvent(START, END, ACTION_COPY);
-
         selectionEvent.setSmartStart(SMART_START);
         selectionEvent.setSmartEnd(SMART_END);
         selectionEvent.setDurationSinceSessionStart(DURATION_SINCE_SESSION_START);
@@ -163,5 +165,130 @@ public class SelectionEventTest {
         SelectionEvent selectionEvent =
                 SelectionEvent.createSelectionActionEvent(START, END, ACTION_SELECT_ALL);
         assertThat(selectionEvent.isTerminal()).isFalse();
+    }
+
+    public void toPlatform_selectionStartedEvent() {
+        Assume.assumeTrue(BuildCompat.isAtLeastP());
+
+        SelectionEvent selectionEvent = SelectionEvent.createSelectionStartedEvent(
+                INVOCATION_MANUAL,
+                START
+        );
+        android.view.textclassifier.SelectionEvent platformSelectionEvent =
+                SelectionEvent.Convert.toPlatform(selectionEvent);
+
+        android.view.textclassifier.SelectionEvent expected =
+                android.view.textclassifier.SelectionEvent.createSelectionStartedEvent(
+                        android.view.textclassifier.SelectionEvent.INVOCATION_MANUAL,
+                        START
+                );
+        assertThat(platformSelectionEvent).isEqualTo(expected);
+    }
+
+    @Test
+    public void toPlatform_selectionModifiedEvent() {
+        Assume.assumeTrue(BuildCompat.isAtLeastP());
+
+        SelectionEvent selectionEvent = SelectionEvent.createSelectionModifiedEvent(
+                START,
+                END
+        );
+        android.view.textclassifier.SelectionEvent platformSelectionEvent =
+                SelectionEvent.Convert.toPlatform(selectionEvent);
+
+        android.view.textclassifier.SelectionEvent expected =
+                android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
+                        START,
+                        END
+                );
+        assertThat(platformSelectionEvent).isEqualTo(expected);
+    }
+
+    @Test
+    public void toPlatform_selectionModifiedEvent_withClassification() {
+        Assume.assumeTrue(BuildCompat.isAtLeastP());
+
+        SelectionEvent selectionEvent = SelectionEvent.createSelectionModifiedEvent(
+                START,
+                END,
+                new TextClassification.Builder().setText(TEXT).build()
+        );
+        android.view.textclassifier.SelectionEvent platformSelectionEvent =
+                SelectionEvent.Convert.toPlatform(selectionEvent);
+
+        android.view.textclassifier.SelectionEvent expected =
+                android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
+                        START,
+                        END,
+                        new android.view.textclassifier.TextClassification.Builder()
+                                .setText(TEXT).build()
+                );
+        assertThat(platformSelectionEvent).isEqualTo(expected);
+    }
+
+    @Test
+    public void toPlatform_selectionModifiedEvent_autoSelection() {
+        Assume.assumeTrue(BuildCompat.isAtLeastP());
+
+        SelectionEvent selectionEvent = SelectionEvent.createSelectionModifiedEvent(
+                START,
+                END,
+                new TextSelection.Builder(START, END).build()
+        );
+        android.view.textclassifier.SelectionEvent platformSelectionEvent =
+                SelectionEvent.Convert.toPlatform(selectionEvent);
+
+        android.view.textclassifier.SelectionEvent expected =
+                android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
+                        START,
+                        END,
+                        new android.view.textclassifier.TextSelection.Builder(START, END).build()
+                );
+        assertThat(platformSelectionEvent).isEqualTo(expected);
+    }
+
+    @Test
+    public void toPlatform_selectionActionEvent() {
+        Assume.assumeTrue(BuildCompat.isAtLeastP());
+
+        SelectionEvent selectionEvent = SelectionEvent.createSelectionActionEvent(
+                START,
+                END,
+                ACTION_COPY
+        );
+        android.view.textclassifier.SelectionEvent platformSelectionEvent =
+                SelectionEvent.Convert.toPlatform(selectionEvent);
+
+        android.view.textclassifier.SelectionEvent expected =
+                android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
+                        START,
+                        END,
+                        android.view.textclassifier.SelectionEvent.ACTION_COPY
+                );
+        assertThat(platformSelectionEvent).isEqualTo(expected);
+    }
+
+    @Test
+    public void toPlatform_selectionActionEvent_withClassification() {
+        Assume.assumeTrue(BuildCompat.isAtLeastP());
+
+        SelectionEvent selectionEvent = SelectionEvent.createSelectionActionEvent(
+                START,
+                END,
+                ACTION_COPY,
+                new TextClassification.Builder().setText(TEXT).build()
+        );
+        android.view.textclassifier.SelectionEvent platformSelectionEvent =
+                SelectionEvent.Convert.toPlatform(selectionEvent);
+
+        android.view.textclassifier.SelectionEvent expected =
+                android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
+                        START,
+                        END,
+                        ACTION_COPY,
+                        new android.view.textclassifier.TextClassification.Builder()
+                                .setText(TEXT).build()
+                );
+        assertThat(platformSelectionEvent).isEqualTo(expected);
     }
 }

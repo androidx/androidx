@@ -221,6 +221,30 @@ public final class TextClassification {
 
             return builder.build();
         }
+
+        @NonNull
+        static android.view.textclassifier.TextClassification toPlatform(
+                @NonNull TextClassification textClassification) {
+            Preconditions.checkNotNull(textClassification);
+
+            android.view.textclassifier.TextClassification.Builder builder =
+                    new android.view.textclassifier.TextClassification.Builder()
+                    .setText(textClassification.getText())
+                    .setId(textClassification.getId());
+
+            final int entityCount = textClassification.getEntityCount();
+            for (int i = 0; i < entityCount; i++) {
+                String entity = textClassification.getEntity(i);
+                builder.setEntityType(entity, textClassification.getConfidenceScore(entity));
+            }
+
+            List<RemoteActionCompat> actions = textClassification.getActions();
+            for (RemoteActionCompat action: actions) {
+                builder.addAction(action.toRemoteAction());
+            }
+
+            return builder.build();
+        }
     }
 
     /**
@@ -243,7 +267,7 @@ public final class TextClassification {
         @Nullable private String mText;
         @NonNull private List<RemoteActionCompat> mActions = new ArrayList<>();
         @NonNull private final Map<String, Float> mEntityConfidence = new ArrayMap<>();
-        @Nullable private String mId = "";
+        @Nullable private String mId;
 
         /**
          * Sets the classified text.
