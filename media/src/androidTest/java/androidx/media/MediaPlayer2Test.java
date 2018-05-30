@@ -2635,5 +2635,4 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         mPlayer.reset();
     }
-
 }
