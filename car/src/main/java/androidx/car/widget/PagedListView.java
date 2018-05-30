@@ -370,8 +370,10 @@ public class PagedListView extends FrameLayout {
         mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
 
         if (mScrollBarEnabled) {
-            int topMargin =
-                    a.getDimensionPixelSize(R.styleable.PagedListView_scrollBarTopMargin, 0);
+            // Use the top margin that is defined in the layout as the default value.
+            int topMargin = a.getDimensionPixelSize(
+                    R.styleable.PagedListView_scrollBarTopMargin,
+                    ((MarginLayoutParams) mScrollBarView.getLayoutParams()).topMargin);
             setScrollBarTopMargin(topMargin);
         } else {
             MarginLayoutParams params = (MarginLayoutParams) mRecyclerView.getLayoutParams();
