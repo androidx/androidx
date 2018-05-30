@@ -16,12 +16,16 @@
 
 package androidx.textclassifier;
 
+import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
+
 import android.os.Bundle;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
@@ -147,6 +151,35 @@ public final class TextSelection {
     }
 
     /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(28)
+    static final class Convert {
+
+        private Convert() {
+        }
+
+        @NonNull
+        static TextSelection fromPlatform(
+                @NonNull android.view.textclassifier.TextSelection textSelection) {
+            Preconditions.checkNotNull(textSelection);
+
+            Builder builder = new Builder(
+                    textSelection.getSelectionStartIndex(), textSelection.getSelectionEndIndex())
+                    .setId(textSelection.getId());
+
+            final int entityCount = textSelection.getEntityCount();
+            for (int i = 0; i < entityCount; i++) {
+                String entity = textSelection.getEntity(i);
+                builder.setEntityType(entity, textSelection.getConfidenceScore(entity));
+            }
+
+            return builder.build();
+        }
+    }
+
+    /**
      * Builder used to build {@link TextSelection} objects.
      */
     public static final class Builder {
@@ -265,6 +298,28 @@ public final class TextSelection {
         }
 
         /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
+        static final class Convert {
+
+            private Convert() {
+            }
+
+            @NonNull
+            static android.view.textclassifier.TextSelection.Request toPlatform(
+                    @NonNull Request request) {
+                Preconditions.checkNotNull(request);
+
+                return new android.view.textclassifier.TextSelection.Request.Builder(
+                        request.mText, request.mStartIndex, request.mEndIndex)
+                        .setDefaultLocales(unwrapLocalListCompat(request.mDefaultLocales))
+                        .build();
+            }
+        }
+
+        /**
          * A builder for building TextSelection requests.
          */
         public static final class Builder {
@@ -293,7 +348,6 @@ public final class TextSelection {
                 mStartIndex = startIndex;
                 mEndIndex = endIndex;
             }
-
 
             /**
              * @param defaultLocales ordered list of locale preferences that may be used to

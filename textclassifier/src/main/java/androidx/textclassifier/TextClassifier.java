@@ -17,12 +17,17 @@
 package androidx.textclassifier;
 
 import android.os.Bundle;
+import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+import androidx.annotation.WorkerThread;
 import androidx.collection.ArraySet;
+import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -41,11 +46,12 @@ import java.util.Set;
  * <p>Unless otherwise stated, methods of this interface are blocking operations.
  * Avoid calling them on the UI thread.
  */
-// TODO: Remove this once we finish porting the rest of the TextClassifier class.
-@SuppressWarnings("PrivateConstructorForUtilityClass")
 public abstract class TextClassifier {
 
     // TODO: describe in the class documentation how a TC implementation in chosen/located.
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    static final String DEFAULT_LOG_TAG = "androidx_tc";
 
     /** Signifies that the TextClassifier did not identify an entity. */
     public static final String TYPE_UNKNOWN = "";
@@ -92,8 +98,154 @@ public abstract class TextClassifier {
     public static final String HINT_TEXT_IS_EDITABLE = "android.text_is_editable";
     /** Designates that the text in question is not editable. **/
     public static final String HINT_TEXT_IS_NOT_EDITABLE = "android.text_is_not_editable";
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef(value = {HINT_TEXT_IS_EDITABLE, HINT_TEXT_IS_NOT_EDITABLE})
+    @interface Hints {}
 
-    // TODO: add remaining interface
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({WIDGET_TYPE_TEXTVIEW, WIDGET_TYPE_EDITTEXT, WIDGET_TYPE_UNSELECTABLE_TEXTVIEW,
+            WIDGET_TYPE_WEBVIEW, WIDGET_TYPE_EDIT_WEBVIEW, WIDGET_TYPE_CUSTOM_TEXTVIEW,
+            WIDGET_TYPE_CUSTOM_EDITTEXT, WIDGET_TYPE_CUSTOM_UNSELECTABLE_TEXTVIEW,
+            WIDGET_TYPE_UNKNOWN})
+    @interface WidgetType {}
+    /** The widget involved in the text classification session is a standard
+     * {@link android.widget.TextView}. */
+    public static final String WIDGET_TYPE_TEXTVIEW = "textview";
+    /** The widget involved in the text classification session is a standard
+     * {@link android.widget.EditText}. */
+    public static final String WIDGET_TYPE_EDITTEXT = "edittext";
+    /** The widget involved in the text classification session is a standard non-selectable
+     * {@link android.widget.TextView}. */
+    public static final String WIDGET_TYPE_UNSELECTABLE_TEXTVIEW = "nosel-textview";
+    /** The widget involved in the text classification session is a standard
+     * {@link android.webkit.WebView}. */
+    public static final String WIDGET_TYPE_WEBVIEW = "webview";
+    /** The widget involved in the text classification session is a standard editable
+     * {@link android.webkit.WebView}. */
+    public static final String WIDGET_TYPE_EDIT_WEBVIEW = "edit-webview";
+    /** The widget involved in the text classification session is a custom text widget. */
+    public static final String WIDGET_TYPE_CUSTOM_TEXTVIEW = "customview";
+    /** The widget involved in the text classification session is a custom editable text widget. */
+    public static final String WIDGET_TYPE_CUSTOM_EDITTEXT = "customedit";
+    /** The widget involved in the text classification session is a custom non-selectable text
+     * widget. */
+    public static final String WIDGET_TYPE_CUSTOM_UNSELECTABLE_TEXTVIEW = "nosel-customview";
+    /** The widget involved in the text classification session is of an unknown/unspecified type. */
+    public static final String WIDGET_TYPE_UNKNOWN = "unknown";
+
+    /**
+     * No-op TextClassifier.
+     * This may be used to turn off TextClassifier features.
+     */
+    static final TextClassifier NO_OP = new TextClassifier() {};
+
+    /**
+     * Returns suggested text selection start and end indices, recognized entity types, and their
+     * associated confidence scores. The entity types are ordered from highest to lowest scoring.
+     *
+     * <p><strong>NOTE: </strong>Call on a worker thread.
+     *
+     * <p><strong>NOTE: </strong>If a TextClassifier has been destroyed, calls to this method should
+     * throw an {@link IllegalStateException}. See {@link #isDestroyed()}.
+     *
+     * @param request the text selection request
+     */
+    @WorkerThread
+    @NonNull
+    public TextSelection suggestSelection(@NonNull TextSelection.Request request) {
+        Preconditions.checkNotNull(request);
+        checkMainThread();
+        return new TextSelection.Builder(request.getStartIndex(), request.getEndIndex()).build();
+    }
+
+    /**
+     * Classifies the specified text and returns a {@link TextClassification} object that can be
+     * used to generate a widget for handling the classified text.
+     *
+     * <p><strong>NOTE: </strong>Call on a worker thread.
+     *
+     * <strong>NOTE: </strong>If a TextClassifier has been destroyed, calls to this method should
+     * throw an {@link IllegalStateException}. See {@link #isDestroyed()}.
+     *
+     * @param request the text classification request
+     */
+    @WorkerThread
+    @NonNull
+    public TextClassification classifyText(@NonNull TextClassification.Request request) {
+        Preconditions.checkNotNull(request);
+        checkMainThread();
+        return TextClassification.EMPTY;
+    }
+
+    /**
+     * Generates and returns a {@link TextLinks} that may be applied to the text to annotate it with
+     * links information.
+     *
+     * <p><strong>NOTE: </strong>Call on a worker thread.
+     *
+     * <strong>NOTE: </strong>If a TextClassifier has been destroyed, calls to this method should
+     * throw an {@link IllegalStateException}. See {@link #isDestroyed()}.
+     *
+     * @param request the text links request
+     *
+     * @see #getMaxGenerateLinksTextLength()
+     */
+    @WorkerThread
+    @NonNull
+    public TextLinks generateLinks(@NonNull TextLinks.Request request) {
+        Preconditions.checkNotNull(request);
+        checkMainThread();
+        return new TextLinks.Builder(request.getText().toString()).build();
+    }
+
+    /**
+     * Returns the maximal length of text that can be processed by generateLinks.
+     *
+     * <strong>NOTE: </strong>If a TextClassifier has been destroyed, calls to this method should
+     * throw an {@link IllegalStateException}. See {@link #isDestroyed()}.
+     *
+     * @see #generateLinks(TextLinks.Request)
+     */
+    @WorkerThread
+    public int getMaxGenerateLinksTextLength() {
+        return Integer.MAX_VALUE;
+    }
+
+    /**
+     * Destroys this TextClassifier.
+     *
+     * <strong>NOTE: </strong>If a TextClassifier has been destroyed, calls to its methods should
+     * throw an {@link IllegalStateException}. See {@link #isDestroyed()}.
+     *
+     * <p>Subsequent calls to this method are no-ops.
+     */
+    public void destroy() {
+        // TODO: port from the TextClassifierSession.
+    }
+
+    /**
+     * Returns whether or not this TextClassifier has been destroyed.
+     *
+     * <strong>NOTE: </strong>If a TextClassifier has been destroyed, caller should not interact
+     * with the classifier and an attempt to do so would throw an {@link IllegalStateException}.
+     * However, this method should never throw an {@link IllegalStateException}.
+     *
+     * @see #destroy()
+     */
+    public boolean isDestroyed() {
+        // TODO: port from the TextClassifierSession.
+        return false;
+    }
+
+    private static void checkMainThread() {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            Log.w(DEFAULT_LOG_TAG, "TextClassifier called on main thread");
+        }
+    }
 
     /**
      * Configuration object for specifying what entities to identify.
@@ -261,6 +413,31 @@ public abstract class TextClassifier {
                         mExcludedEntityTypes,
                         mHints,
                         mIncludeDefaultEntityTypes);
+            }
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
+        static class Convert {
+
+            private Convert() {
+            }
+
+            @NonNull
+            public static android.view.textclassifier.TextClassifier.EntityConfig toPlatform(
+                    @NonNull EntityConfig entityConfig) {
+                if (entityConfig.mIncludeDefaultEntityTypes) {
+                    return android.view.textclassifier.TextClassifier.EntityConfig.create(
+                            entityConfig.mHints,
+                            entityConfig.mIncludedEntityTypes,
+                            entityConfig.mExcludedEntityTypes
+                    );
+                }
+                Set<String> entitiesSet = new ArraySet<>(entityConfig.mIncludedEntityTypes);
+                entitiesSet.removeAll(entityConfig.mExcludedEntityTypes);
+                return android.view.textclassifier.TextClassifier.EntityConfig
+                        .createWithExplicitEntityList(new ArrayList<>(entitiesSet));
             }
         }
     }
