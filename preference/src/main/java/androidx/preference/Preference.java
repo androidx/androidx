@@ -788,12 +788,17 @@ public class Preference implements Comparable<Preference> {
     }
 
     /**
-     * Sets whether this preference should be visible in the list. If false, it is excluded from
+     * Sets whether this preference should be visible to the user. If false, it is excluded from
      * the adapter, but can still be retrieved using
      * {@link PreferenceFragmentCompat#findPreference(CharSequence)}.
      *
-     * @param visible Set false if this preference should be hidden from the list
+     * <p>To show this preference to the user, its ancestors must also all be visible. If you make
+     * a {@link PreferenceGroup} invisible, none of its children will be shown to the user until
+     * the group is visible.
+     *
+     * @param visible Set false if this preference should be hidden from the user
      * @attr ref R.styleable#Preference_isPreferenceVisible
+     * @see #isShown()
      */
     public final void setVisible(boolean visible) {
         if (mVisible != visible) {
@@ -805,13 +810,49 @@ public class Preference implements Comparable<Preference> {
     }
 
     /**
-     * Checks whether this preference should be visible to the user in the list.
+     * Checks whether this preference should be visible to the user.
+     *
+     * If this preference is visible, but one or more of its ancestors are not visible, then this
+     * preference will not be shown until its ancestors are all visible.
      *
      * @return {@code true} if this preference should be displayed
      * @see #setVisible(boolean)
+     * @see #isShown()
      */
     public final boolean isVisible() {
         return mVisible;
+    }
+
+    /**
+     * Checks whether this preference is shown to the user in the hierarchy.
+     *
+     * For a preference to be shown in the hierarchy, it and all of its ancestors must be visible
+     * and attached to the root {@link PreferenceScreen}.
+     *
+     * @return {@code true} if this preference is shown to the user in the hierarchy
+     */
+    public final boolean isShown() {
+        if (!isVisible()) {
+            return false;
+        }
+
+        if (getPreferenceManager() == null) {
+            // We are not attached to the hierarchy
+            return false;
+        }
+
+        if (this == getPreferenceManager().getPreferenceScreen()) {
+            // We are at the root preference, so this preference and its ancestors are visible
+            return true;
+        }
+
+        PreferenceGroup parent = getParent();
+        if (parent == null) {
+            // We are not attached to the hierarchy
+            return false;
+        }
+
+        return parent.isShown();
     }
 
     /**

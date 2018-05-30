@@ -161,6 +161,7 @@ package androidx.preference {
     method public boolean isIconSpaceReserved();
     method public boolean isPersistent();
     method public boolean isSelectable();
+    method public final boolean isShown();
     method public boolean isSingleLineTitle();
     method public final boolean isVisible();
     method protected void notifyChanged();
