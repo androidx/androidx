@@ -107,7 +107,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private List<MediaItem2> mPlayList;
     private MediaControlView2 mMediaControlView;
     private MediaSession2 mMediaSession;
-    private MediaMetadataRetriever mRetriever;
     private String mTitle;
     private Executor mCallbackExecutor;
 
@@ -936,9 +935,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             return;
         }
 
-        mRetriever = new MediaMetadataRetriever();
-        mRetriever.setDataSource(mInstance.getContext(), uri);
-
         // Save file name as title since the file may not have a title Metadata.
         String scheme = uri.getScheme();
         if (scheme != null && scheme.equals("file")) {
@@ -947,13 +943,22 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mTitle = uri.getPath();
         }
 
-        String title = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(mInstance.getContext(), uri);
+        } catch (IllegalArgumentException e) {
+            Log.v(TAG, "Cannot retrieve metadata for this media file.");
+            retriever.release();
+            return;
+        }
+
+        String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         if (title != null) {
             mTitle = title;
         }
 
         if (!mIsMusicMediaType) {
-            mRetriever.release();
+            retriever.release();
             return;
         }
 
@@ -962,7 +967,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mManager = (WindowManager) mInstance.getContext().getApplicationContext()
                 .getSystemService(Context.WINDOW_SERVICE);
 
-        byte[] album = mRetriever.getEmbeddedPicture();
+        byte[] album = retriever.getEmbeddedPicture();
         if (album != null) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(album, 0, album.length);
             mMusicAlbumDrawable = new BitmapDrawable(bitmap);
@@ -981,21 +986,21 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mMusicAlbumDrawable = resources.getDrawable(R.drawable.ic_default_album_image);
         }
 
-        title = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         if (title != null) {
             mMusicTitleText = title;
         } else {
             mMusicTitleText = resources.getString(R.string.mcv2_music_title_unknown_text);
         }
 
-        String artist = mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        String artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
         if (artist != null) {
             mMusicArtistText = artist;
         } else {
             mMusicArtistText = resources.getString(R.string.mcv2_music_artist_unknown_text);
         }
 
-        mRetriever.release();
+        retriever.release();
 
         // Display Embedded mode as default
         mInstance.removeView(mSurfaceView);
