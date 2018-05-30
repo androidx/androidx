@@ -80,7 +80,10 @@ public final class AppCompatDrawableManager {
 
     private static AppCompatDrawableManager INSTANCE;
 
-    public static AppCompatDrawableManager get() {
+    /**
+     * Returns the singleton instance of this class.
+     */
+    public static synchronized AppCompatDrawableManager get() {
         if (INSTANCE == null) {
             INSTANCE = new AppCompatDrawableManager();
             installDefaultInflateDelegates(INSTANCE);
@@ -174,7 +177,6 @@ public final class AppCompatDrawableManager {
     private ArrayMap<String, InflateDelegate> mDelegates;
     private SparseArrayCompat<String> mKnownDrawableIdTags;
 
-    private final Object mDrawableCacheLock = new Object();
     private final WeakHashMap<Context, LongSparseArray<WeakReference<Drawable.ConstantState>>>
             mDrawableCaches = new WeakHashMap<>(0);
 
@@ -182,11 +184,11 @@ public final class AppCompatDrawableManager {
 
     private boolean mHasCheckedVectorDrawableSetup;
 
-    public Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {
+    public synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {
         return getDrawable(context, resId, false);
     }
 
-    Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,
+    synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,
             boolean failIfNotKnown) {
         checkVectorDrawableSetup(context);
 
@@ -209,13 +211,11 @@ public final class AppCompatDrawableManager {
         return drawable;
     }
 
-    public void onConfigurationChanged(@NonNull Context context) {
-        synchronized (mDrawableCacheLock) {
-            LongSparseArray<WeakReference<ConstantState>> cache = mDrawableCaches.get(context);
-            if (cache != null) {
-                // Crude, but we'll just clear the cache when the configuration changes
-                cache.clear();
-            }
+    public synchronized void onConfigurationChanged(@NonNull Context context) {
+        LongSparseArray<WeakReference<ConstantState>> cache = mDrawableCaches.get(context);
+        if (cache != null) {
+            // Crude, but we'll just clear the cache when the configuration changes
+            cache.clear();
         }
     }
 
@@ -386,47 +386,43 @@ public final class AppCompatDrawableManager {
         return null;
     }
 
-    private Drawable getCachedDrawable(@NonNull final Context context, final long key) {
-        synchronized (mDrawableCacheLock) {
-            final LongSparseArray<WeakReference<ConstantState>> cache
-                    = mDrawableCaches.get(context);
-            if (cache == null) {
-                return null;
-            }
+    private synchronized Drawable getCachedDrawable(@NonNull final Context context,
+            final long key) {
+        final LongSparseArray<WeakReference<ConstantState>> cache = mDrawableCaches.get(context);
+        if (cache == null) {
+            return null;
+        }
 
-            final WeakReference<ConstantState> wr = cache.get(key);
-            if (wr != null) {
-                // We have the key, and the secret
-                ConstantState entry = wr.get();
-                if (entry != null) {
-                    return entry.newDrawable(context.getResources());
-                } else {
-                    // Our entry has been purged
-                    cache.delete(key);
-                }
+        final WeakReference<ConstantState> wr = cache.get(key);
+        if (wr != null) {
+            // We have the key, and the secret
+            ConstantState entry = wr.get();
+            if (entry != null) {
+                return entry.newDrawable(context.getResources());
+            } else {
+                // Our entry has been purged
+                cache.delete(key);
             }
         }
         return null;
     }
 
-    private boolean addDrawableToCache(@NonNull final Context context, final long key,
+    private synchronized boolean addDrawableToCache(@NonNull final Context context, final long key,
             @NonNull final Drawable drawable) {
         final ConstantState cs = drawable.getConstantState();
         if (cs != null) {
-            synchronized (mDrawableCacheLock) {
-                LongSparseArray<WeakReference<ConstantState>> cache = mDrawableCaches.get(context);
-                if (cache == null) {
-                    cache = new LongSparseArray<>();
-                    mDrawableCaches.put(context, cache);
-                }
-                cache.put(key, new WeakReference<>(cs));
+            LongSparseArray<WeakReference<ConstantState>> cache = mDrawableCaches.get(context);
+            if (cache == null) {
+                cache = new LongSparseArray<>();
+                mDrawableCaches.put(context, cache);
             }
+            cache.put(key, new WeakReference<>(cs));
             return true;
         }
         return false;
     }
 
-    Drawable onDrawableLoadedFromResources(@NonNull Context context,
+    synchronized Drawable onDrawableLoadedFromResources(@NonNull Context context,
             @NonNull VectorEnabledTintResources resources, @DrawableRes final int resId) {
         Drawable drawable = loadDrawableFromDelegates(context, resId);
         if (drawable == null) {
@@ -478,8 +474,8 @@ public final class AppCompatDrawableManager {
 
             if (DEBUG) {
                 Log.d(TAG, "[tintDrawableUsingColorFilter] Tinted "
-                        + context.getResources().getResourceName(resId) +
-                        " with color: #" + Integer.toHexString(color));
+                        + context.getResources().getResourceName(resId)
+                        + " with color: #" + Integer.toHexString(color));
             }
             return true;
         }
@@ -518,7 +514,7 @@ public final class AppCompatDrawableManager {
         return mode;
     }
 
-    ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {
+    synchronized ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {
         // Try the cache first (if it exists)
         ColorStateList tint = getTintListFromCache(context, resId);
 
@@ -722,8 +718,9 @@ public final class AppCompatDrawableManager {
         return getPorterDuffColorFilter(color, tintMode);
     }
 
-    public static PorterDuffColorFilter getPorterDuffColorFilter(int color, PorterDuff.Mode mode) {
-        // First, lets see if the cache already contains the color filter
+    public static synchronized PorterDuffColorFilter getPorterDuffColorFilter(
+            int color, PorterDuff.Mode mode) {
+        // First, let's see if the cache already contains the color filter
         PorterDuffColorFilter filter = COLOR_FILTER_CACHE.get(color, mode);
 
         if (filter == null) {
