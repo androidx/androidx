@@ -292,8 +292,8 @@ import java.util.concurrent.Executor;
  *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
  *     <td>{} </p></td></tr>
  * <tr><td>getPlaybackParams </p></td>
- *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
- *     <td>{} </p></td></tr>
+ *     <td>{Prepared, Paused, Playing, Error} </p></td>
+ *     <td>{Idle} </p></td></tr>
  * <tr><td>getTimestamp </p></td>
  *     <td>{Idle, Prepared, Paused, Playing, Error} </p></td>
  *     <td>{} </p></td></tr>
