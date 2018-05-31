@@ -35,17 +35,17 @@ import java.util.concurrent.TimeUnit;
 public abstract class WorkRequest {
 
     /**
-     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#77}
+     * The default initial backoff time (in milliseconds) for work that has to be retried.
      */
     public static final long DEFAULT_BACKOFF_DELAY_MILLIS = 30000L;
 
     /**
-     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#82}
+     * The maximum backoff time (in milliseconds) for work that has to be retried.
      */
     public static final long MAX_BACKOFF_MILLIS = 5 * 60 * 60 * 1000; // 5 hours.
 
     /**
-     * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/core/java/android/app/job/JobInfo.java#119}
+     * The minimum backoff time for work (in milliseconds) that has to be retried.
      */
     public static final long MIN_BACKOFF_MILLIS = 10 * 1000; // 10 seconds.
 
