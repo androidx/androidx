@@ -354,13 +354,15 @@ package androidx.car.widget {
     method public void onScrolled(androidx.recyclerview.widget.RecyclerView, int, int);
   }
 
-  public class PagedScrollBarView extends android.widget.FrameLayout {
+  public class PagedScrollBarView extends android.view.ViewGroup {
+    ctor public PagedScrollBarView(android.content.Context);
     ctor public PagedScrollBarView(android.content.Context, android.util.AttributeSet);
     ctor public PagedScrollBarView(android.content.Context, android.util.AttributeSet, int);
     ctor public PagedScrollBarView(android.content.Context, android.util.AttributeSet, int, int);
     method public boolean isDownEnabled();
     method public boolean isDownPressed();
     method public boolean isUpPressed();
+    method public void onLayout(boolean, int, int, int, int);
     method public void resetThumbColor();
     method public void setDayNightStyle(int);
     method public void setDownButtonIcon(android.graphics.drawable.Drawable);
