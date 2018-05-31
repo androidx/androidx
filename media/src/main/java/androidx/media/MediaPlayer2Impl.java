@@ -2038,28 +2038,34 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized DataSourceError setNext(DataSourceDesc dsd) {
-            MediaPlayerSource src = new MediaPlayerSource(dsd);
-            if (mQueue.isEmpty()) {
-                mQueue.add(src);
-                return prepareAt(0);
-            } else {
-                mQueue.add(1, src);
-                return prepareAt(1);
+            if (mQueue.isEmpty() || getFirst().getDSD() == null) {
+                throw new IllegalStateException();
             }
+            // Clear next data sources if any.
+            while (mQueue.size() >= 2) {
+                MediaPlayerSource src = mQueue.remove(1);
+                src.mPlayer.release();
+            }
+            MediaPlayerSource src = new MediaPlayerSource(dsd);
+            mQueue.add(1, src);
+            return prepareAt(1);
         }
 
         synchronized DataSourceError setNextMultiple(List<DataSourceDesc> descs) {
+            if (mQueue.isEmpty() || getFirst().getDSD() == null) {
+                throw new IllegalStateException();
+            }
+            // Clear next data sources if any.
+            while (mQueue.size() >= 2) {
+                MediaPlayerSource src = mQueue.remove(1);
+                src.mPlayer.release();
+            }
             List<MediaPlayerSource> sources = new ArrayList<>();
             for (DataSourceDesc dsd: descs) {
                 sources.add(new MediaPlayerSource(dsd));
             }
-            if (mQueue.isEmpty()) {
-                mQueue.addAll(sources);
-                return prepareAt(0);
-            } else {
-                mQueue.addAll(1, sources);
-                return prepareAt(1);
-            }
+            mQueue.addAll(1, sources);
+            return prepareAt(1);
         }
 
         synchronized void play() {
