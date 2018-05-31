@@ -386,18 +386,6 @@ public final class PagedListViewTest {
     }
 
     @Test
-    public void testSwipingScrollbarDoesNotScrollList() {
-        // Just need enough items to ensure the scroll bar is showing.
-        setUpPagedListView(ITEMS_PER_PAGE * 10);
-
-        // Swipe on the filler instead of the whole scrollbar because buttons at top/bottom set
-        // OnLongClickListener and thus eat the motion event.
-        onView(withId(R.id.filler)).perform(swipeUp());
-        assertThat(mRecyclerViewLayoutManager.findFirstCompletelyVisibleItemPosition(),
-                is(equalTo(0)));
-    }
-
-    @Test
     public void testSetGutterNone() {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
