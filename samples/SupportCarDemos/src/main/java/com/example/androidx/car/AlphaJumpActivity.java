@@ -78,8 +78,6 @@ public class AlphaJumpActivity extends Activity {
 
         PagedListView pagedListView = findViewById(R.id.paged_list_view);
         pagedListView.setAdapter(new CheeseAdapter());
-
-        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     /**

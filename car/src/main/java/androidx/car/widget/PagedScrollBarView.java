@@ -17,6 +17,7 @@
 package androidx.car.widget;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -26,17 +27,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.IntRange;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.R;
 import androidx.core.content.ContextCompat;
 
 /** A custom view to provide list scroll behaviour -- up/down buttons and scroll indicator. */
-public class PagedScrollBarView extends FrameLayout {
+public class PagedScrollBarView extends ViewGroup {
     private static final float BUTTON_DISABLED_ALPHA = 0.2f;
 
     @DayNightStyle private int mDayNightStyle;
@@ -64,28 +65,43 @@ public class PagedScrollBarView extends FrameLayout {
     private final TextView mAlphaJumpButton;
     private final AlphaJumpButtonClickListener mAlphaJumpButtonClickListener;
     private final View mScrollThumb;
-    /** The "filler" view between the up and down buttons */
-    private final View mFiller;
+
+    private final int mSeparatingMargin;
+    private final int mScrollBarThumbWidth;
+
+    /** The amount of space that the scroll thumb is allowed to roam over. */
+    private int mScrollThumbTrackHeight;
 
     private final Interpolator mPaginationInterpolator = new AccelerateDecelerateInterpolator();
     private boolean mUseCustomThumbBackground;
     @ColorRes private int mCustomThumbBackgroundResId;
-    private PaginationListener mPaginationListener;
+
+    public PagedScrollBarView(Context context) {
+        super(context);
+    }
 
     public PagedScrollBarView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0 /*defStyleAttrs*/, 0 /*defStyleRes*/);
+        super(context, attrs);
     }
 
     public PagedScrollBarView(Context context, AttributeSet attrs, int defStyleAttrs) {
-        this(context, attrs, defStyleAttrs, 0 /*defStyleRes*/);
+        super(context, attrs, defStyleAttrs);
     }
 
     public PagedScrollBarView(
             Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
         super(context, attrs, defStyleAttrs, defStyleRes);
+    }
+
+    // Using an initialization block so that the fields referenced in this block can be marked
+    // as "final". This block will run after the super() call in constructors.
+    {
+        Resources res = getResources();
+        mSeparatingMargin = res.getDimensionPixelSize(R.dimen.car_padding_2);
+        mScrollBarThumbWidth = res.getDimensionPixelSize(R.dimen.car_scroll_bar_thumb_width);
 
         LayoutInflater inflater =
-                (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.car_paged_scrollbar_buttons, this /* root */,
                 true /* attachToRoot */);
 
@@ -101,7 +117,6 @@ public class PagedScrollBarView extends FrameLayout {
         mAlphaJumpButton.setOnClickListener(mAlphaJumpButtonClickListener);
 
         mScrollThumb = findViewById(R.id.scrollbar_thumb);
-        mFiller = findViewById(R.id.filler);
     }
 
     /** Sets the icon to be used for the up button. */
@@ -145,6 +160,7 @@ public class PagedScrollBarView extends FrameLayout {
      * to where the thumb should be; and finally, extent is the size of the thumb.
      *
      * <p>These values can be expressed in arbitrary units, so long as they share the same units.
+     * The values should also be positive.
      *
      * @param range The range of the scrollbar's thumb
      * @param offset The offset of the scrollbar's thumb
@@ -156,23 +172,22 @@ public class PagedScrollBarView extends FrameLayout {
      * @see View#computeVerticalScrollOffset()
      * @see View#computeVerticalScrollExtent()
      */
-    public void setParameters(int range, int offset, int extent, boolean animate) {
+    public void setParameters(
+            @IntRange(from = 0) int range,
+            @IntRange(from = 0) int offset,
+            @IntRange(from = 0) int extent, boolean animate) {
+        // Not laid out yet, so values cannot be calculated.
+        if (!isLaidOut()) {
+            return;
+        }
+
         // If the scroll bars aren't visible, then no need to update.
         if (getVisibility() == View.GONE || range == 0) {
             return;
         }
 
-        int availableSpace = mFiller.getHeight() - mFiller.getPaddingTop()
-                - mFiller.getPaddingBottom();
-
-        // Scale the length by the available space that the thumb can fill.
-        int thumbLength = Math.round(((float) extent / range) * availableSpace);
-
-        // Ensure that if the user has reached the bottom of the list, then the scroll bar is
-        // aligned to the bottom as well. Otherwise, scale the offset appropriately.
-        int thumbOffset = isDownEnabled()
-                ? Math.round(((float) offset / range) * availableSpace)
-                : availableSpace - thumbLength;
+        int thumbLength = calculateScrollThumbLength(range, extent);
+        int thumbOffset = calculateScrollThumbOffset(range, offset, thumbLength);
 
         // Sets the size of the thumb and request a redraw if needed.
         ViewGroup.LayoutParams lp = mScrollThumb.getLayoutParams();
@@ -183,6 +198,40 @@ public class PagedScrollBarView extends FrameLayout {
         }
 
         moveY(mScrollThumb, thumbOffset, animate);
+    }
+
+    /**
+     * An optimized version of {@link #setParameters(int, int, int, boolean)} that is meant to be
+     * called if a view is laying itself out. This method will avoid a complete remeasure of
+     * the views in the {@code PagedScrollBarView} if the scroll thumb's height needs to be changed.
+     * Instead, only the thumb itself will be remeasured and laid out.
+     *
+     * <p>These values can be expressed in arbitrary units, so long as they share the same units.
+     *
+     * @param range The range of the scrollbar's thumb
+     * @param offset The offset of the scrollbar's thumb
+     * @param extent The extent of the scrollbar's thumb
+     *
+     * @see #setParameters(int, int, int, boolean)
+     */
+    void setParametersInLayout(int range, int offset, int extent) {
+        // If the scroll bars aren't visible, then no need to update.
+        if (getVisibility() == View.GONE || range == 0) {
+            return;
+        }
+
+        int thumbLength = calculateScrollThumbLength(range, extent);
+        int thumbOffset = calculateScrollThumbOffset(range, offset, thumbLength);
+
+        // Sets the size of the thumb and request a redraw if needed.
+        ViewGroup.LayoutParams lp = mScrollThumb.getLayoutParams();
+
+        if (lp.height != thumbLength) {
+            lp.height = thumbLength;
+            measureAndLayoutScrollThumb();
+        }
+
+        mScrollThumb.setY(thumbOffset);
     }
 
     /**
@@ -248,6 +297,128 @@ public class PagedScrollBarView extends FrameLayout {
         reloadColors();
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int requestedWidth = MeasureSpec.getSize(widthMeasureSpec);
+        int requestedHeight = MeasureSpec.getSize(heightMeasureSpec);
+
+        int wrapMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+
+        mUpButton.measure(wrapMeasureSpec, wrapMeasureSpec);
+        mDownButton.measure(wrapMeasureSpec, wrapMeasureSpec);
+
+        measureScrollThumb();
+
+        if (mAlphaJumpButton.getVisibility() != GONE) {
+            mAlphaJumpButton.measure(wrapMeasureSpec, wrapMeasureSpec);
+        }
+
+        setMeasuredDimension(requestedWidth, requestedHeight);
+    }
+
+    @Override
+    public void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        int width = right - left;
+        int height = bottom - top;
+
+        // This value will keep track of the top of the current view being laid out.
+        int layoutTop = getPaddingTop();
+
+        // Lay out the up button at the top of the view.
+        layoutViewCenteredFromTop(mUpButton, layoutTop, width);
+        layoutTop = mUpButton.getBottom();
+
+        // Lay out the alpha jump button if it exists. This button goes below the up button.
+        if (mAlphaJumpButton.getVisibility() != GONE) {
+            layoutTop += mSeparatingMargin;
+
+            layoutViewCenteredFromTop(mAlphaJumpButton, layoutTop, width);
+
+            layoutTop = mAlphaJumpButton.getBottom();
+        }
+
+        // Lay out the scroll thumb
+        layoutTop += mSeparatingMargin;
+        layoutViewCenteredFromTop(mScrollThumb, layoutTop, width);
+
+        // Lay out the bottom button at the bottom of the view.
+        int downBottom = height - getPaddingBottom();
+        layoutViewCenteredFromBottom(mDownButton, downBottom, width);
+
+        calculateScrollThumbTrackHeight();
+    }
+
+    /**
+     * Calculate the amount of space that the scroll bar thumb is allowed to roam. The thumb
+     * is allowed to take up the space between the down bottom and the up or alpha jump
+     * button, depending on if the latter is visible.
+     */
+    private void calculateScrollThumbTrackHeight() {
+        // Subtracting (2 * mSeparatingMargin) for the top/bottom margin above and below the
+        // scroll bar thumb.
+        mScrollThumbTrackHeight = mDownButton.getTop() - (2 * mSeparatingMargin);
+
+        // If there's an alpha jump button, then the thumb is laid out starting from below that.
+        if (mAlphaJumpButton.getVisibility() != GONE) {
+            mScrollThumbTrackHeight -= mAlphaJumpButton.getBottom();
+        } else {
+            mScrollThumbTrackHeight -= mUpButton.getBottom();
+        }
+    }
+
+    private void measureScrollThumb() {
+        int scrollWidth = MeasureSpec.makeMeasureSpec(mScrollBarThumbWidth, MeasureSpec.EXACTLY);
+        int scrollHeight = MeasureSpec.makeMeasureSpec(
+                mScrollThumb.getLayoutParams().height,
+                MeasureSpec.EXACTLY);
+        mScrollThumb.measure(scrollWidth, scrollHeight);
+    }
+
+    /**
+     * An optimization method to only remeasure and lay out the scroll thumb. This method should be
+     * used when the height of the thumb has changed, but no other views need to be remeasured.
+     */
+    private void measureAndLayoutScrollThumb() {
+        measureScrollThumb();
+
+        // The top value should not change from what it was before; only the height is assumed to
+        // be changing.
+        int layoutTop = mScrollThumb.getTop();
+        layoutViewCenteredFromTop(mScrollThumb, layoutTop, getMeasuredWidth());
+    }
+
+    /**
+     * Lays out the given View starting from the given {@code top} value downwards and centered
+     * within the given {@code availableWidth}.
+     *
+     * @param  view The view to lay out.
+     * @param  top The top value to start laying out from. This value will be the resulting top
+     *             value of the view.
+     * @param  availableWidth The width in which to center the given view.
+     */
+    private void layoutViewCenteredFromTop(View view, int top, int availableWidth) {
+        int viewWidth = view.getMeasuredWidth();
+        int viewLeft = (availableWidth - viewWidth) / 2;
+        view.layout(viewLeft, top, viewLeft + viewWidth,
+                top + view.getMeasuredHeight());
+    }
+
+    /**
+     * Lays out the given View starting from the given {@code bottom} value upwards and centered
+     * within the given {@code availableSpace}.
+     *
+     * @param  view The view to lay out.
+     * @param  bottom The bottom value to start laying out from. This value will be the resulting
+     *                bottom value of the view.
+     * @param  availableWidth The width in which to center the given view.
+     */
+    private void layoutViewCenteredFromBottom(View view, int bottom, int availableWidth) {
+        int viewWidth = view.getMeasuredWidth();
+        int viewLeft = (availableWidth - viewWidth) / 2;
+        view.layout(viewLeft, bottom - view.getMeasuredHeight(),
+                viewLeft + viewWidth, bottom);
+    }
+
     /** Reload the colors for the current {@link DayNightStyle}. */
     @SuppressWarnings("deprecation")
     private void reloadColors() {
@@ -306,6 +477,39 @@ public class PagedScrollBarView extends FrameLayout {
     @VisibleForTesting
     int getScrollbarThumbColor() {
         return ((GradientDrawable) mScrollThumb.getBackground()).getColor().getDefaultColor();
+    }
+
+    /**
+     * Calculates and returns how big the scroll bar thumb should be based on the given range and
+     * extent.
+     *
+     * @param range The total amount of space the scroll bar is allowed to roam over.
+     * @param extent The amount of space that the scroll bar takes up relative to the range.
+     * @return The height of the scroll bar thumb in pixels.
+     */
+    private int calculateScrollThumbLength(int range, int extent) {
+        // Scale the length by the available space that the thumb can fill.
+        return Math.round(((float) extent / range) * mScrollThumbTrackHeight);
+    }
+
+    /**
+     * Calculates and returns how much the scroll thumb should be offset from the top of where it
+     * has been laid out.
+     *
+     * @param  range The total amount of space the scroll bar is allowed to roam over.
+     * @param  offset The amount the scroll bar should be offset, expressed in the same units as
+     *                the given range.
+     * @param  thumbLength The current length of the thumb in pixels.
+     * @return The amount the thumb should be offset in pixels.
+     */
+    private int calculateScrollThumbOffset(int range, int offset, int thumbLength) {
+        // Ensure that if the user has reached the bottom of the list, then the scroll bar is
+        // aligned to the bottom as well. Otherwise, scale the offset appropriately.
+        // This offset will be a value relative to the parent of this scrollbar, so start by where
+        // the top of mScrollThumb is.
+        return mScrollThumb.getTop() + (isDownEnabled()
+                ? Math.round(((float) offset / range) * mScrollThumbTrackHeight)
+                : mScrollThumbTrackHeight - thumbLength);
     }
 
     /** Moves the given view to the specified 'y' position. */
