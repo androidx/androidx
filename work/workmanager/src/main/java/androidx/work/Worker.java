@@ -71,6 +71,7 @@ public abstract class Worker {
     private @NonNull Extras mExtras;
     private @NonNull Data mOutputData = Data.EMPTY;
     private volatile boolean mStopped;
+    private volatile boolean mCancelled;
 
     /**
      * Gets the application {@link Context}.
@@ -191,12 +192,27 @@ public abstract class Worker {
     }
 
     /**
+     * Returns {@code true} if this Worker has been told to stop and explicitly informed that it is
+     * cancelled and will never execute again.  If {@link #isStopped()} returns {@code true} but
+     * this method returns {@code false}, that means the system has decided to preempt the task.
+     * <p>
+     * Note that it is almost never sufficient to check only this method; its value is only
+     * meaningful when {@link #isStopped()} returns {@code true}.
+     * <p>
+     * @return {@code true} if this work operation has been cancelled
+     */
+    public final boolean isCancelled() {
+        return mCancelled;
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public final void stop() {
+    public final void stop(boolean cancelled) {
         mStopped = true;
-        onStopped();
+        mCancelled = cancelled;
+        onStopped(cancelled);
     }
 
     /**
@@ -206,12 +222,15 @@ public abstract class Worker {
      * processing in this method should be lightweight - there are no contractual guarantees about
      * which thread will invoke this call, so this should not be a long-running or blocking
      * operation.
+     *
+     * @param cancelled If {@code true}, the work has been explicitly cancelled
      */
-    public void onStopped() {
+    public void onStopped(boolean cancelled) {
         // Do nothing by default.
     }
 
     @Keep
+    @SuppressWarnings("unused")
     private void internalInit(
             @NonNull Context appContext,
             @NonNull UUID id,
