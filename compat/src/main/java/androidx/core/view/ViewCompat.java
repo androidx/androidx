@@ -3492,7 +3492,7 @@ public class ViewCompat {
     }
 
     /**
-     * @see {@link #dispatchUnhandledKeyEventPost}
+     * @see #dispatchUnhandledKeyEventPost
      */
     @UiThread
     public static boolean dispatchUnhandledKeyEventPre(View root, KeyEvent evt) {

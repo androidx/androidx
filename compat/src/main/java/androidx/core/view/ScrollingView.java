@@ -35,7 +35,6 @@ public interface ScrollingView {
      *
      * @see #computeHorizontalScrollExtent()
      * @see #computeHorizontalScrollOffset()
-     * @see android.widget.ScrollBarDrawable
      */
     int computeHorizontalScrollRange();
 
@@ -54,7 +53,6 @@ public interface ScrollingView {
      *
      * @see #computeHorizontalScrollRange()
      * @see #computeHorizontalScrollExtent()
-     * @see android.widget.ScrollBarDrawable
      */
     int computeHorizontalScrollOffset();
 
@@ -73,7 +71,6 @@ public interface ScrollingView {
      *
      * @see #computeHorizontalScrollRange()
      * @see #computeHorizontalScrollOffset()
-     * @see android.widget.ScrollBarDrawable
      */
     int computeHorizontalScrollExtent();
 
@@ -90,7 +87,6 @@ public interface ScrollingView {
      *
      * @see #computeVerticalScrollExtent()
      * @see #computeVerticalScrollOffset()
-     * @see android.widget.ScrollBarDrawable
      */
     int computeVerticalScrollRange();
 
@@ -109,7 +105,6 @@ public interface ScrollingView {
      *
      * @see #computeVerticalScrollRange()
      * @see #computeVerticalScrollExtent()
-     * @see android.widget.ScrollBarDrawable
      */
     int computeVerticalScrollOffset();
 
@@ -128,7 +123,6 @@ public interface ScrollingView {
      *
      * @see #computeVerticalScrollRange()
      * @see #computeVerticalScrollOffset()
-     * @see android.widget.ScrollBarDrawable
      */
     int computeVerticalScrollExtent();
 }

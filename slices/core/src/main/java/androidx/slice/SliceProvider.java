@@ -267,8 +267,8 @@ public abstract class SliceProvider extends ContentProvider implements
      * when the app is ready to provide the complete data in onBindSlice.
      * <p>
      *
-     * @see {@link Slice}.
-     * @see {@link android.app.slice.Slice#HINT_PARTIAL}
+     * @see Slice
+     * @see android.app.slice.Slice#HINT_PARTIAL
      */
     // TODO: Provide alternate notifyChange that takes in the slice (i.e. notifyChange(Uri, Slice)).
     public abstract Slice onBindSlice(Uri sliceUri);
@@ -329,7 +329,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * a slice. Otherwise this will throw {@link UnsupportedOperationException}.
      *
      * @return Uri representing the slice associated with the provided intent.
-     * @see {@link android.app.slice.Slice}
+     * @see android.app.slice.Slice
      */
     public @NonNull Uri onMapIntentToUri(Intent intent) {
         throw new UnsupportedOperationException(
@@ -344,7 +344,7 @@ public abstract class SliceProvider extends ContentProvider implements
      *
      * @param uri The uri to look for descendants under.
      * @return All slices within the space.
-     * @see androidx.slice.SliceManager#getSliceDescendants(Uri)
+     * @see androidx.slice.SliceViewManager#getSliceDescendants(Uri)
      */
     public Collection<Uri> onGetSliceDescendants(Uri uri) {
         return Collections.emptyList();

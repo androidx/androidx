@@ -667,8 +667,8 @@ public class ContextCompat {
      * @param context Context to start Service from.
      * @param intent The description of the Service to start.
      *
-     * @see Context#startForegeroundService()
-     * @see Context#startService()
+     * @see Context#startForegroundService(Intent)
+     * @see Context#startService(Intent)
      */
     public static void startForegroundService(@NonNull Context context, @NonNull Intent intent) {
         if (Build.VERSION.SDK_INT >= 26) {
