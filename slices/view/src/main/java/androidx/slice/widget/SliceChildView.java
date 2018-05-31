@@ -181,7 +181,7 @@ public abstract class SliceChildView extends FrameLayout {
             mVerticalGridTextPadding = (int) a.getDimension(
                     R.styleable.SliceView_gridTextVerticalPadding, defaultVerticalGridPadding);
             mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
-            mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
+            mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridBottomPadding, 0);
         } finally {
             a.recycle();
         }
