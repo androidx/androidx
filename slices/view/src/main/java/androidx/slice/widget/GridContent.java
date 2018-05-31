@@ -111,7 +111,10 @@ public class GridContent {
         }
         mSeeMoreItem = SliceQuery.find(gridItem, null, HINT_SEE_MORE, null);
         if (mSeeMoreItem != null && FORMAT_SLICE.equals(mSeeMoreItem.getFormat())) {
-            mSeeMoreItem = mSeeMoreItem.getSlice().getItems().get(0);
+            List<SliceItem> seeMoreItems = mSeeMoreItem.getSlice().getItems();
+            if (seeMoreItems != null && seeMoreItems.size() > 0) {
+                mSeeMoreItem = seeMoreItems.get(0);
+            }
         }
         String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
         mPrimaryAction = SliceQuery.find(gridItem, FORMAT_SLICE, hints,
