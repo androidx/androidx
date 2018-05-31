@@ -183,20 +183,18 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             int stream = getLegacyStreamType(player.getAudioAttributes());
             mSessionCompat.setPlaybackToLocal(stream);
         }
-        if (player != oldPlayer) {
-            player.registerPlayerEventCallback(mCallbackExecutor, mPlayerEventCallback);
-            if (oldPlayer != null) {
-                // Warning: Poorly implement player may ignore this
-                oldPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
-            }
+        if (oldPlayer != null) {
+            // Warning: Poorly implement player may ignore this
+            oldPlayer.unregisterPlayerEventCallback(mPlayerEventCallback);
         }
-        if (playlistAgent != oldAgent) {
-            playlistAgent.registerPlaylistEventCallback(mCallbackExecutor, mPlaylistEventCallback);
-            if (oldAgent != null) {
-                // Warning: Poorly implement agent may ignore this
-                oldAgent.unregisterPlaylistEventCallback(mPlaylistEventCallback);
-            }
+        // Registering callbacks is critical in case the player is being reused after reset.
+        player.registerPlayerEventCallback(mCallbackExecutor, mPlayerEventCallback);
+
+        if (oldAgent != null) {
+            // Warning: Poorly implement agent may ignore this
+            oldAgent.unregisterPlaylistEventCallback(mPlaylistEventCallback);
         }
+        playlistAgent.registerPlaylistEventCallback(mCallbackExecutor, mPlaylistEventCallback);
 
         if (oldPlayer != null) {
             // If it's not the first updatePlayer(), tell changes in the player, agent, and playback
