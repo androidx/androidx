@@ -17,7 +17,6 @@
 package androidx.paging
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -158,11 +157,6 @@ class PageKeyedDataSourceTest {
     fun initialLoadCallbackInvalidThreeArg() = performLoadInitial(invalidateDataSource = true) {
         // LoadInitialCallback doesn't throw on invalid args if DataSource is invalid
         it.onResult(emptyList(), 0, 1, null, null)
-    }
-
-    @Test
-    fun pageDroppingNotSupported() {
-        assertFalse(ItemDataSource().supportsPageDropping())
     }
 
     private abstract class WrapperDataSource<K, A, B>(private val source: PageKeyedDataSource<K, A>)

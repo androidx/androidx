@@ -198,14 +198,4 @@ class TiledPagedList<T> extends PagedList<T>
     public void onPageInserted(int start, int count) {
         notifyChanged(start, count);
     }
-
-    @Override
-    public void onPagesRemoved(int startOfDrops, int count) {
-        notifyRemoved(startOfDrops, count);
-    }
-
-    @Override
-    public void onPagesSwappedToPlaceholder(int startOfDrops, int count) {
-        notifyChanged(startOfDrops, count);
-    }
 }

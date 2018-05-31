@@ -17,7 +17,6 @@
 package androidx.paging;
 
 import androidx.annotation.AnyThread;
-import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -75,19 +74,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <ul>
  *     <li>They express the full sized list to the presentation layer (often a
  *     {@link PagedListAdapter}), and so can support scrollbars (without jumping as pages are
- *     loaded or dropped) and fast-scrolling to any position, loaded or not.
+ *     loaded) and fast-scrolling to any position, whether loaded or not.
  *     <li>They avoid the need for a loading spinner at the end of the loaded list, since the list
  *     is always full sized.
  * </ul>
  * <p>
  * They also have drawbacks:
  * <ul>
- *     <li>Your Adapter needs to account for {@code null} items. This often means providing default
- *     values in data you bind to a {@link androidx.recyclerview.widget.RecyclerView.ViewHolder}.
+ *     <li>Your Adapter (or other presentation mechanism) needs to account for {@code null} items.
+ *     This often means providing default values in data you bind to a
+ *     {@link androidx.recyclerview.widget.RecyclerView.ViewHolder}.
  *     <li>They don't work well if your item views are of different sizes, as this will prevent
  *     loading items from cross-fading nicely.
  *     <li>They require you to count your data set, which can be expensive or impossible, depending
- *     on your DataSource.
+ *     on where your data comes from.
  * </ul>
  * <p>
  * Placeholders are enabled by default, but can be disabled in two ways. They are disabled if the
@@ -666,7 +666,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
 
         // first, clean up any empty weak refs
         for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-            final Callback currentCallback = mCallbacks.get(i).get();
+            Callback currentCallback = mCallbacks.get(i).get();
             if (currentCallback == null) {
                 mCallbacks.remove(i);
             }
@@ -684,7 +684,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
     @SuppressWarnings("WeakerAccess")
     public void removeWeakCallback(@NonNull Callback callback) {
         for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-            final Callback currentCallback = mCallbacks.get(i).get();
+            Callback currentCallback = mCallbacks.get(i).get();
             if (currentCallback == null || currentCallback == callback) {
                 // found callback, or empty weak ref
                 mCallbacks.remove(i);
@@ -695,7 +695,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
     void notifyInserted(int position, int count) {
         if (count != 0) {
             for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-                final Callback callback = mCallbacks.get(i).get();
+                Callback callback = mCallbacks.get(i).get();
                 if (callback != null) {
                     callback.onInserted(position, count);
                 }
@@ -706,7 +706,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
     void notifyChanged(int position, int count) {
         if (count != 0) {
             for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-                final Callback callback = mCallbacks.get(i).get();
+                Callback callback = mCallbacks.get(i).get();
 
                 if (callback != null) {
                     callback.onChanged(position, count);
@@ -715,17 +715,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
         }
     }
 
-    void notifyRemoved(int position, int count) {
-        if (count != 0) {
-            for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-                final Callback callback = mCallbacks.get(i).get();
 
-                if (callback != null) {
-                    callback.onRemoved(position, count);
-                }
-            }
-        }
-    }
 
     /**
      * Dispatch updates since the non-empty snapshot was taken.
@@ -785,13 +775,6 @@ public abstract class PagedList<T> extends AbstractList<T> {
      */
     public static class Config {
         /**
-         * When {@link #maxSize} is set to {@code MAX_SIZE_UNBOUNDED}, the maximum number of items
-         * loaded is unbounded, and pages will never be dropped.
-         */
-        @SuppressWarnings("WeakerAccess")
-        public static final int MAX_SIZE_UNBOUNDED = Integer.MAX_VALUE;
-
-        /**
          * Size of each page loaded by the PagedList.
          */
         public final int pageSize;
@@ -815,30 +798,17 @@ public abstract class PagedList<T> extends AbstractList<T> {
         public final boolean enablePlaceholders;
 
         /**
-         * Defines the maximum number of items that may be loaded into this pagedList before pages
-         * should be dropped.
-         * <p>
-         * {@link PageKeyedDataSource} does not currently support dropping pages - when
-         * loading from a {@code PageKeyedDataSource}, this value is ignored.
-         *
-         * @see #MAX_SIZE_UNBOUNDED
-         * @see Builder#setMaxSize(int)
-         */
-        public final int maxSize;
-
-        /**
          * Size hint for initial load of PagedList, often larger than a regular page.
          */
         @SuppressWarnings("WeakerAccess")
         public final int initialLoadSizeHint;
 
         private Config(int pageSize, int prefetchDistance,
-                boolean enablePlaceholders, int initialLoadSizeHint, int maxSize) {
+                boolean enablePlaceholders, int initialLoadSizeHint) {
             this.pageSize = pageSize;
             this.prefetchDistance = prefetchDistance;
             this.enablePlaceholders = enablePlaceholders;
             this.initialLoadSizeHint = initialLoadSizeHint;
-            this.maxSize = maxSize;
         }
 
         /**
@@ -851,7 +821,6 @@ public abstract class PagedList<T> extends AbstractList<T> {
             private int mPrefetchDistance = -1;
             private int mInitialLoadSizeHint = -1;
             private boolean mEnablePlaceholders = true;
-            private int mMaxSize = MAX_SIZE_UNBOUNDED;
 
             /**
              * Defines the number of items loaded at once from the DataSource.
@@ -871,12 +840,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * @param pageSize Number of items loaded at once from the DataSource.
              * @return this
              */
-            @NonNull
-            public Builder setPageSize(@IntRange(from = 1) int pageSize) {
-                if (pageSize < 1) {
-                    throw new IllegalArgumentException("Page size must be a positive number");
-                }
-                mPageSize = pageSize;
+            public Builder setPageSize(int pageSize) {
+                this.mPageSize = pageSize;
                 return this;
             }
 
@@ -895,9 +860,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * @param prefetchDistance Distance the PagedList should prefetch.
              * @return this
              */
-            @NonNull
-            public Builder setPrefetchDistance(@IntRange(from = 0) int prefetchDistance) {
-                mPrefetchDistance = prefetchDistance;
+            public Builder setPrefetchDistance(int prefetchDistance) {
+                this.mPrefetchDistance = prefetchDistance;
                 return this;
             }
 
@@ -928,9 +892,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * @return this
              */
             @SuppressWarnings("SameParameterValue")
-            @NonNull
             public Builder setEnablePlaceholders(boolean enablePlaceholders) {
-                mEnablePlaceholders = enablePlaceholders;
+                this.mEnablePlaceholders = enablePlaceholders;
                 return this;
             }
 
@@ -949,50 +912,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * @return this
              */
             @SuppressWarnings("WeakerAccess")
-            @NonNull
-            public Builder setInitialLoadSizeHint(@IntRange(from = 1) int initialLoadSizeHint) {
-                mInitialLoadSizeHint = initialLoadSizeHint;
-                return this;
-            }
-
-            /**
-             * Defines how many items to keep loaded at once.
-             * <p>
-             * This can be used to cap the number of items kept in memory by dropping pages. This
-             * value is typically many pages so old pages are cached in case the user scrolls back.
-             * <p>
-             * This value must be at least two times the
-             * {@link #setPrefetchDistance(int)} prefetch distance} plus the
-             * {@link #setPageSize(int) page size}). This constraint prevent loads from being
-             * continuously fetched and discarded due to prefetching.
-             * <p>
-             * The max size specified here best effort, not a guarantee. In practice, if maxSize
-             * is many times the page size, the number of items held by the PagedList will not grow
-             * above this number. Exceptions are made as necessary to guarantee:
-             * <ul>
-             *     <li>Pages are never dropped until there are more than two pages loaded. Note that
-             *     a DataSource may not be held strictly to
-             *     {@link Config#pageSize requested pageSize}, so two pages may be larger than
-             *     expected.
-             *     <li>Pages are never dropped if they are within a prefetch window (defined to be
-             *     {@code pageSize + (2 * prefetchDistance)}) of the most recent load.
-             * </ul>
-             * <p>
-             * {@link PageKeyedDataSource} does not currently support dropping pages - when
-             * loading from a {@code PageKeyedDataSource}, this value is ignored.
-             * <p>
-             * If not set, defaults to {@code MAX_SIZE_UNBOUNDED}, which disables page dropping.
-             *
-             * @param maxSize Maximum number of items to keep in memory, or
-             *                {@code MAX_SIZE_UNBOUNDED} to disable page dropping.
-             * @return this
-             *
-             * @see Config#MAX_SIZE_UNBOUNDED
-             * @see Config#maxSize
-             */
-            @NonNull
-            public Builder setMaxSize(@IntRange(from = 2) int maxSize) {
-                mMaxSize = maxSize;
+            public Builder setInitialLoadSizeHint(int initialLoadSizeHint) {
+                this.mInitialLoadSizeHint = initialLoadSizeHint;
                 return this;
             }
 
@@ -1001,8 +922,10 @@ public abstract class PagedList<T> extends AbstractList<T> {
              *
              * @return A new Config.
              */
-            @NonNull
             public Config build() {
+                if (mPageSize < 1) {
+                    throw new IllegalArgumentException("Page size must be a positive number");
+                }
                 if (mPrefetchDistance < 0) {
                     mPrefetchDistance = mPageSize;
                 }
@@ -1014,16 +937,9 @@ public abstract class PagedList<T> extends AbstractList<T> {
                             + " to trigger loading of more data in the PagedList, so either"
                             + " placeholders must be enabled, or prefetch distance must be > 0.");
                 }
-                if (mMaxSize != MAX_SIZE_UNBOUNDED) {
-                    if (mMaxSize < mPageSize + mPrefetchDistance * 2) {
-                        throw new IllegalArgumentException("Maximum size must be at least"
-                                + " pageSize + 2*prefetchDist, pageSize=" + mPageSize
-                                + ", prefetchDist=" + mPrefetchDistance + ", maxSize=" + mMaxSize);
-                    }
-                }
 
                 return new Config(mPageSize, mPrefetchDistance,
-                        mEnablePlaceholders, mInitialLoadSizeHint, mMaxSize);
+                        mEnablePlaceholders, mInitialLoadSizeHint);
             }
         }
     }

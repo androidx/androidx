@@ -56,8 +56,4 @@ abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, Value> {
      * that isn't yet loaded, a fallback item (last loaded item accessed) will be passed.
      */
     abstract Key getKey(int position, Value item);
-
-    boolean supportsPageDropping() {
-        return true;
-    }
 }

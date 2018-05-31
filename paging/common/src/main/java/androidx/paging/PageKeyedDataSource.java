@@ -315,18 +315,6 @@ public abstract class PageKeyedDataSource<Key, Value> extends ContiguousDataSour
     }
 
     @Override
-    boolean supportsPageDropping() {
-        /* To support page dropping when PageKeyed, we'll need to:
-         *    - Stash keys for every page we have loaded (can id by index relative to loadInitial)
-         *    - Drop keys for any page not adjacent to loaded content
-         *    - And either:
-         *        - Allow impl to signal previous page key: onResult(data, nextPageKey, prevPageKey)
-         *        - Re-trigger loadInitial, and break assumption it will only occur once.
-         */
-        return false;
-    }
-
-    @Override
     final void dispatchLoadInitial(@Nullable Key key, int initialLoadSize, int pageSize,
             boolean enablePlaceholders, @NonNull Executor mainThreadExecutor,
             @NonNull PageResult.Receiver<Value> receiver) {
