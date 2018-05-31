@@ -197,8 +197,12 @@ public class SliceCreator {
     private Slice createGallery(Uri sliceUri) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb = new GridRowBuilder(b);
-        PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "see more of your gallery");
+        PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "View gallery");
+        SliceAction primary = new SliceAction(pi,
+                IconCompat.createWithResource(getContext(), R.drawable.slices_2),
+                LARGE_IMAGE, "View gallery");
         gb.setSeeMoreAction(pi);
+        gb.setPrimaryAction(primary);
         gb.addCell(new GridRowBuilder.CellBuilder(gb)
                 .addImage(IconCompat.createWithResource(getContext(), R.drawable.slices_1),
                         LARGE_IMAGE))
@@ -228,6 +232,9 @@ public class SliceCreator {
         GridRowBuilder gb = new GridRowBuilder(b);
         GridRowBuilder.CellBuilder cb = new GridRowBuilder.CellBuilder(gb);
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "See cats you follow");
+        SliceAction primaryAction = new SliceAction(pi,
+                IconCompat.createWithResource(getContext(), R.drawable.cat_1),
+                SMALL_IMAGE, "Cats you follow");
         if (customSeeMore) {
             cb.addImage(IconCompat.createWithResource(getContext(), R.drawable.ic_right_caret),
                     ICON_IMAGE);
@@ -237,6 +244,7 @@ public class SliceCreator {
         } else {
             gb.setSeeMoreAction(pi);
         }
+        gb.setPrimaryAction(primaryAction);
         gb.addCell(new GridRowBuilder.CellBuilder(gb)
                 .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_1),
                         SMALL_IMAGE)
@@ -275,6 +283,7 @@ public class SliceCreator {
                 .addRow(rb
                         .setTitle("Mady Pitza")
                         .setSubtitle("Frequently contacted contact")
+                        .setPrimaryAction(primaryAction)
                         .addEndItem(primaryAction))
                 .addGridRow(gb
                         .addCell(new GridRowBuilder.CellBuilder(gb)
@@ -327,13 +336,15 @@ public class SliceCreator {
     private Slice createNoteSlice(Uri sliceUri) {
         // TODO: Remote input.
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        SliceAction noteAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_create),
+                "Create note");
         return lb.setAccentColor(0xfff4b400)
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .setTitle("Create new note")
                         .setSubtitle("with this note taking app")
-                        .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
-                                IconCompat.createWithResource(getContext(), R.drawable.ic_create),
-                                "Create note"))
+                        .setPrimaryAction(noteAction)
+                        .addEndItem(noteAction)
                         .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "voice note"),
                                 IconCompat.createWithResource(getContext(), R.drawable.ic_voice),
                                 "Voice note"))
@@ -380,14 +391,14 @@ public class SliceCreator {
 
     private Slice createCustomToggleSlice(Uri sliceUri) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, -TimeUnit.HOURS.toMillis(1));
+        SliceAction toggleAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "star toggled"),
+                IconCompat.createWithResource(getContext(),
+                        R.drawable.toggle_star),
+                "Toggle star", true /* isChecked */);
         return b.setAccentColor(0xffff4081)
                 .addRow(new ListBuilder.RowBuilder(b)
                         .setTitle("Custom toggle")
-                        .addEndItem(
-                                new SliceAction(getBroadcastIntent(ACTION_TOAST, "star toggled"),
-                                        IconCompat.createWithResource(getContext(),
-                                                R.drawable.toggle_star),
-                                        "Toggle star", true /* isChecked */)))
+                        .setPrimaryAction(toggleAction))
                 .build();
     }
 
@@ -397,6 +408,10 @@ public class SliceCreator {
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .setTitle("2 toggles")
                         .setSubtitle("each supports two states")
+                        .setPrimaryAction(new SliceAction(
+                                getBroadcastIntent(ACTION_TOAST, "open toggle app"),
+                                IconCompat.createWithResource(getContext(), R.drawable.ic_star_on),
+                                "Toggles"))
                         .addEndItem(new SliceAction(
                                 getBroadcastIntent(ACTION_TOAST, "first star toggled"),
                                 IconCompat.createWithResource(getContext(), R.drawable.toggle_star),
@@ -481,6 +496,10 @@ public class SliceCreator {
     }
 
     private Slice createReservationSlice(Uri sliceUri) {
+        SliceAction sliceAction = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "View reservation"),
+                IconCompat.createWithResource(getContext(),
+                        R.drawable.reservation), LARGE_IMAGE, "View reservation");
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb1 = new GridRowBuilder(lb);
         gb1.addCell(new GridRowBuilder.CellBuilder(gb1)
@@ -497,7 +516,8 @@ public class SliceCreator {
         return lb.setAccentColor(0xffFF5252)
                 .setHeader(new ListBuilder.HeaderBuilder(lb)
                         .setTitle("Upcoming trip to Seattle")
-                        .setSubtitle("Feb 1 - 19 | 2 guests"))
+                        .setSubtitle("Feb 1 - 19 | 2 guests")
+                        .setPrimaryAction(sliceAction))
                 .addAction(new SliceAction(
                         getBroadcastIntent(ACTION_TOAST, "show location on map"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_location),
@@ -580,9 +600,14 @@ public class SliceCreator {
     private Slice createRtlGridSlice(Uri uri) {
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
         GridRowBuilder grb = new GridRowBuilder(lb);
+        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST,
+                "Open language practice"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_speak),
+                "Language practice");
         lb.setHeader(new ListBuilder.HeaderBuilder(lb)
                 .setTitle("Language practice")
-                .setSubtitle("Which image doesn't match the word?"));
+                .setSubtitle("Which image doesn't match the word?")
+                .setPrimaryAction(action));
         lb.addGridRow(grb
                 .addCell(new GridRowBuilder.CellBuilder(grb)
                         .addImage(IconCompat.createWithResource(getContext(), R.drawable.cake),
@@ -609,9 +634,14 @@ public class SliceCreator {
 
     private Slice createTranslationSlice(Uri uri) {
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST,
+                "Open language practice"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_speak),
+                "Language practice");
         return lb.setHeader(new ListBuilder.HeaderBuilder(lb)
-                .setTitle("How to say hello")
-                .setSummary("Hello, bonjour, שלום ,مرحبا"))
+                        .setTitle("How to say hello")
+                        .setSummary("Hello, bonjour, שלום ,مرحبا")
+                        .setPrimaryAction(action))
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .setTitle("Hello")
                         .setSubtitle("English \u00b7 heˈlō")
