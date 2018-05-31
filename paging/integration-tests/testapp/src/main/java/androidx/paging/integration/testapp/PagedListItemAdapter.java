@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,8 +33,9 @@ class PagedListItemAdapter extends PagedListAdapter<Item, RecyclerView.ViewHolde
         super(Item.DIFF_CALLBACK);
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder holder = new RecyclerView.ViewHolder(
                 new TextView(parent.getContext())) {};
         holder.itemView.setMinimumHeight(400);
@@ -41,7 +43,7 @@ class PagedListItemAdapter extends PagedListAdapter<Item, RecyclerView.ViewHolde
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Item item = getItem(position);
         if (item != null) {
             ((TextView) (holder.itemView)).setText(item.text);
