@@ -32,6 +32,7 @@ import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static android.app.slice.Slice.SUBTYPE_MAX;
 import static android.app.slice.Slice.SUBTYPE_RANGE;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
@@ -59,6 +60,7 @@ import androidx.slice.SliceItem;
 import androidx.slice.SliceSpec;
 import androidx.slice.SystemClock;
 import androidx.slice.builders.SliceAction;
+import androidx.slice.core.SliceQuery;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -102,6 +104,23 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         if (mIsError) {
             builder.addHints(HINT_ERROR);
         }
+    }
+
+    /**
+     * Construct the slice.
+     */
+    @Override
+    public Slice build() {
+        Slice slice = super.build();
+        boolean isLoading = SliceQuery.find(slice, null, HINT_PARTIAL, null) != null;
+        boolean isEmpty = SliceQuery.find(slice, FORMAT_SLICE, HINT_LIST_ITEM, null) == null;
+        String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
+        List<SliceItem> possiblePrimaries = SliceQuery.findAll(slice, FORMAT_SLICE, hints, null);
+        if (!isLoading && !isEmpty && (possiblePrimaries == null || possiblePrimaries.isEmpty())) {
+            throw new IllegalStateException("A slice requires a primary action; ensure one of your "
+                    + "builders has called #setPrimaryAction with a valid SliceAction.");
+        }
+        return slice;
     }
 
     /**

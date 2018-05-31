@@ -308,7 +308,11 @@ public class SampleSliceProvider extends SliceProvider {
     private Slice createCatSlice(Uri sliceUri, boolean customSeeMore) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         GridRowBuilder gb = new GridRowBuilder(b);
-        PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "See cats you follow");
+        PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "Cats you follow");
+        SliceAction primaryAction = new SliceAction(pi,
+                IconCompat.createWithResource(getContext(), R.drawable.cat_1),
+                SMALL_IMAGE, "Cats you follow");
+        gb.setPrimaryAction(primaryAction);
         if (customSeeMore) {
             GridRowBuilder.CellBuilder cb = new GridRowBuilder.CellBuilder(gb);
             cb.addImage(IconCompat.createWithResource(getContext(), R.drawable.ic_right_caret),
@@ -350,12 +354,15 @@ public class SampleSliceProvider extends SliceProvider {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
         ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(b);
         GridRowBuilder gb = new GridRowBuilder(b);
+        IconCompat ic = IconCompat.createWithResource(getContext(), R.drawable.mady);
+        SliceAction sliceAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View contact"),
+                ic, SMALL_IMAGE, "View contact");
         return b.setAccentColor(0xff3949ab)
                 .addRow(rb
                         .setTitle("Mady Pitza")
                         .setSubtitle("Frequently contacted contact")
-                        .addEndItem(IconCompat.createWithResource(getContext(), R.drawable.mady),
-                                SMALL_IMAGE))
+                        .setPrimaryAction(sliceAction)
+                        .addEndItem(ic, SMALL_IMAGE))
                 .addGridRow(gb
                         .addCell(new GridRowBuilder.CellBuilder(gb)
                                 .addImage(IconCompat.createWithResource(getContext(),
@@ -446,12 +453,13 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createNoteSlice(Uri sliceUri) {
         // TODO: Remote input.
+        SliceAction createNote = new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_create),
+                "Create note");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xfff4b400)
-                .addRow(b -> b.setTitle("Create new note"))
-                .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "create note"),
-                        IconCompat.createWithResource(getContext(), R.drawable.ic_create),
-                        "Create note"))
+                .setHeader(b -> b.setTitle("Create new note").setPrimaryAction(createNote))
+                .addAction(createNote)
                 .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "voice note"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_voice),
                         "Voice note"))
@@ -502,11 +510,16 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createReservationSlice(Uri sliceUri) {
+        SliceAction sliceAction = new SliceAction(
+                getBroadcastIntent(ACTION_TOAST, "View reservation"),
+                IconCompat.createWithResource(getContext(),
+                R.drawable.reservation), LARGE_IMAGE, "View reservation");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffFF5252)
                 .setHeader(b -> b
                         .setTitle("Upcoming trip to Seattle")
-                        .setSubtitle("Feb 1 - 19 | 2 guests"))
+                        .setSubtitle("Feb 1 - 19 | 2 guests")
+                        .setPrimaryAction(sliceAction))
                 .addAction(new SliceAction(
                         getBroadcastIntent(ACTION_TOAST, "show location on map"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_location),
@@ -582,6 +595,10 @@ public class SampleSliceProvider extends SliceProvider {
                 .addRow(b -> b
                         .setTitle("2 toggles")
                         .setSubtitle("each supports two states")
+                        .setPrimaryAction(new SliceAction(
+                                getBroadcastIntent(ACTION_TOAST, "open toggle app"),
+                                IconCompat.createWithResource(getContext(), R.drawable.ic_star_on),
+                                "Toggles"))
                         .addEndItem(new SliceAction(
                                 getBroadcastIntent(ACTION_TOAST, "first star toggled"),
                                 IconCompat.createWithResource(getContext(), R.drawable.toggle_star),
@@ -786,9 +803,14 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createRtlGridSlice(Uri uri) {
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST,
+                "Open language practice"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_speak),
+                "Language practice");
         lb.setHeader(hb -> hb
                 .setTitle("Language practice")
                 .setSubtitle("Which image doesn't match the word?")
+                .setPrimaryAction(action)
                 .setLayoutDirection(View.LAYOUT_DIRECTION_LTR));
         lb.addGridRow(grb -> grb
                 .addCell(cb -> cb
@@ -816,10 +838,14 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createTranslationSlice(Uri uri) {
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
+        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View translations"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_speak),
+                "Translations");
         return lb.setLayoutDirection(View.LAYOUT_DIRECTION_LTR)
                 .setHeader(hb -> hb
                         .setTitle("How to say hello")
-                        .setSummary("Hello, bonjour, שלום ,مرحبا"))
+                        .setSummary("Hello, bonjour, שלום ,مرحبا")
+                        .setPrimaryAction(action))
                 .addRow(rb -> rb
                         .setTitle("Hello")
                         .setSubtitle("English \u00b7 heˈlō")
@@ -857,7 +883,8 @@ public class SampleSliceProvider extends SliceProvider {
                 getBroadcastIntent(ACTION_TOAST, "icon action"), ic2, "icon");
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
         return lb.addRow(new ListBuilder.RowBuilder(lb)
-                .setTitle("Single title"))
+                        .setTitle("Single title")
+                        .setPrimaryAction(simpleAction))
                 .addRow(new ListBuilder.RowBuilder(lb)
                         .setSubtitle("Single subtitle"))
                  //Time stamps
@@ -923,9 +950,12 @@ public class SampleSliceProvider extends SliceProvider {
         CharSequence work = mListSummaries.get(0, "");
         CharSequence home = mListSummaries.get(1, "");
         CharSequence school = mListSummaries.get(2, "");
+        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View traffic info"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Traffic info");
         Slice s = new ListBuilder(getContext(), sliceUri, -TimeUnit.MINUTES.toMillis(50))
                 .addRow(b -> b
                         .setTitle("Work")
+                        .setPrimaryAction(action)
                         .setSubtitle(work,
                                 updating || TextUtils.isEmpty(work))
                         .addEndItem(IconCompat.createWithResource(getContext(), R.drawable.ic_work),
@@ -966,12 +996,15 @@ public class SampleSliceProvider extends SliceProvider {
         CharSequence home = mGridSummaries.get(2, "");
         CharSequence work = mGridSummaries.get(3, "");
         CharSequence school = mGridSummaries.get(4, "");
+        SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View traffic info"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Traffic info");
         Slice s = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setHeader(hb -> hb
                         .setTitle(title,
                                 updating || TextUtils.isEmpty(title))
                         .setSubtitle(subtitle,
-                                updating || TextUtils.isEmpty(subtitle)))
+                                updating || TextUtils.isEmpty(subtitle))
+                        .setPrimaryAction(action))
                 .addGridRow(gb -> gb
                         .addCell(cb -> cb
                                 .addImage(IconCompat.createWithResource(getContext(),

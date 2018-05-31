@@ -68,7 +68,10 @@ public class SliceViewTest {
     public void testSetSlice() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb).setTitle("Title").setSubtitle("Subtitle"));
+        lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
         Slice s = lb.build();
         mSliceView.setSlice(s);
 
@@ -79,7 +82,10 @@ public class SliceViewTest {
     public void testSetNullSlice() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb).setTitle("Title").setSubtitle("Subtitle"));
+        lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
         Slice s = lb.build();
 
         mSliceView.setSlice(s);
@@ -93,7 +99,10 @@ public class SliceViewTest {
     public void testSetScrollable() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb).setTitle("Title").setSubtitle("Subtitle"));
+        lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
         Slice s = lb.build();
 
         mSliceView.setSlice(s);
@@ -110,7 +119,10 @@ public class SliceViewTest {
     public void testGetActionsNull() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb).setTitle("Title").setSubtitle("Subtitle"));
+        lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
         Slice s = lb.build();
         mSliceView.setSlice(s);
 
@@ -122,7 +134,10 @@ public class SliceViewTest {
     public void testGetActions() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb).setTitle("Title").setSubtitle("Subtitle"));
+        lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
 
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
@@ -154,7 +169,10 @@ public class SliceViewTest {
     public void testSetValidActions() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb).setTitle("Title").setSubtitle("Subtitle"));
+        lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
 
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
@@ -189,7 +207,10 @@ public class SliceViewTest {
     public void testSetInvalidActions() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb).setTitle("Title").setSubtitle("Subtitle"));
+        lb.addRow(new ListBuilder.RowBuilder(lb)
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
 
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
@@ -228,6 +249,12 @@ public class SliceViewTest {
         mSliceView.setSliceActions(actionsToSet);
     }
 
+    private SliceAction getAction(String actionName) {
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+        return new SliceAction(getIntent(""), icon, actionName);
+    }
 
     private PendingIntent getIntent(String action) {
         Intent intent = new Intent(action);

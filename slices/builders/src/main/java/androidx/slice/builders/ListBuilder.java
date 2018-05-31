@@ -33,6 +33,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Consumer;
+import androidx.slice.Slice;
 import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.ListBuilderBasicImpl;
 import androidx.slice.builders.impl.ListBuilderV1Impl;
@@ -205,6 +206,24 @@ public class ListBuilder extends TemplateSliceBuilder {
     public ListBuilder(@NonNull Context context, @NonNull Uri uri, @Nullable Duration ttl) {
         super(context, uri);
         mImpl.setTtl(ttl);
+    }
+
+    /**
+     * Construct the slice.
+     * <p>
+     * Note that a slice requires a primary action, this can be set on any of the rows given to the
+     * list builder. If a primary action has not been set on any of the rows, building this slice
+     * will throw {@link IllegalStateException}.
+     *
+     * @see HeaderBuilder#setPrimaryAction(SliceAction)
+     * @see RowBuilder#setPrimaryAction(SliceAction)
+     * @see GridRowBuilder#setPrimaryAction(SliceAction)
+     * @see InputRangeBuilder#setPrimaryAction(SliceAction)
+     * @see RangeBuilder#setPrimaryAction(SliceAction)
+     */
+    @Override
+    public Slice build() {
+        return ((TemplateBuilderImpl) mImpl).build();
     }
 
     @Override
