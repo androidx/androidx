@@ -48,8 +48,7 @@ public abstract class CancelWorkRunnable implements Runnable {
         recursivelyCancelWorkAndDependents(workManagerImpl.getWorkDatabase(), workSpecId);
 
         Processor processor = workManagerImpl.getProcessor();
-        processor.stopWork(workSpecId);
-        processor.setCancelled(workSpecId);
+        processor.stopAndCancelWork(workSpecId);
 
         for (Scheduler scheduler : workManagerImpl.getSchedulers()) {
             scheduler.cancel(workSpecId);

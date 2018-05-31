@@ -695,14 +695,14 @@ public class WorkerWrapperTest extends DatabaseTest {
                         .withListener(mMockListener)
                         .build();
         Executors.newSingleThreadExecutor().submit(workerWrapper);
-        workerWrapper.interrupt();
+        workerWrapper.interrupt(false);
         Thread.sleep(6000L);
         verify(mMockListener).onExecuted(work.getStringId(), false, true);
     }
 
     @Test
     @SmallTest
-    public void testInterruption_isMarkedOnRunningWorker() {
+    public void testInterruptionWithoutCancellation_isMarkedOnRunningWorker() {
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
         insertWork(work);
@@ -722,8 +722,36 @@ public class WorkerWrapperTest extends DatabaseTest {
                         .withWorker(worker)
                         .build();
         Executors.newSingleThreadExecutor().submit(workerWrapper);
-        workerWrapper.interrupt();
+        workerWrapper.interrupt(false);
         assertThat(worker.isStopped(), is(true));
+        assertThat(worker.isCancelled(), is(false));
+    }
+
+    @Test
+    @SmallTest
+    public void testInterruptionWithCancellation_isMarkedOnRunningWorker() {
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
+        insertWork(work);
+
+        Worker worker = WorkerWrapper.workerFromClassName(
+                mContext,
+                InterruptionAwareWorker.class.getName(),
+                work.getId(),
+                new Extras(Data.EMPTY, Collections.<String>emptyList(), null));
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker.isStopped(), is(false));
+
+        WorkerWrapper workerWrapper =
+                new WorkerWrapper.Builder(mContext, mDatabase, work.getStringId())
+                        .withSchedulers(Collections.singletonList(mMockScheduler))
+                        .withListener(mMockListener)
+                        .withWorker(worker)
+                        .build();
+        Executors.newSingleThreadExecutor().submit(workerWrapper);
+        workerWrapper.interrupt(true);
+        assertThat(worker.isStopped(), is(true));
+        assertThat(worker.isCancelled(), is(true));
     }
 
     @Test
