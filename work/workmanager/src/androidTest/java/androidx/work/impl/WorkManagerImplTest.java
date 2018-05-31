@@ -39,7 +39,7 @@ import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.isOneOf;
-import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -1460,7 +1460,7 @@ public class WorkManagerImplTest {
                     .getEligibleWorkForScheduling();
 
             int size = eligibleWorkSpecs != null ? eligibleWorkSpecs.size() : 0;
-            assertThat(size, lessThan(Scheduler.MAX_SCHEDULER_LIMIT));
+            assertThat(size, lessThanOrEqualTo(Scheduler.MAX_SCHEDULER_LIMIT));
         }
     }
 
