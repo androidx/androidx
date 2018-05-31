@@ -145,7 +145,7 @@ public final class EdgeEffectCompat {
      *                     initiating the pull. In the case of touch this is the finger position.
      *                     Values may be from 0-1.
      *
-     * @see {@link EdgeEffect#onPull(float, float)}
+     * @see EdgeEffect#onPull(float, float)
      */
     public static void onPull(@NonNull EdgeEffect edgeEffect, float deltaDistance,
             float displacement) {

@@ -285,7 +285,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add a sub-slice to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Builder addSubSlice(@NonNull Slice slice, String subType) {
             Preconditions.checkNotNull(slice);
@@ -297,7 +297,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add an action to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Slice.Builder addAction(@NonNull PendingIntent action,
                 @NonNull Slice s, @Nullable String subType) {
@@ -312,7 +312,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add an action to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          * @param action Callback to be triggered when a pending intent would normally be fired.
          */
         public Slice.Builder addAction(@NonNull SliceItem.ActionHandler action,
@@ -327,7 +327,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add text to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Builder addText(CharSequence text, @Nullable String subType,
                 @SliceHint String... hints) {
@@ -338,7 +338,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add text to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Builder addText(CharSequence text, @Nullable String subType,
                 @SliceHint List<String> hints) {
@@ -348,7 +348,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add an image to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Builder addIcon(IconCompat icon, @Nullable String subType,
                 @SliceHint String... hints) {
@@ -360,7 +360,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add an image to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Builder addIcon(IconCompat icon, @Nullable String subType,
                 @SliceHint List<String> hints) {
@@ -371,7 +371,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add remote input to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -384,7 +384,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add remote input to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -398,7 +398,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add a int to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Builder addInt(int value, @Nullable String subType,
                 @SliceHint String... hints) {
@@ -409,7 +409,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add a int to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Builder addInt(int value, @Nullable String subType,
                 @SliceHint List<String> hints) {
@@ -419,7 +419,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add a long to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Slice.Builder addLong(long time, @Nullable String subType,
                 @SliceHint String... hints) {
@@ -430,7 +430,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add a long to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Slice.Builder addLong(long time, @Nullable String subType,
                 @SliceHint List<String> hints) {
@@ -440,7 +440,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add a timestamp to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          * @deprecated TO BE REMOVED
          */
         @Deprecated
@@ -453,7 +453,7 @@ public final class Slice implements VersionedParcelable {
         /**
          * Add a timestamp to the slice being constructed
          * @param subType Optional template-specific type information
-         * @see {@link SliceItem#getSubType()}
+         * @see SliceItem#getSubType()
          */
         public Slice.Builder addTimestamp(long time, @Nullable String subType,
                 @SliceHint List<String> hints) {

@@ -415,8 +415,6 @@ public abstract class Parallax<PropertyT extends android.util.Property> {
      * value using the provided fraction of FloatPropertyMarkerValue.
      *
      * @return Size of parent visible area.
-     * @see IntPropertyMarkerValue#IntPropertyMarkerValue(IntProperty, int, float)
-     * @see FloatPropertyMarkerValue#FloatPropertyMarkerValue(FloatProperty, float, float)
      */
     public abstract float getMaxValue();
 
