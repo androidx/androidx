@@ -27,17 +27,10 @@ import java.util.concurrent.Executor;
 class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Callback {
     private final ContiguousDataSource<K, V> mDataSource;
     private boolean mPrependWorkerRunning = false;
-    private boolean mPrependWorkerCancelled = false;
     private boolean mAppendWorkerRunning = false;
-    private boolean mAppendWorkerCancelled = false;
 
     private int mPrependItemsRequested = 0;
     private int mAppendItemsRequested = 0;
-
-    private boolean mReplacePagesWithNulls = false;
-
-    private final boolean mShouldTrim;
-    private final int mRequiredRemainder = mConfig.prefetchDistance * 2 + mConfig.pageSize;
 
     private PageResult.Receiver<V> mReceiver = new PageResult.Receiver<V>() {
         // Creation thread for initial synchronous load, otherwise main thread
@@ -67,20 +60,8 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                             pageResult.leadingNulls + pageResult.positionOffset + page.size() / 2;
                 }
             } else if (resultType == PageResult.APPEND) {
-                if (mAppendWorkerCancelled) {
-                    // drop result
-                    mAppendWorkerRunning = false;
-                    mAppendWorkerCancelled = false;
-                    return;
-                } else {
-                    mStorage.appendPage(page, ContiguousPagedList.this);
-                }
+                mStorage.appendPage(page, ContiguousPagedList.this);
             } else if (resultType == PageResult.PREPEND) {
-                if (mPrependWorkerCancelled) {
-                    // drop result
-                    mPrependWorkerRunning = false;
-                    mPrependWorkerCancelled = false;
-                }
                 mStorage.prependPage(page, ContiguousPagedList.this);
             } else {
                 throw new IllegalArgumentException("unexpected resultType " + resultType);
@@ -125,8 +106,6 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                     mMainThreadExecutor,
                     mReceiver);
         }
-        mShouldTrim = mDataSource.supportsPageDropping()
-                && mConfig.maxSize != Config.MAX_SIZE_UNBOUNDED;
     }
 
     @MainThread
@@ -179,22 +158,12 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         }
     }
 
-    static int getPrependItemsRequested(int prefetchDistance, int index, int leadingNulls) {
-        return prefetchDistance - (index - leadingNulls);
-    }
-
-    static int getAppendItemsRequested(
-            int prefetchDistance, int index, int itemsBeforeTrailingNulls) {
-        return index + prefetchDistance + 1 - itemsBeforeTrailingNulls;
-    }
-
     @MainThread
     @Override
     protected void loadAroundInternal(int index) {
-        int prependItems = getPrependItemsRequested(mConfig.prefetchDistance, index,
-                mStorage.getLeadingNullCount());
-        int appendItems = getAppendItemsRequested(mConfig.prefetchDistance, index,
-                mStorage.getLeadingNullCount() + mStorage.getStorageCount());
+        int prependItems = mConfig.prefetchDistance - (index - mStorage.getLeadingNullCount());
+        int appendItems = index + mConfig.prefetchDistance
+                - (mStorage.getLeadingNullCount() + mStorage.getStorageCount());
 
         mPrependItemsRequested = Math.max(prependItems, mPrependItemsRequested);
         if (mPrependItemsRequested > 0) {
@@ -284,9 +253,6 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
     @Override
     public void onInitialized(int count) {
         notifyInserted(0, count);
-        // simple heuristic to decide if, when dropping pages, we should replace with placeholders
-        mReplacePagesWithNulls =
-                mStorage.getLeadingNullCount() > 0 || mStorage.getTrailingNullCount() > 0;
     }
 
     @MainThread
@@ -305,23 +271,13 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         notifyInserted(0, addedCount);
 
         offsetBoundaryAccessIndices(addedCount);
-
-        if (mShouldTrim) {
-            if (mStorage.needsTrimFromEnd(mConfig.maxSize, mRequiredRemainder)) {
-                if (mAppendWorkerRunning) {
-                    mAppendWorkerCancelled = true;
-                    mAppendItemsRequested = 0;
-                }
-                mStorage.trimFromEnd(mReplacePagesWithNulls,
-                        mConfig.maxSize, mRequiredRemainder, this);
-            }
-        }
     }
 
     @MainThread
     @Override
     public void onPageAppended(int endPosition, int changedCount, int addedCount) {
         // consider whether to post more work, now that a page is fully appended
+
         mAppendItemsRequested = mAppendItemsRequested - changedCount - addedCount;
         mAppendWorkerRunning = false;
         if (mAppendItemsRequested > 0) {
@@ -332,16 +288,6 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         // finally dispatch callbacks, after append may have already been scheduled
         notifyChanged(endPosition, changedCount);
         notifyInserted(endPosition + changedCount, addedCount);
-
-        if (mShouldTrim && mStorage.needsTrimFromFront(mConfig.maxSize, mRequiredRemainder)) {
-            if (mPrependWorkerRunning) {
-                // cancel any prepends
-                mPrependWorkerCancelled = true;
-                mPrependItemsRequested = 0;
-            }
-            mStorage.trimFromFront(mReplacePagesWithNulls,
-                    mConfig.maxSize, mRequiredRemainder, this);
-        }
     }
 
     @MainThread
@@ -354,15 +300,5 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
     @Override
     public void onPageInserted(int start, int count) {
         throw new IllegalStateException("Tiled callback on ContiguousPagedList");
-    }
-
-    @Override
-    public void onPagesRemoved(int startOfDrops, int count) {
-        notifyRemoved(startOfDrops, count);
-    }
-
-    @Override
-    public void onPagesSwappedToPlaceholder(int startOfDrops, int count) {
-        notifyChanged(startOfDrops, count);
     }
 }
