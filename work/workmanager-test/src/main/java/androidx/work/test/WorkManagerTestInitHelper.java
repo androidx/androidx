@@ -34,17 +34,30 @@ import java.util.UUID;
  */
 public final class WorkManagerTestInitHelper {
     /**
-     * Initializes {@link androidx.work.WorkManager} with a {@link SynchronousExecutor}.
+     * Initializes a test {@link androidx.work.WorkManager} with a {@link SynchronousExecutor}.
      *
      * @param context The application {@link Context}
      */
     public static void initializeTestWorkManager(@NonNull Context context) {
-        setupSynchronousTaskExecutor();
         SynchronousExecutor synchronousExecutor = new SynchronousExecutor();
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(synchronousExecutor)
                 .build();
+        initializeTestWorkManager(context, configuration);
+    }
 
+    /**
+     * Initializes a test {@link androidx.work.WorkManager} with a user-specified
+     * {@link androidx.work.Configuration}.
+     *
+     * @param context The application {@link Context}
+     * @param configuration The {@link androidx.work.Configuration}
+     */
+    public static void initializeTestWorkManager(
+            @NonNull Context context,
+            @NonNull Configuration configuration) {
+
+        setupSynchronousTaskExecutor();
         final TestScheduler scheduler = new TestScheduler();
         WorkManagerImpl workManager = new TestWorkManagerImpl(context, configuration) {
             @NonNull
