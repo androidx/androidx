@@ -691,21 +691,24 @@ public class SampleSliceProvider extends SliceProvider {
         return lb.build();
     }
 
+    public static int sStarRating = 8;
+
     private Slice createStarRatingInputRange(Uri sliceUri) {
         IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
         SliceAction primaryAction =
                 new SliceAction(getBroadcastIntent(ACTION_TOAST, "open star rating"),
                         icon, "Rate");
+        String subtitle = "Rated " + sStarRating;
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffff4081)
                 .addInputRange(c -> c
                         .setTitle("Star rating")
-                        .setSubtitle("Rate from 5 to 10 because it's weird")
+                        .setSubtitle(subtitle)
                         .setMin(5)
                         .setThumb(icon)
                         .setInputAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
-                        .setMax(10)
-                        .setValue(8)
+                        .setMax(100)
+                        .setValue(sStarRating)
                         .setPrimaryAction(primaryAction)
                         .setContentDescription("Slider for star ratings"))
                 .build();

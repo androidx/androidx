@@ -16,6 +16,7 @@
 
 package androidx.slice;
 
+import static android.app.slice.Slice.SUBTYPE_RANGE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_BUNDLE;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -24,6 +25,8 @@ import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Class used to see if two Slices are structurally equivalent ignoring
@@ -39,6 +42,17 @@ public class SliceStructure {
      * Create a SliceStructure.
      */
     public SliceStructure(Slice s) {
+        StringBuilder str = new StringBuilder();
+        getStructure(s, str);
+        mStructure = str.toString();
+    }
+
+    /**
+     * Create a SliceStructure.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public SliceStructure(SliceItem s) {
         StringBuilder str = new StringBuilder();
         getStructure(s, str);
         mStructure = str.toString();
@@ -71,6 +85,9 @@ public class SliceStructure {
                 break;
             case FORMAT_ACTION:
                 str.append('a');
+                if (SUBTYPE_RANGE.equals(item.getSubType())) {
+                    str.append('r');
+                }
                 getStructure(item.getSlice(), str);
                 break;
             case FORMAT_TEXT:

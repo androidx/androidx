@@ -250,7 +250,8 @@ public class SliceMetadata {
     public boolean sendToggleAction(SliceAction toggleAction, boolean toggleValue)
             throws PendingIntent.CanceledException {
         if (toggleAction != null) {
-            Intent intent = new Intent().putExtra(EXTRA_TOGGLE_STATE, toggleValue);
+            Intent intent = new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                    .putExtra(EXTRA_TOGGLE_STATE, toggleValue);
             toggleAction.getAction().send(mContext, 0, intent, null, null);
             return true;
         }
@@ -288,7 +289,9 @@ public class SliceMetadata {
                 // Ensure new value is valid
                 Pair<Integer, Integer> validRange = getRange();
                 int adjustedValue = MathUtils.clamp(newValue, validRange.first, validRange.second);
-                Intent intent = new Intent().putExtra(EXTRA_RANGE_VALUE, adjustedValue);
+                Intent intent = new Intent()
+                        .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                        .putExtra(EXTRA_RANGE_VALUE, adjustedValue);
                 range.fireAction(mContext, intent);
                 return true;
             }
