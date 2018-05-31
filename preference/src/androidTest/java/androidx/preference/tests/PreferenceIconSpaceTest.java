@@ -24,6 +24,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
@@ -43,6 +44,7 @@ import org.mockito.MockitoAnnotations;
 /**
  * Test for reserving icon space in {@link Preference}.
  */
+@SdkSuppress(maxSdkVersion = 27) // This test only works pre-P due to mocking final methods.
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class PreferenceIconSpaceTest {
