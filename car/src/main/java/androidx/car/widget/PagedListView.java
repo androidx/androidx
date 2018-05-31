@@ -986,11 +986,34 @@ public class PagedListView extends FrameLayout {
             mLastItemCount = itemCount;
         }
 
-        // We need to update the scroll buttons after layout has happened.
-        // Determining if a scrollbar is necessary requires looking at the layout of the child
-        // views. Therefore, this determination can only be done after layout has happened.
-        // Note: don't animate here to prevent b/26849677
-        updatePaginationButtons(false /*animate*/);
+        if (!mScrollBarEnabled) {
+            // Don't change the visibility of the ScrollBar unless it's enabled.
+            return;
+        }
+
+        boolean isAtStart = isAtStart();
+        boolean isAtEnd = isAtEnd();
+
+        if ((isAtStart && isAtEnd) || layoutManager.getItemCount() == 0) {
+            mScrollBarView.setVisibility(View.INVISIBLE);
+            return;
+        }
+
+        mScrollBarView.setVisibility(View.VISIBLE);
+        mScrollBarView.setUpEnabled(!isAtStart);
+        mScrollBarView.setDownEnabled(!isAtEnd);
+
+        if (mRecyclerView.getLayoutManager().canScrollVertically()) {
+            mScrollBarView.setParametersInLayout(
+                    mRecyclerView.computeVerticalScrollRange(),
+                    mRecyclerView.computeVerticalScrollOffset(),
+                    mRecyclerView.computeVerticalScrollExtent());
+        } else {
+            mScrollBarView.setParametersInLayout(
+                    mRecyclerView.computeHorizontalScrollRange(),
+                    mRecyclerView.computeHorizontalScrollOffset(),
+                    mRecyclerView.computeHorizontalScrollExtent());
+        }
     }
 
     /**
