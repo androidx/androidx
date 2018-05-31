@@ -28,6 +28,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.UiThreadTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -60,6 +61,7 @@ public class SynchronousActivityLifecycleTest {
                 activity -> getInstrumentation().callActivityOnCreate(activity, null));
     }
 
+    @SdkSuppress(maxSdkVersion = 27)
     @Test
     public void testOnStartCall() throws Throwable {
         testSynchronousCall(Lifecycle.Event.ON_START,
@@ -67,6 +69,7 @@ public class SynchronousActivityLifecycleTest {
                 SynchronousActivityLifecycleTest::performStart);
     }
 
+    @SdkSuppress(maxSdkVersion = 27)
     @Test
     public void testOnResumeCall() throws Throwable {
         testSynchronousCall(Lifecycle.Event.ON_RESUME,
@@ -77,6 +80,7 @@ public class SynchronousActivityLifecycleTest {
                 SynchronousActivityLifecycleTest::performResume);
     }
 
+    @SdkSuppress(maxSdkVersion = 27)
     @Test
     public void testOnStopCall() throws Throwable {
         testSynchronousCall(Lifecycle.Event.ON_STOP,
