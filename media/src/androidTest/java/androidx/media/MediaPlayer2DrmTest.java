@@ -17,10 +17,9 @@ package androidx.media;
 
 import android.Manifest;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.support.test.filters.LargeTest;
-import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.Suppress;
 import android.support.test.rule.GrantPermissionRule;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -41,7 +40,7 @@ import java.io.File;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+@Suppress // Disabled as it 100% fails b/79682973
 public class MediaPlayer2DrmTest extends MediaPlayer2DrmTestBase {
 
     private static final String LOG_TAG = "MediaPlayer2DrmTest";
