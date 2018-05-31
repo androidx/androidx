@@ -182,11 +182,11 @@ public class WorkerWrapper implements Runnable {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void interrupt() {
+    public void interrupt(boolean cancelled) {
         mInterrupted = true;
         // Worker can be null if run() hasn't been called yet.
         if (mWorker != null) {
-            mWorker.stop();
+            mWorker.stop(cancelled);
         }
     }
 
