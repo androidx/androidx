@@ -20,7 +20,6 @@ import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_INT;
 
 import android.app.PendingIntent;
-import android.app.slice.SliceMetrics;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
@@ -39,7 +38,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
@@ -755,19 +753,18 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     private void initSliceMetrics(@Nullable Slice slice) {
-        if (BuildCompat.isAtLeastP()) {
-            if (slice == null || slice.getUri() == null) {
-                logSliceMetricsVisibilityChange(false);
-                mCurrentSliceMetrics = null;
-            } else if (mCurrentSlice == null || !mCurrentSlice.getUri().equals(slice.getUri())) {
-                logSliceMetricsVisibilityChange(false);
-                mCurrentSliceMetrics = new SliceMetrics(getContext(), slice.getUri());
-            }
+        if (slice == null || slice.getUri() == null) {
+            logSliceMetricsVisibilityChange(false);
+            mCurrentSliceMetrics = null;
+        } else if (mCurrentSlice == null || !mCurrentSlice.getUri().equals(slice.getUri())) {
+            logSliceMetricsVisibilityChange(false);
+            mCurrentSliceMetrics =
+                    SliceMetrics.getInstance(getContext(), slice.getUri());
         }
     }
 
     private void logSliceMetricsVisibilityChange(boolean visibility) {
-        if (BuildCompat.isAtLeastP() && mCurrentSliceMetrics != null) {
+        if (mCurrentSliceMetrics != null) {
             if (visibility && !mCurrentSliceLoggedVisible) {
                 mCurrentSliceMetrics.logVisible();
                 mCurrentSliceLoggedVisible = true;
@@ -780,7 +777,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     private void logSliceMetricsOnTouch(SliceItem item, EventInfo info) {
-        if (BuildCompat.isAtLeastP() && mCurrentSliceMetrics != null) {
+        if (mCurrentSliceMetrics != null) {
             if (item.getSlice() != null && item.getSlice().getUri() != null) {
                 mCurrentSliceMetrics.logTouch(
                         info.actionType,
