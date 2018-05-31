@@ -23,6 +23,9 @@ limitations under the License.
     <string name="car_drawer_close" translatable="false">Close drawer</string>
     <string name="ellipsis" translatable="false">&#8230;</string>
 
+    <!-- Placeholder text that appears within the button that activates AlphaJump. -->
+    <string name="alpha_jump_placeholder_text" translatable="false">A</string>
+
     <!-- Speed Bump -->
     <!-- The message that is displayed to the user to inform them that they should focus on the
          task of driving. When this message is displayed, the user is also locked out from
