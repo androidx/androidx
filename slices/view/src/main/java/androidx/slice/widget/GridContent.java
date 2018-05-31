@@ -119,15 +119,7 @@ public class GridContent {
         mAllImages = true;
         if (FORMAT_SLICE.equals(gridItem.getFormat())) {
             List<SliceItem> items = gridItem.getSlice().getItems();
-            if (items.size() == 1 && FORMAT_SLICE.equals(items.get(0).getFormat())) {
-                // TODO: this can be removed at release
-                items = items.get(0).getSlice().getItems();
-            }
             items = filterAndProcessItems(items);
-            // Check if it it's only one item that is a slice
-            if (items.size() == 1 && items.get(0).getFormat().equals(FORMAT_SLICE)) {
-                items = items.get(0).getSlice().getItems();
-            }
             for (int i = 0; i < items.size(); i++) {
                 SliceItem item = items.get(i);
                 if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {

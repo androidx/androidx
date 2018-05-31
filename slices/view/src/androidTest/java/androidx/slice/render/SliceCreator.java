@@ -85,6 +85,7 @@ public class SliceCreator {
             "rtlgrid",
             "translate",
             "slices",
+            "cat",
     };
 
     private final Context mContext;
@@ -157,6 +158,8 @@ public class SliceCreator {
                 return createRtlGridSlice(sliceUri);
             case "/slices":
                 return createFoodOptionsSlice(sliceUri);
+            case "/cat":
+                return createBigPicSlice(sliceUri);
         }
         throw new IllegalArgumentException("Unknown uri " + sliceUri);
     }
@@ -717,6 +720,20 @@ public class SliceCreator {
         }
         lb.addGridRow(grb);
         return lb.build();
+    }
+
+    private Slice createBigPicSlice(Uri sliceUri) {
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
+        GridRowBuilder gb = new GridRowBuilder(b);
+        PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "Cats you follow");
+        IconCompat ic = IconCompat.createWithResource(getContext(), R.drawable.cat);
+        SliceAction primaryAction = new SliceAction(pi, ic, LARGE_IMAGE, "Cats you follow");
+        gb.setPrimaryAction(primaryAction);
+        gb.addCell(new GridRowBuilder.CellBuilder(gb)
+                .addImage(ic, LARGE_IMAGE)
+                .addTitleText("This is a nice cat").addText("Who is she"));
+        b.addGridRow(gb);
+        return b.build();
     }
 
     private SliceAction getSpeakWordAction(String word) {
