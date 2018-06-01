@@ -549,6 +549,6 @@ public final class Slice implements VersionedParcelable {
     private static Slice callBindSlice(Context context, Uri uri,
             Set<SliceSpec> supportedSpecs) {
         return SliceConvert.wrap(context.getSystemService(SliceManager.class)
-                .bindSlice(uri, unwrap(supportedSpecs)));
+                .bindSlice(uri, unwrap(supportedSpecs)), context);
     }
 }
