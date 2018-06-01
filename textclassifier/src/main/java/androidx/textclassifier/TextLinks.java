@@ -384,7 +384,9 @@ public final class TextLinks {
         public Bundle toBundle() {
             final Bundle bundle = new Bundle();
             bundle.putCharSequence(EXTRA_TEXT, mText);
-            bundle.putBundle(EXTRA_ENTITY_CONFIG, mEntityConfig.toBundle());
+            if (mEntityConfig != null) {
+                bundle.putBundle(EXTRA_ENTITY_CONFIG, mEntityConfig.toBundle());
+            }
             BundleUtils.putLocaleList(bundle, EXTRA_DEFAULT_LOCALES, mDefaultLocales);
             return bundle;
         }
@@ -395,9 +397,11 @@ public final class TextLinks {
         @NonNull
         public static Request createFromBundle(@NonNull Bundle bundle) {
             Builder builder = new Builder(bundle.getCharSequence(EXTRA_TEXT))
-                    .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES))
-                    .setEntityConfig(EntityConfig.createFromBundle(
-                            bundle.getBundle(EXTRA_ENTITY_CONFIG)));
+                    .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES));
+            if (bundle.getBundle(EXTRA_ENTITY_CONFIG) != null) {
+                builder.setEntityConfig(EntityConfig.createFromBundle(
+                        bundle.getBundle(EXTRA_ENTITY_CONFIG)));
+            }
             Request request = builder.build();
             return request;
         }
