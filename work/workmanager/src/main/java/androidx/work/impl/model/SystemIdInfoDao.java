@@ -24,33 +24,31 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
- * A Data Access Object for {@link AlarmInfo}.
+ * A Data Access Object for {@link SystemIdInfo}.
  */
 @Dao
-public interface AlarmInfoDao {
-
+public interface SystemIdInfoDao {
     /**
-     * Inserts a {@link AlarmInfo} into the database.
+     * Inserts a {@link SystemIdInfo} into the database.
      *
-     * @param alarmInfo The {@link AlarmInfo} to be inserted into the database.
+     * @param systemIdInfo The {@link SystemIdInfo} to be inserted into the database.
      */
     @Insert(onConflict = OnConflictStrategy.FAIL)
-    void insertAlarmInfo(@NonNull AlarmInfo alarmInfo);
+    void insertSystemIdInfo(@NonNull SystemIdInfo systemIdInfo);
 
     /**
      * @param workSpecId The {@link WorkSpec} identifier.
-     * @return The instance of {@link AlarmInfo} if exists.
+     * @return The instance of {@link SystemIdInfo} if exists.
      */
     @Nullable
-    @Query("SELECT * FROM alarmInfo WHERE work_spec_id=:workSpecId")
-    AlarmInfo getAlarmInfo(@NonNull String workSpecId);
+    @Query("SELECT * FROM systemIdInfo WHERE work_spec_id=:workSpecId")
+    SystemIdInfo getSystemIdInfo(@NonNull String workSpecId);
 
     /**
-     * Removes alarms corresponding to the {@link WorkSpec} identifier.
+     * Removes {@link SystemIdInfo} corresponding to the {@link WorkSpec} identifier.
      *
      * @param workSpecId The {@link WorkSpec} identifier.
      */
-    @Query("DELETE FROM alarmInfo where work_spec_id=:workSpecId")
-    void removeAlarmInfo(@NonNull String workSpecId);
-
+    @Query("DELETE FROM systemIdInfo where work_spec_id=:workSpecId")
+    void removeSystemIdInfo(@NonNull String workSpecId);
 }

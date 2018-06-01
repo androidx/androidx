@@ -29,8 +29,8 @@ import android.util.Log;
 
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.model.AlarmInfo;
-import androidx.work.impl.model.AlarmInfoDao;
+import androidx.work.impl.model.SystemIdInfo;
+import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.utils.IdGenerator;
 
 /**
@@ -58,22 +58,22 @@ class Alarms {
             long triggerAtMillis) {
 
         WorkDatabase workDatabase = workManager.getWorkDatabase();
-        AlarmInfoDao alarmInfoDao = workDatabase.alarmInfoDao();
-        AlarmInfo alarmInfo = alarmInfoDao.getAlarmInfo(workSpecId);
-        if (alarmInfo != null) {
-            cancelExactAlarm(context, workSpecId, alarmInfo.alarmId);
-            setExactAlarm(context, workSpecId, alarmInfo.alarmId, triggerAtMillis);
+        SystemIdInfoDao systemIdInfoDao = workDatabase.systemIdInfoDao();
+        SystemIdInfo systemIdInfo = systemIdInfoDao.getSystemIdInfo(workSpecId);
+        if (systemIdInfo != null) {
+            cancelExactAlarm(context, workSpecId, systemIdInfo.systemId);
+            setExactAlarm(context, workSpecId, systemIdInfo.systemId, triggerAtMillis);
         } else {
             IdGenerator idGenerator = new IdGenerator(context);
             int alarmId = idGenerator.nextAlarmManagerId();
-            AlarmInfo newAlarmInfo = new AlarmInfo(workSpecId, alarmId);
-            alarmInfoDao.insertAlarmInfo(newAlarmInfo);
+            SystemIdInfo newSystemIdInfo = new SystemIdInfo(workSpecId, alarmId);
+            systemIdInfoDao.insertSystemIdInfo(newSystemIdInfo);
             setExactAlarm(context, workSpecId, alarmId, triggerAtMillis);
         }
     }
 
     /**
-     * Cancels an existing alarm and removes the {@link AlarmInfo}.
+     * Cancels an existing alarm and removes the {@link SystemIdInfo}.
      *
      * @param context     The application {@link Context}.
      * @param workManager The instance of {@link WorkManagerImpl}.
@@ -85,12 +85,12 @@ class Alarms {
             @NonNull String workSpecId) {
 
         WorkDatabase workDatabase = workManager.getWorkDatabase();
-        AlarmInfoDao alarmInfoDao = workDatabase.alarmInfoDao();
-        AlarmInfo alarmInfo = alarmInfoDao.getAlarmInfo(workSpecId);
-        if (alarmInfo != null) {
-            cancelExactAlarm(context, workSpecId, alarmInfo.alarmId);
-            Log.d(TAG, String.format("Removing AlarmInfo for workSpecId (%s)", workSpecId));
-            alarmInfoDao.removeAlarmInfo(workSpecId);
+        SystemIdInfoDao systemIdInfoDao = workDatabase.systemIdInfoDao();
+        SystemIdInfo systemIdInfo = systemIdInfoDao.getSystemIdInfo(workSpecId);
+        if (systemIdInfo != null) {
+            cancelExactAlarm(context, workSpecId, systemIdInfo.systemId);
+            Log.d(TAG, String.format("Removing SystemIdInfo for workSpecId (%s)", workSpecId));
+            systemIdInfoDao.removeSystemIdInfo(workSpecId);
         }
     }
 
@@ -105,7 +105,7 @@ class Alarms {
                 context, alarmId, delayMet, PendingIntent.FLAG_NO_CREATE);
         if (pendingIntent != null && alarmManager != null) {
             Log.d(TAG, String.format(
-                    "Cancelling existing alarm with (workSpecId, alarmId) (%s, %s)",
+                    "Cancelling existing alarm with (workSpecId, systemId) (%s, %s)",
                     workSpecId,
                     alarmId));
             alarmManager.cancel(pendingIntent);
