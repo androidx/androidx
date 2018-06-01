@@ -153,6 +153,17 @@ public interface WorkSpecDao {
     WorkSpec.WorkStatusPojo getWorkStatusPojoForId(String id);
 
     /**
+     * For a list of {@link WorkSpec} identifiers, retrieves a {@link List} of their
+     * {@link WorkSpec.WorkStatusPojo}.
+     *
+     * @param ids The identifier of the {@link WorkSpec}s
+     * @return A {@link List} of {@link WorkSpec.WorkStatusPojo}
+     */
+    @Transaction
+    @Query("SELECT id, state, output FROM workspec WHERE id IN (:ids)")
+    List<WorkSpec.WorkStatusPojo> getWorkStatusPojoForIds(List<String> ids);
+
+    /**
      * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their
      * {@link WorkSpec.WorkStatusPojo}.
      *
