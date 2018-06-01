@@ -17,14 +17,10 @@
 package androidx.paging.integration.testapp;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.paging.PagedList;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -42,18 +38,8 @@ public class PagedListSampleActivity extends AppCompatActivity {
         final PagedListItemAdapter adapter = new PagedListItemAdapter();
         final RecyclerView recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setAdapter(adapter);
-        viewModel.getLivePagedList().observe(this, new Observer<PagedList<Item>>() {
-            @Override
-            public void onChanged(@Nullable PagedList<Item> items) {
-                adapter.submitList(items);
-            }
-        });
+        viewModel.getLivePagedList().observe(this, adapter::submitList);
         final Button button = findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewModel.invalidateList();
-            }
-        });
+        button.setOnClickListener(v -> viewModel.invalidateList());
     }
 }
