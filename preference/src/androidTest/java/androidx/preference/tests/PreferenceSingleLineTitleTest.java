@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+@SdkSuppress(maxSdkVersion = 27) // This test only works pre-P due to mocking final methods.
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class PreferenceSingleLineTitleTest {
