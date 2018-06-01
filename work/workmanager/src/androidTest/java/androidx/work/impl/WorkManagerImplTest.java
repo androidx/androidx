@@ -144,7 +144,7 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    public void testEnqueue_insertWork() throws InterruptedException {
+    public void testEnqueue_insertWork() {
         final int workCount = 3;
         final OneTimeWorkRequest[] workArray = new OneTimeWorkRequest[workCount];
         for (int i = 0; i < workCount; ++i) {

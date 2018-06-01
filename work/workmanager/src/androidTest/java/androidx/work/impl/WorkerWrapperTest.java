@@ -58,6 +58,7 @@ import androidx.work.worker.ChainedArgumentWorker;
 import androidx.work.worker.EchoingWorker;
 import androidx.work.worker.ExceptionWorker;
 import androidx.work.worker.FailureWorker;
+import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.InterruptionAwareWorker;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.SleepTestWorker;
@@ -571,7 +572,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                new Extras(Data.EMPTY, Collections.<String>emptyList(), null));
+                new Extras(Data.EMPTY, Collections.<String>emptyList(), null, 1));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getApplicationContext(), is(equalTo(mContext.getApplicationContext())));
@@ -589,7 +590,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                new Extras(input, Collections.<String>emptyList(), null));
+                new Extras(input, Collections.<String>emptyList(), null, 1));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getInputData().getString(key, null), is(expectedValue));
@@ -598,7 +599,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                new Extras(Data.EMPTY, Collections.<String>emptyList(), null));
+                new Extras(Data.EMPTY, Collections.<String>emptyList(), null, 1));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getInputData().size(), is(0));
@@ -616,7 +617,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                new Extras(Data.EMPTY, Arrays.asList("one", "two", "three"), null));
+                new Extras(Data.EMPTY, Arrays.asList("one", "two", "three"), null, 1));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getTags(), containsInAnyOrder("one", "two", "three"));
@@ -634,7 +635,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Worker worker = WorkerWrapper.workerFromWorkSpec(
                 mContext,
                 getWorkSpec(work),
-                new Extras(Data.EMPTY, Collections.<String>emptyList(), runtimeExtras));
+                new Extras(Data.EMPTY, Collections.<String>emptyList(), runtimeExtras, 1));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker.getTriggeredContentAuthorities(),
@@ -711,7 +712,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mContext,
                 InterruptionAwareWorker.class.getName(),
                 work.getId(),
-                new Extras(Data.EMPTY, Collections.<String>emptyList(), null));
+                new Extras(Data.EMPTY, Collections.<String>emptyList(), null, 1));
         assertThat(worker, is(notNullValue()));
         assertThat(worker.isStopped(), is(false));
 
@@ -738,7 +739,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mContext,
                 InterruptionAwareWorker.class.getName(),
                 work.getId(),
-                new Extras(Data.EMPTY, Collections.<String>emptyList(), null));
+                new Extras(Data.EMPTY, Collections.<String>emptyList(), null, 1));
         assertThat(worker, is(notNullValue()));
         assertThat(worker.isStopped(), is(false));
 
@@ -785,5 +786,24 @@ public class WorkerWrapperTest extends DatabaseTest {
         mWorkSpecDao.delete(work.getStringId());
         Thread.sleep(6000L);
         verify(mMockListener).onExecuted(work.getStringId(), false, false);
+    }
+
+    @Test
+    @LargeTest
+    public void testWorker_getsRunAttemptCount() throws InterruptedException {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
+                .setInitialRunAttemptCount(10)
+                .build();
+        insertWork(work);
+
+        WorkerWrapper workerWrapper =
+                new WorkerWrapper.Builder(mContext, mDatabase, work.getStringId())
+                .withSchedulers(Collections.singletonList(mMockScheduler))
+                .withListener(mMockListener)
+                .build();
+
+        Executors.newSingleThreadExecutor().submit(workerWrapper);
+        Thread.sleep(1000L);
+        assertThat(workerWrapper.mWorker.getRunAttemptCount(), is(10));
     }
 }
