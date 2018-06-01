@@ -317,7 +317,7 @@ public class MediaSessionCompatCallbackTest {
     public void testSetCallbackWithNull() throws Exception {
         mSession.setActive(true);
         mCallback.reset(1);
-        mSession.setCallback(null, mHandler);
+        mSession.setCallback(null);
         callTransportControlsMethod(PLAY, null, getContext(), mSession.getSessionToken());
         assertFalse(mCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
         assertEquals("Callback shouldn't be called.", 0, mCallback.mOnPlayCalledCount);
@@ -327,9 +327,6 @@ public class MediaSessionCompatCallbackTest {
      * Tests {@link MediaSessionCompat#setCallback} with {@code null}.
      * From API 28, {@code setCallback(null)} should remove all posted callback messages.
      * Therefore, no callback should be called once {@code setCallback(null)} is done.
-     *
-     * TODO: Change MediaSessionImplBase#setCallbackWithNull implementation so that this test
-     *       can also pass on API 19-.
      */
     @Test
     @SmallTest
@@ -341,7 +338,7 @@ public class MediaSessionCompatCallbackTest {
             @Override
             public void run() {
                 callTransportControlsMethod(PLAY, null, getContext(), mSession.getSessionToken());
-                mSession.setCallback(null, mHandler);
+                mSession.setCallback(null);
             }
         });
         assertFalse(mCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
