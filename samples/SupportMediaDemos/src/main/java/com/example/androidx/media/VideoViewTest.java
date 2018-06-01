@@ -25,8 +25,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -99,14 +97,7 @@ public class VideoViewTest extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setTitle(getViewTypeString(mVideoView));
-    }
-
-    @Override
-    protected void onPause() {
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        super.onPause();
     }
 
     @Override
@@ -145,20 +136,6 @@ public class VideoViewTest extends FragmentActivity {
                             }
                         }).show();
     }
-
-    MediaControllerCompat.Callback mMediaControllerCallback = new MediaControllerCompat.Callback() {
-        @Override
-        public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            switch (state.getState()) {
-                case PlaybackStateCompat.STATE_STOPPED:
-                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                    break;
-                case PlaybackStateCompat.STATE_ERROR:
-                    showErrorDialog("Error: (" + state.getErrorMessage() + ")");
-                    break;
-            }
-        }
-    };
 
     private class FullScreenListener
             implements MediaControlView2.OnFullScreenListener {

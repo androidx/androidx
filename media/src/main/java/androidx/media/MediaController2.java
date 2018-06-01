@@ -889,7 +889,7 @@ public class MediaController2 implements AutoCloseable {
          * Called when the player state is changed.
          *
          * @param controller the controller for this event
-         * @param state the player state which is newly set
+         * @param state the new player state
          */
         public void onPlayerStateChanged(@NonNull MediaController2 controller,
                 @BaseMediaPlayer.PlayerState int state) { }
