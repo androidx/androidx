@@ -164,6 +164,14 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Override
+    public List<WorkStatus> getStatusesSync() {
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            throw new IllegalStateException("Cannot getStatusesSync on main thread!");
+        }
+        return mWorkManagerImpl.getStatusesByIdSync(mAllIds);
+    }
+
+    @Override
     public void enqueue() {
         // Only enqueue if not already enqueued.
         if (!mEnqueued) {

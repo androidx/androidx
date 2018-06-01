@@ -18,6 +18,8 @@ package androidx.work;
 
 import android.support.annotation.WorkerThread;
 
+import java.util.List;
+
 /**
  * Blocking methods for {@link WorkContinuation} operations.  These methods are expected to be
  * called from a background thread.
@@ -31,4 +33,13 @@ public interface SynchronousWorkContinuation {
      */
     @WorkerThread
     void enqueueSync();
+
+    /**
+     * Returns a {@link List} of {@link WorkStatus} that provides information about work,
+     * their progress, and any resulting output in the {@link WorkContinuation}.
+     *
+     * @return A {@link  List} of {@link WorkStatus}es
+     */
+    @WorkerThread
+    List<WorkStatus> getStatusesSync();
 }
