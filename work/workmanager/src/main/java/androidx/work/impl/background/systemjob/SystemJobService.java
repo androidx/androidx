@@ -90,12 +90,16 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
         Extras.RuntimeExtras runtimeExtras = null;
         if (Build.VERSION.SDK_INT >= 24) {
+            runtimeExtras = new Extras.RuntimeExtras();
             if (params.getTriggeredContentUris() != null
                     || params.getTriggeredContentAuthorities() != null) {
-                runtimeExtras = new Extras.RuntimeExtras();
                 runtimeExtras.triggeredContentUris = params.getTriggeredContentUris();
                 runtimeExtras.triggeredContentAuthorities =
                         params.getTriggeredContentAuthorities();
+            }
+
+            if (Build.VERSION.SDK_INT >= 28) {
+                runtimeExtras.network = params.getNetwork();
             }
         }
 
