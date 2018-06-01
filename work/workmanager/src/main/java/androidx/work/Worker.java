@@ -17,6 +17,7 @@
 package androidx.work;
 
 import android.content.Context;
+import android.net.Network;
 import android.net.Uri;
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
@@ -133,6 +134,18 @@ public abstract class Worker {
     public final @Nullable String[] getTriggeredContentAuthorities() {
         Extras.RuntimeExtras runtimeExtras = mExtras.getRuntimeExtras();
         return (runtimeExtras == null) ? null : runtimeExtras.triggeredContentAuthorities;
+    }
+
+    /**
+     * Gets the {@link Network} to use for this Worker, if any.  If this value is {@code null}, the
+     * Worker may use the default network.
+     *
+     * @return The {@link Network} specified by the OS to be used with this Worker
+     */
+    @RequiresApi(28)
+    public final @Nullable Network getNetwork() {
+        Extras.RuntimeExtras runtimeExtras = mExtras.getRuntimeExtras();
+        return (runtimeExtras == null) ? null : runtimeExtras.network;
     }
 
     /**
