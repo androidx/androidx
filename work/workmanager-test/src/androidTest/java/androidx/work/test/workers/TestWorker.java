@@ -24,10 +24,9 @@ import androidx.work.Worker;
 public class TestWorker extends Worker {
     private static final String TAG = "TestWorker";
 
-    @NonNull
     @Override
-    public WorkerResult doWork() {
+    public @NonNull Result doWork() {
         Log.i(TAG, "Doing work.");
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 }

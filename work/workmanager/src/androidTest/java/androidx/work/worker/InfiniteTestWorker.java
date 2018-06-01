@@ -27,7 +27,7 @@ import androidx.work.Worker;
 public class InfiniteTestWorker extends Worker {
 
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         while (true) {
         }
     }

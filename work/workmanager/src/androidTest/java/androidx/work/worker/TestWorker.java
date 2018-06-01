@@ -28,8 +28,8 @@ import androidx.work.Worker;
 public class TestWorker extends Worker {
 
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         Log.d("TestWorker", "TestWorker Ran!");
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 }

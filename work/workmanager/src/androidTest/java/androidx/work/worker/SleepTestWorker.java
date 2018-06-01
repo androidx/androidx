@@ -29,13 +29,13 @@ public class SleepTestWorker extends Worker {
     public static final long SLEEP_DURATION = 5000;
 
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         try {
             Log.d("SleepTestWorker", "Sleeping : " + SLEEP_DURATION);
             Thread.sleep(SLEEP_DURATION);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 }
