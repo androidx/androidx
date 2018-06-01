@@ -139,6 +139,28 @@ public abstract class Navigator<D extends NavDestination> {
     public abstract boolean popBackStack();
 
     /**
+     * Called to ask for a {@link Bundle} representing the Navigator's state. This will be
+     * restored in {@link #onRestoreState(Bundle)}.
+     */
+    @Nullable
+    public Bundle onSaveState() {
+        return null;
+    }
+
+    /**
+     * Restore any state previously saved in {@link #onSaveState()}. This will be called before
+     * any calls to {@link #navigate(NavDestination, Bundle, NavOptions)} or
+     * {@link #popBackStack()}.
+     * <p>
+     * Calls to {@link #createDestination()} should not be dependent on any state restored here as
+     * {@link #createDestination()} can be called before the state is restored.
+     *
+     * @param savedState The state previously saved
+     */
+    public void onRestoreState(@NonNull Bundle savedState) {
+    }
+
+    /**
      * Add a listener to be notified when this navigator changes navigation destinations.
      *
      * <p>Most application code should use
