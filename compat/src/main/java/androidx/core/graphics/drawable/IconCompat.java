@@ -196,23 +196,24 @@ public class IconCompat extends CustomVersionedParcelable {
         if (context == null) {
             throw new IllegalArgumentException("Context must not be null.");
         }
-        final IconCompat rep = new IconCompat(TYPE_RESOURCE);
-        rep.mInt1 = resId;
-        rep.mObj1 = context.getPackageName();
-        return rep;
+        return createWithResource(context.getResources(), context.getPackageName(), resId);
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public static IconCompat createWithResource(String pkg, @DrawableRes int resId) {
+    public static IconCompat createWithResource(Resources r, String pkg, @DrawableRes int resId) {
         if (pkg == null) {
             throw new IllegalArgumentException("Package must not be null.");
         }
         final IconCompat rep = new IconCompat(TYPE_RESOURCE);
         rep.mInt1 = resId;
-        rep.mObj1 = pkg;
+        if (r != null) {
+            rep.mObj1 = r.getResourceName(resId);
+        } else {
+            rep.mObj1 = pkg;
+        }
         return rep;
     }
 
@@ -335,7 +336,7 @@ public class IconCompat extends CustomVersionedParcelable {
         if (mType != TYPE_RESOURCE) {
             throw new IllegalStateException("called getResPackage() on " + this);
         }
-        return (String) mObj1;
+        return ((String) mObj1).split(":")[0];
     }
 
     /**
@@ -427,7 +428,7 @@ public class IconCompat extends CustomVersionedParcelable {
                 }
                 break;
             case TYPE_RESOURCE:
-                icon = Icon.createWithResource((String) mObj1, mInt1);
+                icon = Icon.createWithResource(getResPackage(), mInt1);
                 break;
             case TYPE_DATA:
                 icon = Icon.createWithData((byte[]) mObj1, mInt1, mInt2);
@@ -447,7 +448,29 @@ public class IconCompat extends CustomVersionedParcelable {
         return icon;
     }
 
-
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void checkResource(Context context) {
+        if (mType == TYPE_RESOURCE) {
+            String resPackage = (String) mObj1;
+            if (!resPackage.contains(":")) {
+                return;
+            }
+            // Do some splitting to parse out each of the components.
+            String resName = resPackage.split(":")[1];
+            String resType = resName.split("/")[0];
+            resName = resName.split("/")[1];
+            resPackage = resPackage.split(":")[0];
+            Resources res = getResources(context, resPackage);
+            int id = res.getIdentifier(resName, resType, resPackage);
+            if (mInt1 != id) {
+                Log.i(TAG, "Id has changed for " + resPackage + "/" + resName);
+                mInt1 = id;
+            }
+        }
+    }
 
     /**
      * Returns a Drawable that can be used to draw the image inside this Icon, constructing it
@@ -458,6 +481,7 @@ public class IconCompat extends CustomVersionedParcelable {
      * @return A fresh instance of a drawable for this image, yours to keep.
      */
     public Drawable loadDrawable(Context context) {
+        checkResource(context);
         if (Build.VERSION.SDK_INT >= 23) {
             return toIcon().loadDrawable(context);
         }
@@ -482,31 +506,13 @@ public class IconCompat extends CustomVersionedParcelable {
                 return new BitmapDrawable(context.getResources(),
                         createLegacyIconFromAdaptiveIcon((Bitmap) mObj1, false));
             case TYPE_RESOURCE:
-                Resources res;
                 // figure out where to load resources from
-                String resPackage = (String) mObj1;
+                String resPackage = getResPackage();
                 if (TextUtils.isEmpty(resPackage)) {
                     // if none is specified, try the given context
                     resPackage = context.getPackageName();
                 }
-                if ("android".equals(resPackage)) {
-                    res = Resources.getSystem();
-                } else {
-                    final PackageManager pm = context.getPackageManager();
-                    try {
-                        ApplicationInfo ai = pm.getApplicationInfo(
-                                resPackage, PackageManager.MATCH_UNINSTALLED_PACKAGES);
-                        if (ai != null) {
-                            res = pm.getResourcesForApplication(ai);
-                        } else {
-                            break;
-                        }
-                    } catch (PackageManager.NameNotFoundException e) {
-                        Log.e(TAG, String.format("Unable to find pkg=%s for icon %s",
-                                resPackage, this), e);
-                        break;
-                    }
-                }
+                Resources res = getResources(context, resPackage);
                 try {
                     return ResourcesCompat.getDrawable(res, mInt1, context.getTheme());
                 } catch (RuntimeException e) {
@@ -547,6 +553,28 @@ public class IconCompat extends CustomVersionedParcelable {
         return null;
     }
 
+    private static Resources getResources(Context context, String resPackage) {
+        if ("android".equals(resPackage)) {
+            return Resources.getSystem();
+        } else {
+            final PackageManager pm = context.getPackageManager();
+            try {
+                ApplicationInfo ai = pm.getApplicationInfo(
+                        resPackage, PackageManager.MATCH_UNINSTALLED_PACKAGES);
+                if (ai != null) {
+                    return pm.getResourcesForApplication(ai);
+                } else {
+                    return null;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.e(TAG, String.format("Unable to find pkg=%s for icon",
+                        resPackage), e);
+                return null;
+            }
+        }
+    }
+
+
     /**
      * @hide
      */
@@ -554,6 +582,7 @@ public class IconCompat extends CustomVersionedParcelable {
     @SuppressWarnings("deprecation")
     public void addToShortcutIntent(@NonNull Intent outIntent, @Nullable Drawable badge,
             @NonNull Context c) {
+        checkResource(c);
         Bitmap icon;
         switch (mType) {
             case TYPE_BITMAP:
@@ -568,7 +597,7 @@ public class IconCompat extends CustomVersionedParcelable {
                 break;
             case TYPE_RESOURCE:
                 try {
-                    Context context = c.createPackageContext((String) mObj1, 0);
+                    Context context = c.createPackageContext(getResPackage(), 0);
                     if (badge == null) {
                         outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                                 Intent.ShortcutIconResource.fromContext(context, mInt1));
@@ -804,11 +833,33 @@ public class IconCompat extends CustomVersionedParcelable {
      */
     @RequiresApi(23)
     @Nullable
+    public static IconCompat createFromIcon(@NonNull Context context, @NonNull Icon icon) {
+        Preconditions.checkNotNull(icon);
+        switch (getType(icon)) {
+            case TYPE_RESOURCE:
+                String resPackage = getResPackage(icon);
+                return createWithResource(getResources(context, resPackage), resPackage,
+                        getResId(icon));
+            case TYPE_URI:
+                return createWithContentUri(getUri(icon));
+        }
+        IconCompat iconCompat = new IconCompat(TYPE_UNKNOWN);
+        iconCompat.mObj1 = icon;
+        return iconCompat;
+    }
+
+    /**
+     * Creates an IconCompat from an Icon.
+     * @deprecated use {@link #createFromIcon(Context, Icon)} instead.
+     */
+    @Deprecated
+    @RequiresApi(23)
+    @Nullable
     public static IconCompat createFromIcon(@NonNull Icon icon) {
         Preconditions.checkNotNull(icon);
         switch (getType(icon)) {
             case TYPE_RESOURCE:
-                return createWithResource(getResPackage(icon), getResId(icon));
+                return createWithResource(null, getResPackage(icon), getResId(icon));
             case TYPE_URI:
                 return createWithContentUri(getUri(icon));
         }

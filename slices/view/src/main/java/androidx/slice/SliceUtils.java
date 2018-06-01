@@ -215,27 +215,31 @@ public class SliceUtils {
         bufferedInputStream.reset();
         if (usesParcel) {
             Slice slice = ParcelUtils.fromInputStream(bufferedInputStream);
-            setActions(slice, new SliceItem.ActionHandler() {
+            setActionsAndUpdateIcons(slice, new SliceItem.ActionHandler() {
                 @Override
                 public void onAction(SliceItem item, Context context, Intent intent) {
                     listener.onSliceAction(item.getSlice().getUri(), context, intent);
                 }
-            });
+            }, context);
             return slice;
         }
         return SliceXml.parseSlice(context, bufferedInputStream, encoding, listener);
     }
 
-    private static void setActions(Slice slice, SliceItem.ActionHandler listener) {
+    private static void setActionsAndUpdateIcons(Slice slice, SliceItem.ActionHandler listener,
+            Context context) {
         for (SliceItem sliceItem : slice.getItems()) {
             switch (sliceItem.getFormat()) {
+                case FORMAT_IMAGE:
+                    sliceItem.getIcon().checkResource(context);
+                    break;
                 case FORMAT_ACTION:
                     sliceItem.mObj = new Pair<Object, Slice>(listener,
                             ((Pair<Object, Slice>) sliceItem.mObj).second);
-                    setActions(sliceItem.getSlice(), listener);
+                    setActionsAndUpdateIcons(sliceItem.getSlice(), listener, context);
                     break;
                 case FORMAT_SLICE:
-                    setActions(sliceItem.getSlice(), listener);
+                    setActionsAndUpdateIcons(sliceItem.getSlice(), listener, context);
                     break;
             }
         }

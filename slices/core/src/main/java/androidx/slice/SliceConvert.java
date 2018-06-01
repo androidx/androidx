@@ -24,6 +24,8 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import android.content.Context;
+
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
@@ -93,7 +95,7 @@ public class SliceConvert {
     /**
      * Convert {@link android.app.slice.Slice} to {@link androidx.slice.Slice}
      */
-    public static androidx.slice.Slice wrap(android.app.slice.Slice slice) {
+    public static androidx.slice.Slice wrap(android.app.slice.Slice slice, Context context) {
         if (slice == null || slice.getUri() == null) return null;
         androidx.slice.Slice.Builder builder = new androidx.slice.Slice.Builder(
                 slice.getUri());
@@ -102,10 +104,10 @@ public class SliceConvert {
         for (android.app.slice.SliceItem item : slice.getItems()) {
             switch (item.getFormat()) {
                 case FORMAT_SLICE:
-                    builder.addSubSlice(wrap(item.getSlice()), item.getSubType());
+                    builder.addSubSlice(wrap(item.getSlice(), context), item.getSubType());
                     break;
                 case FORMAT_IMAGE:
-                    builder.addIcon(IconCompat.createFromIcon(item.getIcon()),
+                    builder.addIcon(IconCompat.createFromIcon(context, item.getIcon()),
                             item.getSubType(), item.getHints());
                     break;
                 case FORMAT_REMOTE_INPUT:
@@ -113,7 +115,8 @@ public class SliceConvert {
                             item.getHints());
                     break;
                 case FORMAT_ACTION:
-                    builder.addAction(item.getAction(), wrap(item.getSlice()), item.getSubType());
+                    builder.addAction(item.getAction(), wrap(item.getSlice(), context),
+                            item.getSubType());
                     break;
                 case FORMAT_TEXT:
                     builder.addText(item.getText(), item.getSubType(), item.getHints());

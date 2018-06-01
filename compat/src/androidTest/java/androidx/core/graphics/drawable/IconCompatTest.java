@@ -259,6 +259,19 @@ public class IconCompatTest {
     }
 
     @Test
+    public void testResourceUpdateIconCompat() {
+        IconCompat icon = IconCompat.createWithResource(mContext, R.drawable.bmp_test);
+        verifyIconCompatValidity(icon);
+
+        // Make icon id incorrect.
+        icon.mInt1 = 42;
+
+        // Verify it can find the correct resource and update.
+        icon.checkResource(mContext);
+        assertEquals(R.drawable.bmp_test, icon.mInt1);
+    }
+
+    @Test
     public void testBitmapIconCompat_getType() {
         IconCompat icon = IconCompat.createWithBitmap(Bitmap.createBitmap(16, 16,
                 Bitmap.Config.ARGB_8888));
