@@ -29,13 +29,11 @@ import java.util.concurrent.TimeUnit;
 public final class PeriodicWorkRequest extends WorkRequest {
 
     /**
-     * The minimum interval duration for {@link PeriodicWorkRequest}, in milliseconds.
-     * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#110}.
+     * The minimum interval duration for {@link PeriodicWorkRequest} (in milliseconds).
      */
     public static final long MIN_PERIODIC_INTERVAL_MILLIS = 15 * 60 * 1000L; // 15 minutes.
     /**
-     * The minimum flex duration for {@link PeriodicWorkRequest}, in milliseconds.
-     * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#113}.
+     * The minimum flex duration for {@link PeriodicWorkRequest} (in milliseconds).
      */
     public static final long MIN_PERIODIC_FLEX_MILLIS = 5 * 60 * 1000L; // 5 minutes.
 
