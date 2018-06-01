@@ -107,6 +107,9 @@ public class SliceItemHolder implements VersionedParcelable {
             case FORMAT_REMOTE_INPUT:
                 return mParcelable;
             case FORMAT_TEXT:
+                if (mStr == null || mStr.length() == 0) {
+                    return "";
+                }
                 return HtmlCompat.fromHtml(mStr, HtmlCompat.FROM_HTML_MODE_LEGACY);
             case FORMAT_INT:
                 return mInt;

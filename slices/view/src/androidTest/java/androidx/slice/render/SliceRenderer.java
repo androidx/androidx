@@ -36,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.SliceUtils;
+import androidx.slice.test.SampleSliceProvider;
 import androidx.slice.view.test.R;
 import androidx.slice.widget.SliceLiveData;
 import androidx.slice.widget.SliceView;
@@ -66,7 +67,7 @@ public class SliceRenderer {
     private final SliceView mSV3;
     private final ViewGroup mParent;
     private final Handler mHandler;
-    private final SliceCreator mSliceCreator;
+    private final SampleSliceProvider mSliceCreator;
     private CountDownLatch mDoneLatch;
 
     public SliceRenderer(Activity context) {
@@ -100,7 +101,8 @@ public class SliceRenderer {
         ((ViewGroup) mContext.getWindow().getDecorView()).addView(mParent);
         mParent.addView(mLayout);
         SliceProvider.setSpecs(SliceLiveData.SUPPORTED_SPECS);
-        mSliceCreator = new SliceCreator(mContext);
+        mSliceCreator = new SampleSliceProvider();
+        mSliceCreator.attachInfo(context, null);
     }
 
     private void disableAnims(View view) {
@@ -136,11 +138,11 @@ public class SliceRenderer {
         if (!output.exists()) {
             output.mkdir();
         }
-        mDoneLatch = new CountDownLatch(SliceCreator.URI_PATHS.length * 2 + 2);
+        mDoneLatch = new CountDownLatch(SampleSliceProvider.URI_PATHS.length * 2 + 1);
 
         ExecutorService executor = Executors.newFixedThreadPool(5);
-        for (final String slice : SliceCreator.URI_PATHS) {
-            final Slice s = mSliceCreator.onBindSlice(SliceCreator.getUri(slice, mContext));
+        for (final String slice : SampleSliceProvider.URI_PATHS) {
+            final Slice s = mSliceCreator.onBindSlice(SampleSliceProvider.getUri(slice, mContext));
 
             executor.execute(new Runnable() {
                 @Override
@@ -157,7 +159,9 @@ public class SliceRenderer {
                             "%s-serialized.png", slice)), true /* scrollable */);
                 }
             });
-            if (slice.equals("wifi") || slice.equals("wifi2")) {
+            // When changing this make sure to update the size of mDoneLatch so
+            // the test waits for them to finish.
+            if (slice.equals("wifi")) {
                 // Test scrolling
                 executor.execute(new Runnable() {
                     @Override
@@ -183,6 +187,7 @@ public class SliceRenderer {
 
     private Slice serAndUnSer(Slice s) {
         try {
+            Log.d(TAG, "Serializing: " + s);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             SliceUtils.serializeSlice(s, mContext, outputStream,
                     new SliceUtils.SerializeOptions()
