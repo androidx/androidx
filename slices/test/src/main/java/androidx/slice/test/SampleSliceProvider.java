@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.slice.demos;
+package androidx.slice.test;
 
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 
@@ -44,7 +44,12 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.builders.GridRowBuilder;
+import androidx.slice.builders.GridRowBuilder.CellBuilder;
 import androidx.slice.builders.ListBuilder;
+import androidx.slice.builders.ListBuilder.HeaderBuilder;
+import androidx.slice.builders.ListBuilder.InputRangeBuilder;
+import androidx.slice.builders.ListBuilder.RangeBuilder;
+import androidx.slice.builders.ListBuilder.RowBuilder;
 import androidx.slice.builders.MessagingSliceBuilder;
 import androidx.slice.builders.SliceAction;
 
@@ -193,34 +198,34 @@ public class SampleSliceProvider extends SliceProvider {
                 "open weather app"),
                 IconCompat.createWithResource(getContext(), R.drawable.weather_1), SMALL_IMAGE,
                 "Weather is happening!");
-        return new ListBuilder(getContext(), sliceUri, INFINITY)
-                .addGridRow(gb -> gb
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        return lb.addGridRow(new GridRowBuilder(lb)
                         .setPrimaryAction(primaryAction)
-                        .addCell(cb -> cb
+                        .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.weather_1),
                                         SMALL_IMAGE)
                                 .addText("MON")
                                 .addTitleText("69\u00B0"))
-                        .addCell(cb -> cb
+                        .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.weather_2),
                                         SMALL_IMAGE)
                                 .addText("TUE")
                                 .addTitleText("71\u00B0"))
-                        .addCell(cb -> cb
+                        .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.weather_3),
                                         SMALL_IMAGE)
                                 .addText("WED")
                                 .addTitleText("76\u00B0"))
-                        .addCell(cb -> cb
+                        .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.weather_4),
                                         SMALL_IMAGE)
                                 .addText("THU")
                                 .addTitleText("72\u00B0"))
-                        .addCell(cb -> cb
+                        .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.weather_1),
                                         SMALL_IMAGE)
@@ -238,7 +243,7 @@ public class SampleSliceProvider extends SliceProvider {
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xff4285F4);
         if (showHeader) {
-            lb.addRow(b -> b
+            lb.addRow(new RowBuilder()
                     .setTitle("Family trip to Hawaii")
                     .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
                     .setPrimaryAction(primaryAction))
@@ -258,7 +263,7 @@ public class SampleSliceProvider extends SliceProvider {
         for (int i = 0; i < imageCount; i++) {
             IconCompat ic = IconCompat.createWithResource(getContext(),
                     galleryResId[i % galleryResId.length]);
-            grb.addCell(cb -> cb.addImage(ic, LARGE_IMAGE));
+            grb.addCell(new CellBuilder().addImage(ic, LARGE_IMAGE));
         }
         grb.setPrimaryAction(primaryAction)
                 .setSeeMoreAction(getBroadcastIntent(ACTION_TOAST, "see your gallery"))
@@ -290,7 +295,7 @@ public class SampleSliceProvider extends SliceProvider {
                 "Nearby Pizza");
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xff4285F4);
-        lb.setHeader(hb -> hb.setTitle("Pizza near you")
+        lb.setHeader(new HeaderBuilder().setTitle("Pizza near you")
                 .setSubtitle(subtitle)
                 .setSummary(summary.toString())
                 .setPrimaryAction(primaryAction));
@@ -298,7 +303,7 @@ public class SampleSliceProvider extends SliceProvider {
 
         for (int i = 0; i < count; i++) {
             final int index = i;
-            grb.addCell(cb -> cb
+            grb.addCell(new CellBuilder()
                     .addImage(IconCompat.createWithResource(
                             getContext(), pizzaResId[index]), LARGE_IMAGE)
                     .addTitleText(titles[index])
@@ -417,18 +422,18 @@ public class SampleSliceProvider extends SliceProvider {
 
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xff3949ab)
-                .setHeader(b -> b
+                .setHeader(new HeaderBuilder()
                         .setTitle("Mady Pitza")
                         .setSummary("Called " + lastCalledString)
                         .setPrimaryAction(primaryAction))
-                .addRow(b -> b
+                .addRow(new RowBuilder()
                         .setTitleItem(
                                 IconCompat.createWithResource(getContext(), R.drawable.ic_call),
                                 ICON_IMAGE)
                         .setTitle("314-259-2653")
                         .setSubtitle("Call lasted 1 hr 17 min")
                         .addEndItem(lastCalled))
-                .addRow(b -> b
+                .addRow(new RowBuilder()
                         .setTitleItem(
                                 IconCompat.createWithResource(getContext(), R.drawable.ic_text),
                                 ICON_IMAGE)
@@ -451,15 +456,15 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createMessagingSlice(Uri sliceUri) {
         // TODO: Remote input.
-        return new MessagingSliceBuilder(getContext(), sliceUri)
-                .add(b -> b
+        MessagingSliceBuilder b = new MessagingSliceBuilder(getContext(), sliceUri);
+        return b.add(new MessagingSliceBuilder.MessageBuilder(b)
                         .addText("yo home \uD83C\uDF55, I emailed you the info")
                         .addTimestamp(System.currentTimeMillis() - 20 * DateUtils.MINUTE_IN_MILLIS)
                         .addSource(IconCompat.createWithResource(getContext(), R.drawable.mady)))
-                .add(b -> b
+                .add(new MessagingSliceBuilder.MessageBuilder(b)
                         .addText("just bought my tickets")
                         .addTimestamp(System.currentTimeMillis() - 10 * DateUtils.MINUTE_IN_MILLIS))
-                .add(b -> b
+                .add(new MessagingSliceBuilder.MessageBuilder(b)
                         .addText("yay! can't wait for getContext() weekend!\n"
                                 + "\uD83D\uDE00")
                         .addTimestamp(System.currentTimeMillis() - 5 * DateUtils.MINUTE_IN_MILLIS)
@@ -475,7 +480,9 @@ public class SampleSliceProvider extends SliceProvider {
                 "Create note");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xfff4b400)
-                .setHeader(b -> b.setTitle("Create new note").setPrimaryAction(createNote))
+                .setHeader(new HeaderBuilder()
+                        .setTitle("Create new note")
+                        .setPrimaryAction(createNote))
                 .addAction(createNote)
                 .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "voice note"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_voice),
@@ -509,7 +516,7 @@ public class SampleSliceProvider extends SliceProvider {
         SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "Open grocery note"),
                 IconCompat.createWithResource(getContext(), R.drawable.ic_note),
                 "Grocery list");
-        lb.setHeader(hb -> hb.setTitle("Grocery list")
+        lb.setHeader(new HeaderBuilder().setTitle("Grocery list")
                 .setSubtitle("Shared with 2 others")
                 .setPrimaryAction(action));
 
@@ -533,7 +540,7 @@ public class SampleSliceProvider extends SliceProvider {
                 R.drawable.reservation), LARGE_IMAGE, "View reservation");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffFF5252)
-                .setHeader(b -> b
+                .setHeader(new HeaderBuilder()
                         .setTitle("Upcoming trip to Seattle")
                         .setSubtitle("Feb 1 - 19 | 2 guests")
                         .setPrimaryAction(sliceAction))
@@ -544,17 +551,17 @@ public class SampleSliceProvider extends SliceProvider {
                 .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "contact host"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_text),
                         "Contact host"))
-                .addGridRow(b -> b
-                        .addCell(cb -> cb
+                .addGridRow(new GridRowBuilder()
+                        .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.reservation),
                                         LARGE_IMAGE)
                                 .setContentDescription("Image of your reservation in Seattle")))
-                .addGridRow(b -> b
-                        .addCell(cb -> cb
+                .addGridRow(new GridRowBuilder()
+                        .addCell(new CellBuilder()
                                 .addTitleText("Check In")
                                 .addText("12:00 PM, Feb 1"))
-                        .addCell(cb -> cb
+                        .addCell(new CellBuilder()
                                 .addTitleText("Check Out")
                                 .addText("11:00 AM, Feb 19")))
                 .build();
@@ -573,18 +580,18 @@ public class SampleSliceProvider extends SliceProvider {
                 IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Get Ride");
         return new ListBuilder(getContext(), sliceUri, TimeUnit.SECONDS.toMillis(10))
                 .setAccentColor(0xff0F9D58)
-                .setHeader(b -> b
+                .setHeader(new HeaderBuilder()
                         .setTitle("Get ride")
                         .setSubtitle(headerSubtitle)
                         .setSummary("Ride to work in 12 min | Ride home in 1 hour 45 min")
                         .setPrimaryAction(primaryAction))
-                .addRow(b -> b
+                .addRow(new RowBuilder()
                         .setTitle("Work")
                         .setSubtitle(workSubtitle)
                         .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "work"),
                                 IconCompat.createWithResource(getContext(), R.drawable.ic_work),
                                 "Get ride to work")))
-                .addRow(b -> b
+                .addRow(new RowBuilder()
                         .setTitle("Home")
                         .setSubtitle(homeSubtitle)
                         .addEndItem(new SliceAction(getBroadcastIntent(ACTION_TOAST, "home"),
@@ -596,7 +603,7 @@ public class SampleSliceProvider extends SliceProvider {
     private Slice createCustomToggleSlice(Uri sliceUri) {
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffff4081)
-                .addRow(b -> b
+                .addRow(new RowBuilder()
                         .setTitle("Custom toggle")
                         .setSubtitle("It can support two states")
                         .setPrimaryAction(new SliceAction(getBroadcastIntent(ACTION_TOAST,
@@ -609,7 +616,7 @@ public class SampleSliceProvider extends SliceProvider {
     private Slice createTwoCustomToggleSlices(Uri sliceUri) {
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffff4081)
-                .addRow(b -> b
+                .addRow(new RowBuilder()
                         .setTitle("2 toggles")
                         .setSubtitle("each supports two states")
                         .setPrimaryAction(new SliceAction(
@@ -659,7 +666,7 @@ public class SampleSliceProvider extends SliceProvider {
                 : "Wifi disconnected, 10 networks available";
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xff4285f4)
-                .setHeader(b -> b
+                .setHeader(new HeaderBuilder()
                         .setTitle("Wi-fi")
                         .setSubtitle(state)
                         .setContentDescription(sliceCDString)
@@ -696,7 +703,7 @@ public class SampleSliceProvider extends SliceProvider {
 
         // Add see more intent
         if (TEST_CUSTOM_SEE_MORE) {
-            lb.setSeeMoreRow(rb -> rb
+            lb.setSeeMoreRow(new RowBuilder()
                     .setTitle("See all available networks")
                     .addEndItem(
                             IconCompat.createWithResource(getContext(), R.drawable.ic_right_caret),
@@ -718,7 +725,7 @@ public class SampleSliceProvider extends SliceProvider {
         String subtitle = "Rated " + sStarRating;
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffff4081)
-                .addInputRange(c -> c
+                .addInputRange(new InputRangeBuilder()
                         .setTitle("Star rating")
                         .setSubtitle(subtitle)
                         .setMin(5)
@@ -738,7 +745,7 @@ public class SampleSliceProvider extends SliceProvider {
                         getBroadcastIntent(ACTION_TOAST, "open download"), icon, "Download");
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffff4081)
-                .addRange(c -> c
+                .addRange(new RangeBuilder()
                         .setTitle("Download progress")
                         .setSubtitle("Download is happening")
                         .setMax(100)
@@ -827,25 +834,25 @@ public class SampleSliceProvider extends SliceProvider {
                 "Open language practice"),
                 IconCompat.createWithResource(getContext(), R.drawable.ic_speak),
                 "Language practice");
-        lb.setHeader(hb -> hb
+        lb.setHeader(new HeaderBuilder()
                 .setTitle("Language practice")
                 .setSubtitle("Which image doesn't match the word?")
                 .setPrimaryAction(action)
                 .setLayoutDirection(View.LAYOUT_DIRECTION_LTR));
-        lb.addGridRow(grb -> grb
-                .addCell(cb -> cb
+        lb.addGridRow(new GridRowBuilder()
+                .addCell(new CellBuilder()
                         .addImage(IconCompat.createWithResource(getContext(), R.drawable.cake),
                                 SMALL_IMAGE)
                         .addText("1")
                         .addTitleText("كيكة")
                         .setContentIntent(getBroadcastIntent(ACTION_TOAST, "Wrong answer")))
-                .addCell(cb -> cb
+                .addCell(new CellBuilder()
                         .addImage(IconCompat.createWithResource(getContext(), R.drawable.cheese),
                                 SMALL_IMAGE)
                         .addText("2")
                         .addTitleText("جبن")
                         .setContentIntent(getBroadcastIntent(ACTION_TOAST, "Wrong answer")))
-                .addCell(cb -> cb
+                .addCell(new CellBuilder()
                         .addImage(IconCompat.createWithResource(getContext(), R.drawable.pizza),
                                 SMALL_IMAGE)
                         .addText("3")
@@ -862,24 +869,24 @@ public class SampleSliceProvider extends SliceProvider {
                 IconCompat.createWithResource(getContext(), R.drawable.ic_speak),
                 "Translations");
         return lb.setLayoutDirection(View.LAYOUT_DIRECTION_LTR)
-                .setHeader(hb -> hb
+                .setHeader(new HeaderBuilder()
                         .setTitle("How to say hello")
                         .setSummary("Hello, bonjour, שלום ,مرحبا")
                         .setPrimaryAction(action))
-                .addRow(rb -> rb
+                .addRow(new RowBuilder()
                         .setTitle("Hello")
                         .setSubtitle("English \u00b7 heˈlō")
                         .addEndItem(getSpeakWordAction("Hello")))
-                .addRow(rb -> rb
+                .addRow(new RowBuilder()
                         .setTitle("Bonjour")
                         .setSubtitle("French")
                         .addEndItem(getSpeakWordAction("Bonjour")))
-                .addRow(rb -> rb
+                .addRow(new RowBuilder()
                         .setTitle("שלום")
                         .setSubtitle("Hebrew")
                         .addEndItem(getSpeakWordAction("שלום"))
                         .setLayoutDirection(View.LAYOUT_DIRECTION_RTL))
-                .addRow(rb -> rb
+                .addRow(new RowBuilder()
                         .setTitle("مرحبا")
                         .setSubtitle("Arabic \u00b7 marhabaan")
                         .addEndItem(getSpeakWordAction("مرحبا"))
@@ -936,7 +943,7 @@ public class SampleSliceProvider extends SliceProvider {
                 getBroadcastIntent(ACTION_TOAST, "error slice tapped"), ic2, "icon");
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
         return lb.setIsError(true)
-                .addRow(rb -> rb
+                .addRow(new RowBuilder()
                         .setTitle("Slice representing an error")
                         .setSubtitle("This is not the slice you're looking for")
                         .addEndItem(ic2, ICON_IMAGE)
@@ -949,12 +956,15 @@ public class SampleSliceProvider extends SliceProvider {
     private SparseArray<String> mGridSummaries = new SparseArray<>();
     private long mGridLastUpdate;
 
-    private void update(long delay, SparseArray<String> summaries, int id, String s, Uri uri,
-            Runnable r) {
-        mHandler.postDelayed(() -> {
-            summaries.put(id, s);
-            getContext().getContentResolver().notifyChange(uri, null);
-            r.run();
+    private void update(long delay, final SparseArray<String> summaries, final int id,
+            final String s, final Uri uri, final Runnable r) {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                summaries.put(id, s);
+                getContext().getContentResolver().notifyChange(uri, null);
+                r.run();
+            }
         }, delay);
     }
 
@@ -962,7 +972,12 @@ public class SampleSliceProvider extends SliceProvider {
         boolean updating = mListLastUpdate == 0
                 || mListLastUpdate < (System.currentTimeMillis() - 10 * System.currentTimeMillis());
         if (updating) {
-            Runnable r = () -> mListLastUpdate = System.currentTimeMillis();
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    mListLastUpdate = System.currentTimeMillis();
+                }
+            };
             update(1000, mListSummaries, 0, "44 miles | 1 hour 45 min | $31.41", sliceUri, r);
             update(1500, mListSummaries, 1, "12 miles | 12 min | $9.00", sliceUri, r);
             update(1700, mListSummaries, 2, "5 miles | 10 min | $8.00", sliceUri, r);
@@ -973,21 +988,21 @@ public class SampleSliceProvider extends SliceProvider {
         SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View traffic info"),
                 IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Traffic info");
         Slice s = new ListBuilder(getContext(), sliceUri, -TimeUnit.MINUTES.toMillis(50))
-                .addRow(b -> b
+                .addRow(new RowBuilder()
                         .setTitle("Work")
                         .setPrimaryAction(action)
                         .setSubtitle(work,
                                 updating || TextUtils.isEmpty(work))
                         .addEndItem(IconCompat.createWithResource(getContext(), R.drawable.ic_work),
                                 ICON_IMAGE))
-                .addRow(b -> b
+                .addRow(new RowBuilder()
                         .setTitle("Home")
                         .setSubtitle(mListSummaries.get(1, ""),
                                 updating || TextUtils.isEmpty(home))
                         .addEndItem(
                                 IconCompat.createWithResource(getContext(), R.drawable.ic_home),
                                 ICON_IMAGE))
-                .addRow(b -> b
+                .addRow(new RowBuilder()
                         .setTitle("School")
                         .setSubtitle(mListSummaries.get(2, ""),
                                 updating || TextUtils.isEmpty(school))
@@ -1003,7 +1018,12 @@ public class SampleSliceProvider extends SliceProvider {
         boolean updating = mGridLastUpdate == 0
                 || mGridLastUpdate < (System.currentTimeMillis() - 10 * System.currentTimeMillis());
         if (updating) {
-            Runnable r = () -> mGridLastUpdate = System.currentTimeMillis();
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    mGridLastUpdate = System.currentTimeMillis();
+                }
+            };
             update(2000, mGridSummaries, 0, "Heavy traffic in your area", sliceUri, r);
             update(3500, mGridSummaries, 1, "Typical conditions with delays up to 28 min",
                     sliceUri, r);
@@ -1019,28 +1039,28 @@ public class SampleSliceProvider extends SliceProvider {
         SliceAction action = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View traffic info"),
                 IconCompat.createWithResource(getContext(), R.drawable.ic_car), "Traffic info");
         Slice s = new ListBuilder(getContext(), sliceUri, INFINITY)
-                .setHeader(hb -> hb
+                .setHeader(new HeaderBuilder()
                         .setTitle(title,
                                 updating || TextUtils.isEmpty(title))
                         .setSubtitle(subtitle,
                                 updating || TextUtils.isEmpty(subtitle))
                         .setPrimaryAction(action))
-                .addGridRow(gb -> gb
-                        .addCell(cb -> cb
+                .addGridRow(new GridRowBuilder()
+                        .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.ic_home),
                                         ICON_IMAGE)
                                 .addTitleText("Home")
                                 .addText(home,
                                         updating || TextUtils.isEmpty(home)))
-                        .addCell(cb -> cb
+                        .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.ic_work),
                                         ICON_IMAGE)
                                 .addTitleText("Work")
                                 .addText(work,
                                         updating || TextUtils.isEmpty(work)))
-                        .addCell(cb -> cb
+                        .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.ic_school),
                                         ICON_IMAGE)

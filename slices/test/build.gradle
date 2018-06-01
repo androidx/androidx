@@ -24,11 +24,10 @@ plugins {
 
 dependencies {
     implementation(project(":slice-core"))
+    implementation(project(":slice-builders"))
     implementation(project(":recyclerview"))
     api(ARCH_LIFECYCLE_LIVEDATA_CORE, libs.exclude_annotations_transitive)
 
-    androidTestImplementation(project(":slice-builders"))
-    androidTestImplementation(project(":slice-test"))
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
     androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
@@ -36,12 +35,12 @@ dependencies {
 }
 
 supportLibrary {
-    name = "Slice views"
-    publish = true
+    name = "Slice test code"
+    publish = false
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
     mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"
-    description = "A library that handles rendering of slice content into supported templates"
+    description = "A library that holds common code for testing slices"
     minSdkVersion = 19
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false

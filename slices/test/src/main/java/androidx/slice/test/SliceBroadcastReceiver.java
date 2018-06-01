@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.example.androidx.slice.demos;
+package androidx.slice.test;
 
 import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 
-import static com.example.androidx.slice.demos.SampleSliceProvider.EXTRA_ITEM_INDEX;
-import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
-import static com.example.androidx.slice.demos.SampleSliceProvider.sGroceryList;
-import static com.example.androidx.slice.demos.SampleSliceProvider.sStarRating;
+import static androidx.slice.test.SampleSliceProvider.EXTRA_ITEM_INDEX;
+import static androidx.slice.test.SampleSliceProvider.getUri;
+import static androidx.slice.test.SampleSliceProvider.sGroceryList;
+import static androidx.slice.test.SampleSliceProvider.sStarRating;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -37,7 +37,7 @@ import android.widget.Toast;
 public class SliceBroadcastReceiver extends BroadcastReceiver {
 
     @Override
-    public void onReceive(Context context, Intent i) {
+    public void onReceive(final Context context, Intent i) {
         String action = i.getAction();
         switch (action) {
             case SampleSliceProvider.ACTION_ITEM_CHECKED:
@@ -53,8 +53,11 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
                 wm.setWifiEnabled(newState);
                 // Wait a bit for wifi to update (TODO: is there a better way to do this?)
                 Handler h = new Handler();
-                h.postDelayed(() -> {
-                    context.getContentResolver().notifyChange(getUri("wifi", context), null);
+                h.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        context.getContentResolver().notifyChange(getUri("wifi", context), null);
+                    }
                 }, 1000);
                 break;
             case SampleSliceProvider.ACTION_TOAST:
