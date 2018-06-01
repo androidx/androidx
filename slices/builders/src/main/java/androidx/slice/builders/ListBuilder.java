@@ -33,6 +33,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Consumer;
+import androidx.core.util.Pair;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.ListBuilderBasicImpl;
@@ -43,6 +44,7 @@ import androidx.slice.core.SliceHints;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -104,7 +106,7 @@ import java.util.List;
  * Note that scrolling on SliceView can be disabled, in which case only the header and one or two
  * rows of content may be shown for your slice. If your slice contains many rows of content to
  * scroll through (e.g. list of wifi networks), consider using
- * {@link #addSeeMoreAction(PendingIntent)} to provide a link to open the activity associated with
+ * {@link #setSeeMoreAction(PendingIntent)} to provide a link to open the activity associated with
  * the content.
  *
  * @see HeaderBuilder
@@ -236,7 +238,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public ListBuilder addRow(@NonNull RowBuilder builder) {
-        mImpl.addRow((TemplateBuilderImpl) builder.mImpl);
+        mImpl.addRow(builder);
         return this;
     }
 
@@ -252,35 +254,10 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Add a grid row to the list builder.
-     *
-     * @deprecated TO BE REMOVED; use {@link #addGridRow(GridRowBuilder)} instead
-     */
-    @NonNull
-    @Deprecated
-    public ListBuilder addGrid(@NonNull GridBuilder builder) {
-        mImpl.addGridRow((TemplateBuilderImpl) builder.getImpl());
-        return this;
-    }
-
-    /**
-     * Add a grid row to the list builder.
-     *
-     * @deprecated TO BE REMOVED; use {@link #addGridRow(GridRowBuilder)} instead
-     */
-    @NonNull
-    @Deprecated
-    public ListBuilder addGrid(@NonNull Consumer<GridBuilder> c) {
-        GridBuilder b = new GridBuilder(this);
-        c.accept(b);
-        return addGrid(b);
-    }
-
-    /**
-     * Add a grid row to the list builder.
      */
     @NonNull
     public ListBuilder addGridRow(@NonNull GridRowBuilder builder) {
-        mImpl.addGridRow((TemplateBuilderImpl) builder.getImpl());
+        mImpl.addGridRow(builder);
         return this;
     }
 
@@ -312,7 +289,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public ListBuilder setHeader(@NonNull HeaderBuilder builder) {
-        mImpl.setHeader((TemplateBuilderImpl) builder.mImpl);
+        mImpl.setHeader(builder);
         return this;
     }
 
@@ -412,7 +389,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      * see all of the content.
      * <p>
      * This method should only be used if you want to display a customized row to indicate more
-     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
+     * content, consider using {@link #setSeeMoreAction(PendingIntent)} otherwise. If you do
      * choose to specify a custom row, the row should have a content intent or action end item
      * specified to take the user to an activity to see all of the content. The row added here
      * will only appear when not all content can be displayed and it will not be styled any
@@ -429,7 +406,7 @@ public class ListBuilder extends TemplateSliceBuilder {
             throw new IllegalArgumentException("Trying to add see more row when one has "
                     + "already been added");
         }
-        mImpl.setSeeMoreRow((TemplateBuilderImpl) builder.mImpl);
+        mImpl.setSeeMoreRow(builder);
         mHasSeeMore = true;
         return this;
     }
@@ -440,7 +417,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      * see all of the content.
      * <p>
      * This method should only be used if you want to display a customized row to indicate more
-     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
+     * content, consider using {@link #setSeeMoreAction(PendingIntent)} otherwise. If you do
      * choose to specify a custom row, the row should have a content intent or action end item
      * specified to take the user to an activity to see all of the content. The row added here
      * will only appear when not all content can be displayed and it will not be styled any
@@ -454,7 +431,13 @@ public class ListBuilder extends TemplateSliceBuilder {
     public ListBuilder setSeeMoreRow(@NonNull Consumer<RowBuilder> c) {
         RowBuilder b = new RowBuilder(this);
         c.accept(b);
-        return addSeeMoreRow(b);
+        if (mHasSeeMore) {
+            throw new IllegalArgumentException("Trying to add see more row when one has "
+                    + "already been added");
+        }
+        mImpl.setSeeMoreRow(b);
+        mHasSeeMore = true;
+        return this;
     }
 
     /**
@@ -468,82 +451,6 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public ListBuilder setSeeMoreAction(@NonNull PendingIntent intent) {
-        if (mHasSeeMore) {
-            throw new IllegalArgumentException("Trying to add see more action when one has "
-                    + "already been added");
-        }
-        mImpl.setSeeMoreAction(intent);
-        mHasSeeMore = true;
-        return this;
-    }
-
-    /**
-     * If all content in a slice cannot be shown, the row added here may be displayed where the
-     * content is cut off. This row should have an affordance to take the user to an activity to
-     * see all of the content.
-     * <p>
-     * This method should only be used if you want to display a custom row to indicate more
-     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
-     * choose to specify a custom row, the row should have a content intent or action end item
-     * specified to take the user to an activity to see all of the content.
-     * </p>
-     * <p>
-     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
-     * a row or action has been previously added.
-     * </p>
-     *
-     * @deprecated TO BE REMOVED
-     */
-    @NonNull
-    @Deprecated
-    public ListBuilder addSeeMoreRow(@NonNull RowBuilder builder) {
-        if (mHasSeeMore) {
-            throw new IllegalArgumentException("Trying to add see more row when one has "
-                    + "already been added");
-        }
-        mImpl.setSeeMoreRow((TemplateBuilderImpl) builder.mImpl);
-        mHasSeeMore = true;
-        return this;
-    }
-
-    /**
-     * If all content in a slice cannot be shown, the row added here may be displayed where the
-     * content is cut off. This row should have an affordance to take the user to an activity to
-     * see all of the content.
-     * <p>
-     * This method should only be used if you want to display a custom row to indicate more
-     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
-     * choose to specify a custom row, the row should have a content intent or action end item
-     * specified to take the user to an activity to see all of the content.
-     * </p>
-     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
-     * a row or action has been previously added.
-     * </p>
-     *
-     * @deprecated TO BE REMOVED
-     */
-    @Deprecated
-    @NonNull
-    public ListBuilder addSeeMoreRow(@NonNull Consumer<RowBuilder> c) {
-        RowBuilder b = new RowBuilder(this);
-        c.accept(b);
-        return setSeeMoreRow(b);
-    }
-
-    /**
-     * If all content in a slice cannot be shown, a "see more" affordance may be displayed where
-     * the content is cut off. The action added here should take the user to an activity to see
-     * all of the content, and will be invoked when the "see more" affordance is tapped.
-     * <p>
-     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
-     * a row or action has been previously added.
-     * </p>
-     *
-     * @deprecated TO BE REMOVED
-     */
-    @Deprecated
-    @NonNull
-    public ListBuilder addSeeMoreAction(@NonNull PendingIntent intent) {
         if (mHasSeeMore) {
             throw new IllegalArgumentException("Trying to add see more action when one has "
                     + "already been added");
@@ -594,7 +501,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public ListBuilder addInputRange(@NonNull InputRangeBuilder b) {
-        mImpl.addInputRange((TemplateBuilderImpl) b.mImpl);
+        mImpl.addInputRange(b);
         return this;
     }
 
@@ -620,7 +527,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public ListBuilder addRange(@NonNull RangeBuilder rangeBuilder) {
-        mImpl.addRange((TemplateBuilderImpl) rangeBuilder.mImpl);
+        mImpl.addRange(rangeBuilder);
         return this;
     }
 
@@ -645,8 +552,16 @@ public class ListBuilder extends TemplateSliceBuilder {
      * @see ListBuilder#addRange(Consumer)
      * @see ListBuilder#addRange(RangeBuilder)
      */
-    public static class RangeBuilder extends TemplateSliceBuilder {
-        private androidx.slice.builders.impl.ListBuilder.RangeBuilder mImpl;
+    public static class RangeBuilder {
+
+        private int mValue;
+        private int mMax = 100;
+        private boolean mValueSet = false;
+        private CharSequence mTitle;
+        private CharSequence mSubtitle;
+        private SliceAction mPrimaryAction;
+        private CharSequence mContentDescription;
+        private int mLayoutDirection = -1;
 
         /**
          * Builder to construct a range row which can be added to a {@link ListBuilder}.
@@ -656,8 +571,14 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @see ListBuilder#addRange(Consumer)
          * @see ListBuilder#addRange(RangeBuilder)
          */
+        public RangeBuilder() {
+        }
+
+        /**
+         * @deprecated TO BE REMOVED
+         */
+        @Deprecated
         public RangeBuilder(@NonNull ListBuilder parent) {
-            super(parent.mImpl.createRangeBuilder());
         }
 
         /**
@@ -665,7 +586,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RangeBuilder setMax(int max) {
-            mImpl.setMax(max);
+            mMax = max;
             return this;
         }
 
@@ -676,7 +597,8 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RangeBuilder setValue(int value) {
-            mImpl.setValue(value);
+            mValueSet = true;
+            mValue = value;
             return this;
         }
 
@@ -685,7 +607,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RangeBuilder setTitle(@NonNull CharSequence title) {
-            mImpl.setTitle(title);
+            mTitle = title;
             return this;
         }
 
@@ -694,7 +616,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RangeBuilder setSubtitle(@NonNull CharSequence title) {
-            mImpl.setSubtitle(title);
+            mSubtitle = title;
             return this;
         }
 
@@ -707,7 +629,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RangeBuilder setPrimaryAction(@NonNull SliceAction action) {
-            mImpl.setPrimaryAction(action);
+            mPrimaryAction = action;
             return this;
         }
 
@@ -716,7 +638,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RangeBuilder setContentDescription(@NonNull CharSequence description) {
-            mImpl.setContentDescription(description);
+            mContentDescription = description;
             return this;
         }
 
@@ -727,13 +649,72 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RangeBuilder setLayoutDirection(@LayoutDirection int layoutDirection) {
-            mImpl.setLayoutDirection(layoutDirection);
+            mLayoutDirection = layoutDirection;
             return this;
         }
 
-        @Override
-        void setImpl(TemplateBuilderImpl impl) {
-            mImpl = (androidx.slice.builders.impl.ListBuilder.RangeBuilder) impl;
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getValue() {
+            return mValue;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getMax() {
+            return mMax;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isValueSet() {
+            return mValueSet;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getTitle() {
+            return mTitle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getSubtitle() {
+            return mSubtitle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public SliceAction getPrimaryAction() {
+            return mPrimaryAction;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getContentDescription() {
+            return mContentDescription;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getLayoutDirection() {
+            return mLayoutDirection;
         }
     }
 
@@ -745,8 +726,20 @@ public class ListBuilder extends TemplateSliceBuilder {
      * @see ListBuilder#addInputRange(Consumer)
      * @see ListBuilder#addInputRange(InputRangeBuilder)
      */
-    public static class InputRangeBuilder extends TemplateSliceBuilder {
-        private androidx.slice.builders.impl.ListBuilder.InputRangeBuilder mImpl;
+    public static class InputRangeBuilder {
+
+        private int mMin = 0;
+        private int mMax = 100;
+        private int mValue = 0;
+        private boolean mValueSet = false;
+        private CharSequence mTitle;
+        private CharSequence mSubtitle;
+        private PendingIntent mAction;
+        private PendingIntent mInputAction;
+        private IconCompat mThumb;
+        private SliceAction mPrimaryAction;
+        private CharSequence mContentDescription;
+        private int mLayoutDirection = -1;
 
         /**
          * Builder to construct a input range row.
@@ -756,8 +749,14 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @see ListBuilder#addInputRange(Consumer)
          * @see ListBuilder#addInputRange(InputRangeBuilder)
          */
+        public InputRangeBuilder() {
+        }
+
+        /**
+         * @deprecated TO BE REMOVED.
+         */
+        @Deprecated
         public InputRangeBuilder(@NonNull ListBuilder parent) {
-            super(parent.mImpl.createInputRangeBuilder());
         }
 
         /**
@@ -765,7 +764,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public InputRangeBuilder setMin(int min) {
-            mImpl.setMin(min);
+            mMin = min;
             return this;
         }
 
@@ -774,7 +773,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public InputRangeBuilder setMax(int max) {
-            mImpl.setMax(max);
+            mMax = max;
             return this;
         }
 
@@ -786,7 +785,8 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public InputRangeBuilder setValue(int value) {
-            mImpl.setValue(value);
+            mValueSet = true;
+            mValue = value;
             return this;
         }
 
@@ -795,7 +795,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public InputRangeBuilder setTitle(@NonNull CharSequence title) {
-            mImpl.setTitle(title);
+            mTitle = title;
             return this;
         }
 
@@ -804,19 +804,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public InputRangeBuilder setSubtitle(@NonNull CharSequence title) {
-            mImpl.setSubtitle(title);
-            return this;
-        }
-
-        /**
-         * Set the {@link PendingIntent} to send when the current value is updated.
-         *
-         * @deprecated TO BE REMOVED; use {@link InputRangeBuilder#setInputAction(PendingIntent)}
-         */
-        @Deprecated
-        @NonNull
-        public InputRangeBuilder setAction(@NonNull PendingIntent action) {
-            mImpl.setInputAction(action);
+            mSubtitle = title;
             return this;
         }
 
@@ -825,17 +813,8 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public InputRangeBuilder setInputAction(@NonNull PendingIntent action) {
-            mImpl.setInputAction(action);
+            mInputAction = action;
             return this;
-        }
-
-        /**
-         * @deprecated TO BE REMOVED
-         */
-        @NonNull
-        @RequiresApi(23)
-        public InputRangeBuilder setThumb(@NonNull Icon thumb) {
-            return setThumb(IconCompat.createFromIcon(thumb));
         }
 
         /**
@@ -843,7 +822,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public InputRangeBuilder setThumb(@NonNull IconCompat thumb) {
-            mImpl.setThumb(thumb);
+            mThumb = thumb;
             return this;
         }
 
@@ -851,14 +830,14 @@ public class ListBuilder extends TemplateSliceBuilder {
          * Set the primary action for this row.
          * <p>
          * The action specified here will be sent when the whole row is clicked, whereas
-         * the action specified via {@link #setAction(PendingIntent)} is used when the slider
-         * is interacted with. Additionally, if this is the first row in a {@link ListBuilder} this
-         * action will also be used to define the
+         * the action specified via {@link #setInputAction(PendingIntent)} is used when the
+         * slider is interacted with. Additionally, if this is the first row in a
+         * {@link ListBuilder} this action will also be used to define the
          * {@link androidx.slice.widget.SliceView#MODE_SHORTCUT} representation of the slice.
          */
         @NonNull
         public InputRangeBuilder setPrimaryAction(@NonNull SliceAction action) {
-            mImpl.setPrimaryAction(action);
+            mPrimaryAction = action;
             return this;
         }
 
@@ -867,7 +846,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public InputRangeBuilder setContentDescription(@NonNull CharSequence description) {
-            mImpl.setContentDescription(description);
+            mContentDescription = description;
             return this;
         }
 
@@ -878,13 +857,104 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public InputRangeBuilder setLayoutDirection(@LayoutDirection int layoutDirection) {
-            mImpl.setLayoutDirection(layoutDirection);
+            mLayoutDirection = layoutDirection;
             return this;
         }
 
-        @Override
-        void setImpl(TemplateBuilderImpl impl) {
-            mImpl = (androidx.slice.builders.impl.ListBuilder.InputRangeBuilder) impl;
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getMin() {
+            return mMin;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getMax() {
+            return mMax;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getValue() {
+            return mValue;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isValueSet() {
+            return mValueSet;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getTitle() {
+            return mTitle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getSubtitle() {
+            return mSubtitle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public PendingIntent getAction() {
+            return mAction;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public PendingIntent getInputAction() {
+            return mInputAction;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public IconCompat getThumb() {
+            return mThumb;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public SliceAction getPrimaryAction() {
+            return mPrimaryAction;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getContentDescription() {
+            return mContentDescription;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getLayoutDirection() {
+            return mLayoutDirection;
         }
     }
 
@@ -923,21 +993,60 @@ public class ListBuilder extends TemplateSliceBuilder {
      *
      * @see ListBuilder#addRow(RowBuilder)
      */
-    public static class RowBuilder extends TemplateSliceBuilder {
+    public static class RowBuilder {
 
-        private androidx.slice.builders.impl.ListBuilder.RowBuilder mImpl;
-
+        private final Uri mUri;
         private boolean mHasEndActionOrToggle;
         private boolean mHasEndImage;
         private boolean mHasDefaultToggle;
         private boolean mHasTimestamp;
+        private long mTimeStamp = -1;
+        private boolean mTitleItemLoading;
+        private int mTitleImageMode;
+        private IconCompat mTitleIcon;
+        private SliceAction mTitleAction;
+        private SliceAction mPrimaryAction;
+        private CharSequence mTitle;
+        private boolean mTitleLoading;
+        private CharSequence mSubtitle;
+        private boolean mSubtitleLoading;
+        private CharSequence mContentDescription;
+        private int mLayoutDirection = -1;
+        private List<Object> mEndItems = new ArrayList<>();
+        private List<Integer> mEndTypes = new ArrayList<>();
+        private List<Boolean> mEndLoads = new ArrayList<>();
+        private boolean mTitleActionLoading;
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public static final int TYPE_TIMESTAMP = 0;
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public static final int TYPE_ICON = 1;
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public static final int TYPE_ACTION = 2;
+
+        public RowBuilder() {
+            mUri = null;
+        }
+
+        public RowBuilder(Uri uri) {
+            mUri = uri;
+        }
 
         /**
          * Builder to construct a row.
          * @param parent The builder constructing the parent slice.
          */
         public RowBuilder(@NonNull ListBuilder parent) {
-            super(parent.mImpl.createRowBuilder());
+            this();
         }
 
         /**
@@ -945,7 +1054,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @param uri Uri to tag for this slice.
          */
         public RowBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
-            super(parent.mImpl.createRowBuilder(uri));
+            this(uri);
         }
 
         /**
@@ -953,7 +1062,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @param uri Uri to tag for this slice.
          */
         public RowBuilder(@NonNull Context context, @NonNull Uri uri) {
-            super(new ListBuilder(context, uri).mImpl.createRowBuilder(uri));
+            this(uri);
         }
 
         /**
@@ -969,82 +1078,9 @@ public class ListBuilder extends TemplateSliceBuilder {
                 throw new IllegalArgumentException("Trying to add a timestamp when one has "
                         + "already been added");
             }
-            mImpl.setTitleItem(timeStamp);
+            mTimeStamp = timeStamp;
             mHasTimestamp = true;
             return this;
-        }
-
-        /**
-         * @deprecated TO BE REMOVED.
-         */
-        @Deprecated
-        @NonNull
-        @RequiresApi(23)
-        public RowBuilder setTitleItem(@NonNull Icon icon) {
-            return setTitleItem(icon, ICON_IMAGE);
-        }
-
-        /**
-         * @deprecated TO BE REMOVED.
-         */
-        @Deprecated
-        @NonNull
-        @RequiresApi(23)
-        public RowBuilder setTitleItem(@Nullable Icon icon, boolean isLoading) {
-            return setTitleItem(icon, ICON_IMAGE, isLoading);
-        }
-
-        /**
-         * @deprecated TO BE REMOVED.
-         */
-        @Deprecated
-        @RequiresApi(23)
-        public RowBuilder setTitleItem(@NonNull Icon icon, @ImageMode int imageMode) {
-            mImpl.setTitleItem(IconCompat.createFromIcon(icon), imageMode, false /* isLoading */);
-            return this;
-        }
-
-        /**
-         * @deprecated TO BE REMOVED.
-         */
-        @Deprecated
-        @NonNull
-        @RequiresApi(23)
-        public RowBuilder setTitleItem(@Nullable Icon icon, @ImageMode int imageMode,
-                boolean isLoading) {
-            mImpl.setTitleItem(IconCompat.createFromIcon(icon), imageMode,
-                    isLoading /* isLoading */);
-            return this;
-        }
-
-        /**
-         * Sets the title item to be the provided icon. There can only be one title item, this
-         * will replace any other title items that may have been set.
-         *
-         * @deprecated TO BE REMOVED; use ListBuilder{@link #setTitleItem(Icon, int, boolean)}.
-         */
-        @Deprecated
-        @NonNull
-        public RowBuilder setTitleItem(@NonNull IconCompat icon) {
-            return setTitleItem(icon, ICON_IMAGE);
-        }
-
-        /**
-         * Sets the title item to be the provided icon. There can only be one title item, this
-         * will replace any other title items that may have been set.
-         * <p>
-         * Use this method to specify content that will appear in the template once it's been
-         * loaded.
-         * </p>
-         * @param isLoading indicates whether the app is doing work to load the added content in the
-         *                  background or not.
-         *
-         * @deprecated TO BE REMOVED; use ListBuilder{@link #setTitleItem(Icon, int, boolean)}.
-         */
-        @Deprecated
-        @NonNull
-        public RowBuilder setTitleItem(@Nullable IconCompat icon, boolean isLoading) {
-            return setTitleItem(icon, ICON_IMAGE, isLoading);
         }
 
         /**
@@ -1059,8 +1095,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @see #LARGE_IMAGE
          */
         public RowBuilder setTitleItem(@NonNull IconCompat icon, @ImageMode int imageMode) {
-            mImpl.setTitleItem(icon, imageMode, false /* isLoading */);
-            return this;
+            return setTitleItem(icon, imageMode, false /* isLoading */);
         }
 
         /**
@@ -1082,7 +1117,10 @@ public class ListBuilder extends TemplateSliceBuilder {
         @NonNull
         public RowBuilder setTitleItem(@Nullable IconCompat icon, @ImageMode int imageMode,
                 boolean isLoading) {
-            mImpl.setTitleItem(icon, imageMode, isLoading /* isLoading */);
+            mTitleAction = null;
+            mTitleIcon = icon;
+            mTitleImageMode = imageMode;
+            mTitleItemLoading = isLoading;
             return this;
         }
 
@@ -1107,7 +1145,10 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setTitleItem(@NonNull SliceAction action, boolean isLoading) {
-            mImpl.setTitleItem(action, isLoading);
+            mTitleAction = action;
+            mTitleIcon = null;
+            mTitleImageMode = 0;
+            mTitleActionLoading = isLoading;
             return this;
         }
 
@@ -1119,7 +1160,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setPrimaryAction(@NonNull SliceAction action) {
-            mImpl.setPrimaryAction(action);
+            mPrimaryAction = action;
             return this;
         }
 
@@ -1128,8 +1169,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setTitle(@NonNull CharSequence title) {
-            mImpl.setTitle(title);
-            return this;
+            return setTitle(title, false);
         }
 
         /**
@@ -1143,7 +1183,8 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setTitle(@Nullable CharSequence title, boolean isLoading) {
-            mImpl.setTitle(title, isLoading);
+            mTitle = title;
+            mTitleLoading = isLoading;
             return this;
         }
 
@@ -1166,7 +1207,8 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setSubtitle(@Nullable CharSequence subtitle, boolean isLoading) {
-            mImpl.setSubtitle(subtitle, isLoading);
+            mSubtitle = subtitle;
+            mSubtitleLoading = isLoading;
             return this;
         }
 
@@ -1180,89 +1222,11 @@ public class ListBuilder extends TemplateSliceBuilder {
                 throw new IllegalArgumentException("Trying to add a timestamp when one has "
                         + "already been added");
             }
-            mImpl.addEndItem(timeStamp);
+            mEndItems.add(timeStamp);
+            mEndTypes.add(TYPE_TIMESTAMP);
+            mEndLoads.add(false);
             mHasTimestamp = true;
             return this;
-        }
-
-        /**
-         * @deprecated TO BE REMOVED
-         */
-        @Deprecated
-        @NonNull
-        @RequiresApi(23)
-        public RowBuilder addEndItem(@NonNull Icon icon) {
-            return addEndItem(icon, ICON_IMAGE, false /* isLoading */);
-        }
-
-        /**
-         * @deprecated TO BE REMOVED
-         */
-        @Deprecated
-        @NonNull
-        @RequiresApi(23)
-        public RowBuilder addEndItem(@NonNull Icon icon, boolean isLoading) {
-            return addEndItem(icon, ICON_IMAGE, isLoading);
-        }
-
-        /**
-         * @deprecated TO BE REMOVED
-         */
-        @Deprecated
-        @NonNull
-        @RequiresApi(23)
-        public RowBuilder addEndItem(@NonNull Icon icon, @ImageMode int imageMode) {
-            return addEndItem(icon, imageMode, false /* isLoading */);
-        }
-
-        /**
-         * @deprecated TO BE REMOVED
-         */
-        @Deprecated
-        @NonNull
-        @RequiresApi(23)
-        public RowBuilder addEndItem(@Nullable Icon icon, @ImageMode int imageMode,
-                boolean isLoading) {
-            if (mHasEndActionOrToggle) {
-                throw new IllegalArgumentException("Trying to add an icon to end items when an"
-                        + "action has already been added. End items cannot have a mixture of "
-                        + "actions and icons.");
-            }
-            mImpl.addEndItem(IconCompat.createFromIcon(icon), imageMode, isLoading);
-            mHasEndImage = true;
-            return this;
-        }
-
-        /**
-         * Adds an icon to the end items of the row builder. A mixture of icons and actions
-         * is not permitted. If an action has already been added this will throw
-         * {@link IllegalArgumentException}.
-         *
-         * @deprecated use ListBuilder{@link #addEndItem(Icon, int)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public RowBuilder addEndItem(@NonNull IconCompat icon) {
-            return addEndItem(icon, ICON_IMAGE, false /* isLoading */);
-        }
-
-        /**
-         * Adds an icon to be displayed at the end of the row. A mixture of icons and actions
-         * is not permitted. If an action has already been added this will throw
-         * {@link IllegalArgumentException}.
-         * <p>
-         * Use this method to specify content that will appear in the template once it's been
-         * loaded.
-         * </p>
-         * @param isLoading indicates whether the app is doing work to load the added content in the
-         *                  background or not.
-         *
-         * @deprecated use ListBuilder{@link #addEndItem(Icon, int, boolean)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public RowBuilder addEndItem(@NonNull IconCompat icon, boolean isLoading) {
-            return addEndItem(icon, ICON_IMAGE, isLoading);
         }
 
         /**
@@ -1303,7 +1267,9 @@ public class ListBuilder extends TemplateSliceBuilder {
                         + "action has already been added. End items cannot have a mixture of "
                         + "actions and icons.");
             }
-            mImpl.addEndItem(icon, imageMode, isLoading);
+            mEndItems.add(new Pair<>(icon, imageMode));
+            mEndTypes.add(TYPE_ICON);
+            mEndLoads.add(isLoading);
             mHasEndImage = true;
             return this;
         }
@@ -1341,7 +1307,9 @@ public class ListBuilder extends TemplateSliceBuilder {
                         + "in a single row. If you would like to include multiple toggles "
                         + "in a row, set a custom icon for each toggle.");
             }
-            mImpl.addEndItem(action, isLoading);
+            mEndItems.add(action);
+            mEndTypes.add(TYPE_ACTION);
+            mEndLoads.add(isLoading);
             mHasDefaultToggle = action.getImpl().isDefaultToggle();
             mHasEndActionOrToggle = true;
             return this;
@@ -1352,7 +1320,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setContentDescription(@NonNull CharSequence description) {
-            mImpl.setContentDescription(description);
+            mContentDescription = description;
             return this;
         }
 
@@ -1363,23 +1331,177 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public RowBuilder setLayoutDirection(@LayoutDirection int layoutDirection) {
-            mImpl.setLayoutDirection(layoutDirection);
+            mLayoutDirection = layoutDirection;
             return this;
-        }
-
-        @Override
-        void setImpl(TemplateBuilderImpl impl) {
-            mImpl = (androidx.slice.builders.impl.ListBuilder.RowBuilder) impl;
         }
 
         /**
          * @hide
          */
         @RestrictTo(LIBRARY)
-        public androidx.slice.builders.impl.ListBuilder.RowBuilder getImpl() {
-            return mImpl;
+        public Uri getUri() {
+            return mUri;
         }
 
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean hasEndActionOrToggle() {
+            return mHasEndActionOrToggle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean hasEndImage() {
+            return mHasEndImage;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean hasDefaultToggle() {
+            return mHasDefaultToggle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean hasTimestamp() {
+            return mHasTimestamp;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public long getTimeStamp() {
+            return mTimeStamp;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isTitleItemLoading() {
+            return mTitleItemLoading;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getTitleImageMode() {
+            return mTitleImageMode;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public IconCompat getTitleIcon() {
+            return mTitleIcon;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public SliceAction getTitleAction() {
+            return mTitleAction;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public SliceAction getPrimaryAction() {
+            return mPrimaryAction;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getTitle() {
+            return mTitle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isTitleLoading() {
+            return mTitleLoading;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getSubtitle() {
+            return mSubtitle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isSubtitleLoading() {
+            return mSubtitleLoading;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getContentDescription() {
+            return mContentDescription;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getLayoutDirection() {
+            return mLayoutDirection;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public List<Object> getEndItems() {
+            return mEndItems;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public List<Integer> getEndTypes() {
+            return mEndTypes;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public List<Boolean> getEndLoads() {
+            return mEndLoads;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isTitleActionLoading() {
+            return mTitleActionLoading;
+        }
     }
 
     /**
@@ -1406,23 +1528,50 @@ public class ListBuilder extends TemplateSliceBuilder {
      * @see ListBuilder#addAction(SliceAction)
      * @see SliceAction
      */
-    public static class HeaderBuilder extends TemplateSliceBuilder {
-        private androidx.slice.builders.impl.ListBuilder.HeaderBuilder mImpl;
+    public static class HeaderBuilder {
+        private final Uri mUri;
+        private CharSequence mTitle;
+        private boolean mTitleLoading;
+        private CharSequence mSubtitle;
+        private boolean mSubtitleLoading;
+        private CharSequence mSummary;
+        private boolean mSummaryLoading;
+        private SliceAction mPrimaryAction;
+        private CharSequence mContentDescription;
+        private int mLayoutDirection;
 
         /**
          * Create builder for a header.
          */
+        public HeaderBuilder() {
+            mUri = null;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public HeaderBuilder(Uri uri) {
+            mUri = uri;
+        }
+
+        /**
+         * @deprecated TO BE REMOVED
+         */
+        @Deprecated
         public HeaderBuilder(@NonNull ListBuilder parent) {
-            super(parent.mImpl.createHeaderBuilder());
+            this();
         }
 
         /**
          * Create builder for a header.
+         * @deprecated TO BE REMOVED
          * @hide
          */
+        @Deprecated
         @RestrictTo(LIBRARY_GROUP)
         public HeaderBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
-            super(parent.mImpl.createHeaderBuilder(uri));
+            this(uri);
         }
 
         /**
@@ -1444,7 +1593,8 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public HeaderBuilder setTitle(@NonNull CharSequence title, boolean isLoading) {
-            mImpl.setTitle(title, isLoading);
+            mTitle = title;
+            mTitleLoading = isLoading;
             return this;
         }
 
@@ -1467,31 +1617,9 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public HeaderBuilder setSubtitle(@NonNull CharSequence subtitle, boolean isLoading) {
-            mImpl.setSubtitle(subtitle, isLoading);
+            mSubtitle = subtitle;
+            mSubtitleLoading = isLoading;
             return this;
-        }
-
-        /**
-         * Sets the summary subtitle to be shown in this header. If unset, the normal subtitle
-         * will be used. The summary is used when the parent template is presented in a
-         * small format.
-         * @deprecated TO BE REMOVED; use {@link #setSummary(CharSequence)}
-         */
-        @NonNull
-        public HeaderBuilder setSummarySubtitle(@NonNull CharSequence summarySubtitle) {
-            return setSummary(summarySubtitle, false /* isLoading */);
-        }
-
-        /**
-         * Sets the summary subtitle to be shown in this header. If unset, the normal subtitle
-         * will be used. The summary is used when the parent template is presented in a
-         * small format.
-         * @deprecated TO BE REMOVED; use {@link #setSummary(CharSequence, boolean)}
-         */
-        @NonNull
-        public HeaderBuilder setSummarySubtitle(@NonNull CharSequence summarySubtitle,
-                boolean isLoading) {
-            return setSummary(summarySubtitle, isLoading /* isLoading */);
         }
 
         /**
@@ -1521,7 +1649,8 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public HeaderBuilder setSummary(@NonNull CharSequence summary, boolean isLoading) {
-            mImpl.setSummary(summary, isLoading);
+            mSummary = summary;
+            mSummaryLoading = isLoading;
             return this;
         }
 
@@ -1533,7 +1662,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public HeaderBuilder setPrimaryAction(@NonNull SliceAction action) {
-            mImpl.setPrimaryAction(action);
+            mPrimaryAction = action;
             return this;
         }
 
@@ -1542,7 +1671,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public HeaderBuilder setContentDescription(@NonNull CharSequence description) {
-            mImpl.setContentDescription(description);
+            mContentDescription = description;
             return this;
         }
 
@@ -1553,13 +1682,88 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public HeaderBuilder setLayoutDirection(@LayoutDirection int layoutDirection) {
-            mImpl.setLayoutDirection(layoutDirection);
+            mLayoutDirection = layoutDirection;
             return this;
         }
 
-        @Override
-        void setImpl(TemplateBuilderImpl impl) {
-            mImpl = (androidx.slice.builders.impl.ListBuilder.HeaderBuilder) impl;
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public Uri getUri() {
+            return mUri;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getTitle() {
+            return mTitle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isTitleLoading() {
+            return mTitleLoading;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getSubtitle() {
+            return mSubtitle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isSubtitleLoading() {
+            return mSubtitleLoading;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getSummary() {
+            return mSummary;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isSummaryLoading() {
+            return mSummaryLoading;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public SliceAction getPrimaryAction() {
+            return mPrimaryAction;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getContentDescription() {
+            return mContentDescription;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getLayoutDirection() {
+            return mLayoutDirection;
         }
     }
 }

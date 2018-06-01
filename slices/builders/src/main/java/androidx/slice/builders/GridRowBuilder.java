@@ -26,7 +26,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Consumer;
-import androidx.slice.builders.impl.TemplateBuilderImpl;
+import androidx.core.util.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -61,27 +64,34 @@ import androidx.slice.builders.impl.TemplateBuilderImpl;
  * </ul>
  * <p>
  * If more cells are added to the grid row than can be displayed, the cells will be cut off. Using
- * {@link #addSeeMoreAction(PendingIntent)} you can specify an action to take the user to see the
+ * {@link #setSeeMoreAction(PendingIntent)} you can specify an action to take the user to see the
  * rest of the content, this will take up space as a cell item in a row if added.
  *
  * @see ListBuilder#addGridRow(GridRowBuilder)
  */
-public class GridRowBuilder extends TemplateSliceBuilder {
+public class GridRowBuilder {
 
-    private androidx.slice.builders.impl.GridRowBuilder mImpl;
+    private final List<CellBuilder> mCells = new ArrayList<>();
     private boolean mHasSeeMore;
+    private CellBuilder mSeeMoreCell;
+    private PendingIntent mSeeMoreIntent;
+    private SliceAction mPrimaryAction;
+    private CharSequence mDescription;
+    private int mLayoutDirection = -1;
+
+    /**
+     * Create a builder which will construct a slice displayed in a grid format.
+     */
+    public GridRowBuilder() {
+    }
 
     /**
      * Create a builder which will construct a slice displayed in a grid format.
      * @param parent The builder constructing the parent slice.
+     * @deprecated TO BE REMOVED
      */
+    @Deprecated
     public GridRowBuilder(@NonNull ListBuilder parent) {
-        super(parent.getImpl().createGridBuilder());
-    }
-
-    @Override
-    void setImpl(TemplateBuilderImpl impl) {
-        mImpl = (androidx.slice.builders.impl.GridRowBuilder) impl;
     }
 
     /**
@@ -89,7 +99,7 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public GridRowBuilder addCell(@NonNull CellBuilder builder) {
-        mImpl.addCell((TemplateBuilderImpl) builder.mImpl);
+        mCells.add(builder);
         return this;
     }
 
@@ -108,7 +118,7 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      * content is cut off.
      * <p>
      * This method should only be used if you want to display a custom cell to indicate more
-     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
+     * content, consider using {@link #setSeeMoreAction(PendingIntent)} otherwise. If you do
      * choose to specify a custom cell, the cell should have
      * {@link CellBuilder#setContentIntent(PendingIntent)} specified to take the user to an
      * activity to see all of the content.
@@ -124,7 +134,7 @@ public class GridRowBuilder extends TemplateSliceBuilder {
             throw new IllegalStateException("Trying to add see more cell when one has "
                     + "already been added");
         }
-        mImpl.setSeeMoreCell((TemplateBuilderImpl) builder.mImpl);
+        mSeeMoreCell = builder;
         mHasSeeMore = true;
         return this;
     }
@@ -134,7 +144,7 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      * content is cut off.
      * <p>
      * This method should only be used if you want to display a custom cell to indicate more
-     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
+     * content, consider using {@link #setSeeMoreAction(PendingIntent)} otherwise. If you do
      * choose to specify a custom cell, the cell should have
      * {@link CellBuilder#setContentIntent(PendingIntent)} specified to take the user to an
      * activity to see all of the content.
@@ -166,83 +176,7 @@ public class GridRowBuilder extends TemplateSliceBuilder {
             throw new IllegalStateException("Trying to add see more action when one has "
                     + "already been added");
         }
-        mImpl.setSeeMoreAction(intent);
-        mHasSeeMore = true;
-        return this;
-    }
-
-    /**
-     * If all content in a slice cannot be shown, the cell added here may be displayed where the
-     * content is cut off.
-     * <p>
-     * This method should only be used if you want to display a custom cell to indicate more
-     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
-     * choose to specify a custom cell, the cell should have
-     * {@link CellBuilder#setContentIntent(PendingIntent)} specified to take the user to an
-     * activity to see all of the content.
-     * </p>
-     * <p>
-     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
-     * a row or action has been previously added.
-     * </p>
-     *
-     * @deprecated TO BE REMOVED
-     */
-    @NonNull
-    @Deprecated
-    public GridRowBuilder addSeeMoreCell(@NonNull CellBuilder builder) {
-        if (mHasSeeMore) {
-            throw new IllegalStateException("Trying to add see more cell when one has "
-                    + "already been added");
-        }
-        mImpl.setSeeMoreCell((TemplateBuilderImpl) builder.mImpl);
-        mHasSeeMore = true;
-        return this;
-    }
-
-    /**
-     * If all content in a slice cannot be shown, the cell added here may be displayed where the
-     * content is cut off.
-     * <p>
-     * This method should only be used if you want to display a custom cell to indicate more
-     * content, consider using {@link #addSeeMoreAction(PendingIntent)} otherwise. If you do
-     * choose to specify a custom cell, the cell should have
-     * {@link CellBuilder#setContentIntent(PendingIntent)} specified to take the user to an
-     * activity to see all of the content.
-     * </p>
-     * <p>
-     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
-     * a row or action has been previously added.
-     * </p>
-     *
-     * @deprecated TO BE REMOVED
-     */
-    @NonNull
-    @Deprecated
-    public GridRowBuilder addSeeMoreCell(@NonNull Consumer<CellBuilder> c) {
-        CellBuilder b = new CellBuilder(this);
-        c.accept(b);
-        return addSeeMoreCell(b);
-    }
-
-    /**
-     * If all content in a slice cannot be shown, a "see more" affordance may be displayed where
-     * the content is cut off. The action added here should take the user to an activity to see
-     * all of the content, and will be invoked when the "see more" affordance is tapped.
-     * <p>
-     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
-     * a row or action has been previously added.
-     * </p>
-     * @deprecated TO BE REMOVED
-     */
-    @Deprecated
-    @NonNull
-    public GridRowBuilder addSeeMoreAction(@NonNull PendingIntent intent) {
-        if (mHasSeeMore) {
-            throw new IllegalStateException("Trying to add see more action when one has "
-                    + "already been added");
-        }
-        mImpl.setSeeMoreAction(intent);
+        mSeeMoreIntent = intent;
         mHasSeeMore = true;
         return this;
     }
@@ -260,7 +194,7 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public GridRowBuilder setPrimaryAction(@NonNull SliceAction action) {
-        mImpl.setPrimaryAction(action);
+        mPrimaryAction = action;
         return this;
     }
 
@@ -269,7 +203,7 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public GridRowBuilder setContentDescription(@NonNull CharSequence description) {
-        mImpl.setContentDescription(description);
+        mDescription = description;
         return this;
     }
 
@@ -280,7 +214,7 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      */
     @NonNull
     public GridRowBuilder setLayoutDirection(@ListBuilder.LayoutDirection int layoutDirection) {
-        mImpl.setLayoutDirection(layoutDirection);
+        mLayoutDirection = layoutDirection;
         return this;
     }
 
@@ -288,8 +222,48 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public androidx.slice.builders.impl.GridRowBuilder getImpl() {
-        return mImpl;
+    public SliceAction getPrimaryAction() {
+        return mPrimaryAction;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public List<CellBuilder> getCells() {
+        return mCells;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public CellBuilder getSeeMoreCell() {
+        return mSeeMoreCell;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public PendingIntent getSeeMoreIntent() {
+        return mSeeMoreIntent;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public CharSequence getDescription() {
+        return mDescription;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public int getLayoutDirection() {
+        return mLayoutDirection;
     }
 
     /**
@@ -324,28 +298,51 @@ public class GridRowBuilder extends TemplateSliceBuilder {
      * @see ListBuilder#SMALL_IMAGE
      * @see ListBuilder#ICON_IMAGE
      */
-    public static class CellBuilder extends TemplateSliceBuilder {
-        private androidx.slice.builders.impl.GridRowBuilder.CellBuilder mImpl;
+    public static class CellBuilder {
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public static final int TYPE_TEXT = 0;
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public static final int TYPE_TITLE = 1;
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public static final int TYPE_IMAGE = 2;
+
+        private List<Object> mObjects = new ArrayList<>();
+        private List<Integer> mTypes = new ArrayList<>();
+        private List<Boolean> mLoadings = new ArrayList<>();
+        private CharSequence mCellDescription;
+        private PendingIntent mContentIntent;
+
+        /**
+         * Create a builder which will construct a slice displayed as a cell in a grid.
+         */
+        public CellBuilder() {
+        }
 
         /**
          * Create a builder which will construct a slice displayed as a cell in a grid.
          * @param parent The builder constructing the parent slice.
+         * @deprecated TO BE REMOVED
          */
+        @Deprecated
         public CellBuilder(@NonNull GridRowBuilder parent) {
-            super(parent.mImpl.createGridRowBuilder());
         }
 
         /**
          * Create a builder which will construct a slice displayed as a cell in a grid.
          * @param uri Uri to tag for this slice.
+         * @deprecated TO BE REMOVED
          */
+        @Deprecated
         public CellBuilder(@NonNull GridRowBuilder parent, @NonNull Uri uri) {
-            super(parent.mImpl.createGridRowBuilder(uri));
-        }
-
-        @Override
-        void setImpl(TemplateBuilderImpl impl) {
-            mImpl = (androidx.slice.builders.impl.GridRowBuilder.CellBuilder) impl;
         }
 
         /**
@@ -369,7 +366,9 @@ public class GridRowBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public CellBuilder addText(@Nullable CharSequence text, boolean isLoading) {
-            mImpl.addText(text, isLoading);
+            mObjects.add(text);
+            mTypes.add(TYPE_TEXT);
+            mLoadings.add(isLoading);
             return this;
         }
 
@@ -396,7 +395,9 @@ public class GridRowBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public CellBuilder addTitleText(@Nullable CharSequence text, boolean isLoading) {
-            mImpl.addTitleText(text, isLoading);
+            mObjects.add(text);
+            mTypes.add(TYPE_TITLE);
+            mLoadings.add(isLoading);
             return this;
         }
 
@@ -436,7 +437,9 @@ public class GridRowBuilder extends TemplateSliceBuilder {
         @NonNull
         public CellBuilder addImage(@Nullable IconCompat image,
                 @ListBuilder.ImageMode int imageMode, boolean isLoading) {
-            mImpl.addImage(image, imageMode, isLoading);
+            mObjects.add(new Pair<>(image, imageMode));
+            mTypes.add(TYPE_IMAGE);
+            mLoadings.add(isLoading);
             return this;
         }
 
@@ -445,7 +448,7 @@ public class GridRowBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public CellBuilder setContentIntent(@NonNull PendingIntent intent) {
-            mImpl.setContentIntent(intent);
+            mContentIntent = intent;
             return this;
         }
 
@@ -454,8 +457,48 @@ public class GridRowBuilder extends TemplateSliceBuilder {
          */
         @NonNull
         public CellBuilder setContentDescription(@NonNull CharSequence description) {
-            mImpl.setContentDescription(description);
+            mCellDescription = description;
             return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public List<Object> getObjects() {
+            return mObjects;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public List<Integer> getTypes() {
+            return mTypes;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public List<Boolean> getLoadings() {
+            return mLoadings;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public CharSequence getCellDescription() {
+            return mCellDescription;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public PendingIntent getContentIntent() {
+            return mContentIntent;
         }
     }
 }

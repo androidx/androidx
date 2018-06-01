@@ -54,11 +54,17 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.Pair;
 import androidx.slice.Clock;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceSpec;
 import androidx.slice.SystemClock;
+import androidx.slice.builders.GridRowBuilder;
+import androidx.slice.builders.ListBuilder.HeaderBuilder;
+import androidx.slice.builders.ListBuilder.InputRangeBuilder;
+import androidx.slice.builders.ListBuilder.RangeBuilder;
+import androidx.slice.builders.ListBuilder.RowBuilder;
 import androidx.slice.builders.SliceAction;
 import androidx.slice.core.SliceQuery;
 
@@ -128,7 +134,17 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @NonNull
     @Override
-    public void addRow(@NonNull TemplateBuilderImpl builder) {
+    public void addRow(@NonNull RowBuilder builder) {
+        RowBuilderImpl impl = new RowBuilderImpl(createChildBuilder());
+        impl.fillFrom(builder);
+        addRow(impl);
+    }
+
+    /**
+     * Add a row to list builder.
+     */
+    @NonNull
+    public void addRow(@NonNull RowBuilderImpl builder) {
         builder.getBuilder().addHints(HINT_LIST_ITEM);
         getBuilder().addSubSlice(builder.build());
     }
@@ -137,16 +153,19 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @NonNull
     @Override
-    public void addGridRow(@NonNull TemplateBuilderImpl builder) {
-        builder.getBuilder().addHints(HINT_LIST_ITEM);
-        getBuilder().addSubSlice(builder.build());
+    public void addGridRow(@NonNull GridRowBuilder builder) {
+        GridRowBuilderListV1Impl impl = new GridRowBuilderListV1Impl(this, builder);
+        impl.getBuilder().addHints(HINT_LIST_ITEM);
+        getBuilder().addSubSlice(impl.build());
     }
 
     /**
      */
     @Override
-    public void setHeader(@NonNull TemplateBuilderImpl builder) {
-        mSliceHeader = builder.build();
+    public void setHeader(@NonNull HeaderBuilder builder) {
+        HeaderBuilderImpl impl = new HeaderBuilderImpl(this);
+        impl.fillFrom(builder);
+        mSliceHeader = impl.build();
     }
 
     /**
@@ -161,21 +180,25 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     }
 
     @Override
-    public void addInputRange(TemplateBuilderImpl builder) {
-        getBuilder().addSubSlice(builder.build(), SUBTYPE_RANGE);
+    public void addInputRange(InputRangeBuilder builder) {
+        InputRangeBuilderImpl impl = new InputRangeBuilderImpl(createChildBuilder(), builder);
+        getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);
     }
 
     @Override
-    public void addRange(TemplateBuilderImpl builder) {
-        getBuilder().addSubSlice(builder.build(), SUBTYPE_RANGE);
+    public void addRange(RangeBuilder builder) {
+        RangeBuilderImpl impl = new RangeBuilderImpl(createChildBuilder(), builder);
+        getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);
     }
 
     /**
      */
     @Override
-    public void setSeeMoreRow(TemplateBuilderImpl builder) {
-        builder.getBuilder().addHints(HINT_SEE_MORE);
-        getBuilder().addSubSlice(builder.build());
+    public void setSeeMoreRow(RowBuilder builder) {
+        RowBuilderImpl impl = new RowBuilderImpl(createChildBuilder());
+        impl.fillFrom(builder);
+        impl.getBuilder().addHints(HINT_SEE_MORE);
+        getBuilder().addSubSlice(impl.build());
     }
 
     /**
@@ -188,137 +211,6 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                         .addAction(intent, new Slice.Builder(getBuilder())
                                 .addHints(HINT_SEE_MORE).build(), null)
                         .build());
-    }
-
-    /**
-     * Builder to construct an input row.
-     */
-    public static class RangeBuilderImpl extends TemplateBuilderImpl implements RangeBuilder {
-        private int mMin = 0;
-        private int mMax = 100;
-        private int mValue = 0;
-        private boolean mValueSet = false;
-        private CharSequence mTitle;
-        private CharSequence mSubtitle;
-        private CharSequence mContentDescr;
-        private SliceAction mPrimaryAction;
-        private int mLayoutDir = -1;
-
-        public RangeBuilderImpl(Slice.Builder sb) {
-            super(sb, null);
-        }
-
-        @Override
-        public void setMin(int min) {
-            mMin = min;
-        }
-
-        @Override
-        public void setMax(int max) {
-            mMax = max;
-        }
-
-        @Override
-        public void setValue(int value) {
-            mValue = value;
-            mValueSet = true;
-        }
-
-        @Override
-        public void setTitle(@NonNull CharSequence title) {
-            mTitle = title;
-        }
-
-        @Override
-        public void setSubtitle(@NonNull CharSequence title) {
-            mSubtitle = title;
-        }
-
-        @Override
-        public void setPrimaryAction(@NonNull SliceAction action) {
-            mPrimaryAction = action;
-        }
-
-        @Override
-        public void setContentDescription(@NonNull CharSequence description) {
-            mContentDescr = description;
-        }
-
-        @Override
-        public void setLayoutDirection(int layoutDirection) {
-            mLayoutDir = layoutDirection;
-        }
-
-        @Override
-        public void apply(Slice.Builder builder) {
-            if (!mValueSet) {
-                // Unset, make it whatever min is
-                mValue = mMin;
-            }
-            if (!(mMin <= mValue && mValue <= mMax && mMin < mMax))  {
-                throw new IllegalArgumentException(
-                        "Invalid range values, min=" + mMin + ", value=" + mValue + ", max=" + mMax
-                + " ensure value falls within (min, max) and min < max.");
-            }
-
-            if (mTitle != null) {
-                builder.addText(mTitle, null, HINT_TITLE);
-            }
-            if (mSubtitle != null) {
-                builder.addText(mSubtitle, null);
-            }
-            if (mContentDescr != null) {
-                builder.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
-            }
-            if (mPrimaryAction != null) {
-                Slice.Builder sb = new Slice.Builder(
-                        getBuilder()).addHints(HINT_TITLE, HINT_SHORTCUT);
-                builder.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
-            }
-            if (mLayoutDir != -1) {
-                builder.addInt(mLayoutDir, SUBTYPE_LAYOUT_DIRECTION);
-            }
-            builder.addHints(HINT_LIST_ITEM)
-                    .addInt(mMin, SUBTYPE_MIN)
-                    .addInt(mMax, SUBTYPE_MAX)
-                    .addInt(mValue, SUBTYPE_VALUE);
-        }
-    }
-
-    /**
-     * Builder to construct an input range row.
-     */
-    public static class InputRangeBuilderImpl
-            extends RangeBuilderImpl implements InputRangeBuilder {
-        private PendingIntent mAction;
-        private IconCompat mThumb;
-
-        public InputRangeBuilderImpl(Slice.Builder sb) {
-            super(sb);
-        }
-
-        @Override
-        public void setInputAction(@NonNull PendingIntent action) {
-            mAction = action;
-        }
-
-        @Override
-        public void setThumb(@NonNull IconCompat thumb) {
-            mThumb = thumb;
-        }
-
-        @Override
-        public void apply(Slice.Builder builder) {
-            if (mAction == null) {
-                throw new IllegalStateException("Input ranges must have an associated action.");
-            }
-            Slice.Builder sb = new Slice.Builder(builder);
-            super.apply(sb);
-            if (mThumb != null) {
-                sb.addIcon(mThumb, null);
-            }
-            builder.addAction(mAction, sb.build(), SUBTYPE_RANGE).addHints(HINT_LIST_ITEM);
-        }
     }
 
     /**
@@ -365,53 +257,108 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     }
 
     /**
+     * Builder to construct an input row.
      */
-    @Override
-    public TemplateBuilderImpl createRowBuilder() {
-        return new RowBuilderImpl(this);
+    public static class RangeBuilderImpl extends TemplateBuilderImpl {
+        protected int mMin = 0;
+        protected int mMax = 100;
+        protected int mValue = 0;
+        protected boolean mValueSet = false;
+        protected CharSequence mTitle;
+        protected CharSequence mSubtitle;
+        protected CharSequence mContentDescr;
+        protected SliceAction mPrimaryAction;
+        protected int mLayoutDir = -1;
+
+        private RangeBuilderImpl(Slice.Builder sb, RangeBuilder builder) {
+            super(sb, null);
+            if (builder != null) {
+                mValueSet = builder.isValueSet();
+                mMax = builder.getMax();
+                mValue = builder.getValue();
+                mTitle = builder.getTitle();
+                mSubtitle = builder.getSubtitle();
+                mContentDescr = builder.getContentDescription();
+                mPrimaryAction = builder.getPrimaryAction();
+                mLayoutDir = builder.getLayoutDirection();
+            }
+        }
+
+        @Override
+        public void apply(Slice.Builder builder) {
+            if (!mValueSet) {
+                // Unset, make it whatever min is
+                mValue = mMin;
+            }
+            if (!(mMin <= mValue && mValue <= mMax && mMin < mMax))  {
+                throw new IllegalArgumentException(
+                        "Invalid range values, min=" + mMin + ", value=" + mValue + ", max=" + mMax
+                + " ensure value falls within (min, max) and min < max.");
+            }
+
+            if (mTitle != null) {
+                builder.addText(mTitle, null, HINT_TITLE);
+            }
+            if (mSubtitle != null) {
+                builder.addText(mSubtitle, null);
+            }
+            if (mContentDescr != null) {
+                builder.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
+            }
+            if (mPrimaryAction != null) {
+                Slice.Builder sb = new Slice.Builder(
+                        getBuilder()).addHints(HINT_TITLE, HINT_SHORTCUT);
+                builder.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
+            }
+            if (mLayoutDir != -1) {
+                builder.addInt(mLayoutDir, SUBTYPE_LAYOUT_DIRECTION);
+            }
+            builder.addHints(HINT_LIST_ITEM)
+                    .addInt(mMin, SUBTYPE_MIN)
+                    .addInt(mMax, SUBTYPE_MAX)
+                    .addInt(mValue, SUBTYPE_VALUE);
+        }
+    }
+
+    /**
+     * Builder to construct an input range row.
+     */
+    public static class InputRangeBuilderImpl extends RangeBuilderImpl {
+        private PendingIntent mAction;
+        private IconCompat mThumb;
+
+        private InputRangeBuilderImpl(Slice.Builder sb, InputRangeBuilder builder) {
+            super(sb, null);
+            mValueSet = builder.isValueSet();
+            mMin = builder.getMin();
+            mMax = builder.getMax();
+            mValue = builder.getValue();
+            mTitle = builder.getTitle();
+            mSubtitle = builder.getSubtitle();
+            mContentDescr = builder.getContentDescription();
+            mPrimaryAction = builder.getPrimaryAction();
+            mLayoutDir = builder.getLayoutDirection();
+            mAction = builder.getInputAction();
+            mThumb = builder.getThumb();
+        }
+
+        @Override
+        public void apply(Slice.Builder builder) {
+            if (mAction == null) {
+                throw new IllegalStateException("Input ranges must have an associated action.");
+            }
+            Slice.Builder sb = new Slice.Builder(builder);
+            super.apply(sb);
+            if (mThumb != null) {
+                sb.addIcon(mThumb, null);
+            }
+            builder.addAction(mAction, sb.build(), SUBTYPE_RANGE).addHints(HINT_LIST_ITEM);
+        }
     }
 
     /**
      */
-    @Override
-    public TemplateBuilderImpl createRowBuilder(Uri uri) {
-        return new RowBuilderImpl(uri);
-    }
-
-
-    @Override
-    public TemplateBuilderImpl createInputRangeBuilder() {
-        return new InputRangeBuilderImpl(createChildBuilder());
-    }
-
-    @Override
-    public TemplateBuilderImpl createRangeBuilder() {
-        return new RangeBuilderImpl(createChildBuilder());
-    }
-
-    /**
-     */
-    @Override
-    public TemplateBuilderImpl createGridBuilder() {
-        return new GridRowBuilderListV1Impl(this);
-    }
-
-    /**
-     */
-    @Override
-    public TemplateBuilderImpl createHeaderBuilder() {
-        return new HeaderBuilderImpl(this);
-    }
-
-    @Override
-    public TemplateBuilderImpl createHeaderBuilder(Uri uri) {
-        return new HeaderBuilderImpl(uri);
-    }
-
-    /**
-     */
-    public static class RowBuilderImpl extends TemplateBuilderImpl
-            implements ListBuilder.RowBuilder {
+    public static class RowBuilderImpl extends TemplateBuilderImpl {
 
         private SliceAction mPrimaryAction;
         private SliceItem mTitleItem;
@@ -422,27 +369,71 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
         /**
          */
-        public RowBuilderImpl(@NonNull ListBuilderV1Impl parent) {
+        private RowBuilderImpl(@NonNull ListBuilderV1Impl parent) {
             super(parent.createChildBuilder(), null);
         }
 
         /**
          */
-        public RowBuilderImpl(@NonNull Uri uri) {
+        private RowBuilderImpl(@NonNull Uri uri) {
             super(new Slice.Builder(uri), null);
         }
 
         /**
          */
-        public RowBuilderImpl(Slice.Builder builder) {
+        protected RowBuilderImpl(Slice.Builder builder) {
             super(builder, null);
+        }
+
+        private void fillFrom(RowBuilder builder) {
+            if (builder.getUri() != null) {
+                setBuilder(new Slice.Builder(builder.getUri()));
+            }
+            setPrimaryAction(builder.getPrimaryAction());
+            if (builder.getLayoutDirection() != -1) {
+                setLayoutDirection(builder.getLayoutDirection());
+            }
+            if (builder.getTitleAction() != null || builder.isTitleActionLoading()) {
+                setTitleItem(builder.getTitleAction(), builder.isTitleActionLoading());
+            } else if (builder.getTitleIcon() != null || builder.isTitleItemLoading()) {
+                setTitleItem(builder.getTitleIcon(), builder.getTitleImageMode(),
+                        builder.isTitleItemLoading());
+            } else if (builder.getTimeStamp() != -1L) {
+                setTitleItem(builder.getTimeStamp());
+            }
+            if (builder.getTitle() != null || builder.isTitleLoading()) {
+                setTitle(builder.getTitle(), builder.isTitleLoading());
+            }
+            if (builder.getSubtitle() != null || builder.isSubtitleLoading()) {
+                setSubtitle(builder.getSubtitle(), builder.isSubtitleLoading());
+            }
+            if (builder.getContentDescription() != null) {
+                setContentDescription(builder.getContentDescription());
+            }
+            List<Object> endItems = builder.getEndItems();
+            List<Integer> endTypes = builder.getEndTypes();
+            List<Boolean> endLoads = builder.getEndLoads();
+            for (int i = 0; i < endItems.size(); i++) {
+                switch (endTypes.get(i)) {
+                    case RowBuilder.TYPE_TIMESTAMP:
+                        addEndItem((Long) endItems.get(i));
+                        break;
+                    case RowBuilder.TYPE_ACTION:
+                        addEndItem((SliceAction) endItems.get(i), endLoads.get(i));
+                        break;
+                    case RowBuilder.TYPE_ICON:
+                        Pair<IconCompat, Integer> pair =
+                                (Pair<IconCompat, Integer>) endItems.get(i);
+                        addEndItem(pair.first, pair.second, endLoads.get(i));
+                        break;
+                }
+            }
         }
 
         /**
          */
         @NonNull
-        @Override
-        public void setTitleItem(long timeStamp) {
+        private void setTitleItem(long timeStamp) {
             mStartItem = new Slice.Builder(getBuilder())
                     .addTimestamp(timeStamp, null).addHints(HINT_TITLE).build();
         }
@@ -450,16 +441,14 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         /**
          */
         @NonNull
-        @Override
-        public void setTitleItem(IconCompat icon, int imageMode) {
+        protected void setTitleItem(IconCompat icon, int imageMode) {
             setTitleItem(icon, imageMode, false /* isLoading */);
         }
 
         /**
          */
         @NonNull
-        @Override
-        public void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
+        private void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
             ArrayList<String> hints = new ArrayList<>();
             if (imageMode != ICON_IMAGE) {
                 hints.add(HINT_NO_TINT);
@@ -481,15 +470,13 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         /**
          */
         @NonNull
-        @Override
-        public void setTitleItem(@NonNull SliceAction action) {
+        private void setTitleItem(@NonNull SliceAction action) {
             setTitleItem(action, false /* isLoading */);
         }
 
         /**
          */
-        @Override
-        public void setTitleItem(SliceAction action, boolean isLoading) {
+        private void setTitleItem(SliceAction action, boolean isLoading) {
             Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
             if (isLoading) {
                 sb.addHints(HINT_PARTIAL);
@@ -500,23 +487,20 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         /**
          */
         @NonNull
-        @Override
-        public void setPrimaryAction(@NonNull SliceAction action) {
+        private void setPrimaryAction(@NonNull SliceAction action) {
             mPrimaryAction = action;
         }
 
         /**
          */
         @NonNull
-        @Override
-        public void setTitle(CharSequence title) {
+        private void setTitle(CharSequence title) {
             setTitle(title, false /* isLoading */);
         }
 
         /**
          */
-        @Override
-        public void setTitle(CharSequence title, boolean isLoading) {
+        private void setTitle(CharSequence title, boolean isLoading) {
             mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});
             if (isLoading) {
                 mTitleItem.addHint(HINT_PARTIAL);
@@ -526,15 +510,13 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         /**
          */
         @NonNull
-        @Override
-        public void setSubtitle(CharSequence subtitle) {
+        protected void setSubtitle(CharSequence subtitle) {
             setSubtitle(subtitle, false /* isLoading */);
         }
 
         /**
          */
-        @Override
-        public void setSubtitle(CharSequence subtitle, boolean isLoading) {
+        private void setSubtitle(CharSequence subtitle, boolean isLoading) {
             mSubtitleItem = new SliceItem(subtitle, FORMAT_TEXT, null, new String[0]);
             if (isLoading) {
                 mSubtitleItem.addHint(HINT_PARTIAL);
@@ -544,8 +526,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         /**
          */
         @NonNull
-        @Override
-        public void addEndItem(long timeStamp) {
+        protected void addEndItem(long timeStamp) {
             mEndItems.add(new Slice.Builder(getBuilder()).addTimestamp(timeStamp,
                     null, new String[0]).build());
         }
@@ -553,16 +534,14 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         /**
          */
         @NonNull
-        @Override
-        public void addEndItem(IconCompat icon, int imageMode) {
+        private void addEndItem(IconCompat icon, int imageMode) {
             addEndItem(icon, imageMode, false /* isLoading */);
         }
 
         /**
          */
         @NonNull
-        @Override
-        public void addEndItem(IconCompat icon, int imageMode, boolean isLoading) {
+        private void addEndItem(IconCompat icon, int imageMode, boolean isLoading) {
             ArrayList<String> hints = new ArrayList<>();
             if (imageMode != ICON_IMAGE) {
                 hints.add(HINT_NO_TINT);
@@ -584,15 +563,13 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         /**
          */
         @NonNull
-        @Override
-        public void addEndItem(@NonNull SliceAction action) {
+        private void addEndItem(@NonNull SliceAction action) {
             addEndItem(action, false /* isLoading */);
         }
 
         /**
          */
-        @Override
-        public void addEndItem(@NonNull SliceAction action, boolean isLoading) {
+        private void addEndItem(@NonNull SliceAction action, boolean isLoading) {
             Slice.Builder sb = new Slice.Builder(getBuilder());
             if (isLoading) {
                 sb.addHints(HINT_PARTIAL);
@@ -600,13 +577,11 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             mEndItems.add(action.buildSlice(sb));
         }
 
-        @Override
-        public void setContentDescription(CharSequence description) {
+        private void setContentDescription(CharSequence description) {
             mContentDescr = description;
         }
 
-        @Override
-        public void setLayoutDirection(int layoutDirection) {
+        private void setLayoutDirection(int layoutDirection) {
             getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
         }
 
@@ -640,8 +615,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
     /**
      */
-    public static class HeaderBuilderImpl extends TemplateBuilderImpl
-            implements ListBuilder.HeaderBuilder {
+    public static class HeaderBuilderImpl extends TemplateBuilderImpl {
 
         private SliceItem mTitleItem;
         private SliceItem mSubtitleItem;
@@ -651,14 +625,36 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
         /**
          */
-        public HeaderBuilderImpl(@NonNull ListBuilderV1Impl parent) {
+        private HeaderBuilderImpl(@NonNull ListBuilderV1Impl parent) {
             super(parent.createChildBuilder(), null);
         }
 
         /**
          */
-        public HeaderBuilderImpl(@NonNull Uri uri) {
+        private HeaderBuilderImpl(@NonNull Uri uri) {
             super(new Slice.Builder(uri), null);
+        }
+
+        private void fillFrom(HeaderBuilder builder) {
+            if (builder.getUri() != null) {
+                setBuilder(new Slice.Builder(builder.getUri()));
+            }
+            setPrimaryAction(builder.getPrimaryAction());
+            if (builder.getLayoutDirection() != -1) {
+                setLayoutDirection(builder.getLayoutDirection());
+            }
+            if (builder.getTitle() != null || builder.isTitleLoading()) {
+                setTitle(builder.getTitle(), builder.isTitleLoading());
+            }
+            if (builder.getSubtitle() != null || builder.isSubtitleLoading()) {
+                setSubtitle(builder.getSubtitle(), builder.isSubtitleLoading());
+            }
+            if (builder.getSummary() != null || builder.isSummaryLoading()) {
+                setSummary(builder.getSummary(), builder.isSummaryLoading());
+            }
+            if (builder.getContentDescription() != null) {
+                setContentDescription(builder.getContentDescription());
+            }
         }
 
         /**
@@ -686,8 +682,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
         /**
          */
-        @Override
-        public void setTitle(CharSequence title, boolean isLoading) {
+        private void setTitle(CharSequence title, boolean isLoading) {
             mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});
             if (isLoading) {
                 mTitleItem.addHint(HINT_PARTIAL);
@@ -696,8 +691,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
         /**
          */
-        @Override
-        public void setSubtitle(CharSequence subtitle, boolean isLoading) {
+        private void setSubtitle(CharSequence subtitle, boolean isLoading) {
             mSubtitleItem = new SliceItem(subtitle, FORMAT_TEXT, null, new String[0]);
             if (isLoading) {
                 mSubtitleItem.addHint(HINT_PARTIAL);
@@ -706,8 +700,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
         /**
          */
-        @Override
-        public void setSummary(CharSequence summarySubtitle, boolean isLoading) {
+        private void setSummary(CharSequence summarySubtitle, boolean isLoading) {
             mSummaryItem = new SliceItem(summarySubtitle, FORMAT_TEXT, null,
                     new String[] {HINT_SUMMARY});
             if (isLoading) {
@@ -717,20 +710,17 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
         /**
          */
-        @Override
-        public void setPrimaryAction(SliceAction action) {
+        private void setPrimaryAction(SliceAction action) {
             mPrimaryAction = action;
         }
 
         /**
          */
-        @Override
-        public void setContentDescription(CharSequence description) {
+        private void setContentDescription(CharSequence description) {
             mContentDescr = description;
         }
 
-        @Override
-        public void setLayoutDirection(int layoutDirection) {
+        private void setLayoutDirection(int layoutDirection) {
             getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
         }
     }

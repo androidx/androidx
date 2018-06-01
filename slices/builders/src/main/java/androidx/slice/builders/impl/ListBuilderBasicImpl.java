@@ -22,16 +22,18 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 
 import android.app.PendingIntent;
-import android.net.Uri;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpec;
+import androidx.slice.builders.GridRowBuilder;
+import androidx.slice.builders.ListBuilder.HeaderBuilder;
+import androidx.slice.builders.ListBuilder.InputRangeBuilder;
+import androidx.slice.builders.ListBuilder.RangeBuilder;
+import androidx.slice.builders.ListBuilder.RowBuilder;
 import androidx.slice.builders.SliceAction;
 
 import java.time.Duration;
@@ -53,14 +55,14 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     /**
      */
     @Override
-    public void addRow(TemplateBuilderImpl impl) {
+    public void addRow(RowBuilder impl) {
         // Do nothing.
     }
 
     /**
      */
     @Override
-    public void addGridRow(TemplateBuilderImpl impl) {
+    public void addGridRow(GridRowBuilder impl) {
         // Do nothing.
     }
 
@@ -74,24 +76,24 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     /**
      */
     @Override
-    public void setHeader(TemplateBuilderImpl impl) {
+    public void setHeader(HeaderBuilder impl) {
         // Do nothing.
     }
 
     @Override
-    public void addInputRange(TemplateBuilderImpl builder) {
+    public void addInputRange(InputRangeBuilder builder) {
         // Do nothing.
     }
 
     @Override
-    public void addRange(TemplateBuilderImpl builder) {
+    public void addRange(RangeBuilder builder) {
         // Do nothing.
     }
 
     /**
      */
     @Override
-    public void setSeeMoreRow(TemplateBuilderImpl builder) {
+    public void setSeeMoreRow(RowBuilder builder) {
     }
 
     /**
@@ -140,252 +142,9 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     /**
      */
     @Override
-    public TemplateBuilderImpl createRowBuilder() {
-        return new RowBuilderImpl(this);
-    }
-
-    /**
-     */
-    @Override
-    public TemplateBuilderImpl createRowBuilder(Uri uri) {
-        return new RowBuilderImpl(uri);
-    }
-
-    /**
-     */
-    @Override
-    public TemplateBuilderImpl createGridBuilder() {
-        return new GridRowBuilderBasicImpl(this);
-    }
-
-    @Override
-    public TemplateBuilderImpl createHeaderBuilder() {
-        return new HeaderBuilderImpl(this);
-    }
-
-    @Override
-    public TemplateBuilderImpl createHeaderBuilder(Uri uri) {
-        return new HeaderBuilderImpl(uri);
-    }
-
-    @Override
-    public TemplateBuilderImpl createInputRangeBuilder() {
-        return new ListBuilderV1Impl.InputRangeBuilderImpl(getBuilder());
-    }
-
-    @Override
-    public TemplateBuilderImpl createRangeBuilder() {
-        return new ListBuilderV1Impl.RangeBuilderImpl(getBuilder());
-    }
-
-    /**
-     */
-    @Override
     public void apply(Slice.Builder builder) {
         if (mIsError) {
             builder.addHints(HINT_ERROR);
-        }
-    }
-
-    /**
-     */
-    public static class RowBuilderImpl extends TemplateBuilderImpl
-            implements ListBuilder.RowBuilder {
-
-        /**
-         */
-        public RowBuilderImpl(@NonNull ListBuilderBasicImpl parent) {
-            super(parent.createChildBuilder(), null);
-        }
-
-        /**
-         */
-        public RowBuilderImpl(@NonNull Uri uri) {
-            super(new Slice.Builder(uri), null);
-        }
-
-        /**
-         */
-        @Override
-        public void addEndItem(SliceAction action) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void addEndItem(SliceAction action, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setContentDescription(CharSequence description) {
-
-        }
-
-        @Override
-        public void setLayoutDirection(int layoutDirection) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setTitleItem(long timeStamp) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setTitleItem(IconCompat icon, int imageMode) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setTitleItem(SliceAction action) {
-        }
-
-        /**
-         */
-        @Override
-        public void setTitleItem(SliceAction action, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setPrimaryAction(SliceAction action) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setTitle(CharSequence title) {
-        }
-
-        /**
-         */
-        @Override
-        public void setTitle(CharSequence title, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setSubtitle(CharSequence subtitle) {
-        }
-
-        /**
-         */
-        @Override
-        public void setSubtitle(CharSequence subtitle, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void addEndItem(long timeStamp) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void addEndItem(IconCompat icon, int imageMode) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void addEndItem(IconCompat icon, int imageMode, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void apply(Slice.Builder builder) {
-
-        }
-    }
-
-    /**
-     */
-    public static class HeaderBuilderImpl extends TemplateBuilderImpl
-            implements ListBuilder.HeaderBuilder {
-
-        /**
-         */
-        public HeaderBuilderImpl(@NonNull ListBuilderBasicImpl parent) {
-            super(parent.createChildBuilder(), null);
-        }
-
-        /**
-         */
-        public HeaderBuilderImpl(@NonNull Uri uri) {
-            super(new Slice.Builder(uri), null);
-        }
-
-        /**
-         */
-        @Override
-        public void apply(Slice.Builder builder) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setTitle(CharSequence title, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setSubtitle(CharSequence subtitle, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setSummary(CharSequence summarySubtitle, boolean isLoading) {
-
-        }
-
-        /**
-         */
-        @Override
-        public void setPrimaryAction(SliceAction action) {
-
-        }
-
-        @Override
-        public void setContentDescription(CharSequence description) {
-
-        }
-
-        @Override
-        public void setLayoutDirection(int layoutDirection) {
-
         }
     }
 }

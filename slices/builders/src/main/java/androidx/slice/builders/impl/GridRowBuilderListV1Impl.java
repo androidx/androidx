@@ -36,23 +36,44 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.Pair;
 import androidx.slice.Slice;
+import androidx.slice.builders.GridRowBuilder;
+import androidx.slice.builders.GridRowBuilder.CellBuilder;
 import androidx.slice.builders.SliceAction;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements GridRowBuilder {
+public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
     private SliceAction mPrimaryAction;
 
     /**
      */
-    public GridRowBuilderListV1Impl(@NonNull ListBuilderV1Impl parent) {
+    public GridRowBuilderListV1Impl(@NonNull ListBuilderV1Impl parent, GridRowBuilder builder) {
         super(parent.createChildBuilder(), null);
+        if (builder.getLayoutDirection() != -1) {
+            setLayoutDirection(builder.getLayoutDirection());
+        }
+        if (builder.getDescription() != null) {
+            setContentDescription(builder.getDescription());
+        }
+        if (builder.getSeeMoreIntent() != null) {
+            setSeeMoreAction(builder.getSeeMoreIntent());
+        } else if (builder.getSeeMoreCell() != null) {
+            setSeeMoreCell(builder.getSeeMoreCell());
+        }
+        if (builder.getPrimaryAction() != null) {
+            setPrimaryAction(builder.getPrimaryAction());
+        }
+        for (CellBuilder b : builder.getCells()) {
+            addCell(b);
+        }
     }
 
     /**
@@ -68,97 +89,102 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
 
     /**
      */
-    @Override
-    public TemplateBuilderImpl createGridRowBuilder() {
-        return new CellBuilder(this);
+    public void addCell(CellBuilder builder) {
+        CellBuilderImpl impl = new CellBuilderImpl(this);
+        impl.fillFrom(builder);
+        impl.apply(getBuilder());
     }
 
     /**
      */
-    @Override
-    public TemplateBuilderImpl createGridRowBuilder(Uri uri) {
-        return new CellBuilder(uri);
+    public void setSeeMoreCell(@NonNull CellBuilder builder) {
+        CellBuilderImpl impl = new CellBuilderImpl(this);
+        impl.fillFrom(builder);
+        impl.getBuilder().addHints(HINT_SEE_MORE);
+        impl.apply(getBuilder());
     }
 
     /**
      */
-    @Override
-    public void addCell(TemplateBuilderImpl builder) {
-        builder.apply(getBuilder());
-    }
-
-
-    /**
-     */
-    @Override
-    public void setSeeMoreCell(@NonNull TemplateBuilderImpl builder) {
-        builder.getBuilder().addHints(HINT_SEE_MORE);
-        builder.apply(getBuilder());
-    }
-
-    /**
-     */
-    @Override
     public void setSeeMoreAction(PendingIntent intent) {
-        getBuilder().addSubSlice(
-                new Slice.Builder(getBuilder())
-                        .addHints(HINT_SEE_MORE)
-                        .addAction(intent, new Slice.Builder(getBuilder()).build(), null)
-                        .build());
+        getBuilder().addSubSlice(new Slice.Builder(getBuilder()).addHints(HINT_SEE_MORE)
+                .addAction(intent, new Slice.Builder(getBuilder()).build(), null).build());
     }
 
     /**
      */
-    @Override
     public void setPrimaryAction(SliceAction action) {
         mPrimaryAction = action;
     }
 
     /**
      */
-    @Override
     public void setContentDescription(CharSequence description) {
         getBuilder().addText(description, SUBTYPE_CONTENT_DESCRIPTION);
     }
 
     /**
      */
-    @Override
     public void setLayoutDirection(int layoutDirection) {
         getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
     }
 
     /**
      */
-    public static final class CellBuilder extends TemplateBuilderImpl implements
-            GridRowBuilder.CellBuilder {
+    public static final class CellBuilderImpl extends TemplateBuilderImpl {
 
         private PendingIntent mContentIntent;
 
         /**
          */
-        public CellBuilder(@NonNull GridRowBuilderListV1Impl parent) {
+        private CellBuilderImpl(@NonNull GridRowBuilderListV1Impl parent) {
             super(parent.createChildBuilder(), null);
         }
 
         /**
          */
-        public CellBuilder(@NonNull Uri uri) {
+        public void fillFrom(CellBuilder builder) {
+            if (builder.getCellDescription() != null) {
+                setContentDescription(builder.getCellDescription());
+            }
+            if (builder.getContentIntent() != null) {
+                setContentIntent(builder.getContentIntent());
+            }
+            List<Object> objs = builder.getObjects();
+            List<Integer> types = builder.getTypes();
+            List<Boolean> loadings = builder.getLoadings();
+            for (int i = 0; i < objs.size(); i++) {
+                switch (types.get(i)) {
+                    case CellBuilder.TYPE_TEXT:
+                        addText((CharSequence) objs.get(i), loadings.get(i));
+                        break;
+                    case CellBuilder.TYPE_TITLE:
+                        addTitleText((CharSequence) objs.get(i), loadings.get(i));
+                        break;
+                    case CellBuilder.TYPE_IMAGE:
+                        Pair<IconCompat, Integer> pair = (Pair<IconCompat, Integer>) objs.get(i);
+                        addImage(pair.first, pair.second, loadings.get(i));
+                        break;
+                }
+            }
+        }
+
+        /**
+         */
+        private CellBuilderImpl(@NonNull Uri uri) {
             super(new Slice.Builder(uri), null);
         }
 
         /**
          */
         @NonNull
-        @Override
-        public void addText(@NonNull CharSequence text) {
+        private void addText(@NonNull CharSequence text) {
             addText(text, false /* isLoading */);
         }
 
         /**
          */
-        @Override
-        public void addText(@Nullable CharSequence text, boolean isLoading) {
+        private void addText(@Nullable CharSequence text, boolean isLoading) {
             @Slice.SliceHint String[] hints = isLoading
                     ? new String[] {HINT_PARTIAL}
                     : new String[0];
@@ -168,16 +194,14 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
         /**
          */
         @NonNull
-        @Override
-        public void addTitleText(@NonNull CharSequence text) {
+        private void addTitleText(@NonNull CharSequence text) {
             addTitleText(text, false /* isLoading */);
         }
 
         /**
          */
         @NonNull
-        @Override
-        public void addTitleText(@Nullable CharSequence text, boolean isLoading) {
+        private void addTitleText(@Nullable CharSequence text, boolean isLoading) {
             @Slice.SliceHint String[] hints = isLoading
                     ? new String[] {HINT_PARTIAL, HINT_TITLE}
                     : new String[] {HINT_TITLE};
@@ -187,16 +211,14 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
         /**
          */
         @NonNull
-        @Override
-        public void addImage(@NonNull IconCompat image, int imageMode) {
+        private void addImage(@NonNull IconCompat image, int imageMode) {
             addImage(image, imageMode, false /* isLoading */);
         }
 
         /**
          */
         @NonNull
-        @Override
-        public void addImage(@Nullable IconCompat image, int imageMode, boolean isLoading) {
+        private void addImage(@Nullable IconCompat image, int imageMode, boolean isLoading) {
             ArrayList<String> hints = new ArrayList<>();
             if (imageMode != ICON_IMAGE) {
                 hints.add(HINT_NO_TINT);
@@ -213,15 +235,13 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl implements Gri
         /**
          */
         @NonNull
-        @Override
-        public void setContentIntent(@NonNull PendingIntent intent) {
+        private void setContentIntent(@NonNull PendingIntent intent) {
             mContentIntent = intent;
         }
 
         /**
          */
-        @Override
-        public void setContentDescription(CharSequence description) {
+        private void setContentDescription(CharSequence description) {
             getBuilder().addText(description, SUBTYPE_CONTENT_DESCRIPTION);
         }
 
