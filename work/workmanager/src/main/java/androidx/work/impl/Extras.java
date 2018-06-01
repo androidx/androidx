@@ -40,13 +40,16 @@ public class Extras {
     private @NonNull Data mInputData;
     private @NonNull Set<String> mTags;
     private @Nullable RuntimeExtras mRuntimeExtras;
+    private int mRunAttemptCount;
 
     public Extras(@NonNull Data inputData,
             @NonNull List<String> tags,
-            @Nullable RuntimeExtras runtimeExtras) {
+            @Nullable RuntimeExtras runtimeExtras,
+            int runAttemptCount) {
         mInputData = inputData;
         mTags = new HashSet<>(tags);
         mRuntimeExtras = runtimeExtras;
+        mRunAttemptCount = runAttemptCount;
     }
 
     public @NonNull Data getInputData() {
@@ -59,6 +62,10 @@ public class Extras {
 
     public @Nullable RuntimeExtras getRuntimeExtras() {
         return mRuntimeExtras;
+    }
+
+    public int getRunAttemptCount() {
+        return mRunAttemptCount;
     }
 
     /**
