@@ -40,7 +40,7 @@ class NavParserTest {
     fun test() {
         val id: (String) -> ResReference = { id -> ResReference("a.b", "id", id) }
         val navGraph = NavParser.parseNavigationFile(testData("naive_test.xml"),
-            "a.b", "foo.app")
+            "a.b", "foo.app", Context())
 
         val nameFirst = ClassName.get("androidx.navigation.testapp", "MainFragment")
         val nameNext = ClassName.get("foo.app", "NextFragment")

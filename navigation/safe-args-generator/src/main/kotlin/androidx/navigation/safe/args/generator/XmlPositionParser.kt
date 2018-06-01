@@ -20,7 +20,7 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.Reader
 
-internal class XmlContextParser(private val name: String, reader: Reader) {
+internal class XmlPositionParser(private val name: String, reader: Reader, val logger: NavLogger) {
     private var startLine = 0
     private var startColumn = 0
     private val parser: XmlPullParser = XmlPullParserFactory.newInstance().newPullParser().apply {
@@ -53,7 +53,7 @@ internal class XmlContextParser(private val name: String, reader: Reader) {
         parser.nextToken()
     }
 
-    fun xmlContext() = XmlContext(name, startLine, startColumn - 1)
+    fun xmlPosition() = XmlPosition(name, startLine, startColumn - 1)
 
     fun traverseInnerStartTags(onStartTag: () -> Unit) {
         val innerDepth = parser.depth + 1
@@ -71,9 +71,13 @@ internal class XmlContextParser(private val name: String, reader: Reader) {
             parser.getAttributeNamespace(it) == namespace && name == parser.getAttributeName(it)
         }?.let { parser.getAttributeValue(it) }
 
-    fun attrValueOrThrow(namespace: String, attrName: String): String =
-        attrValue(namespace, attrName) ?:
-        throw xmlContext().createError(mandatoryAttrMissingError(name(), attrName))
+    fun attrValueOrError(namespace: String, attrName: String): String? {
+        val value = attrValue(namespace, attrName)
+        if (value == null) {
+            logger.error(mandatoryAttrMissingError(name(), attrName), xmlPosition())
+        }
+        return value
+    }
 }
 
 internal fun mandatoryAttrMissingError(tag: String, attr: String) =

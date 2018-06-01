@@ -21,9 +21,14 @@ import com.squareup.javapoet.JavaFile
 import java.io.File
 
 fun generateSafeArgs(
-        rFilePackage: String, applicationId: String,
-        navigationXml: File, outputDir: File): List<String> {
-    val rawDestination = NavParser.parseNavigationFile(navigationXml, rFilePackage, applicationId)
+    rFilePackage: String,
+    applicationId: String,
+    navigationXml: File,
+    outputDir: File
+): GeneratorOutput {
+    val context = Context()
+    val rawDestination = NavParser.parseNavigationFile(navigationXml, rFilePackage, applicationId,
+            context)
     val resolvedDestination = resolveArguments(rawDestination)
     val javaFiles = mutableSetOf<JavaFile>()
     fun writeJavaFiles(destination: Destination) {
@@ -37,5 +42,6 @@ fun generateSafeArgs(
     }
     writeJavaFiles(resolvedDestination)
     javaFiles.forEach { javaFile -> javaFile.writeTo(outputDir) }
-    return javaFiles.map { javaFile -> "${javaFile.packageName}.${javaFile.typeSpec.name}" }
+    val files = javaFiles.map { javaFile -> "${javaFile.packageName}.${javaFile.typeSpec.name}" }
+    return GeneratorOutput(files, context.logger.allMessages())
 }
