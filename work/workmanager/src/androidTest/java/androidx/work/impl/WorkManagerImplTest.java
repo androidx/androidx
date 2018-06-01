@@ -39,7 +39,6 @@ import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.isOneOf;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -102,8 +101,6 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest {
-
-    private static final int NUM_WORKERS = 500;
 
     private WorkDatabase mDatabase;
     private WorkManagerImpl mWorkManagerImpl;
@@ -1447,21 +1444,6 @@ public class WorkManagerImplTest {
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
         assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
-    }
-
-    @Test
-    @LargeTest
-    @SdkSuppress(maxSdkVersion = 22)
-    public void testSchedulerLimits() {
-        for (int i = 0; i < NUM_WORKERS; i++) {
-            mWorkManagerImpl.enqueue(OneTimeWorkRequest.from(TestWorker.class));
-            List<WorkSpec> eligibleWorkSpecs = mWorkManagerImpl.getWorkDatabase()
-                    .workSpecDao()
-                    .getEligibleWorkForScheduling();
-
-            int size = eligibleWorkSpecs != null ? eligibleWorkSpecs.size() : 0;
-            assertThat(size, lessThanOrEqualTo(Scheduler.MAX_SCHEDULER_LIMIT));
-        }
     }
 
     private void insertWorkSpecAndTags(WorkRequest work) {
