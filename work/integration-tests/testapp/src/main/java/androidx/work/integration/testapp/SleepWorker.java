@@ -27,9 +27,8 @@ import androidx.work.Worker;
 public class SleepWorker extends Worker {
     private static final String TAG = "SleepWorker";
 
-    @NonNull
     @Override
-    public WorkerResult doWork() {
+    public @NonNull Result doWork() {
         try {
             Log.i(TAG, "Sleeping");
             Thread.sleep(200);
@@ -37,6 +36,6 @@ public class SleepWorker extends Worker {
         } catch (InterruptedException ignore) {
             Log.v(TAG, "Interrupted.");
         }
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 }

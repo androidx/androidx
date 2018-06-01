@@ -29,8 +29,8 @@ import androidx.work.Worker;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CombineContinuationsWorker extends Worker {
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         setOutputData(getInputData());
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 }
