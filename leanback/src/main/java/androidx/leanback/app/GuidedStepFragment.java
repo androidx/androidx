@@ -20,11 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentManager.BackStackEntry;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,6 +36,11 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
+import android.app.Fragment;
+import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentManager.BackStackEntry;
+import android.app.FragmentTransaction;
 import androidx.leanback.R;
 import androidx.leanback.transition.TransitionHelper;
 import androidx.leanback.widget.DiffCallback;
@@ -560,8 +560,11 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     private static void addNonNullSharedElementTransition (FragmentTransaction ft, View subView,
                                                            String transitionName)
     {
-        if (subView != null)
-            TransitionHelper.addSharedElement(ft, subView, transitionName);
+        if (IS_FRAMEWORK_FRAGMENT && Build.VERSION.SDK_INT >= 21) {
+            if (subView != null) {
+                ft.addSharedElement(subView, transitionName);
+            }
+        }
     }
 
     /**
@@ -902,7 +905,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 TransitionHelper.exclude(enterTransition, R.id.guidedstep_background, true);
                 TransitionHelper.exclude(enterTransition, R.id.guidedactions_sub_list_background,
                         true);
-                TransitionHelper.setEnterTransition(this, enterTransition);
+                setEnterTransition((android.transition.Transition) enterTransition);
 
                 Object fade = TransitionHelper.createFadeTransition(
                         TransitionHelper.FADE_IN | TransitionHelper.FADE_OUT);
@@ -911,7 +914,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                 Object sharedElementTransition = TransitionHelper.createTransitionSet(false);
                 TransitionHelper.addTransition(sharedElementTransition, fade);
                 TransitionHelper.addTransition(sharedElementTransition, changeBounds);
-                TransitionHelper.setSharedElementEnterTransition(this, sharedElementTransition);
+                setSharedElementEnterTransition((android.transition.Transition) sharedElementTransition);
             } else if (uiStyle == UI_STYLE_ENTRANCE) {
                 if (entranceTransitionType == SLIDE_FROM_SIDE) {
                     Object fade = TransitionHelper.createFadeTransition(
@@ -924,29 +927,29 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
                     Object enterTransition = TransitionHelper.createTransitionSet(false);
                     TransitionHelper.addTransition(enterTransition, fade);
                     TransitionHelper.addTransition(enterTransition, slideFromSide);
-                    TransitionHelper.setEnterTransition(this, enterTransition);
+                    setEnterTransition((android.transition.Transition) enterTransition);
                 } else {
                     Object slideFromBottom = TransitionHelper.createFadeAndShortSlide(
                             Gravity.BOTTOM);
                     TransitionHelper.include(slideFromBottom, R.id.guidedstep_background_view_root);
                     Object enterTransition = TransitionHelper.createTransitionSet(false);
                     TransitionHelper.addTransition(enterTransition, slideFromBottom);
-                    TransitionHelper.setEnterTransition(this, enterTransition);
+                    setEnterTransition((android.transition.Transition) enterTransition);
                 }
                 // No shared element transition
-                TransitionHelper.setSharedElementEnterTransition(this, null);
+                setSharedElementEnterTransition(null);
             } else if (uiStyle == UI_STYLE_ACTIVITY_ROOT) {
                 // for Activity root, we don't need enter transition, use activity transition
-                TransitionHelper.setEnterTransition(this, null);
+                setEnterTransition(null);
                 // No shared element transition
-                TransitionHelper.setSharedElementEnterTransition(this, null);
+                setSharedElementEnterTransition(null);
             }
             // exitTransition is same for all style
             Object exitTransition = TransitionHelper.createFadeAndShortSlide(Gravity.START);
             TransitionHelper.exclude(exitTransition, R.id.guidedstep_background, true);
             TransitionHelper.exclude(exitTransition, R.id.guidedactions_sub_list_background,
                     true);
-            TransitionHelper.setExitTransition(this, exitTransition);
+            setExitTransition((android.transition.Transition) exitTransition);
         }
     }
 

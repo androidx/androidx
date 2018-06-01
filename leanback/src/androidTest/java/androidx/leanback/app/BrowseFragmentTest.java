@@ -26,7 +26,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.app.Fragment;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Build;
@@ -45,6 +44,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import android.app.Fragment;
 import androidx.leanback.testutils.PollingCheck;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.ItemBridgeAdapter;

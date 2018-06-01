@@ -336,6 +336,14 @@
         <attr name="playbackProgressPrimaryColor" format="reference|color" />
         <attr name="playbackControlsIconHighlightColor" format="reference|color" />
         <attr name="playbackControlsActionIcons" format="reference" />
+        <!-- Milliseconds to auto hide playback controls when media start playing. -->
+        <attr name="playbackControlsAutoHideTimeout" format="reference|integer" />
+        <!-- Milliseconds to auto hide playback controls after user interacts with playback controls (i.e.
+             after fragment.tickle() is called).
+             Default value is disabled (0), app can turn it on by setting a positive milliseconds.
+             When enabled, value of playbackControlsAutoHideTickleTimeout usually should be set longer than playbackControlsAutoHideTimeout
+             for user to have enough time to think. -->
+        <attr name="playbackControlsAutoHideTickleTimeout" format="reference|integer" />
 
         <!-- Default color for dimmed views. -->
         <attr name="overlayDimMaskColor" format="color" />

@@ -21,7 +21,6 @@ import android.animation.AnimatorInflater;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
-import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -29,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -40,6 +40,7 @@ import android.view.animation.AccelerateInterpolator;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import android.app.Fragment;
 import androidx.leanback.R;
 import androidx.leanback.animation.LogAccelerateInterpolator;
 import androidx.leanback.animation.LogDecelerateInterpolator;
@@ -80,8 +81,13 @@ import androidx.recyclerview.widget.RecyclerView;
  * </p>
  * <p>
  * Auto hide controls upon playing: best practice is calling
- * {@link #setControlsOverlayAutoHideEnabled(boolean)} upon play/pause. The auto hiding timer will
- * be cancelled upon {@link #tickle()} triggered by input event.
+ * {@link #setControlsOverlayAutoHideEnabled(boolean)} upon play/pause.
+ * Theme attribute {@link R.attr#playbackControlsAutoHideTimeout} controls how long auto-hide will
+ * wait after media starts playing.
+ * The auto hiding timer will be cancelled upon {@link #tickle()} triggered by input event.
+ * By default fragment does not auto hide controls after user interaction. To enable it: set
+ * theme attribute {@link R.attr#playbackControlsAutoHideTickleTimeout}, an auto hide
+ * timer will be created when tickle() is triggered by input event.
  * </p>
  * @deprecated use {@link PlaybackSupportFragment}
  */
@@ -186,10 +192,8 @@ public class PlaybackFragment extends Fragment {
      * Listener allowing the application to receive notification of fade in and/or fade out
      * completion events.
      * @hide
-     * @deprecated use {@link PlaybackSupportFragment}
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Deprecated
     public static class OnFadeCompleteListener {
         public void onFadeInComplete() {
         }
@@ -215,7 +219,8 @@ public class PlaybackFragment extends Fragment {
     int mBackgroundType = BG_DARK;
     int mBgDarkColor;
     int mBgLightColor;
-    int mShowTimeMs;
+    int mAutohideTimerAfterPlayingInMs;
+    int mAutohideTimerAfterTickleInMs;
     int mMajorFadeTranslateY, mMinorFadeTranslateY;
     int mAnimationTranslateY;
     OnFadeCompleteListener mFadeCompleteListener;
@@ -323,6 +328,9 @@ public class PlaybackFragment extends Fragment {
      * If enabled and fragment is resumed, the view will fade out after a time period.
      * {@link #tickle()} will kill the timer, next time fragment is resumed,
      * the timer will be started again if {@link #isControlsOverlayAutoHideEnabled()} is true.
+     *  <p>
+     *  In most cases app does not need call tickle() as it's automatically called by
+     *  {@link androidx.leanback.media.PlaybackBaseControlGlue} on user interactions.
      */
     public void setControlsOverlayAutoHideEnabled(boolean enabled) {
         if (DEBUG) Log.v(TAG, "setControlsOverlayAutoHideEnabled " + enabled);
@@ -332,7 +340,7 @@ public class PlaybackFragment extends Fragment {
                 showControlsOverlay(true);
                 if (enabled) {
                     // StateGraph 7->2 5->2
-                    startFadeTimer();
+                    startFadeTimer(mAutohideTimerAfterPlayingInMs);
                 } else {
                     // StateGraph 4->5 2->5
                     stopFadeTimer();
@@ -395,14 +403,22 @@ public class PlaybackFragment extends Fragment {
      * Tickles the playback controls. Fades in the view if it was faded out. {@link #tickle()} will
      * also kill the timer created by {@link #setControlsOverlayAutoHideEnabled(boolean)}. When
      * next time fragment is resumed, the timer will be started again if
-     * {@link #isControlsOverlayAutoHideEnabled()} is true. In most cases app does not need call
-     * this method, tickling on input events is handled by the fragment.
+     * {@link #isControlsOverlayAutoHideEnabled()} is true. The timer will also be restarted if
+     * app sets a positive value on theme attribute
+     * {@link R.attr#playbackControlsAutoHideTickleTimeout}.
+     *  <p>
+     *  In most cases app does not need call tickle() as it's automatically called by
+     *  {@link androidx.leanback.media.PlaybackBaseControlGlue} on user interactions.
      */
     public void tickle() {
         if (DEBUG) Log.v(TAG, "tickle enabled " + mFadingEnabled + " isResumed " + isResumed());
         //StateGraph 2->4
         stopFadeTimer();
         showControlsOverlay(true);
+        // Optionally start fading out timer if it's currently playing (mFadingEnabled is true)
+        if (mAutohideTimerAfterTickleInMs > 0 && mFadingEnabled) {
+            startFadeTimer(mAutohideTimerAfterTickleInMs);
+        }
     }
 
     private boolean onInterceptInputEvent(InputEvent event) {
@@ -481,7 +497,7 @@ public class PlaybackFragment extends Fragment {
             //StateGraph: 6->5 1->2
             if (mFadingEnabled) {
                 // StateGraph 1->2
-                startFadeTimer();
+                startFadeTimer(mAutohideTimerAfterPlayingInMs);
             }
         } else {
             //StateGraph: 6->7 1->3
@@ -499,10 +515,10 @@ public class PlaybackFragment extends Fragment {
         }
     }
 
-    private void startFadeTimer() {
+    private void startFadeTimer(int fadeOutTimeout) {
         if (mHandler != null) {
             mHandler.removeMessages(START_FADE_OUT);
-            mHandler.sendEmptyMessageDelayed(START_FADE_OUT, mShowTimeMs);
+            mHandler.sendEmptyMessageDelayed(START_FADE_OUT, fadeOutTimeout);
         }
     }
 
@@ -772,8 +788,13 @@ public class PlaybackFragment extends Fragment {
                 getResources().getColor(R.color.lb_playback_controls_background_dark);
         mBgLightColor =
                 getResources().getColor(R.color.lb_playback_controls_background_light);
-        mShowTimeMs =
-                getResources().getInteger(R.integer.lb_playback_controls_show_time_ms);
+        TypedValue outValue = new TypedValue();
+        FragmentUtil.getContext(PlaybackFragment.this).getTheme().resolveAttribute(
+                R.attr.playbackControlsAutoHideTimeout, outValue, true);
+        mAutohideTimerAfterPlayingInMs = outValue.data;
+        FragmentUtil.getContext(PlaybackFragment.this).getTheme().resolveAttribute(
+                R.attr.playbackControlsAutoHideTickleTimeout, outValue, true);
+        mAutohideTimerAfterTickleInMs = outValue.data;
         mMajorFadeTranslateY =
                 getResources().getDimensionPixelSize(R.dimen.lb_playback_major_fade_translate_y);
         mMinorFadeTranslateY =
