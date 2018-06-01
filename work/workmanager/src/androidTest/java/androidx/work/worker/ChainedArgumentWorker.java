@@ -31,9 +31,9 @@ public class ChainedArgumentWorker extends Worker {
     public static final String ARGUMENT_VALUE = "value";
 
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         setOutputData(getChainedArguments());
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 
     public static Data getChainedArguments() {

@@ -23,8 +23,8 @@ import androidx.work.Worker;
 public class EchoingWorker extends Worker {
 
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         setOutputData(getInputData());
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 }

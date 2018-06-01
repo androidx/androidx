@@ -146,11 +146,11 @@ public class WorkerWrapper implements Runnable {
                 return;
             }
 
-            Worker.WorkerResult result;
+            Worker.Result result;
             try {
                 result = mWorker.doWork();
             } catch (Exception | Error e) {
-                result = Worker.WorkerResult.FAILURE;
+                result = Worker.Result.FAILURE;
             }
 
             try {
@@ -231,7 +231,7 @@ public class WorkerWrapper implements Runnable {
         });
     }
 
-    private void handleResult(Worker.WorkerResult result) {
+    private void handleResult(Worker.Result result) {
         switch (result) {
             case SUCCESS: {
                 Log.d(TAG, String.format("Worker result SUCCESS for %s", mWorkSpecId));
