@@ -350,7 +350,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      *
      * @see SliceAction
      * @see SliceAction#setPriority(int)
-     * @see androidx.slice.widget.SliceView#setActions(List, int)
+     * @see androidx.slice.widget.SliceView#setSliceActions(List)
      */
     @NonNull
     public ListBuilder addAction(@NonNull SliceAction action) {

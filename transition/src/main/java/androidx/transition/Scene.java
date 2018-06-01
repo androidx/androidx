@@ -222,7 +222,7 @@ public class Scene {
      * @param action The runnable whose {@link Runnable#run() run()} method will
      *               be called when this scene is entered
      * @see #setExitAction(Runnable)
-     * @see androidx.transition.Scene(android.view.ViewGroup, android.view.ViewGroup)
+     * @see Scene#Scene(ViewGroup)
      */
     public void setEnterAction(@Nullable Runnable action) {
         mEnterAction = action;
@@ -242,7 +242,7 @@ public class Scene {
      * if an enter action is set.
      *
      * @see #setEnterAction(Runnable)
-     * @see androidx.transition.Scene(android.view.ViewGroup, android.view.ViewGroup)
+     * @see Scene#Scene(ViewGroup)
      */
     public void setExitAction(@Nullable Runnable action) {
         mExitAction = action;

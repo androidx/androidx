@@ -241,7 +241,7 @@ public class FocusHighlightHelper {
      * Equivalent to call setupHeaderItemFocusHighlight(itemBridgeAdapter, true).
      *
      * @param adapter  The adapter of HeadersFragment.
-     * @see {@link HeadersFragment#getBridgeAdapter()}
+     * @see HeadersFragment#getBridgeAdapter()
      */
     public static void setupHeaderItemFocusHighlight(ItemBridgeAdapter adapter) {
         setupHeaderItemFocusHighlight(adapter, true);
@@ -254,7 +254,7 @@ public class FocusHighlightHelper {
      * @param scaleEnabled True if scale the item when focused, false otherwise. Note that
      * {@link RowHeaderPresenter#onSelectLevelChanged(RowHeaderPresenter.ViewHolder)}
      * will always be called regardless value of scaleEnabled.
-     * @see {@link HeadersFragment#getBridgeAdapter()}
+     * @see HeadersFragment#getBridgeAdapter()
      */
     public static void setupHeaderItemFocusHighlight(ItemBridgeAdapter adapter,
             boolean scaleEnabled) {

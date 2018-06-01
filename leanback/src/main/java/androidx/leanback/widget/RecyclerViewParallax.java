@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Implementation of {@link Parallax} class for {@link RecyclerView}. This class
  * allows users to track position of specific views inside {@link RecyclerView} relative to
- * itself. @see {@link ChildPositionProperty} for details.
+ * itself. See {@link ChildPositionProperty} for details.
  */
 public class RecyclerViewParallax extends Parallax<RecyclerViewParallax.ChildPositionProperty> {
     RecyclerView mRecylerView;

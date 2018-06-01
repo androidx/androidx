@@ -62,7 +62,7 @@ public abstract class PreferenceDataStore {
      *
      * @param key the name of the preference to modify
      * @param values the set of new values for the preference
-     * @see #getStringSet(String, Set<String>)
+     * @see #getStringSet(String, Set)
      */
     public void putStringSet(String key, @Nullable Set<String> values) {
         throw new UnsupportedOperationException("Not implemented on this data store");
@@ -139,7 +139,7 @@ public abstract class PreferenceDataStore {
      * @param key the name of the preference to retrieve
      * @param defValues values to return if this preference does not exist in the storage
      * @return the values from the data store or the default return values
-     * @see #putStringSet(String, Set<String>)
+     * @see #putStringSet(String, Set)
      */
     @Nullable
     public Set<String> getStringSet(String key, @Nullable Set<String> defValues) {

@@ -115,7 +115,7 @@ public class CarListDialog extends Dialog {
     }
 
     /**
-     * @see super#setCanceledOnTouchOutside(boolean)
+     * @see Dialog#setCanceledOnTouchOutside(boolean)
      */
     @Override
     public void setCanceledOnTouchOutside(boolean cancel) {
