@@ -95,6 +95,7 @@ public class SampleSliceProvider extends SliceProvider {
             "translate",
             "rtlgrid",
             "slices",
+            "cat",
     };
 
     /**
@@ -180,6 +181,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createRtlGridSlice(sliceUri);
             case "/slices":
                 return createFoodOptionsSlice(sliceUri);
+            case "/cat":
+                return createBigPicSlice(sliceUri);
         }
         Log.w(TAG, String.format("Unknown uri: %s", sliceUri));
         return null;
@@ -303,6 +306,20 @@ public class SampleSliceProvider extends SliceProvider {
         }
         lb.addGridRow(grb);
         return lb.build();
+    }
+
+    private Slice createBigPicSlice(Uri sliceUri) {
+        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
+        GridRowBuilder gb = new GridRowBuilder(b);
+        PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "Cats you follow");
+        IconCompat ic = IconCompat.createWithResource(getContext(), R.drawable.cat);
+        SliceAction primaryAction = new SliceAction(pi, ic, LARGE_IMAGE, "Cats you follow");
+        gb.setPrimaryAction(primaryAction);
+        gb.addCell(new GridRowBuilder.CellBuilder(gb)
+                .addImage(ic, LARGE_IMAGE)
+                .addTitleText("This is a nice cat").addText("Who is she"));
+        b.addGridRow(gb);
+        return b.build();
     }
 
     private Slice createCatSlice(Uri sliceUri, boolean customSeeMore) {
