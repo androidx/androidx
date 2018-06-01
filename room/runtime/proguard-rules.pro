@@ -1,2 +1,2 @@
--keep public class * extends androidx.room.RoomDatabase
+-keep class * extends androidx.room.RoomDatabase
 -dontwarn androidx.room.paging.**
