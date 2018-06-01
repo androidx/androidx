@@ -177,6 +177,28 @@ public final class TextSelection {
 
             return builder.build();
         }
+
+        @NonNull
+        static android.view.textclassifier.TextSelection toPlatform(
+                @NonNull TextSelection textSelection) {
+            Preconditions.checkNotNull(textSelection);
+
+            android.view.textclassifier.TextSelection.Builder builder =
+                    new android.view.textclassifier.TextSelection.Builder(
+                            textSelection.getSelectionStartIndex(),
+                            textSelection.getSelectionEndIndex());
+            if (textSelection.getId() != null) {
+                builder.setId(textSelection.getId());
+            }
+
+            final int entityCount = textSelection.getEntityCount();
+            for (int i = 0; i < entityCount; i++) {
+                String entity = textSelection.getEntity(i);
+                builder.setEntityType(entity, textSelection.getConfidenceScore(entity));
+            }
+
+            return builder.build();
+        }
     }
 
     /**

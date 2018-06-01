@@ -23,6 +23,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.view.textclassifier.TextClassificationContext;
 
 import androidx.core.os.LocaleListCompat;
 
@@ -73,12 +74,21 @@ public class PlatformTextClassifierWrapperTest {
         assertValidResult(mClassifier.generateLinks(new TextLinks.Request.Builder(TEXT).build()));
     }
 
+    @Test
+    public void testDestroy() {
+        mClassifier.destroy();
+
+        assertTrue(mClassifier.isDestroyed());
+    }
+
     private android.view.textclassifier.TextClassifier getPlatformTextClassifier() {
         android.view.textclassifier.TextClassificationManager
                 textClassificationManager =
                 InstrumentationRegistry.getContext().getSystemService(
                         android.view.textclassifier.TextClassificationManager.class);
-        return textClassificationManager.getTextClassifier();
+        return textClassificationManager.createTextClassificationSession(
+                new TextClassificationContext.Builder("pkg", "widget")
+                        .build());
     }
 
     private static void assertValidResult(TextSelection selection) {

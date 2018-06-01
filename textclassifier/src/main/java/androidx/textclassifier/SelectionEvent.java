@@ -21,6 +21,7 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
@@ -172,6 +173,12 @@ public final class SelectionEvent {
     private int mSmartStart;
     private int mSmartEnd;
 
+    // For SL -> Platform conversion.
+    @Nullable
+    private TextClassification mTextClassification;
+    @Nullable
+    private TextSelection mTextSelection;
+
     /* package */ SelectionEvent(
             int start, int end,
             @EventType int eventType, @EntityType String entityType,
@@ -309,7 +316,7 @@ public final class SelectionEvent {
      *
      * @param start  the start (inclusive) index of the selection
      * @param end  the end (exclusive) index of the selection
-     * @param classification  the TextClassification object returned by the TextClassifier that
+     * @param classification  the TextClassification object returned by the text classifier that
      *      classified the selected text
      *
      * @throws IllegalArgumentException if end is less than start
@@ -322,9 +329,12 @@ public final class SelectionEvent {
         final String entityType = classification.getEntityCount() > 0
                 ? classification.getEntity(0)
                 : TextClassifier.TYPE_UNKNOWN;
-        return new SelectionEvent(
+
+        SelectionEvent selectionEvent = new SelectionEvent(
                 start, end, SelectionEvent.EVENT_SELECTION_MODIFIED,
                 entityType, INVOCATION_UNKNOWN, classification.getId());
+        selectionEvent.mTextClassification = classification;
+        return selectionEvent;
     }
 
     /**
@@ -333,7 +343,7 @@ public final class SelectionEvent {
      *
      * @param start  the start (inclusive) index of the selection
      * @param end  the end (exclusive) index of the selection
-     * @param selection  the TextSelection object returned by the TextClassifier for the
+     * @param selection  the TextSelection object returned by the text classifier for the
      *      specified selection
      *
      * @throws IllegalArgumentException if end is less than start
@@ -346,9 +356,11 @@ public final class SelectionEvent {
         final String entityType = selection.getEntityCount() > 0
                 ? selection.getEntity(0)
                 : TextClassifier.TYPE_UNKNOWN;
-        return new SelectionEvent(
+        SelectionEvent selectionEvent = new SelectionEvent(
                 start, end, SelectionEvent.EVENT_AUTO_SELECTION,
                 entityType, INVOCATION_UNKNOWN, selection.getId());
+        selectionEvent.mTextSelection = selection;
+        return selectionEvent;
     }
 
     /**
@@ -379,7 +391,7 @@ public final class SelectionEvent {
      * @param start  the start (inclusive) index of the selection
      * @param end  the end (exclusive) index of the selection
      * @param actionType  the action that was performed on the selection
-     * @param classification  the TextClassification object returned by the TextClassifier that
+     * @param classification  the TextClassification object returned by the text classifier that
      *      classified the selected text
      *
      * @throws IllegalArgumentException if end is less than start
@@ -395,8 +407,11 @@ public final class SelectionEvent {
         final String entityType = classification.getEntityCount() > 0
                 ? classification.getEntity(0)
                 : TextClassifier.TYPE_UNKNOWN;
-        return new SelectionEvent(start, end, actionType, entityType, INVOCATION_UNKNOWN,
-                classification.getId());
+        SelectionEvent selectionEvent =
+                new SelectionEvent(start, end, actionType, entityType, INVOCATION_UNKNOWN,
+                        classification.getId());
+        selectionEvent.mTextClassification = classification;
+        return selectionEvent;
     }
 
     /**
@@ -708,5 +723,77 @@ public final class SelectionEvent {
                 mResultId, mEventTime, mDurationSinceSessionStart,
                 mDurationSincePreviousEvent, mEventIndex,
                 mSessionId, mStart, mEnd, mSmartStart, mSmartEnd);
+    }
+
+    @RequiresApi(28)
+    static final class Convert {
+
+        private Convert() {}
+
+        /**
+         * Converts {@link android.view.textclassifier.TextSelection} to
+         * {@link android.view.textclassifier.TextSelection}. It can only convert text selection
+         * objects created by those factory methods and without further modification.
+         */
+        @NonNull
+        static android.view.textclassifier.SelectionEvent toPlatform(
+                @NonNull SelectionEvent selectionEvent) {
+            Preconditions.checkNotNull(selectionEvent);
+
+            if (selectionEvent.getEventType() == EVENT_SELECTION_STARTED) {
+                return android.view.textclassifier.SelectionEvent.createSelectionStartedEvent(
+                        selectionEvent.getInvocationMethod(),
+                        selectionEvent.getAbsoluteStart()
+                );
+            }
+            if (selectionEvent.getEventType() == EVENT_AUTO_SELECTION
+                    && selectionEvent.mTextSelection != null) {
+                return android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
+                        selectionEvent.getAbsoluteStart(),
+                        selectionEvent.getAbsoluteEnd(),
+                        TextSelection.Convert.toPlatform(selectionEvent.mTextSelection)
+                );
+            }
+            if (selectionEvent.getEventType() == EVENT_SELECTION_MODIFIED) {
+                return toPlatformSelectionModifiedEvent(selectionEvent);
+            }
+            return toPlatformSelectionActionEvent(selectionEvent);
+        }
+
+        @NonNull
+        private static android.view.textclassifier.SelectionEvent toPlatformSelectionModifiedEvent(
+                @NonNull SelectionEvent selectionEvent) {
+            Preconditions.checkNotNull(selectionEvent);
+            if (selectionEvent.mTextClassification != null) {
+                return android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
+                        selectionEvent.getAbsoluteStart(),
+                        selectionEvent.getAbsoluteEnd(),
+                        TextClassification.Convert.toPlatform(selectionEvent.mTextClassification)
+                );
+            }
+            return android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
+                    selectionEvent.getAbsoluteStart(),
+                    selectionEvent.getAbsoluteEnd()
+            );
+        }
+
+        @NonNull
+        private static android.view.textclassifier.SelectionEvent toPlatformSelectionActionEvent(
+                @NonNull SelectionEvent selectionEvent) {
+            Preconditions.checkNotNull(selectionEvent);
+            if (selectionEvent.mTextClassification != null) {
+                return android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
+                        selectionEvent.getAbsoluteStart(),
+                        selectionEvent.getAbsoluteEnd(),
+                        selectionEvent.getEventType(),
+                        TextClassification.Convert.toPlatform(selectionEvent.mTextClassification)
+                );
+            }
+            return android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
+                    selectionEvent.getAbsoluteStart(),
+                    selectionEvent.getAbsoluteEnd(),
+                    selectionEvent.getEventType()
+            );
+        }
     }
 }
