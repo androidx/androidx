@@ -22,11 +22,11 @@
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"আরও বিকল্প"</string>
     <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"সঙ্কুচিত করুন"</string>
     <string name="abc_searchview_description_search" msgid="8264924765203268293">"খুঁজুন"</string>
-    <string name="abc_search_hint" msgid="7723749260725869598">"অনুসন্ধান..."</string>
+    <string name="abc_search_hint" msgid="7723749260725869598">"সার্চ..."</string>
     <string name="abc_searchview_description_query" msgid="2550479030709304392">"ক্যোয়ারী খুঁজুন"</string>
     <string name="abc_searchview_description_clear" msgid="3691816814315814921">"ক্যোয়ারী সাফ করুন"</string>
     <string name="abc_searchview_description_submit" msgid="8928215447528550784">"ক্যোয়ারী জমা দিন"</string>
-    <string name="abc_searchview_description_voice" msgid="893419373245838918">"ভয়েস অনুসন্ধান"</string>
+    <string name="abc_searchview_description_voice" msgid="893419373245838918">"ভয়েস সার্চ"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"একটি অ্যাপ্লিকেশান বেছে নিন"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"সবগুলো দেখুন"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> এর সাথে শেয়ার করুন"</string>
