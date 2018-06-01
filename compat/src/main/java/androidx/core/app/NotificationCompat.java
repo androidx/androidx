@@ -2252,7 +2252,7 @@ public class NotificationCompat {
          * Should be unique amongst all individuals in the conversation, and should be
          * consistent during re-posts of the notification.
          *
-         * @see Message#Message(CharSequence, long, CharSequence)
+         * @see Message#NotificationCompat.MessagingStyle.Message(CharSequence, long, CharSequence)
          *
          * @return this object for method chaining
          *
@@ -2273,7 +2273,7 @@ public class NotificationCompat {
          * Adds a message for display by this notification. Convenience call for
          * {@link #addMessage(Message)}.
          *
-         * @see Message#Message(CharSequence, long, Person)
+         * @see Message#NotificationCompat.MessagingStyle.Message(CharSequence, long, Person)
          *
          * @return this for method chaining
          */
