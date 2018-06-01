@@ -76,12 +76,10 @@ class TestScheduler implements Scheduler, ExecutionListener {
     }
 
     /**
-     * Tells the {@link TestScheduler} to pretend that all constraints on the
-     * {@link Worker} with the given {@code workSpecId} are met.
+     * Tells the {@link TestScheduler} to pretend that all constraints on the {@link Worker} with
+     * the given {@code workSpecId} are met.
      *
-     * The {@link Worker} is scheduled for execution.
-     *
-     * @param workSpecId is the {@link Worker}s id.
+     * @param workSpecId The {@link Worker}'s id.
      */
     void setAllConstraintsMet(@NonNull UUID workSpecId) {
         synchronized (sLock) {
