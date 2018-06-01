@@ -963,16 +963,42 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * times. If for example {@link #onItemAtEndLoaded(Object)} triggers a network load, it should
      * avoid triggering it again while the load is ongoing.
      * <p>
-     * BoundaryCallback only passes the item at front or end of the list. Number of items is not
-     * passed, since it may not be fully computed by the DataSource if placeholders are not
-     * supplied. Keys are not known because the BoundaryCallback is independent of the
-     * DataSource-specific keys, which may be different for local vs remote storage.
-     * <p>
      * The database + network Repository in the
      * <a href="https://github.com/googlesamples/android-architecture-components/blob/master/PagingWithNetworkSample/README.md">PagingWithNetworkSample</a>
      * shows how to implement a network BoundaryCallback using
      * <a href="https://square.github.io/retrofit/">Retrofit</a>, while
      * handling swipe-to-refresh, network errors, and retry.
+     * <h4>Requesting Network Data</h4>
+     * BoundaryCallback only passes the item at front or end of the list when out of data. This
+     * makes it an easy fit for item-keyed network requests, where you can use the item passed to
+     * the BoundaryCallback to request more data from the network. In these cases, the source of
+     * truth for next page to load is coming from local storage, based on what's already loaded.
+     * <p>
+     * If you aren't using an item-keyed network API, you may be using page-keyed, or page-indexed.
+     * If this is the case, the paging library doesn't know about the page key or index used in the
+     * BoundaryCallback, so you need to track it yourself. You can do this in one of two ways:
+     * <h5>Local storage Page key</h5>
+     * If you want to perfectly resume your query, even if the app is killed and resumed, you can
+     * store the key on disk. Note that with a positional/page index network API, there's a simple
+     * way to do this, by using the {@code listSize} as an input to the next load (or
+     * {@code listSize / NETWORK_PAGE_SIZE}, for page indexing).
+     * <p>
+     * The current list size isn't passed to the BoundaryCallback though. This is because the
+     * PagedList doesn't necessarily know the number of items in local storage. Placeholders may be
+     * disabled, or the DataSource may not count total number of items.
+     * <p>
+     * Instead, for these positional cases, you can query the database for the number of items, and
+     * pass that to the network.
+     * <h5>In-Memory Page key</h5>
+     * Often it doesn't make sense to query the next page from network if the last page you fetched
+     * was loaded many hours or days before. If you keep the key in memory, you can refresh any time
+     * you start paging from a network source.
+     * <p>
+     * Store the next key in memory, inside your BoundaryCallback. When you create a new
+     * BoundaryCallback when creating a new {@code LiveData}/{@code Observable} of
+     * {@code PagedList}, refresh data. For example,
+     * <a href="https://codelabs.developers.google.com/codelabs/android-paging/index.html#8">in the
+     * Paging Codelab</a>, the GitHub network page index is stored in memory.
      *
      * @param <T> Type loaded by the PagedList.
      */
