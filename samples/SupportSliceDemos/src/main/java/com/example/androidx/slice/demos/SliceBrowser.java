@@ -17,9 +17,8 @@
 package com.example.androidx.slice.demos;
 
 import static androidx.slice.core.SliceHints.INFINITY;
-
-import static com.example.androidx.slice.demos.SampleSliceProvider.URI_PATHS;
-import static com.example.androidx.slice.demos.SampleSliceProvider.getUri;
+import static androidx.slice.test.SampleSliceProvider.URI_PATHS;
+import static androidx.slice.test.SampleSliceProvider.getUri;
 
 import android.content.ContentResolver;
 import android.content.Intent;

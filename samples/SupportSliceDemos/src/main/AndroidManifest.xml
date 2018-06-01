@@ -55,14 +55,6 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </provider>
-
-        <receiver
-            android:name=".SliceBroadcastReceiver"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="com.example.androidx.slice.action.*"/>
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>
