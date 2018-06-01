@@ -398,6 +398,13 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData, WorkSpec.WORK_STATUS_MAPPER);
     }
 
+    List<WorkStatus> getStatusesByIdSync(@NonNull List<String> workSpecIds) {
+        List<WorkSpec.WorkStatusPojo> workStatusPojos = mWorkDatabase.workSpecDao()
+                .getWorkStatusPojoForIds(workSpecIds);
+
+        return WorkSpec.WORK_STATUS_MAPPER.apply(workStatusPojos);
+    }
+
     /**
      * @param workSpecId The {@link WorkSpec} id to start
      * @hide

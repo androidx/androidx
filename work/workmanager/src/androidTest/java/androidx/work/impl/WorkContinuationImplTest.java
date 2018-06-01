@@ -45,6 +45,7 @@ import androidx.work.State;
 import androidx.work.TestLifecycleOwner;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManagerTest;
+import androidx.work.WorkStatus;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.taskexecutor.InstantTaskExecutorRule;
@@ -57,6 +58,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -476,6 +478,29 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl joined = (WorkContinuationImpl) WorkContinuation.combine(
                 first, second);
         assertThat(joined.hasCycles(), is(false));
+    }
+
+    @Test
+    @SmallTest
+    public void testGetStatusesSync() {
+        OneTimeWorkRequest aWork = createTestWorker(); // A
+        OneTimeWorkRequest bWork = createTestWorker(); // B
+        OneTimeWorkRequest cWork = createTestWorker(); // C
+        OneTimeWorkRequest dWork = createTestWorker(); // D
+
+        WorkContinuation firstChain = mWorkManagerImpl.beginWith(aWork).then(bWork);
+        WorkContinuation secondChain = mWorkManagerImpl.beginWith(cWork);
+        WorkContinuation combined = WorkContinuation.combine(dWork, firstChain, secondChain);
+
+        combined.synchronous().enqueueSync();
+        List<WorkStatus> statuses = combined.synchronous().getStatusesSync();
+        assertThat(statuses, is(notNullValue()));
+        List<UUID> ids = new ArrayList<>(statuses.size());
+        for (WorkStatus status : statuses) {
+            ids.add(status.getId());
+        }
+        assertThat(ids, containsInAnyOrder(
+                aWork.getId(), bWork.getId(), cWork.getId(), dWork.getId()));
     }
 
     private static void verifyEnqueued(WorkContinuationImpl continuation) {
