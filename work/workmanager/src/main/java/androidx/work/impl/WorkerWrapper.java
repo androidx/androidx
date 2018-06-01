@@ -124,8 +124,11 @@ public class WorkerWrapper implements Runnable {
             input = inputMerger.merge(inputs);
         }
 
-        Extras extras =
-                new Extras(input, mWorkTagDao.getTagsForWorkSpecId(mWorkSpecId), mRuntimeExtras);
+        Extras extras = new Extras(
+                input,
+                mWorkTagDao.getTagsForWorkSpecId(mWorkSpecId),
+                mRuntimeExtras,
+                mWorkSpec.runAttemptCount);
 
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.

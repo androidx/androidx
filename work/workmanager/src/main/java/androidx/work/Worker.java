@@ -149,6 +149,15 @@ public abstract class Worker {
     }
 
     /**
+     * Gets the current run attempt count for this work.
+     *
+     * @return The current run attempt count for this work.
+     */
+    public final int getRunAttemptCount() {
+        return mExtras.getRunAttemptCount();
+    }
+
+    /**
      * Override this method to do your actual background processing.
      *
      * @return The result of the work, corresponding to a {@link Result} value.  If a
