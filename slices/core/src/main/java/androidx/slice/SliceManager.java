@@ -60,7 +60,10 @@ public abstract class SliceManager {
      * This is the set of specs supported for a specific pinned slice. It will take
      * into account all clients and returns only specs supported by all.
      * @see SliceSpec
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract @NonNull Set<SliceSpec> getPinnedSpecs(@NonNull Uri uri);
 
     /**
