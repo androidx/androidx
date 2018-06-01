@@ -531,7 +531,6 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         void dispatchLoadBefore(int currentBeginIndex, @NonNull Value currentBeginItem,
                 int pageSize, @NonNull Executor mainThreadExecutor,
                 @NonNull PageResult.Receiver<Value> receiver) {
-
             int startIndex = currentBeginIndex - 1;
             if (startIndex < 0) {
                 // trigger empty list load

@@ -112,6 +112,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <T> The type of the entries in the list.
  */
 public abstract class PagedList<T> extends AbstractList<T> {
+
+    // Notes on threading:
+    //
+    // PagedList and its subclasses are passed and accessed on multiple threads, but are always
+    // owned by a single thread. During initialization, this is the creation thread, generally the
+    // fetchExecutor/fetchScheduler when using LiveData/RxJava. After initialization, the PagedList
+    // is owned by the main thread (or notifyScheduler, if overridden in RxJava).
+    //
+    // The only exception is detach()/isDetached(), which can be called from the fetch thread.
+    // However these methods simply wrap a atomic boolean, so are safe.
+    //
+    // The PageResult.Receiver that receives new data from the DataSource is always run on the
+    // owning thread.
+
     @NonNull
     final Executor mMainThreadExecutor;
     @NonNull
@@ -123,6 +137,12 @@ public abstract class PagedList<T> extends AbstractList<T> {
     @NonNull
     final PagedStorage<T> mStorage;
 
+    /**
+     * Last access location, in total position space (including offset).
+     * <p>
+     * Used by positional data
+     * sources to initialize loading near viewport
+     */
     int mLastLoad = 0;
     T mLastItem = null;
 

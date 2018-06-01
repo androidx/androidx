@@ -48,13 +48,13 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
     private inner class TestSource(val listData: List<Item> = ITEMS)
             : ContiguousDataSource<Int, Item>() {
         override fun dispatchLoadInitial(
-                key: Int?,
-                initialLoadSize: Int,
-                pageSize: Int,
-                enablePlaceholders: Boolean,
-                mainThreadExecutor: Executor,
-                receiver: PageResult.Receiver<Item>) {
-
+            key: Int?,
+            initialLoadSize: Int,
+            pageSize: Int,
+            enablePlaceholders: Boolean,
+            mainThreadExecutor: Executor,
+            receiver: PageResult.Receiver<Item>
+        ) {
             val convertPosition = key ?: 0
             val position = Math.max(0, (convertPosition - initialLoadSize / 2))
             val data = getClampedRange(position, position + initialLoadSize)
@@ -71,11 +71,12 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         }
 
         override fun dispatchLoadAfter(
-                currentEndIndex: Int,
-                currentEndItem: Item,
-                pageSize: Int,
-                mainThreadExecutor: Executor,
-                receiver: PageResult.Receiver<Item>) {
+            currentEndIndex: Int,
+            currentEndItem: Item,
+            pageSize: Int,
+            mainThreadExecutor: Executor,
+            receiver: PageResult.Receiver<Item>
+        ) {
             val startIndex = currentEndIndex + 1
             val data = getClampedRange(startIndex, startIndex + pageSize)
 
@@ -85,11 +86,12 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         }
 
         override fun dispatchLoadBefore(
-                currentBeginIndex: Int,
-                currentBeginItem: Item,
-                pageSize: Int,
-                mainThreadExecutor: Executor,
-                receiver: PageResult.Receiver<Item>) {
+            currentBeginIndex: Int,
+            currentBeginItem: Item,
+            pageSize: Int,
+            mainThreadExecutor: Executor,
+            receiver: PageResult.Receiver<Item>
+        ) {
 
             val startIndex = currentBeginIndex - 1
             val data = getClampedRange(startIndex - pageSize + 1, startIndex + 1)
@@ -146,14 +148,14 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
     }
 
     private fun createCountedPagedList(
-            initialPosition: Int,
-            pageSize: Int = 20,
-            initLoadSize: Int = 40,
-            prefetchDistance: Int = 20,
-            listData: List<Item> = ITEMS,
-            boundaryCallback: PagedList.BoundaryCallback<Item>? = null,
-            lastLoad: Int = ContiguousPagedList.LAST_LOAD_UNSPECIFIED,
-            maxSize: Int = PagedList.Config.MAX_SIZE_UNBOUNDED
+        initialPosition: Int,
+        pageSize: Int = 20,
+        initLoadSize: Int = 40,
+        prefetchDistance: Int = 20,
+        listData: List<Item> = ITEMS,
+        boundaryCallback: PagedList.BoundaryCallback<Item>? = null,
+        lastLoad: Int = ContiguousPagedList.LAST_LOAD_UNSPECIFIED,
+        maxSize: Int = PagedList.Config.MAX_SIZE_UNBOUNDED
     ): ContiguousPagedList<Int, Item> {
         return ContiguousPagedList(
                 TestSource(listData), mMainThread, mBackgroundThread, boundaryCallback,
@@ -183,8 +185,11 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
                 (pagedList.snapshot() as SnapshotPagedList<Item>).dataSource)
     }
 
-    private fun verifyCallback(callback: PagedList.Callback, countedPosition: Int,
-            uncountedPosition: Int) {
+    private fun verifyCallback(
+        callback: PagedList.Callback,
+        countedPosition: Int,
+        uncountedPosition: Int
+    ) {
         if (mCounted) {
             verify(callback).onChanged(countedPosition, 20)
         } else {
@@ -196,8 +201,11 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         verifyCallback(callback, position, position)
     }
 
-    private fun verifyDropCallback(callback: PagedList.Callback, countedPosition: Int,
-            uncountedPosition: Int) {
+    private fun verifyDropCallback(
+        callback: PagedList.Callback,
+        countedPosition: Int,
+        uncountedPosition: Int
+    ) {
         if (mCounted) {
             verify(callback).onChanged(countedPosition, 20)
         } else {
@@ -357,14 +365,14 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         verifyCallback(callback, 20)
         verifyNoMoreInteractions(callback)
 
-        // load 3nd page
+        // load 3rd page
         pagedList.loadAround(39)
         drain()
         verifyRange(0, 60, pagedList)
         verifyCallback(callback, 40)
         verifyNoMoreInteractions(callback)
 
-        // load 4nd page, drop 1st
+        // load 4th page, drop 1st
         pagedList.loadAround(59)
         drain()
         verifyRange(20, 60, pagedList)
@@ -386,7 +394,7 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         verifyRange(80, 20, pagedList)
         verifyZeroInteractions(callback)
 
-        // load 2nd page
+        // load 4th page
         pagedList.loadAround(if (mCounted) 80 else 0)
         drain()
         verifyRange(60, 40, pagedList)
@@ -394,7 +402,7 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         verifyNoMoreInteractions(callback)
         reset(callback)
 
-        // load 3nd page
+        // load 3rd page
         pagedList.loadAround(if (mCounted) 60 else 0)
         drain()
         verifyRange(40, 60, pagedList)
@@ -402,13 +410,95 @@ class ContiguousPagedListTest(private val mCounted: Boolean) {
         verifyNoMoreInteractions(callback)
         reset(callback)
 
-        // load 4nd page, drop 1st
+        // load 2nd page, drop 5th
         pagedList.loadAround(if (mCounted) 40 else 0)
         drain()
         verifyRange(20, 60, pagedList)
         verifyCallback(callback, 20, 0)
         verifyDropCallback(callback, 80, 60)
         verifyNoMoreInteractions(callback)
+    }
+
+    @Test
+    fun pageDropCancelPrepend() {
+        // verify that, based on most recent load position, a prepend can be dropped as it arrives
+        val pagedList = createCountedPagedList(
+                initialPosition = 2,
+                pageSize = 1,
+                initLoadSize = 1,
+                prefetchDistance = 1,
+                maxSize = 3)
+
+        // load 3 pages - 2nd, 3rd, 4th
+        pagedList.loadAround(if (mCounted) 2 else 0)
+        drain()
+
+        val callback = mock(PagedList.Callback::class.java)
+        pagedList.addWeakCallback(null, callback)
+
+        // start a load at the beginning...
+        pagedList.loadAround(if (mCounted) 1 else 0)
+
+        mBackgroundThread.executeAll()
+
+        // but before page received, access near end of list
+        pagedList.loadAround(if (mCounted) 3 else 2)
+        verifyZeroInteractions(callback)
+        mMainThread.executeAll()
+        // and the load at the end is dropped without signaling callback
+        verifyNoMoreInteractions(callback)
+        verifyRange(1, 3, pagedList)
+
+        drain()
+        if (mCounted) {
+            verify(callback).onChanged(4, 1)
+            verify(callback).onChanged(1, 1)
+        } else {
+            verify(callback).onInserted(3, 1)
+            verify(callback).onRemoved(0, 1)
+        }
+        verifyRange(2, 3, pagedList)
+    }
+
+    @Test
+    fun pageDropCancelAppend() {
+        // verify that, based on most recent load position, an append can be dropped as it arrives
+        val pagedList = createCountedPagedList(
+                initialPosition = 2,
+                pageSize = 1,
+                initLoadSize = 1,
+                prefetchDistance = 1,
+                maxSize = 3)
+
+        // load 3 pages - 2nd, 3rd, 4th
+        pagedList.loadAround(if (mCounted) 2 else 0)
+        drain()
+
+        val callback = mock(PagedList.Callback::class.java)
+        pagedList.addWeakCallback(null, callback)
+
+        // start a load at the end...
+        pagedList.loadAround(if (mCounted) 3 else 2)
+
+        mBackgroundThread.executeAll()
+
+        // but before page received, access near front of list
+        pagedList.loadAround(if (mCounted) 1 else 0)
+        verifyZeroInteractions(callback)
+        mMainThread.executeAll()
+        // and the load at the end is dropped without signaling callback
+        verifyNoMoreInteractions(callback)
+        verifyRange(1, 3, pagedList)
+
+        drain()
+        if (mCounted) {
+            verify(callback).onChanged(0, 1)
+            verify(callback).onChanged(3, 1)
+        } else {
+            verify(callback).onInserted(0, 1)
+            verify(callback).onRemoved(3, 1)
+        }
+        verifyRange(0, 3, pagedList)
     }
 
     @Test
