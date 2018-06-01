@@ -28,7 +28,7 @@ public class FirebaseInfiniteTestWorker extends Worker {
     private static final String TAG = "FBInfiniteTestWorker";
 
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         while (true) {
         }
     }

@@ -27,10 +27,10 @@ import androidx.work.integration.testapp.db.TestDatabase;
 public class TextStartupWorker extends Worker {
 
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         TestDatabase db = TestDatabase.getInstance(getApplicationContext());
         db.getWordCountDao().clear();
         Log.d("Startup", "Database cleared");
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 }

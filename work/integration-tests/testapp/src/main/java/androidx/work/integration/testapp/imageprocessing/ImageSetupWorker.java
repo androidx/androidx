@@ -34,20 +34,20 @@ public class ImageSetupWorker extends Worker {
     private static final String URI_KEY = "uri";
 
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         Log.d(TAG, "Started");
 
         String uriString = getInputData().getString(URI_KEY, null);
         if (TextUtils.isEmpty(uriString)) {
             Log.e(TAG, "Invalid URI!");
-            return WorkerResult.FAILURE;
+            return Result.FAILURE;
         }
 
         Image image = new Image();
         image.mOriginalAssetName = uriString;
         image.mIsProcessed = false;
         TestDatabase.getInstance(getApplicationContext()).getImageDao().insert(image);
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 
     static OneTimeWorkRequest createWork(String uriString) {

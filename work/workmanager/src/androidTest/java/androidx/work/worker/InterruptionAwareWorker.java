@@ -22,9 +22,8 @@ import androidx.work.Worker;
 
 public class InterruptionAwareWorker extends Worker {
 
-    @NonNull
     @Override
-    public WorkerResult doWork() {
+    public @NonNull Result doWork() {
         try {
             do {
                 Thread.sleep(1000L);
@@ -32,6 +31,6 @@ public class InterruptionAwareWorker extends Worker {
         } catch (InterruptedException e) {
             // Do nothing.
         }
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 }

@@ -27,8 +27,8 @@ import androidx.work.Worker;
 
 public class RetryWorker extends Worker {
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         Log.d("RetryWorker", "Returning RETRY");
-        return WorkerResult.RETRY;
+        return Result.RETRY;
     }
 }

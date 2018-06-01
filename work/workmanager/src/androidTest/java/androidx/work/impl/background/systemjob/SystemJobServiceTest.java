@@ -275,13 +275,13 @@ public class SystemJobServiceTest extends WorkManagerTest {
         static Uri[] sTriggeredContentUris;
 
         @Override
-        public @NonNull WorkerResult doWork() {
+        public @NonNull Result doWork() {
             synchronized (ContentUriTriggerLoggingWorker.class) {
                 ++sTimesUpdated;
                 sTriggeredContentAuthorities = getTriggeredContentAuthorities();
                 sTriggeredContentUris = getTriggeredContentUris();
             }
-            return WorkerResult.SUCCESS;
+            return Result.SUCCESS;
         }
     }
 
@@ -291,12 +291,12 @@ public class SystemJobServiceTest extends WorkManagerTest {
         static Network sNetwork;
 
         @Override
-        public WorkerResult doWork() {
+        public @NonNull Result doWork() {
             synchronized (NetworkLoggingWorker.class) {
                 ++sTimesUpdated;
                 sNetwork = getNetwork();
             }
-            return WorkerResult.SUCCESS;
+            return Result.SUCCESS;
         }
     }
 }
