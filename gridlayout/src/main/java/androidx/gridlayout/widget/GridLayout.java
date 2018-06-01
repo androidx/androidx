@@ -458,10 +458,10 @@ public class GridLayout extends ViewGroup {
      * @see #getUseDefaultMargins()
      * @see #setAlignmentMode(int)
      *
-     * @see MarginLayoutParams#leftMargin
-     * @see MarginLayoutParams#topMargin
-     * @see MarginLayoutParams#rightMargin
-     * @see MarginLayoutParams#bottomMargin
+     * @see ViewGroup.MarginLayoutParams#leftMargin
+     * @see ViewGroup.MarginLayoutParams#topMargin
+     * @see ViewGroup.MarginLayoutParams#rightMargin
+     * @see ViewGroup.MarginLayoutParams#bottomMargin
      *
      * @attr name android:useDefaultMargins
      */

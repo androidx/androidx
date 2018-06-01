@@ -225,7 +225,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The TV series item type for the program.
-     * @see TvContractCompat.PreviewProgramColumns#COLUMN_TV_SERIES_ITEM_TYPE
      */
     public @TvSeriesItemType int getTvSeriesItemType() {
         return mValues.getAsInteger(PreviewProgramColumns.COLUMN_TV_SERIES_ITEM_TYPE);
