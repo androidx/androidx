@@ -16,7 +16,6 @@
  */
 package androidx.leanback.app;
 
-import android.app.Fragment;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -26,6 +25,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import android.app.Fragment;
 import androidx.leanback.R;
 import androidx.leanback.widget.SearchOrbView;
 import androidx.leanback.widget.TitleHelper;
