@@ -134,8 +134,8 @@ import java.util.List;
  * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionTitleMaxLines
  * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionDescriptionMinLines
  * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionVerticalPadding
- * @see android.R.styleable#Theme_listChoiceIndicatorSingle
- * @see android.R.styleable#Theme_listChoiceIndicatorMultiple
+ * @see android.R.attr#listChoiceIndicatorSingle
+ * @see android.R.attr#listChoiceIndicatorMultiple
  * @see androidx.leanback.app.GuidedStepFragment
  * @see GuidedAction
  */

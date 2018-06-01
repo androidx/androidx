@@ -77,7 +77,7 @@ public class CustomTabsClient {
     /**
      * Returns the preferred package to use for Custom Tabs, preferring the default VIEW handler.
      *
-     * @see #getPackageName(Context, List<String>, boolean)
+     * @see #getPackageName(Context, List, boolean)
      */
     public static String getPackageName(Context context, @Nullable List<String> packages) {
         return getPackageName(context, packages, false);

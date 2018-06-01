@@ -154,7 +154,7 @@ public class ImageCardView extends BaseCardView {
     }
 
     /**
-     * @see #View(Context, AttributeSet, int)
+     * @see View#View(Context, AttributeSet, int)
      */
     public ImageCardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -278,14 +278,14 @@ public class ImageCardView extends BaseCardView {
     }
 
     /**
-     * @see #View(Context)
+     * @see View#View(Context)
      */
     public ImageCardView(Context context) {
         this(context, null);
     }
 
     /**
-     * @see #View(Context, AttributeSet)
+     * @see View#View(Context, AttributeSet)
      */
     public ImageCardView(Context context, AttributeSet attrs) {
         this(context, attrs, R.attr.imageCardViewStyle);

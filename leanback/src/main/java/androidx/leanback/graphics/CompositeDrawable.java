@@ -419,7 +419,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
          * Implementation of {@link Property} for overwriting the bottom attribute of
          * {@link BoundsRule} associated with this {@link ChildDrawable}. This allows users to
          * change the bounds rules as a percentage of parent size. This is preferable over
-         * {@see PROPERTY_TOP_ABSOLUTE} when the exact start/end position of scroll movement
+         * {@link #TOP_ABSOLUTE} when the exact start/end position of scroll movement
          * isn't available at compile time.
          */
         public static final Property<CompositeDrawable.ChildDrawable, Float> TOP_FRACTION =
@@ -448,7 +448,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
          * Implementation of {@link Property} for overwriting the bottom attribute of
          * {@link BoundsRule} associated with this {@link ChildDrawable}. This allows users to
          * change the bounds rules as a percentage of parent size. This is preferable over
-         * {@see PROPERTY_BOTTOM_ABSOLUTE} when the exact start/end position of scroll movement
+         * {@link #BOTTOM_ABSOLUTE} when the exact start/end position of scroll movement
          * isn't available at compile time.
          */
         public static final Property<CompositeDrawable.ChildDrawable, Float> BOTTOM_FRACTION =
@@ -478,7 +478,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
          * Implementation of {@link Property} for overwriting the bottom attribute of
          * {@link BoundsRule} associated with this {@link ChildDrawable}. This allows users to
          * change the bounds rules as a percentage of parent size. This is preferable over
-         * {@see PROPERTY_LEFT_ABSOLUTE} when the exact start/end position of scroll movement
+         * {@link #LEFT_ABSOLUTE} when the exact start/end position of scroll movement
          * isn't available at compile time.
          */
         public static final Property<CompositeDrawable.ChildDrawable, Float> LEFT_FRACTION =
@@ -507,7 +507,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
          * Implementation of {@link Property} for overwriting the bottom attribute of
          * {@link BoundsRule} associated with this {@link ChildDrawable}. This allows users to
          * change the bounds rules as a percentage of parent size. This is preferable over
-         * {@see PROPERTY_RIGHT_ABSOLUTE} when the exact start/end position of scroll movement
+         * {@link #RIGHT_ABSOLUTE} when the exact start/end position of scroll movement
          * isn't available at compile time.
          */
         public static final Property<CompositeDrawable.ChildDrawable, Float> RIGHT_FRACTION =

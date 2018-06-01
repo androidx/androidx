@@ -1065,8 +1065,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * @param type the TV series item type
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewProgramColumns#TV_SERIES_ITEM_TYPE_EPISODE
-         * @see PreviewProgramColumns#TV_SERIES_ITEM_TYPE_CHAPTER
          */
         public T setTvSeriesItemType(@TvSeriesItemType int type) {
             mValues.put(PreviewPrograms.COLUMN_TV_SERIES_ITEM_TYPE, type);
