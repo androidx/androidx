@@ -19,7 +19,7 @@ package androidx.work.workers
 import androidx.work.Worker
 
 class TestWorker : Worker() {
-    override fun doWork(): WorkerResult {
-        return WorkerResult.SUCCESS
+    override fun doWork(): Result {
+        return Result.SUCCESS
     }
 }

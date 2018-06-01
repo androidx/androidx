@@ -22,12 +22,12 @@ import androidx.work.Worker;
 
 public class InfiniteWorker extends Worker {
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         while (true) {
             try {
                 Thread.sleep(5000L);
             } catch (InterruptedException e) {
-                return WorkerResult.RETRY;
+                return Result.RETRY;
             } finally {
                 Log.e("InfiniteWorker", "work work");
             }

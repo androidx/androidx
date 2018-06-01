@@ -22,9 +22,8 @@ import androidx.work.Worker;
 
 public class ExceptionWorker extends Worker {
 
-    @NonNull
     @Override
-    public WorkerResult doWork() {
+    public @NonNull Result doWork() {
         throw new IllegalStateException();
     }
 }

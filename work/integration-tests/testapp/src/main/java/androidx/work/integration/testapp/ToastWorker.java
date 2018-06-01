@@ -43,7 +43,7 @@ public class ToastWorker extends Worker {
     }
 
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         Data input = getInputData();
         final String message = input.getString(ARG_MESSAGE, "completed!");
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -53,6 +53,6 @@ public class ToastWorker extends Worker {
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 }

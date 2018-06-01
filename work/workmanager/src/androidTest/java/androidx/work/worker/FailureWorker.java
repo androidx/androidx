@@ -27,8 +27,8 @@ import androidx.work.Worker;
 
 public class FailureWorker extends Worker {
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         Log.d("FailureWorker", "Returning FAILURE");
-        return WorkerResult.FAILURE;
+        return Result.FAILURE;
     }
 }

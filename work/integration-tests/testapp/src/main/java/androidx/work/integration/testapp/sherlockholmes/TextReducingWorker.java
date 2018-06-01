@@ -42,7 +42,7 @@ public class TextReducingWorker extends Worker {
     private Map<String, Integer> mWordCount = new HashMap<>();
 
     @Override
-    public @NonNull WorkerResult doWork() {
+    public @NonNull Result doWork() {
         Data input = getInputData();
         String[] inputFiles = input.getStringArray(INPUT_FILE);
         if (inputFiles == null) {
@@ -64,7 +64,7 @@ public class TextReducingWorker extends Worker {
                     mWordCount.put(word, count);
                 }
             } catch (IOException e) {
-                return WorkerResult.FAILURE;
+                return Result.FAILURE;
             } finally {
                 if (dataInputStream != null) {
                     try {
@@ -102,6 +102,6 @@ public class TextReducingWorker extends Worker {
         }
 
         Log.d("Reduce", "Reduction finished");
-        return WorkerResult.SUCCESS;
+        return Result.SUCCESS;
     }
 }
