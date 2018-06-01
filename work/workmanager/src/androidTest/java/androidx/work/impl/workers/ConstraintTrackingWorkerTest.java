@@ -144,7 +144,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         work.getId(),
-                        new Extras(input, Collections.<String>emptyList(), null));
+                        new Extras(input, Collections.<String>emptyList(), null, 1));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
@@ -189,7 +189,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         work.getId(),
-                        new Extras(input, Collections.<String>emptyList(), null));
+                        new Extras(input, Collections.<String>emptyList(), null, 1));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
@@ -233,7 +233,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         work.getId(),
-                        new Extras(input, Collections.<String>emptyList(), null));
+                        new Extras(input, Collections.<String>emptyList(), null, 1));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
@@ -285,7 +285,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest implements Execut
                         mContext,
                         ConstraintTrackingWorker.class.getName(),
                         work.getId(),
-                        new Extras(input, Collections.<String>emptyList(), null));
+                        new Extras(input, Collections.<String>emptyList(), null, 1));
 
         ConstraintTrackingWorker spyWorker = spy(worker);
         when(spyWorker.getWorkDatabase()).thenReturn(mDatabase);
