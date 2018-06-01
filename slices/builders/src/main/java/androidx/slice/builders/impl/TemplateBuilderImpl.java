@@ -30,7 +30,7 @@ import androidx.slice.SystemClock;
 @RestrictTo(LIBRARY)
 public abstract class TemplateBuilderImpl {
 
-    private final Slice.Builder mSliceBuilder;
+    private Slice.Builder mSliceBuilder;
     private final SliceSpec mSpec;
     private Clock mClock;
 
@@ -42,6 +42,10 @@ public abstract class TemplateBuilderImpl {
         mSliceBuilder = b;
         mSpec = spec;
         mClock = clock;
+    }
+
+    protected void setBuilder(Slice.Builder builder) {
+        mSliceBuilder = builder;
     }
 
     /**
