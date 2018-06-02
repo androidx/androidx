@@ -981,14 +981,12 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
                 { sSelectTrackOperation, MEDIAPLAYER2_STATE_PLAYING, true },
                 { sSelectTrackOperation, MEDIAPLAYER2_STATE_ERROR, false },
 
-                /* TODO: deselectTrack is failing due to error -38 from native side.
-                         Debug more in the framework side.
+                { sDeselectTrackOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
                 { sDeselectTrackOperation, MEDIAPLAYER2_STATE_IDLE, false },
                 { sDeselectTrackOperation, MEDIAPLAYER2_STATE_PREPARED, true },
                 { sDeselectTrackOperation, MEDIAPLAYER2_STATE_PAUSED, true },
                 { sDeselectTrackOperation, MEDIAPLAYER2_STATE_PLAYING, true },
                 { sDeselectTrackOperation, MEDIAPLAYER2_STATE_ERROR, false},
-                */
 
                 { sSetEventCallbackOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
                 { sSetEventCallbackOperation, MEDIAPLAYER2_STATE_IDLE, true },
@@ -1066,7 +1064,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
             mTestState = MEDIAPLAYER2_STATE_IDLE;
             return;
         }
-        if (!checkLoadResource(R.raw.testvideo)) {
+        if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             fail();
         }
         if (mTestOpertation == sSkipToNextOperation) {
