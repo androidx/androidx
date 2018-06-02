@@ -137,8 +137,8 @@ public abstract class Worker {
     }
 
     /**
-     * Gets the {@link Network} to use for this Worker, if any.  If this value is {@code null}, the
-     * Worker may use the default network.
+     * Gets the {@link Network} to use for this Worker.  This method returns {@code null} if there
+     * is no network needed for this work request.
      *
      * @return The {@link Network} specified by the OS to be used with this Worker
      */
