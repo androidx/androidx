@@ -819,14 +819,14 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
                 { sSetDataSourceOperation, MEDIAPLAYER2_STATE_PLAYING, false },
                 { sSetDataSourceOperation, MEDIAPLAYER2_STATE_ERROR, false },
 
-                { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
+                { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
                 { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_IDLE, true },
                 { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_PREPARED, true },
                 { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_PAUSED, true },
                 { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_PLAYING, true },
                 { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_ERROR, false },
 
-                { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
+                { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
                 { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_IDLE, true },
                 { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_PREPARED, true },
                 { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_PAUSED, true },
