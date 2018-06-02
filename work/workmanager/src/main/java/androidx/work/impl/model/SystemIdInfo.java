@@ -24,11 +24,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 /**
- * Stores Alarm ids for a {@link WorkSpec}.
+ * Stores system ids for a {@link WorkSpec} id.
  *
  * @hide
  */
-@Entity(tableName = "alarmInfo",
+@Entity(tableName = "systemIdInfo",
         foreignKeys = {
                 @ForeignKey(
                         entity = WorkSpec.class,
@@ -37,19 +37,18 @@ import android.support.annotation.RestrictTo;
                         onDelete = ForeignKey.CASCADE,
                         onUpdate = ForeignKey.CASCADE)})
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AlarmInfo {
-
+public class SystemIdInfo {
     @NonNull
     @PrimaryKey
     @ColumnInfo(name = "work_spec_id")
     public final String workSpecId;
 
-    @ColumnInfo(name = "alarm_id")
-    public final int alarmId;
+    @ColumnInfo(name = "system_id")
+    public final int systemId;
 
-    public AlarmInfo(@NonNull String workSpecId, int alarmId) {
+    public SystemIdInfo(@NonNull String workSpecId, int systemId) {
         this.workSpecId = workSpecId;
-        this.alarmId = alarmId;
+        this.systemId = systemId;
     }
 
     @Override
@@ -57,16 +56,16 @@ public class AlarmInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AlarmInfo alarmInfo = (AlarmInfo) o;
+        SystemIdInfo that = (SystemIdInfo) o;
 
-        if (alarmId != alarmInfo.alarmId) return false;
-        return workSpecId.equals(alarmInfo.workSpecId);
+        if (systemId != that.systemId) return false;
+        return workSpecId.equals(that.workSpecId);
     }
 
     @Override
     public int hashCode() {
         int result = workSpecId.hashCode();
-        result = 31 * result + alarmId;
+        result = 31 * result + systemId;
         return result;
     }
 }
