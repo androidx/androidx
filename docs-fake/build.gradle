@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import androidx.build.SupportConfig
+
 plugins {
     id("SupportAndroidTestAppPlugin")
 }
@@ -42,5 +44,5 @@ android {
 
 
 supportTestApp {
-    minSdkVersion = 'P'
+    minSdkVersion = SupportConfig.CURRENT_SDK_VERSION
 }
