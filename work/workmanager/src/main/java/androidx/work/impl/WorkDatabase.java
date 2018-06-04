@@ -30,10 +30,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import androidx.work.Data;
-import androidx.work.impl.model.AlarmInfo;
-import androidx.work.impl.model.AlarmInfoDao;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
+import androidx.work.impl.model.SystemIdInfo;
+import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkNameDao;
 import androidx.work.impl.model.WorkSpec;
@@ -50,15 +50,13 @@ import java.util.concurrent.TimeUnit;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-// TODO (rahulrav@) Figure out if / how we export the Room Schema
 @Database(entities = {
         Dependency.class,
         WorkSpec.class,
         WorkTag.class,
-        AlarmInfo.class,
+        SystemIdInfo.class,
         WorkName.class},
-        version = 1,
-        exportSchema = false)
+        version = 2)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
@@ -97,7 +95,9 @@ public abstract class WorkDatabase extends RoomDatabase {
         } else {
             builder = Room.databaseBuilder(context, WorkDatabase.class, DB_NAME);
         }
-        return builder.addCallback(generateCleanupCallback()).build();
+        return builder.addCallback(generateCleanupCallback())
+                .addMigrations(WorkDatabaseMigrations.MIGRATION_1_2)
+                .build();
     }
 
     static Callback generateCleanupCallback() {
@@ -145,9 +145,9 @@ public abstract class WorkDatabase extends RoomDatabase {
     public abstract WorkTagDao workTagDao();
 
     /**
-     * @return The Data Access Object for {@link AlarmInfo}s.
+     * @return The Data Access Object for {@link SystemIdInfo}s.
      */
-    public abstract AlarmInfoDao alarmInfoDao();
+    public abstract SystemIdInfoDao systemIdInfoDao();
 
     /**
      * @return The Data Access Object for {@link WorkName}s.
