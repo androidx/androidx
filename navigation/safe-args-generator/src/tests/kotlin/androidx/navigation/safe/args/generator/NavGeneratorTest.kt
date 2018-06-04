@@ -28,21 +28,22 @@ import java.io.File
 @RunWith(JUnit4::class)
 class NavGeneratorTest {
 
-    @Suppress("MemberVisibilityCanPrivate")
+    @Suppress("MemberVisibilityCanBePrivate")
     @get:Rule
     val workingDir = TemporaryFolder()
 
     @Test
     fun test() {
-        val javaNames = generateSafeArgs("foo", "foo.flavor",
+        val output = generateSafeArgs("foo", "foo.flavor",
             testData("naive_test.xml"), workingDir.root)
-
+        val javaNames = output.files
         val expectedSet = setOf(
                 "androidx.navigation.testapp.MainFragmentDirections",
                 "foo.flavor.NextFragmentDirections",
                 "androidx.navigation.testapp.MainFragmentArgs",
                 "foo.flavor.NextFragmentArgs"
                 )
+        assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(javaNames.toSet(), `is`(expectedSet))
         javaNames.forEach { name ->
             val file = File(workingDir.root, "${name.replace('.', File.separatorChar)}.java")

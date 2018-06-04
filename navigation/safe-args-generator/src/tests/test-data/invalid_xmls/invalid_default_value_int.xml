@@ -19,7 +19,7 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/foo"
             app:startDestination="@+id/first_screen">
-    <fragment>
+    <fragment android:name="a.FakeFragment">
 
         <argument android:name="myarg1" android:defaultValue="101034f"  app:type="integer" />
     </fragment>

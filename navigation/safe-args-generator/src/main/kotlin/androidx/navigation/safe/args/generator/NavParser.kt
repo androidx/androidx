@@ -37,23 +37,29 @@ private const val NAMESPACE_RES_AUTO = "http://schemas.android.com/apk/res-auto"
 private const val NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
 
 internal class NavParser(
-    private val parser: XmlContextParser,
+    private val parser: XmlPositionParser,
+    private val context: Context,
     private val rFilePackage: String,
-    private val applicationId: String) {
+    private val applicationId: String
+) {
 
     companion object {
-        fun parseNavigationFile(navigationXml: File, rFilePackage: String,
-                                applicationId: String): Destination {
+        fun parseNavigationFile(
+            navigationXml: File,
+            rFilePackage: String,
+            applicationId: String,
+            context: Context
+        ): Destination {
             FileReader(navigationXml).use { reader ->
-                val parser = XmlContextParser(navigationXml.name, reader)
+                val parser = XmlPositionParser(navigationXml.path, reader, context.logger)
                 parser.traverseStartTags { true }
-                return NavParser(parser, rFilePackage, applicationId).parseDestination()
+                return NavParser(parser, context, rFilePackage, applicationId).parseDestination()
             }
         }
     }
 
     internal fun parseDestination(): Destination {
-        val context = parser.xmlContext()
+        val position = parser.xmlPosition()
         val type = parser.name()
         val name = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_NAME) ?: ""
         val idValue = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_ID)
@@ -68,26 +74,32 @@ internal class NavParser(
             }
         }
 
-        val id = parseNullableId(idValue, rFilePackage, context)
+        val id = idValue?.let { parseId(idValue, rFilePackage, position) }
         val className = Destination.createName(id, name, applicationId)
         if (className == null && (actions.isNotEmpty() || args.isNotEmpty())) {
-            throw context.createError(NavParserErrors.UNNAMED_DESTINATION)
+            context.logger.error(NavParserErrors.UNNAMED_DESTINATION, position)
+            return context.createStubDestination()
         }
+
         return Destination(id, className, type, args, actions, nested)
     }
 
     private fun parseArgument(): Argument {
-        val xmlContext = parser.xmlContext()
-        val name = parser.attrValueOrThrow(NAMESPACE_ANDROID, ATTRIBUTE_NAME)
+        val xmlPosition = parser.xmlPosition()
+        val name = parser.attrValueOrError(NAMESPACE_ANDROID, ATTRIBUTE_NAME)
         val defaultValue = parser.attrValue(NAMESPACE_ANDROID, ATTRIBUTE_DEFAULT_VALUE)
         val typeString = parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_TYPE)
+        if (name == null) return context.createStubArg()
 
         if (typeString == null && defaultValue != null) {
             return inferArgument(name, defaultValue, rFilePackage)
         }
 
         val type = NavType.from(typeString)
-            ?: throw xmlContext.createError(NavParserErrors.unknownType(typeString))
+        if (type == null) {
+            context.logger.error(NavParserErrors.unknownType(typeString), xmlPosition)
+            return context.createStubArg()
+        }
 
         if (defaultValue == null) {
             return Argument(name, type, null)
@@ -108,25 +120,44 @@ internal class NavParser(
                 NavType.REFERENCE -> NavParserErrors.invalidDefaultValueReference(defaultValue)
                 else -> NavParserErrors.invalidDefaultValue(defaultValue, type)
             }
-            throw xmlContext.createError(errorMessage)
+            context.logger.error(errorMessage, xmlPosition)
+            return context.createStubArg()
         }
 
         return Argument(name, type, defaultTypedValue)
     }
 
     private fun parseAction(): Action {
-        val idValue = parser.attrValueOrThrow(NAMESPACE_ANDROID, ATTRIBUTE_ID)
+        val idValue = parser.attrValueOrError(NAMESPACE_ANDROID, ATTRIBUTE_ID)
         val destValue = parser.attrValue(NAMESPACE_RES_AUTO, ATTRIBUTE_DESTINATION)
         val args = mutableListOf<Argument>()
-        val context = parser.xmlContext()
+        val position = parser.xmlPosition()
         parser.traverseInnerStartTags {
             if (parser.name() == TAG_ARGUMENT) {
                 args.add(parseArgument())
             }
         }
-        val id = parseId(idValue, rFilePackage) ?:
-            throw context.createError(NavParserErrors.invalidId(idValue))
-        return Action(id, parseNullableId(destValue, rFilePackage, context), args)
+
+        val id = if (idValue != null) {
+            parseId(idValue, rFilePackage, position)
+        } else {
+            context.createStubId()
+        }
+        val destination = destValue?.let { parseId(destValue, rFilePackage, position) }
+        return Action(id, destination, args)
+    }
+
+    private fun parseId(
+        xmlId: String,
+        rFilePackage: String,
+        xmlPosition: XmlPosition
+    ): ResReference {
+        val ref = parseReference(xmlId, rFilePackage)
+        if (ref?.isId() == true) {
+            return ref
+        }
+        context.logger.error(NavParserErrors.invalidId(xmlId), xmlPosition)
+        return context.createStubId()
     }
 }
 
@@ -162,19 +193,6 @@ internal fun parseReference(xmlValue: String, rFilePackage: String): ResReferenc
     return ResReference(packageName, resType, resourceName)
 }
 
-internal fun parseId(xmlId: String, rFilePackage: String): ResReference? {
-    val ref = parseReference(xmlId, rFilePackage)
-    if (ref?.isId() == true) {
-        return ref
-    }
-    return null
-}
-
-internal fun parseNullableId(xmlId: String?, rFilePackage: String,
-                             context: XmlContext): ResReference? = xmlId?.let {
-    parseId(it, rFilePackage) ?: throw context.createError(NavParserErrors.invalidId(xmlId))
-}
-
 internal fun parseIntValue(value: String): IntValue? {
     try {
         if (value.startsWith("0x")) {
@@ -189,7 +207,7 @@ internal fun parseIntValue(value: String): IntValue? {
 }
 
 private fun parseFloatValue(value: String): FloatValue? =
-    value.toFloatOrNull()?.let { FloatValue(value) }
+        value.toFloatOrNull()?.let { FloatValue(value) }
 
 private fun parseBoolean(value: String): BooleanValue? {
     if (value == "true" || value == "false") {

@@ -16,6 +16,12 @@
 
 package androidx.navigation.safe.args.generator
 
-data class XmlContext(private val name: String, private val line: Int, private val column: Int) {
-    fun createError(errorMsg: String) = Error("Error at $name:$line:$column $errorMsg")
+class NavLogger {
+    private var messages: MutableList<ErrorMessage> = mutableListOf()
+
+    fun error(message: String, position: XmlPosition) {
+        messages.add(ErrorMessage(position.name, position.line, position.column, message))
+    }
+
+    fun allMessages(): List<ErrorMessage> = messages
 }

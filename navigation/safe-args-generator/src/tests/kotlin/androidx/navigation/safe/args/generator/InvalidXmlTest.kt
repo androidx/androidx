@@ -22,42 +22,35 @@ import androidx.navigation.safe.args.generator.NavParserErrors.invalidDefaultVal
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidId
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
-class InvalidXmlTest(private val testCase: TestCase) {
-
-    data class TestCase(val name: String, val line: Int, val column: Int, val errorMsg: String)
-
+class InvalidXmlTest(private val testCase: ErrorMessage) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "({0})")
         fun data() = listOf(
-            TestCase("unnamed_destination_with_action.xml", 25, 5, UNNAMED_DESTINATION),
-            TestCase("invalid_default_value_reference.xml", 23, 9,
+            ErrorMessage("unnamed_destination_with_action.xml", 25, 5, UNNAMED_DESTINATION),
+            ErrorMessage("invalid_default_value_reference.xml", 23, 9,
                 invalidDefaultValueReference("foo/")),
-            TestCase("invalid_default_value_int.xml", 24, 9,
+            ErrorMessage("invalid_default_value_int.xml", 24, 9,
                 invalidDefaultValue("101034f", NavType.INT)),
-            TestCase("invalid_id_action.xml", 22, 14, invalidId("@+fppid/finish")),
-            TestCase("invalid_id_destination.xml", 17, 1, invalidId("@1234234+id/foo")),
-            TestCase("action_no_id.xml", 22, 5, mandatoryAttrMissingError("action", "id"))
+            ErrorMessage("invalid_id_action.xml", 22, 44, invalidId("@+fppid/finish")),
+            ErrorMessage("invalid_id_destination.xml", 17, 1, invalidId("@1234234+id/foo")),
+            ErrorMessage("action_no_id.xml", 22, 5, mandatoryAttrMissingError("action", "id"))
         )
     }
 
     @Test
     fun invalidXml() {
-        val expectedErrorMsg = XmlContext(testCase.name, testCase.line, testCase.column)
-            .createError(testCase.errorMsg).message
-        try {
-            NavParser.parseNavigationFile(testData("invalid_xmls/${testCase.name}"),
-                "a.b", "foo.app")
-            Assert.fail()
-        } catch (e: Error) {
-            assertThat(e.message, `is`(expectedErrorMsg))
-        }
+        val context = Context()
+        val navigationXml = testData("invalid_xmls/${testCase.path}")
+        val expectedError = testCase.copy(path = navigationXml.path)
+        NavParser.parseNavigationFile(navigationXml, "a.b", "foo.app", context)
+        val messages = context.logger.allMessages()
+        assertThat(messages.size, `is`(1))
+        assertThat(messages.first(), `is`(expectedError))
     }
 }
-
