@@ -22,6 +22,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Simple implementation of a {@link NavigatorProvider} that stores instances of
@@ -94,6 +95,10 @@ public class SimpleNavigatorProvider implements NavigatorProvider {
             throw new IllegalArgumentException("navigator name cannot be an empty string");
         }
         return mNavigators.put(name, navigator);
+    }
+
+    Map<String, Navigator<? extends NavDestination>> getNavigators() {
+        return mNavigators;
     }
 
     private boolean validateName(String name) {
