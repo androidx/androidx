@@ -187,4 +187,29 @@ limitations under the License.
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
     </style>
+
+
+    <!-- ================ -->
+    <!-- Preference Theme -->
+    <!-- ================ -->
+    <eat-comment />
+
+    <!-- Car theme for support library PreferenceFragments -->
+    <style name="PreferenceThemeOverlayCar">
+        <item name="preferenceScreenStyle">@style/CarPreference.PreferenceScreen</item>
+        <item name="preferenceFragmentCompatStyle">@style/CarPreferenceFragment</item>
+        <item name="preferenceFragmentStyle">@style/CarPreferenceFragment</item>
+        <item name="preferenceCategoryStyle">@style/CarPreference.Category</item>
+        <item name="preferenceStyle">@style/CarPreference</item>
+        <item name="preferenceInformationStyle">@style/CarPreference.Information</item>
+        <item name="checkBoxPreferenceStyle">@style/CarPreference.CheckBoxPreference</item>
+        <item name="switchPreferenceCompatStyle">@style/CarPreference.SwitchPreferenceCompat</item>
+        <item name="switchPreferenceStyle">@style/CarPreference.SwitchPreference</item>
+        <item name="seekBarPreferenceStyle">@style/CarPreference.SeekBarPreference</item>
+        <item name="dialogPreferenceStyle">@style/CarPreference.DialogPreference</item>
+        <item name="editTextPreferenceStyle">@style/CarPreference.DialogPreference.EditTextPreference</item>
+        <item name="dropdownPreferenceStyle">@style/CarPreference.DropDown</item>
+        <item name="preferenceFragmentListStyle">@style/CarPreferenceFragmentList</item>
+        <item name="android:preferenceLayoutChild">@layout/preference_material_car_child</item>
+    </style>
 </resources>

@@ -8,4 +8,5 @@ dependencies {
     implementation(project(":preference"))
     implementation(project(":leanback"))
     implementation(project(":leanback-preference"))
+    implementation(project(":car"))
 }

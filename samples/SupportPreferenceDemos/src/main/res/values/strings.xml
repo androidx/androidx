@@ -19,6 +19,7 @@
     <string name="fragment_support_preferences_demo">Support PreferenceFragment</string>
     <string name="fragment_support_preferences_compat_demo">Support PreferenceFragmentCompat</string>
     <string name="fragment_support_preferences_leanback_demo">Support LeanbackPreferenceFragment</string>
+    <string name="fragment_support_preferences_car_demo">Support Car PreferenceFragment</string>
 
     <string name="root_title">Demo Preferences</string>
 
