@@ -16,13 +16,18 @@
 
 package androidx.media.test.service;
 
+import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
+
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.media.DataSourceDesc;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
+import androidx.media.MediaSession2;
 import androidx.media.MediaSession2.CommandButton;
+import androidx.media.MediaSession2.ControllerInfo;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -32,6 +37,8 @@ import java.util.List;
  * Utilities for tests.
  */
 public final class MediaTestUtils {
+
+    private static final String TAG = "MediaTestUtils";
 
     // Temporaily commenting out, since we don't have the Mock services yet.
 //    /**
@@ -147,5 +154,18 @@ public final class MediaTestUtils {
             result.add(CommandButton.fromBundle(bundleList.get(i)));
         }
         return result;
+    }
+
+    public static ControllerInfo getTestControllerInfo(MediaSession2 session2) {
+        if (session2 == null) {
+            return null;
+        }
+        for (ControllerInfo info : session2.getConnectedControllers()) {
+            if (CLIENT_PACKAGE_NAME.equals(info.getPackageName())) {
+                return info;
+            }
+        }
+        Log.e(TAG, "Test controller was not found in connected controllers. session=" + session2);
+        return null;
     }
 }
