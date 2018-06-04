@@ -131,13 +131,13 @@ public class MediaController2Test extends MediaSession2TestBase {
     }
 
     /**
-     * Test if the {@link MediaSession2TestBase.TestControllerCallback} wraps the callback proxy
+     * Test if the {@link MockControllerCallback} wraps the callback proxy
      * without missing any method.
      */
     @Test
     public void testTestControllerCallback() {
         prepareLooper();
-        Method[] methods = TestControllerCallback.class.getMethods();
+        Method[] methods = MockControllerCallback.class.getMethods();
         assertNotNull(methods);
         for (int i = 0; i < methods.length; i++) {
             // For any methods in the controller callback, TestControllerCallback should have

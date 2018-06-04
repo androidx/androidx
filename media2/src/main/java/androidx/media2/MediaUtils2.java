@@ -559,8 +559,4 @@ class MediaUtils2 {
     static boolean isDefaultLibraryRootHint(Bundle bundle) {
         return bundle != null && bundle.getBoolean(MediaConstants2.ROOT_EXTRA_DEFAULT, false);
     }
-
-    static Bundle createBundle(Bundle bundle) {
-        return (bundle == null) ? new Bundle() : new Bundle(bundle);
-    }
 }

@@ -87,7 +87,7 @@ public class MockMediaSessionService2 extends MediaSessionService2 {
         Notification notification = new Notification.Builder(
                 this, DEFAULT_MEDIA_NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(getPackageName())
-                .setContentText("Dummt test notification")
+                .setContentText("Dummy test notification")
                 .setSmallIcon(android.R.drawable.sym_def_app_icon).build();
         return new MediaNotification(DEFAULT_MEDIA_NOTIFICATION_ID, notification);
     }

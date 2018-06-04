@@ -38,6 +38,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager;
 
 import java.lang.annotation.Retention;
@@ -93,6 +94,11 @@ public final class SessionToken2 {
      */
     static final int TYPE_SESSION_LEGACY = 100;
 
+    /**
+     * Type for {@link MediaBrowserServiceCompat}.
+     */
+    static final int TYPE_BROWSER_SERVICE_LEGACY = 101;
+
     // From the return value of android.os.Process.getUidForName(String) when error
     static final int UID_UNKNOWN = -1;
 
@@ -107,14 +113,48 @@ public final class SessionToken2 {
     private final SupportLibraryImpl mImpl;
 
     /**
-     * Constructor for the token. You can only create token for session service or library service
-     * to use by {@link MediaController2} or {@link MediaBrowser2}.
+     * Constructor for the token. You can create token of {@link MediaSessionService2},
+     * {@link MediaLibraryService2} nor {@link MediaBrowserServiceCompat} for
+     * {@link MediaController2} or {@link MediaBrowser2}.
      *
      * @param context The context.
      * @param serviceComponent The component name of the media browser service.
      */
     public SessionToken2(@NonNull Context context, @NonNull ComponentName serviceComponent) {
-        mImpl = new SessionToken2ImplBase(context, serviceComponent);
+        final PackageManager manager = context.getPackageManager();
+        final int uid = getUid(manager, serviceComponent.getPackageName());
+
+        final String sessionId;
+        final int type;
+        String id = getSessionIdFromService(manager, MediaLibraryService2.SERVICE_INTERFACE,
+                serviceComponent);
+        if (id != null) {
+            sessionId = id;
+            type = TYPE_LIBRARY_SERVICE;
+        } else {
+            // retry with session service
+            id = getSessionIdFromService(manager, MediaSessionService2.SERVICE_INTERFACE,
+                    serviceComponent);
+            if (id != null) {
+                sessionId = id;
+                type = TYPE_SESSION_SERVICE;
+            } else {
+                // Last retry with media browser service (compat)
+                sessionId = getSessionIdFromService(manager,
+                        MediaBrowserServiceCompat.SERVICE_INTERFACE, serviceComponent);
+                type = TYPE_BROWSER_SERVICE_LEGACY;
+            }
+        }
+        if (sessionId == null) {
+            throw new IllegalArgumentException(serviceComponent + " doesn't implement none of"
+                    + " MediaSessionService2, MediaLibraryService2, MediaBrowserService nor"
+                    + " MediaBrowserServiceCompat. Use service's full name.");
+        }
+        if (type != TYPE_BROWSER_SERVICE_LEGACY) {
+            mImpl = new SessionToken2ImplBase(serviceComponent, uid, sessionId, type);
+        } else {
+            mImpl = new SessionToken2ImplLegacy(serviceComponent, uid, sessionId);
+        }
     }
 
     /**
@@ -196,7 +236,7 @@ public final class SessionToken2 {
      */
     @RestrictTo(LIBRARY_GROUP)
     public boolean isLegacySession() {
-        return mImpl instanceof SessionToken2ImplLegacy;
+        return mImpl.isLegacySession();
     }
 
     /**
@@ -265,10 +305,10 @@ public final class SessionToken2 {
                         SessionToken2.fromBundle(token2Bundle));
                 return;
             }
-
             final MediaControllerCompat controller = new MediaControllerCompat(context, token);
+            final int uid = getUid(context.getPackageManager(), controller.getPackageName());
             final SessionToken2 token2ForLegacySession = new SessionToken2(
-                    new SessionToken2ImplLegacy(token, controller.getPackageName()));
+                    new SessionToken2ImplLegacy(token, controller.getPackageName(), uid));
 
             final HandlerThread thread = new HandlerThread(TAG);
             thread.start();
@@ -362,11 +402,19 @@ public final class SessionToken2 {
                 }
                 if (TextUtils.equals(
                         resolveInfo.serviceInfo.name, serviceComponent.getClassName())) {
-                    return getSessionId(resolveInfo);
+                    return SessionToken2.getSessionId(resolveInfo);
                 }
             }
         }
         return null;
+    }
+
+    private static int getUid(PackageManager manager, String packageName) {
+        try {
+            return manager.getApplicationInfo(packageName, 0).uid;
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new IllegalArgumentException("Cannot find package " + packageName);
+        }
     }
 
     /**
@@ -388,6 +436,7 @@ public final class SessionToken2 {
     }
 
     interface SupportLibraryImpl {
+        boolean isLegacySession();
         int getUid();
         @NonNull String getPackageName();
         @Nullable String getServiceName();

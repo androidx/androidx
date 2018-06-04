@@ -23,16 +23,12 @@ import static androidx.media2.SessionToken2.KEY_SESSION_BINDER;
 import static androidx.media2.SessionToken2.KEY_SESSION_ID;
 import static androidx.media2.SessionToken2.KEY_TYPE;
 import static androidx.media2.SessionToken2.KEY_UID;
+import static androidx.media2.SessionToken2.TYPE_BROWSER_SERVICE_LEGACY;
 import static androidx.media2.SessionToken2.TYPE_LIBRARY_SERVICE;
 import static androidx.media2.SessionToken2.TYPE_SESSION;
 import static androidx.media2.SessionToken2.TYPE_SESSION_SERVICE;
-import static androidx.media2.SessionToken2.UID_UNKNOWN;
 
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -41,8 +37,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
 import androidx.media2.SessionToken2.TokenType;
-
-import java.util.List;
 
 final class SessionToken2ImplBase implements SessionToken2.SupportLibraryImpl {
 
@@ -57,60 +51,19 @@ final class SessionToken2ImplBase implements SessionToken2.SupportLibraryImpl {
     /**
      * Constructor for the token. You can only create token for session service or library service
      * to use by {@link MediaController2} or {@link MediaBrowser2}.
-     *
-     * @param context The context.
-     * @param serviceComponent The component name of the media browser service.
-     */
-    SessionToken2ImplBase(@NonNull Context context,
-            @NonNull ComponentName serviceComponent) {
-        this(context, serviceComponent, UID_UNKNOWN);
-    }
-
-    /**
-     * Constructor for the token. You can only create token for session service or library service
-     * to use by {@link MediaController2} or {@link MediaBrowser2}.
-     *
-     * @param context The context.
-     * @param serviceComponent The component name of the media browser service.
-     * @param uid uid of the app.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    SessionToken2ImplBase(@NonNull Context context, @NonNull ComponentName serviceComponent,
-            int uid) {
+    SessionToken2ImplBase(@NonNull ComponentName serviceComponent, int uid, String id, int type) {
         if (serviceComponent == null) {
             throw new IllegalArgumentException("serviceComponent shouldn't be null");
         }
         mComponentName = serviceComponent;
         mPackageName = serviceComponent.getPackageName();
         mServiceName = serviceComponent.getClassName();
-        // Calculate uid if it's not specified.
-        final PackageManager manager = context.getPackageManager();
-        if (uid == UID_UNKNOWN) {
-            try {
-                uid = manager.getApplicationInfo(mPackageName, 0).uid;
-            } catch (PackageManager.NameNotFoundException e) {
-                throw new IllegalArgumentException("Cannot find package " + mPackageName);
-            }
-        }
         mUid = uid;
-
-        // Infer id and type from package name and service name
-        String sessionId = getSessionIdFromService(manager, MediaLibraryService2.SERVICE_INTERFACE,
-                serviceComponent);
-        if (sessionId != null) {
-            mSessionId = sessionId;
-            mType = TYPE_LIBRARY_SERVICE;
-        } else {
-            // retry with session service
-            mSessionId = getSessionIdFromService(manager, MediaSessionService2.SERVICE_INTERFACE,
-                    serviceComponent);
-            mType = TYPE_SESSION_SERVICE;
-        }
-        if (mSessionId == null) {
-            throw new IllegalArgumentException("service " + mServiceName + " doesn't implement"
-                    + " session service nor library service. Use service's full name.");
-        }
+        mSessionId = id;
+        mType = type;
         mISession2 = null;
     }
 
@@ -165,6 +118,11 @@ final class SessionToken2ImplBase implements SessionToken2.SupportLibraryImpl {
     public String toString() {
         return "SessionToken {pkg=" + mPackageName + " id=" + mSessionId + " type=" + mType
                 + " service=" + mServiceName + " IMediaSession2=" + mISession2 + "}";
+    }
+
+    @Override
+    public boolean isLegacySession() {
+        return false;
     }
 
     @Override
@@ -248,6 +206,7 @@ final class SessionToken2ImplBase implements SessionToken2.SupportLibraryImpl {
                 break;
             case TYPE_SESSION_SERVICE:
             case TYPE_LIBRARY_SERVICE:
+            case TYPE_BROWSER_SERVICE_LEGACY:
                 if (TextUtils.isEmpty(serviceName)) {
                     throw new IllegalArgumentException("Session service needs service name");
                 }
@@ -259,45 +218,5 @@ final class SessionToken2ImplBase implements SessionToken2.SupportLibraryImpl {
             throw new IllegalArgumentException("Package name nor ID cannot be null.");
         }
         return new SessionToken2ImplBase(uid, type, packageName, serviceName, sessionId, iSession2);
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static String getSessionId(ResolveInfo resolveInfo) {
-        if (resolveInfo == null || resolveInfo.serviceInfo == null) {
-            return null;
-        } else if (resolveInfo.serviceInfo.metaData == null) {
-            return "";
-        } else {
-            return resolveInfo.serviceInfo.metaData.getString(
-                    MediaSessionService2.SERVICE_META_DATA, "");
-        }
-    }
-
-    private static String getSessionIdFromService(PackageManager manager, String serviceInterface,
-            ComponentName serviceComponent) {
-        Intent serviceIntent = new Intent(serviceInterface);
-        // Use queryIntentServices to find services with MediaLibraryService2.SERVICE_INTERFACE.
-        // We cannot use resolveService with intent specified class name, because resolveService
-        // ignores actions if Intent.setClassName() is specified.
-        serviceIntent.setPackage(serviceComponent.getPackageName());
-
-        List<ResolveInfo> list = manager.queryIntentServices(
-                serviceIntent, PackageManager.GET_META_DATA);
-        if (list != null) {
-            for (int i = 0; i < list.size(); i++) {
-                ResolveInfo resolveInfo = list.get(i);
-                if (resolveInfo == null || resolveInfo.serviceInfo == null) {
-                    continue;
-                }
-                if (TextUtils.equals(
-                        resolveInfo.serviceInfo.name, serviceComponent.getClassName())) {
-                    return getSessionId(resolveInfo);
-                }
-            }
-        }
-        return null;
     }
 }
