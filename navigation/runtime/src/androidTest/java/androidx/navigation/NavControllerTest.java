@@ -207,6 +207,30 @@ public class NavControllerTest {
     }
 
     @Test
+    public void testNavigateFromNestedThenNavigatorInstigatedPop() {
+        NavController navController = createNavController();
+        navController.setGraph(R.navigation.nav_nested_start_destination);
+        TestNavigator navigator = navController.getNavigatorProvider()
+                .getNavigator(TestNavigator.class);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.nested_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+
+        navController.navigate(R.id.second_test);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(2));
+
+        // A Navigator can pop a destination off its own back stack
+        // then inform the NavController via dispatchOnNavigatorNavigated
+        navigator.mBackStack.removeLast();
+        NavDestination newDestination = navigator.mBackStack.peekLast().first;
+        assertThat(newDestination, is(notNullValue()));
+        navigator.dispatchOnNavigatorNavigated(newDestination.getId(),
+                Navigator.BACK_STACK_DESTINATION_POPPED);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.nested_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+    }
+
+    @Test
     public void testNavigateThenNavigateUp() {
         NavController navController = createNavController();
         navController.setGraph(R.navigation.nav_simple);
