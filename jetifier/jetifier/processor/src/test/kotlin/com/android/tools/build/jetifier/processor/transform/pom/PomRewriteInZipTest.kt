@@ -84,7 +84,7 @@ class PomRewriteInZipTest {
         tempDir.delete()
     }
 
-    @Test fun rewritePomInZip_notRewritingSL_shouldNotRewrite() {
+    @Test fun rewritePomInZip_notRewritingSL_shouldStillRewrite() {
         val inputZipPath = "/pomRefactorTest/pomTest.zip"
 
         val processor = Processor.createProcessor(
@@ -107,13 +107,13 @@ class PomRewriteInZipTest {
 
         Truth.assertThat(returnedPom.fileName).isEqualTo("test.pom")
 
-        Truth.assertThat(content).contains("com.sample.my.group")
-        Truth.assertThat(content).contains("myArtifact")
-        Truth.assertThat(content).contains("1.0.0")
+        Truth.assertThat(content).doesNotContain("com.sample.my.group")
+        Truth.assertThat(content).doesNotContain("myArtifact")
+        Truth.assertThat(content).doesNotContain("1.0.0")
 
-        Truth.assertThat(content).doesNotContain("old.group")
-        Truth.assertThat(content).doesNotContain("myOldArtifact")
-        Truth.assertThat(content).doesNotContain("0.1.0")
+        Truth.assertThat(content).contains("old.group")
+        Truth.assertThat(content).contains("myOldArtifact")
+        Truth.assertThat(content).contains("0.1.0")
 
         tempDir.delete()
     }
