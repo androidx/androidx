@@ -16,8 +16,6 @@
 
 package androidx.car.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
@@ -43,7 +41,6 @@ import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.R;
@@ -818,11 +815,18 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Scrolls the contents of the RecyclerView up a page.
-     * @hide
+     * Scrolls the contents of the RecyclerView up a page. A page is defined as the height of the
+     * {@code PagedListView}.
+     *
+     * <p>The resulting first item in the list will be snapped to so that it is completely visible.
+     * If this is not possible due to the first item being taller than the containing
+     * {@code PagedListView}, then the snapping will not occur.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public void pageUp() {
+        if (mRecyclerView.getLayoutManager() == null || mRecyclerView.getChildCount() == 0) {
+            return;
+        }
+
         // Use OrientationHelper to calculate scroll distance in order to match snapping behavior.
         OrientationHelper orientationHelper =
                 getOrientationHelper(mRecyclerView.getLayoutManager());
@@ -858,11 +862,18 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Scrolls the contents of the RecyclerView down a page.
-     * @hide
+     * Scrolls the contents of the RecyclerView down a page. A page is defined as the height of the
+     * {@code PagedListView}.
+     *
+     * <p>This method will attempt to bring the last item in the list as the first item. If the
+     * current first item in the list is taller than the {@code PagedListView}, then it will be
+     * scrolled the length of a page, but not snapped to.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public void pageDown() {
+        if (mRecyclerView.getLayoutManager() == null || mRecyclerView.getChildCount() == 0) {
+            return;
+        }
+
         OrientationHelper orientationHelper =
                 getOrientationHelper(mRecyclerView.getLayoutManager());
         int screenSize = mRecyclerView.getHeight();
