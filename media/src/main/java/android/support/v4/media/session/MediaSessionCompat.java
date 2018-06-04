@@ -544,7 +544,11 @@ public class MediaSessionCompat {
      * @param handler The handler that events should be posted on.
      */
     public void setCallback(Callback callback, Handler handler) {
-        mImpl.setCallback(callback, handler != null ? handler : new Handler());
+        if (callback == null) {
+            mImpl.setCallback(null, null);
+        } else {
+            mImpl.setCallback(callback, handler != null ? handler : new Handler());
+        }
     }
 
     /**
