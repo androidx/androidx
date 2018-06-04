@@ -21,4 +21,6 @@
 
         <test android:id="@+id/nested_test"/>
     </navigation>
+
+    <test android:id="@+id/second_test"/>
 </navigation>
