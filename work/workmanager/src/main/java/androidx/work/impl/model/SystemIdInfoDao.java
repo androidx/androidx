@@ -16,9 +16,10 @@
 
 package androidx.work.impl.model;
 
+import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
+
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -33,7 +34,7 @@ public interface SystemIdInfoDao {
      *
      * @param systemIdInfo The {@link SystemIdInfo} to be inserted into the database.
      */
-    @Insert(onConflict = OnConflictStrategy.FAIL)
+    @Insert(onConflict = REPLACE)
     void insertSystemIdInfo(@NonNull SystemIdInfo systemIdInfo);
 
     /**

@@ -16,7 +16,7 @@
 
 package androidx.work.impl.model;
 
-import static android.arch.persistence.room.OnConflictStrategy.FAIL;
+import static android.arch.persistence.room.OnConflictStrategy.IGNORE;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
@@ -35,7 +35,7 @@ public interface WorkNameDao {
      *
      * @param workName The {@link WorkName} to insert
      */
-    @Insert(onConflict = FAIL)
+    @Insert(onConflict = IGNORE)
     void insert(WorkName workName);
 
     /**
