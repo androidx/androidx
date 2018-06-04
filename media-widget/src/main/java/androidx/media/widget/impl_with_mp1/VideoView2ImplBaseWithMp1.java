@@ -16,8 +16,6 @@
 
 package androidx.media.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
@@ -55,7 +53,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.DataSourceDesc2;
 import androidx.media.MediaItem2;
@@ -328,9 +325,7 @@ class VideoView2ImplBaseWithMp1
      * if any.
      *
      * @param metadata a MediaMetadata2 instance.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setMediaMetadata(MediaMetadata2 metadata) {
       //mProvider.setMediaMetadata_impl(metadata);
@@ -339,9 +334,7 @@ class VideoView2ImplBaseWithMp1
     /**
      * Returns MediaMetadata2 instance which is retrieved from MediaPlayer inside VideoView2 by
      * default or by {@link #setMediaMetadata} method.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public MediaMetadata2 getMediaMetadata() {
         return mMediaMetadata;
@@ -355,9 +348,7 @@ class VideoView2ImplBaseWithMp1
      * before calling this method.
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.
-     * @hide  TODO: remove
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public MediaControllerCompat getMediaController() {
         if (mMediaSession == null) {
@@ -372,11 +363,9 @@ class VideoView2ImplBaseWithMp1
      * VideoView2 is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
-    public SessionToken2 getMediaSessionToken() {
+    public SessionToken2 getMediaSessionToken2() {
         return null;
     }
 
@@ -452,10 +441,7 @@ class VideoView2ImplBaseWithMp1
      * Sets video path.
      *
      * @param path the path of the video.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setVideoPath(String path) {
         setVideoUri(Uri.parse(path));
@@ -465,10 +451,7 @@ class VideoView2ImplBaseWithMp1
      * Sets video URI.
      *
      * @param uri the URI of the video.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setVideoUri(Uri uri) {
         setVideoUri(uri, null);
@@ -495,21 +478,16 @@ class VideoView2ImplBaseWithMp1
      * object to VideoView2 is {@link #setDataSource}.
      * @param mediaItem the MediaItem2 to play
      * @see #setDataSource
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
-    public void setMediaItem(@NonNull MediaItem2 mediaItem) {
+    public void setMediaItem2(@NonNull MediaItem2 mediaItem) {
     }
 
     /**
      * Sets {@link DataSourceDesc2} object to render using VideoView2.
      * @param dataSource the {@link DataSourceDesc2} object to play.
-     * @see #setMediaItem
-     * @hide
+     * @see #setMediaItem2
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setDataSource(@NonNull DataSourceDesc2 dataSource) {
     }
@@ -558,9 +536,7 @@ class VideoView2ImplBaseWithMp1
      * Registers a callback to be invoked when a view type change is done.
      * {@see #setViewType(int)}
      * @param l The callback that will be run
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setOnViewTypeChangedListener(VideoView2.OnViewTypeChangedListener l) {
         mViewTypeChangedListener = l;

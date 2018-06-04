@@ -6,6 +6,7 @@ package androidx.media.widget {
     ctor public MediaControlView2(android.content.Context, android.util.AttributeSet, int);
     method public void onMeasure(int, int);
     method public void requestPlayButtonFocus();
+    method public void setMediaSessionToken2(androidx.media.SessionToken2);
     method public void setOnFullScreenListener(androidx.media.widget.MediaControlView2.OnFullScreenListener);
   }
 
@@ -18,6 +19,7 @@ package androidx.media.widget {
     ctor public VideoView2(android.content.Context, android.util.AttributeSet);
     ctor public VideoView2(android.content.Context, android.util.AttributeSet, int);
     method public androidx.media.widget.MediaControlView2 getMediaControlView2();
+    method public androidx.media.SessionToken2 getMediaSessionToken2();
     method public float getSpeed();
     method public int getViewType();
     method public boolean isSubtitleEnabled();
@@ -26,9 +28,9 @@ package androidx.media.widget {
     method public void onMeasure(int, int);
     method public void setAudioAttributes(androidx.media.AudioAttributesCompat);
     method public void setMediaControlView2(androidx.media.widget.MediaControlView2, long);
+    method public void setMediaItem2(androidx.media.MediaItem2);
     method public void setSpeed(float);
     method public void setSubtitleEnabled(boolean);
-    method public void setVideoUri(android.net.Uri, java.util.Map<java.lang.String, java.lang.String>);
     method public void setViewType(int);
     field public static final int VIEW_TYPE_SURFACEVIEW = 0; // 0x0
     field public static final int VIEW_TYPE_TEXTUREVIEW = 1; // 0x1

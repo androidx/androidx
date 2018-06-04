@@ -88,7 +88,7 @@ interface VideoView2Impl {
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.
      */
-    SessionToken2 getMediaSessionToken();
+    SessionToken2 getMediaSessionToken2();
 
     /**
      * Shows or hides closed caption or subtitles if there is any.
@@ -163,12 +163,12 @@ interface VideoView2Impl {
      * @param mediaItem the MediaItem2 to play
      * @see #setDataSource
      */
-    void setMediaItem(@NonNull MediaItem2 mediaItem);
+    void setMediaItem2(@NonNull MediaItem2 mediaItem);
 
     /**
      * Sets {@link DataSourceDesc2} object to render using VideoView2.
      * @param dataSource the {@link DataSourceDesc2} object to play.
-     * @see #setMediaItem
+     * @see #setMediaItem2
      */
     void setDataSource(@NonNull DataSourceDesc2 dataSource);
 

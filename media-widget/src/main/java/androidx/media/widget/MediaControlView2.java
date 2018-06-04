@@ -23,11 +23,13 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaMetadataCompat;
@@ -108,6 +110,7 @@ import java.util.concurrent.Executor;
  * 2) Set full screen mode
  *
  */
+@TargetApi(Build.VERSION_CODES.P)
 @RequiresApi(21) // TODO correct minSdk API use incompatibilities and remove before release.
 public class MediaControlView2 extends BaseLayout {
     /**
@@ -389,10 +392,9 @@ public class MediaControlView2 extends BaseLayout {
     /**
      * Sets MediaSession2 token to control corresponding MediaSession2. It makes it possible to
      * send and receive data between MediaControlView2 and VideoView2.
-     * @hide TODO: unhide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void setMediaSessionToken(SessionToken2 token) {
+    public void setMediaSessionToken2(SessionToken2 token) {
         if (mController != null) {
             mController.close();
         }
