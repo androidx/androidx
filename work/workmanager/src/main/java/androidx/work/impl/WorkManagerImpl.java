@@ -324,6 +324,17 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
+    public void cancelAllWork() {
+        mTaskExecutor.executeOnBackgroundThread(CancelWorkRunnable.forAll(this));
+    }
+
+    @Override
+    public void cancelAllWorkSync() {
+        assertBackgroundThread("Cannot cancelAllWorkSync on main thread!");
+        CancelWorkRunnable.forAll(this).run();
+    }
+
+    @Override
     public LiveData<WorkStatus> getStatusById(@NonNull UUID id) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
