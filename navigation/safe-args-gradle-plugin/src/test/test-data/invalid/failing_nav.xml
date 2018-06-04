@@ -17,8 +17,17 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/foo"
             app:startDestination="@+id/first_screen">
-    <fragment android:name="a.FakeFragment"><action android:id="@+fppid/finish" app:popUpTo="@id/first_screen"  />
+    <fragment android:id="@+id/first_screen"
+              android:name="androidx.navigation.testapp.MainFragment">
+        <argument android:name="myarg1" android:defaultValue="one" />
+        <action android:id="@+id/next" app:destination="@+id/next_fragment">
+            <argument android:name="randomArgument"/>
+        </action>
+    </fragment>
+    <fragment android:id="@+id/next_fragment"
+              android:name="androidx.navigation.testapp.ModifiedNextFragment">
+        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+        <action app:popUpTo="@id/first_screen" />
     </fragment>
 </navigation>
