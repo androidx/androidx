@@ -39,6 +39,7 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.media.BaseMediaPlayer.PlayerEventCallback;
@@ -2728,5 +2729,109 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         assertEquals(1.0f, playbackParams.getSpeed(), 0.001f);
 
         mPlayer.reset();
+    }
+
+    @Test
+    @SmallTest
+    public void testSkipUnnecessarySeek() throws Exception {
+        final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
+        final TestMedia2DataSource source =
+                TestMedia2DataSource.fromAssetFd(mResources.openRawResourceFd(resid));
+        final Monitor readAllowed = new Monitor();
+        Media2DataSource dataSource = new Media2DataSource() {
+            @Override
+            public int readAt(long position, byte[] buffer, int offset, int size)
+                    throws IOException {
+                if (!readAllowed.isSignalled()) {
+                    try {
+                        readAllowed.waitForSignal();
+                    } catch (InterruptedException e) {
+                        fail();
+                    }
+                }
+                return source.readAt(position, buffer, offset, size);
+            }
+
+            @Override
+            public long getSize() throws IOException {
+                return source.getSize();
+            }
+
+            @Override
+            public void close() throws IOException {
+                source.close();
+            }
+        };
+        final Monitor labelReached = new Monitor();
+        final ArrayList<Pair<Integer, Integer>> commandsCompleted = new ArrayList<>();
+        setOnErrorListener();
+        MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
+            @Override
+            public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
+                    mOnPrepareCalled.signal();
+                }
+            }
+
+            @Override
+            public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
+                commandsCompleted.add(new Pair<>(what, status));
+            }
+
+            @Override
+            public void onError(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                mOnErrorCalled.signal();
+            }
+
+            @Override
+            public void onCommandLabelReached(MediaPlayer2 mp, @NonNull Object label) {
+                labelReached.signal();
+            }
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
+
+        mOnPrepareCalled.reset();
+        mOnErrorCalled.reset();
+
+        mPlayer.setDataSource(new DataSourceDesc.Builder()
+                .setDataSource(dataSource)
+                .build());
+
+        // prepare() will be pending until readAllowed is signaled.
+        mPlayer.prepare();
+
+        mPlayer.seekTo(3000);
+        mPlayer.seekTo(2000);
+        mPlayer.seekTo(1000);
+        mPlayer.notifyWhenCommandLabelReached(new Object());
+
+        readAllowed.signal();
+        labelReached.waitForSignal();
+
+        assertFalse(mOnErrorCalled.isSignalled());
+        assertTrue(mOnPrepareCalled.isSignalled());
+        assertEquals(5, commandsCompleted.size());
+        assertEquals(
+                new Pair<>(MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE,
+                        MediaPlayer2.CALL_STATUS_NO_ERROR),
+                commandsCompleted.get(0));
+        assertEquals(
+                new Pair<>(MediaPlayer2.CALL_COMPLETED_PREPARE,
+                        MediaPlayer2.CALL_STATUS_NO_ERROR),
+                commandsCompleted.get(1));
+        assertEquals(
+                new Pair<>(MediaPlayer2.CALL_COMPLETED_SEEK_TO,
+                        MediaPlayer2.CALL_STATUS_SKIPPED),
+                commandsCompleted.get(2));
+        assertEquals(
+                new Pair<>(MediaPlayer2.CALL_COMPLETED_SEEK_TO,
+                        MediaPlayer2.CALL_STATUS_SKIPPED),
+                commandsCompleted.get(3));
+        assertEquals(
+                new Pair<>(MediaPlayer2.CALL_COMPLETED_SEEK_TO,
+                        MediaPlayer2.CALL_STATUS_NO_ERROR),
+                commandsCompleted.get(4));
     }
 }
