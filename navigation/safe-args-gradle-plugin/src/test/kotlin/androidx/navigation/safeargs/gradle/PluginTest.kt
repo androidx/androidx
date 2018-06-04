@@ -46,7 +46,7 @@ private const val SEC = 1000L
 @RunWith(JUnit4::class)
 class PluginTest {
 
-    @Suppress("MemberVisibilityCanPrivate")
+    @Suppress("MemberVisibilityCanBePrivate")
     @get:Rule
     val testProjectDir = TemporaryFolder()
 
@@ -68,8 +68,11 @@ class PluginTest {
 
     private fun navResource(name: String) = File(projectRoot(), "$NAV_RESOURCES/$name")
 
-    private fun runGradle(vararg args: String) = GradleRunner.create()
-            .withProjectDir(projectRoot()).withPluginClasspath().withArguments(*args).build()
+    private fun gradleBuilder(vararg args: String) = GradleRunner.create()
+            .withProjectDir(projectRoot()).withPluginClasspath().withArguments(*args)
+
+    private fun runGradle(vararg args: String) = gradleBuilder(*args).build()
+    private fun runAndFailGradle(vararg args: String) = gradleBuilder(*args).buildAndFail()
 
     @Before
     fun setup() {
@@ -208,11 +211,52 @@ class PluginTest {
         // but additional directions are removed
         assertNotGenerated("debug/$ADDITIONAL_DIRECTIONS")
     }
+
+    @Test
+    fun invalidModify() {
+        setupSimpleBuildGradle()
+        testData("incremental-test-data/add_nav.xml").copyTo(navResource("add_nav.xml"))
+        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        val step1MainLastMod = assertGenerated("debug/$MAIN_DIRECTIONS").lastModified()
+        val step1AdditionalLastMod = assertGenerated("debug/$ADDITIONAL_DIRECTIONS").lastModified()
+        assertGenerated("debug/$NEXT_DIRECTIONS")
+
+        testData("invalid/failing_nav.xml").copyTo(navResource("nav_test.xml"), true)
+        Thread.sleep(SEC)
+        runAndFailGradle("generateSafeArgsDebug").assertFailingTask("generateSafeArgsDebug")
+        val step2MainLastMod = assertGenerated("debug/$MAIN_DIRECTIONS").lastModified()
+        // main directions were regenerated
+        assertThat(step2MainLastMod, not(step1MainLastMod))
+
+        // but additional directions weren't touched
+        val step2AdditionalLastMod = assertGenerated("debug/$ADDITIONAL_DIRECTIONS").lastModified()
+        assertThat(step2AdditionalLastMod, `is`(step1AdditionalLastMod))
+
+        val step2ModifiedTime = assertGenerated("debug/$MODIFIED_NEXT_DIRECTIONS").lastModified()
+        assertNotGenerated("debug/$NEXT_DIRECTIONS")
+
+        testData("incremental-test-data/modified_nav.xml").copyTo(navResource("nav_test.xml"), true)
+        Thread.sleep(SEC)
+        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+
+        // additional directions are touched because once task failed,
+        // gradle next time makes full run
+        val step3AdditionalLastMod = assertGenerated("debug/$ADDITIONAL_DIRECTIONS").lastModified()
+        assertThat(step3AdditionalLastMod, not(step2AdditionalLastMod))
+
+        val step3ModifiedTime = assertGenerated("debug/$MODIFIED_NEXT_DIRECTIONS").lastModified()
+        assertThat(step2ModifiedTime, not(step3ModifiedTime))
+    }
 }
 
 private fun testData(name: String) = File("src/test/test-data", name)
 
 private fun BuildResult.assertSuccessfulTask(name: String): BuildResult {
     assertThat(task(":$name")!!.outcome, `is`(TaskOutcome.SUCCESS))
+    return this
+}
+
+private fun BuildResult.assertFailingTask(name: String): BuildResult {
+    assertThat(task(":$name")!!.outcome, `is`(TaskOutcome.FAILED))
     return this
 }

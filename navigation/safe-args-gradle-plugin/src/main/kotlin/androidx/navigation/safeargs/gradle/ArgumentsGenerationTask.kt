@@ -16,6 +16,7 @@
 
 package androidx.navigation.safeargs.gradle
 
+import androidx.navigation.safe.args.generator.ErrorMessage
 import androidx.navigation.safe.args.generator.generateSafeArgs
 import com.android.build.gradle.internal.tasks.IncrementalTask
 import com.android.ide.common.resources.FileStatus
@@ -43,9 +44,9 @@ open class ArgumentsGenerationTask : IncrementalTask() {
     var navigationFiles: List<File> = emptyList()
 
     private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
-        Mapping(file.relativeTo(project.projectDir).path,
-                generateSafeArgs(rFilePackage, applicationId, file, out))
-    }
+        val output = generateSafeArgs(rFilePackage, applicationId, file, out)
+        Mapping(file.relativeTo(project.projectDir).path, output.files) to output.errors
+    }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
 
     private fun writeMappings(mappings: List<Mapping>) {
         File(incrementalFolder, MAPPING_FILE).writer().use { Gson().toJson(mappings, it) }
@@ -68,15 +69,16 @@ open class ArgumentsGenerationTask : IncrementalTask() {
         if (!outputDir.exists() && !outputDir.mkdirs()) {
             throw GradleException("Failed to create directory for navigation arguments")
         }
-        val mappings = generateArgs(navigationFiles, outputDir)
+        val (mappings, errors) = generateArgs(navigationFiles, outputDir)
         writeMappings(mappings)
+        failIfErrors(errors)
     }
 
     override fun doIncrementalTaskAction(changedInputs: MutableMap<File, FileStatus>) {
         super.doIncrementalTaskAction(changedInputs)
         val oldMapping = readMappings()
         val navFiles = changedInputs.filter { (_, status) -> status != FileStatus.REMOVED }.keys
-        val newMapping = generateArgs(navFiles, outputDir)
+        val (newMapping, errors) = generateArgs(navFiles, outputDir)
         val newJavaFiles = newMapping.flatMap { it.javaFiles }.toSet()
         val (modified, unmodified) = oldMapping.partition {
             File(project.projectDir, it.navFile) in changedInputs
@@ -91,9 +93,21 @@ open class ArgumentsGenerationTask : IncrementalTask() {
                     }
                 }
         writeMappings(unmodified + newMapping)
+        failIfErrors(errors)
+    }
+
+    private fun failIfErrors(errors: List<ErrorMessage>) {
+        if (errors.isNotEmpty()) {
+            val errString = errors.joinToString("\n") { it.toClickableText() }
+            throw GradleException(
+                    "androidx.navigation.safeargs plugin failed.\n " +
+                            "Following errors found: \n$errString")
+        }
     }
 
     override fun isIncremental() = true
 }
+
+private fun ErrorMessage.toClickableText() = "$path:$line:$column: error: $message"
 
 private data class Mapping(val navFile: String, val javaFiles: List<String>)
