@@ -31,7 +31,7 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.model.AlarmInfo;
+import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.worker.TestWorker;
 
 import org.junit.Before;
@@ -64,8 +64,8 @@ public class AlarmsTest extends DatabaseTest {
         String workSpecId = work.getStringId();
 
         Alarms.setAlarm(mContext, mWorkManager, workSpecId, mTriggerAt);
-        AlarmInfo alarmInfo = mDatabase.alarmInfoDao().getAlarmInfo(workSpecId);
-        assertThat(alarmInfo, is(notNullValue()));
+        SystemIdInfo systemIdInfo = mDatabase.systemIdInfoDao().getSystemIdInfo(workSpecId);
+        assertThat(systemIdInfo, is(notNullValue()));
     }
 
     @Test
@@ -74,14 +74,13 @@ public class AlarmsTest extends DatabaseTest {
         insertWork(work);
         String workSpecId = work.getStringId();
 
-        AlarmInfo alarmInfo = new AlarmInfo(workSpecId, 1);
-
-        mDatabase.alarmInfoDao().insertAlarmInfo(alarmInfo);
+        SystemIdInfo systemIdInfo = new SystemIdInfo(workSpecId, 1);
+        mDatabase.systemIdInfoDao().insertSystemIdInfo(systemIdInfo);
 
         Alarms.setAlarm(mContext, mWorkManager, workSpecId, mTriggerAt);
-        AlarmInfo updatedAlarmInfo = mDatabase.alarmInfoDao().getAlarmInfo(workSpecId);
-        assertThat(updatedAlarmInfo, is(notNullValue()));
-        assertThat(updatedAlarmInfo.alarmId, is(alarmInfo.alarmId));
+        SystemIdInfo updatedSystemIdInfo = mDatabase.systemIdInfoDao().getSystemIdInfo(workSpecId);
+        assertThat(updatedSystemIdInfo, is(notNullValue()));
+        assertThat(updatedSystemIdInfo.systemId, is(systemIdInfo.systemId));
     }
 
     @Test
@@ -90,12 +89,11 @@ public class AlarmsTest extends DatabaseTest {
         insertWork(work);
         String workSpecId = work.getStringId();
 
-        AlarmInfo alarmInfo = new AlarmInfo(workSpecId, 1);
-
-        mDatabase.alarmInfoDao().insertAlarmInfo(alarmInfo);
+        SystemIdInfo systemIdInfo = new SystemIdInfo(workSpecId, 1);
+        mDatabase.systemIdInfoDao().insertSystemIdInfo(systemIdInfo);
 
         Alarms.cancelAlarm(mContext, mWorkManager, workSpecId);
-        AlarmInfo updatedAlarmInfo = mDatabase.alarmInfoDao().getAlarmInfo(workSpecId);
-        assertThat(updatedAlarmInfo, is(nullValue()));
+        SystemIdInfo updatedSystemIdInfo = mDatabase.systemIdInfoDao().getSystemIdInfo(workSpecId);
+        assertThat(updatedSystemIdInfo, is(nullValue()));
     }
 }
