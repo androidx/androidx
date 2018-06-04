@@ -29,6 +29,16 @@ android {
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/src/schemas".toString()]
+            }
+        }
+    }
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/src/schemas".toString())
+    }
 }
 
 dependencies {
@@ -36,6 +46,7 @@ dependencies {
     implementation "android.arch.persistence.room:runtime:1.0.0"
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
     androidTestImplementation "android.arch.core:core-testing:1.1.0"
+    androidTestImplementation "android.arch.persistence.room:testing:1.0.0"
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
