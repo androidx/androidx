@@ -88,30 +88,30 @@ public class NavController {
     private final Navigator.OnNavigatorNavigatedListener mOnNavigatedListener =
             new Navigator.OnNavigatorNavigatedListener() {
                 @Override
-                public void onNavigatorNavigated(Navigator navigator, @IdRes int destId,
+                public void onNavigatorNavigated(@NonNull Navigator navigator, @IdRes int destId,
                         @Navigator.BackStackEffect int backStackEffect) {
                     if (destId != 0) {
+                        // First remove popped destinations off the back stack
+                        if (backStackEffect == Navigator.BACK_STACK_DESTINATION_POPPED) {
+                            while (!mBackStack.isEmpty()
+                                    && mBackStack.peekLast().getId() != destId) {
+                                mBackStack.removeLast();
+                            }
+                        }
                         NavDestination newDest = findDestination(destId);
                         if (newDest == null) {
                             throw new IllegalArgumentException("Navigator " + navigator
                                     + " reported navigation to unknown destination id "
                                     + NavDestination.getDisplayName(mContext, destId));
                         }
-                        switch (backStackEffect) {
-                            case Navigator.BACK_STACK_DESTINATION_POPPED:
-                                while (!mBackStack.isEmpty()
-                                        && mBackStack.peekLast().getId() != destId) {
-                                    mBackStack.removeLast();
-                                }
-                                break;
-                            case Navigator.BACK_STACK_DESTINATION_ADDED:
-                                mBackStack.add(newDest);
-                                break;
-                            case Navigator.BACK_STACK_UNCHANGED:
-                                // Don't update the back stack and don't dispatchOnNavigated
-                                return;
+                        if (backStackEffect == Navigator.BACK_STACK_DESTINATION_ADDED) {
+                            // Add the new destination to the back stack
+                            mBackStack.add(newDest);
                         }
-                        dispatchOnNavigated(newDest);
+                        // Don't dispatchOnNavigated if nothing changed
+                        if (backStackEffect != Navigator.BACK_STACK_UNCHANGED) {
+                            dispatchOnNavigated(newDest);
+                        }
                     }
                 }
             };
