@@ -321,8 +321,18 @@ public class WebViewFeature {
             Features.WEB_MESSAGE_CALLBACK_ON_MESSAGE;
 
     /**
-     * Return whether a feature is supported at run-time. This depends on the Android version of the
-     * device and the WebView APK on the device.
+     * Return whether a feature is supported at run-time. On devices running Android version {@link
+     * android.os.Build.VERSION_CODES#LOLLIPOP} and higher, this will check whether a feature is
+     * supported, depending on the combination of the desired feature, the Android version of
+     * device, and the WebView APK on the device. If running on a device with a lower API level,
+     * this will always return {@code false}.
+     *
+     * <p class="note"><b>Note:</b> If this method returns {@code false}, it is not safe to invoke
+     * the methods requiring the desired feature. Furthermore, if this method returns {@code false}
+     * for a particular feature, any callback guarded by that feature will not be invoked.
+     *
+     * @param feature the feature to be checked
+     * @return whether the feature is supported given the current platform SDK and webview version
      */
     public static boolean isFeatureSupported(@NonNull @WebViewSupportFeature String feature) {
         WebViewFeatureInternal webviewFeature = WebViewFeatureInternal.getFeature(feature);
