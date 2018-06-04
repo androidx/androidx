@@ -86,6 +86,7 @@ import android.os.Parcel;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -307,16 +308,38 @@ public class MediaSessionCompatCallbackTest {
 
     /**
      * Tests {@link MediaSessionCompat#setCallback} with {@code null}.
-     * No callback should be called once {@code setCallback(null)} is done.
+     * No callback messages should be posted once {@code setCallback(null)} is done.
      */
     @Test
     @SmallTest
     public void testSetCallbackWithNull() throws Exception {
         mSession.setActive(true);
         mCallback.reset(1);
-        callTransportControlsMethod(PLAY, null, getContext(), mSession.getSessionToken());
         mSession.setCallback(null, mHandler);
-        mCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS);
+        callTransportControlsMethod(PLAY, null, getContext(), mSession.getSessionToken());
+        assertFalse(mCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
+        assertEquals("Callback shouldn't be called.", 0, mCallback.mOnPlayCalledCount);
+    }
+
+    /**
+     * Tests {@link MediaSessionCompat#setCallback} with {@code null}.
+     * From API 28, {@code setCallback(null)} should remove all posted callback messages.
+     * Therefore, no callback should be called once {@code setCallback(null)} is done.
+     */
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void testSetCallbackWithNullShouldRemoveCallbackMessages() throws Exception {
+        mSession.setActive(true);
+        mCallback.reset(1);
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                callTransportControlsMethod(PLAY, null, getContext(), mSession.getSessionToken());
+                mSession.setCallback(null, mHandler);
+            }
+        });
+        assertFalse(mCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
         assertEquals("Callback shouldn't be called.", 0, mCallback.mOnPlayCalledCount);
     }
 
