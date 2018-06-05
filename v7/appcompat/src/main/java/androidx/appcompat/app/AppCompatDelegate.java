@@ -22,13 +22,13 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
@@ -174,7 +174,7 @@ public abstract class AppCompatDelegate {
     public static final int FEATURE_ACTION_MODE_OVERLAY = WindowCompat.FEATURE_ACTION_MODE_OVERLAY;
 
     /**
-     * Create a {@link androidx.appcompat.app.AppCompatDelegate} to use with {@code activity}.
+     * Create an {@link androidx.appcompat.app.AppCompatDelegate} to use with {@code activity}.
      *
      * @param callback An optional callback for AppCompat specific events
      */
@@ -183,12 +183,23 @@ public abstract class AppCompatDelegate {
     }
 
     /**
-     * Create a {@link androidx.appcompat.app.AppCompatDelegate} to use with {@code dialog}.
+     * Create an {@link androidx.appcompat.app.AppCompatDelegate} to use with {@code dialog}.
      *
      * @param callback An optional callback for AppCompat specific events
      */
     public static AppCompatDelegate create(Dialog dialog, AppCompatCallback callback) {
         return new AppCompatDelegateImpl(dialog.getContext(), dialog.getWindow(), callback);
+    }
+
+    /**
+     * Create an {@link androidx.appcompat.app.AppCompatDelegate} to use with a {@code context}
+     * and a {@code window}.
+     *
+     * @param callback An optional callback for AppCompat specific events
+     */
+    public static AppCompatDelegate create(Context context, Window window,
+            AppCompatCallback callback) {
+        return new AppCompatDelegateImpl(context, window, callback);
     }
 
     /**
@@ -416,7 +427,7 @@ public abstract class AppCompatDelegate {
      * <p>You can override the night mode using {@link #setLocalNightMode(int)}.</p>
      *
      * <p>This only works on devices running
-     * {@link Build.VERSION_CODES#ICE_CREAM_SANDWICH ICE_CREAM_SANDWICH} and above.</p>
+     * {@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWICH ICE_CREAM_SANDWICH} and above.</p>
      *
      * <p>If this is called after the host component has been created, the component will either be
      * automatically recreated or its {@link Configuration} updated. Which one depends on how
