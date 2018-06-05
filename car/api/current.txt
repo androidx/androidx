@@ -296,6 +296,8 @@ package androidx.car.widget {
     method public void onLayout(boolean, int, int, int, int);
     method public void onRestoreInstanceState(android.os.Parcelable);
     method public android.os.Parcelable onSaveInstanceState();
+    method public void pageDown();
+    method public void pageUp();
     method public int positionOf(android.view.View);
     method public void removeItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
     method public void removeOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
@@ -434,7 +436,6 @@ package androidx.car.widget {
     method protected void resolveDirtyState();
     method public void setText(java.lang.String);
     method public void setTextStartMarginType(int);
-    method public final boolean shouldHideDivider();
     field public static final int TEXT_START_MARGIN_TYPE_LARGE = 2; // 0x2
     field public static final int TEXT_START_MARGIN_TYPE_NONE = 0; // 0x0
     field public static final int TEXT_START_MARGIN_TYPE_SMALL = 1; // 0x1
