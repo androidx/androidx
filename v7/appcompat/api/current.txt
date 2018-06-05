@@ -252,6 +252,7 @@ package androidx.appcompat.app {
     method public abstract boolean applyDayNight();
     method public static androidx.appcompat.app.AppCompatDelegate create(android.app.Activity, androidx.appcompat.app.AppCompatCallback);
     method public static androidx.appcompat.app.AppCompatDelegate create(android.app.Dialog, androidx.appcompat.app.AppCompatCallback);
+    method public static androidx.appcompat.app.AppCompatDelegate create(android.content.Context, android.view.Window, androidx.appcompat.app.AppCompatCallback);
     method public abstract android.view.View createView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
     method public abstract <T extends android.view.View> T findViewById(int);
     method public static int getDefaultNightMode();
