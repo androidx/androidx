@@ -32,6 +32,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -48,6 +49,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * from a remote server.)</p>
  */
 public class NavController {
+    private static final String KEY_NAVIGATOR_STATE =
+            "android-support-nav:controller:navigatorState";
+    private static final String KEY_NAVIGATOR_STATE_NAMES =
+            "android-support-nav:controller:navigatorState:names";
     private static final String KEY_GRAPH_ID = "android-support-nav:controller:graphId";
     private static final String KEY_BACK_STACK_IDS = "android-support-nav:controller:backStackIds";
     static final String KEY_DEEP_LINK_IDS = "android-support-nav:controller:deepLinkIds";
@@ -64,6 +69,7 @@ public class NavController {
     private NavInflater mInflater;
     private NavGraph mGraph;
     private int mGraphId;
+    private Bundle mNavigatorStateToRestore;
     private int[] mBackStackToRestore;
 
     private final Deque<NavDestination> mBackStack = new ArrayDeque<>();
@@ -393,6 +399,19 @@ public class NavController {
     }
 
     private void onGraphCreated() {
+        if (mNavigatorStateToRestore != null) {
+            ArrayList<String> navigatorNames = mNavigatorStateToRestore.getStringArrayList(
+                    KEY_NAVIGATOR_STATE_NAMES);
+            if (navigatorNames != null) {
+                for (String name : navigatorNames) {
+                    Navigator navigator = mNavigatorProvider.getNavigator(name);
+                    Bundle bundle = mNavigatorStateToRestore.getBundle(name);
+                    if (bundle != null) {
+                        navigator.onRestoreState(bundle);
+                    }
+                }
+            }
+        }
         if (mBackStackToRestore != null) {
             for (int destinationId : mBackStackToRestore) {
                 NavDestination node = findDestination(destinationId);
@@ -665,6 +684,24 @@ public class NavController {
             b = new Bundle();
             b.putInt(KEY_GRAPH_ID, mGraphId);
         }
+        ArrayList<String> navigatorNames = new ArrayList<>();
+        Bundle navigatorState = new Bundle();
+        for (Map.Entry<String, Navigator<? extends NavDestination>> entry :
+                mNavigatorProvider.getNavigators().entrySet()) {
+            String name = entry.getKey();
+            Bundle savedState = entry.getValue().onSaveState();
+            if (savedState != null) {
+                navigatorNames.add(name);
+                navigatorState.putBundle(name, entry.getValue().onSaveState());
+            }
+        }
+        if (!navigatorNames.isEmpty()) {
+            if (b == null) {
+                b = new Bundle();
+            }
+            navigatorState.putStringArrayList(KEY_NAVIGATOR_STATE_NAMES, navigatorNames);
+            b.putBundle(KEY_NAVIGATOR_STATE, navigatorState);
+        }
         if (!mBackStack.isEmpty()) {
             if (b == null) {
                 b = new Bundle();
@@ -693,10 +730,11 @@ public class NavController {
         }
 
         mGraphId = navState.getInt(KEY_GRAPH_ID);
+        mNavigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE);
         mBackStackToRestore = navState.getIntArray(KEY_BACK_STACK_IDS);
         if (mGraphId != 0) {
-            // Set the graph right away, onGraphCreated will re-add the back stack
-            // from mBackStackToRestore
+            // Set the graph right away, onGraphCreated will handle restoring the
+            // rest of the saved state
             setGraph(mGraphId);
         }
     }
