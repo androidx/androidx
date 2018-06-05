@@ -71,6 +71,7 @@ import androidx.slice.core.SliceQuery;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @hide
@@ -79,6 +80,7 @@ import java.util.List;
 public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilder {
 
     private List<Slice> mSliceActions;
+    private Set<String> mKeywords;
     private Slice mSliceHeader;
     private boolean mIsError;
 
@@ -109,6 +111,13 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         }
         if (mIsError) {
             builder.addHints(HINT_ERROR);
+        }
+        if (mKeywords != null) {
+            Slice.Builder sb = new Slice.Builder(getBuilder());
+            for (String keyword : mKeywords) {
+                sb.addText(keyword, null);
+            }
+            getBuilder().addSubSlice(sb.addHints(HINT_KEYWORDS).build());
         }
     }
 
@@ -224,12 +233,8 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     /**
      */
     @Override
-    public void setKeywords(@NonNull List<String> keywords) {
-        Slice.Builder sb = new Slice.Builder(getBuilder());
-        for (int i = 0; i < keywords.size(); i++) {
-            sb.addText(keywords.get(i), null);
-        }
-        getBuilder().addSubSlice(sb.addHints(HINT_KEYWORDS).build());
+    public void setKeywords(@NonNull Set<String> keywords) {
+        mKeywords = keywords;
     }
 
     /**
