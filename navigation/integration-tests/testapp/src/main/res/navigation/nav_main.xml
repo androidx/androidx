@@ -16,12 +16,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:startDestination="@+id/launcher_home"
     tools:ignore="DuplicateIds">
-    <fragment android:id="@+id/launcher_home"
-              android:label="@string/home"
-              android:name=".MainFragment">
-        <argument android:name="myarg" android:defaultValue="Home" />
-        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
-    </fragment>
+    <navigation android:id="@+id/launcher_home"
+                app:startDestination="@+id/main"
+                android:label="@string/home">
+        <fragment android:id="@+id/main"
+                  android:name=".MainFragment">
+            <argument android:name="myarg" android:defaultValue="Home" />
+            <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+        </fragment>
+    </navigation>
     <fragment android:id="@+id/android"
               android:label="@string/android"
               android:name="androidx.navigation.testapp.AndroidFragment">
