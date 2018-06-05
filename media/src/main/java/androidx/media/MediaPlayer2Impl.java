@@ -591,6 +591,13 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     private void addTask(Task task) {
         synchronized (mTaskLock) {
+            if (task.mMediaCallType == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
+                Task previous = mPendingTasks.peekLast();
+                if (previous != null && previous.mMediaCallType == task.mMediaCallType) {
+                    // Skip the unnecessary previous seek command.
+                    previous.mSkip = true;
+                }
+            }
             mPendingTasks.add(task);
             processPendingTask_l();
         }
@@ -1903,6 +1910,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         private final int mMediaCallType;
         private final boolean mNeedToWaitForEventToComplete;
         private DataSourceDesc mDSD;
+        private boolean mSkip;
 
         Task(int mediaCallType, boolean needToWaitForEventToComplete) {
             mMediaCallType = mediaCallType;
@@ -1914,22 +1922,31 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         @Override
         public void run() {
             int status = CALL_STATUS_NO_ERROR;
-            try {
-                process();
-            } catch (IllegalStateException e) {
-                status = CALL_STATUS_INVALID_OPERATION;
-            } catch (IllegalArgumentException e) {
-                status = CALL_STATUS_BAD_VALUE;
-            } catch (SecurityException e) {
-                status = CALL_STATUS_PERMISSION_DENIED;
-            } catch (IOException e) {
-                status = CALL_STATUS_ERROR_IO;
-            } catch (Exception e) {
-                status = CALL_STATUS_ERROR_UNKNOWN;
+            boolean skip;
+            synchronized (mTaskLock) {
+                skip = mSkip;
             }
+            if (!skip) {
+                try {
+                    process();
+                } catch (IllegalStateException e) {
+                    status = CALL_STATUS_INVALID_OPERATION;
+                } catch (IllegalArgumentException e) {
+                    status = CALL_STATUS_BAD_VALUE;
+                } catch (SecurityException e) {
+                    status = CALL_STATUS_PERMISSION_DENIED;
+                } catch (IOException e) {
+                    status = CALL_STATUS_ERROR_IO;
+                } catch (Exception e) {
+                    status = CALL_STATUS_ERROR_UNKNOWN;
+                }
+            } else {
+                status = CALL_STATUS_SKIPPED;
+            }
+
             mDSD = getCurrentDataSource();
 
-            if (!mNeedToWaitForEventToComplete || status != CALL_STATUS_NO_ERROR) {
+            if (!mNeedToWaitForEventToComplete || status != CALL_STATUS_NO_ERROR || skip) {
 
                 sendCompleteNotification(status);
 

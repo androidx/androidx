@@ -1446,6 +1446,12 @@ public abstract class MediaPlayer2 {
      */
     public static final int CALL_STATUS_ERROR_IO = 4;
 
+    /** Status code represents that the player skipped the call. For example, a {@link #seekTo}
+     * request may be skipped if it is followed by another {@link #seekTo} request.
+     * @see EventCallback#onCallCompleted
+     */
+    public static final int CALL_STATUS_SKIPPED = 5;
+
     /**
      * @hide
      */
@@ -1455,7 +1461,8 @@ public abstract class MediaPlayer2 {
             CALL_STATUS_INVALID_OPERATION,
             CALL_STATUS_BAD_VALUE,
             CALL_STATUS_PERMISSION_DENIED,
-            CALL_STATUS_ERROR_IO})
+            CALL_STATUS_ERROR_IO,
+            CALL_STATUS_SKIPPED})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP)
     public @interface CallStatus {}
