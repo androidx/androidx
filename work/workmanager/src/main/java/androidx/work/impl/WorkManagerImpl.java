@@ -182,6 +182,16 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     /**
+     * @return The {@link Configuration} instance associated with this WorkManager.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public Configuration getConfiguration() {
+        return mConfiguration;
+    }
+
+    /**
      * @return The {@link Scheduler}s associated with this WorkManager based on the device's
      * capabilities, SDK version, etc.
      * @hide
@@ -191,7 +201,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         // Initialized at construction time. So no need to synchronize.
         if (mSchedulers == null) {
             mSchedulers = Arrays.asList(
-                    Schedulers.createBestAvailableBackgroundScheduler(mContext, mConfiguration),
+                    Schedulers.createBestAvailableBackgroundScheduler(mContext, this),
                     new GreedyScheduler(mContext, this));
         }
         return mSchedulers;

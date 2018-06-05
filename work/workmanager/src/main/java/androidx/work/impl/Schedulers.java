@@ -25,7 +25,6 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
-import androidx.work.Configuration;
 import androidx.work.impl.background.systemalarm.SystemAlarmScheduler;
 import androidx.work.impl.background.systemalarm.SystemAlarmService;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
@@ -102,14 +101,14 @@ public class Schedulers {
 
     static @NonNull Scheduler createBestAvailableBackgroundScheduler(
             @NonNull Context context,
-            @NonNull Configuration configuration) {
+            @NonNull WorkManagerImpl workManager) {
 
         Scheduler scheduler;
         boolean enableFirebaseJobService = false;
         boolean enableSystemAlarmService = false;
 
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            scheduler = new SystemJobScheduler(context, configuration);
+            scheduler = new SystemJobScheduler(context, workManager);
             setComponentEnabled(context, SystemJobService.class, true);
             Log.d(TAG, "Created SystemJobScheduler and enabled SystemJobService");
         } else {
