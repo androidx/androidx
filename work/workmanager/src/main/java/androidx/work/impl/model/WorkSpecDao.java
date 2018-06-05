@@ -252,6 +252,14 @@ public interface WorkSpecDao {
     List<String> getUnfinishedWorkWithName(@NonNull String name);
 
     /**
+     * Retrieves work ids for all unfinished work.
+     *
+     * @return A list of work ids
+     */
+    @Query("SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES)
+    List<String> getAllUnfinishedWork();
+
+    /**
      * Marks a {@link WorkSpec} as scheduled.
      *
      * @param id        The identifier for the {@link WorkSpec}
