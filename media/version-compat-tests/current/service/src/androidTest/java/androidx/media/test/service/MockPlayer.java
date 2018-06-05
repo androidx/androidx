@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.BaseMediaPlayer;
-import androidx.media.DataSourceDesc;
+import androidx.media.DataSourceDesc2;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -162,7 +162,7 @@ public class MockPlayer extends BaseMediaPlayer {
         }
     }
 
-    public void notifyCurrentDataSourceChanged(final DataSourceDesc dsd) {
+    public void notifyCurrentDataSourceChanged(final DataSourceDesc2 dsd) {
         for (int i = 0; i < mCallbacks.size(); i++) {
             final PlayerEventCallback callback = mCallbacks.keyAt(i);
             final Executor executor = mCallbacks.valueAt(i);
@@ -175,7 +175,7 @@ public class MockPlayer extends BaseMediaPlayer {
         }
     }
 
-    public void notifyMediaPrepared(final DataSourceDesc dsd) {
+    public void notifyMediaPrepared(final DataSourceDesc2 dsd) {
         for (int i = 0; i < mCallbacks.size(); i++) {
             final PlayerEventCallback callback = mCallbacks.keyAt(i);
             final Executor executor = mCallbacks.valueAt(i);
@@ -188,7 +188,7 @@ public class MockPlayer extends BaseMediaPlayer {
         }
     }
 
-    public void notifyBufferingStateChanged(final DataSourceDesc dsd,
+    public void notifyBufferingStateChanged(final DataSourceDesc2 dsd,
             final @BuffState int buffState) {
         for (int i = 0; i < mCallbacks.size(); i++) {
             final PlayerEventCallback callback = mCallbacks.keyAt(i);
@@ -248,22 +248,22 @@ public class MockPlayer extends BaseMediaPlayer {
     }
 
     @Override
-    public void setDataSource(@NonNull DataSourceDesc dsd) {
+    public void setDataSource(@NonNull DataSourceDesc2 dsd) {
         // TODO: Implement this
     }
 
     @Override
-    public void setNextDataSource(@NonNull DataSourceDesc dsd) {
+    public void setNextDataSource(@NonNull DataSourceDesc2 dsd) {
         // TODO: Implement this
     }
 
     @Override
-    public void setNextDataSources(@NonNull List<DataSourceDesc> dsds) {
+    public void setNextDataSources(@NonNull List<DataSourceDesc2> dsds) {
         // TODO: Implement this
     }
 
     @Override
-    public DataSourceDesc getCurrentDataSource() {
+    public DataSourceDesc2 getCurrentDataSource() {
         // TODO: Implement this
         return null;
     }

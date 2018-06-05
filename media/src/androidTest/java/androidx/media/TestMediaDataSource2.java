@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A Media2DataSource that reads from a byte array for use in tests.
+ * A MediaDataSource2 that reads from a byte array for use in tests.
  */
-public class TestMedia2DataSource extends Media2DataSource {
-    private static final String TAG = "TestMedia2DataSource";
+public class TestMediaDataSource2 extends MediaDataSource2 {
+    private static final String TAG = "TestMediaDataSource2";
 
     private byte[] mData;
 
@@ -37,7 +37,7 @@ public class TestMedia2DataSource extends Media2DataSource {
     private boolean mIsClosed;
 
     // Read an asset fd into a new byte array data source. Closes afd.
-    public static TestMedia2DataSource fromAssetFd(AssetFileDescriptor afd) throws IOException {
+    public static TestMediaDataSource2 fromAssetFd(AssetFileDescriptor afd) throws IOException {
         try {
             InputStream in = afd.createInputStream();
             final int size = (int) afd.getDeclaredLength();
@@ -48,13 +48,13 @@ public class TestMedia2DataSource extends Media2DataSource {
                 numRead = in.read(data, writeIndex, size - writeIndex);
                 writeIndex += numRead;
             } while (numRead >= 0);
-            return new TestMedia2DataSource(data);
+            return new TestMediaDataSource2(data);
         } finally {
             afd.close();
         }
     }
 
-    public TestMedia2DataSource(byte[] data) {
+    public TestMediaDataSource2(byte[] data) {
         mData = data;
     }
 

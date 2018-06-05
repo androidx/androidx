@@ -1146,7 +1146,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
             assertEquals(aItem.getFlags(), bItem.getFlags());
             TestUtils.equals(aItem.getMetadata().toBundle(), bItem.getMetadata().toBundle());
 
-            // Note: Here it does not check whether DataSourceDesc are equal,
+            // Note: Here it does not check whether DataSourceDesc2 are equal,
             // since there DataSourceDec is not comparable.
         }
     }

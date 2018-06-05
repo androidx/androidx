@@ -28,7 +28,6 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.media.AudioManager;
-import android.media.TimedMetaData;
 import android.net.Uri;
 import android.os.PersistableBundle;
 import android.os.PowerManager;
@@ -119,7 +118,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                     new AudioAttributesCompat.Builder().build();
             mp.setAudioAttributes(aa);
             mp.setAudioSessionId(audioSessionId);
-            mp.setDataSource(new DataSourceDesc.Builder()
+            mp.setDataSource(new DataSourceDesc2.Builder()
                     .setDataSource(context, uri)
                     .build());
             if (holder != null) {
@@ -131,7 +130,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                     new MediaPlayer2.EventCallback() {
                         @Override
                         public void onInfo(
-                                MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                                MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                             if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                                 onPrepareCalled.signal();
                             }
@@ -178,7 +177,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             mp.setAudioAttributes(aa);
             mp.setAudioSessionId(audioSessionId);
 
-            mp.setDataSource(new DataSourceDesc.Builder()
+            mp.setDataSource(new DataSourceDesc2.Builder()
                     .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                     .build());
 
@@ -188,7 +187,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                     new MediaPlayer2.EventCallback() {
                         @Override
                         public void onInfo(
-                                MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                                MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                             if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                                 onPrepareCalled.signal();
                             }
@@ -291,7 +290,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             final List<MediaPlayer2.EventCallback> ecbs) {
         mp.setEventCallback(mExecutor, new MediaPlayer2.EventCallback() {
             @Override
-            public void onVideoSizeChanged(MediaPlayer2 mp, DataSourceDesc dsd, int w, int h) {
+            public void onVideoSizeChanged(MediaPlayer2 mp, DataSourceDesc2 dsd, int w, int h) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
                         ecb.onVideoSizeChanged(mp, dsd, w, h);
@@ -300,8 +299,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             }
 
             @Override
-            public void onTimedMetaDataAvailable(MediaPlayer2 mp, DataSourceDesc dsd,
-                    TimedMetaData data) {
+            public void onTimedMetaDataAvailable(MediaPlayer2 mp, DataSourceDesc2 dsd,
+                    TimedMetaData2 data) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
                         ecb.onTimedMetaDataAvailable(mp, dsd, data);
@@ -310,7 +309,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             }
 
             @Override
-            public void onError(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+            public void onError(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
                         ecb.onError(mp, dsd, what, extra);
@@ -319,7 +318,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             }
 
             @Override
-            public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+            public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
                         ecb.onInfo(mp, dsd, what, extra);
@@ -328,7 +327,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             }
 
             @Override
-            public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
+            public void onCallCompleted(
+                    MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int status) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
                         ecb.onCallCompleted(mp, dsd, what, status);
@@ -337,7 +337,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             }
 
             @Override
-            public void onMediaTimeDiscontinuity(MediaPlayer2 mp, DataSourceDesc dsd,
+            public void onMediaTimeDiscontinuity(MediaPlayer2 mp, DataSourceDesc2 dsd,
                     MediaTimestamp2 timestamp) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
@@ -355,7 +355,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                 }
             }
             @Override
-            public  void onSubtitleData(MediaPlayer2 mp, DataSourceDesc dsd,
+            public  void onSubtitleData(MediaPlayer2 mp, DataSourceDesc2 dsd,
                     final SubtitleData2 data) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
@@ -376,7 +376,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
 
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
         try {
-            mPlayer.setDataSource(new DataSourceDesc.Builder()
+            mPlayer.setDataSource(new DataSourceDesc2.Builder()
                     .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                     .build());
         } finally {
@@ -386,7 +386,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         return true;
     }
 
-    protected DataSourceDesc createDataSourceDesc(int resid) throws Exception {
+    protected DataSourceDesc2 createDataSourceDesc(int resid) throws Exception {
         /* FIXME: ensure device has capability.
         if (!MediaUtils.hasCodecsForResource(mContext, resid)) {
             return null;
@@ -395,7 +395,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
 
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
         mFdsToClose.add(afd);
-        return new DataSourceDesc.Builder()
+        return new DataSourceDesc2.Builder()
                 .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                 .build();
     }
@@ -426,7 +426,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         final Uri uri = Uri.parse(path);
         for (int i = 0; i < STREAM_RETRIES; i++) {
             try {
-                mPlayer.setDataSource(new DataSourceDesc.Builder()
+                mPlayer.setDataSource(new DataSourceDesc2.Builder()
                         .setDataSource(mContext, uri)
                         .build());
                 playLoadedVideo(width, height, playTime);
@@ -460,7 +460,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         boolean playedSuccessfully = false;
         for (int i = 0; i < STREAM_RETRIES; i++) {
             try {
-                mPlayer.setDataSource(new DataSourceDesc.Builder()
+                mPlayer.setDataSource(new DataSourceDesc2.Builder()
                         .setDataSource(mContext,
                             uri, headers, cookies)
                         .build());
@@ -498,7 +498,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         synchronized (mEventCbLock) {
             mEventCallbacks.add(new MediaPlayer2.EventCallback() {
                 @Override
-                public void onVideoSizeChanged(MediaPlayer2 mp, DataSourceDesc dsd, int w, int h) {
+                public void onVideoSizeChanged(MediaPlayer2 mp, DataSourceDesc2 dsd, int w, int h) {
                     if (w == 0 && h == 0) {
                         // A size of 0x0 can be sent initially one time when using NuPlayer.
                         assertFalse(mOnVideoSizeChangedCalled.isSignalled());
@@ -514,12 +514,12 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                 }
 
                 @Override
-                public void onError(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                public void onError(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                     fail("Media player had error " + what + " playing video");
                 }
 
                 @Override
-                public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                     if (what == MediaPlayer2.MEDIA_INFO_VIDEO_RENDERING_START) {
                         mOnVideoRenderingStartCalled.signal();
                     } else if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
@@ -528,7 +528,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                 }
 
                 @Override
-                public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd,
+                public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc2 dsd,
                         int what, int status) {
                     if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                         mOnPlayCalled.signal();
@@ -610,7 +610,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         synchronized (mEventCbLock) {
             mEventCallbacks.add(new MediaPlayer2.EventCallback() {
                 @Override
-                public void onError(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                public void onError(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                     mOnErrorCalled.signal();
                 }
             });

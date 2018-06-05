@@ -35,11 +35,11 @@ import java.util.Map;
 /**
  * Structure for data source descriptor. Used by {@link MediaItem2}.
  * <p>
- * Users should use {@link Builder} to change {@link DataSourceDesc}.
+ * Users should use {@link Builder} to change {@link DataSourceDesc2}.
  *
  * @see MediaItem2
  */
-public final class DataSourceDesc {
+public final class DataSourceDesc2 {
     /* No data source has been set yet */
     public static final int TYPE_NONE     = 0;
     /* data source is type of MediaDataSource */
@@ -69,7 +69,7 @@ public final class DataSourceDesc {
 
     private int mType = TYPE_NONE;
 
-    private Media2DataSource mMedia2DataSource;
+    private MediaDataSource2 mMediaDataSource2;
 
     private FileDescriptor mFD;
     private long mFDOffset = 0;
@@ -84,7 +84,7 @@ public final class DataSourceDesc {
     private long mStartPositionMs = 0;
     private long mEndPositionMs = POSITION_UNKNOWN;
 
-    private DataSourceDesc() {
+    private DataSourceDesc2() {
     }
 
     /**
@@ -121,12 +121,12 @@ public final class DataSourceDesc {
     }
 
     /**
-     * Return the Media2DataSource of this data source.
+     * Return the MediaDataSource2 of this data source.
      * It's meaningful only when {@code getType} returns {@link #TYPE_CALLBACK}.
-     * @return the Media2DataSource of this data source
+     * @return the MediaDataSource2 of this data source
      */
-    public @Nullable Media2DataSource getMedia2DataSource() {
-        return mMedia2DataSource;
+    public @Nullable MediaDataSource2 getMediaDataSource2() {
+        return mMediaDataSource2;
     }
 
     /**
@@ -201,12 +201,12 @@ public final class DataSourceDesc {
     }
 
     /**
-     * Builder class for {@link DataSourceDesc} objects.
+     * Builder class for {@link DataSourceDesc2} objects.
      */
     public static class Builder {
         private int mType = TYPE_NONE;
 
-        private Media2DataSource mMedia2DataSource;
+        private MediaDataSource2 mMediaDataSource2;
 
         private FileDescriptor mFD;
         private long mFDOffset = 0;
@@ -228,13 +228,13 @@ public final class DataSourceDesc {
         }
 
         /**
-         * Constructs a new Builder from a given {@link DataSourceDesc} instance
-         * @param dsd the {@link DataSourceDesc} object whose data will be reused
+         * Constructs a new Builder from a given {@link DataSourceDesc2} instance
+         * @param dsd the {@link DataSourceDesc2} object whose data will be reused
          * in the new Builder.
          */
-        public Builder(@NonNull DataSourceDesc dsd) {
+        public Builder(@NonNull DataSourceDesc2 dsd) {
             mType = dsd.mType;
-            mMedia2DataSource = dsd.mMedia2DataSource;
+            mMediaDataSource2 = dsd.mMediaDataSource2;
             mFD = dsd.mFD;
             mFDOffset = dsd.mFDOffset;
             mFDLength = dsd.mFDLength;
@@ -250,12 +250,12 @@ public final class DataSourceDesc {
 
         /**
          * Combines all of the fields that have been set and return a new
-         * {@link DataSourceDesc} object. <code>IllegalStateException</code> will be
+         * {@link DataSourceDesc2} object. <code>IllegalStateException</code> will be
          * thrown if there is conflict between fields.
          *
-         * @return a new {@link DataSourceDesc} object
+         * @return a new {@link DataSourceDesc2} object
          */
-        public @NonNull DataSourceDesc build() {
+        public @NonNull DataSourceDesc2 build() {
             if (mType != TYPE_CALLBACK
                     && mType != TYPE_FD
                     && mType != TYPE_URI) {
@@ -266,9 +266,9 @@ public final class DataSourceDesc {
                         + mStartPositionMs + " : " + mEndPositionMs);
             }
 
-            DataSourceDesc dsd = new DataSourceDesc();
+            DataSourceDesc2 dsd = new DataSourceDesc2();
             dsd.mType = mType;
-            dsd.mMedia2DataSource = mMedia2DataSource;
+            dsd.mMediaDataSource2 = mMediaDataSource2;
             dsd.mFD = mFD;
             dsd.mFDOffset = mFDOffset;
             dsd.mFDLength = mFDLength;
@@ -327,17 +327,17 @@ public final class DataSourceDesc {
         }
 
         /**
-         * Sets the data source (Media2DataSource) to use.
+         * Sets the data source (MediaDataSource2) to use.
          *
-         * @param m2ds the Media2DataSource for the media you want to play
+         * @param m2ds the MediaDataSource2 for the media you want to play
          * @return the same Builder instance.
          * @throws NullPointerException if m2ds is null.
          */
-        public @NonNull Builder setDataSource(@NonNull Media2DataSource m2ds) {
+        public @NonNull Builder setDataSource(@NonNull MediaDataSource2 m2ds) {
             Preconditions.checkNotNull(m2ds);
             resetDataSource();
             mType = TYPE_CALLBACK;
-            mMedia2DataSource = m2ds;
+            mMediaDataSource2 = m2ds;
             return this;
         }
 
@@ -456,7 +456,7 @@ public final class DataSourceDesc {
 
         private void resetDataSource() {
             mType = TYPE_NONE;
-            mMedia2DataSource = null;
+            mMediaDataSource2 = null;
             mFD = null;
             mFDOffset = 0;
             mFDLength = FD_LENGTH_UNKNOWN;

@@ -67,7 +67,7 @@ import java.util.concurrent.Executor;
  * <p>
  *
  * @see MediaPlayer2#setEventCallback(Executor, MediaPlayer2.EventCallback)
- * @see MediaPlayer2.EventCallback#onSubtitleData(MediaPlayer2, DataSourceDesc, SubtitleData2)
+ * @see MediaPlayer2.EventCallback#onSubtitleData(MediaPlayer2, DataSourceDesc2, SubtitleData2)
  */
 public final class SubtitleData2 {
     private static final String TAG = "SubtitleData2";
