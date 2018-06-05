@@ -109,6 +109,15 @@ public interface SynchronousWorkManager {
     void cancelUniqueWorkSync(@NonNull String uniqueWorkName);
 
     /**
+     * Cancels all unfinished work in a synchronous fashion.  <b>Use this method with extreme
+     * caution!</b>  By invoking it, you will potentially affect other modules or libraries in your
+     * codebase.  It is strongly recommended that you use one of the other cancellation methods at
+     * your disposal.
+     */
+    @WorkerThread
+    void cancelAllWorkSync();
+
+    /**
      * Gets the {@link WorkStatus} of a given work id in a synchronous fashion.  This method is
      * expected to be called from a background thread.
      *
