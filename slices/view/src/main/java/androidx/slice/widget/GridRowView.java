@@ -39,6 +39,7 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -62,7 +63,8 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class GridRowView extends SliceChildView implements View.OnClickListener {
+public class GridRowView extends SliceChildView implements View.OnClickListener,
+        View.OnTouchListener {
 
     private static final String TAG = "GridView";
 
@@ -88,7 +90,9 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
 
     private GridContent mGridContent;
     private LinearLayout mViewContainer;
+    private View mForeground;
     private int mMaxCells = -1;
+    private int[] mLoc = new int[2];
 
     private boolean mMaxCellUpdateScheduled;
 
@@ -109,6 +113,11 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
         mSmallImageMinWidth = res.getDimensionPixelSize(R.dimen.abc_slice_grid_image_min_width);
         mGutter = res.getDimensionPixelSize(R.dimen.abc_slice_grid_gutter);
         mTextPadding = res.getDimensionPixelSize(R.dimen.abc_slice_grid_text_padding);
+
+        mForeground = new View(getContext());
+        mForeground.setBackground(SliceViewUtil.getDrawable(
+                getContext(), android.R.attr.selectableItemBackground));
+        addView(mForeground, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
     }
 
     @Override
@@ -456,6 +465,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
 
     private void makeClickable(View layout, boolean isClickable) {
         layout.setOnClickListener(isClickable ? this : null);
+        layout.setOnTouchListener(isClickable ? this : null);
         layout.setBackground(isClickable
                 ? SliceViewUtil.getDrawable(getContext(), android.R.attr.selectableItemBackground)
                 : null);
@@ -476,6 +486,29 @@ public class GridRowView extends SliceChildView implements View.OnClickListener 
             } catch (PendingIntent.CanceledException e) {
                 Log.e(TAG, "PendingIntent for slice cannot be sent", e);
             }
+        }
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        onForegroundActivated(event);
+        return false;
+    }
+
+    private void onForegroundActivated(MotionEvent event) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            mForeground.getLocationOnScreen(mLoc);
+            final int x = (int) (event.getRawX() - mLoc[0]);
+            final int y = (int) (event.getRawY() - mLoc[1]);
+            mForeground.getBackground().setHotspot(x, y);
+        }
+        int action = event.getActionMasked();
+        if (action == android.view.MotionEvent.ACTION_DOWN) {
+            mForeground.setPressed(true);
+        } else if (action == android.view.MotionEvent.ACTION_CANCEL
+                || action == android.view.MotionEvent.ACTION_UP
+                || action == android.view.MotionEvent.ACTION_MOVE) {
+            mForeground.setPressed(false);
         }
     }
 
