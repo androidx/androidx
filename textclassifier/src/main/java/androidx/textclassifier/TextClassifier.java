@@ -18,7 +18,6 @@ package androidx.textclassifier;
 
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -183,7 +182,7 @@ public abstract class TextClassifier {
     public TextSelection suggestSelection(@NonNull TextSelection.Request request) {
         Preconditions.checkNotNull(request);
         checkDestroyed();
-        checkMainThread();
+        ensureNotOnMainThread();
         return new TextSelection.Builder(request.getStartIndex(), request.getEndIndex()).build();
     }
 
@@ -203,7 +202,7 @@ public abstract class TextClassifier {
     public TextClassification classifyText(@NonNull TextClassification.Request request) {
         Preconditions.checkNotNull(request);
         checkDestroyed();
-        checkMainThread();
+        ensureNotOnMainThread();
         return TextClassification.EMPTY;
     }
 
@@ -225,7 +224,7 @@ public abstract class TextClassifier {
     public TextLinks generateLinks(@NonNull TextLinks.Request request) {
         Preconditions.checkNotNull(request);
         checkDestroyed();
-        checkMainThread();
+        ensureNotOnMainThread();
         return new TextLinks.Builder(request.getText().toString()).build();
     }
 
@@ -257,6 +256,7 @@ public abstract class TextClassifier {
     /**
      * Called when a selection event is reported.
      */
+    @WorkerThread
     public void onSelectionEvent(@NonNull SelectionEvent event) {
     }
 
@@ -297,9 +297,9 @@ public abstract class TextClassifier {
         }
     }
 
-    private static void checkMainThread() {
+    static void ensureNotOnMainThread() {
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            Log.w(DEFAULT_LOG_TAG, "TextClassifier called on main thread");
+            throw new IllegalStateException("Must not be on main thread");
         }
     }
 

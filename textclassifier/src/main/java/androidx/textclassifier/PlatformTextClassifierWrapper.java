@@ -46,6 +46,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     @Override
     public TextSelection suggestSelection(@NonNull TextSelection.Request request) {
         Preconditions.checkNotNull(request);
+        ensureNotOnMainThread();
         return TextSelection.Convert.fromPlatform(
                 mPlatformTextClassifier.suggestSelection(
                         TextSelection.Request.Convert.toPlatform(request)));
@@ -57,6 +58,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     @Override
     public TextClassification classifyText(@NonNull TextClassification.Request request) {
         Preconditions.checkNotNull(request);
+        ensureNotOnMainThread();
         return TextClassification.Convert.fromPlatform(
                 mPlatformTextClassifier.classifyText(
                         TextClassification.Request.Convert.toPlatform(request)));
@@ -68,6 +70,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     @Override
     public TextLinks generateLinks(@NonNull TextLinks.Request request) {
         Preconditions.checkNotNull(request);
+        ensureNotOnMainThread();
         return TextLinks.Convert.fromPlatform(mPlatformTextClassifier.generateLinks(
                 TextLinks.Request.Convert.toPlatform(request)), request.getText());
     }
@@ -76,6 +79,7 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     @Override
     @WorkerThread
     public int getMaxGenerateLinksTextLength() {
+        ensureNotOnMainThread();
         return mPlatformTextClassifier.getMaxGenerateLinksTextLength();
     }
 

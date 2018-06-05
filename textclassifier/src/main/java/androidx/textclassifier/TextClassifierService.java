@@ -270,7 +270,7 @@ public abstract class TextClassifierService extends Service {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    interface Callback<T> {
+    public interface Callback<T> {
         /**
          * Returns the result.
          */
