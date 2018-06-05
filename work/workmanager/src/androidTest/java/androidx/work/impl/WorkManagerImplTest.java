@@ -1263,6 +1263,29 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
+    public void testCancelAllWork() {
+        OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(SUCCEEDED)
+                .build();
+        insertWorkSpecAndTags(work0);
+        insertWorkSpecAndTags(work1);
+        insertWorkSpecAndTags(work2);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getState(work0.getStringId()), is(ENQUEUED));
+        assertThat(workSpecDao.getState(work1.getStringId()), is(ENQUEUED));
+        assertThat(workSpecDao.getState(work2.getStringId()), is(SUCCEEDED));
+
+        mWorkManagerImpl.synchronous().cancelAllWorkSync();
+        assertThat(workSpecDao.getState(work0.getStringId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work1.getStringId()), is(CANCELLED));
+        assertThat(workSpecDao.getState(work2.getStringId()), is(SUCCEEDED));
+    }
+
+    @Test
+    @SmallTest
     public void testSynchronousCancelAndGetStatus() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWorkSpecAndTags(work);
