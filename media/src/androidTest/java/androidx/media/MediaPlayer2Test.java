@@ -445,11 +445,10 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             onPlayCalled.waitForSignal();
             assertTrue(mp.getState() == MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING);
 
-            long duration = mp.getDuration();
-            Thread.sleep(duration * 4); // allow for several loops
+            onCompletionCalled.waitForCountedSignals(3); // allow for several loops
             assertTrue(mp.getState() == MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING);
-            assertEquals("wrong number of completion signals", 0,
-                    onCompletionCalled.getNumSignal());
+
+            onCompletionCalled.reset();
             mp.loopCurrent(false);
 
             // wait for playback to finish
@@ -2630,6 +2629,71 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         afd1.close();
         afd2.close();
+    }
+
+    @Test
+    @LargeTest
+    public void testDataSourceStartEndWithLooping() throws Exception {
+        final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
+        final long start1 = 6000;
+        final long end1 = 8000;
+        AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1);
+        DataSourceDesc dsd1 = new DataSourceDesc.Builder()
+                .setDataSource(afd1.getFileDescriptor(), afd1.getStartOffset(), afd1.getLength())
+                .setStartPosition(start1)
+                .setEndPosition(end1)
+                .build();
+
+        mPlayer.setDataSource(dsd1);
+        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+
+        MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
+            @Override
+            public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd, int what, int extra) {
+                if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
+                    mOnPrepareCalled.signal();
+                } else if (what == MediaPlayer2.MEDIA_INFO_PLAYBACK_COMPLETE) {
+                    mOnCompletionCalled.signal();
+                }
+            }
+
+            @Override
+            public void onCallCompleted(MediaPlayer2 mp, DataSourceDesc dsd, int what, int status) {
+                if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
+                    assertTrue(status == MediaPlayer2.CALL_STATUS_NO_ERROR);
+                    mOnPlayCalled.signal();
+                }
+            }
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
+
+        mOnPrepareCalled.reset();
+        mPlayer.loopCurrent(true);
+        mPlayer.prepare();
+        mOnPrepareCalled.waitForSignal();
+
+        mOnPlayCalled.reset();
+        mOnCompletionCalled.reset();
+        mPlayer.play();
+        mOnPlayCalled.waitForSignal();
+        assertEquals(MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING, mPlayer.getState());
+        assertTrue(mPlayer.getCurrentPosition() >= start1);
+
+        mOnCompletionCalled.waitForSignal();
+        assertEquals(MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING, mPlayer.getState());
+        assertTrue(mPlayer.getCurrentPosition() >= start1);
+        mOnCompletionCalled.waitForCountedSignals(2);
+        assertEquals(MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING, mPlayer.getState());
+        assertTrue(mPlayer.getCurrentPosition() >= start1);
+
+        mOnCompletionCalled.reset();
+        mPlayer.loopCurrent(false);
+        mOnCompletionCalled.waitForSignal();
+        assertTrue(Math.abs(mPlayer.getCurrentPosition() - end1) < PLAYBACK_COMPLETE_TOLERANCE_MS);
+
+        afd1.close();
     }
 
     @Test
