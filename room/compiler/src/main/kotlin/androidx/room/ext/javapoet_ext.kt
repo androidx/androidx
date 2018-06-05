@@ -117,6 +117,7 @@ object GuavaUtilConcurrentTypeNames {
 
 object RxJava2TypeNames {
     val FLOWABLE = ClassName.get("io.reactivex", "Flowable")
+    val OBSERVABLE = ClassName.get("io.reactivex", "Observable")
     val MAYBE = ClassName.get("io.reactivex", "Maybe")
     val SINGLE = ClassName.get("io.reactivex", "Single")
 }
@@ -131,6 +132,8 @@ object RoomGuavaTypeNames {
 
 object RoomRxJava2TypeNames {
     val RX_ROOM = ClassName.get("androidx.room", "RxRoom")
+    val RX_ROOM_CREATE_FLOWABLE = "createFlowable"
+    val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
     val RX_EMPTY_RESULT_SET_EXCEPTION = ClassName.get("androidx.room",
             "EmptyResultSetException")
 }

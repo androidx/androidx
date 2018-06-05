@@ -66,6 +66,30 @@ public class MainThreadCheckTest {
     }
 
     @Test
+    public void testPublisherOnMainThread() {
+        final Throwable error = test(false, new Function<TestDatabase, Void>() {
+            @Override
+            public Void apply(TestDatabase db) {
+                db.getUserDao().publisherCountUsers();
+                return null;
+            }
+        });
+        assertThat(error, nullValue());
+    }
+
+    @Test
+    public void testObservableOnMainThread() {
+        final Throwable error = test(false, new Function<TestDatabase, Void>() {
+            @Override
+            public Void apply(TestDatabase db) {
+                db.getUserDao().observableUserById(3);
+                return null;
+            }
+        });
+        assertThat(error, nullValue());
+    }
+
+    @Test
     public void testLiveDataOnMainThread() {
         final Throwable error = test(false, new Function<TestDatabase, Void>() {
             @Override

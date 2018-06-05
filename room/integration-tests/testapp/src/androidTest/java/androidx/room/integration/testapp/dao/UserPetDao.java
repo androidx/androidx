@@ -27,9 +27,9 @@ import androidx.room.integration.testapp.vo.EmbeddedUserAndAllPets;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
+import androidx.room.integration.testapp.vo.UserAndGenericPet;
 import androidx.room.integration.testapp.vo.UserAndPet;
 import androidx.room.integration.testapp.vo.UserAndPetAdoptionDates;
-import androidx.room.integration.testapp.vo.UserAndGenericPet;
 import androidx.room.integration.testapp.vo.UserAndPetNonNull;
 import androidx.room.integration.testapp.vo.UserIdAndPetNames;
 import androidx.room.integration.testapp.vo.UserWithPetsAndToys;
@@ -37,6 +37,7 @@ import androidx.room.integration.testapp.vo.UserWithPetsAndToys;
 import java.util.List;
 
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 
 @Dao
 public interface UserPetDao {
@@ -78,6 +79,9 @@ public interface UserPetDao {
 
     @Query("SELECT * FROM User u where u.mId = :userId")
     Flowable<UserAndAllPets> flowableUserWithPets(int userId);
+
+    @Query("SELECT * FROM User u where u.mId = :userId")
+    Observable<UserAndAllPets> observableUserWithPets(int userId);
 
     @Query("SELECT * FROM User u where u.mId = :uid")
     EmbeddedUserAndAllPets loadUserAndPetsAsEmbedded(int uid);

@@ -42,6 +42,7 @@ import java.util.List;
 
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Predicate;
@@ -257,9 +258,8 @@ public class RxJava2Test extends TestDatabaseTest {
         disposable3.dispose();
     }
 
-
     @Test
-    public void observeOnce() throws InterruptedException {
+    public void observeOnce_Flowable() throws InterruptedException {
         User user = TestUtil.createUser(3);
         mUserDao.insert(user);
         drain();
@@ -271,7 +271,19 @@ public class RxJava2Test extends TestDatabaseTest {
     }
 
     @Test
-    public void observeChangeAndDispose() throws InterruptedException {
+    public void observeOnce_Observable() throws InterruptedException {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        drain();
+        TestObserver<User> consumer = new TestObserver<>();
+        Disposable disposable = mUserDao.observableUserById(3).subscribeWith(consumer);
+        drain();
+        consumer.assertValue(user);
+        disposable.dispose();
+    }
+
+    @Test
+    public void observeChangeAndDispose_Flowable() throws InterruptedException {
         User user = TestUtil.createUser(3);
         mUserDao.insert(user);
         drain();
@@ -293,8 +305,30 @@ public class RxJava2Test extends TestDatabaseTest {
     }
 
     @Test
+    public void observeChangeAndDispose_Observable() throws InterruptedException {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        drain();
+        TestObserver<User> consumer = new TestObserver<>();
+        Disposable disposable = mUserDao.observableUserById(3).observeOn(mTestScheduler)
+                .subscribeWith(consumer);
+        drain();
+        assertThat(consumer.values().get(0), is(user));
+        user.setName("rxy");
+        mUserDao.insertOrReplace(user);
+        drain();
+        User next = consumer.values().get(1);
+        assertThat(next, is(user));
+        disposable.dispose();
+        user.setName("foo");
+        mUserDao.insertOrReplace(user);
+        drain();
+        assertThat(consumer.valueCount(), is(2));
+    }
+
+    @Test
     @MediumTest
-    public void observeEmpty() throws InterruptedException {
+    public void observeEmpty_Flowable() throws InterruptedException {
         TestSubscriber<User> consumer = new TestSubscriber<>();
         Disposable disposable = mUserDao.flowableUserById(3).observeOn(mTestScheduler)
                 .subscribeWith(consumer);
@@ -312,7 +346,26 @@ public class RxJava2Test extends TestDatabaseTest {
     }
 
     @Test
-    public void observeFlowable_keepReference() throws InterruptedException {
+    @MediumTest
+    public void observeEmpty_Observable() throws InterruptedException {
+        TestObserver<User> consumer = new TestObserver<>();
+        Disposable disposable = mUserDao.observableUserById(3).observeOn(mTestScheduler)
+                .subscribeWith(consumer);
+        drain();
+        consumer.assertNoValues();
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        drain();
+        assertThat(consumer.values().get(0), is(user));
+        disposable.dispose();
+        user.setAge(88);
+        mUserDao.insertOrReplace(user);
+        drain();
+        assertThat(consumer.valueCount(), is(1));
+    }
+
+    @Test
+    public void keepReference_Flowable() throws InterruptedException {
         User[] users = TestUtil.createUsersArray(1, 2);
         mUserDao.insertAll(users);
         drain();
@@ -339,7 +392,34 @@ public class RxJava2Test extends TestDatabaseTest {
     }
 
     @Test
-    public void flowableCountUsers() throws InterruptedException {
+    public void keepReference_Observable() throws InterruptedException {
+        User[] users = TestUtil.createUsersArray(1, 2);
+        mUserDao.insertAll(users);
+        drain();
+
+        TestObserver<User> consumer1 = new TestObserver<>();
+        Observable<User> flowable1 = mUserDao.observableUserById(1);
+        Disposable disposable1 = flowable1.subscribeWith(consumer1);
+        drain();
+        consumer1.assertValue(users[0]);
+
+        TestObserver<User> consumer2 = new TestObserver<>();
+        Disposable disposable2 = mUserDao.observableUserById(2).subscribeWith(consumer2);
+        drain();
+        consumer2.assertValue(users[1]);
+
+        TestObserver<User> consumer3 = new TestObserver<>();
+        Disposable disposable3 = flowable1.subscribeWith(consumer3);
+        drain();
+        consumer3.assertValue(users[0]);
+
+        disposable1.dispose();
+        disposable2.dispose();
+        disposable3.dispose();
+    }
+
+    @Test
+    public void countUsers_Flowable() throws InterruptedException {
         TestSubscriber<Integer> consumer = new TestSubscriber<>();
         mUserDao.flowableCountUsers()
                 .observeOn(mTestScheduler)
@@ -359,7 +439,7 @@ public class RxJava2Test extends TestDatabaseTest {
 
     @Test
     @MediumTest
-    public void publisherCountUsers() throws InterruptedException {
+    public void countUsers_Publisher() throws InterruptedException {
         TestSubscriber<Integer> subscriber = new TestSubscriber<>();
         mUserDao.publisherCountUsers().subscribe(subscriber);
         drain();
@@ -375,7 +455,7 @@ public class RxJava2Test extends TestDatabaseTest {
     }
 
     @Test
-    public void flowableWithRelation() throws InterruptedException {
+    public void withRelation_Flowable() throws InterruptedException {
         final TestSubscriber<UserAndAllPets> subscriber = new TestSubscriber<>();
 
         mUserPetDao.flowableUserWithPets(3).subscribe(subscriber);
@@ -408,10 +488,66 @@ public class RxJava2Test extends TestDatabaseTest {
     }
 
     @Test
-    public void flowable_updateInTransaction() throws InterruptedException {
+    public void withRelation_Observable() throws InterruptedException {
+        final TestObserver<UserAndAllPets> subscriber = new TestObserver<>();
+
+        mUserPetDao.observableUserWithPets(3).subscribe(subscriber);
+        drain();
+        subscriber.assertSubscribed();
+
+        drain();
+        subscriber.assertNoValues();
+
+        final User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        drain();
+        subscriber.assertValue(new Predicate<UserAndAllPets>() {
+            @Override
+            public boolean test(UserAndAllPets userAndAllPets) throws Exception {
+                return userAndAllPets.user.equals(user);
+            }
+        });
+        subscriber.assertValueCount(1);
+        final Pet[] pets = TestUtil.createPetsForUser(3, 1, 2);
+        mPetDao.insertAll(pets);
+        drain();
+        subscriber.assertValueAt(1, new Predicate<UserAndAllPets>() {
+            @Override
+            public boolean test(UserAndAllPets userAndAllPets) throws Exception {
+                return userAndAllPets.user.equals(user)
+                        && userAndAllPets.pets.equals(Arrays.asList(pets));
+            }
+        });
+    }
+
+    @Test
+    public void updateInTransaction_Flowable() throws InterruptedException {
         // When subscribing to the emissions of the user
         final TestSubscriber<User> userTestSubscriber = mUserDao
                 .flowableUserById(3)
+                .observeOn(mTestScheduler)
+                .test();
+        drain();
+        userTestSubscriber.assertValueCount(0);
+
+        // When inserting a new user in the data source
+        mDatabase.beginTransaction();
+        try {
+            mUserDao.insert(TestUtil.createUser(3));
+            mDatabase.setTransactionSuccessful();
+
+        } finally {
+            mDatabase.endTransaction();
+        }
+        drain();
+        userTestSubscriber.assertValueCount(1);
+    }
+
+    @Test
+    public void updateInTransaction_Observable() throws InterruptedException {
+        // When subscribing to the emissions of the user
+        final TestObserver<User> userTestSubscriber = mUserDao
+                .observableUserById(3)
                 .observeOn(mTestScheduler)
                 .test();
         drain();

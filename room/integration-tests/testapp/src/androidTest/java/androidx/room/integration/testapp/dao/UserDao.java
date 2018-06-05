@@ -44,6 +44,7 @@ import java.util.concurrent.Callable;
 
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 
 @SuppressWarnings("SameParameterValue")
@@ -148,6 +149,9 @@ public abstract class UserDao {
     public abstract Flowable<User> flowableUserById(int id);
 
     @Query("select * from user where mId = :id")
+    public abstract Observable<User> observableUserById(int id);
+
+    @Query("select * from user where mId = :id")
     public abstract Maybe<User> maybeUserById(int id);
 
     @Query("select * from user where mId IN (:ids)")
@@ -164,6 +168,9 @@ public abstract class UserDao {
 
     @Query("select COUNT(*) from user")
     public abstract Publisher<Integer> publisherCountUsers();
+
+    @Query("select COUNT(*) from user")
+    public abstract Observable<Integer> observableCountUsers();
 
     @Query("SELECT mBirthday from User where mId = :id")
     public abstract Date getBirthday(int id);

@@ -17,23 +17,23 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.RoomRxJava2TypeNames
-import androidx.room.ext.RxJava2TypeNames
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.ObservableQueryResultBinderProvider
-import androidx.room.solver.query.result.FlowableQueryResultBinder
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
+import androidx.room.solver.query.result.RxQueryResultBinder
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
-class FlowableQueryResultBinderProvider(context: Context) :
-        ObservableQueryResultBinderProvider(context) {
-    private val flowableTypeMirror: TypeMirror? by lazy {
+sealed class RxQueryResultBinderProvider(
+    context: Context,
+    private val rxType: RxQueryResultBinder.RxType
+) : ObservableQueryResultBinderProvider(context) {
+    private val typeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils
-                .getTypeElement(RxJava2TypeNames.FLOWABLE.toString())?.asType()
+                .getTypeElement(rxType.className.toString())?.asType()
     }
-
     private val hasRxJava2Artifact by lazy {
         context.processingEnv.elementUtils
                 .getTypeElement(RoomRxJava2TypeNames.RX_ROOM.toString()) != null
@@ -41,26 +41,37 @@ class FlowableQueryResultBinderProvider(context: Context) :
 
     override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
 
-    override fun create(typeArg: TypeMirror, resultAdapter: QueryResultAdapter?,
-                        tableNames: Set<String>): QueryResultBinder {
-        return FlowableQueryResultBinder(
+    override fun create(
+        typeArg: TypeMirror,
+        resultAdapter: QueryResultAdapter?,
+        tableNames: Set<String>
+    ): QueryResultBinder {
+        return RxQueryResultBinder(
+                rxType = rxType,
                 typeArg = typeArg,
                 queryTableNames = tableNames,
-                adapter = resultAdapter)
+                adapter = resultAdapter
+        )
     }
 
     override fun matches(declared: DeclaredType): Boolean =
-            declared.typeArguments.size == 1 && isRxJava2Publisher(declared)
+            declared.typeArguments.size == 1 && matchesRxType(declared)
 
-    private fun isRxJava2Publisher(declared: DeclaredType): Boolean {
-        if (flowableTypeMirror == null) {
+    private fun matchesRxType(declared: DeclaredType): Boolean {
+        if (typeMirror == null) {
             return false
         }
         val erasure = context.processingEnv.typeUtils.erasure(declared)
-        val match = context.processingEnv.typeUtils.isAssignable(flowableTypeMirror, erasure)
+        val match = context.processingEnv.typeUtils.isAssignable(typeMirror, erasure)
         if (match && !hasRxJava2Artifact) {
             context.logger.e(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
         }
         return match
     }
 }
+
+class RxFlowableQueryResultBinderProvider(context: Context)
+    : RxQueryResultBinderProvider(context, RxQueryResultBinder.RxType.FLOWABLE)
+
+class RxObservableQueryResultBinderProvider(context: Context)
+    : RxQueryResultBinderProvider(context, RxQueryResultBinder.RxType.OBSERVABLE)
