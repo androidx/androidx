@@ -51,9 +51,7 @@ tasks.findByName("test").doFirst {
     // implementation, so we move android.jar to end of classpath
     def classpath = it.classpath.getFiles()
     def androidJar = classpath.find { it.name == "android.jar" }
-    classpath.remove(androidJar)
-    classpath.add(androidJar)
-    it.classpath = files(classpath)
+    it.classpath = files(classpath.minus(androidJar).plus(androidJar))
 }
 
 tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarDebug")
