@@ -738,7 +738,6 @@ public final class SelectionEvent {
     @NonNull
     @SuppressLint("WrongConstant") // Lint does not know the constants in platform and here are same
     android.view.textclassifier.SelectionEvent toPlatform() {
-
         if (getEventType() == EVENT_SELECTION_STARTED) {
             return android.view.textclassifier.SelectionEvent.createSelectionStartedEvent(
                     getInvocationMethod(),
