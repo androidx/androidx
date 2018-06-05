@@ -33,7 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
- * Class that helps registering {@link CarUxRestrictionsManager.onUxRestrictionsChangedListener} and
+ * Class that helps registering {@link CarUxRestrictionsManager.OnUxRestrictionsChangedListener} and
  * managing car connection.
  *
  * @hide
@@ -47,10 +47,10 @@ public class CarUxRestrictionsHelper {
     @Nullable private final Car mCar;
     @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
 
-    private final CarUxRestrictionsManager.onUxRestrictionsChangedListener mListener;
+    private final CarUxRestrictionsManager.OnUxRestrictionsChangedListener mListener;
 
     public CarUxRestrictionsHelper(Context context,
-            CarUxRestrictionsManager.onUxRestrictionsChangedListener listener) {
+            CarUxRestrictionsManager.OnUxRestrictionsChangedListener listener) {
         if (listener == null) {
             throw new IllegalArgumentException("Listener cannot be null.");
         }
