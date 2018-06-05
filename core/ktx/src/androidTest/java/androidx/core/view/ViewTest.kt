@@ -270,4 +270,46 @@ class ViewTest {
         val resolvedText = context.getText(R.string.text)
         assertEquals(testView.announcement, resolvedText)
     }
+
+    @Test fun marginLeft() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
+            leftMargin = 10
+        }
+        assertEquals(10, view.marginLeft)
+    }
+
+    @Test fun marginTop() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
+            topMargin = 10
+        }
+        assertEquals(10, view.marginTop)
+    }
+
+    @Test fun marginRight() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
+            rightMargin = 10
+        }
+        assertEquals(10, view.marginRight)
+    }
+
+    @Test fun marginBottom() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
+            bottomMargin = 10
+        }
+        assertEquals(10, view.marginBottom)
+    }
+
+    @Test fun marginStart() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
+            MarginLayoutParamsCompat.setMarginStart(this, 10)
+        }
+        assertEquals(10, view.marginStart)
+    }
+
+    @Test fun marginEnd() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
+            MarginLayoutParamsCompat.setMarginEnd(this, 10)
+        }
+        assertEquals(10, view.marginEnd)
+    }
 }
