@@ -156,4 +156,31 @@ public abstract class CancelWorkRunnable implements Runnable {
             }
         };
     }
+
+    /**
+     * Creates a {@link CancelWorkRunnable} that cancels all work.
+     *
+     * @param workManagerImpl The {@link WorkManagerImpl} to use
+     * @return A {@link Runnable} that cancels all work
+     */
+    public static Runnable forAll(@NonNull final WorkManagerImpl workManagerImpl) {
+        return new CancelWorkRunnable() {
+            @Override
+            public void run() {
+                WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
+                workDatabase.beginTransaction();
+                try {
+                    WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+                    List<String> workSpecIds = workSpecDao.getAllUnfinishedWork();
+                    for (String workSpecId : workSpecIds) {
+                        cancel(workManagerImpl, workSpecId);
+                    }
+                    workDatabase.setTransactionSuccessful();
+                } finally {
+                    workDatabase.endTransaction();
+                }
+                // No need to call reschedule pending workers here as we just cancelled everything.
+            }
+        };
+    }
 }
