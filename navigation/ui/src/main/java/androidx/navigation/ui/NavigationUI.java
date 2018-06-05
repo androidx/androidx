@@ -18,6 +18,7 @@ package androidx.navigation.ui;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -35,6 +36,7 @@ import android.view.ViewParent;
 
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
+import androidx.navigation.NavGraph;
 import androidx.navigation.NavOptions;
 
 /**
@@ -74,7 +76,7 @@ public class NavigationUI {
                 .setPopEnterAnim(R.anim.nav_default_pop_enter_anim)
                 .setPopExitAnim(R.anim.nav_default_pop_exit_anim);
         if (popUp) {
-            builder.setPopUpTo(navController.getGraph().getStartDestination(), false);
+            builder.setPopUpTo(findStartDestination(navController.getGraph()).getId(), false);
         }
         NavOptions options = builder.build();
         try {
@@ -99,8 +101,8 @@ public class NavigationUI {
      */
     public static boolean navigateUp(@Nullable DrawerLayout drawerLayout,
             @NonNull NavController navController) {
-        if (drawerLayout != null && navController.getCurrentDestination().getId()
-                == navController.getGraph().getStartDestination()) {
+        if (drawerLayout != null && navController.getCurrentDestination()
+                == findStartDestination(navController.getGraph())) {
             drawerLayout.openDrawer(GravityCompat.START);
             return true;
         } else {
@@ -183,11 +185,10 @@ public class NavigationUI {
             @Override
             public void onNavigated(@NonNull NavController controller,
                     @NonNull NavDestination destination) {
-                int destinationId = destination.getId();
                 Menu menu = navigationView.getMenu();
                 for (int h = 0, size = menu.size(); h < size; h++) {
                     MenuItem item = menu.getItem(h);
-                    item.setChecked(item.getItemId() == destinationId);
+                    item.setChecked(matchDestination(destination, item.getItemId()));
                 }
             }
         });
@@ -219,16 +220,42 @@ public class NavigationUI {
             @Override
             public void onNavigated(@NonNull NavController controller,
                     @NonNull NavDestination destination) {
-                int destinationId = destination.getId();
                 Menu menu = bottomNavigationView.getMenu();
                 for (int h = 0, size = menu.size(); h < size; h++) {
                     MenuItem item = menu.getItem(h);
-                    if (item.getItemId() == destinationId) {
+                    if (matchDestination(destination, item.getItemId())) {
                         item.setChecked(true);
                     }
                 }
             }
         });
+    }
+
+    /**
+     * Determines whether the given <code>destId</code> matches the NavDestination. This handles
+     * both the default case (the destination's id matches the given id) and the nested case where
+     * the given id is a parent/grandparent/etc of the destination.
+     */
+    private static boolean matchDestination(@NonNull NavDestination destination,
+            @IdRes int destId) {
+        NavDestination currentDestination = destination;
+        while (currentDestination.getId() != destId && currentDestination.getParent() != null) {
+            currentDestination = currentDestination.getParent();
+        }
+        return currentDestination.getId() == destId;
+    }
+
+    /**
+     * Finds the actual start destination of the graph, handling cases where the graph's starting
+     * destination is itself a NavGraph.
+     */
+    private static NavDestination findStartDestination(@NonNull NavGraph graph) {
+        NavDestination startDestination = graph;
+        while (startDestination instanceof NavGraph) {
+            NavGraph parent = (NavGraph) startDestination;
+            startDestination = parent.findNode(parent.getStartDestination());
+        }
+        return startDestination;
     }
 
     /**
@@ -256,8 +283,7 @@ public class NavigationUI {
             if (!TextUtils.isEmpty(title)) {
                 actionBar.setTitle(title);
             }
-            boolean isStartDestination =
-                    controller.getGraph().getStartDestination() == destination.getId();
+            boolean isStartDestination = findStartDestination(controller.getGraph()) == destination;
             actionBar.setDisplayHomeAsUpEnabled(mDrawerLayout != null || !isStartDestination);
             setActionBarUpIndicator(mDrawerLayout != null && isStartDestination);
         }
