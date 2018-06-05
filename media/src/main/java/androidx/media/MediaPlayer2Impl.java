@@ -2009,6 +2009,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         SyncParams mSyncParams;
         PlaybackParams mPlaybackParams;
         PlaybackParams mPlaybackParamsToSetAfterSetDataSource;
+        boolean mLooping;
 
         MediaPlayerSourceQueue() {
             mQueue.add(new MediaPlayerSource(null));
@@ -2160,7 +2161,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized DataSourceError onCompletion(MediaPlayer mp) {
-            if (!mQueue.isEmpty() && mp == getCurrentPlayer()) {
+            MediaPlayerSource src = getFirst();
+            if (mLooping && mp == src.mPlayer) {
+                src.mPlayer.seekTo((int) src.getDSD().getStartPosition());
+                src.mPlayer.start();
+                setMp2State(mp, MEDIAPLAYER2_STATE_PLAYING);
+                return null;
+            }
+            if (!mQueue.isEmpty() && mp == src.mPlayer) {
                 if (mQueue.size() == 1) {
                     setMp2State(mp, MEDIAPLAYER2_STATE_PAUSED);
 
@@ -2299,7 +2307,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized void setLooping(boolean loop) {
-            getCurrentPlayer().setLooping(loop);
+            mLooping = loop;
         }
 
         synchronized void setPlaybackParams(PlaybackParams playbackParams) {
