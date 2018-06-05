@@ -281,6 +281,13 @@ public abstract class WorkManager {
     public abstract void cancelUniqueWork(@NonNull String uniqueWorkName);
 
     /**
+     * Cancels all unfinished work.  <b>Use this method with extreme caution!</b>  By invoking it,
+     * you will potentially affect other modules or libraries in your codebase.  It is strongly
+     * recommended that you use one of the other cancellation methods at your disposal.
+     */
+    public abstract void cancelAllWork();
+
+    /**
      * Gets a {@link LiveData} of the {@link WorkStatus} for a given work id.
      *
      * @param id The id of the work
