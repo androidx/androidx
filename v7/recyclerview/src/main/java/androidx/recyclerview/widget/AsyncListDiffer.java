@@ -16,11 +16,15 @@
 
 package androidx.recyclerview.widget;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Helper for computing the difference between two lists via {@link DiffUtil} on a background
@@ -110,6 +114,18 @@ import java.util.List;
 public class AsyncListDiffer<T> {
     private final ListUpdateCallback mUpdateCallback;
     private final AsyncDifferConfig<T> mConfig;
+    private final Executor mMainThreadExecutor;
+
+    private static class MainThreadExecutor implements Executor {
+        final Handler mHandler = new Handler(Looper.getMainLooper());
+        @Override
+        public void execute(@NonNull Runnable command) {
+            mHandler.post(command);
+        }
+    }
+
+    // TODO: use MainThreadExecutor from supportlib once one exists
+    private static final Executor sMainThreadExecutor = new MainThreadExecutor();
 
     /**
      * Convenience for
@@ -123,8 +139,8 @@ public class AsyncListDiffer<T> {
      */
     public AsyncListDiffer(@NonNull RecyclerView.Adapter adapter,
             @NonNull DiffUtil.ItemCallback<T> diffCallback) {
-        mUpdateCallback = new AdapterListUpdateCallback(adapter);
-        mConfig = new AsyncDifferConfig.Builder<>(diffCallback).build();
+        this(new AdapterListUpdateCallback(adapter),
+            new AsyncDifferConfig.Builder<>(diffCallback).build());
     }
 
     /**
@@ -142,6 +158,11 @@ public class AsyncListDiffer<T> {
             @NonNull AsyncDifferConfig<T> config) {
         mUpdateCallback = listUpdateCallback;
         mConfig = config;
+        if (config.getMainThreadExecutor() != null) {
+            mMainThreadExecutor = config.getMainThreadExecutor();
+        } else {
+            mMainThreadExecutor = sMainThreadExecutor;
+        }
     }
 
     @Nullable
@@ -273,7 +294,7 @@ public class AsyncListDiffer<T> {
                     }
                 });
 
-                mConfig.getMainThreadExecutor().execute(new Runnable() {
+                mMainThreadExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         if (mMaxScheduledGeneration == runGeneration) {

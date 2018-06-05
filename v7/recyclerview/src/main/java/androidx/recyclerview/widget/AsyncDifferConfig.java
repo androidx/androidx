@@ -16,9 +16,6 @@
 
 package androidx.recyclerview.widget;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
@@ -119,14 +116,6 @@ public final class AsyncDifferConfig<T> {
             return this;
         }
 
-        private static class MainThreadExecutor implements Executor {
-            final Handler mHandler = new Handler(Looper.getMainLooper());
-            @Override
-            public void execute(@NonNull Runnable command) {
-                mHandler.post(command);
-            }
-        }
-
         /**
          * Creates a {@link AsyncListDiffer} with the given parameters.
          *
@@ -134,9 +123,6 @@ public final class AsyncDifferConfig<T> {
          */
         @NonNull
         public AsyncDifferConfig<T> build() {
-            if (mMainThreadExecutor == null) {
-                mMainThreadExecutor = sMainThreadExecutor;
-            }
             if (mBackgroundThreadExecutor == null) {
                 synchronized (sExecutorLock) {
                     if (sDiffExecutor == null) {
@@ -154,8 +140,5 @@ public final class AsyncDifferConfig<T> {
         // TODO: remove the below once supportlib has its own appropriate executors
         private static final Object sExecutorLock = new Object();
         private static Executor sDiffExecutor = null;
-
-        // TODO: use MainThreadExecutor from supportlib once one exists
-        private static final Executor sMainThreadExecutor = new MainThreadExecutor();
     }
 }
