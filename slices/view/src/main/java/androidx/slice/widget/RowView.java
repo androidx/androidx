@@ -42,6 +42,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -89,6 +90,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     // How frequently (ms) intent can be sent in response to slider moving.
     private static final int SLIDER_INTERVAL = 200;
 
+    // On versions before M, SeekBar won't render properly if stretched taller than the default
+    // size.
+    private static final boolean sCanSpecifyLargerRangeBarHeight =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+
     private LinearLayout mRootView;
     private LinearLayout mStartContainer;
     private LinearLayout mContent;
@@ -122,7 +128,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     private int mImageSize;
     private int mIconSize;
-    private int mRangeHeight;
+    // How big the RowView wants mRangeBar to be.
+    private int mIdealRangeHeight;
+    // How big mRangeBar wants to be.
+    private int mMeasuredRangeHeight;
 
     public RowView(Context context) {
         super(context);
@@ -141,7 +150,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mDivider = findViewById(R.id.divider);
         mEndContainer = (LinearLayout) findViewById(android.R.id.widget_frame);
 
-        mRangeHeight = context.getResources().getDimensionPixelSize(
+        mIdealRangeHeight = context.getResources().getDimensionPixelSize(
                 R.dimen.abc_slice_row_range_height);
     }
 
@@ -173,7 +182,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 ? getSmallHeight()
                 : getActualHeight();
         if (mRangeBar != null) {
-            rowHeight -= mRangeHeight;
+            rowHeight -= mIdealRangeHeight;
         }
         return rowHeight;
     }
@@ -216,8 +225,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             mRootView.setVisibility(View.GONE);
         }
         if (mRangeBar != null) {
-            int rangeMeasureSpec = MeasureSpec.makeMeasureSpec(mRangeHeight, MeasureSpec.EXACTLY);
+            // If we're on a platform where SeekBar can't be stretched vertically, find out the
+            // exact size it would like to be so we can honor that in onLayout.
+            int rangeMeasureSpec = sCanSpecifyLargerRangeBarHeight
+                    ? MeasureSpec.makeMeasureSpec(mIdealRangeHeight, MeasureSpec.EXACTLY)
+                    : MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
             measureChild(mRangeBar, widthMeasureSpec, rangeMeasureSpec);
+            // Remember the measured height later for onLayout, since super.onMeasure will overwrite
+            // it.
+            mMeasuredRangeHeight = mRangeBar.getMeasuredHeight();
         }
 
         int totalHeightSpec = MeasureSpec.makeMeasureSpec(totalHeight, MeasureSpec.EXACTLY);
@@ -228,8 +244,13 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         mRootView.layout(0, 0, mRootView.getMeasuredWidth(), getRowContentHeight());
         if (mRangeBar != null) {
-            mRangeBar.layout(0, getRowContentHeight(), mRangeBar.getMeasuredWidth(),
-                    getRowContentHeight() + mRangeHeight);
+            // If we're on aa platform where SeekBar can't be stretched vertically, then
+            // mMeasuredRangeHeight can (and probably will) be smaller than mIdealRangeHeight, so we
+            // need to add some padding to make mRangeBar look like it's the larger size.
+            int verticalPadding = (mIdealRangeHeight - mMeasuredRangeHeight) / 2;
+            int top = getRowContentHeight() + verticalPadding;
+            int bottom = top + mMeasuredRangeHeight;
+            mRangeBar.layout(0, top, mRangeBar.getMeasuredWidth(), bottom);
         }
     }
 
