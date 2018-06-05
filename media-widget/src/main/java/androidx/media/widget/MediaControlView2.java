@@ -245,14 +245,14 @@ public class MediaControlView2 extends BaseLayout {
     private static final int UX_STATE_ANIMATING = 3;
 
     private static final long DEFAULT_SHOW_CONTROLLER_INTERVAL_MS = 2000;
+    private static final long DEFAULT_PROGRESS_UPDATE_TIME_MS = 1000;
+    private static final long REWIND_TIME_MS = 10000;
+    private static final long FORWARD_TIME_MS = 30000;
+    private static final long AD_SKIP_WAIT_TIME_MS = 5000;
+    private static final long HIDE_TIME_MS = 250;
+    private static final long SHOW_TIME_MS = 250;
     private static final int MAX_PROGRESS = 1000;
-    private static final int DEFAULT_PROGRESS_UPDATE_TIME_MS = 1000;
-    private static final int REWIND_TIME_MS = 10000;
-    private static final int FORWARD_TIME_MS = 30000;
-    private static final int AD_SKIP_WAIT_TIME_MS = 5000;
     private static final int RESOURCE_NON_EXISTENT = -1;
-    private static final int HIDE_TIME_MS = 250;
-    private static final int SHOW_TIME_MS = 250;
     private static final String RESOURCE_EMPTY = "";
 
     private Resources mResources;
@@ -260,7 +260,6 @@ public class MediaControlView2 extends BaseLayout {
     private OnFullScreenListener mOnFullScreenListener;
     private AccessibilityManager mAccessibilityManager;
     private SessionCommandGroup2 mAllowedCommands;
-    private int mDuration;
     private int mPrevState;
     private int mPrevWidth;
     private int mOriginalLeftBarWidth;
@@ -279,6 +278,7 @@ public class MediaControlView2 extends BaseLayout {
     private int mMediaType;
     private int mSizeType;
     private int mUxState;
+    private long mDuration;
     private long mPlaybackActions;
     private long mShowControllerIntervalMs;
     private boolean mDragging;
@@ -707,7 +707,7 @@ public class MediaControlView2 extends BaseLayout {
         return mController.isPlaying();
     }
 
-    private int getCurrentPosition() {
+    private long getCurrentPosition() {
         return mController.getCurrentPosition();
     }
 
@@ -1123,19 +1123,19 @@ public class MediaControlView2 extends BaseLayout {
         public void run() {
             boolean isShowing = getVisibility() == View.VISIBLE;
             if (!mDragging && isShowing && isPlaying()) {
-                int pos = setProgress();
+                long pos = setProgress();
                 postDelayed(mUpdateProgress,
                         DEFAULT_PROGRESS_UPDATE_TIME_MS - (pos % DEFAULT_PROGRESS_UPDATE_TIME_MS));
             }
         }
     };
 
-    private String stringForTime(int timeMs) {
-        int totalSeconds = timeMs / 1000;
+    private String stringForTime(long timeMs) {
+        long totalSeconds = timeMs / 1000;
 
-        int seconds = totalSeconds % 60;
-        int minutes = (totalSeconds / 60) % 60;
-        int hours = totalSeconds / 3600;
+        long seconds = totalSeconds % 60;
+        long minutes = (totalSeconds / 60) % 60;
+        long hours = totalSeconds / 3600;
 
         mFormatBuilder.setLength(0);
         if (hours > 0) {
@@ -1145,14 +1145,14 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    private int setProgress() {
+    private long setProgress() {
         if (mController == null || mDragging) {
             return 0;
         }
         int positionOnProgressBar = 0;
-        int currentPosition = getCurrentPosition();
+        long currentPosition = getCurrentPosition();
         if (mDuration > 0) {
-            positionOnProgressBar = (int) (MAX_PROGRESS * (long) currentPosition / mDuration);
+            positionOnProgressBar = (int) (MAX_PROGRESS * currentPosition / mDuration);
         }
         if (mProgress != null && currentPosition != mDuration) {
             mProgress.setProgress(positionOnProgressBar);
@@ -1194,7 +1194,7 @@ public class MediaControlView2 extends BaseLayout {
             }
             // Update the remaining number of seconds of the advertisement.
             if (mAdRemainingView != null) {
-                int remainingTime =
+                long remainingTime =
                         (mDuration - currentPosition < 0) ? 0 : (mDuration - currentPosition);
                 String remainingTimeText = mResources.getString(
                         R.string.MediaControlView2_ad_remaining_time,
@@ -1341,7 +1341,7 @@ public class MediaControlView2 extends BaseLayout {
                 return;
             }
             if (mDuration > 0) {
-                int position = (int) (((long) mDuration * progress) / MAX_PROGRESS);
+                int position = (int) ((mDuration * progress) / MAX_PROGRESS);
                 mController.seekTo(position);
 
                 if (mCurrentTime != null) {
@@ -1379,7 +1379,7 @@ public class MediaControlView2 extends BaseLayout {
         @Override
         public void onClick(View v) {
             resetHideCallbacks();
-            int pos = getCurrentPosition() - REWIND_TIME_MS;
+            long pos = getCurrentPosition() - REWIND_TIME_MS;
             mController.seekTo(pos);
             setProgress();
         }
@@ -1389,7 +1389,7 @@ public class MediaControlView2 extends BaseLayout {
         @Override
         public void onClick(View v) {
             resetHideCallbacks();
-            int pos = getCurrentPosition() + FORWARD_TIME_MS;
+            long pos = getCurrentPosition() + FORWARD_TIME_MS;
             mController.seekTo(pos);
             setProgress();
         }
@@ -2200,14 +2200,14 @@ public class MediaControlView2 extends BaseLayout {
     interface ControllerInterface {
         boolean hasMetadata();
         boolean isPlaying();
-        int getCurrentPosition();
+        long getCurrentPosition();
         long getBufferedPosition();
         boolean canPause();
         boolean canSeekForward();
         boolean canSeekBackward();
         void pause();
         void play();
-        void seekTo(int posMs);
+        void seekTo(long posMs);
         void skipToNextItem();
         void skipToPreviousItem();
         void volumeMute();
@@ -2217,7 +2217,7 @@ public class MediaControlView2 extends BaseLayout {
         void showSubtitle(int trackIndex);
         void hideSubtitle();
 
-        int getDurationMs();
+        long getDurationMs();
         String getTitle();
         String getArtistText();
 
@@ -2249,8 +2249,8 @@ public class MediaControlView2 extends BaseLayout {
             return mPlaybackState == BaseMediaPlayer.PLAYER_STATE_PLAYING;
         }
         @Override
-        public int getCurrentPosition() {
-            int currentPosition = (int) mController2.getCurrentPosition();
+        public long getCurrentPosition() {
+            long currentPosition = mController2.getCurrentPosition();
             return (currentPosition < 0) ? 0 : currentPosition;
         }
         @Override
@@ -2281,7 +2281,7 @@ public class MediaControlView2 extends BaseLayout {
             mController2.play();
         }
         @Override
-        public void seekTo(int posMs) {
+        public void seekTo(long posMs) {
             mController2.seekTo(posMs);
         }
         @Override
@@ -2327,8 +2327,8 @@ public class MediaControlView2 extends BaseLayout {
                     new SessionCommand2(COMMAND_HIDE_SUBTITLE, null), null, null);
         }
         @Override
-        public int getDurationMs() {
-            return (int) mController2.getDuration();
+        public long getDurationMs() {
+            return mController2.getDuration();
         }
         @Override
         public String getTitle() {
@@ -2527,9 +2527,9 @@ public class MediaControlView2 extends BaseLayout {
                     && mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING;
         }
         @Override
-        public int getCurrentPosition() {
+        public long getCurrentPosition() {
             mPlaybackState = mControllerCompat.getPlaybackState();
-            return (mPlaybackState != null) ? (int) mPlaybackState.getPosition() : 0;
+            return (mPlaybackState != null) ? mPlaybackState.getPosition() : 0;
         }
         @Override
         public long getBufferedPosition() {
@@ -2570,7 +2570,7 @@ public class MediaControlView2 extends BaseLayout {
             mControls.play();
         }
         @Override
-        public void seekTo(int posMs) {
+        public void seekTo(long posMs) {
             mControls.seekTo(posMs);
         }
         @Override
@@ -2613,9 +2613,9 @@ public class MediaControlView2 extends BaseLayout {
             mControllerCompat.sendCommand(COMMAND_HIDE_SUBTITLE, null, null);
         }
         @Override
-        public int getDurationMs() {
+        public long getDurationMs() {
             return mMediaMetadata == null
-                    ? 0 : (int) mMediaMetadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+                    ? 0 : mMediaMetadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
         }
         @Override
         public String getTitle() {
