@@ -165,7 +165,7 @@ public class ShortcutView extends SliceChildView {
             mActionItem = SliceQuery.find(slice, FORMAT_ACTION, (String) null, null);
         }
         // First fallback: any hinted image and text
-        if (mIcon == null) {
+        if (mIcon == null || mIcon.getIcon() == null) {
             mIcon = SliceQuery.find(slice, FORMAT_IMAGE, HINT_TITLE,
                     null);
         }
@@ -174,7 +174,7 @@ public class ShortcutView extends SliceChildView {
                     null);
         }
         // Second fallback: first image and text
-        if (mIcon == null) {
+        if (mIcon == null || mIcon.getIcon() == null) {
             mIcon = SliceQuery.find(slice, FORMAT_IMAGE, (String) null,
                     null);
         }
@@ -183,13 +183,13 @@ public class ShortcutView extends SliceChildView {
                     null);
         }
         // Final fallback: use app info
-        if (mIcon == null || mLabel == null || mActionItem == null) {
+        if (mIcon == null || mIcon.getIcon() == null || mLabel == null || mActionItem == null) {
             PackageManager pm = context.getPackageManager();
             ProviderInfo providerInfo = pm.resolveContentProvider(
                     slice.getUri().getAuthority(), 0);
             ApplicationInfo appInfo = providerInfo.applicationInfo;
             if (appInfo != null) {
-                if (mIcon == null) {
+                if (mIcon == null || mIcon.getIcon() == null) {
                     Slice.Builder sb = new Slice.Builder(slice.getUri());
                     Drawable icon = pm.getApplicationIcon(appInfo);
                     sb.addIcon(SliceViewUtil.createIconFromDrawable(icon), HINT_LARGE);
