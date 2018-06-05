@@ -306,8 +306,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 builder.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
             }
             if (mPrimaryAction != null) {
-                Slice.Builder sb = new Slice.Builder(
-                        getBuilder()).addHints(HINT_TITLE, HINT_SHORTCUT);
+                Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
                 builder.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
             }
             if (mLayoutDir != -1) {
@@ -606,8 +605,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 b.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
             }
             if (mPrimaryAction != null) {
-                Slice.Builder sb = new Slice.Builder(
-                        getBuilder()).addHints(HINT_TITLE, HINT_SHORTCUT);
+                Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
                 b.addSubSlice(mPrimaryAction.buildSlice(sb), null);
             }
         }
@@ -674,8 +672,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                 b.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
             }
             if (mPrimaryAction != null) {
-                Slice.Builder sb = new Slice.Builder(
-                        getBuilder()).addHints(HINT_TITLE, HINT_SHORTCUT);
+                Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
                 b.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
             }
         }
