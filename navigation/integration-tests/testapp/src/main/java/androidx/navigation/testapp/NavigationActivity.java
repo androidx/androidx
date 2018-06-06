@@ -18,6 +18,7 @@ package androidx.navigation.testapp;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
@@ -66,7 +67,8 @@ public class NavigationActivity extends AppCompatActivity {
             }
             navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
                 @Override
-                public void onNavigated(NavController controller, NavDestination destination) {
+                public void onNavigated(@NonNull NavController controller,
+                        @NonNull NavDestination destination) {
                     String dest;
                     try {
                         dest = getResources().getResourceName(destination.getId());

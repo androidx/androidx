@@ -20,8 +20,8 @@ import android.net.Uri
 import android.support.test.InstrumentationRegistry
 import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
-import junit.framework.Assert.assertTrue
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -55,7 +55,7 @@ class ActivityNavigatorDestinationBuilderTest {
                 DESTINATION_ID in graph)
         assertEquals("Destination should have ComponentName set",
                 TestActivity::class.java.name,
-                (graph[DESTINATION_ID] as ActivityNavigator.Destination).component.className)
+                (graph[DESTINATION_ID] as ActivityNavigator.Destination).component?.className)
     }
 
     @Test
