@@ -16,7 +16,6 @@
 
 package androidx.car.app;
 
-import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.car.R;
+import androidx.car.utils.DropShadowScrollListener;
 import androidx.car.widget.DayNightStyle;
 import androidx.car.widget.ListItem;
 import androidx.car.widget.ListItemAdapter;
@@ -43,7 +43,6 @@ import androidx.car.widget.PagedListView;
 import androidx.car.widget.PagedScrollBarView;
 import androidx.car.widget.SubheaderListItem;
 import androidx.car.widget.TextListItem;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -61,7 +60,6 @@ import java.util.List;
  */
 public class CarListDialog extends Dialog {
     private static final String TAG = "CarListDialog";
-    private static final int ANIMATION_DURATION_MS = 100;
 
     @Nullable
     private final CharSequence mTitle;
@@ -71,8 +69,6 @@ public class CarListDialog extends Dialog {
     private final int mInitialPosition;
     private PagedListView mList;
     private PagedScrollBarView mScrollBarView;
-
-    private final float mTitleElevation;
 
     @Nullable
     private final DialogInterface.OnClickListener mOnClickListener;
@@ -96,8 +92,6 @@ public class CarListDialog extends Dialog {
         mInitialPosition = builder.mInitialPosition;
         mOnClickListener = builder.mOnClickListener;
         mTitle = builder.mTitle;
-        mTitleElevation =
-                context.getResources().getDimension(R.dimen.car_list_dialog_title_elevation);
 
         if (builder.mSections != null) {
             initializeWithSections(builder.mSections);
@@ -169,37 +163,7 @@ public class CarListDialog extends Dialog {
             return;
         }
 
-        mList.setOnScrollListener(new PagedListView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                // The PagedListView is a vertically scrolling list, so it will be using a
-                // LinearLayoutManager.
-                LinearLayoutManager layoutManager =
-                        (LinearLayoutManager) recyclerView.getLayoutManager();
-
-                if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
-                    // Need to remove elevation with animation so it is not jarring.
-                    removeTitleElevationWithAnimation();
-                } else {
-                    // Note that elevation can be added without any elevation because the list
-                    // scroll will hide the fact that it pops in.
-                    mTitleView.setElevation(mTitleElevation);
-                }
-            }
-        });
-    }
-
-    /** Animates the removal of elevation from the title view. */
-    private void removeTitleElevationWithAnimation() {
-        ValueAnimator elevationAnimator =
-                ValueAnimator.ofFloat(mTitleView.getElevation(), 0f);
-        elevationAnimator
-                .setDuration(ANIMATION_DURATION_MS)
-                .addUpdateListener(
-                        animation -> mTitleView.setElevation((float) animation.getAnimatedValue()));
-        elevationAnimator.start();
+        mList.setOnScrollListener(new DropShadowScrollListener(mTitleView));
     }
 
     @Override
