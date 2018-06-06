@@ -373,6 +373,16 @@
             </intent-filter>
         </activity>
 
+        <!-- AnimatedStateListDrawable activity -->
+        <activity android:name=".app.AppCompatAnimatedSelector"
+                  android:label="@string/appcompat_animated_selector_title"
+                  android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
         <provider android:name=".app.RecentSuggestionsProvider"
                   android:authorities="com.example.android.supportv7.RecentSuggestionsProvider" />
 
