@@ -27,11 +27,11 @@ import android.support.v4.util.Pair;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 
+import androidx.navigation.common.R;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import androidx.navigation.common.R;
 
 /**
  * NavGraph is a collection of {@link NavDestination} nodes fetchable by ID.
@@ -187,6 +187,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
                 : searchParents && getParent() != null ? getParent().findNode(resid) : null;
     }
 
+    @NonNull
     @Override
     public Iterator<NavDestination> iterator() {
         return new Iterator<NavDestination>() {

@@ -345,6 +345,7 @@ public class NavOptions {
          * @return this Builder
          * @see NavOptions#getEnterAnim()
          */
+        @NonNull
         public Builder setEnterAnim(@AnimRes @AnimatorRes int enterAnim) {
             mEnterAnim = enterAnim;
             return this;

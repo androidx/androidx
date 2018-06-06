@@ -17,6 +17,7 @@
 package androidx.navigation.testapp;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -38,18 +39,18 @@ public class MainFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.main_fragment, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        TextView tv = (TextView) view.findViewById(R.id.text);
+        TextView tv = view.findViewById(R.id.text);
         tv.setText(getArguments().getString("myarg"));
 
-        Button b = (Button) view.findViewById(R.id.next_button);
+        Button b = view.findViewById(R.id.next_button);
         b.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.next));
     }
 }

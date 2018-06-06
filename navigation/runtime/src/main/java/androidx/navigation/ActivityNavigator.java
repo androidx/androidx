@@ -214,6 +214,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @param intent Intent to associated with this destination.
          * @return this {@link Destination}
          */
+        @NonNull
         public Destination setIntent(Intent intent) {
             mIntent = intent;
             return this;
@@ -223,6 +224,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * Gets the Intent associated with this destination.
          * @return
          */
+        @Nullable
         public Intent getIntent() {
             return mIntent;
         }
@@ -233,6 +235,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @param name The component name of the Activity to start.
          * @return this {@link Destination}
          */
+        @NonNull
         public Destination setComponentName(ComponentName name) {
             if (mIntent == null) {
                 mIntent = new Intent();
@@ -245,6 +248,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * Get the explicit {@link ComponentName} associated with this destination, if any
          * @return
          */
+        @Nullable
         public ComponentName getComponent() {
             if (mIntent == null) {
                 return null;
@@ -257,6 +261,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @param action The action string to use.
          * @return this {@link Destination}
          */
+        @NonNull
         public Destination setAction(String action) {
             if (mIntent == null) {
                 mIntent = new Intent();
@@ -268,6 +273,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         /**
          * Get the action used to start the Activity, if any
          */
+        @Nullable
         public String getAction() {
             if (mIntent == null) {
                 return null;
@@ -286,6 +292,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @see #setDataPattern(String)
          * @return this {@link Destination}
          */
+        @NonNull
         public Destination setData(Uri data) {
             if (mIntent == null) {
                 mIntent = new Intent();
@@ -297,6 +304,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         /**
          * Get the data URI used to start the Activity, if any
          */
+        @Nullable
         public Uri getData() {
             if (mIntent == null) {
                 return null;
@@ -315,6 +323,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @see #setData
          * @return this {@link Destination}
          */
+        @NonNull
         public Destination setDataPattern(String dataPattern) {
             mDataPattern = dataPattern;
             return this;
@@ -323,6 +332,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         /**
          * Gets the dynamic data URI pattern, if any
          */
+        @Nullable
         public String getDataPattern() {
             return mDataPattern;
         }

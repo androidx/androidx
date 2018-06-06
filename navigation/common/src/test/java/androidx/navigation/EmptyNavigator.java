@@ -17,6 +17,8 @@
 package androidx.navigation;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * An empty {@link Navigator} used to test {@link SimpleNavigatorProvider}.
@@ -25,13 +27,15 @@ import android.os.Bundle;
 class EmptyNavigator extends Navigator<NavDestination> {
     static final String NAME = "empty";
 
+    @NonNull
     @Override
     public NavDestination createDestination() {
         return new NavDestination(this);
     }
 
     @Override
-    public void navigate(NavDestination destination, Bundle args, NavOptions navOptions) {
+    public void navigate(@NonNull NavDestination destination, @Nullable Bundle args,
+            @Nullable NavOptions navOptions) {
         throw new IllegalStateException("navigate is not supported");
     }
 
