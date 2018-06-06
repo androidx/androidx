@@ -2634,17 +2634,17 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     public void testDataSourceStartEndWithLooping() throws Exception {
-        final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
-        final long start1 = 6000;
-        final long end1 = 8000;
-        AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1);
-        DataSourceDesc dsd1 = new DataSourceDesc.Builder()
-                .setDataSource(afd1.getFileDescriptor(), afd1.getStartOffset(), afd1.getLength())
-                .setStartPosition(start1)
-                .setEndPosition(end1)
+        final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
+        final long start = 6000;
+        final long end = 8000;
+        AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
+        DataSourceDesc dsd = new DataSourceDesc.Builder()
+                .setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
+                .setStartPosition(start)
+                .setEndPosition(end)
                 .build();
 
-        mPlayer.setDataSource(dsd1);
+        mPlayer.setDataSource(dsd);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
@@ -2679,21 +2679,22 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.play();
         mOnPlayCalled.waitForSignal();
         assertEquals(MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING, mPlayer.getState());
-        assertTrue(mPlayer.getCurrentPosition() >= start1);
+        assertTrue(mPlayer.getCurrentPosition() >= start);
 
         mOnCompletionCalled.waitForSignal();
         assertEquals(MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING, mPlayer.getState());
-        assertTrue(mPlayer.getCurrentPosition() >= start1);
+        assertTrue(mPlayer.getCurrentPosition() >= start);
         mOnCompletionCalled.waitForCountedSignals(2);
         assertEquals(MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING, mPlayer.getState());
-        assertTrue(mPlayer.getCurrentPosition() >= start1);
+        assertTrue(mPlayer.getCurrentPosition() >= start);
 
         mOnCompletionCalled.reset();
         mPlayer.loopCurrent(false);
         mOnCompletionCalled.waitForSignal();
-        assertTrue(Math.abs(mPlayer.getCurrentPosition() - end1) < PLAYBACK_COMPLETE_TOLERANCE_MS);
+        assertEquals(MediaPlayer2.MEDIAPLAYER2_STATE_PAUSED, mPlayer.getState());
+        assertTrue(Math.abs(mPlayer.getCurrentPosition() - end) < PLAYBACK_COMPLETE_TOLERANCE_MS);
 
-        afd1.close();
+        afd.close();
     }
 
     @Test
