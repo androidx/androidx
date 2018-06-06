@@ -34,7 +34,7 @@ def includeProject(name, filePath) {
 /////////////////////////////
 
 includeProject(":annotation", "annotations")
-includeProject(":appcompat", "v7/appcompat")
+includeProject(":appcompat", "appcompat")
 includeProject(":arch:core-common", "app-toolkit/common")
 includeProject(":arch:core-testing", "app-toolkit/core-testing")
 includeProject(":arch:core-runtime", "app-toolkit/runtime")
@@ -111,7 +111,7 @@ includeProject(":preference", "preference")
 includeProject(":preference-ktx", "preference/ktx")
 includeProject(":print", "print")
 includeProject(":recommendation", "recommendation")
-includeProject(":recyclerview", "v7/recyclerview")
+includeProject(":recyclerview", "recyclerview")
 includeProject(":recyclerview-selection", "recyclerview-selection")
 includeProject(":room:integration-tests:testapp", "room/integration-tests/testapp")
 includeProject(":room:integration-tests:kotlintestapp", "room/integration-tests/kotlintestapp")
