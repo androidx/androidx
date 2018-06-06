@@ -18,6 +18,7 @@ package androidx.navigation.testing;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 
 import androidx.navigation.NavDestination;
@@ -41,8 +42,8 @@ public class TestNavigator extends Navigator<TestNavigator.Destination> {
     }
 
     @Override
-    public void navigate(@NonNull Destination destination, Bundle args,
-            NavOptions navOptions) {
+    public void navigate(@NonNull Destination destination, @Nullable Bundle args,
+            @Nullable NavOptions navOptions) {
         if (navOptions != null && navOptions.shouldLaunchSingleTop() && !mBackStack.isEmpty()
                 && mBackStack.peekLast().first.getId() == destination.getId()) {
             mBackStack.pop();

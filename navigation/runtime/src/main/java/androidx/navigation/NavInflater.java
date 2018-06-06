@@ -54,6 +54,7 @@ public class NavInflater {
      * Navigation host implementations should do this automatically
      * if no navigation resource is otherwise supplied during host configuration.</p>
      */
+    @SuppressWarnings("WeakerAccess")
     public static final String METADATA_KEY_GRAPH = "android.nav.graph";
 
     private static final String TAG_ARGUMENT = "argument";
@@ -67,8 +68,8 @@ public class NavInflater {
     private Context mContext;
     private NavigatorProvider mNavigatorProvider;
 
-    public NavInflater(@NonNull Context c, @NonNull NavigatorProvider navigatorProvider) {
-        mContext = c;
+    public NavInflater(@NonNull Context context, @NonNull NavigatorProvider navigatorProvider) {
+        mContext = context;
         mNavigatorProvider = navigatorProvider;
     }
 
@@ -102,6 +103,7 @@ public class NavInflater {
      * @return
      */
     @SuppressLint("ResourceType")
+    @NonNull
     public NavGraph inflate(@NavigationRes int graphResId) {
         Resources res = mContext.getResources();
         XmlResourceParser parser = res.getXml(graphResId);
@@ -132,8 +134,9 @@ public class NavInflater {
         }
     }
 
-    private NavDestination inflate(Resources res, XmlResourceParser parser, AttributeSet attrs)
-            throws XmlPullParserException, IOException {
+    @NonNull
+    private NavDestination inflate(@NonNull Resources res, @NonNull XmlResourceParser parser,
+            @NonNull AttributeSet attrs) throws XmlPullParserException, IOException {
         Navigator navigator = mNavigatorProvider.getNavigator(parser.getName());
         final NavDestination dest = navigator.createDestination();
 
@@ -173,8 +176,8 @@ public class NavInflater {
         return dest;
     }
 
-    private void inflateArgument(Resources res, NavDestination dest, AttributeSet attrs)
-            throws XmlPullParserException {
+    private void inflateArgument(@NonNull Resources res, @NonNull NavDestination dest,
+            @NonNull AttributeSet attrs) throws XmlPullParserException {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavArgument);
         String name = a.getString(R.styleable.NavArgument_android_name);
 
@@ -210,7 +213,8 @@ public class NavInflater {
         a.recycle();
     }
 
-    private void inflateDeepLink(Resources res, NavDestination dest, AttributeSet attrs) {
+    private void inflateDeepLink(@NonNull Resources res, @NonNull NavDestination dest,
+            @NonNull AttributeSet attrs) {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavDeepLink);
         String uri = a.getString(R.styleable.NavDeepLink_uri);
         if (TextUtils.isEmpty(uri)) {
@@ -223,7 +227,8 @@ public class NavInflater {
     }
 
     @SuppressWarnings("deprecation")
-    private void inflateAction(Resources res, NavDestination dest, AttributeSet attrs) {
+    private void inflateAction(@NonNull Resources res, @NonNull NavDestination dest,
+            @NonNull AttributeSet attrs) {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavAction);
         final int id = a.getResourceId(R.styleable.NavAction_android_id, 0);
         final int destId = a.getResourceId(R.styleable.NavAction_destination, 0);

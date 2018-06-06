@@ -325,7 +325,7 @@ public class NavController {
         }
     }
 
-    void dispatchOnNavigated(NavDestination destination) {
+    private void dispatchOnNavigated(NavDestination destination) {
         for (OnNavigatedListener listener : mOnNavigatedListeners) {
             listener.onNavigated(this, destination);
         }
@@ -341,14 +341,18 @@ public class NavController {
      *     <meta-data android:name="android.nav.graph" android:resource="@xml/my_nav_graph" />
      * </pre>
      *
-     * <p>The inflated graph can be retrieved via {@link #getGraph()}.</p>
+     * <p>The inflated graph can be retrieved via {@link #getGraph()}. Calling this will have no
+     * effect if there is no metadata graph specified.</p>
      *
      * @see NavInflater#METADATA_KEY_GRAPH
      * @see NavInflater#inflateMetadataGraph()
      * @see #getGraph
      */
     public void setMetadataGraph() {
-        setGraph(getNavInflater().inflateMetadataGraph());
+        NavGraph metadataGraph = getNavInflater().inflateMetadataGraph();
+        if (metadataGraph != null) {
+            setGraph(metadataGraph);
+        }
     }
 
     /**
