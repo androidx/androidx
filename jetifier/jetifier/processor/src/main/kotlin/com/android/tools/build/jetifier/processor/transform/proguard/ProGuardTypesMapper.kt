@@ -57,10 +57,10 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
         }
 
         // Type contains wildcards - try custom rules map
-        val result = config.proGuardMap.mapType(type)
-        if (result != null) {
-            Log.i(TAG, "map: %s -> %s", type, result.joinToString(", "))
-            return result.map { it.toDotNotation() }.toList()
+        val mapResult = config.proGuardMap.mapType(type)
+        if (mapResult != null) {
+            Log.i(TAG, "map: %s -> %s", type, mapResult.joinToString(", "))
+            return mapResult.map { it.toDotNotation() }.toList()
         }
 
         // Check fox simple suffix
