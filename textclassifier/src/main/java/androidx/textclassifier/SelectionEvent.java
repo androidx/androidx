@@ -725,75 +725,67 @@ public final class SelectionEvent {
                 mSessionId, mStart, mEnd, mSmartStart, mSmartEnd);
     }
 
+    /**
+     * Converts {@link android.view.textclassifier.TextSelection} to
+     * {@link android.view.textclassifier.TextSelection}. It can only convert text selection
+     * objects created by those factory methods and without further modification.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(28)
-    static final class Convert {
+    @NonNull
+    android.view.textclassifier.SelectionEvent toPlatform() {
 
-        private Convert() {}
-
-        /**
-         * Converts {@link android.view.textclassifier.TextSelection} to
-         * {@link android.view.textclassifier.TextSelection}. It can only convert text selection
-         * objects created by those factory methods and without further modification.
-         */
-        @NonNull
-        static android.view.textclassifier.SelectionEvent toPlatform(
-                @NonNull SelectionEvent selectionEvent) {
-            Preconditions.checkNotNull(selectionEvent);
-
-            if (selectionEvent.getEventType() == EVENT_SELECTION_STARTED) {
-                return android.view.textclassifier.SelectionEvent.createSelectionStartedEvent(
-                        selectionEvent.getInvocationMethod(),
-                        selectionEvent.getAbsoluteStart()
-                );
-            }
-            if (selectionEvent.getEventType() == EVENT_AUTO_SELECTION
-                    && selectionEvent.mTextSelection != null) {
-                return android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
-                        selectionEvent.getAbsoluteStart(),
-                        selectionEvent.getAbsoluteEnd(),
-                        TextSelection.Convert.toPlatform(selectionEvent.mTextSelection)
-                );
-            }
-            if (selectionEvent.getEventType() == EVENT_SELECTION_MODIFIED) {
-                return toPlatformSelectionModifiedEvent(selectionEvent);
-            }
-            return toPlatformSelectionActionEvent(selectionEvent);
+        if (getEventType() == EVENT_SELECTION_STARTED) {
+            return android.view.textclassifier.SelectionEvent.createSelectionStartedEvent(
+                    getInvocationMethod(),
+                    getAbsoluteStart()
+            );
         }
-
-        @NonNull
-        private static android.view.textclassifier.SelectionEvent toPlatformSelectionModifiedEvent(
-                @NonNull SelectionEvent selectionEvent) {
-            Preconditions.checkNotNull(selectionEvent);
-            if (selectionEvent.mTextClassification != null) {
-                return android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
-                        selectionEvent.getAbsoluteStart(),
-                        selectionEvent.getAbsoluteEnd(),
-                        TextClassification.Convert.toPlatform(selectionEvent.mTextClassification)
-                );
-            }
+        if (getEventType() == EVENT_AUTO_SELECTION && mTextSelection != null) {
             return android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
-                    selectionEvent.getAbsoluteStart(),
-                    selectionEvent.getAbsoluteEnd()
-            );
+                    getAbsoluteStart(),
+                    getAbsoluteEnd(),
+                    mTextSelection.toPlatform());
         }
+        if (getEventType() == EVENT_SELECTION_MODIFIED) {
+            return toPlatformSelectionModifiedEvent();
+        }
+        return toPlatformSelectionActionEvent();
+    }
 
-        @NonNull
-        private static android.view.textclassifier.SelectionEvent toPlatformSelectionActionEvent(
-                @NonNull SelectionEvent selectionEvent) {
-            Preconditions.checkNotNull(selectionEvent);
-            if (selectionEvent.mTextClassification != null) {
-                return android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
-                        selectionEvent.getAbsoluteStart(),
-                        selectionEvent.getAbsoluteEnd(),
-                        selectionEvent.getEventType(),
-                        TextClassification.Convert.toPlatform(selectionEvent.mTextClassification)
-                );
-            }
-            return android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
-                    selectionEvent.getAbsoluteStart(),
-                    selectionEvent.getAbsoluteEnd(),
-                    selectionEvent.getEventType()
+    @NonNull
+    @RequiresApi(28)
+    private android.view.textclassifier.SelectionEvent toPlatformSelectionModifiedEvent() {
+        if (mTextClassification != null) {
+            return android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
+                    getAbsoluteStart(),
+                    getAbsoluteEnd(),
+                    mTextClassification.toPlatform()
             );
         }
+        return android.view.textclassifier.SelectionEvent.createSelectionModifiedEvent(
+                getAbsoluteStart(),
+                getAbsoluteEnd()
+        );
+    }
+
+    @NonNull
+    @RequiresApi(28)
+    private android.view.textclassifier.SelectionEvent toPlatformSelectionActionEvent() {
+        if (mTextClassification != null) {
+            return android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
+                    getAbsoluteStart(),
+                    getAbsoluteEnd(),
+                    getEventType(),
+                    mTextClassification.toPlatform()
+            );
+        }
+        return android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
+                getAbsoluteStart(),
+                getAbsoluteEnd(),
+                getEventType()
+        );
     }
 }

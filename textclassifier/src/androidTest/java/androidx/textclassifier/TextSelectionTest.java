@@ -96,8 +96,7 @@ public final class TextSelectionTest {
                 .setDefaultLocales(LOCALE_LIST)
                 .build();
 
-        android.view.textclassifier.TextSelection.Request platformRequest =
-                TextSelection.Request.Convert.toPlatform(request);
+        android.view.textclassifier.TextSelection.Request platformRequest = request.toPlatform();
 
         assertThat(platformRequest.getStartIndex()).isEqualTo(START_INDEX);
         assertThat(platformRequest.getEndIndex()).isEqualTo(END_INDEX);
@@ -117,7 +116,7 @@ public final class TextSelectionTest {
                         .setEntityType(TextClassifier.TYPE_URL, URL_SCORE)
                         .build();
 
-        TextSelection textSelection = TextSelection.Convert.fromPlatform(platformTextSelection);
+        TextSelection textSelection = TextSelection.fromPlatform(platformTextSelection);
 
         assertTextSelection(textSelection);
     }
@@ -127,9 +126,8 @@ public final class TextSelectionTest {
     public void testToPlatform() {
         TextSelection reference = createTextSelection();
 
-        android.view.textclassifier.TextSelection platformTextSelection =
-                TextSelection.Convert.toPlatform(reference);
-        TextSelection textSelection = TextSelection.Convert.fromPlatform(platformTextSelection);
+        android.view.textclassifier.TextSelection platformTextSelection = reference.toPlatform();
+        TextSelection textSelection = TextSelection.fromPlatform(platformTextSelection);
 
         assertTextSelection(textSelection);
 
