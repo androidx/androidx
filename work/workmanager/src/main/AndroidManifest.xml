@@ -73,7 +73,7 @@
         </receiver>
         <receiver
             android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
-            android:enabled="@bool/enable_system_alarm_service_default">
+            android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_SET" />
