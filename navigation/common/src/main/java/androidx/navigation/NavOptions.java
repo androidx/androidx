@@ -131,7 +131,11 @@ public class NavOptions {
      * <p>
      * This functions similarly to how {@link android.content.Intent#FLAG_ACTIVITY_NEW_DOCUMENT}
      * works with activites.
+     * @deprecated As per the {@link android.content.Intent#FLAG_ACTIVITY_NEW_DOCUMENT}
+     * documentation, it is recommended to use {@link android.R.attr#documentLaunchMode} on an
+     * Activity you wish to launch as a new document.
      */
+    @Deprecated
     public boolean shouldLaunchDocument() {
         return (mLaunchMode & LAUNCH_DOCUMENT) != 0;
     }
@@ -278,7 +282,11 @@ public class NavOptions {
          * screen they will be taken to their home screen.</p>
          *
          * @param launchDocument true to launch a new document task
+         * @deprecated As per the {@link android.content.Intent#FLAG_ACTIVITY_NEW_DOCUMENT}
+         * documentation, it is recommended to use {@link android.R.attr#documentLaunchMode} on an
+         * Activity you wish to launch as a new document.
          */
+        @Deprecated
         @NonNull
         public Builder setLaunchDocument(boolean launchDocument) {
             if (launchDocument) {
