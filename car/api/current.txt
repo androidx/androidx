@@ -346,9 +346,6 @@ package androidx.car.widget {
 
   public static abstract class PagedListView.OnScrollListener {
     ctor public PagedListView.OnScrollListener();
-    method public void onAlphaJumpButtonClicked();
-    method public void onGestureDown();
-    method public void onGestureUp();
     method public void onReachBottom();
     method public void onScrollDownButtonClicked();
     method public void onScrollStateChanged(androidx.recyclerview.widget.RecyclerView, int);
