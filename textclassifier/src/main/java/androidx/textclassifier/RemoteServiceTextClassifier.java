@@ -16,7 +16,6 @@
 
 package androidx.textclassifier;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -57,10 +56,10 @@ public final class RemoteServiceTextClassifier extends TextClassifier {
     public RemoteServiceTextClassifier(
             @NonNull Context context,
             @NonNull TextClassificationContext textClassificationContext,
-            @NonNull ComponentName serviceComponent) {
+            @NonNull String textClassifierPackage) {
         super(textClassificationContext);
         mContext = Preconditions.checkNotNull(context);
-        mServiceManager = new ServiceManager(mContext, serviceComponent);
+        mServiceManager = new ServiceManager(mContext, textClassifierPackage);
     }
 
     /** @inheritDoc */

@@ -86,24 +86,24 @@ final class ServiceManager {
                     return;
                 }
 
-                Log.d(TAG, "Unbinding from " + mServiceIntent.getComponent());
+                Log.d(TAG, "Unbinding from " + mServiceIntent.getPackage());
                 mServiceConnection.cleanupService();
             }
         }
     };
 
-    ServiceManager(@NonNull Context context, @NonNull ComponentName serviceComponent) {
-        this(context, serviceComponent, new Handler(Looper.getMainLooper()));
+    ServiceManager(@NonNull Context context, @NonNull String textClassifierPackage) {
+        this(context, textClassifierPackage, new Handler(Looper.getMainLooper()));
     }
 
     @VisibleForTesting
     ServiceManager(
-            @NonNull Context context, @NonNull ComponentName serviceComponent,
+            @NonNull Context context, @NonNull String textClassifierPackage,
             @NonNull Handler mainThreadHandler) {
         mContext = Preconditions.checkNotNull(context);
-        Preconditions.checkNotNull(serviceComponent);
+        Preconditions.checkNotNull(textClassifierPackage);
         mServiceIntent = new Intent(TextClassifierService.SERVICE_INTERFACE)
-                .setComponent(serviceComponent);
+                .setPackage(textClassifierPackage);
         mMainThreadHandler = mainThreadHandler;
     }
 
@@ -161,7 +161,7 @@ final class ServiceManager {
             }
             mBinding = mContext.bindService(
                     mServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-            Log.d(TAG, "Binding to " + mServiceIntent.getComponent());
+            Log.d(TAG, "Binding to " + mServiceIntent.getPackage());
             return mBinding;
         }
     }
@@ -203,7 +203,9 @@ final class ServiceManager {
 
         void cleanupService() {
             synchronized (mLock) {
-                mContext.unbindService(this);
+                if (mService != null) {
+                    mContext.unbindService(this);
+                }
                 init(null);
             }
         }

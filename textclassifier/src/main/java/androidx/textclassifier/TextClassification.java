@@ -493,7 +493,7 @@ public final class TextClassification {
          */
         public static Request createFromBundle(@NonNull Bundle bundle) {
             final Builder builder = new Builder(
-                    bundle.getString(EXTRA_TEXT),
+                    bundle.getCharSequence(EXTRA_TEXT),
                     bundle.getInt(EXTRA_START_INDEX),
                     bundle.getInt(EXTRA_END_INDEX))
                     .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES))

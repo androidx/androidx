@@ -45,8 +45,7 @@ public class RemoteServiceTextClassifierTest {
                 InstrumentationRegistry.getContext(),
                 new TextClassificationContext.Builder(
                         "pkg", TextClassifier.WIDGET_TYPE_TEXTVIEW).build(),
-                DummyTextClassifierService.getComponent(InstrumentationRegistry.getContext()));
-
+                InstrumentationRegistry.getContext().getPackageName());
 
         DummyTextClassifierService.setTextSelection(new TextSelection.Builder(START, END).build());
         DummyTextClassifierService.setTextLinks(new TextLinks.Builder(TEXT).addLink(START, END,

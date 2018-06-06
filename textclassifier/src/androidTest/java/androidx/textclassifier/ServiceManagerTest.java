@@ -43,12 +43,12 @@ import org.mockito.stubbing.Answer;
 
 @SmallTest
 public class ServiceManagerTest {
-    @Mock
-    private Context mContext;
-
     private static final ComponentName SERVICE_COMPONENT = new ComponentName("dummy", "dummy");
 
     private ServiceManager mServiceManager;
+
+    @Mock
+    private Context mContext;
 
     @Mock
     private IBinder mBinder;
@@ -68,7 +68,8 @@ public class ServiceManagerTest {
             }
         };
 
-        mServiceManager = new ServiceManager(mContext, SERVICE_COMPONENT, mHandler);
+        mServiceManager = new ServiceManager(
+                mContext, SERVICE_COMPONENT.getPackageName(), mHandler);
     }
 
     @Test

@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 public final class TextSelectionTest {
     private static final float EPSILON = 1e-7f;
 
-    private static final String TEXT = "This is an apple";
+    private static final CharSequence TEXT = "This is an apple";
     private static final int START_INDEX = 2;
     private static final int END_INDEX = 5;
     private static final String ID = "id";
@@ -71,7 +71,7 @@ public final class TextSelectionTest {
 
     @Test
     public void testParcelRequest() {
-        final String text = "text";
+        final CharSequence text = "text";
         final int startIndex = 2;
         final int endIndex = 4;
         TextSelection.Request reference =

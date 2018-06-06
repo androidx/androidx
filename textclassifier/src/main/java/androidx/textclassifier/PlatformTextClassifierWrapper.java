@@ -16,9 +16,12 @@
 
 package androidx.textclassifier;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.core.util.Preconditions;
 
@@ -33,12 +36,31 @@ import androidx.core.util.Preconditions;
 public class PlatformTextClassifierWrapper extends TextClassifier {
     private android.view.textclassifier.TextClassifier mPlatformTextClassifier;
 
-    public PlatformTextClassifierWrapper(
+    @VisibleForTesting
+    PlatformTextClassifierWrapper(
             @NonNull android.view.textclassifier.TextClassifier platformTextClassifier) {
         super(new ProxySessionStrategy(platformTextClassifier));
         Preconditions.checkNotNull(platformTextClassifier);
         mPlatformTextClassifier = platformTextClassifier;
     }
+
+    /**
+     * Returns a newly create instance of PlatformTextClassifierWrapper.
+     */
+    @NonNull
+    public static PlatformTextClassifierWrapper create(
+            @NonNull Context context,
+            @NonNull TextClassificationContext textClassificationContext) {
+        Preconditions.checkNotNull(context);
+        android.view.textclassifier.TextClassificationManager textClassificationManager =
+                (android.view.textclassifier.TextClassificationManager)
+                        context.getSystemService(Context.TEXT_CLASSIFICATION_SERVICE);
+        android.view.textclassifier.TextClassifier textClassificationSession =
+                textClassificationManager.createTextClassificationSession(
+                        textClassificationContext.toPlatform());
+        return new PlatformTextClassifierWrapper(textClassificationSession);
+    }
+
 
     /** @inheritDoc */
     @NonNull

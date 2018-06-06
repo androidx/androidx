@@ -20,6 +20,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.textclassifier.TextClassifier.WidgetType;
 
@@ -150,5 +152,16 @@ public final class TextClassificationContext {
         String widgetType = bundle.getString(EXTRA_WIGET_TYPE);
         String widgetVersion = bundle.getString(EXTRA_WIDGET_VERSION);
         return new TextClassificationContext(packageName, widgetType, widgetVersion);
+    }
+
+    /**
+     * @hide
+     */
+    @RequiresApi(28)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    android.view.textclassifier.TextClassificationContext toPlatform() {
+        return new android.view.textclassifier.TextClassificationContext.Builder(
+                mPackageName, mWidgetType).setWidgetVersion(mWidgetVersion).build();
     }
 }

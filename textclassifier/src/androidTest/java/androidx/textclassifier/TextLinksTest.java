@@ -52,7 +52,7 @@ import java.util.Map;
 @RunWith(AndroidJUnit4.class)
 public final class TextLinksTest {
 
-    private static final String FULL_TEXT = "this is just a test";
+    private static final CharSequence FULL_TEXT = new SpannableString("this is just a test");
     private static final String LANGUAGE_TAGS = "en-US,de-DE";
     private static final LocaleListCompat LOCALE_LIST =
             LocaleListCompat.forLanguageTags(LANGUAGE_TAGS);
@@ -103,7 +103,7 @@ public final class TextLinksTest {
 
     @Test
     public void testBundle() {
-        final TextLinks reference = new TextLinks.Builder(FULL_TEXT)
+        final TextLinks reference = new TextLinks.Builder(FULL_TEXT.toString())
                 .addLink(0, 4, getEntityScores(0.f, 0.f, 1.f))
                 .addLink(5, 12, getEntityScores(.8f, .1f, .5f))
                 .build();
@@ -210,7 +210,7 @@ public final class TextLinksTest {
     @SdkSuppress(minSdkVersion = 28)
     public void testConvertFromPlatformTextLinks() {
         final android.view.textclassifier.TextLinks platformTextLinks =
-                new android.view.textclassifier.TextLinks.Builder(FULL_TEXT)
+                new android.view.textclassifier.TextLinks.Builder(FULL_TEXT.toString())
                         .addLink(0, 4, getEntityScores(0.f, 0.f, 1.f))
                         .addLink(5, 12, getEntityScores(.8f, .1f, .5f))
                         .build();
@@ -233,7 +233,7 @@ public final class TextLinksTest {
     }
 
     private void assertTextLinks(TextLinks textLinks) {
-        assertEquals(FULL_TEXT, textLinks.getText());
+        assertEquals(FULL_TEXT.toString(), textLinks.getText());
         final List<TextLinks.TextLink> resultList = new ArrayList<>(textLinks.getLinks());
         final float epsilon = 1e-7f;
         assertEquals(2, resultList.size());

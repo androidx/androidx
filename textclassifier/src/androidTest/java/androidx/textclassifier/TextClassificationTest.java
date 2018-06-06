@@ -29,6 +29,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.text.SpannableString;
 
 import androidx.core.app.RemoteActionCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -48,7 +49,7 @@ public final class TextClassificationTest {
     private static final float EPSILON = 1e-7f;
 
     private static final long REFERENCE_TIME_IN_MS = 946684800000L; // 2000-01-01 00:00:00
-    private static final String TEXT = "This is an apple";
+    private static final CharSequence TEXT = new SpannableString("This is an apple");
     private static final int START_INDEX = 2;
     private static final int END_INDEX = 5;
     private static final String ID = "id";
@@ -136,7 +137,7 @@ public final class TextClassificationTest {
 
         android.view.textclassifier.TextClassification platformTextClassification =
                 new android.view.textclassifier.TextClassification.Builder()
-                        .setText(TEXT)
+                        .setText(TEXT.toString())
                         .addAction(remoteAction0.toRemoteAction())
                         .addAction(remoteAction1.toRemoteAction())
                         .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
@@ -184,7 +185,7 @@ public final class TextClassificationTest {
                 SECONDARY_LABEL, SECONDARY_DESCRIPTION, secondaryPendingIntent);
 
         return new TextClassification.Builder()
-                .setText(TEXT)
+                .setText(TEXT.toString())
                 .addAction(remoteAction0)
                 .addAction(remoteAction1)
                 .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
@@ -194,7 +195,7 @@ public final class TextClassificationTest {
     }
 
     private void assertTextClassification(TextClassification textClassification) {
-        assertEquals(TEXT, textClassification.getText());
+        assertEquals(TEXT.toString(), textClassification.getText());
         assertEquals(ID, textClassification.getId());
         assertEquals(2, textClassification.getActions().size());
 
