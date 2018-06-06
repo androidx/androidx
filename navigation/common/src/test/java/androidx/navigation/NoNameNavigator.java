@@ -17,19 +17,23 @@
 package androidx.navigation;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * A {@link Navigator} that does not have a {@link Navigator.Name} used to test
  * {@link SimpleNavigatorProvider}.
  */
 class NoNameNavigator extends Navigator<NavDestination> {
+    @NonNull
     @Override
     public NavDestination createDestination() {
         return new NavDestination(this);
     }
 
     @Override
-    public void navigate(NavDestination destination, Bundle args, NavOptions navOptions) {
+    public void navigate(@NonNull NavDestination destination, @Nullable Bundle args,
+            @Nullable NavOptions navOptions) {
         throw new IllegalStateException("navigate is not supported");
     }
 

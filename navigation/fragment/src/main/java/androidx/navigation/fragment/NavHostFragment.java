@@ -100,7 +100,7 @@ public class NavHostFragment extends Fragment implements NavHost {
             if (findFragment instanceof NavHostFragment) {
                 return ((NavHostFragment) findFragment).getNavController();
             }
-            Fragment primaryNavFragment = findFragment.getFragmentManager()
+            Fragment primaryNavFragment = findFragment.requireFragmentManager()
                     .getPrimaryNavigationFragment();
             if (primaryNavFragment instanceof NavHostFragment) {
                 return ((NavHostFragment) primaryNavFragment).getNavController();
@@ -185,14 +185,16 @@ public class NavHostFragment extends Fragment implements NavHost {
         // but it can stay here until we can add the necessary attr resources to
         // the fragment lib.
         if (mDefaultNavHost) {
-            getFragmentManager().beginTransaction().setPrimaryNavigationFragment(this).commit();
+            requireFragmentManager().beginTransaction()
+                    .setPrimaryNavigationFragment(this)
+                    .commit();
         }
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final Context context = getContext();
+        final Context context = requireContext();
 
         mNavController = new NavController(context);
         mNavController.getNavigatorProvider().addNavigator(createFragmentNavigator());
@@ -202,7 +204,9 @@ public class NavHostFragment extends Fragment implements NavHost {
             navState = savedInstanceState.getBundle(KEY_NAV_CONTROLLER_STATE);
             if (savedInstanceState.getBoolean(KEY_DEFAULT_NAV_HOST, false)) {
                 mDefaultNavHost = true;
-                getFragmentManager().beginTransaction().setPrimaryNavigationFragment(this).commit();
+                requireFragmentManager().beginTransaction()
+                        .setPrimaryNavigationFragment(this)
+                        .commit();
             }
         }
 
@@ -230,7 +234,7 @@ public class NavHostFragment extends Fragment implements NavHost {
      */
     @NonNull
     protected Navigator<? extends FragmentNavigator.Destination> createFragmentNavigator() {
-        return new FragmentNavigator(getContext(), getChildFragmentManager(), getId());
+        return new FragmentNavigator(requireContext(), getChildFragmentManager(), getId());
     }
 
     @Nullable
