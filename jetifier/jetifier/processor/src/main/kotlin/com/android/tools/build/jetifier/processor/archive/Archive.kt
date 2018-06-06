@@ -104,8 +104,10 @@ class Archive(
 
         for (file in files) {
             Log.v(TAG, "Writing file: %s", file.relativePath)
-
-            val entry = ZipEntry(file.relativePath.toString())
+            // Make sure we always use '/' as separator in ZipOutputStream otherwise we might end
+            // up with a corrupted zip file on a non-Unix OS (b/109738608).
+            val path = file.relativePath.toString().replace('\\', '/')
+            val entry = ZipEntry(path)
             entry.lastModifiedTime = FileTime.from(Instant.now()) // b/78249473
             out.putNextEntry(entry)
             file.writeSelfTo(out)

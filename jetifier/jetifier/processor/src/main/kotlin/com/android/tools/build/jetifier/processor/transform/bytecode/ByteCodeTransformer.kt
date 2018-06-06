@@ -40,10 +40,10 @@ class ByteCodeTransformer internal constructor(
 
         if (!remapper.changesDone) {
             file.setNewDataSilently(writer.toByteArray())
-            return
+        } else {
+            file.setNewData(writer.toByteArray())
         }
 
-        file.setNewData(writer.toByteArray())
         file.updateRelativePath(remapper.rewritePath(file.relativePath))
     }
 }
