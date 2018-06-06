@@ -23,5 +23,6 @@
         <activity android:name="androidx.navigation.fragment.test.DynamicNavigationActivity" />
         <activity android:name="androidx.navigation.fragment.test.EmbeddedXmlActivity" />
         <activity android:name="androidx.navigation.fragment.test.ImmediateNavigationActivity" />
+        <activity android:name="androidx.navigation.fragment.test.EmptyActivity" />
     </application>
 </manifest>
