@@ -3325,6 +3325,9 @@ public class AccessibilityNodeInfoCompat {
      * @return {@code true} if the node is a heading, {@code false} otherwise.
      */
     public boolean isHeading() {
+        if (BuildCompat.isAtLeastP()) {
+            return mInfo.isHeading();
+        }
         if (getBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING)) return true;
         CollectionItemInfoCompat collectionItemInfo = getCollectionItemInfo();
         return (collectionItemInfo != null) && (collectionItemInfo.isHeading());
@@ -3342,7 +3345,11 @@ public class AccessibilityNodeInfoCompat {
      * @param isHeading {@code true} if the node is a heading, {@code false} otherwise.
      */
     public void setHeading(boolean isHeading) {
-        setBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING, isHeading);
+        if (BuildCompat.isAtLeastP()) {
+            mInfo.setHeading(isHeading);
+        } else {
+            setBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING, isHeading);
+        }
     }
 
     /**
