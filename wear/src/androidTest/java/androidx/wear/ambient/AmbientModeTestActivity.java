@@ -26,6 +26,7 @@ public class AmbientModeTestActivity extends FragmentActivity
     boolean mEnterAmbientCalled;
     boolean mUpdateAmbientCalled;
     boolean mExitAmbientCalled;
+    boolean mAmbientOffloadInvalidatedCalled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,11 @@ public class AmbientModeTestActivity extends FragmentActivity
         @Override
         public void onExitAmbient() {
             mExitAmbientCalled = true;
+        }
+
+        @Override
+        public void onAmbientOffloadInvalidated() {
+            mAmbientOffloadInvalidatedCalled = true;
         }
     }
 
