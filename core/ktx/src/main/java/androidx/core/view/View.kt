@@ -21,6 +21,7 @@ package androidx.core.view
 import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewTreeObserver
 import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.Px
@@ -288,3 +289,65 @@ inline fun <reified T : ViewGroup.LayoutParams> View.updateLayoutParams(block: T
     block(params)
     layoutParams = params
 }
+
+/**
+ * Returns the left margin if this view's [LayoutParams] is a [ViewGroup.MarginLayoutParams],
+ * otherwise 0.
+ *
+ * @see ViewGroup.MarginLayoutParams
+ */
+inline val View.marginLeft: Int
+    get() = (layoutParams as? MarginLayoutParams)?.leftMargin ?: 0
+
+/**
+ * Returns the top margin if this view's [LayoutParams] is a [ViewGroup.MarginLayoutParams],
+ * otherwise 0.
+ *
+ * @see ViewGroup.MarginLayoutParams
+ */
+inline val View.marginTop: Int
+    get() = (layoutParams as? MarginLayoutParams)?.topMargin ?: 0
+
+/**
+ * Returns the right margin if this view's [LayoutParams] is a [ViewGroup.MarginLayoutParams],
+ * otherwise 0.
+ *
+ * @see ViewGroup.MarginLayoutParams
+ */
+inline val View.marginRight: Int
+    get() = (layoutParams as? MarginLayoutParams)?.rightMargin ?: 0
+
+/**
+ * Returns the bottom margin if this view's [LayoutParams] is a [ViewGroup.MarginLayoutParams],
+ * otherwise 0.
+ *
+ * @see ViewGroup.MarginLayoutParams
+ */
+inline val View.marginBottom: Int
+    get() = (layoutParams as? MarginLayoutParams)?.bottomMargin ?: 0
+
+/**
+ * Returns the start margin if this view's [LayoutParams] is a [ViewGroup.MarginLayoutParams],
+ * otherwise 0.
+ *
+ * @see ViewGroup.MarginLayoutParams
+ * @see MarginLayoutParamsCompat.getMarginStart
+ */
+inline val View.marginStart: Int
+    get() {
+        val lp = layoutParams
+        return if (lp is MarginLayoutParams) MarginLayoutParamsCompat.getMarginStart(lp) else 0
+    }
+
+/**
+ * Returns the end margin if this view's [LayoutParams] is a [ViewGroup.MarginLayoutParams],
+ * otherwise 0.
+ *
+ * @see ViewGroup.MarginLayoutParams
+ * @see MarginLayoutParamsCompat.getMarginEnd
+ */
+inline val View.marginEnd: Int
+    get() {
+        val lp = layoutParams
+        return if (lp is MarginLayoutParams) MarginLayoutParamsCompat.getMarginEnd(lp) else 0
+    }
