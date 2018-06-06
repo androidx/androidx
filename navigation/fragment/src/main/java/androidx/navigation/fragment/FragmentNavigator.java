@@ -140,10 +140,19 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         if (!initialNavigation && !isClearTask && !isSingleTopReplacement) {
             ft.addToBackStack(getBackStackName(destId));
             backStackEffect = BACK_STACK_DESTINATION_ADDED;
+        } else if (isSingleTopReplacement) {
+            // Single Top means we only want one instance on the back stack
+            if (mBackStack.size() > 1) {
+                // If the Fragment to be replaced is on the FragmentManager's
+                // back stack, a simple replace() isn't enough so we
+                // remove it from the back stack and put our replacement
+                // on the back stack in its place
+                mFragmentManager.popBackStack();
+                ft.addToBackStack(getBackStackName(destId));
+            }
+            backStackEffect = BACK_STACK_UNCHANGED;
         } else {
-            backStackEffect = isSingleTopReplacement
-                    ? BACK_STACK_UNCHANGED
-                    : BACK_STACK_DESTINATION_ADDED;
+            backStackEffect = BACK_STACK_DESTINATION_ADDED;
         }
         ft.setReorderingAllowed(true);
         ft.commit();
