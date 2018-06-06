@@ -354,11 +354,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             dest.writeBundle(mState);
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
+        public static final Parcelable.ClassLoaderCreator<SavedState> CREATOR =
+                new Parcelable.ClassLoaderCreator<SavedState>() {
             @Override
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in, null);
+            }
+
+            @Override
+            public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                return new SavedState(in, loader);
             }
 
             @Override
