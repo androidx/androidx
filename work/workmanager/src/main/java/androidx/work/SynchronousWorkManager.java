@@ -118,6 +118,17 @@ public interface SynchronousWorkManager {
     void cancelAllWorkSync();
 
     /**
+     * Gets the timestamp of the last time all work was cancelled in a synchronous fashion.  This
+     * method is intended for use by library and module developers who have dependent data in their
+     * own repository that must be updated or deleted in case someone cancels their work without
+     * their prior knowledge.
+     *
+     * @return The timestamp in milliseconds when a method that cancelled all work was last invoked
+     */
+    @WorkerThread
+    long getLastCancelAllTimeMillisSync();
+
+    /**
      * Gets the {@link WorkStatus} of a given work id in a synchronous fashion.  This method is
      * expected to be called from a background thread.
      *
