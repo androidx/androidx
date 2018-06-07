@@ -291,4 +291,17 @@ public interface WorkSpecDao {
                 + ")"
     )
     List<WorkSpec> getEligibleWorkForScheduling();
+
+    /**
+     * Immediately prunes eligible work from the database meeting the following criteria:
+     * - Is finished (succeeded, failed, or cancelled)
+     * - Has zero unfinished dependents
+     */
+    @Query("DELETE FROM workspec WHERE "
+            + "state IN " + COMPLETED_STATES
+            + " AND (SELECT COUNT(*)=0 FROM dependency WHERE "
+            + "    prerequisite_id=id AND "
+            + "    work_spec_id NOT IN "
+            + "        (SELECT id FROM workspec WHERE state IN " + COMPLETED_STATES + "))")
+    void pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast();
 }

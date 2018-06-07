@@ -26,6 +26,7 @@ import androidx.work.impl.WorkManagerImpl;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * WorkManager is a library used to enqueue work that is guaranteed to execute after its constraints
@@ -286,6 +287,19 @@ public abstract class WorkManager {
      * recommended that you use one of the other cancellation methods at your disposal.
      */
     public abstract void cancelAllWork();
+
+    /**
+     * Prunes all eligible finished work from the internal database.  Eligible work must be finished
+     * ({@link State#SUCCEEDED}, {@link State#FAILED}, or {@link State#CANCELLED}), with zero
+     * unfinished dependents.
+     * <p>
+     * <b>Use this method with caution</b>; by invoking it, you (and any modules and libraries in
+     * your codebase) will no longer be able to observe the {@link WorkStatus} of the pruned work.
+     * You do not normally need to call this method - WorkManager takes care to auto-prune its work
+     * after a sane period of time.  This method also ignores the
+     * {@link OneTimeWorkRequest.Builder#keepResultsForAtLeast(long, TimeUnit)} policy.
+     */
+    public abstract void pruneWork();
 
     /**
      * Gets a {@link LiveData} of the last time all work was cancelled.  This method is intended for
