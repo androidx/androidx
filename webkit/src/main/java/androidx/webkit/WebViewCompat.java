@@ -29,7 +29,6 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
-import androidx.core.os.BuildCompat;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
@@ -431,9 +430,9 @@ public class WebViewCompat {
         return getFactory().createWebView(webview);
     }
 
-    @SuppressWarnings({"NewApi", "JavaReflectionMemberAccess", "PrivateApi"})
+    @SuppressWarnings({"JavaReflectionMemberAccess", "PrivateApi"})
     private static void checkThread(WebView webview) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             if (webview.getWebViewLooper() != Looper.myLooper()) {
                 throw new RuntimeException("A WebView method was called on thread '"
                         + Thread.currentThread().getName() + "'. "

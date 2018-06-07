@@ -17,11 +17,11 @@
 package androidx.core.view;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.core.internal.view.SupportMenu;
-import androidx.core.os.BuildCompat;
 
 /**
  * Helper for accessing features in {@link android.view.Menu}.
@@ -47,7 +47,7 @@ public final class MenuCompat {
     public static void setGroupDividerEnabled(Menu menu, boolean enabled) {
         if (menu instanceof SupportMenu) {
             ((SupportMenu) menu).setGroupDividerEnabled(enabled);
-        } else if (BuildCompat.isAtLeastP()) {
+        } else if (Build.VERSION.SDK_INT >= 28) {
             menu.setGroupDividerEnabled(enabled);
         }
     }

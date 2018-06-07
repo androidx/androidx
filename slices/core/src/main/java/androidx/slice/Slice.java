@@ -48,6 +48,7 @@ import android.app.RemoteInput;
 import android.app.slice.SliceManager;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -58,7 +59,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 import androidx.slice.compat.SliceProviderCompat;
 import androidx.versionedparcelable.ParcelField;
@@ -534,11 +534,10 @@ public final class Slice implements VersionedParcelable {
      * @see Slice
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @SuppressWarnings("NewApi") // Lint doesn't understand BuildCompat.
     @Nullable
     public static Slice bindSlice(Context context, @NonNull Uri uri,
             Set<SliceSpec> supportedSpecs) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return callBindSlice(context, uri, supportedSpecs);
         } else {
             return SliceProviderCompat.bindSlice(context, uri, supportedSpecs);

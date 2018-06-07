@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.ActionMode;
@@ -33,7 +34,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.TextViewCompat;
 
@@ -82,7 +82,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      */
     @Override
     @Nullable public Editable getText() {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return super.getText();
         }
         // A bug pre-P makes getText() crash if called before the first setText due to a cast, so

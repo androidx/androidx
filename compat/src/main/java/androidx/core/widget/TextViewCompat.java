@@ -59,7 +59,6 @@ import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
-import androidx.core.os.BuildCompat;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.util.Preconditions;
 
@@ -691,7 +690,7 @@ public final class TextViewCompat {
             @NonNull final TextView textView,
             @Px @IntRange(from = 0) final int firstBaselineToTopHeight) {
         Preconditions.checkArgumentNonnegative(firstBaselineToTopHeight);
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             textView.setFirstBaselineToTopHeight(firstBaselineToTopHeight);
             return;
         }
@@ -812,7 +811,7 @@ public final class TextViewCompat {
      */
     public static @NonNull PrecomputedTextCompat.Params getTextMetricsParams(
             @NonNull final TextView textView) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return new PrecomputedTextCompat.Params(textView.getTextMetricsParams());
         } else {
             PrecomputedTextCompat.Params.Builder builder =
@@ -881,7 +880,7 @@ public final class TextViewCompat {
     public static void setPrecomputedText(@NonNull TextView textView,
                                           @NonNull PrecomputedTextCompat precomputed) {
 
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             // Framework can not understand PrecomptedTextCompat. Pass underlying PrecomputedText.
             // Parameter check is also done by framework.
             textView.setText(precomputed.getPrecomputedText());
@@ -909,7 +908,7 @@ public final class TextViewCompat {
             return TextDirectionHeuristics.LTR;
         }
 
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             if ((textView.getInputType() & EditorInfo.TYPE_MASK_CLASS)
                     == EditorInfo.TYPE_CLASS_PHONE) {
                 // Phone numbers must be in the direction of the locale's digits. Most locales

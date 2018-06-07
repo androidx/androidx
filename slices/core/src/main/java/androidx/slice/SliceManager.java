@@ -19,11 +19,11 @@ package androidx.slice;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.PermissionChecker;
-import androidx.core.os.BuildCompat;
 
 import java.util.List;
 import java.util.Set;
@@ -38,9 +38,8 @@ public abstract class SliceManager {
     /**
      * Get a {@link SliceManager}.
      */
-    @SuppressWarnings("NewApi")
     public static @NonNull SliceManager getInstance(@NonNull Context context) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return new SliceManagerWrapper(context);
         } else {
             return new SliceManagerCompat(context);

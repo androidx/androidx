@@ -22,13 +22,13 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.text.InputType;
 import android.view.ContextThemeWrapper;
 import android.widget.FrameLayout;
 
-import androidx.core.os.BuildCompat;
 import androidx.leanback.test.R;
 
 import org.junit.Before;
@@ -124,18 +124,15 @@ public class GuidedActionStylistTest {
         assertEquals(mViewHolder.mDescriptionView.getMaxLines(), DEFAULT_MAX_LINES);
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     public void testAutofillHintsOnTitle() {
-        if (!BuildCompat.isAtLeastP()) {
-            return;
-        }
         String[] hints = new String[]{"hint1", "hint2"};
         mGuidedAction = new GuidedAction.Builder(mContext)
                 .editable(true)
                 .autofillHints(hints)
                 .build();
 
-        assertTrue(BuildCompat.isAtLeastP());
         // Execute onBindViewHolder method so we can monitor the internal state
         mGuidedActionsStylist.onBindViewHolder(mViewHolder, mGuidedAction);
 
@@ -143,11 +140,9 @@ public class GuidedActionStylistTest {
 
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     public void testAutofillHintsOnNonEditableViews() {
-        if (!BuildCompat.isAtLeastP()) {
-            return;
-        }
         String[] hints = new String[]{"hint1", "hint2"};
         mGuidedAction = new GuidedAction.Builder(mContext)
                 .editable(false)
@@ -164,11 +159,9 @@ public class GuidedActionStylistTest {
         assertTrue(viewHints == null || viewHints.length == 0);
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     public void testAutofillHintsOnDescription() {
-        if (!BuildCompat.isAtLeastP()) {
-            return;
-        }
         String[] hints = new String[]{"hint1", "hint2"};
         mGuidedAction = new GuidedAction.Builder(mContext)
                 .editable(false)
