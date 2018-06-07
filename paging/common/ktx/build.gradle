@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,32 +20,23 @@ import androidx.build.LibraryVersions
 import androidx.build.SupportLibraryExtension
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
-    id("kotlin-android")
+    id("SupportJavaLibraryPlugin")
+    id("kotlin")
 }
 
 dependencies {
-    api(project(":arch:core-runtime"))
-    api(project(":paging:paging-common"))
-    api(project(":lifecycle:lifecycle-runtime"))
-    api(project(":lifecycle:lifecycle-livedata"))
+    compile(project(":paging:paging-common"))
+    compile(KOTLIN_STDLIB)
 
-    api(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
-
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(KOTLIN_STDLIB)
+    testImplementation(JUNIT)
+    testImplementation(TEST_RUNNER)
 }
 
 supportLibrary {
-    name = "Android Paging-Runtime"
+    name = "Android Paging-Common Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.PAGING
     mavenGroup = LibraryGroups.PAGING
-    inceptionYear = "2017"
-    description = "Android Paging-Runtime"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
-    failOnUncheckedWarnings = false
+    inceptionYear = "2018"
+    description = "Kotlin extensions for 'paging-common' artifact"
 }
