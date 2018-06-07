@@ -20,8 +20,10 @@ import static android.app.AlarmManager.RTC_WAKEUP;
 import static android.app.PendingIntent.FLAG_NO_CREATE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
+import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +34,7 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.background.systemjob.SystemJobScheduler;
 
 import java.util.concurrent.TimeUnit;
 
@@ -64,7 +67,13 @@ public class ForceStopRunnable implements Runnable {
 
     @Override
     public void run() {
-        if (isForceStopped()) {
+        if (shouldCancelPersistedJobs()) {
+            cancelAllInJobScheduler();
+            Log.d(TAG, "Migrating persisted jobs.");
+            mWorkManager.rescheduleEligibleWork();
+            // Mark the jobs as migrated.
+            mWorkManager.getPreferences().setMigratedPersistedJobs();
+        } else if (isForceStopped()) {
             Log.d(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
         }
@@ -89,6 +98,15 @@ public class ForceStopRunnable implements Runnable {
     }
 
     /**
+     * @return {@code true} If persisted jobs in JobScheduler need to be cancelled.
+     */
+    @VisibleForTesting
+    public boolean shouldCancelPersistedJobs() {
+        return Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL
+                && mWorkManager.getPreferences().shouldMigratePersistedJobs();
+    }
+
+    /**
      * @param alarmId The stable alarm id to be used.
      * @param flags   The {@link PendingIntent} flags.
      * @return an instance of the {@link PendingIntent}.
@@ -108,6 +126,15 @@ public class ForceStopRunnable implements Runnable {
         intent.setComponent(new ComponentName(mContext, ForceStopRunnable.BroadcastReceiver.class));
         intent.setAction(ACTION_FORCE_STOP_RESCHEDULE);
         return intent;
+    }
+
+    /**
+     * Cancels all the persisted jobs in {@link JobScheduler}.
+     */
+    @VisibleForTesting
+    @TargetApi(WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
+    public void cancelAllInJobScheduler() {
+        SystemJobScheduler.jobSchedulerCancelAll(mContext);
     }
 
     private void setAlarm(int alarmId) {

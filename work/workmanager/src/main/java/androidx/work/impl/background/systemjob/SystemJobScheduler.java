@@ -20,6 +20,7 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.Context;
 import android.os.Build;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
@@ -146,6 +147,28 @@ public class SystemJobScheduler implements Scheduler {
                     // See comment in #schedule.
                     if (Build.VERSION.SDK_INT != 23) {
                         return;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Cancels all the jobs owned by {@link androidx.work.WorkManager} in {@link JobScheduler}.
+     */
+    public static void jobSchedulerCancelAll(@NonNull Context context) {
+        JobScheduler jobScheduler = (JobScheduler)
+                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+
+        if (jobScheduler != null) {
+            List<JobInfo> jobInfos = jobScheduler.getAllPendingJobs();
+            // Apparently this can be null on API 23?
+            if (jobInfos != null) {
+                for (JobInfo jobInfo : jobInfos) {
+                    PersistableBundle extras = jobInfo.getExtras();
+                    // This is a job scheduled by WorkManager.
+                    if (extras.containsKey(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID)) {
+                        jobScheduler.cancel(jobInfo.getId());
                     }
                 }
             }

@@ -237,6 +237,15 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         return mTaskExecutor;
     }
 
+    /**
+     * @return the {@link Preferences} used by the instance of {@link WorkManager}.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull Preferences getPreferences() {
+        return mPreferences;
+    }
+
     @Override
     public void enqueue(@NonNull List<? extends WorkRequest> workRequests) {
         new WorkContinuationImpl(this, workRequests).enqueue();
