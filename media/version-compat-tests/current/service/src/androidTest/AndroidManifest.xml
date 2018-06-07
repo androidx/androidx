@@ -56,5 +56,14 @@
             </intent-filter>
         </service>
 
+        <service android:name="androidx.media.test.service.MockMediaLibraryService2">
+            <intent-filter>
+                <action android:name="android.media.MediaLibraryService2" />
+                <!-- Keep sync with CommonConstants.java -->
+                <action android:name="androidx.media.test.action.MOCK_MEDIA_LIBRARY_SESSION" />
+            </intent-filter>
+            <meta-data android:name="android.media.session" android:value="TestLibrary" />
+        </service>
+
     </application>
 </manifest>
