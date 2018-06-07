@@ -168,30 +168,30 @@ public abstract class Worker {
     public abstract @NonNull Result doWork();
 
     /**
-     * Call this method to pass an {@link Data} object to {@link Worker} that is
-     * dependent on this one.
+     * Call this method to pass a {@link Data} object as the output of this {@link Worker}.  This
+     * result can be observed and passed to Workers that are dependent on this one.
      *
-     * Note that if there are multiple {@link Worker}s that contribute to the target, the
-     * Data will be merged together, so it is up to the developer to make sure that keys are
-     * unique.  New values and types will clobber old values and types, and if there are multiple
-     * parent Workers of a child Worker, the order of clobbering may not be deterministic.
-     *
-     * This method is invoked after {@link #doWork()} returns {@link Result#SUCCESS}
-     * and there are chained jobs available.
-     *
+     * In cases like where two or more {@link OneTimeWorkRequest}s share a dependent WorkRequest,
+     * their Data will be merged together using an {@link InputMerger}.  The default InputMerger is
+     * {@link OverwritingInputMerger}, unless otherwise specified using the
+     * {@link OneTimeWorkRequest.Builder#setInputMerger(Class)} method.
+     * <p>
+     * This method is invoked after {@link #doWork()} returns {@link Result#SUCCESS} or
+     * {@link Result#FAILURE}.
+     * <p>
      * For example, if you had this structure:
-     *
+     * <pre>
      * {@code WorkManager.getInstance(context)
-     *             .enqueueWithDefaults(WorkerA.class, WorkerB.class)
-     *             .then(WorkerC.class)
-     *             .enqueue()}
+     *             .beginWith(workRequestA, workRequestB)
+     *             .then(workRequestC)
+     *             .enqueue()}</pre>
      *
-     * This method would be called for both WorkerA and WorkerB after their successful completion,
-     * modifying the input Data for WorkerC.
+     * This method would be called for both {@code workRequestA} and {@code workRequestB} after
+     * their completion, modifying the input Data for {@code workRequestC}.
      *
      * @param outputData An {@link Data} object that will be merged into the input Data of any
-     *                   OneTimeWorkRequest that is dependent on this one, or {@code null} if there
-     *                   is nothing to contribute
+     *                   OneTimeWorkRequest that is dependent on this one, or {@link Data#EMPTY} if
+     *                   there is nothing to contribute
      */
     public final void setOutputData(@NonNull Data outputData) {
         mOutputData = outputData;
@@ -220,7 +220,7 @@ public abstract class Worker {
      * <p>
      * Note that it is almost never sufficient to check only this method; its value is only
      * meaningful when {@link #isStopped()} returns {@code true}.
-     * <p>
+     *
      * @return {@code true} if this work operation has been cancelled
      */
     public final boolean isCancelled() {

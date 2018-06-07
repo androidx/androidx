@@ -53,6 +53,10 @@ public abstract class WorkRequest {
     private @NonNull WorkSpec mWorkSpec;
     private @NonNull Set<String> mTags;
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected WorkRequest(@NonNull UUID id, @NonNull WorkSpec workSpec, @NonNull Set<String> tags) {
         mId = id;
         mWorkSpec = workSpec;
