@@ -232,6 +232,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         }
 
         @SuppressWarnings("unchecked")
+        @NonNull
         private Class<? extends Fragment> getFragmentClassByName(Context context, String name) {
             if (name != null && name.charAt(0) == '.') {
                 name = context.getPackageName() + name;
@@ -255,7 +256,8 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          *              destination
          * @return this {@link Destination}
          */
-        public Destination setFragmentClass(Class<? extends Fragment> clazz) {
+        @NonNull
+        public Destination setFragmentClass(@NonNull Class<? extends Fragment> clazz) {
             mFragmentClass = clazz;
             return this;
         }
@@ -275,6 +277,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          * with this destination
          */
         @SuppressWarnings("ClassNewInstance")
+        @NonNull
         public Fragment createFragment(@Nullable Bundle args) {
             Class<? extends Fragment> clazz = getFragmentClass();
             if (clazz == null) {
