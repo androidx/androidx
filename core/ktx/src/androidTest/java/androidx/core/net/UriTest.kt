@@ -17,6 +17,7 @@
 package androidx.core.net
 
 import android.net.Uri
+import androidx.testutils.assertThrows
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
@@ -33,7 +34,14 @@ class UriTest {
     }
 
     @Test fun fileFromUri() {
-        val uri = Uri.parse("path/to/my/file")
-        assertEquals(File(uri.path), uri.toFile())
+        val file = File("/path/to/my/file")
+        assertEquals(file, Uri.fromFile(file).toFile())
+    }
+
+    @Test fun fileFromNonFileUri() {
+        val uri = Uri.parse("https://example.com/path/to/my/file")
+        assertThrows<IllegalArgumentException> {
+            uri.toFile()
+        }.hasMessageThat().isEqualTo("Uri lacks 'file' scheme: $uri")
     }
 }
