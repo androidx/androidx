@@ -25,10 +25,12 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
-import androidx.work.Configuration;
 import androidx.work.impl.Scheduler;
+import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.IdGenerator;
 
 import java.util.List;
 
@@ -44,32 +46,69 @@ public class SystemJobScheduler implements Scheduler {
     private static final String TAG = "SystemJobScheduler";
 
     private final JobScheduler mJobScheduler;
+    private final WorkManagerImpl mWorkManager;
+    private final IdGenerator mIdGenerator;
     private final SystemJobInfoConverter mSystemJobInfoConverter;
 
-    public SystemJobScheduler(@NonNull Context context, @NonNull Configuration configuration) {
-        this((JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE),
-                new SystemJobInfoConverter(context, configuration));
+    public SystemJobScheduler(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
+        this(context,
+                workManager,
+                (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE),
+                new SystemJobInfoConverter(context));
     }
 
     @VisibleForTesting
     public SystemJobScheduler(
+            Context context,
+            WorkManagerImpl workManager,
             JobScheduler jobScheduler,
             SystemJobInfoConverter systemJobInfoConverter) {
+        mWorkManager = workManager;
         mJobScheduler = jobScheduler;
+        mIdGenerator = new IdGenerator(context);
         mSystemJobInfoConverter = systemJobInfoConverter;
     }
 
     @Override
     public void schedule(WorkSpec... workSpecs) {
-        for (WorkSpec workSpec : workSpecs) {
-            scheduleInternal(workSpec);
+        WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
 
-            // API 23 JobScheduler only kicked off jobs if there were at least two jobs in the
-            // queue, even if the job constraints were met.  This behavior was considered
-            // undesirable and later changed in Marshmallow MR1.  To match the new behavior, we will
-            // double-schedule jobs on API 23 and dedupe them in SystemJobService as needed.
-            if (Build.VERSION.SDK_INT == 23) {
-                scheduleInternal(workSpec);
+        for (WorkSpec workSpec : workSpecs) {
+            try {
+                workDatabase.beginTransaction();
+
+                SystemIdInfo info = workDatabase.systemIdInfoDao()
+                        .getSystemIdInfo(workSpec.id);
+
+                int jobId = info != null ? info.systemId : mIdGenerator.nextJobSchedulerIdWithRange(
+                        mWorkManager.getConfiguration().getMinJobSchedulerID(),
+                        mWorkManager.getConfiguration().getMaxJobSchedulerID());
+
+                if (info == null) {
+                    SystemIdInfo newSystemIdInfo = new SystemIdInfo(workSpec.id, jobId);
+                    mWorkManager.getWorkDatabase()
+                            .systemIdInfoDao()
+                            .insertSystemIdInfo(newSystemIdInfo);
+                }
+
+                scheduleInternal(workSpec, jobId);
+
+                // API 23 JobScheduler only kicked off jobs if there were at least two jobs in the
+                // queue, even if the job constraints were met.  This behavior was considered
+                // undesirable and later changed in Marshmallow MR1.  To match the new behavior,
+                // we will double-schedule jobs on API 23 and de-dupe them
+                // in SystemJobService as needed.
+                if (Build.VERSION.SDK_INT == 23) {
+                    int nextJobId = mIdGenerator.nextJobSchedulerIdWithRange(
+                            mWorkManager.getConfiguration().getMinJobSchedulerID(),
+                            mWorkManager.getConfiguration().getMaxJobSchedulerID());
+
+                    scheduleInternal(workSpec, nextJobId);
+                }
+
+                workDatabase.setTransactionSuccessful();
+            } finally {
+                workDatabase.endTransaction();
             }
         }
     }
@@ -80,9 +119,9 @@ public class SystemJobScheduler implements Scheduler {
      * @param workSpec The {@link WorkSpec} to schedule with JobScheduler.
      */
     @VisibleForTesting
-    public void scheduleInternal(WorkSpec workSpec) {
-        JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec);
-        Log.d(TAG, String.format("Scheduling work ID %s Job ID %s", workSpec.id, jobInfo.getId()));
+    public void scheduleInternal(WorkSpec workSpec, int jobId) {
+        JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec, jobId);
+        Log.d(TAG, String.format("Scheduling work ID %s Job ID %s", workSpec.id, jobId));
         mJobScheduler.schedule(jobInfo);
     }
 
@@ -96,6 +135,12 @@ public class SystemJobScheduler implements Scheduler {
             for (JobInfo jobInfo : allJobInfos) {
                 if (workSpecId.equals(
                         jobInfo.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID))) {
+
+                    // Its safe to call this method twice.
+                    mWorkManager.getWorkDatabase()
+                            .systemIdInfoDao()
+                            .removeSystemIdInfo(workSpecId);
+
                     mJobScheduler.cancel(jobInfo.getId());
 
                     // See comment in #schedule.
