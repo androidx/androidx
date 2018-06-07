@@ -93,15 +93,17 @@ public class GestureSelectionHelperTest {
     }
 
     @Test
-    public void testClaimsDownOnItem() {
+    public void testDoesNotClaimDownOnItem() {
         mView.mNextPosition = 0;
-        assertTrue(mHelper.onInterceptTouchEvent(null, DOWN));
+        assertFalse(mHelper.onInterceptTouchEvent(null, DOWN));
     }
 
     @Test
     public void testClaimsMoveIfStarted() {
         mView.mNextPosition = 0;
-        assertTrue(mHelper.onInterceptTouchEvent(null, DOWN));
+        // TODO(b/109808552): This should be removed with that bug is fixed because it will be a
+        // no-op at that time.
+        mHelper.onInterceptTouchEvent(null, DOWN);
 
         // Normally, this is controller by the TouchSelectionHelper via a a long press gesture.
         mSelectionTracker.select("1");
