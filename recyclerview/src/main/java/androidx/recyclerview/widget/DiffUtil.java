@@ -28,17 +28,22 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * DiffUtil is a utility class that can calculate the difference between two lists and output a
+ * DiffUtil is a utility class that calculates the difference between two lists and outputs a
  * list of update operations that converts the first list into the second one.
  * <p>
- * It can be used to calculate updates for a RecyclerView Adapter. See
- * {@link ListAdapter} and
- * {@link AsyncListDiffer} which can compute diffs using
- * DiffUtil on a background thread.
+ * It can be used to calculate updates for a RecyclerView Adapter. See {@link ListAdapter} and
+ * {@link AsyncListDiffer} which can simplify the use of DiffUtil on a background thread.
  * <p>
  * DiffUtil uses Eugene W. Myers's difference algorithm to calculate the minimal number of updates
  * to convert one list into another. Myers's algorithm does not handle items that are moved so
  * DiffUtil runs a second pass on the result to detect items that were moved.
+ * <p>
+ * Note that DiffUtil, ListAdapter, and AsyncListDiffer require the list to not mutate while in use.
+ * This generally means that both the lists themselves and their elements (or at least, the
+ * properties of elements used in diffing) should not be modified directly. Instead, new lists
+ * should be provided any time content changes. It's common for lists passed to DiffUtil to share
+ * elements that have not mutated, so it is not strictly required to reload all data to use
+ * DiffUtil.
  * <p>
  * If the lists are large, this operation may take significant time so you are advised to run this
  * on a background thread, get the {@link DiffResult} then apply it on the RecyclerView on the main
@@ -67,6 +72,7 @@ import java.util.List;
  * <p>
  * Due to implementation constraints, the max size of the list can be 2^26.
  *
+ * @see ListAdapter
  * @see AsyncListDiffer
  */
 public class DiffUtil {
