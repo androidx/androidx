@@ -69,16 +69,13 @@ public class MediaItem2 {
     private MediaMetadata2 mMetadata;
     private DataSourceDesc mDataSourceDesc;
 
-    private MediaItem2(@NonNull String mediaId, @Nullable DataSourceDesc dsd,
+    private MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc dsd,
             @Nullable MediaMetadata2 metadata, @Flags int flags) {
         this(mediaId, dsd, metadata, flags, null);
     }
 
-    private MediaItem2(@NonNull String mediaId, @Nullable DataSourceDesc dsd,
+    private MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc dsd,
             @Nullable MediaMetadata2 metadata, @Flags int flags, @Nullable UUID uuid) {
-        if (mediaId == null) {
-            throw new IllegalArgumentException("mediaId shouldn't be null");
-        }
         if (metadata != null && !TextUtils.equals(mediaId, metadata.getMediaId())) {
             throw new IllegalArgumentException("metadata's id should be matched with the mediaid");
         }
@@ -89,12 +86,13 @@ public class MediaItem2 {
         mFlags = flags;
         mUUID = (uuid == null) ? UUID.randomUUID() : uuid;
     }
+
     /**
      * Return this object as a bundle to share between processes.
      *
      * @return a new bundle instance
      */
-    public Bundle toBundle() {
+    public @NonNull Bundle toBundle() {
         Bundle bundle = new Bundle();
         bundle.putString(KEY_ID, mId);
         bundle.putInt(KEY_FLAGS, mFlags);
@@ -109,9 +107,9 @@ public class MediaItem2 {
      * Create a MediaItem2 from the {@link Bundle}.
      *
      * @param bundle The bundle which was published by {@link MediaItem2#toBundle()}.
-     * @return The newly created MediaItem2
+     * @return The newly created MediaItem2. Can be {@code null} for {@code null} bundle.
      */
-    public static MediaItem2 fromBundle(Bundle bundle) {
+    public static @Nullable MediaItem2 fromBundle(@Nullable Bundle bundle) {
         if (bundle == null) {
             return null;
         }
@@ -121,8 +119,8 @@ public class MediaItem2 {
 
     /**
      * Create a MediaItem2 from the {@link Bundle} with the specified {@link UUID}.
-     * If {@link UUID}
-     * can be null for creating new.
+     * <p>
+     * {@link UUID} can be null if it want to generate new one.
      *
      * @param bundle The bundle which was published by {@link MediaItem2#toBundle()}.
      * @param uuid A {@link UUID} to override. Can be {@link null} for override.
@@ -187,15 +185,20 @@ public class MediaItem2 {
 
     /**
      * Returns the metadata of the media.
+     *
+     * @return metadata from the session
      */
     public @Nullable MediaMetadata2 getMetadata() {
         return mMetadata;
     }
 
     /**
-     * Returns the media id for this item.
+     * Returns the media id for this item. If it's not {@code null}, it's a persistent unique key
+     * for the underlying media content.
+     *
+     * @return media Id from the session
      */
-    public /*@NonNull*/ String getMediaId() {
+    public @Nullable String getMediaId() {
         return mId;
     }
 
@@ -216,7 +219,7 @@ public class MediaItem2 {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (!(obj instanceof MediaItem2)) {
             return false;
         }
@@ -225,7 +228,7 @@ public class MediaItem2 {
     }
 
     /**
-     * Build {@link MediaItem2}
+     * Builder for {@link MediaItem2}
      */
     public static final class Builder {
         private @Flags int mFlags;
@@ -245,17 +248,17 @@ public class MediaItem2 {
         /**
          * Set the media id of this instance. {@code null} for unset.
          * <p>
-         * Media id is used to identify a media contents between session and controller.
+         * If used, this should be a persistent unique key for the underlying content so session
+         * and controller can uniquely identify a media content.
          * <p>
          * If the metadata is set with the {@link #setMetadata(MediaMetadata2)} and it has
          * media id, id from {@link #setMediaId(String)} will be ignored and metadata's id will be
-         * used instead. If the id isn't set neither by {@link #setMediaId(String)} nor
-         * {@link #setMetadata(MediaMetadata2)}, id will be automatically generated.
+         * used instead.
          *
          * @param mediaId media id
          * @return this instance for chaining
          */
-        public Builder setMediaId(@Nullable String mediaId) {
+        public @NonNull Builder setMediaId(@Nullable String mediaId) {
             mMediaId = mediaId;
             return this;
         }
@@ -265,13 +268,12 @@ public class MediaItem2 {
          * <p>
          * If the metadata is set with the {@link #setMetadata(MediaMetadata2)} and it has
          * media id, id from {@link #setMediaId(String)} will be ignored and metadata's id will be
-         * used instead. If the id isn't set neither by {@link #setMediaId(String)} nor
-         * {@link #setMetadata(MediaMetadata2)}, id will be automatically generated.
+         * used instead.
          *
          * @param metadata metadata
          * @return this instance for chaining
          */
-        public Builder setMetadata(@Nullable MediaMetadata2 metadata) {
+        public @NonNull Builder setMetadata(@Nullable MediaMetadata2 metadata) {
             mMetadata = metadata;
             return this;
         }
@@ -282,7 +284,7 @@ public class MediaItem2 {
          * @param dataSourceDesc data source descriptor
          * @return this instance for chaining
          */
-        public Builder setDataSourceDesc(@Nullable DataSourceDesc dataSourceDesc) {
+        public @NonNull Builder setDataSourceDesc(@Nullable DataSourceDesc dataSourceDesc) {
             mDataSourceDesc = dataSourceDesc;
             return this;
         }
@@ -292,11 +294,11 @@ public class MediaItem2 {
          *
          * @return a new {@link MediaItem2}.
          */
-        public MediaItem2 build() {
+        public @NonNull MediaItem2 build() {
             String id = (mMetadata != null)
                     ? mMetadata.getString(MediaMetadata2.METADATA_KEY_MEDIA_ID) : null;
             if (id == null) {
-                id = (mMediaId != null) ? mMediaId : toString();
+                id = mMediaId;
             }
             return new MediaItem2(id, mDataSourceDesc, mMetadata, mFlags);
         }
