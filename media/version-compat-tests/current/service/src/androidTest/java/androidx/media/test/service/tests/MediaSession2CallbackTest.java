@@ -47,7 +47,6 @@ import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.MockPlaylistAgent;
 import androidx.media.test.service.RemoteMediaController2;
-import androidx.media.test.service.TestServiceRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -79,14 +78,12 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         super.setUp();
         mPlayer = new MockPlayer(0);
         mMockAgent = new MockPlaylistAgent();
-        TestServiceRegistry.getInstance().setHandler(sHandler);
     }
 
     @After
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
-        TestServiceRegistry.getInstance().cleanUp();
     }
 
     @Test
