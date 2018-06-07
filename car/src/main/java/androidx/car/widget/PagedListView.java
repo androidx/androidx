@@ -1251,18 +1251,15 @@ public class PagedListView extends FrameLayout {
 
     /** Used to listen for {@code PagedListView} scroll events. */
     public abstract static class OnScrollListener {
-        /** Called when menu reaches the bottom */
+        /**
+         * Called when the {@code PagedListView} has been scrolled so that the last item is
+         * completely visible.
+         */
         public void onReachBottom() {}
         /** Called when scroll up button is clicked */
         public void onScrollUpButtonClicked() {}
         /** Called when scroll down button is clicked */
         public void onScrollDownButtonClicked() {}
-        /** Called when the alpha jump button is clicked. */
-        public void onAlphaJumpButtonClicked() {}
-        /** Called when scrolling to the previous page via up gesture */
-        public void onGestureUp() {}
-        /** Called when scrolling to the next page via down gesture */
-        public void onGestureDown() {}
 
         /**
          * Called when RecyclerView.OnScrollListener#onScrolled is called. See
