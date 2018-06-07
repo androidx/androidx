@@ -16,8 +16,6 @@
 
 package androidx.media.test.service;
 
-import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
-
 import static androidx.media.test.lib.CommonConstants.ACTION_MEDIA_SESSION2;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_DSD;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_DSD;
@@ -253,7 +251,7 @@ public class RemoteMediaSession2Service extends Service {
         public void sendCustomCommand2(String sessionId, Bundle controller, Bundle command,
                 Bundle args, ResultReceiver receiver) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            ControllerInfo info = getTestControllerInfo(session2);
+            ControllerInfo info = MediaTestUtils.getTestControllerInfo(session2);
             session2.sendCustomCommand(info, SessionCommand2.fromBundle(command), args, receiver);
         }
 
@@ -274,7 +272,7 @@ public class RemoteMediaSession2Service extends Service {
         public void setAllowedCommands(String sessionId, Bundle controller, Bundle commands)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            ControllerInfo info = getTestControllerInfo(session2);
+            ControllerInfo info = MediaTestUtils.getTestControllerInfo(session2);
             session2.setAllowedCommands(info, SessionCommandGroup2.fromBundle(commands));
         }
 
@@ -282,7 +280,7 @@ public class RemoteMediaSession2Service extends Service {
         public void notifyRoutesInfoChanged(String sessionId, Bundle controller,
                 List<Bundle> routes) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            ControllerInfo info = getTestControllerInfo(session2);
+            ControllerInfo info = MediaTestUtils.getTestControllerInfo(session2);
             session2.notifyRoutesInfoChanged(info, routes);
         }
 
@@ -290,7 +288,7 @@ public class RemoteMediaSession2Service extends Service {
         public void setCustomLayout(String sessionId, Bundle controller, List<Bundle> layout)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            ControllerInfo info = getTestControllerInfo(session2);
+            ControllerInfo info = MediaTestUtils.getTestControllerInfo(session2);
             session2.setCustomLayout(info, MediaTestUtils.buttonListFromBundleList(layout));
         }
 
@@ -488,19 +486,6 @@ public class RemoteMediaSession2Service extends Service {
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
             agent.notifyRepeatModeChanged();
         }
-    }
-
-    private MediaSession2.ControllerInfo getTestControllerInfo(MediaSession2 session2) {
-        if (session2 == null) {
-            return null;
-        }
-        for (MediaSession2.ControllerInfo info : session2.getConnectedControllers()) {
-            if (CLIENT_PACKAGE_NAME.equals(info.getPackageName())) {
-                return info;
-            }
-        }
-        Log.e(TAG, "Test controller was not found in connected controllers.");
-        return null;
     }
 
     private DataSourceDesc createNewDsd() {
