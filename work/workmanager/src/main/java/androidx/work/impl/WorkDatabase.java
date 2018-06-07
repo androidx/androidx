@@ -97,6 +97,7 @@ public abstract class WorkDatabase extends RoomDatabase {
         }
         return builder.addCallback(generateCleanupCallback())
                 .addMigrations(WorkDatabaseMigrations.MIGRATION_1_2)
+                .addMigrations(WorkDatabaseMigrations.MIGRATION_2_1)
                 .build();
     }
 
