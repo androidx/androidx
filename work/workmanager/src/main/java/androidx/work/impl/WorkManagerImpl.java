@@ -42,6 +42,7 @@ import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
 import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.LiveDataUtils;
+import androidx.work.impl.utils.Preferences;
 import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -69,6 +70,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     private TaskExecutor mTaskExecutor;
     private List<Scheduler> mSchedulers;
     private Processor mProcessor;
+    private Preferences mPreferences;
 
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
@@ -167,9 +169,19 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
                 mWorkDatabase,
                 getSchedulers(),
                 configuration.getExecutor());
+        mPreferences = new Preferences(mContext);
 
         // Checks for app force stops.
         mTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
+    }
+
+    /**
+     * @return The application {@link Context} associated with this WorkManager.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public Context getApplicationContext() {
+        return mContext;
     }
 
     /**
@@ -342,6 +354,16 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     public void cancelAllWorkSync() {
         assertBackgroundThread("Cannot cancelAllWorkSync on main thread!");
         CancelWorkRunnable.forAll(this).run();
+    }
+
+    @Override
+    public LiveData<Long> getLastCancelAllTimeMillis() {
+        return mPreferences.getLastCancelAllTimeMillisLiveData();
+    }
+
+    @Override
+    public long getLastCancelAllTimeMillisSync() {
+        return mPreferences.getLastCancelAllTimeMillis();
     }
 
     @Override
