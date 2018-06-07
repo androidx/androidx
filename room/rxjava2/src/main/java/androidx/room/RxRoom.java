@@ -17,12 +17,9 @@
 package androidx.room;
 
 import androidx.annotation.RestrictTo;
-import androidx.arch.core.executor.ArchTaskExecutor;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -31,11 +28,10 @@ import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Scheduler;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Helper class to add RxJava2 support to Room.
@@ -103,68 +99,15 @@ public class RxRoom {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static <T> Flowable<T> createFlowable(final RoomDatabase database,
             final String[] tableNames, final Callable<T> callable) {
+        Scheduler scheduler = Schedulers.from(database.getQueryExecutor());
         final Maybe<T> maybe = Maybe.fromCallable(callable);
-        return createFlowable(database, tableNames).observeOn(sAppToolkitIOScheduler)
+        return createFlowable(database, tableNames).observeOn(scheduler)
                 .flatMapMaybe(new Function<Object, MaybeSource<T>>() {
                     @Override
                     public MaybeSource<T> apply(Object o) throws Exception {
                         return maybe;
                     }
                 });
-    }
-
-    private static Scheduler sAppToolkitIOScheduler = new Scheduler() {
-        @Override
-        public Worker createWorker() {
-            final AtomicBoolean mDisposed = new AtomicBoolean(false);
-            return new Worker() {
-                @Override
-                public Disposable schedule(@NonNull Runnable run, long delay,
-                        @NonNull TimeUnit unit) {
-                    DisposableRunnable disposable = new DisposableRunnable(run, mDisposed);
-                    ArchTaskExecutor.getInstance().executeOnDiskIO(run);
-                    return disposable;
-                }
-
-                @Override
-                public void dispose() {
-                    mDisposed.set(true);
-                }
-
-                @Override
-                public boolean isDisposed() {
-                    return mDisposed.get();
-                }
-            };
-        }
-    };
-
-    private static class DisposableRunnable implements Disposable, Runnable {
-        private final Runnable mActual;
-        private volatile boolean mDisposed = false;
-        private final AtomicBoolean mGlobalDisposed;
-
-        DisposableRunnable(Runnable actual, AtomicBoolean globalDisposed) {
-            mActual = actual;
-            mGlobalDisposed = globalDisposed;
-        }
-
-        @Override
-        public void dispose() {
-            mDisposed = true;
-        }
-
-        @Override
-        public boolean isDisposed() {
-            return mDisposed || mGlobalDisposed.get();
-        }
-
-        @Override
-        public void run() {
-            if (!isDisposed()) {
-                mActual.run();
-            }
-        }
     }
 
     /** @deprecated This type should not be instantiated as it contains only static methods. */

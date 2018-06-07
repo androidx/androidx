@@ -25,6 +25,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * Configuration class for a {@link RoomDatabase}.
@@ -67,6 +68,12 @@ public class DatabaseConfiguration {
     public final RoomDatabase.JournalMode journalMode;
 
     /**
+     * The Executor used to execute asynchronous queries.
+     */
+    @NonNull
+    public final Executor queryExecutor;
+
+    /**
      * If true, Room should crash if a migration is missing.
      */
     public final boolean requireMigration;
@@ -86,6 +93,7 @@ public class DatabaseConfiguration {
      * @param callbacks The list of callbacks for database events.
      * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
      * @param journalMode The journal mode. This has to be either TRUNCATE or WRITE_AHEAD_LOGGING.
+     * @param queryExecutor The Executor used to execute asynchronous queries.
      * @param requireMigration True if Room should require a valid migration if version changes,
      *                        instead of recreating the tables.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
@@ -100,6 +108,7 @@ public class DatabaseConfiguration {
             @Nullable List<RoomDatabase.Callback> callbacks,
             boolean allowMainThreadQueries,
             RoomDatabase.JournalMode journalMode,
+            @NonNull Executor queryExecutor,
             boolean requireMigration,
             @Nullable Set<Integer> migrationNotRequiredFrom) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
@@ -109,6 +118,7 @@ public class DatabaseConfiguration {
         this.callbacks = callbacks;
         this.allowMainThreadQueries = allowMainThreadQueries;
         this.journalMode = journalMode;
+        this.queryExecutor = queryExecutor;
         this.requireMigration = requireMigration;
         this.mMigrationNotRequiredFrom = migrationNotRequiredFrom;
     }
