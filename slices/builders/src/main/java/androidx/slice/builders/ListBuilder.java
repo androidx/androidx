@@ -45,7 +45,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A slice can be constructed with ListBuilder.
@@ -364,13 +366,25 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Sets keywords to associate with this slice.
+     * @deprecated TO BE REMOVED
      */
     @NonNull
+    @Deprecated
     public ListBuilder setKeywords(List<String> keywords) {
-        mImpl.setKeywords(keywords);
+        if (keywords != null) {
+            mImpl.setKeywords(new HashSet<>(keywords));
+        }
         return this;
     }
 
+    /**
+     * Sets keywords to associate with this slice.
+     */
+    @NonNull
+    public ListBuilder setKeywords(Set<String> keywords) {
+        mImpl.setKeywords(keywords);
+        return this;
+    }
 
     /**
      * Sets the desired layout direction for this slice.
