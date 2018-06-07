@@ -32,7 +32,7 @@ import androidx.slice.builders.ListBuilder.RowBuilder;
 import androidx.slice.builders.SliceAction;
 
 import java.time.Duration;
-import java.util.List;
+import java.util.Set;
 
 /**
  * @hide
@@ -103,7 +103,7 @@ public interface ListBuilder {
     /**
      * Sets keywords to associate with this slice.
      */
-    void setKeywords(List<String> keywords);
+    void setKeywords(Set<String> keywords);
 
     /**
      * Sets the time-to-live for this slice, i.e. how long the data contained in the slice
