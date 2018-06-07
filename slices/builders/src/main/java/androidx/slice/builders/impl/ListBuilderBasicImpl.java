@@ -17,15 +17,15 @@
 package androidx.slice.builders.impl;
 
 import static android.app.slice.Slice.HINT_ERROR;
+import static android.app.slice.Slice.HINT_KEYWORDS;
 import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.HINT_TTL;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.INFINITY;
-import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
-import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 
 import android.app.PendingIntent;

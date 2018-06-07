@@ -18,13 +18,15 @@ package androidx.slice;
 
 import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
+import static android.app.slice.Slice.HINT_KEYWORDS;
+import static android.app.slice.Slice.HINT_LAST_UPDATED;
 import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.HINT_TTL;
 
 import static androidx.slice.SliceMetadata.LOADED_ALL;
 import static androidx.slice.SliceMetadata.LOADED_NONE;
 import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
-import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 import static androidx.slice.core.SliceHints.INFINITY;
 
 import static junit.framework.Assert.assertEquals;
@@ -51,7 +53,6 @@ import androidx.core.util.Pair;
 import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.SliceAction;
-import androidx.slice.core.SliceHints;
 import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.EventInfo;
 import androidx.slice.widget.SliceLiveData;
@@ -808,8 +809,8 @@ public class SliceMetadataTest {
         Slice ttlSlice = new Slice.Builder(uri)
                 .addText("Some text", null)
                 .addLong(timestamp, null)
-                .addLong(timestamp, null, SliceHints.HINT_LAST_UPDATED)
-                .addLong(ttl, null, SliceHints.HINT_TTL)
+                .addLong(timestamp, null, HINT_LAST_UPDATED)
+                .addLong(ttl, null, HINT_TTL)
                 .build();
 
         SliceMetadata si1 = SliceMetadata.from(mContext, ttlSlice);
@@ -832,8 +833,8 @@ public class SliceMetadataTest {
         Slice ttlSlice = new Slice.Builder(uri)
                 .addText("Some text", null)
                 .addLong(timestamp - 20, null)
-                .addLong(timestamp, null, SliceHints.HINT_LAST_UPDATED)
-                .addLong(ttl, null, SliceHints.HINT_TTL)
+                .addLong(timestamp, null, HINT_LAST_UPDATED)
+                .addLong(ttl, null, HINT_TTL)
                 .build();
 
         SliceMetadata si1 = SliceMetadata.from(mContext, ttlSlice);
