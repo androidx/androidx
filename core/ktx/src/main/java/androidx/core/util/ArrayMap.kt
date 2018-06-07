@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import kotlin.Pair
 
 /** Returns an empty new [ArrayMap]. */
+@Deprecated("Use the AndroidX version of these specialized collections")
 @RequiresApi(19)
 inline fun <K, V> arrayMapOf(): ArrayMap<K, V> = ArrayMap()
 
@@ -33,6 +34,7 @@ inline fun <K, V> arrayMapOf(): ArrayMap<K, V> = ArrayMap()
  * If multiple pairs have the same key, the resulting map will contain the value from the last of
  * those pairs.
  */
+@Deprecated("Use the AndroidX version of these specialized collections")
 @RequiresApi(19)
 fun <K, V> arrayMapOf(vararg pairs: Pair<K, V>): ArrayMap<K, V> {
     val map = ArrayMap<K, V>(pairs.size)
