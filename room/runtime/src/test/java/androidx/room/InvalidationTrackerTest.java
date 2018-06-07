@@ -35,6 +35,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.JunitTaskExecutorRule;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
@@ -77,6 +78,7 @@ public class InvalidationTrackerTest {
         doReturn(statement).when(sqliteDb).compileStatement(eq(InvalidationTracker.CLEANUP_SQL));
         doReturn(sqliteDb).when(mOpenHelper).getWritableDatabase();
         doReturn(true).when(mRoomDatabase).isOpen();
+        doReturn(ArchTaskExecutor.getIOThreadExecutor()).when(mRoomDatabase).getQueryExecutor();
         ReentrantLock closeLock = new ReentrantLock();
         doReturn(closeLock).when(mRoomDatabase).getCloseLock();
         //noinspection ResultOfMethodCallIgnored

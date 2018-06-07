@@ -16,6 +16,7 @@
 
 package androidx.room.integration.testapp.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -25,7 +26,12 @@ import androidx.room.Transaction;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetWithToyIds;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.List;
+
+import io.reactivex.Flowable;
 
 @Dao
 public interface PetDao {
@@ -40,6 +46,15 @@ public interface PetDao {
 
     @Query("SELECT * FROM Pet ORDER BY Pet.mPetId ASC")
     List<PetWithToyIds> allPetsWithToyIds();
+
+    @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
+    ListenableFuture<Optional<Pet>> petWithIdFuture(int id);
+
+    @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
+    Flowable<Pet> petWithIdFlowable(int id);
+
+    @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
+    LiveData<Pet> petWithIdLiveData(int id);
 
     @Delete
     void delete(Pet pet);

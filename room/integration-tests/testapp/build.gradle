@@ -45,9 +45,12 @@ dependencies {
     implementation(project(":lifecycle:lifecycle-runtime"))
     implementation(project(":lifecycle:lifecycle-common"))
     implementation(project(":room:room-rxjava2"))
+    implementation(project(":room:room-guava"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
+    // FINDBUGS dependency resolves an app/testapp version conflict.
+    implementation(FINDBUGS)
     implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
     implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
     annotationProcessor project(":room:room-compiler")
@@ -59,7 +62,11 @@ dependencies {
     androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
+    androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation(project(":arch:core-testing"))
+    // FINDBUGS dependency resolves an app/testapp version conflict.
+    androidTestImplementation(FINDBUGS)
+    androidTestImplementation(GUAVA_ANDROID)
     androidTestImplementation(RX_JAVA)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)

@@ -28,7 +28,6 @@ import androidx.annotation.WorkerThread;
 import androidx.arch.core.internal.SafeIterableMap;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
-import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
@@ -383,7 +382,7 @@ public class InvalidationTracker {
     public void refreshVersionsAsync() {
         // TODO we should consider doing this sync instead of async.
         if (mPendingRefresh.compareAndSet(false, true)) {
-            ArchTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
+            mDatabase.getQueryExecutor().execute(mRefreshRunnable);
         }
     }
 

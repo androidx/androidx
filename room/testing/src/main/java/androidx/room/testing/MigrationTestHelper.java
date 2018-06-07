@@ -21,6 +21,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.room.DatabaseConfiguration;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -144,7 +145,9 @@ public class MigrationTestHelper extends TestWatcher {
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
         DatabaseConfiguration configuration = new DatabaseConfiguration(
                 mInstrumentation.getTargetContext(), name, mOpenFactory, container, null, true,
-                RoomDatabase.JournalMode.TRUNCATE, true, Collections.<Integer>emptySet());
+                RoomDatabase.JournalMode.TRUNCATE,
+                ArchTaskExecutor.getIOThreadExecutor(),
+                true, Collections.<Integer>emptySet());
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
                 schemaBundle.getDatabase().getIdentityHash(),
@@ -189,8 +192,16 @@ public class MigrationTestHelper extends TestWatcher {
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
         container.addMigrations(migrations);
         DatabaseConfiguration configuration = new DatabaseConfiguration(
-                mInstrumentation.getTargetContext(), name, mOpenFactory, container, null, true,
-                RoomDatabase.JournalMode.TRUNCATE, true, Collections.<Integer>emptySet());
+                mInstrumentation.getTargetContext(),
+                name,
+                mOpenFactory,
+                container,
+                null,
+                true,
+                RoomDatabase.JournalMode.TRUNCATE,
+                ArchTaskExecutor.getIOThreadExecutor(),
+                true,
+                Collections.<Integer>emptySet());
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
                 // we pass the same hash twice since an old schema does not necessarily have

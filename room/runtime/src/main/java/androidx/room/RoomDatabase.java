@@ -21,6 +21,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Build;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.CallSuper;
@@ -29,9 +30,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.app.ActivityManagerCompat;
-import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -46,6 +47,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -70,6 +72,7 @@ public abstract class RoomDatabase {
     public static final int MAX_BIND_PARAMETER_CNT = 999;
     // set by the generated open helper.
     protected volatile SupportSQLiteDatabase mDatabase;
+    private Executor mQueryExecutor;
     private SupportSQLiteOpenHelper mOpenHelper;
     private final InvalidationTracker mInvalidationTracker;
     private boolean mAllowMainThreadQueries;
@@ -115,6 +118,7 @@ public abstract class RoomDatabase {
             mOpenHelper.setWriteAheadLoggingEnabled(wal);
         }
         mCallbacks = configuration.callbacks;
+        mQueryExecutor = configuration.queryExecutor;
         mAllowMainThreadQueries = configuration.allowMainThreadQueries;
         mWriteAheadLoggingEnabled = wal;
     }
@@ -201,7 +205,7 @@ public abstract class RoomDatabase {
         if (mAllowMainThreadQueries) {
             return;
         }
-        if (ArchTaskExecutor.getInstance().isMainThread()) {
+        if (isMainThread()) {
             throw new IllegalStateException("Cannot access database on the main thread since"
                     + " it may potentially lock the UI for a long period of time.");
         }
@@ -265,6 +269,14 @@ public abstract class RoomDatabase {
             // endTransaction call to do it.
             mInvalidationTracker.refreshVersionsAsync();
         }
+    }
+
+    /**
+     * @return The Executor in use by this database for async queries.
+     */
+    @NonNull
+    public Executor getQueryExecutor() {
+        return mQueryExecutor;
     }
 
     /**
@@ -406,6 +418,8 @@ public abstract class RoomDatabase {
         private final Context mContext;
         private ArrayList<Callback> mCallbacks;
 
+        /** The Executor used to run database queries. This should be background-threaded. */
+        private Executor mQueryExecutor;
         private SupportSQLiteOpenHelper.Factory mFactory;
         private boolean mAllowMainThreadQueries;
         private JournalMode mJournalMode;
@@ -517,6 +531,24 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Sets the {@link Executor} that will be used to execute all non-blocking asynchronous
+         * queries and tasks, including {@code LiveData} invalidation, {@code Flowable} scheduling
+         * and {@code ListenableFuture} tasks.
+         * <p>
+         * When unset, a default {@code Executor} will be used. The default {@code Executor}
+         * allocates and shares threads amongst Architecture Components libraries.
+         * <p>
+         * The input {@code Executor} cannot run tasks on the UI thread.
+         *
+         * @return this
+         */
+        @NonNull
+        public Builder<T> setQueryExecutor(@NonNull Executor executor) {
+            mQueryExecutor = executor;
+            return this;
+        }
+
+        /**
          * Allows Room to destructively recreate database tables if {@link Migration}s that would
          * migrate old database schemas to the latest schema version are not found.
          * <p>
@@ -605,6 +637,9 @@ public abstract class RoomDatabase {
                 throw new IllegalArgumentException("Must provide an abstract class that"
                         + " extends RoomDatabase");
             }
+            if (mQueryExecutor == null) {
+                mQueryExecutor = ArchTaskExecutor.getIOThreadExecutor();
+            }
 
             if (mMigrationStartAndEndVersions != null && mMigrationsNotRequiredFrom != null) {
                 for (Integer version : mMigrationStartAndEndVersions) {
@@ -627,6 +662,7 @@ public abstract class RoomDatabase {
                     new DatabaseConfiguration(mContext, mName, mFactory, mMigrationContainer,
                             mCallbacks, mAllowMainThreadQueries,
                             mJournalMode.resolve(mContext),
+                            mQueryExecutor,
                             mRequireMigration, mMigrationsNotRequiredFrom);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
@@ -731,6 +767,11 @@ public abstract class RoomDatabase {
             }
             return result;
         }
+    }
+
+    /** Returns true if the calling thread is the main thread. */
+    private static boolean isMainThread() {
+        return Looper.getMainLooper().getThread() == Thread.currentThread();
     }
 
     /**
