@@ -62,7 +62,6 @@ public final class OneTimeWorkRequest extends WorkRequest {
         return workList;
     }
 
-
     OneTimeWorkRequest(Builder builder) {
         super(builder.mId, builder.mWorkSpec, builder.mTags);
     }
