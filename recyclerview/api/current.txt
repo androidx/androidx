@@ -89,8 +89,11 @@ package androidx.recyclerview.widget {
   }
 
   public static class DiffUtil.DiffResult {
+    method public int convertNewPositionToOld(int);
+    method public int convertOldPositionToNew(int);
     method public void dispatchUpdatesTo(androidx.recyclerview.widget.RecyclerView.Adapter);
     method public void dispatchUpdatesTo(androidx.recyclerview.widget.ListUpdateCallback);
+    field public static final int NO_POSITION = -1; // 0xffffffff
   }
 
   public static abstract class DiffUtil.ItemCallback<T> {

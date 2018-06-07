@@ -20,12 +20,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 
 import android.support.test.filters.SmallTest;
 
 import androidx.annotation.Nullable;
 
 import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -276,6 +278,34 @@ public class DiffUtilTest {
         assertThat(applied.contains(mBefore.get(0)), is(false));
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void convertOldPositionToNew_tooSmall() {
+        initWithSize(2);
+        update(2);
+        DiffUtil.calculateDiff(mCallback).convertOldPositionToNew(-1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void convertOldPositionToNew_tooLarge() {
+        initWithSize(2);
+        update(2);
+        DiffUtil.calculateDiff(mCallback).convertOldPositionToNew(2);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void convertNewPositionToOld_tooSmall() {
+        initWithSize(2);
+        update(2);
+        DiffUtil.calculateDiff(mCallback).convertNewPositionToOld(-1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void convertNewPositionToOld_tooLarge() {
+        initWithSize(2);
+        update(2);
+        DiffUtil.calculateDiff(mCallback).convertNewPositionToOld(2);
+    }
+
     private void testRandom(int initialSize, int operationCount) {
         mLog.setLength(0);
         initWithSize(initialSize);
@@ -319,8 +349,27 @@ public class DiffUtilTest {
         log("after", mAfter);
         log("snakes", result.getSnakes());
 
+        // test diff dispatch
         List<Item> applied = applyUpdates(mBefore, result);
         assertEquals(applied, mAfter);
+
+        // test position conversion
+        for (int oldPos = 0; oldPos < mBefore.size(); oldPos++) {
+            int newPos = result.convertOldPositionToNew(oldPos);
+            if (newPos != DiffUtil.DiffResult.NO_POSITION) {
+                Assert.assertEquals(mBefore.get(oldPos).id, mAfter.get(newPos).id);
+            } else {
+                assertFalse(mAfter.contains(mBefore.get(oldPos)));
+            }
+        }
+        for (int newPos = 0; newPos < mAfter.size(); newPos++) {
+            int oldPos = result.convertNewPositionToOld(newPos);
+            if (oldPos != DiffUtil.DiffResult.NO_POSITION) {
+                Assert.assertEquals(mAfter.get(newPos).id, mBefore.get(oldPos).id);
+            } else {
+                assertFalse(mBefore.contains(mAfter.get(newPos)));
+            }
+        }
     }
 
     private void initWithSize(int size) {
