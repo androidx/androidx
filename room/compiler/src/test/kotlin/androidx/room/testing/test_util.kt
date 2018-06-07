@@ -79,7 +79,12 @@ object COMMON {
                 ReactiveStreamsTypeNames.PUBLISHER.toString())
     }
     val FLOWABLE by lazy {
-        loadJavaCode("common/input/rxjava2/Flowable.java", RxJava2TypeNames.FLOWABLE.toString())
+        loadJavaCode("common/input/rxjava2/Flowable.java",
+                RxJava2TypeNames.FLOWABLE.toString())
+    }
+    val OBSERVABLE by lazy {
+        loadJavaCode("common/input/rxjava2/Observable.java",
+                RxJava2TypeNames.OBSERVABLE.toString())
     }
 
     val RX2_ROOM by lazy {

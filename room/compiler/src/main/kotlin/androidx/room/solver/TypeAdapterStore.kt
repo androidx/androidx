@@ -30,11 +30,12 @@ import androidx.room.processor.PojoProcessor
 import androidx.room.solver.binderprovider.CursorQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
-import androidx.room.solver.binderprovider.FlowableQueryResultBinderProvider
 import androidx.room.solver.binderprovider.GuavaListenableFutureQueryResultBinderProvider
 import androidx.room.solver.binderprovider.InstantQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxFlowableQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxMaybeQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxObservableQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxSingleQueryResultBinderProvider
 import androidx.room.solver.query.parameter.ArrayQueryParameterAdapter
 import androidx.room.solver.query.parameter.BasicQueryParameterAdapter
@@ -79,15 +80,16 @@ import javax.lang.model.type.TypeMirror
  * database column.
  */
 class TypeAdapterStore private constructor(
-        val context: Context,
-        /**
-         * first type adapter has the highest priority
-         */
-        private val columnTypeAdapters: List<ColumnTypeAdapter>,
-        /**
-         * first converter has the highest priority
-         */
-        private val typeConverters: List<TypeConverter>) {
+    val context: Context,
+    /**
+     * first type adapter has the highest priority
+     */
+    private val columnTypeAdapters: List<ColumnTypeAdapter>,
+    /**
+     * first converter has the highest priority
+     */
+    private val typeConverters: List<TypeConverter>
+) {
 
     companion object {
         fun copy(context: Context, store: TypeAdapterStore): TypeAdapterStore {
@@ -137,8 +139,9 @@ class TypeAdapterStore private constructor(
     val queryResultBinderProviders = listOf(
             CursorQueryResultBinderProvider(context),
             LiveDataQueryResultBinderProvider(context),
-            FlowableQueryResultBinderProvider(context),
             GuavaListenableFutureQueryResultBinderProvider(context),
+            RxFlowableQueryResultBinderProvider(context),
+            RxObservableQueryResultBinderProvider(context),
             RxMaybeQueryResultBinderProvider(context),
             RxSingleQueryResultBinderProvider(context),
             DataSourceQueryResultBinderProvider(context),
@@ -155,8 +158,8 @@ class TypeAdapterStore private constructor(
      * Searches 1 way to bind a value into a statement.
      */
     fun findStatementValueBinder(
-            input: TypeMirror,
-            affinity: SQLTypeAffinity?
+        input: TypeMirror,
+        affinity: SQLTypeAffinity?
     ): StatementValueBinder? {
         if (input.kind == TypeKind.ERROR) {
             return null
@@ -249,7 +252,9 @@ class TypeAdapterStore private constructor(
     }
 
     private fun findDirectAdapterFor(
-            out: TypeMirror, affinity: SQLTypeAffinity?): ColumnTypeAdapter? {
+        out: TypeMirror,
+        affinity: SQLTypeAffinity?
+    ): ColumnTypeAdapter? {
         return getAllColumnAdapters(out).firstOrNull {
             affinity == null || it.typeAffinity == affinity
         }
@@ -327,8 +332,8 @@ class TypeAdapterStore private constructor(
             }
             val resultInfo = query.resultInfo
 
-            val (rowAdapter, rowAdapterLogs) = if (resultInfo != null && query.errors.isEmpty()
-                    && resultInfo.error == null) {
+            val (rowAdapter, rowAdapterLogs) = if (resultInfo != null && query.errors.isEmpty() &&
+                    resultInfo.error == null) {
                 // if result info is not null, first try a pojo row adapter
                 context.collectLogs { subContext ->
                     val pojo = PojoProcessor(
@@ -396,9 +401,9 @@ class TypeAdapterStore private constructor(
     }
 
     fun findQueryParameterAdapter(typeMirror: TypeMirror): QueryParameterAdapter? {
-        if (MoreTypes.isType(typeMirror)
-                && (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)
-                || MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
+        if (MoreTypes.isType(typeMirror) &&
+                (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror) ||
+                MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
             val declared = MoreTypes.asDeclared(typeMirror)
             val binder = findStatementValueBinder(declared.typeArguments.first(),
                     null)
@@ -428,7 +433,9 @@ class TypeAdapterStore private constructor(
     }
 
     private fun findTypeConverter(
-            inputs: List<TypeMirror>, outputs: List<TypeMirror>): TypeConverter? {
+        inputs: List<TypeMirror>,
+        outputs: List<TypeMirror>
+    ): TypeConverter? {
         if (inputs.isEmpty()) {
             return null
         }

@@ -7,6 +7,7 @@ package androidx.room {
   public class RxRoom {
     ctor public deprecated RxRoom();
     method public static io.reactivex.Flowable<java.lang.Object> createFlowable(androidx.room.RoomDatabase, java.lang.String...);
+    method public static io.reactivex.Observable<java.lang.Object> createObservable(androidx.room.RoomDatabase, java.lang.String...);
     field public static final java.lang.Object NOTHING;
   }
 
