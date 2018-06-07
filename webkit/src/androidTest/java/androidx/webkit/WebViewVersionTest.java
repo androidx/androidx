@@ -47,15 +47,13 @@ public class WebViewVersionTest {
     // This test only makes sense on L+ (21+) devices where the WebView implementation is provided
     // by a WebView APK rather than the framework itself.
     @SdkSuppress(minSdkVersion = 21)
-    public void testWebViewMajorVersionMatchesInstrumentationArgs() {
-        // Major WebView version: e.g. 55, 67, or 69.
-        String expectedMajorWebViewVersion =
+    public void testWebViewVersionMatchesInstrumentationArgs() {
+        // WebView version: e.g. 46.0.2490.14, or 67.0.3396.17.
+        String expectedWebViewVersion =
                 InstrumentationRegistry.getArguments().getString("webview-version");
-        assumeNotNull(expectedMajorWebViewVersion);
-        // Actual WebView version, e.g. 55.0.2883.91
+        assumeNotNull(expectedWebViewVersion);
         String actualWebViewVersion =
                 getCurrentWebViewPackage(InstrumentationRegistry.getTargetContext()).versionName;
-        String actualMajorWebViewVersion = actualWebViewVersion.split("\\.")[0];
-        assertEquals(expectedMajorWebViewVersion, actualMajorWebViewVersion);
+        assertEquals(expectedWebViewVersion, actualWebViewVersion);
     }
 }
