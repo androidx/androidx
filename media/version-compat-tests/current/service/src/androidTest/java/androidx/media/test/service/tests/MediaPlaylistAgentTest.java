@@ -38,7 +38,6 @@ import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.MockPlaylistAgent;
 import androidx.media.test.service.RemoteMediaController2;
-import androidx.media.test.service.TestServiceRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -79,7 +78,6 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
                         return null;
                     }
                 }).build();
-        TestServiceRegistry.getInstance().setHandler(sHandler);
         // Create a default MediaController2 in client app.
         mController2 = createRemoteController2(mSession.getToken());
     }
@@ -91,7 +89,6 @@ public class MediaPlaylistAgentTest extends MediaSession2TestBase {
         if (mSession != null) {
             mSession.close();
         }
-        TestServiceRegistry.getInstance().cleanUp();
     }
 
     @Test
