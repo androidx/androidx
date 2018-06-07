@@ -23,12 +23,14 @@ import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXT
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -42,7 +44,9 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManagerTest;
+import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.TestWorker;
 
@@ -59,6 +63,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
 
     private static final String TEST_ID = "test";
 
+    private WorkManagerImpl mWorkManager;
     private JobScheduler mJobScheduler;
     private SystemJobScheduler mSystemJobScheduler;
 
@@ -66,7 +71,17 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     public void setUp() {
         Context context = InstrumentationRegistry.getTargetContext();
         Configuration configuration = new Configuration.Builder().build();
+        WorkDatabase workDatabase = mock(WorkDatabase.class);
+        SystemIdInfoDao systemIdInfoDao = mock(SystemIdInfoDao.class);
+
+
+        mWorkManager = mock(WorkManagerImpl.class);
         mJobScheduler = mock(JobScheduler.class);
+
+        when(mWorkManager.getConfiguration()).thenReturn(configuration);
+        when(workDatabase.systemIdInfoDao()).thenReturn(systemIdInfoDao);
+        when(mWorkManager.getWorkDatabase()).thenReturn(workDatabase);
+
         doReturn(RESULT_SUCCESS).when(mJobScheduler).schedule(any(JobInfo.class));
 
         List<JobInfo> allJobInfos = new ArrayList<>(2);
@@ -82,10 +97,13 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         doReturn(allJobInfos).when(mJobScheduler).getAllPendingJobs();
 
         mSystemJobScheduler =
-                spy(new SystemJobScheduler(mJobScheduler,
-                        new SystemJobInfoConverter(context, configuration)));
+                spy(new SystemJobScheduler(
+                        context,
+                        mWorkManager,
+                        mJobScheduler,
+                        new SystemJobInfoConverter(context)));
 
-        doNothing().when(mSystemJobScheduler).scheduleInternal(any(WorkSpec.class));
+        doNothing().when(mSystemJobScheduler).scheduleInternal(any(WorkSpec.class), anyInt());
     }
 
     @Test
@@ -100,8 +118,10 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
 
         mSystemJobScheduler.schedule(workSpec1, workSpec2);
 
-        verify(mSystemJobScheduler, times(2)).scheduleInternal(workSpec1);
-        verify(mSystemJobScheduler, times(2)).scheduleInternal(workSpec2);
+        verify(mSystemJobScheduler, times(2))
+                .scheduleInternal(eq(workSpec1), anyInt());
+        verify(mSystemJobScheduler, times(2))
+                .scheduleInternal(eq(workSpec2), anyInt());
     }
 
     @Test
@@ -116,8 +136,10 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
 
         mSystemJobScheduler.schedule(workSpec1, workSpec2);
 
-        verify(mSystemJobScheduler, times(1)).scheduleInternal(workSpec1);
-        verify(mSystemJobScheduler, times(1)).scheduleInternal(workSpec2);
+        verify(mSystemJobScheduler, times(1))
+                .scheduleInternal(eq(workSpec1), anyInt());
+        verify(mSystemJobScheduler, times(1))
+                .scheduleInternal(eq(workSpec2), anyInt());
     }
 
     @Test
