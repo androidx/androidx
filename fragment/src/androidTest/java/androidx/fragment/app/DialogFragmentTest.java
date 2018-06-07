@@ -31,10 +31,16 @@ import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.test.EmptyFragmentTestActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -73,13 +79,38 @@ public class DialogFragmentTest {
 
         assertNotNull("Dialog was null", fragment.getDialog());
         assertTrue("Dialog was not being shown", fragment.getDialog().isShowing());
+
+        final boolean[] dialogIsNonNull = new boolean[1];
+        final boolean[] isShowing = new boolean[1];
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragment.getLifecycle().addObserver(new LifecycleObserver() {
+                    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+                    public void onStop() {
+                        Dialog dialog = fragment.getDialog();
+                        dialogIsNonNull[0] = dialog != null;
+                        isShowing[0] = dialog != null && dialog.isShowing();
+                        countDownLatch.countDown();
+                    }
+                });
+            }
+        });
+
+        mActivityTestRule.finishActivity();
+
+        countDownLatch.await(1, TimeUnit.SECONDS);
+        assertTrue("Dialog should not be null in onStop()", dialogIsNonNull[0]);
+        assertTrue("Dialog should still be showing in onStop() "
+                + "during the normal lifecycle", isShowing[0]);
     }
 
     @Test
-    public void testDialogFragmentDismiss() {
+    public void testDialogFragmentDismiss() throws Throwable {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        TestDialogFragment fragment = new TestDialogFragment();
+        final TestDialogFragment fragment = new TestDialogFragment();
         fragment.show(mActivityTestRule.getActivity().getSupportFragmentManager(), null);
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
@@ -87,16 +118,35 @@ public class DialogFragmentTest {
         assertNotNull("Dialog was null", fragment.getDialog());
         assertTrue("Dialog was not being shown", fragment.getDialog().isShowing());
 
+        final boolean[] dialogIsNonNull = new boolean[1];
+        final boolean[] isShowing = new boolean[1];
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragment.getLifecycle().addObserver(new LifecycleObserver() {
+                    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+                    public void onStop() {
+                        Dialog dialog = fragment.getDialog();
+                        dialogIsNonNull[0] = dialog != null;
+                        isShowing[0] = dialog != null && dialog.isShowing();
+                        countDownLatch.countDown();
+                    }
+                });
+            }
+        });
+
         fragment.dismiss();
 
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        countDownLatch.await(1, TimeUnit.SECONDS);
+        assertTrue("Dialog should not be null in onStop()", dialogIsNonNull[0]);
+        assertFalse("Dialog should not be showing in onStop() "
+                + "when manually dismissed", isShowing[0]);
 
         assertNull("Dialog should be null after dismiss()", fragment.getDialog());
     }
 
     public static class TestDialogFragment extends DialogFragment {
-        private boolean mManualDismiss;
-
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -105,25 +155,6 @@ public class DialogFragmentTest {
                     .setMessage("Message")
                     .setPositiveButton("Button", null)
                     .create();
-        }
-
-        @Override
-        public void dismiss() {
-            super.dismiss();
-            mManualDismiss = true;
-        }
-
-        @Override
-        public void onStop() {
-            super.onStop();
-            assertNotNull(getDialog());
-            if (mManualDismiss) {
-                assertFalse("Dialog should not be showing in onStop() "
-                        + "when manually dismissed", getDialog().isShowing());
-            } else {
-                assertTrue("Dialog should still be showing in onStop() "
-                        + "during the normal lifecycle", getDialog().isShowing());
-            }
         }
     }
 }
