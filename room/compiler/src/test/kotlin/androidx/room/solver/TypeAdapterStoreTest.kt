@@ -33,8 +33,9 @@ import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
-import androidx.room.solver.binderprovider.FlowableQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxFlowableQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxObservableQueryResultBinderProvider
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.TestInvocation
@@ -231,7 +232,7 @@ class TypeAdapterStoreTest {
             val publisherElement = invocation.processingEnv.elementUtils
                     .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
             assertThat(publisherElement, notNullValue())
-            assertThat(FlowableQueryResultBinderProvider(invocation.context).matches(
+            assertThat(RxFlowableQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(publisherElement.asType())), `is`(true))
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
     }
@@ -243,7 +244,7 @@ class TypeAdapterStoreTest {
             val publisher = invocation.processingEnv.elementUtils
                     .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
             assertThat(publisher, notNullValue())
-            assertThat(FlowableQueryResultBinderProvider(invocation.context).matches(
+            assertThat(RxFlowableQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(publisher.asType())), `is`(true))
         }.compilesWithoutError()
     }
@@ -255,8 +256,20 @@ class TypeAdapterStoreTest {
             val flowable = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.FLOWABLE.toString())
             assertThat(flowable, notNullValue())
-            assertThat(FlowableQueryResultBinderProvider(invocation.context).matches(
+            assertThat(RxFlowableQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(flowable.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testFindObservable() {
+        simpleRun(jfos = *arrayOf(COMMON.OBSERVABLE, COMMON.RX2_ROOM)) {
+            invocation ->
+            val observable = invocation.processingEnv.elementUtils
+                    .getTypeElement(RxJava2TypeNames.OBSERVABLE.toString())
+            assertThat(observable, notNullValue())
+            assertThat(RxObservableQueryResultBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(observable.asType())), `is`(true))
         }.compilesWithoutError()
     }
 
@@ -318,8 +331,11 @@ class TypeAdapterStoreTest {
 
         val intListConverter = object : TypeConverter(listOfInts,
                 invocation.context.COMMON_TYPES.STRING) {
-            override fun convert(inputVarName: String, outputVarName: String,
-                                 scope: CodeGenScope) {
+            override fun convert(
+                inputVarName: String,
+                outputVarName: String,
+                scope: CodeGenScope
+            ) {
                 scope.builder().apply {
                     addStatement("$L = $T.joinIntoString($L)", outputVarName, STRING_UTIL,
                             inputVarName)
@@ -329,8 +345,11 @@ class TypeAdapterStoreTest {
 
         val stringToIntListConverter = object : TypeConverter(
                 invocation.context.COMMON_TYPES.STRING, listOfInts) {
-            override fun convert(inputVarName: String, outputVarName: String,
-                                 scope: CodeGenScope) {
+            override fun convert(
+                inputVarName: String,
+                outputVarName: String,
+                scope: CodeGenScope
+            ) {
                 scope.builder().apply {
                     addStatement("$L = $T.splitToIntList($L)", outputVarName, STRING_UTIL,
                             inputVarName)
@@ -383,16 +402,22 @@ class TypeAdapterStoreTest {
         val tBoolean = env.typeUtils.getPrimitiveType(TypeKind.BOOLEAN)
         return listOf(
                 object : TypeConverter(tPoint, tBoolean) {
-                    override fun convert(inputVarName: String, outputVarName: String,
-                                         scope: CodeGenScope) {
+                    override fun convert(
+                        inputVarName: String,
+                        outputVarName: String,
+                        scope: CodeGenScope
+                    ) {
                         scope.builder().apply {
                             addStatement("$L = $T.toBoolean($L)", outputVarName, from, inputVarName)
                         }
                     }
                 },
                 object : TypeConverter(tBoolean, tPoint) {
-                    override fun convert(inputVarName: String, outputVarName: String,
-                                         scope: CodeGenScope) {
+                    override fun convert(
+                        inputVarName: String,
+                        outputVarName: String,
+                        scope: CodeGenScope
+                    ) {
                         scope.builder().apply {
                             addStatement("$L = $T.fromBoolean($L)", outputVarName, tPoint,
                                     inputVarName)
@@ -407,16 +432,22 @@ class TypeAdapterStoreTest {
         val tLong = env.elementUtils.getTypeElement("java.lang.Long").asType()
         return listOf(
                 object : TypeConverter(tDate, tLong) {
-                    override fun convert(inputVarName: String, outputVarName: String,
-                                         scope: CodeGenScope) {
+                    override fun convert(
+                        inputVarName: String,
+                        outputVarName: String,
+                        scope: CodeGenScope
+                    ) {
                         scope.builder().apply {
                             addStatement("// convert Date to Long")
                         }
                     }
                 },
                 object : TypeConverter(tLong, tDate) {
-                    override fun convert(inputVarName: String, outputVarName: String,
-                                         scope: CodeGenScope) {
+                    override fun convert(
+                        inputVarName: String,
+                        outputVarName: String,
+                        scope: CodeGenScope
+                    ) {
                         scope.builder().apply {
                             addStatement("// convert Long to Date")
                         }
