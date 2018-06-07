@@ -256,13 +256,15 @@ public class NavDeepLinkBuilder {
          * A Navigator that only parses the {@link NavDestination} attributes.
          */
         private final Navigator<NavDestination> mDestNavigator = new Navigator<NavDestination>() {
+            @NonNull
             @Override
             public NavDestination createDestination() {
                 return new NavDestination(this);
             }
 
             @Override
-            public void navigate(NavDestination destination, Bundle args, NavOptions navOptions) {
+            public void navigate(@NonNull NavDestination destination, @Nullable Bundle args,
+                    @Nullable NavOptions navOptions) {
                 throw new IllegalStateException("navigate is not supported");
             }
 
