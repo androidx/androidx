@@ -106,7 +106,10 @@ public class EnqueueRunnable implements Runnable {
     @VisibleForTesting
     public void scheduleWorkInBackground() {
         WorkManagerImpl workManager = mWorkContinuation.getWorkManagerImpl();
-        Schedulers.schedule(workManager.getWorkDatabase(), workManager.getSchedulers());
+        Schedulers.schedule(
+                workManager.getConfiguration(),
+                workManager.getWorkDatabase(),
+                workManager.getSchedulers());
     }
 
     private static boolean processContinuation(@NonNull WorkContinuationImpl workContinuation) {
