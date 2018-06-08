@@ -43,6 +43,7 @@ import androidx.work.impl.utils.CancelWorkRunnable;
 import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.LiveDataUtils;
 import androidx.work.impl.utils.Preferences;
+import androidx.work.impl.utils.PruneWorkRunnable;
 import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -349,6 +350,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
+    @WorkerThread
     public void cancelUniqueWorkSync(@NonNull String uniqueWorkName) {
         assertBackgroundThread("Cannot cancelAllWorkByNameBlocking on main thread!");
         CancelWorkRunnable.forName(uniqueWorkName, this).run();
@@ -360,6 +362,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
+    @WorkerThread
     public void cancelAllWorkSync() {
         assertBackgroundThread("Cannot cancelAllWorkSync on main thread!");
         CancelWorkRunnable.forAll(this).run();
@@ -373,6 +376,18 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     @Override
     public long getLastCancelAllTimeMillisSync() {
         return mPreferences.getLastCancelAllTimeMillis();
+    }
+
+    @Override
+    public void pruneWork() {
+        mTaskExecutor.executeOnBackgroundThread(new PruneWorkRunnable(this));
+    }
+
+    @Override
+    @WorkerThread
+    public void pruneWorkSync() {
+        assertBackgroundThread("Cannot pruneWork on main thread!");
+        new PruneWorkRunnable(this).run();
     }
 
     @Override
