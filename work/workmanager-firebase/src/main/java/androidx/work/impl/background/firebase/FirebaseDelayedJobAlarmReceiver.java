@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
+import androidx.work.Configuration;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -41,6 +42,7 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
         final PendingResult pendingResult = goAsync();
         final String workSpecId = intent.getStringExtra(WORKSPEC_ID_KEY);
         final WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
+        final Configuration configuration = workManagerImpl.getConfiguration();
         final WorkDatabase database = workManagerImpl.getWorkDatabase();
         // TODO (rahulrav@) Use WorkManager's task executor here instead.
         new Thread(new Runnable() {
@@ -48,7 +50,7 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
             public void run() {
                 WorkSpec workSpec = database.workSpecDao().getWorkSpec(workSpecId);
                 if (workSpec != null) {
-                    Schedulers.schedule(database, workManagerImpl.getSchedulers());
+                    Schedulers.schedule(configuration, database, workManagerImpl.getSchedulers());
                 } else {
                     Log.e(TAG, "WorkSpec not found! Cannot schedule!");
                 }

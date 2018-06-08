@@ -56,7 +56,10 @@ public abstract class CancelWorkRunnable implements Runnable {
     }
 
     void reschedulePendingWorkers(WorkManagerImpl workManagerImpl) {
-        Schedulers.schedule(workManagerImpl.getWorkDatabase(), workManagerImpl.getSchedulers());
+        Schedulers.schedule(
+                workManagerImpl.getConfiguration(),
+                workManagerImpl.getWorkDatabase(),
+                workManagerImpl.getSchedulers());
     }
 
     private void recursivelyCancelWorkAndDependents(WorkDatabase workDatabase, String workSpecId) {
