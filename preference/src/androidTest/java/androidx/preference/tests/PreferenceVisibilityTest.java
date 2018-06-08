@@ -25,34 +25,100 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.test.R;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test for {@link androidx.preference.Preference} visibility set with XML.
+ * Test for {@link androidx.preference.Preference} visibility logic.
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class PreferenceVisibilityTest {
 
-    @Test
+    private Context mContext;
+    private PreferenceManager mPreferenceManager;
+
+    @Before
     @UiThreadTest
-    public void testPreferencesAreCreatedWithTheVisibilitySetInXml() {
-        final Context context = InstrumentationRegistry.getTargetContext();
-        final PreferenceManager manager = new PreferenceManager(context);
-        final PreferenceScreen screen = manager.inflateFromResource(context,
+    public void setup() {
+        mContext = InstrumentationRegistry.getTargetContext();
+        mPreferenceManager = new PreferenceManager(mContext);
+        final PreferenceScreen screen = mPreferenceManager.inflateFromResource(mContext,
                 R.layout.test_visibility,
                 null);
+        mPreferenceManager.setPreferences(screen);
+    }
 
+    @Test
+    @UiThreadTest
+    public void preferencesInflatedFromXml_visibilitySetCorrectly() {
+        // Given visible ancestors that are correctly attached to the root preference screen:
         // Preference without visibility set should be visible
-        assertTrue(screen.getPreference(0).isVisible());
+        assertTrue(mPreferenceManager.findPreference("default_visibility").isVisible());
         // Preference with visibility set to true should be visible
-        assertTrue(screen.getPreference(1).isVisible());
-        // Preference with visibility set to false should not be invisible
-        assertFalse(screen.getPreference(2).isVisible());
+        assertTrue(mPreferenceManager.findPreference("visible").isVisible());
+        // Preference with visibility set to false should not be visible
+        assertFalse(mPreferenceManager.findPreference("invisible").isVisible());
+    }
+
+    @Test
+    @UiThreadTest
+    public void preferencesInflatedFromXml_isShownShouldMatchVisibility() {
+        // Given visible ancestors that are correctly attached to the root preference screen:
+        // Preference without visibility set should be shown
+        assertTrue(mPreferenceManager.findPreference("default_visibility").isShown());
+        // Preference with visibility set to true should be shown
+        assertTrue(mPreferenceManager.findPreference("visible").isShown());
+        // Preference with visibility set to false should not be shown
+        assertFalse(mPreferenceManager.findPreference("invisible").isShown());
+    }
+
+    @Test
+    @UiThreadTest
+    public void hidingParentGroup_childVisibilityUnchanged() {
+        // Hide the parent category
+        mPreferenceManager.findPreference("category").setVisible(false);
+
+        // Category should not be visible or shown
+        assertFalse(mPreferenceManager.findPreference("category").isVisible());
+        assertFalse(mPreferenceManager.findPreference("category").isShown());
+
+        // Preference visibility should be unchanged
+        assertTrue(mPreferenceManager.findPreference("default_visibility").isVisible());
+        assertTrue(mPreferenceManager.findPreference("visible").isVisible());
+        assertFalse(mPreferenceManager.findPreference("invisible").isVisible());
+    }
+
+    @Test
+    @UiThreadTest
+    public void hidingParentGroup_childrenNoLongerShown() {
+        // Hide the parent category
+        mPreferenceManager.findPreference("category").setVisible(false);
+
+        // Category should not be visible or shown
+        assertFalse(mPreferenceManager.findPreference("category").isVisible());
+        assertFalse(mPreferenceManager.findPreference("category").isShown());
+
+        // Preferences should not be shown since their parent is not visible
+        assertFalse(mPreferenceManager.findPreference("default_visibility").isShown());
+        assertFalse(mPreferenceManager.findPreference("visible").isShown());
+        assertFalse(mPreferenceManager.findPreference("invisible").isShown());
+    }
+
+    @Test
+    @UiThreadTest
+    public void preferenceNotAttachedToHierarchy_visibleButNotShown() {
+        // Create a new preference not attached to the root preference screen
+        Preference preference = new Preference(mContext);
+
+        // Preference is visible, but since it is not attached to the hierarchy, it is not shown
+        assertTrue(preference.isVisible());
+        assertFalse(preference.isShown());
     }
 }

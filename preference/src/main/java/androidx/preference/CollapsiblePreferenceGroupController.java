@@ -121,10 +121,15 @@ final class CollapsiblePreferenceGroupController {
      * @return {@code true} if view update has been handled by this controller.
      */
     public boolean onPreferenceVisibilityChange(Preference preference) {
-        if (mHasExpandablePreference) {
-            // We only want to show up to the maximal number of preferences. Preference visibility
-            // change can result in the expand button being added/removed, as well as changes to
-            // its summary. Rebuild to ensure that the correct data is shown.
+        if (preference instanceof PreferenceGroup || mHasExpandablePreference) {
+            // Changing the visibility of a group determines the visibility of its children, so
+            // to be safe we want to fully rebuild the hierarchy if the visibility of a group
+            // changes.
+
+            // If there is an expand button, since we only want to show up to the
+            // maximal number of preferences, preference visibility change can result in the
+            // expand button being added/removed, as well as changes to its summary. Rebuild to
+            // ensure that the correct data is shown.
             mPreferenceGroupAdapter.onPreferenceHierarchyChange(preference);
             return true;
         }

@@ -19,13 +19,21 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <Preference android:summary="This preference is visible by default" />
+    <PreferenceCategory
+            android:title="Preference Category"
+            android:key="category">
+        <Preference
+                android:summary="This preference is visible by default"
+                android:key="default_visibility"/>
 
-    <Preference
-        android:summary="This preference is forced to be visible"
-        app:isPreferenceVisible="true" />
+        <Preference
+                android:summary="This preference is forced to be visible"
+                android:key="visible"
+                app:isPreferenceVisible="true"/>
 
-    <Preference
-        android:summary="This preference is invisible"
-        app:isPreferenceVisible="false" />
+        <Preference
+                android:summary="This preference is invisible"
+                android:key="invisible"
+                app:isPreferenceVisible="false"/>
+    </PreferenceCategory>
 </PreferenceScreen>
