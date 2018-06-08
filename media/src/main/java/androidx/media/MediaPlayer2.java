@@ -57,8 +57,11 @@ import java.util.concurrent.Executor;
  *
  * <h3 id="PlayerStates">Player states</h3>
  *
- * <p>Playback control of audio/video files and streams is managed as a state
- * machine. MediaPlayer2 object has the following five states:</p>
+ * <p>The playback control of audio/video files is managed as a state machine.</p>
+ * <p><img src="../../../images/mediaplayer2_state_diagram.png"
+ *         alt="MediaPlayer2 State diagram"
+ *         border="0" /></p>
+ * <p>The MediaPlayer2 object has five states:</p>
  * <ol>
  *     <li><p>{@link #MEDIAPLAYER2_STATE_IDLE}: MediaPlayer2 is in the <strong>Idle</strong>
  *         state after you create it using
@@ -139,10 +142,7 @@ import java.util.concurrent.Executor;
  *
  * <ul>
  *
- * <li>State changes are asynchronous. Once the player finishes the following playback control
- * operations; {@link #prepare}, {@link #play}, {@link #pause}, and {@link #reset}, the player
- * will change state and send notification to {@link EventCallback#onCallCompleted} callback.
- * Call {@link #getState()} from your code to determine the state.</li>
+ * <li>Use <a href="#callback">callbacks</a> to respond to state changes and errors.</li>
  *
  * <li>When  a MediaPlayer2 object is no longer being used, call {@link #close()} as soon as
  * possible to release the resources used by the internal player engine associated with the
@@ -308,6 +308,21 @@ import java.util.concurrent.Executor;
  * {@link #setEventCallback(Executor, EventCallback)} and
  * {@link #setDrmEventCallback(Executor, DrmEventCallback)}).
  * You can receive a callback at any time and from any state.</p>
+ *
+ * <p>If it's important for your app to respond to state changes (for instance, to update the
+ * controls on a transport UI), you should register an {@link EventCallback#onCallCompleted} and
+ * detect state change commands by testing the <code>what</code> parameter for a callback from one
+ * of the state transition methods: {@link #CALL_COMPLETED_PREPARE}, {@link #CALL_COMPLETED_PLAY},
+ * and {@link #CALL_COMPLETED_PAUSE}.
+ * Then check the <code>status</code> parameter. The value {@link #CALL_STATUS_NO_ERROR} indicates a
+ * successful transition. Any other value will be an error. Call {@link #getState()} to
+ * determine the current state.
+ * (You can also register a {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged}
+ * callback but this method does not distinguish between the <strong>Idle</strong> and
+ * <strong>Prepared</strong> states.)</p>
+ *
+ * <p>You can also register a {@link BaseMediaPlayer.PlayerEventCallback#onPlayerStateChanged}
+ * callback. Call {@link #getState()} from your code to determine the state.</p>
  *
  * <p>In order for callbacks to work, your app must create
  * MediaPlayer2 objects on a thread that has its own running Looper. This can be done on the main UI
