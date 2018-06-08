@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.core.util
+package androidx.core.text
 
 import android.text.TextUtils
 import androidx.annotation.RequiresApi
-import androidx.core.text.layoutDirection as newLayoutDirection
 import java.util.Locale
 
 /**
@@ -26,7 +25,6 @@ import java.util.Locale
  *
  * @see TextUtils.getLayoutDirectionFromLocale
  */
-@Deprecated("Moved to androidx.core.text package")
 inline val Locale.layoutDirection: Int
     @RequiresApi(17)
-    get() = newLayoutDirection
+    get() = TextUtils.getLayoutDirectionFromLocale(this)
