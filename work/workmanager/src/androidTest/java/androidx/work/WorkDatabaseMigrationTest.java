@@ -53,12 +53,12 @@ public class WorkDatabaseMigrationTest {
 
     // Queries
     private static final String INSERT_ALARM_INFO = "INSERT INTO alarmInfo VALUES (?, ?)";
-    private static final String INSERT_SYSTEM_ID_INFO = "INSERT INTO systemIdInfo VALUES (?, ?)";
-    private static final String CHECK_SYSTEM_ID_INFO = "SELECT * FROM systemIdInfo";
+    private static final String INSERT_SYSTEM_ID_INFO = "INSERT INTO SystemIdInfo VALUES (?, ?)";
+    private static final String CHECK_SYSTEM_ID_INFO = "SELECT * FROM SystemIdInfo";
     private static final String CHECK_ALARM_INFO = "SELECT * FROM alarmInfo";
     private static final String CHECK_TABLE_NAME = "SELECT * FROM %s";
     private static final String TABLE_ALARM_INFO = "alarmInfo";
-    private static final String TABLE_SYSTEM_ID_INFO = "systemIdInfo";
+    private static final String TABLE_SYSTEM_ID_INFO = "SystemIdInfo";
     private static final String TABLE_WORKSPEC = "WorkSpec";
     private static final String TABLE_WORKTAG = "WorkTag";
     private static final String TABLE_WORKNAME = "WorkName";
@@ -127,7 +127,7 @@ public class WorkDatabaseMigrationTest {
         String workSpecId1 = UUID.randomUUID().toString();
         String workSpecId2 = UUID.randomUUID().toString();
 
-        // insert systemIdInfo
+        // insert SystemIdInfo
         database.execSQL(INSERT_SYSTEM_ID_INFO, new Object[]{workSpecId1, 1});
         database.execSQL(INSERT_SYSTEM_ID_INFO, new Object[]{workSpecId2, 2});
 
