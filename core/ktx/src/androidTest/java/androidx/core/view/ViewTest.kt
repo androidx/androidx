@@ -156,14 +156,14 @@ class ViewTest {
     @Test
     fun toBitmapBeforeLayout() {
         assertThrows<IllegalStateException> {
-            view.toBitmap()
+            view.drawToBitmap()
         }
     }
 
     @Test
     fun toBitmap() {
         view.layout(0, 0, 100, 100)
-        val bitmap = view.toBitmap()
+        val bitmap = view.drawToBitmap()
 
         assertEquals(100, bitmap.width)
         assertEquals(100, bitmap.height)
@@ -172,7 +172,7 @@ class ViewTest {
     @Test
     fun toBitmapCustomConfig() {
         view.layout(0, 0, 100, 100)
-        val bitmap = view.toBitmap(Bitmap.Config.RGB_565)
+        val bitmap = view.drawToBitmap(Bitmap.Config.RGB_565)
 
         assertSame(Bitmap.Config.RGB_565, bitmap.config)
     }
@@ -189,12 +189,12 @@ class ViewTest {
                 View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY))
         scrollView.layout(0, 0, size, size)
 
-        val noScroll = scrollView.toBitmap()
+        val noScroll = scrollView.drawToBitmap()
         assertEquals(Color.WHITE, noScroll.getPixel(0, 0))
         assertEquals(Color.WHITE, noScroll.getPixel(size - 1, size - 1))
 
         scrollView.scrollTo(0, size)
-        val scrolls = scrollView.toBitmap()
+        val scrolls = scrollView.drawToBitmap()
 
         assertEquals(Color.BLACK, scrolls.getPixel(0, 0))
         assertEquals(Color.BLACK, scrolls.getPixel(size - 1, size - 1))
