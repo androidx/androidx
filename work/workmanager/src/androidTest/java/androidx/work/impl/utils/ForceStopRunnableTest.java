@@ -18,11 +18,11 @@ package androidx.work.impl.utils;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.content.ComponentName;
@@ -48,6 +48,7 @@ public class ForceStopRunnableTest {
     private WorkManagerImpl mWorkManager;
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
+    private Preferences mPreferences;
     private ForceStopRunnable mRunnable;
 
     @Before
@@ -56,8 +57,10 @@ public class ForceStopRunnableTest {
         mWorkManager = mock(WorkManagerImpl.class);
         mWorkDatabase = mock(WorkDatabase.class);
         mWorkSpecDao = mock(WorkSpecDao.class);
+        mPreferences = mock(Preferences.class);
         when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
         when(mWorkDatabase.workSpecDao()).thenReturn(mWorkSpecDao);
+        when(mWorkManager.getPreferences()).thenReturn(mPreferences);
         mRunnable = new ForceStopRunnable(mContext, mWorkManager);
     }
 
@@ -73,6 +76,7 @@ public class ForceStopRunnableTest {
     @Test
     public void testReschedulesOnForceStop() {
         ForceStopRunnable runnable = spy(mRunnable);
+        when(runnable.shouldCancelPersistedJobs()).thenReturn(false);
         when(runnable.isForceStopped()).thenReturn(true);
         runnable.run();
         verify(mWorkManager, times(1)).rescheduleEligibleWork();
@@ -81,8 +85,28 @@ public class ForceStopRunnableTest {
     @Test
     public void test_doNothingWhenNotForceStopped() {
         ForceStopRunnable runnable = spy(mRunnable);
+        when(runnable.shouldCancelPersistedJobs()).thenReturn(false);
         when(runnable.isForceStopped()).thenReturn(false);
         runnable.run();
-        verifyNoMoreInteractions(mWorkManager);
+        verify(mWorkManager, times(0)).rescheduleEligibleWork();
+    }
+
+    @Test
+    public void test_cancelAllJobSchedulerJobs() {
+        ForceStopRunnable runnable = spy(mRunnable);
+        doNothing().when(runnable).cancelAllInJobScheduler();
+        when(runnable.shouldCancelPersistedJobs()).thenReturn(true);
+        runnable.run();
+        verify(runnable, times(1)).cancelAllInJobScheduler();
+        verify(mPreferences, times(1)).setMigratedPersistedJobs();
+    }
+
+    @Test
+    public void test_doNothingWhenThereIsNothingToCancel() {
+        ForceStopRunnable runnable = spy(mRunnable);
+        doNothing().when(runnable).cancelAllInJobScheduler();
+        when(runnable.shouldCancelPersistedJobs()).thenReturn(false);
+        runnable.run();
+        verify(runnable, times(0)).cancelAllInJobScheduler();
     }
 }

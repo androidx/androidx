@@ -35,6 +35,7 @@ public class Preferences {
     private static final String PREFERENCES_FILE_NAME = "androidx.work.util.preferences";
 
     private static final String KEY_LAST_CANCEL_ALL_TIME_MS = "last_cancel_all_time_ms";
+    private static final String KEY_MIGRATE_PERSISTED_JOBS = "migrate_persisted_jobs";
 
     private SharedPreferences mSharedPreferences;
 
@@ -65,6 +66,23 @@ public class Preferences {
      */
     public void setLastCancelAllTimeMillis(long timeMillis) {
         mSharedPreferences.edit().putLong(KEY_LAST_CANCEL_ALL_TIME_MS, timeMillis).apply();
+    }
+
+    /**
+     * @return {@code true} When we should migrate from persisted jobs to non-persisted jobs in
+     * {@link android.app.job.JobScheduler}
+     */
+    public boolean shouldMigratePersistedJobs() {
+        // TODO Remove this before WorkManager 1.0 beta.
+        return mSharedPreferences.getBoolean(KEY_MIGRATE_PERSISTED_JOBS, true);
+    }
+
+    /**
+     * Updates the key which indicates that we have migrated all our persisted jobs in
+     * {@link android.app.job.JobScheduler}.
+     */
+    public void setMigratedPersistedJobs() {
+        mSharedPreferences.edit().putBoolean(KEY_MIGRATE_PERSISTED_JOBS, true).apply();
     }
 
     /**
