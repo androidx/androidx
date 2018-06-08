@@ -73,16 +73,18 @@ public class MessageView extends SliceChildView {
         setSliceActionListener(observer);
         mRowIndex = index;
         SliceItem source = SliceQuery.findSubtype(slice, FORMAT_IMAGE, SUBTYPE_SOURCE);
-        if (source != null) {
-            final int iconSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                    24, getContext().getResources().getDisplayMetrics());
-            // TODO: try and turn this into a drawable
-            Bitmap iconBm = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888);
-            Canvas iconCanvas = new Canvas(iconBm);
+        if (source != null && source.getIcon() != null) {
             Drawable d = source.getIcon().loadDrawable(getContext());
-            d.setBounds(0, 0, iconSize, iconSize);
-            d.draw(iconCanvas);
-            mIcon.setImageBitmap(SliceViewUtil.getCircularBitmap(iconBm));
+            if (d != null) {
+                final int iconSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                        24, getContext().getResources().getDisplayMetrics());
+                // TODO: try and turn this into a drawable
+                Bitmap iconBm = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888);
+                Canvas iconCanvas = new Canvas(iconBm);
+                d.setBounds(0, 0, iconSize, iconSize);
+                d.draw(iconCanvas);
+                mIcon.setImageBitmap(SliceViewUtil.getCircularBitmap(iconBm));
+            }
         }
         final SpannableStringBuilder builder = new SpannableStringBuilder();
         List<SliceItem> items = SliceQuery.findAll(slice, FORMAT_TEXT);

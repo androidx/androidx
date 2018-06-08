@@ -455,7 +455,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (isSeekBar) {
             SliceItem thumb = mRowContent.getInputRangeThumb();
             SeekBar seekBar = (SeekBar) mRangeBar;
-            if (thumb != null) {
+            if (thumb != null && thumb.getIcon() != null) {
                 Drawable d = thumb.getIcon().loadDrawable(getContext());
                 if (d != null) {
                     seekBar.setThumb(d);

@@ -33,6 +33,7 @@ import static androidx.slice.widget.SliceView.MODE_SMALL;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
@@ -427,25 +428,28 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
             container.addView(tv);
             tv.setPadding(0, padding, 0, 0);
             addedView = tv;
-        } else if (FORMAT_IMAGE.equals(format)) {
-            ImageView iv = new ImageView(getContext());
-            iv.setImageDrawable(item.getIcon().loadDrawable(getContext()));
-            LinearLayout.LayoutParams lp;
-            if (item.hasHint(HINT_LARGE)) {
-                iv.setScaleType(ScaleType.CENTER_CROP);
-                int height = isSingle ? MATCH_PARENT : mLargeImageHeight;
-                lp = new LinearLayout.LayoutParams(MATCH_PARENT, height);
-            } else {
-                boolean isIcon = !item.hasHint(HINT_NO_TINT);
-                int size = isIcon ? mIconSize : mSmallImageSize;
-                iv.setScaleType(isIcon ? ScaleType.CENTER_INSIDE : ScaleType.CENTER_CROP);
-                lp = new LinearLayout.LayoutParams(size, size);
+        } else if (FORMAT_IMAGE.equals(format) && item.getIcon() != null) {
+            Drawable d = item.getIcon().loadDrawable(getContext());
+            if (d != null) {
+                ImageView iv = new ImageView(getContext());
+                iv.setImageDrawable(d);
+                LinearLayout.LayoutParams lp;
+                if (item.hasHint(HINT_LARGE)) {
+                    iv.setScaleType(ScaleType.CENTER_CROP);
+                    int height = isSingle ? MATCH_PARENT : mLargeImageHeight;
+                    lp = new LinearLayout.LayoutParams(MATCH_PARENT, height);
+                } else {
+                    boolean isIcon = !item.hasHint(HINT_NO_TINT);
+                    int size = isIcon ? mIconSize : mSmallImageSize;
+                    iv.setScaleType(isIcon ? ScaleType.CENTER_INSIDE : ScaleType.CENTER_CROP);
+                    lp = new LinearLayout.LayoutParams(size, size);
+                }
+                if (color != -1 && !item.hasHint(HINT_NO_TINT)) {
+                    iv.setColorFilter(color);
+                }
+                container.addView(iv, lp);
+                addedView = iv;
             }
-            if (color != -1 && !item.hasHint(HINT_NO_TINT)) {
-                iv.setColorFilter(color);
-            }
-            container.addView(iv, lp);
-            addedView = iv;
         }
         return addedView != null;
     }
