@@ -16,19 +16,23 @@
   -->
 
 <resources>
-    <style name="PreferenceThemeOverlay.v14.Leanback">
-        <item name="preferenceScreenStyle">@style/LeanbackPreference.PreferenceScreen</item>
-        <item name="preferenceFragmentCompatStyle">@style/PreferenceFragment.Leanback</item>
-        <item name="preferenceFragmentStyle">@style/PreferenceFragment.Leanback</item>
-        <item name="preferenceCategoryStyle">@style/LeanbackPreference.Category</item>
-        <item name="preferenceStyle">@style/LeanbackPreference</item>
-        <item name="preferenceInformationStyle">@style/LeanbackPreference.Information</item>
+    <style name="PreferenceThemeOverlayLeanback">
         <item name="checkBoxPreferenceStyle">@style/LeanbackPreference.CheckBoxPreference</item>
-        <item name="switchPreferenceCompatStyle">@style/LeanbackPreference.SwitchPreferenceCompat</item>
-        <item name="seekBarPreferenceStyle">@style/LeanbackPreference.SeekBarPreference</item>
-        <item name="switchPreferenceStyle">@style/LeanbackPreference.SwitchPreference</item>
         <item name="dialogPreferenceStyle">@style/LeanbackPreference.DialogPreference</item>
+        <item name="dropdownPreferenceStyle">@style/Preference.DropDown</item>
         <item name="editTextPreferenceStyle">@style/LeanbackPreference.DialogPreference.EditTextPreference</item>
+        <item name="preferenceCategoryStyle">@style/LeanbackPreference.Category</item>
+        <item name="preferenceFragmentCompatStyle">@style/PreferenceFragment.Leanback</item>
         <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList.Leanback</item>
+        <item name="preferenceFragmentStyle">@style/PreferenceFragment.Leanback</item>
+        <item name="preferenceInformationStyle">@style/LeanbackPreference.Information</item>
+        <item name="preferenceScreenStyle">@style/LeanbackPreference.PreferenceScreen</item>
+        <item name="preferenceStyle">@style/LeanbackPreference</item>
+        <item name="seekBarPreferenceStyle">@style/LeanbackPreference.SeekBarPreference</item>
+        <item name="switchPreferenceCompatStyle">@style/LeanbackPreference.SwitchPreferenceCompat</item>
+        <item name="switchPreferenceStyle">@style/LeanbackPreference.SwitchPreference</item>
     </style>
+
+    <!-- Deprecated. Use PreferenceThemeOverlayLeanback instead. -->
+    <style name="PreferenceThemeOverlay.v14.Leanback" parent="PreferenceThemeOverlayLeanback"/>
 </resources>
