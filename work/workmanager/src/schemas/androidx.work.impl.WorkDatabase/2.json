@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "244d2ac5ecd0a7fb47b3755737585d7b",
+    "identityHash": "c45e5fcbdf3824dead9778f19e2fd8af",
     "entities": [
       {
         "tableName": "Dependency",
@@ -269,7 +269,7 @@
         ]
       },
       {
-        "tableName": "systemIdInfo",
+        "tableName": "SystemIdInfo",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`work_spec_id` TEXT NOT NULL, `system_id` INTEGER NOT NULL, PRIMARY KEY(`work_spec_id`), FOREIGN KEY(`work_spec_id`) REFERENCES `WorkSpec`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
@@ -357,7 +357,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"244d2ac5ecd0a7fb47b3755737585d7b\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"c45e5fcbdf3824dead9778f19e2fd8af\")"
     ]
   }
 }
