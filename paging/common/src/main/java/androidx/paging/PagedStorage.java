@@ -213,10 +213,16 @@ final class PagedStorage<T> extends AbstractList<T> {
         void onPageInserted(int start, int count);
         void onPagesRemoved(int startOfDrops, int count);
         void onPagesSwappedToPlaceholder(int startOfDrops, int count);
+        void onEmptyPrepend();
+        void onEmptyAppend();
     }
 
     int getPositionOffset() {
         return mPositionOffset;
+    }
+
+    int getMiddleOfLoadedRange() {
+        return mLeadingNullCount + mPositionOffset + mStorageCount / 2;
     }
 
     @Override
@@ -249,19 +255,35 @@ final class PagedStorage<T> extends AbstractList<T> {
         return total;
     }
 
-    boolean needsTrimFromFront(int maxSize, int requiredRemaining)  {
+    // ---------------- Trimming API -------------------
+    // Trimming is always done at the beginning or end of the list, as content is loaded.
+    // In addition to trimming pages in the storage, we also support pre-trimming pages (dropping
+    // them just before they're added) to avoid dispatching an add followed immediately by a trim.
+    //
+    // Note - we avoid trimming down to a single page to reduce chances of dropping page in
+    // viewport, since we don't strictly know the viewport. If trim is aggressively set to size of a
+    // single page, trimming while the user can see a page boundary is dangerous. To be safe, we
+    // just avoid trimming in these cases entirely.
+
+    boolean needsTrimFromFront(int maxSize, int requiredRemaining) {
         return (mLoadedCount > maxSize
                 && mPages.size() > 2
                 && mLoadedCount - mPages.get(0).size() >= requiredRemaining);
     }
 
-    boolean needsTrimFromEnd(int maxSize, int requiredRemaining)  {
+    boolean needsTrimFromEnd(int maxSize, int requiredRemaining) {
         return (mLoadedCount > maxSize
                 && mPages.size() > 2
                 && mLoadedCount - mPages.get(mPages.size() - 1).size() >= requiredRemaining);
     }
 
-    void trimFromFront(boolean insertNulls, int maxSize, int requiredRemaining,
+    boolean shouldPreTrimNewPage(int maxSize, int requiredRemaining, int countToBeAdded) {
+        return mLoadedCount + countToBeAdded > maxSize
+                && mPages.size() > 1
+                && mLoadedCount >= requiredRemaining;
+    }
+
+    boolean trimFromFront(boolean insertNulls, int maxSize, int requiredRemaining,
             @NonNull Callback callback) {
         int totalRemoved = 0;
         while (needsTrimFromFront(maxSize, requiredRemaining)
@@ -285,9 +307,10 @@ final class PagedStorage<T> extends AbstractList<T> {
                 callback.onPagesRemoved(mLeadingNullCount, totalRemoved);
             }
         }
+        return totalRemoved > 0;
     }
 
-    void trimFromEnd(boolean insertNulls, int maxSize, int requiredRemaining,
+    boolean trimFromEnd(boolean insertNulls, int maxSize, int requiredRemaining,
             @NonNull Callback callback) {
         int totalRemoved = 0;
         while (needsTrimFromEnd(maxSize, requiredRemaining)
@@ -310,6 +333,7 @@ final class PagedStorage<T> extends AbstractList<T> {
                 callback.onPagesRemoved(newEndPosition, totalRemoved);
             }
         }
+        return totalRemoved > 0;
     }
 
     // ---------------- Contiguous API -------------------
@@ -331,6 +355,7 @@ final class PagedStorage<T> extends AbstractList<T> {
         final int count = page.size();
         if (count == 0) {
             // Nothing returned from source, stop loading in this direction
+            callback.onEmptyPrepend();
             return;
         }
         if (mPageSize > 0 && count != mPageSize) {
@@ -363,6 +388,7 @@ final class PagedStorage<T> extends AbstractList<T> {
         final int count = page.size();
         if (count == 0) {
             // Nothing returned from source, stop loading in this direction
+            callback.onEmptyAppend();
             return;
         }
 

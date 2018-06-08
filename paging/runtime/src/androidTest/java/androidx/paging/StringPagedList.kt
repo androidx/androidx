@@ -38,8 +38,10 @@ class StringPagedList constructor(leadingNulls: Int, trailingNulls: Int, vararg 
         return null
     }
 
-    override fun dispatchUpdatesSinceSnapshot(storageSnapshot: PagedList<String>,
-            callback: PagedList.Callback) {
+    override fun dispatchUpdatesSinceSnapshot(
+        storageSnapshot: PagedList<String>,
+        callback: PagedList.Callback
+    ) {
     }
 
     override fun loadAroundInternal(index: Int) {}
@@ -49,6 +51,10 @@ class StringPagedList constructor(leadingNulls: Int, trailingNulls: Int, vararg 
     override fun onPagePrepended(leadingNulls: Int, changed: Int, added: Int) {}
 
     override fun onPageAppended(endPosition: Int, changed: Int, added: Int) {}
+
+    override fun onEmptyPrepend() {}
+
+    override fun onEmptyAppend() {}
 
     override fun onPagePlaceholderInserted(pageIndex: Int) {}
 

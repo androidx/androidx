@@ -172,6 +172,16 @@ class TiledPagedList<T> extends PagedList<T>
     }
 
     @Override
+    public void onEmptyPrepend() {
+        throw new IllegalStateException("Contiguous callback on TiledPagedList");
+    }
+
+    @Override
+    public void onEmptyAppend() {
+        throw new IllegalStateException("Contiguous callback on TiledPagedList");
+    }
+
+    @Override
     public void onPagePlaceholderInserted(final int pageIndex) {
         // placeholder means initialize a load
         mBackgroundThreadExecutor.execute(new Runnable() {
