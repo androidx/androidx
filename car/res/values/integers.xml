@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <!-- Framework -->
+    <!-- Columns -->
+    <integer name="car_column_number">4</integer>
+
+    <!-- Application Components -->
+    <!-- Cards -->
+    <integer name="column_card_default_column_span">4</integer>
+
+    <!-- Dialogs -->
+    <integer name="car_dialog_column_number">10</integer>
+
+    <!-- Slide Up Menu -->
+    <integer name="car_slide_up_menu_column_number">4</integer>
+
+    <!-- Slide Down Menu -->
+    <integer name="car_slide_down_menu_column_number">4</integer>
+
+    <!-- The length limit of text in a borderless button. String longer than this limit should be
+         truncated. -->
+    <integer name="car_borderless_button_text_length_limit">20</integer>
+
+    <!-- The amount of time that it takes the speed bump lock-out message to translate into
+         position. -->
+    <integer name="speed_bump_translate_y_duration_ms">300</integer>
+
+    <!-- The amount of time that it takes the speed bump lock-out message to fade in and out. -->
+    <integer name="speed_bump_fade_duration_ms">167</integer>
+
+    <!-- The amount of time that the speed bump lock-out message should be displayed. -->
+    <integer name="speed_bump_lock_out_duration_ms">5933</integer>
+
+    <!-- A delay before the color of the speed bump bar changes. This value plus
+         speed_bump_lock_out_color_change_ms should be less than
+         speed_bump_lock_out_duration_ms. -->
+    <integer name="speed_bump_lock_out_color_change_start_delay_ms">5433</integer>
+
+    <!-- The amount of time for the speed bump background color to transition. -->
+    <integer name="speed_bump_lock_out_color_change_ms">500</integer>
+
+    <!-- Action Bar animation durations -->
+    <integer name="car_action_bar_expand_anim_duration">333</integer>
+    <integer name="car_action_bar_collapse_anim_duration">233</integer>
+
+    <!-- The number of columns of buttons to display in the alpha jump overview. -->
+    <!-- TODO(deanh): this could be calculated dynamically, or something else to better support
+        adaptive/responsive. -->
+    <integer name="alpha_jump_button_columns">6</integer>
+</resources>

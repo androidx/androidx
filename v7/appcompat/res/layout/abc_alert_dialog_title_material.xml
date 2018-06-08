@@ -42,7 +42,7 @@
             android:scaleType="fitCenter"
             android:src="@null"/>
 
-        <android.support.v7.widget.DialogTitle
+        <androidx.appcompat.widget.DialogTitle
             android:id="@+id/alertTitle"
             style="?android:attr/windowTitleStyle"
             android:layout_width="match_parent"
@@ -53,7 +53,7 @@
 
     </LinearLayout>
 
-    <android.support.v4.widget.Space
+    <android.widget.Space
         android:id="@+id/titleDividerNoCustom"
         android:layout_width="match_parent"
         android:layout_height="@dimen/abc_dialog_title_divider_material"

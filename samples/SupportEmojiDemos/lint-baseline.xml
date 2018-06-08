@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        EmojiCompat.reset(config);"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/text/emoji/Config.java"
+            line="133"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="Do not place Android context classes in static fields (static reference to `Config` which has field `mContext` pointing to `Context`); this is a memory leak (and also breaks Instant Run)"
+        errorLine1="    private static Config sInstance;"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/text/emoji/Config.java"
+            line="40"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/activity_main.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `ScrollView` layout or its `FrameLayout` parent is possibly useless"
+        errorLine1="    &lt;ScrollView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/fragment_main.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Show all emojis&quot;, should use `@string` resource"
+        errorLine1="                android:text=&quot;Show all emojis&quot;/>"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_main.xml"
+            line="80"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;EmojiCompat&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;EmojiCompat&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/layout_config.xml"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Replace All&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Replace All&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/layout_config.xml"
+            line="39"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Downloadable&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Downloadable&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/layout_config.xml"
+            line="46"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Indicator&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Indicator&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/layout_config.xml"
+            line="53"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_marginStart=&quot;@dimen/spacing_small&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_marginLeft=&quot;@dimen/spacing_small&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/list_item_emoji.xml"
+            line="39"
+            column="9"/>
+    </issue>
+
+</issues>

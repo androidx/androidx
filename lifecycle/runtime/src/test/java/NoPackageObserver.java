@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
+import static androidx.lifecycle.Lifecycle.Event.ON_CREATE;
 
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 class NoPackageObserver implements LifecycleObserver {
     @OnLifecycleEvent(ON_CREATE)

@@ -15,7 +15,7 @@
  */
 
 package foo.bar;
-import android.arch.persistence.room.*;
+import androidx.room.*;
 import java.util.List;
 
 @Dao
@@ -45,4 +45,10 @@ abstract interface UpdateDao {
 
     @Query("UPDATE User SET ageColumn = ageColumn + 1")
     void ageUserAll();
+
+    @Transaction
+    default void updateAndAge(User user) {
+        updateUser(user);
+        ageUserByUid(String.valueOf(user.uid));
+    }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2018 The Chromium Authors. All rights reserved.
+     Use of this source code is governed by a BSD-style license that can be
+     found in the LICENSE file. -->
+
+<resources>
+    <!-- Browser Actions Context Menu Dimensions -->
+    <dimen name="browser_actions_context_menu_min_padding">20dp</dimen>
+    <dimen name="browser_actions_context_menu_max_width">500dp</dimen>
+</resources>

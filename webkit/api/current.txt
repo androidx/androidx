@@ -1,0 +1,56 @@
+package androidx.webkit {
+
+  public abstract class ServiceWorkerClientCompat {
+    ctor public ServiceWorkerClientCompat();
+    method public abstract android.webkit.WebResourceResponse shouldInterceptRequest(android.webkit.WebResourceRequest);
+  }
+
+  public abstract class ServiceWorkerControllerCompat {
+    method public static androidx.webkit.ServiceWorkerControllerCompat getInstance();
+    method public abstract androidx.webkit.ServiceWorkerWebSettingsCompat getServiceWorkerWebSettings();
+    method public abstract void setServiceWorkerClient(androidx.webkit.ServiceWorkerClientCompat);
+  }
+
+  public abstract class ServiceWorkerWebSettingsCompat {
+    method public abstract boolean getAllowContentAccess();
+    method public abstract boolean getAllowFileAccess();
+    method public abstract boolean getBlockNetworkLoads();
+    method public abstract int getCacheMode();
+    method public abstract void setAllowContentAccess(boolean);
+    method public abstract void setAllowFileAccess(boolean);
+    method public abstract void setBlockNetworkLoads(boolean);
+    method public abstract void setCacheMode(int);
+  }
+
+  public class WebSettingsCompat {
+    method public static int getDisabledActionModeMenuItems(android.webkit.WebSettings);
+    method public static boolean getOffscreenPreRaster(android.webkit.WebSettings);
+    method public static boolean getSafeBrowsingEnabled(android.webkit.WebSettings);
+    method public static void setDisabledActionModeMenuItems(android.webkit.WebSettings, int);
+    method public static void setOffscreenPreRaster(android.webkit.WebSettings, boolean);
+    method public static void setSafeBrowsingEnabled(android.webkit.WebSettings, boolean);
+  }
+
+  public class WebViewClientCompat extends android.webkit.WebViewClient {
+    ctor public WebViewClientCompat();
+  }
+
+  public class WebViewCompat {
+    method public static android.content.pm.PackageInfo getCurrentWebViewPackage(android.content.Context);
+    method public static android.net.Uri getSafeBrowsingPrivacyPolicyUrl();
+    method public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
+    method public static void setSafeBrowsingWhitelist(java.util.List<java.lang.String>, android.webkit.ValueCallback<java.lang.Boolean>);
+    method public static void startSafeBrowsing(android.content.Context, android.webkit.ValueCallback<java.lang.Boolean>);
+  }
+
+  public static abstract interface WebViewCompat.VisualStateCallback {
+    method public abstract void onComplete(long);
+  }
+
+  public class WebViewFeature {
+    method public static boolean isFeatureSupported(java.lang.String);
+    field public static final java.lang.String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
+  }
+
+}
+

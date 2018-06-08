@@ -1,27 +1,33 @@
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api project(':support-annotations')
-    api project(':support-core-utils')
-    api project(':support-fragment')
-    api project(':support-vector-drawable')
-    api project(':animated-vector-drawable')
+    api(project(":annotation"))
 
-    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
-    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
-    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
-    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
-    androidTestImplementation project(':support-testutils')
+    api(project(":core"))
+    api(project(":collection"))
+    api(project(":cursoradapter"))
+    api(project(":legacy-support-core-utils"))
+    api(project(":fragment"))
+    api(project(":vectordrawable"))
+    api(project(":vectordrawable-animated"))
+
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation project(':internal-testutils'), {
+        exclude group: 'androidx.appcompat', module: 'appcompat'
+    }
 }
 
 android {
     defaultConfig {
-        minSdkVersion 14
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
     }
@@ -34,14 +40,19 @@ android {
         additionalParameters "--no-version-vectors"
         noCompress 'ttf'
     }
+
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
 }
 
 supportLibrary {
     name = "Android AppCompat Library v7"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.APPCOMPAT
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
-    legacySourceLocation = true
+    failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
 }

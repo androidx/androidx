@@ -16,9 +16,9 @@
 
 package com.example.android.support.design.widget;
 
-import com.example.android.support.design.R;
-
 import android.support.design.widget.BottomSheetBehavior;
+
+import com.example.android.support.design.R;
 
 
 /**

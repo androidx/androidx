@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <!-- The configurable attributes for a ColumnCardView. -->
+    <declare-styleable name="ColumnCardView">
+        <!-- The number of columns that this ColumnCardView should span across. This value will
+             determine the width of the card. -->
+        <attr name="columnSpan" format="integer" />
+    </declare-styleable>
+
+    <!-- The configurable attributes in PagedListView. -->
+    <declare-styleable name="PagedListView">
+        <!-- Whether or not to offset the list view by the width of scroll bar. Setting this to
+             true will ensure that any views within the list will not overlap the scroll bar.
+             Deprecated: use gutter instead. If gutter is specified, this value is ignored.-->
+        <attr name="offsetScrollBar" format="boolean" />
+        <!-- Whether to include a gutter to the start, end or both sides of the list view items.
+             The gutter width will be the width of the scrollbar, and by default will be set to
+             both. -->
+        <attr name="gutter" format="enum">
+            <!-- No gutter on either side, the list view items will extend the full width of the
+                 PagedListView. -->
+            <enum name="none" value="0" />
+            <!-- Include a gutter on the start side only (i.e. the side with the scrollbar). -->
+            <enum name="start" value="1" />
+            <!-- Include a gutter on the end side only (i.e. the opposite side to the
+                 scrollbar). -->
+            <enum name="end" value="2" />
+            <!-- Include a gutter on both sides of the list view items. -->
+            <enum name="both" value="3" />
+        </attr>
+        <!-- The size of the gutter that is either at the start, end or both sides of the
+             items in the PagedListView. There is a default value that changes per screen size if
+             a gutter size is not explicitly set.-->
+        <attr name="gutterSize" format="dimension" />
+        <!-- Whether to display the scrollbar or not. Defaults to true. -->
+        <attr name="scrollBarEnabled" format="boolean" />
+        <!-- Sets the color of the scroll bar. This color only affects the thumb of the scroll bar;
+             the up/down buttons are unaffected. To set these, use upButtonIcon and downButtonIcon
+             respectively. -->
+        <attr name="scrollBarColor" format="color" />
+        <!-- The top margin before the scroll bar is drawn. -->
+        <attr name="scrollBarTopMargin" format="dimension" />
+        <!-- The width of the container that will hold the scrollbar. The scrollbar is centered
+             within this value. If this value is not explicitly set, the scrollbar centers itself
+             within the car_margin value. -->
+        <attr name="scrollBarContainerWidth" format="dimension" />
+        <!-- Whether or not to show a vertical diving line between each item of the list. Divider
+             after the last item (LinearLayoutManager) or row (GridLayoutManager) will not be shown
+             but there will be an offset for divider space. -->
+        <attr name="showPagedListViewDivider" format="boolean" />
+        <!-- An optional id that specifies a child View whose starting edge will be used to
+             determine the start position of the dividing line. -->
+        <attr name="alignDividerStartTo" format="reference" />
+        <!-- An optional id that specifies a child View whose ending edge will be used to
+             determine the end position of the dividing line. -->
+        <attr name="alignDividerEndTo" format="reference" />
+        <!-- A starting margin before the drawing of the dividing line. This margin will be an
+             offset from the view specified by "alignDividerStartTo" if given. -->
+        <attr name="dividerStartMargin" format="dimension" />
+        <!-- An ending margin before the drawing of the dividing line. This margin will be an
+             offset from the view specified by "alignDividerEndTo" if given. -->
+        <attr name="dividerEndMargin" format="dimension" />
+        <!-- The color of the list divider. -->
+        <attr name="listDividerColor" format="color" />
+        <!-- The width of the margin on the right side of the list.
+             Deprecated: use gutter instead. If gutter is specified, this value is ignored.-->
+        <attr name="listEndMargin" format="dimension" />
+        <!-- An optional vertical spacing between items in the list. In GridLayoutManager items in
+             the last row would still have spacing at bottom. -->
+        <attr name="itemSpacing" format="dimension" />
+        <!-- The icon to be used for the up button of the scroll bar. -->
+        <attr name="upButtonIcon" format="reference" />
+        <!-- The icon to be used for the down button of the scroll bar.  -->
+        <attr name="downButtonIcon" format="reference" />
+        <!-- The amount of space before the first item in the list view. This space is
+             scrollable with the contents of the list. -->
+        <attr name="listContentTopOffset" format="reference" />
+        <!-- Vertically center the list contents when the number of items in the list does not take
+             up the full height of the PagedListView. This value is "false" by default. -->
+        <attr name="verticallyCenterListContent" format="boolean" />
+        <!-- Specifies how the PagedListView should respond to day/night mode events. The values
+             here should match the DayNightStyle @interface. See that class for more
+             information. -->
+        <attr name="dayNightStyle" format="enum">
+            <!-- Automatically changes colors for day/night, assuming the content is light during
+                 the day and dark during the night. This is the default behavior. -->
+            <enum name="auto" value="0" />
+            <!-- Automatically changes colors for day/night, with the colors being inverted from
+                 "auto". -->
+            <enum name="auto_inverse" value="1" />
+            <!-- Fixes the colors to be light colored.  -->
+            <enum name="always_light" value="2" />
+            <!-- Fixes the colors to be dark colored.  -->
+            <enum name="always_dark" value="3" />
+            <!-- Fixes the colors to be light colored.
+                 Deprecated: use "always_light" instead. -->
+            <enum name="force_night" value="4" />
+            <!-- Fixes the colors to be dark colored.
+                 Deprecated: use "always_dark" instead. -->
+            <enum name="force_day" value="5" />
+        </attr>
+    </declare-styleable>
+
+    <!-- The configuration for modifying the ListItem. These ListItems are only intended to be used
+         within a PagedListView. -->
+    <declare-styleable name="ListItem">
+        <!-- The background color of each ListItem. -->
+        <attr name="listItemBackgroundColor" format="color"/>
+        <!-- The TextAppearance of the title text in the ListItem. -->
+        <attr name="listItemTitleTextAppearance" format="reference"/>
+        <!-- The TextAppearance of the body text in the ListItem. -->
+        <attr name="listItemBodyTextAppearance" format="reference"/>
+        <!-- The TextAppearance of the text in the Subheader ListItem. -->
+        <attr name="listItemSubheaderTextAppearance" format="reference"/>
+    </declare-styleable>
+
+    <!-- The attributes for customizing the appearance of the hamburger and back arrow in the
+       drawer. -->
+    <declare-styleable name="DrawerArrowDrawable">
+        <!-- The color of the arrow. -->
+        <attr name="carArrowColor" format="color"/>
+        <!-- Whether the arrow will animate when switches directions. -->
+        <attr name="carArrowAnimate" format="boolean"/>
+        <!-- The size of the arrow's bounding box. -->
+        <attr name="carArrowSize" format="dimension"/>
+        <!-- The length of the top and bottom bars that merge to form the point of the arrow. -->
+        <attr name="carArrowHeadLength" format="dimension"/>
+        <!-- The length of arrow shaft. -->
+        <attr name="carArrowShaftLength" format="dimension"/>
+        <!-- The thickness of each of the bars that form the arrow. -->
+        <attr name="carArrowThickness" format="dimension"/>
+        <!-- The spacing between the menu bars (i.e. the "hamburger" icon). -->
+        <attr name="carMenuBarSpacing" format="dimension"/>
+        <!-- The size of the menu bars (i.e. the "hamburger" icon). -->
+        <attr name="carMenuBarThickness" format="dimension"/>
+    </declare-styleable>
+
+    <!-- Attributes for the ClickThroughToolbar. -->
+    <declare-styleable name="ClickThroughToolbar">
+        <!-- Whether or not clicks on this toolbar will pass through to an underlying view. This
+             value is false by default. -->
+        <attr name="clickThrough" format="boolean"/>
+    </declare-styleable>
+
+    <!-- Attributes for the ActionBar. -->
+    <declare-styleable name="ActionBar">
+        <!-- The number of horizontal slots. The minimum number is 3. -->
+        <attr name="columns" format="integer" />
+    </declare-styleable>
+
+    <!-- Attributes specifically related to modifying car themes. -->
+    <declare-styleable name="CarTheme">
+        <!-- ================== -->
+        <!-- Theming Attributes -->
+        <!-- ================== -->
+        <eat-comment />
+
+        <!-- Attribute for specifying the styling of dialogs within a car theme. Note: this is
+             different from the style that is applied to framework/AppCompat dialogs. This will
+             only affect the styling of dialogs provided by the car support library. -->
+        <attr name="carDialogTheme" format="reference"/>
+
+        <!-- An attribute for specifying a style that modifies the look of a PagedListView. -->
+        <attr name="pagedListViewStyle" format="reference"/>
+
+        <!-- ================= -->
+        <!-- Dialog Attributes -->
+        <!-- ================= -->
+        <eat-comment />
+
+        <!-- The background color of a dialog. -->
+        <attr name="dialogBackgroundColor" format="color"/>
+
+        <!-- The style of the title text in a CarAlertDialog. -->
+        <attr name="dialogTitleStyle" format="reference"/>
+        <!-- The style of the body text in a CarAlertDialog or the list items in a CarListDialog. -->
+        <attr name="dialogBodyStyle" format="reference"/>
+        <!-- The style of the action buttons in a CarAlertDialog. -->
+        <attr name="dialogButtonStyle" format="reference"/>
+        <!-- A theme for the styling of the list in a CarListDialog. -->
+        <attr name="dialogListTheme" format="reference"/>
+
+        <!-- ================= -->
+        <!-- Drawer Attributes -->
+        <!-- ================= -->
+        <eat-comment />
+
+        <!-- The background color of the drawer. -->
+        <attr name="drawerBackgroundColor" format="color"/>
+        <!-- The color of the header text and arrow in the drawer. -->
+        <attr name="drawerHeaderColor" format="color"/>
+        <!-- The ripple color for items in the drawer. -->
+        <attr name="drawerRippleColor" format="color"/>
+        <!-- The TextAppearance of each item's title text in the drawer list. -->
+        <attr name="drawerItemTitleTextAppearance" format="reference"/>
+        <!-- The TextAppearance of each item's body text in the drawer list. -->
+        <attr name="drawerItemBodyTextAppearance" format="reference"/>
+        <!-- The styling of the list in the drawer. -->
+        <attr name="drawerListStyle" format="reference"/>
+
+    </declare-styleable>
+</resources>

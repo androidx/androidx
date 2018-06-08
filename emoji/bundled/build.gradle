@@ -1,5 +1,5 @@
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -10,24 +10,20 @@ ext {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-
     sourceSets {
         main.assets.srcDirs new File(fontDir, "font").getAbsolutePath()
     }
 }
 
 dependencies {
-    api project(':support-emoji')
+    api(project(":emoji"))
 }
 
 supportLibrary {
     name = "Android Emoji Compat"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.EMOJI
     inceptionYear = "2017"
     description = "Library bundled with assets to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
 
@@ -40,5 +36,4 @@ supportLibrary {
         name = "Unicode, Inc. License"
         url = "http://www.unicode.org/copyright.html#License"
     }
-    legacySourceLocation = true
 }

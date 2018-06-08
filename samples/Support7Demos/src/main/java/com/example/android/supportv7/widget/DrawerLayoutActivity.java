@@ -20,12 +20,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -34,6 +28,14 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.example.android.supportv7.R;
 import com.example.android.supportv7.Shakespeare;
 
@@ -164,7 +166,7 @@ public class DrawerLayoutActivity extends AppCompatActivity {
                         // What is the action bar size?
                         final Resources.Theme theme = mDrawerLayout.getContext().getTheme();
                         final TypedArray a = theme.obtainStyledAttributes(
-                                new int[] { android.support.v7.appcompat.R.attr.actionBarSize });
+                                new int[] { androidx.appcompat.R.attr.actionBarSize });
                         final int actionBarSize = a.getDimensionPixelSize(0, 0);
                         if (a != null) {
                             a.recycle();

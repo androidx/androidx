@@ -16,8 +16,6 @@
  */
 package com.example.android.leanback;
 
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
@@ -26,6 +24,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 public class BrowseErrorSupportActivity extends FragmentActivity
 {

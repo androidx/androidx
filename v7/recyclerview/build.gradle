@@ -1,38 +1,37 @@
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("kotlin-android")
 }
 
 dependencies {
-    api project(':support-annotations')
-    api project(':support-compat')
-    api project(':support-core-ui')
+    api(project(":annotation"))
+    api(project(":core"))
+    api(project(":legacy-support-core-ui"))
 
-    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
-    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
-    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
-    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
-    androidTestImplementation libs.junit
-    androidTestImplementation project(':support-testutils')
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(project(":internal-testutils"))
 
-    testImplementation libs.junit
-    testImplementation libs.mockito_core
-    testImplementation libs.test_runner, { exclude module: 'support-annotations' }
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-
     sourceSets {
-        main.res.srcDirs 'res', 'res-public'
+        main.res.srcDirs "res", "res-public"
     }
 
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles("proguard-rules.pro")
     }
 }
 
@@ -40,8 +39,9 @@ supportLibrary {
     name = "Android Support RecyclerView v7"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2014"
     description = "Android Support RecyclerView v7"
-    legacySourceLocation = true
+    failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
 }

@@ -15,5 +15,5 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.arch.persistence.db">
+          package="androidx.sqlite.db">
 </manifest>

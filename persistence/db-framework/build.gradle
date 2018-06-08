@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-import android.support.LibraryGroups
-import android.support.LibraryVersions
-import android.support.SupportLibraryExtension
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.SupportLibraryExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion flatfoot.min_sdk
-    }
-}
-
 dependencies {
-    api libs.support.annotations
-    api project(":persistence:db")
+    api(SUPPORT_ANNOTATIONS)
+    api(project(":sqlite:sqlite"))
 }
-
-createAndroidCheckstyle(project)
 
 supportLibrary {
     name = "Android Support SQLite - Framework Implementation"

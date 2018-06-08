@@ -14,33 +14,21 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
 
 dependencies {
-    implementation project(':design')
-    implementation project(':appcompat-v7')
-    implementation project(':support-content')
+    implementation("com.android.support:design:28.0.0-SNAPSHOT", { transitive = false })
+    implementation(project(":transition"))
+    implementation(project(":recyclerview"))
+    implementation(project(":appcompat"))
+    implementation(project(":contentpager"))
 }
 
 android {
-    compileSdkVersion project.ext.currentSdk
-
     defaultConfig {
-        applicationId "com.example.android.support.content.demos"
+        applicationId "com.example.androidx.contentpager.content.demos"
         minSdkVersion 14
-        targetSdkVersion project.ext.currentSdk
-    }
-
-    signingConfigs {
-        debug {
-            // Use a local debug keystore to avoid build server issues.
-            storeFile project.rootProject.init.debugKeystore
-        }
-    }
-
-    lintOptions {
-        abortOnError true
-        disable "SetTextI18n", "AppCompatResource", "WrongConstant", "AllowBackup",
-                "GoogleAppIndexingWarning", "AlwaysShowAction"
     }
 }

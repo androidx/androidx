@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="InvalidPackage"
+        message="Invalid package reference in library; not included in Android: `java.lang.management`. Referenced from `org.junit.internal.runners.statements.FailOnTimeout`.">
+        <location
+            file="../../../../../prebuilts/tools/common/m2/repository/junit/junit/4.12/junit-4.12.jar"/>
+    </issue>
+
+</issues>

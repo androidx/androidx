@@ -16,28 +16,30 @@
 
 package com.example.android.supportv7.view;
 
-import static android.support.v7.widget.GridLayout.ALIGN_BOUNDS;
-import static android.support.v7.widget.GridLayout.BASELINE;
-import static android.support.v7.widget.GridLayout.CENTER;
-import static android.support.v7.widget.GridLayout.FILL;
-import static android.support.v7.widget.GridLayout.LEFT;
-import static android.support.v7.widget.GridLayout.RIGHT;
-import static android.support.v7.widget.GridLayout.spec;
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
 import static android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
+
+import static androidx.gridlayout.widget.GridLayout.ALIGN_BOUNDS;
+import static androidx.gridlayout.widget.GridLayout.BASELINE;
+import static androidx.gridlayout.widget.GridLayout.CENTER;
+import static androidx.gridlayout.widget.GridLayout.FILL;
+import static androidx.gridlayout.widget.GridLayout.LEFT;
+import static androidx.gridlayout.widget.GridLayout.RIGHT;
+import static androidx.gridlayout.widget.GridLayout.spec;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayout;
-import android.support.v7.widget.GridLayout.LayoutParams;
-import android.support.v7.widget.GridLayout.Spec;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.gridlayout.widget.GridLayout;
+import androidx.gridlayout.widget.GridLayout.LayoutParams;
+import androidx.gridlayout.widget.GridLayout.Spec;
 
 /**
  * A form, showing use of the GridLayout API. Here we demonstrate use of the row/column order

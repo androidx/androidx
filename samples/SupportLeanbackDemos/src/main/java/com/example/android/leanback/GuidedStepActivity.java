@@ -23,13 +23,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v17.leanback.app.GuidedStepFragment;
-import android.support.v17.leanback.widget.GuidanceStylist;
-import android.support.v17.leanback.widget.GuidanceStylist.Guidance;
-import android.support.v17.leanback.widget.GuidedAction;
-import android.support.v17.leanback.widget.GuidedActionsStylist;
-import android.support.v17.leanback.widget.GuidedDatePickerAction;
-import android.support.v4.content.res.ResourcesCompat;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -37,6 +30,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+
+import androidx.core.content.res.ResourcesCompat;
+import androidx.leanback.app.GuidedStepFragment;
+import androidx.leanback.widget.GuidanceStylist;
+import androidx.leanback.widget.GuidanceStylist.Guidance;
+import androidx.leanback.widget.GuidedAction;
+import androidx.leanback.widget.GuidedActionsStylist;
+import androidx.leanback.widget.GuidedDatePickerAction;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,6 +56,7 @@ public class GuidedStepActivity extends Activity {
     private static final int PAYMENT = 6;
     private static final int NEW_PAYMENT = 7;
     private static final int PAYMENT_EXPIRE = 8;
+    private static final int REFRESH = 9;
 
     private static final long RADIO_ID_BASE = 0;
     private static final long CHECKBOX_ID_BASE = 100;
@@ -222,6 +224,10 @@ public class GuidedStepActivity extends Activity {
                     .description("Let's do it")
                     .build());
             actions.add(new GuidedAction.Builder(context)
+                    .id(REFRESH)
+                    .title("Refresh")
+                    .build());
+            actions.add(new GuidedAction.Builder(context)
                     .clickAction(GuidedAction.ACTION_ID_CANCEL)
                     .description("Never mind")
                     .build());
@@ -232,6 +238,24 @@ public class GuidedStepActivity extends Activity {
             FragmentManager fm = getFragmentManager();
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 GuidedStepFragment.add(fm, new SecondStepFragment(), R.id.lb_guidedstep_host);
+            } else if (action.getId() == REFRESH) {
+                // swap actions position and change content:
+                Context context = getActivity();
+                ArrayList<GuidedAction> newActions = new ArrayList();
+                newActions.add(new GuidedAction.Builder(context)
+                        .id(REFRESH)
+                        .title("Refresh done")
+                        .build());
+                newActions.add(new GuidedAction.Builder(context)
+                        .clickAction(GuidedAction.ACTION_ID_CONTINUE)
+                        .description("Let's do it")
+                        .build());
+                newActions.add(new GuidedAction.Builder(context)
+                        .clickAction(GuidedAction.ACTION_ID_CANCEL)
+                        .description("Never mind")
+                        .build());
+                //setActionsDiffCallback(null);
+                setActions(newActions);
             } else if (action.getId() == GuidedAction.ACTION_ID_CANCEL){
                 finishGuidedStepFragments();
             }

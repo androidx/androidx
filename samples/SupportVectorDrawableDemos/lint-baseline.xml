@@ -1,0 +1,979 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_1.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_1_path_motion.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_1_path_motion_object.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_accelerate.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_decelerate.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/animation_vector_progress_bar.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:aapt=&quot;http://schemas.android.com/aapt&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/btn_radio_on_to_off_bundle.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/ic_hourglass_animation.xml"
+            line="15"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/ic_signal_airplane_v2_animation.xml"
+            line="15"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 14)"
+        errorLine1="                        android:fillColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable23.xml"
+            line="74"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 14)"
+        errorLine1="                        android:strokeColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable23.xml"
+            line="75"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 14)"
+        errorLine1="                        android:fillColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable24.xml"
+            line="74"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 14)"
+        errorLine1="                        android:strokeColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable24.xml"
+            line="75"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `controlX1` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="                  android:controlX1=&quot;0&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/interpolator/control_points_interpolator.xml"
+            line="19"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `controlY1` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="                  android:controlY1=&quot;0&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/interpolator/control_points_interpolator.xml"
+            line="20"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `controlX2` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="                  android:controlX2=&quot;0&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/interpolator/control_points_interpolator.xml"
+            line="21"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `controlY2` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="                  android:controlY2=&quot;1&quot;/>"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/interpolator/control_points_interpolator.xml"
+            line="22"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `pathData` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="    android:pathData=&quot;M 0.0,0.0 c 0.08,0.0 0.04,1.0 0.2,0.8 l 0.6,0.1 L 1.0,1.0&quot;/>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/interpolator/path_interpolator.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `propertyXName` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="        android:propertyXName=&quot;translateX&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/anim/path_motion.xml"
+            line="21"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `propertyYName` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="        android:propertyYName=&quot;translateY&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/anim/path_motion.xml"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `pathData` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="        android:pathData=&quot;m -35, 0  a 35,35 0 1,0 70,0  a 35,35 0 1,0 -70,0  m 70, 0 a 35,35 0 1,0 -70,0  a 35,35 0 1,0 70,0&quot;/>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/anim/path_motion.xml"
+            line="23"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `propertyXName` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="    android:propertyXName=&quot;translateX&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/anim/path_motion_object.xml"
+            line="21"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `propertyYName` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="    android:propertyYName=&quot;translateY&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/anim/path_motion_object.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `pathData` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="    android:pathData=&quot;M0 0 M 18 18 M 0 0 m -35, 0  a 35,35 0 1,0 70,0  a 35,35 0 1,0 -70,0  m 70, 0 a 35,35 0 1,0 -70,0  a 35,35 0 1,0 70,0&quot;/>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/anim/path_motion_object.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `controlX1` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="                  android:controlX1=&quot;1&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/interpolator/single_control_point_interpolator.xml"
+            line="20"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `controlY1` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="                  android:controlY1=&quot;0&quot;/>"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/interpolator/single_control_point_interpolator.xml"
+            line="21"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `viewportHeight` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="        android:viewportHeight=&quot;480&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/raw/vector_drawable01.xml"
+            line="20"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `viewportWidth` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="        android:viewportWidth=&quot;480&quot; >"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/raw/vector_drawable01.xml"
+            line="21"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `pathData` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:pathData=&quot;m20,200l100,90l180-180l-35-35l-145,145l-60-60l-40,40z&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/raw/vector_drawable01.xml"
+            line="26"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `fillColor` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:fillColor=&quot;?android:attr/colorControlActivated&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/raw/vector_drawable01.xml"
+            line="27"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `strokeColor` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:strokeColor=&quot;?android:attr/colorControlActivated&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/raw/vector_drawable01.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `strokeLineCap` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:strokeLineCap=&quot;round&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/raw/vector_drawable01.xml"
+            line="29"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `strokeLineJoin` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="            android:strokeLineJoin=&quot;round&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/raw/vector_drawable01.xml"
+            line="30"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `autoMirrored` is only used in API level 19 and higher (current min is 14)"
+        errorLine1="    android:autoMirrored=&quot;true&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="16"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `autoMirrored` is only used in API level 19 and higher (current min is 14)"
+        errorLine1="    android:autoMirrored=&quot;true&quot; >"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable28.xml"
+            line="21"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use -0.001 instead of -.001 to avoid crashes on some devices"
+        errorLine1="                m-.001, 0"
+        errorLine2="                     ^">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="27"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0 .002,0"
+        errorLine2="                      ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="28"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0 .002,0"
+        errorLine2="                           ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="28"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.002 instead of .002 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0 .002,0"
+        errorLine2="                                      ^">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="28"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use -0.002 instead of -.002 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0-.002,0z&quot; />"
+        errorLine2="                                     ~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="29"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0-.002,0z&quot; />"
+        errorLine2="                      ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="29"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0-.002,0z&quot; />"
+        errorLine2="                           ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="29"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use -0.5 instead of -.5 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                                    ~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                  ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                      ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                        ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                                ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                                  ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.5 instead of .5 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                    ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.5 instead of .5 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                          ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application android:icon=&quot;@drawable/app_sample_code&quot; android:label=&quot;SupportVectorDrawableDemos&quot; >"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application android:icon=&quot;@drawable/app_sample_code&quot; android:label=&quot;SupportVectorDrawableDemos&quot; >"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.color1` appears to be unused"
+        errorLine1="    &lt;color name=&quot;color1&quot;>#ff3838&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="17"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.color3` appears to be unused"
+        errorLine1="    &lt;color name=&quot;color3&quot;>#0ed300&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="19"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.triangle` appears to be unused"
+        errorLine1="    &lt;string name=&quot;triangle&quot;> &quot;M300,70 l 0,-70 70,70 0,0   -70,70z&quot;&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="20"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.rectangle` appears to be unused"
+        errorLine1="    &lt;string name=&quot;rectangle&quot;>&quot;M300,70 l 0,-70 70,0  0,140 -70,0 z&quot;&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="21"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.rectangle2` appears to be unused"
+        errorLine1="    &lt;string name=&quot;rectangle2&quot;>&quot;M300,70 l 0,-70 70,0  0,70z M300,70  l 70,0 0,70 -70,0z&quot;&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="22"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.equal2` appears to be unused"
+        errorLine1="    &lt;string name=&quot;equal2&quot;>    &quot;M300,35 l 0,-35 70,0  0,35z M300,105 l 70,0 0,35 -70,0z&quot;&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="23"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.round_box` appears to be unused"
+        errorLine1="    &lt;string name=&quot;round_box&quot;>&quot;m2.10001,-6c-1.9551,0 -0.5,0.02499 -2.10001,0.02499c-1.575,0 0.0031,-0.02499 -1.95,-0.02499c-2.543,0 -4,2.2816 -4,4.85001c0,3.52929 0.25,6.25 5.95,6.25c5.7,0 6,-2.72071 6,-6.25c0,-2.56841 -1.35699,-4.85001 -3.89999,-4.85001&quot;&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="24"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.heart` appears to be unused"
+        errorLine1="    &lt;string name=&quot;heart&quot;>    &quot;m4.5,-7c-1.95509,0 -3.83009,1.26759 -4.5,3c-0.66991,-1.73241 -2.54691,-3 -4.5,-3c-2.543,0 -4.5,1.93159 -4.5,4.5c0,3.5293 3.793,6.2578 9,11.5c5.207,-5.2422 9,-7.9707 9,-11.5c0,-2.56841 -1.957,-4.5 -4.5,-4.5&quot;&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="25"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.raw.vector_drawable01` appears to be unused"
+        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/raw/vector_drawable01.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/app_sample_code.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/app_sample_code.png"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
+        errorLine1="    &lt;application android:icon=&quot;@drawable/app_sample_code&quot; android:label=&quot;SupportVectorDrawableDemos&quot; >"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view ``AppCompatImageView`` has `setOnTouchListener` called on it but does not override `performClick`"
+        errorLine1="        imageView1.setOnTouchListener(new View.OnTouchListener() {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="115"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`onTouch` should call `View#performClick` when a click is detected"
+        errorLine1="            public boolean onTouch(View v, MotionEvent event) {"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="117"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view ``AppCompatImageView`` has `setOnTouchListener` called on it but does not override `performClick`"
+        errorLine1="        imageView2.setOnTouchListener(new View.OnTouchListener() {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="125"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`onTouch` should call `View#performClick` when a click is detected"
+        errorLine1="            public boolean onTouch(View v, MotionEvent event) {"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="127"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        textView1.setText(&quot;Should show start / end for first AVD&quot;);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="45"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        textView2.setText(&quot;Not affected by AVD, b/c removed after register&quot;);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="47"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        textView3.setText(&quot;Should show start / end for second AVD&quot;);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="49"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        textView4.setText(&quot;Not affected by AVD, b/c unregistered after register&quot;);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="51"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                        textView1.setText(&quot;AVD 1 started&quot;);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="60"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                        textView1.setText(&quot;AVD 1 Ended&quot;);"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="65"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                        textView2.setText(&quot;AVD 1 started&quot;);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="72"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                        textView2.setText(&quot;AVD 1 Ended&quot;);"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="77"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                        textView3.setText(&quot;AVD 2 started&quot;);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="89"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                        textView3.setText(&quot;AVD 2 Ended&quot;);"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="94"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                        textView4.setText(&quot;AVD 2 started&quot;);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="102"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                        textView4.setText(&quot;AVD 2 Ended&quot;);"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="107"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        t.setText(&quot;avgL=&quot; + df.format(time / (mIcons.length)) + &quot; ms&quot;);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
+            line="69"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        t.setText(&quot;avgL=&quot; + df.format(time / (mIcons.length)) + &quot; ms&quot;);"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
+            line="69"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        t.setText(&quot;avgL=&quot; + df.format(time / (mIcons.length)) + &quot; ms&quot;);"
+        errorLine2="                                                                ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
+            line="69"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        t.setText(&quot;avgL=&quot; + df.format(time / (mIcons.length)) + &quot; ms&quot;);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"
+            line="119"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        t.setText(&quot;avgL=&quot; + df.format(time / (mIcons.length)) + &quot; ms&quot;);"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"
+            line="119"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        t.setText(&quot;avgL=&quot; + df.format(time / (mIcons.length)) + &quot; ms&quot;);"
+        errorLine2="                                                                ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"
+            line="119"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;TextView&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;TextView&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/avdc_listener.xml"
+            line="29"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;TextView&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;TextView&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/avdc_listener.xml"
+            line="33"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;TextView&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;TextView&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/avdc_listener.xml"
+            line="41"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;TextView&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;TextView&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/avdc_listener.xml"
+            line="45"
+            column="9"/>
+    </issue>
+
+</issues>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <!-- Car Component Dimensions -->
+    <!-- Type Sizings -->
+    <dimen name="car_title2_size">40sp</dimen>
+    <dimen name="car_headline1_size">56sp</dimen>
+    <dimen name="car_headline2_size">50sp</dimen>
+    <dimen name="car_body1_size">40sp</dimen>
+    <dimen name="car_body2_size">32sp</dimen>
+    <dimen name="car_label1_size">32sp</dimen>
+    <dimen name="car_action1_size">32sp</dimen>
+    <dimen name="car_action2_size">32sp</dimen>
+
+    <!-- Navigation Bar -->
+    <dimen name="car_navigation_bar_height">128dp</dimen>
+
+    <!-- Icons and Buttons -->
+    <!-- Icons -->
+    <dimen name="car_primary_icon_size">56dp</dimen>
+    <dimen name="car_secondary_icon_size">36dp</dimen>
+
+    <!-- Buttons -->
+    <dimen name="car_pill_button_size">76dp</dimen>
+
+    <!-- Minimum touch target size. -->
+    <dimen name="car_touch_target_size">96dp</dimen>
+
+    <!-- Status Bar -->
+    <dimen name="car_status_bar_height">56dp</dimen>
+
+    <!-- Application Bar -->
+    <dimen name="car_app_bar_height">112dp</dimen>
+
+    <!-- List Items -->
+    <dimen name="car_single_line_list_item_height">128dp</dimen>
+
+    <!-- Cards -->
+    <dimen name="car_card_header_height">96dp</dimen>
+    <dimen name="car_card_action_bar_height">96dp</dimen>
+
+    <!-- Slide Up Menu -->
+    <dimen name="car_slide_up_menu_initial_height">128dp</dimen>
+
+    <!-- Sub Header -->
+    <dimen name="car_sub_header_height">96dp</dimen>
+
+    <!-- The height of a vertical line divider. -->
+    <dimen name="car_vertical_line_divider_height">96dp</dimen>
+</resources>

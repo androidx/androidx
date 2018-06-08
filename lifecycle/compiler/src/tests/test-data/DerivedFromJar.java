@@ -1,9 +1,9 @@
 package foo;
 
-import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static androidx.lifecycle.Lifecycle.Event.ON_START;
 
-import android.arch.lifecycle.Lifecycle.Event;
-import android.arch.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.Lifecycle.Event;
+import androidx.lifecycle.OnLifecycleEvent;
 
 public class DerivedFromJar extends test.library.LibraryBaseObserver {
     @OnLifecycleEvent(ON_START)

@@ -16,14 +16,14 @@
 
 package foo;
 
-import android.arch.lifecycle.GeneratedAdapter;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.MethodCallsLogger;
+import androidx.lifecycle.GeneratedAdapter;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MethodCallsLogger;
 import java.lang.Override;
 import javax.annotation.Generated;
 
-@Generated("android.arch.lifecycle.LifecycleProcessor")
+@Generated("androidx.lifecycle.LifecycleProcessor")
 public class InterfaceOk2Base_LifecycleAdapter implements GeneratedAdapter {
   final InterfaceOk2Base mReceiver;
 

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Name for the default system route prior to Jellybean. [CHAR LIMIT=30] -->
+    <string name="mr_system_route_name">System</string>
+
+    <!-- Name for the user route category created when publishing routes to the system in Jellybean and above. [CHAR LIMIT=30] -->
+    <string name="mr_user_route_category_name">Devices</string>
+
+    <!-- String to be shown as a tooltip of MediaRouteButton
+        Cast is the standard android verb for sending content to a remote device. [CHAR LIMIT=50] -->
+    <string name="mr_button_content_description">Cast button</string>
+
+    <!-- Content description of a MediaRouteButton for accessibility support when no remote device is connected.
+        Cast is the standard android verb for sending content to a remote device. [CHAR LIMIT=NONE] -->
+    <string name="mr_cast_button_disconnected">Cast button. Disconnected</string>
+
+    <!-- Content description of a MediaRouteButton for accessibility support while connecting to a remote device.
+        Cast is the standard android verb for sending content to a remote device. [CHAR LIMIT=NONE] -->
+    <string name="mr_cast_button_connecting">Cast button. Connecting</string>
+
+    <!-- Content description of a MediaRouteButton for accessibility support when a remote device is connected.
+        Cast is the standard android verb for sending content to a remote device. [CHAR LIMIT=NONE] -->
+    <string name="mr_cast_button_connected">Cast button. Connected</string>
+
+    <!-- Title of the media route chooser dialog. [CHAR LIMIT=30] -->
+    <string name="mr_chooser_title">Cast to</string>
+
+    <!-- Placeholder text to show when no devices have been found. [CHAR LIMIT=50] -->
+    <string name="mr_chooser_searching">Finding devices</string>
+
+    <!-- Button to disconnect from a media route.  [CHAR LIMIT=30] -->
+    <string name="mr_controller_disconnect">Disconnect</string>
+
+    <!-- Button to stop playback and disconnect from a media route. [CHAR LIMIT=32] -->
+    <string name="mr_controller_stop_casting">Stop casting</string>
+
+    <!-- Content description for accessibility (not shown on the screen): dialog close button. [CHAR LIMIT=NONE] -->
+    <string name="mr_controller_close_description">Close</string>
+
+    <!-- Content description for accessibility (not shown on the screen): media play button. [CHAR LIMIT=NONE] -->
+    <string name="mr_controller_play">Play</string>
+
+    <!-- Content description for accessibility (not shown on the screen): media pause button. [CHAR LIMIT=NONE] -->
+    <string name="mr_controller_pause">Pause</string>
+
+    <!-- Content description for accessibility (not shown on the screen): media stop button. [CHAR LIMIT=NONE] -->
+    <string name="mr_controller_stop">Stop</string>
+
+    <!-- Content description for accessibility (not shown on the screen): group expand button. Pressing button shows group members of a selected route group. [CHAR LIMIT=NONE] -->
+    <string name="mr_controller_expand_group">Expand</string>
+
+    <!-- Content description for accessibility (not shown on the screen): group collapse button. Pressing button hides group members of a selected route group. [CHAR LIMIT=NONE] -->
+    <string name="mr_controller_collapse_group">Collapse</string>
+
+    <!-- Content description for accessibility (not shown on the screen): album art button. Clicking on the album art takes user to a predefined activity per media app. [CHAR LIMIT=50] -->
+    <string name="mr_controller_album_art">Album art</string>
+
+    <!-- Content description for accessibility (not shown on the screen): volume slider. [CHAR LIMIT=NONE] -->
+    <string name="mr_controller_volume_slider">Volume slider</string>
+
+    <!-- Placeholder text to show when no media have been selected for playback. [CHAR LIMIT=50] -->
+    <string name="mr_controller_no_media_selected">No media selected</string>
+
+    <!-- Placeholder text to show when no title/description have been found for a given song/video. [CHAR LIMIT=50] -->
+    <string name="mr_controller_no_info_available">No info available</string>
+
+    <!-- Placeholder text indicating that the user is currently casting screen. [CHAR LIMIT=50] -->
+    <string name="mr_controller_casting_screen">Casting screen</string>
+
+    <!-- Text for error alert when a video container is not valid for progressive download/playback. -->
+    <string name="VideoView2_error_text_invalid_progressive_playback">This video isn\'t valid for streaming to this device.</string>
+    <!-- Text for error alert when a video cannot be played. It can be used by any app. -->
+    <string name="VideoView2_error_text_unknown">Can\'t play this video.</string>
+    <!-- Button to close error alert when a video cannot be played. -->
+    <string name="VideoView2_error_button">OK</string>
+
+    <!-- Text for displaying ad skip wait time. -->
+    <string name="MediaControlView2_ad_skip_wait_time">
+        You can skip Ad in <xliff:g id="wait_time" example="5">%1$d</xliff:g>s
+    </string>
+    <!-- Text for displaying ad total remaining time. -->
+    <string name="MediaControlView2_ad_remaining_time">
+        Ad · <xliff:g id="remaining_time" example="1:15">%1$s</xliff:g> remaining
+    </string>
+    <!-- Placeholder text indicating that the user can press the button to go to an external website. -->
+    <string name="MediaControlView2_ad_text">Visit Advertiser</string>
+    <string name="MediaControlView2_subtitle_text">Closed caption</string>
+    <string name="MediaControlView2_subtitle_off_text">Off</string>
+    <string name="MediaControlView2_audio_track_text">Audio track</string>
+    <string name="MediaControlView2_audio_track_none_text">None</string>
+    <string name="MediaControlView2_video_quality_text">Video quality</string>
+    <string name="MediaControlView2_video_quality_auto_text">Auto</string>
+    <string name="MediaControlView2_help_text">Help &amp; feedback</string>
+    <string name="MediaControlView2_playback_speed_text">Playback speed</string>
+    <string-array name="MediaControlView2_playback_speeds">
+        <item>0.25x</item>
+        <item>0.5x</item>
+        <item>0.75x</item>
+        <item>Normal</item>
+        <item>1.25x</item>
+        <item>1.5x</item>
+        <item>2x</item>
+    </string-array>
+    <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->
+    <string name="MediaControlView2_time_placeholder">00:00:00</string>
+
+    <!-- Text for displaying subtitle track number. -->
+    <string name="MediaControlView2_subtitle_track_number_text">
+        Track <xliff:g id="track_number" example="1">%1$d</xliff:g>
+    </string>
+    <!-- Text for displaying audio track number. -->
+    <string name="MediaControlView2_audio_track_number_text">
+        Track <xliff:g id="audio_number" example="1">%1$d</xliff:g>
+    </string>
+    <!-- Text for displaying unknown song title. -->
+    <string name="mcv2_music_title_unknown_text">Song title unknown</string>
+    <!-- Text for displaying unknown artist name. -->
+    <string name="mcv2_music_artist_unknown_text">Artist unknown</string>
+
+    <!--Content Descriptions -->
+    <string name="mcv2_back_button_desc">Back</string>
+    <string name="mcv2_overflow_left_button_desc">See more buttons</string>
+    <string name="mcv2_overflow_right_button_desc">Back to previous button list</string>
+    <string name="mcv2_seek_bar_desc">Playback progress</string>
+    <string name="mcv2_settings_button_desc">Settings</string>
+    <string name="mcv2_video_quality_button_desc">Video Quality Selection</string>
+    <string name="mcv2_cc_is_on">Subtitle is on. Click to hide it.</string>
+    <string name="mcv2_cc_is_off">Subtitle is off. Click to show it.</string>
+    <string name="mcv2_replay_button_desc">Replay</string>
+    <string name="mcv2_play_button_desc">Play</string>
+    <string name="mcv2_pause_button_desc">Pause</string>
+    <string name="mcv2_previous_button_desc">Previous media</string>
+    <string name="mcv2_next_button_desc">Next media</string>
+    <string name="mcv2_rewind_button_desc">Rewind by 10 seconds</string>
+    <string name="mcv2_ffwd_button_desc">Go forward by 30 seconds</string>
+    <string name="mcv2_launch_button_desc">Launch Link</string>
+    <string name="mcv2_muted_button_desc">Muted. Click to unmute</string>
+    <string name="mcv2_unmuted_button_desc">Click to Mute</string>
+    <string name="mcv2_full_screen_button_desc">Full screen</string>
+</resources>

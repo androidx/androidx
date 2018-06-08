@@ -99,7 +99,8 @@
     <color name="primary_text_disabled_material_dark">#4Dffffff</color>
     <color name="secondary_text_disabled_material_dark">#36ffffff</color>
 
-    <color name="error_color_material">#F4511E</color>
+    <color name="error_color_material_dark">#ff7043</color><!-- deep orange 400 -->
+    <color name="error_color_material_light">#ff5722</color><!-- deep orange 500 -->
 
     <!-- Primary & accent colors -->
     <eat-comment />

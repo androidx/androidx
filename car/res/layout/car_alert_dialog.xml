@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!-- Note: the width is 0dp because ColumnCardView will automatically set a width based
+     on the number of columns it should take up. See ColumnCardView for more details. -->
+<androidx.car.widget.ColumnCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:elevation="@dimen/car_dialog_elevation"
+    app:cardBackgroundColor="?attr/dialogBackgroundColor"
+    app:cardCornerRadius="@dimen/car_radius_3">
+
+    <LinearLayout
+        android:id="@+id/content_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/car_keyline_1"
+        android:layout_marginEnd="@dimen/car_keyline_1"
+        android:paddingTop="@dimen/car_padding_4"
+        android:paddingBottom="@dimen/car_padding_4"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/car_dialog_header_height"
+            android:gravity="center_vertical|start"
+            android:visibility="gone"
+            style="?attr/dialogTitleStyle" />
+
+        <TextView
+            android:id="@+id/body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            style="?attr/dialogBodyStyle" />
+
+        <LinearLayout
+            android:id="@+id/button_panel"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/car_dialog_action_bar_height"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/positive_button"
+                android:layout_marginEnd="@dimen/car_padding_4"
+                android:layout_width="wrap_content"
+                android:minWidth="0dp"
+                android:padding="0dp"
+                android:textColor="@color/car_accent"
+                android:visibility="gone"
+                style="?attr/dialogButtonStyle" />
+
+            <Button
+                android:id="@+id/negative_button"
+                android:layout_width="wrap_content"
+                android:minWidth="0dp"
+                android:padding="0dp"
+                android:textColor="@color/car_accent"
+                android:visibility="gone"
+                style="?attr/dialogButtonStyle" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.car.widget.ColumnCardView>

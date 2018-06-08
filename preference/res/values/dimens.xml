@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Minimum space to allocate to the left of a preference item for an icon.
+    This helps in aligning titles when some items have icons and some don't. When space is
+    at a premium, we don't pre-allocate any space. -->
+    <dimen name="preference_icon_minWidth">0dp</dimen>
+    <!-- The padding to the left of the seekbar view within a SeekBarPreference -->
+    <dimen name="preference_seekbar_padding_start">0dp</dimen>
+    <!-- The padding to the right of the seekbar view within a SeekBarPreference -->
+    <dimen name="preference_seekbar_padding_end">22dp</dimen>
+    <!-- The width of the TextView indicating the current value of the SeekBarPreference -->
+    <dimen name="preference_seekbar_value_width">36dp</dimen>
+    <!-- The width of the padding for PreferenceCategory's title/summary -->
+    <dimen name="preference_category_padding_start">0dp</dimen>
+</resources>

@@ -14,6 +14,27 @@
  * limitations under the License.
  */
 
+// Calling includeProject(name, filePath) is shorthand for:
+//
+//   include(name)
+//   project(name).projectDir = new File(filePath)
+//
+// Note that <name> directly controls the Gradle project name, and also indirectly sets:
+//   the project name in the IDE
+//   the Maven artifactId
+//
+def includeProject(name, filePath) {
+    settings.include(name)
+
+    def file
+    if (filePath instanceof String) {
+        file = new File(filePath)
+    } else {
+        file = filePath
+    }
+    project(name).projectDir = file
+}
+
 // If you change this file, you should also change the settings gradle inside
 // the sub project.
 
@@ -27,95 +48,76 @@ if (inAppToolkitProject) {
 
 println "support root:${supportRoot}"
 
-include ':arch:runtime'
-project(':arch:runtime').projectDir = new File(supportRoot, "app-toolkit/runtime")
+includeProject(":arch:core-common", new File(supportRoot, "app-toolkit/common"))
+includeProject(":arch:core-testing", new File(supportRoot, "app-toolkit/core-testing"))
+includeProject(":arch:core-runtime", new File(supportRoot, "app-toolkit/runtime"))
+includeProject(":lifecycle:integration-tests:testapp", new File(supportRoot, "lifecycle/integration-tests/testapp"))
+includeProject(":lifecycle:lifecycle-common", new File(supportRoot, "lifecycle/common"))
+includeProject(":lifecycle:lifecycle-common-java8", new File(supportRoot, "lifecycle/common-java8"))
+includeProject(":lifecycle:lifecycle-compiler", new File(supportRoot, "lifecycle/compiler"))
+includeProject(":lifecycle:lifecycle-extensions", new File(supportRoot, "lifecycle/extensions"))
+includeProject(":lifecycle:lifecycle-livedata-core", new File(supportRoot, "lifecycle/livedata-core"))
+includeProject(":lifecycle:lifecycle-livedata", new File(supportRoot, "lifecycle/livedata"))
+includeProject(":lifecycle:lifecycle-process", new File(supportRoot, "lifecycle/process"))
+includeProject(":lifecycle:lifecycle-reactivestreams", new File(supportRoot, "lifecycle/reactivestreams"))
+includeProject(":lifecycle:lifecycle-reactivestreams-ktx", new File(supportRoot, "lifecycle/reactivestreams/ktx"))
+includeProject(":lifecycle:lifecycle-runtime", new File(supportRoot, "lifecycle/runtime"))
+includeProject(":lifecycle:lifecycle-service", new File(supportRoot, "lifecycle/service"))
+includeProject(":lifecycle:lifecycle-viewmodel", new File(supportRoot, "lifecycle/viewmodel"))
+includeProject(":paging:integration-tests:testapp", new File(supportRoot, "paging/integration-tests/testapp"))
+includeProject(":paging:paging-common", new File(supportRoot, "paging/common"))
+includeProject(":paging:paging-runtime", new File(supportRoot, "paging/runtime"))
+includeProject(":paging:paging-rxjava2", new File(supportRoot, "paging/rxjava2"))
+includeProject(":room:integration-tests:testapp", new File(supportRoot, "room/integration-tests/testapp"))
+includeProject(":room:integration-tests:kotlintestapp", new File(supportRoot, "room/integration-tests/kotlintestapp"))
+includeProject(":room:room-common", new File(supportRoot, "room/common"))
+includeProject(":room:room-compiler", new File(supportRoot, "room/compiler"))
+includeProject(":room:room-guava", new File(supportRoot, "room/guava"))
+includeProject(":room:room-migration", new File(supportRoot, "room/migration"))
+includeProject(":room:room-runtime", new File(supportRoot, "room/runtime"))
+includeProject(":room:room-rxjava2", new File(supportRoot, "room/rxjava2"))
+includeProject(":room:room-testing", new File(supportRoot, "room/testing"))
+includeProject(":sqlite:sqlite", new File(supportRoot, "persistence/db"))
+includeProject(":sqlite:sqlite-framework", new File(supportRoot, "persistence/db-framework"))
+includeProject(":sqlite:sqlite-ktx", new File(supportRoot, "persistence/db/ktx"))
 
-include ':arch:common'
-project(':arch:common').projectDir = new File(supportRoot, "app-toolkit/common")
+includeProject(":jetifier-core", new File(supportRoot, "jetifier/jetifier/core"))
+includeProject(":jetifier-processor", new File(supportRoot, "jetifier/jetifier/processor"))
+includeProject(":jetifier-gradle-plugin", new File(supportRoot, "jetifier/jetifier/gradle-plugin"))
+includeProject(":jetifier-standalone", new File(supportRoot, "jetifier/jetifier/standalone"))
+includeProject(":jetifier-preprocessor", new File(supportRoot, "jetifier/jetifier/preprocessor"))
 
-include ':paging:common'
-project(':paging:common').projectDir = new File(supportRoot, "paging/common")
+includeProject(":navigation:navigation-common", new File(supportRoot, "navigation/common"))
+includeProject(":navigation:navigation-common-ktx", new File(supportRoot, "navigation/common/ktx"))
+includeProject(":navigation:navigation-runtime", new File(supportRoot, "navigation/runtime/"))
+includeProject(":navigation:navigation-runtime-ktx", new File(supportRoot, "navigation/runtime/ktx"))
+includeProject(":navigation:navigation-testing", new File(supportRoot, "navigation/testing"))
+includeProject(":navigation:navigation-testing-ktx", new File(supportRoot, "navigation/testing/ktx"))
+includeProject(":navigation:navigation-fragment", new File(supportRoot, "navigation/fragment"))
+includeProject(":navigation:navigation-fragment-ktx", new File(supportRoot, "navigation/fragment/ktx"))
+includeProject(":navigation:navigation-ui", new File(supportRoot, "navigation/ui"))
+includeProject(":navigation:navigation-ui-ktx", new File(supportRoot, "navigation/ui/ktx"))
+includeProject(":navigation:navigation-integration-tests:testapp", new File(supportRoot, "navigation/integration-tests/testapp"))
+includeProject(":navigation:navigation-safe-args-generator", new File(supportRoot, "navigation/safe-args-generator"))
+includeProject(":navigation:navigation-safe-args-gradle-plugin", new File(supportRoot, "navigation/safe-args-gradle-plugin"))
 
-include ":paging:runtime"
-project(':paging:runtime').projectDir = new File(supportRoot, "paging/runtime")
-
-include ':paging:integration-tests:testapp'
-project(':paging:integration-tests:testapp').projectDir = new File(supportRoot, "paging/integration-tests/testapp")
-
-include ':arch:core-testing'
-project(':arch:core-testing').projectDir = new File(supportRoot, "app-toolkit/core-testing")
-
-include ':lifecycle:extensions'
-project(':lifecycle:extensions').projectDir = new File(supportRoot, "lifecycle/extensions")
-
-include ':lifecycle:reactivestreams'
-project(':lifecycle:reactivestreams').projectDir = new File(supportRoot, "lifecycle/reactivestreams")
-
-include ':lifecycle:runtime'
-project(':lifecycle:runtime').projectDir = new File(supportRoot, "lifecycle/runtime")
-
-include ':lifecycle:common'
-project(':lifecycle:common').projectDir = new File(supportRoot, "lifecycle/common")
-
-include ':lifecycle:common-java8'
-project(':lifecycle:common-java8').projectDir = new File(supportRoot, "lifecycle/common-java8")
-
-include ':lifecycle:compiler'
-project(':lifecycle:compiler').projectDir = new File(supportRoot, "lifecycle/compiler")
-
-include ':lifecycle:integration-tests:testapp'
-project(':lifecycle:integration-tests:testapp').projectDir = new File(supportRoot, "lifecycle/integration-tests/testapp")
-
-include ':room:common'
-project(':room:common').projectDir = new File(supportRoot, "room/common")
-
-include ':room:runtime'
-project(':room:runtime').projectDir = new File(supportRoot, "room/runtime")
-
-include ':room:compiler'
-project(':room:compiler').projectDir = new File(supportRoot, "room/compiler")
-
-include ':room:migration'
-project(':room:migration').projectDir = new File(supportRoot, "room/migration")
-
-include ':persistence:db'
-project(':persistence:db').projectDir = new File(supportRoot, "persistence/db")
-
-include ":persistence:db-framework"
-project(':persistence:db-framework').projectDir = new File(supportRoot, "persistence/db-framework")
-
-include ":room:testing"
-project(':room:testing').projectDir = new File(supportRoot, "room/testing")
-
-include ":room:rxjava2"
-project(':room:rxjava2').projectDir = new File(supportRoot, "room/rxjava2")
-
-include ':room:integration-tests:testapp'
-project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "room/integration-tests/testapp")
-
-include ':room:integration-tests:kotlintestapp'
-project(':room:integration-tests:kotlintestapp').projectDir = new File(supportRoot, "room/integration-tests/kotlintestapp")
-
-/////////////////////////////
-//
-// SupportLib
-//
-/////////////////////////////
-if (inAppToolkitProject && System.getenv("USE_SUPPORT_LIB_SOURCE")) {
-    apply from: "${supportRoot.absolutePath}/app-toolkit/settings_support_lib.gradle"
-}
+includeProject(":work:work-runtime", new File(supportRoot, "work/workmanager"))
+includeProject(":work:work-runtime-ktx", new File(supportRoot, "work/workmanager-ktx"))
+includeProject(":work:work-firebase", new File(supportRoot, "work/workmanager-firebase"))
+includeProject(":work:work-testing", new File(supportRoot, "work/workmanager-test"))
+includeProject(":work:integration-tests:testapp", new File(supportRoot, "work/integration-tests/testapp"))
 
 /////////////////////////////
 //
 // External
 //
 /////////////////////////////
-if (inAppToolkitProject) {
-    File externalRoot = new File(supportRoot, '../../external')
 
-    include ':doclava'
-    project(':doclava').projectDir = new File(externalRoot, 'doclava')
+apply(from: new File(supportRoot, 'include-composite-deps.gradle'))
 
-    include ':jdiff'
-    project(':jdiff').projectDir = new File(externalRoot, 'jdiff')
+// fake project which is used for docs generation from prebuilts
+// we need real android project to generate R.java, aidl etc files that mentioned in sources
+if (!startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
+    // we don't need it in ide, so we don't configure it there
+    includeProject(":docs-fake", new File(supportRoot, "docs-fake"))
 }

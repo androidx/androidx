@@ -17,29 +17,30 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v17.leanback.app.GuidedStepFragment;
-import android.support.v17.leanback.app.RowsFragment;
-import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.DividerRow;
-import android.support.v17.leanback.widget.HeaderItem;
-import android.support.v17.leanback.widget.ImageCardView;
-import android.support.v17.leanback.widget.ListRow;
-import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.OnItemViewClickedListener;
-import android.support.v17.leanback.widget.OnItemViewSelectedListener;
-import android.support.v17.leanback.widget.PageRow;
-import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.Row;
-import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v17.leanback.widget.SectionRow;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.leanback.app.GuidedStepFragment;
+import androidx.leanback.app.RowsFragment;
+import androidx.leanback.widget.ArrayObjectAdapter;
+import androidx.leanback.widget.DividerRow;
+import androidx.leanback.widget.HeaderItem;
+import androidx.leanback.widget.ImageCardView;
+import androidx.leanback.widget.ListRow;
+import androidx.leanback.widget.ListRowPresenter;
+import androidx.leanback.widget.OnItemViewClickedListener;
+import androidx.leanback.widget.OnItemViewSelectedListener;
+import androidx.leanback.widget.PageRow;
+import androidx.leanback.widget.Presenter;
+import androidx.leanback.widget.Row;
+import androidx.leanback.widget.RowPresenter;
+import androidx.leanback.widget.SectionRow;
+
+public class BrowseFragment extends androidx.leanback.app.BrowseFragment {
     private static final String TAG = "leanback.BrowseFragment";
 
     private static final boolean TEST_ENTRANCE_TRANSITION = true;
@@ -144,7 +145,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         ListRowPresenter listRowPresenter = new ListRowPresenter();
         listRowPresenter.setNumRows(1);
         mRowsAdapter = new ArrayObjectAdapter(listRowPresenter);
-        setAdapter(mRowsAdapter);
     }
 
     private void loadData() {
@@ -164,6 +164,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         mRowsAdapter.add(new PageRow(new HeaderItem(HEADER_ID2, "Page Row 1")));
 
         mRowsAdapter.add(new PageRow(new HeaderItem(HEADER_ID3, "Page Row 2")));
+        setAdapter(mRowsAdapter);
     }
 
     private ArrayObjectAdapter createListRowAdapter(int i) {
@@ -273,7 +274,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         final CardPresenter mCardPresenter2 = new CardPresenter(R.style.MyImageCardViewTheme);
 
         void loadFragmentData() {
-            ArrayObjectAdapter adapter = (ArrayObjectAdapter) getAdapter();
+            ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ListRowPresenter());
             for (int i = 0; i < 4; i++) {
                 ListRow row = new ListRow(new HeaderItem("Row " + i), createListRowAdapter(i));
                 adapter.add(row);
@@ -282,11 +283,10 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 getMainFragmentAdapter().getFragmentHost()
                         .notifyDataReady(getMainFragmentAdapter());
             }
+            setAdapter(adapter);
         }
 
         public SampleRowsFragment() {
-            ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ListRowPresenter());
-            setAdapter(adapter);
             // simulates late data loading:
             new Handler().postDelayed(new Runnable() {
                 @Override

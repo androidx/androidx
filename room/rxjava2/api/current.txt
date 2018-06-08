@@ -1,0 +1,14 @@
+package androidx.room {
+
+  public class EmptyResultSetException extends java.lang.RuntimeException {
+    ctor public EmptyResultSetException(java.lang.String);
+  }
+
+  public class RxRoom {
+    ctor public deprecated RxRoom();
+    method public static io.reactivex.Flowable<java.lang.Object> createFlowable(androidx.room.RoomDatabase, java.lang.String...);
+    field public static final java.lang.Object NOTHING;
+  }
+
+}
+

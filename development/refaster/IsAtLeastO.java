@@ -15,7 +15,7 @@
  */
 
 import android.os.Build.VERSION;
-import android.support.v4.os.BuildCompat;
+import androidx.core.os.BuildCompat;
 
 import com.google.errorprone.refaster.annotation.AfterTemplate;
 import com.google.errorprone.refaster.annotation.AlsoNegation;

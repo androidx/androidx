@@ -15,12 +15,12 @@
  */
 package com.example.android.support.appnavigation.app;
 
-import com.example.android.support.appnavigation.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+
+import com.example.android.support.appnavigation.R;
 
 public class OutsideTaskActivity extends Activity {
     @Override

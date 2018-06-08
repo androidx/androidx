@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright (C) 2015 The Android Open Source Project
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.support.v7.appcompat.test">
+    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+
+    <application
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name="androidx.appcompat.app.AppCompatActivity"/>
+
+        <activity android:name="androidx.appcompat.app.AppCompatMenuItemShortcutsTestActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.AppCompatMenuItemIconTintingTestActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+        <activity
+            android:name="androidx.appcompat.app.WindowDecorAppCompatActivity"/>
+        <activity
+            android:name="androidx.appcompat.app.ToolbarAppCompatActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+        <activity
+            android:name="androidx.appcompat.app.DrawerLayoutActivity"
+            android:label="@string/drawer_layout_activity"
+            android:theme="@style/Theme.SampleDrawerLayout"/>
+
+        <activity
+            android:name="androidx.appcompat.app.DrawerInteractionActivity"
+            android:label="@string/drawer_layout_activity"
+            android:theme="@style/Theme.SampleDrawerLayout"/>
+
+        <activity
+            android:name="androidx.appcompat.app.DrawerLayoutDoubleActivity"
+            android:label="@string/drawer_layout_activity"
+            android:theme="@style/Theme.SampleDrawerLayout"/>
+
+        <activity
+            android:name="androidx.appcompat.app.DrawerDynamicLayoutActivity"
+            android:label="@string/drawer_layout_activity"
+            android:theme="@style/Theme.SampleDrawerLayout"/>
+
+        <activity
+            android:name="androidx.appcompat.app.AlertDialogTestActivity"
+            android:label="@string/alert_dialog_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity android:name="androidx.appcompat.view.SupportMenuInflaterTestActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.PopupTestActivity"
+            android:label="@string/popup_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatSpinnerActivity"
+            android:label="@string/app_compat_spinner_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatTextViewActivity"
+            android:label="@string/app_compat_text_view_activity"
+            android:theme="@style/Theme.TextColors"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatTextViewAutoSizeActivity"
+            android:label="@string/app_compat_text_view_auto_size_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatButtonAutoSizeActivity"
+            android:label="@string/app_compat_button_auto_size_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatImageButtonActivity"
+            android:label="@string/app_compat_image_button_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatImageViewActivity"
+            android:label="@string/app_compat_image_view_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatButtonActivity"
+            android:label="@string/app_compat_button_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatRadioButtonActivity"
+            android:label="@string/app_compat_button_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.SearchViewTestActivity"
+            android:label="@string/search_view_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.app.LayoutInflaterFactoryTestActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.FragmentContentIdActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.NightModeActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
+
+        <activity
+            android:name="androidx.appcompat.app.AppCompatVectorDrawableIntegrationActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.AppCompatInflaterDefaultActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.AppCompatInflaterBadClassNameActivity"
+            android:theme="@style/Theme.CustomInflaterBadClassName"/>
+
+        <activity
+            android:name="androidx.appcompat.app.AppCompatInflaterNullActivity"
+            android:theme="@style/Theme.CustomInflaterNull"/>
+
+        <activity
+            android:name="androidx.appcompat.app.AppCompatInflaterCustomActivity"
+            android:theme="@style/Theme.CustomInflater"/>
+
+    </application>
+
+</manifest>

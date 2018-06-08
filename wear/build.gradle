@@ -1,30 +1,27 @@
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api project(':support-annotations')
-    api project(':support-core-ui')
-    api project(':support-fragment')
-    api project(':percent')
-    api project(':recyclerview-v7')
+    api(project(":annotation"))
+    api(project(":legacy-support-core-ui"))
+    api(project(":fragment"))
+    api(project(":recyclerview"))
+    api(CONSTRAINT_LAYOUT, { transitive = true })
 
-    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
-    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
-    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
-    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 
-    provided fileTree(dir: 'wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
+    compileOnly fileTree(dir: 'wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 23
-    }
-
     sourceSets {
         main.res.srcDirs 'res', 'res-public'
         main.resources {
@@ -41,8 +38,9 @@ supportLibrary {
     name = "Android Wear Support UI"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.WEAR
     inceptionYear = "2016"
     description = "Android Wear Support UI"
-    legacySourceLocation = true
+    minSdkVersion = 23
+    failOnDeprecationWarnings = false
 }

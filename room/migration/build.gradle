@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import android.support.LibraryGroups
-import android.support.LibraryVersions
-import android.support.SupportLibraryExtension;
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.SupportLibraryExtension;
 
 plugins {
     id("SupportJavaLibraryPlugin")
@@ -26,12 +27,12 @@ sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
 }
 dependencies {
-    compile project(":room:common")
-    compile libs.kotlin.stdlib
-    compile libs.gson
-    testCompile libs.junit
-    testCompile libs.ij_annotations
-    testCompile libs.mockito_core
+    compile(project(":room:room-common"))
+    compile(KOTLIN_STDLIB)
+    compile(GSON)
+    testCompile(JUNIT)
+    testCompile(INTELLIJ_ANNOTATIONS)
+    testCompile(MOCKITO_CORE)
 }
 
 supportLibrary {

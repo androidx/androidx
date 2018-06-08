@@ -1,0 +1,13 @@
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
+
+dependencies {
+    implementation(project(":car"))
+
+    compileOnly fileTree(dir: '../../car/car-stubs', include: ['android.car.jar'])
+}
+
+supportTestApp {
+    minSdkVersion = 24
+}

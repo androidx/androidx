@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <!-- These colors are from
+         http://www.google.com/design/spec/style/color.html#color-ui-color-palette -->
+    <color name="car_grey_50">#fffafafa</color>
+    <color name="car_grey_100">#fff5f5f5</color>
+    <color name="car_grey_200">#ffeeeeee</color>
+    <color name="car_grey_300">#ffe0e0e0</color>
+    <color name="car_grey_400">#ffbdbdbd</color>
+    <color name="car_grey_500">#ff9e9e9e</color>
+    <color name="car_grey_600">#ff757575</color>
+    <color name="car_grey_650">#ff6B6B6B</color>
+    <color name="car_grey_700">#ff616161</color>
+    <color name="car_grey_800">#ff424242</color>
+    <color name="car_grey_900">#ff212121</color>
+    <color name="car_grey_1000">#cc000000</color>
+    <color name="car_white_1000">#1effffff</color>
+    <color name="car_blue_grey_800">#ff37474F</color>
+    <color name="car_blue_grey_900">#ff263238</color>
+    <color name="car_dark_blue_grey_600">#ff222B31</color>
+    <color name="car_dark_blue_grey_700">#ff172026</color>
+    <color name="car_dark_blue_grey_800">#ff11181d</color>
+    <color name="car_dark_blue_grey_900">#ff090C0F</color>
+    <color name="car_light_blue_300">#ff4fc3f7</color>
+    <color name="car_light_blue_500">#ff03A9F4</color>
+    <color name="car_light_blue_600">#ff039be5</color>
+    <color name="car_light_blue_700">#ff0288d1</color>
+    <color name="car_light_blue_800">#ff0277bd</color>
+    <color name="car_light_blue_900">#ff01579b</color>
+    <color name="car_blue_300">#ff91a7ff</color>
+    <color name="car_blue_500">#ff5677fc</color>
+    <color name="car_green_500">#ff0f9d58</color>
+    <color name="car_green_700">#ff0b8043</color>
+    <color name="car_yellow_500">#fff4b400</color>
+    <color name="car_yellow_800">#ffee8100</color>
+    <color name="car_red_400">#ffe06055</color>
+    <color name="car_red_500">#ffdb4437</color>
+    <color name="car_red_500a">#ffd50000</color>
+    <color name="car_red_700">#ffc53929</color>
+    <color name="car_teal_200">#ff80cbc4</color>
+    <color name="car_teal_700">#ff00796b</color>
+    <color name="car_indigo_800">#ff283593</color>
+
+    <!--  Various colors for text sizes. "Light" and "dark" here refer to the lighter or darker
+          shades. -->
+    <color name="car_title_light">@color/car_grey_100</color>
+    <color name="car_title_dark">@color/car_grey_900</color>
+    <color name="car_title">@color/car_title_dark</color>
+
+    <color name="car_title2_light">@color/car_grey_100</color>
+    <color name="car_title2_dark">@color/car_grey_900</color>
+    <color name="car_title2">@color/car_title2_dark</color>
+
+    <color name="car_headline1_light">@color/car_grey_100</color>
+    <color name="car_headline1_dark">@color/car_grey_800</color>
+    <color name="car_headline1">@color/car_headline1_dark</color>
+
+    <color name="car_headline2_light">@color/car_grey_100</color>
+    <color name="car_headline2_dark">@color/car_grey_900</color>
+    <color name="car_headline2">@color/car_headline2_dark</color>
+
+    <color name="car_headline3_light">@android:color/white</color>
+    <color name="car_headline3_dark">@color/car_grey_900</color>
+    <color name="car_headline3">@color/car_headline3_dark</color>
+
+    <color name="car_headline4_light">@android:color/white</color>
+    <color name="car_headline4_dark">@android:color/black</color>
+    <color name="car_headline4">@color/car_headline4_dark</color>
+
+    <color name="car_body1_light">@color/car_grey_100</color>
+    <color name="car_body1_dark">@color/car_grey_900</color>
+    <color name="car_body1">@color/car_body1_dark</color>
+
+    <color name="car_body2_light">@color/car_grey_400</color>
+    <color name="car_body2_dark">@color/car_grey_650</color>
+    <color name="car_body2">@color/car_body2_dark</color>
+
+    <color name="car_body3_light">@android:color/white</color>
+    <color name="car_body3_dark">@android:color/black</color>
+    <color name="car_body3">@color/car_body3_dark</color>
+
+    <color name="car_body4_light">@android:color/white</color>
+    <color name="car_body4_dark">@android:color/black</color>
+    <color name="car_body4">@color/car_body4_dark</color>
+
+    <color name="car_label1_light">@color/car_grey_50</color>
+    <color name="car_label1_dark">@color/car_grey_900</color>
+    <color name="car_label1">@color/car_label1_dark</color>
+
+    <color name="car_action1_light">@color/car_grey_900</color>
+    <color name="car_action1_dark">@color/car_grey_50</color>
+    <color name="car_action1">@color/car_action1_dark</color>
+
+    <!-- The tinting colors to create a light- and dark-colored icon respectively. -->
+    <color name="car_tint_light">@color/car_grey_50</color>
+    <color name="car_tint_dark">@color/car_grey_900</color>
+
+    <!-- The tinting color for an icon. This icon is assumed to be on a light background. -->
+    <color name="car_tint">@color/car_tint_dark</color>
+
+    <!-- An inverted tinting from car_tint. -->
+    <color name="car_tint_inverse">@color/car_tint_light</color>
+
+    <!-- The color of the list header.-->
+    <color name="car_list_header">@color/car_blue_500</color>
+
+    <!-- The color of the divider. The color here is a lighter shade. -->
+    <color name="car_list_divider_light">#1fffffff</color>
+
+    <!-- The color of the divider. The color here is a darker shade. -->
+    <color name="car_list_divider_dark">#1f000000</color>
+
+    <!-- The color of the dividers in the list. This color is assumed to be on a light colored
+         view. -->
+    <color name="car_list_divider">@color/car_list_divider_dark</color>
+
+    <!-- An inverted divider that is light colored in the day and dark at night. -->
+    <color name="car_list_divider_inverse">@color/car_list_divider_light</color>
+
+    <!-- A light and dark colored card. -->
+    <color name="car_card_light">@color/car_grey_50</color>
+    <color name="car_card_dark">@color/car_dark_blue_grey_700</color>
+
+    <!-- The default color of a card in car UI. -->
+    <color name="car_card">@color/car_card_light</color>
+    <!-- An inverted coloring of a card. The colors will be opposite of car_card. -->
+    <color name="car_card_inverse">@color/car_card_dark</color>
+
+    <!-- The ripple colors. The "dark" and "light" designation here refers to the color of the
+         ripple  itself. -->
+    <color name="car_card_ripple_background_dark">#3d000000</color>
+    <color name="car_card_ripple_background_light">#3dffffff</color>
+
+    <!-- The ripple color for a light colored card. -->
+    <color name="car_card_ripple_background">@color/car_card_ripple_background_dark</color>
+
+    <!-- The ripple color for a dark-colored card. This color is the opposite of
+         car_card_ripple_background. -->
+    <color name="car_card_ripple_background_inverse">@color/car_card_ripple_background_light</color>
+
+    <!-- The top margin before the start of content in an application. -->
+    <dimen name="app_header_height">96dp</dimen>
+
+    <!-- The lighter and darker color for the scrollbar thumb. -->
+    <color name="car_scrollbar_thumb_light">#99ffffff</color>
+    <color name="car_scrollbar_thumb_dark">#7f0b0f12</color>
+
+    <!-- The color of the scroll bar indicator in the PagedListView. This color is assumed to be on
+         a light-colored background. -->
+    <color name="car_scrollbar_thumb">@color/car_scrollbar_thumb_dark</color>
+
+    <!-- The inverted color of the scroll bar indicator. This color is always the opposite of
+         car_scrollbar_thumb. -->
+    <color name="car_scrollbar_thumb_inverse">@color/car_scrollbar_thumb_light</color>
+
+    <!-- The color of the seekbar track secondary progress in SeekbarListItem. -->
+    <color name="car_seekbar_track_secondary_progress">@color/car_grey_500</color>
+
+    <!-- The lighter and darker color for the seekbar track background. -->
+    <color name="car_seekbar_track_background_light">@color/car_grey_400</color>
+    <color name="car_seekbar_track_background_dark">@color/car_grey_700</color>
+    <!-- The color of the seekbar track background in SeekbarListItem. This color is assumed to be
+         on a light-colored background. -->
+    <color name="car_seekbar_track_background">@color/car_seekbar_track_background_light</color>
+
+    <!-- Misc colors -->
+    <color name="car_accent_dark">@color/car_teal_700</color>
+    <color name="car_accent_light">@color/car_teal_200</color>
+    <color name="car_accent">@color/car_accent_dark</color>
+
+    <!-- Speed Bump -->
+    <!-- The color of the scrim that is behind the speed bump lock-out message. -->
+    <color name="speed_bump_background">#FFD0D0D0</color>
+</resources>

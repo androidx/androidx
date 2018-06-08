@@ -28,7 +28,7 @@ import android.net.Uri;
 public class UnpagedDemoDataProvider extends ContentProvider {
 
     public static final Uri URI =
-            Uri.parse("content://com.example.android.support.content.demos/poodles");
+            Uri.parse("content://com.example.androidx.contentpager.content.demos/poodles");
 
     static final int TOTAL_SIZE = 100;
     private static final String[] COLUMNS = new String[] {

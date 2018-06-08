@@ -1,0 +1,2 @@
+include ':moar-buildSrc'
+project(':moar-buildSrc').projectDir = new File(rootDir, "../../../../buildSrc/")

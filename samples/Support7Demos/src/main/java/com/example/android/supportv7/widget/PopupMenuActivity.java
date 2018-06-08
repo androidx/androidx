@@ -17,17 +17,21 @@
 package com.example.android.supportv7.widget;
 
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.SwitchCompat;
+import android.view.ContextMenu;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.view.MenuCompat;
+import androidx.core.view.MenuItemCompat;
 
 import com.example.android.supportv7.R;
 
@@ -68,7 +72,7 @@ public class PopupMenuActivity extends AppCompatActivity {
                 }
 
                 final MenuInflater menuInflater = popupMenu.getMenuInflater();
-                menuInflater.inflate(R.menu.popup_menu, popupMenu.getMenu());
+                populateMenu(menuInflater, popupMenu.getMenu());
                 final MenuItem editItem = popupMenu.getMenu().findItem(R.id.action_edit);
                 MenuItemCompat.setContentDescription(editItem,
                         getString(R.string.popup_menu_edit_description));
@@ -97,6 +101,20 @@ public class PopupMenuActivity extends AppCompatActivity {
                 popupMenu.show();
             }
         });
+        // Long tap will show a context menu which is always a platform (not support) menu.
+        registerForContextMenu(button);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenu.ContextMenuInfo menuInfo) {
+        populateMenu(getMenuInflater(), menu);
+    }
+
+    private void populateMenu(MenuInflater menuInflater, Menu menu) {
+        SwitchCompat dividersToggle = findViewById(R.id.dividers_toggle);
+        menuInflater.inflate(R.menu.popup_menu, menu);
+        MenuCompat.setGroupDividerEnabled(menu, dividersToggle.isChecked());
     }
 
     private void addToLog(String toLog) {

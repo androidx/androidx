@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wearable_support_overlay_confirmation"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#cc000000">
+    <ImageView
+        android:id="@+id/wearable_support_confirmation_overlay_image"
+        android:layout_width="@dimen/confirmation_overlay_image_size"
+        android:layout_height="@dimen/confirmation_overlay_image_size"
+        android:layout_centerInParent="true"
+        android:background="@android:color/transparent"
+        tools:ignore="ContentDescription" />
+    <TextView
+        android:id="@+id/wearable_support_confirmation_overlay_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/wearable_support_confirmation_overlay_image"
+        android:fontFamily="sans-serif-condensed-light"
+        android:gravity="center_horizontal"
+        android:background="@android:color/transparent"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/confirmation_overlay_text_size" />
+</RelativeLayout>

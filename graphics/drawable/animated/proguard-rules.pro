@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # keep setters in VectorDrawables so that animations can still work.
--keepclassmembers class android.support.graphics.drawable.VectorDrawableCompat$* {
+-keepclassmembers class androidx.vectordrawable.graphics.drawable.VectorDrawableCompat$* {
    void set*(***);
    *** get*();
 }

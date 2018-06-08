@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.wear.widget.BoxInsetLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/child1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Super long text Super long text Super long text Super long text
+            Super long text Super long text Super long text Super long text Super long text
+            Super long text Super long text Super long text Super long text Super long text
+            Super long text Super long text Super long text Super long text Super long text
+            Super long text Super long text Super long text Super long text Super long text
+            Super long text Super long text Super long text Super long text Super long text
+            Super long text Super long text Super long text Super long text Super long text
+            Super long text Super long text Super long text Super long text Super long text
+            Super long text Super long text Super long text Super long text Super long text
+            Super long text Super long text Super long text Super long text Super long text
+            Super long text Super long text "
+            app:boxedEdges="left|right" />
+
+
+    </androidx.wear.widget.BoxInsetLayout>
+
+</ScrollView>

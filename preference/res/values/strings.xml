@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="v7_preference_on">ON</string>
+    <string name="v7_preference_off">OFF</string>
+    <!-- Title for the preference expand button [CHAR LIMIT=30] -->
+    <string name="expand_button_title">Advanced</string>
+    <!-- Summary for the preference expand button. This is used to format preference summaries as a list. [CHAR_LIMIT=NONE] -->
+    <string name="summary_collapsed_preference_list"><xliff:g id="current_items">%1$s</xliff:g>, <xliff:g id="added_items">%2$s</xliff:g></string>
+</resources>

@@ -1,0 +1,42 @@
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+dependencies {
+    api(project(":core"))
+    api(project(":legacy-support-core-ui"))
+    api(project(":media"))
+    api(project(":fragment"))
+    api(project(":recyclerview"))
+
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+}
+
+android {
+    sourceSets {
+        main.java.srcDirs += [
+                'common',
+                'kitkat',
+                'api21',
+        ]
+    }
+}
+
+supportLibrary {
+    name = "Android Support Leanback v17"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.LEANBACK
+    inceptionYear = "2014"
+    description = "Android Support Leanback v17"
+    minSdkVersion = 17
+    failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
+}

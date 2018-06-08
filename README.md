@@ -29,11 +29,18 @@ If you get “Unregistered VCS root detected” click “Add root” to enable g
 
 If you see any warnings (red underlines) run `Build > Clean Project`.
 
-## Optional - Full Build
+## Builds
+### Full Build (Optional)
 You can do most of your work from Android Studio, however you can also build the full support library from command line:
 
     cd path/to/checkout/frameworks/support/
     ./gradlew createArchive
+
+### Building Support Library as part of your App build
+If you intend to repeatedly make changes to Support Library and to wish to see
+the results in your app, and you don't want to have to repeatedly build them as
+separate Gradle projects, you can
+[configure your app build to build Support Library too](adding-support-library-as-included-build.md)
 
 ## Running Tests
 

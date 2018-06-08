@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_hpaddings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_hpaddings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_height` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_vpaddings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_height` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_vpaddings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_hpaddings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_hpaddings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_height` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_vpaddings.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_height` attribute is missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_vpaddings.xml"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` and `layout_height` attributes are missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/simple_percent_frame_layout_activity.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` and `layout_height` attributes are missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/simple_percent_frame_layout_activity.xml"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` and `layout_height` attributes are missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/simple_percent_relative_layout_activity.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RequiredSize"
+        message="The required `layout_width` and `layout_height` attributes are missing"
+        errorLine1="    &lt;View"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/simple_percent_relative_layout_activity.xml"
+            line="29"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="IconMissingDensityFolder"
+        message="Missing density variation folders in `src/main/res`: drawable-xhdpi, drawable-xxhdpi">
+        <location
+            file="src/main/res"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:layout_gravity=&quot;bottom|right&quot;"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/include_percent_frame_layout_content.xml"
+            line="31"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:paddingStart=&quot;48dip&quot;` to better support right-to-left layouts"
+        errorLine1="    android:paddingLeft=&quot;48dip&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_hpaddings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:paddingEnd=&quot;64dip&quot;` to better support right-to-left layouts"
+        errorLine1="    android:paddingRight=&quot;64dip&quot;>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_hpaddings.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:layout_gravity=&quot;left&quot;"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_hpaddings.xml"
+            line="28"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:layout_gravity=&quot;right&quot;"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/res/layout/percent_frame_layout_activity_hpaddings.xml"
+            line="34"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:paddingStart=&quot;48dip&quot;` to better support right-to-left layouts"
+        errorLine1="    android:paddingLeft=&quot;48dip&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_hpaddings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:paddingEnd=&quot;64dip&quot;` to better support right-to-left layouts"
+        errorLine1="    android:paddingRight=&quot;64dip&quot;>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_hpaddings.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_alignParentLeft=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_hpaddings.xml"
+            line="28"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/child1&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_toRightOf=&quot;@id/child1&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/percent_relative_layout_activity_hpaddings.xml"
+            line="34"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="        android:layout_gravity=&quot;bottom|right&quot;"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/simple_percent_frame_layout_activity.xml"
+            line="29"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_toEndOf=&quot;@id/left&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_toRightOf=&quot;@id/left&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/simple_percent_relative_layout_activity.xml"
+            line="33"
+            column="9"/>
+    </issue>
+
+</issues>

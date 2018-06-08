@@ -5,6 +5,9 @@ buildscript {
         maven {
             url "${supportRootFolder}/../../prebuilts/tools/common/m2/repository"
         }
+        maven {
+            url "${supportRootFolder}/../../prebuilts/gradle-plugin"
+        }
         if (isUnbundledBuild(supportRootFolder)) {
             jcenter()
         }
@@ -15,27 +18,34 @@ buildscript {
     dependencies {
         classpath build_libs.kotlin.gradle_plugin
     }
-}
 
-apply from: "build_dependencies.gradle"
+    configurations.classpath.resolutionStrategy {
+        eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion build_versions.kotlin
+            }
+        }
+    }
+}
+def runningInBuildServer = System.env.DIST_DIR != null && System.env.OUT_DIR != null
+if (runningInBuildServer) {
+    System.setProperty("kotlin.compiler.execution.strategy", "in-process")
+}
 
 ext.supportRootFolder = project.projectDir.getParentFile()
 apply from: 'repos.gradle'
+apply from: "build_dependencies.gradle"
+apply plugin: "kotlin"
+apply from: "kotlin-dsl-dependency.gradle.kts"
 
 repos.addMavenRepositories(repositories)
 
-apply plugin: 'groovy'
-apply plugin: 'java'
-apply plugin: 'kotlin'
-
-compileGroovy {
-    dependsOn tasks.getByPath('compileKotlin')
-    classpath += files(compileKotlin.destinationDir)
-}
 dependencies {
     compile build_libs.gradle
     compile build_libs.jacoco
-    compile build_libs.error_prone
+    compile build_libs.error_prone_gradle
     compile build_libs.jarjar_gradle
     compile gradleApi()
+    testCompile "junit:junit:4.12"
 }
+

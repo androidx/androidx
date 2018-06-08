@@ -189,6 +189,8 @@
         <attr name="dialogPreferredPadding" format="dimension" />
         <!-- The list divider used in alert dialogs. -->
         <attr name="listDividerAlertDialog" format="reference" />
+        <!-- Preferred corner radius of dialogs. -->
+        <attr name="dialogCornerRadius" format="dimension" />
 
         <!-- =================== -->
         <!-- Other widget styles -->
@@ -407,6 +409,8 @@
         <!-- Color used for error states and things that need to be drawn to
              the user's attention. -->
         <attr name="colorError" format="reference|color" />
+
+        <attr name="viewInflaterClass" format="string" />
     </declare-styleable>
 
 
@@ -857,6 +861,15 @@
         <attr name="autoSizeMaxTextSize" format="dimension" />
         <!-- The attribute for the font family. -->
         <attr name="fontFamily" format="string" />
+        <!-- Explicit height between lines of text. If set, this will override the values set
+             for lineSpacingExtra and lineSpacingMultiplier. -->
+        <attr name="lineHeight" format="dimension" />
+        <!-- Distance from the top of the TextView to the first text baseline. If set, this
+             overrides the value set for paddingTop. -->
+        <attr name="firstBaselineToTopHeight" format="dimension" />
+        <!-- Distance from the bottom of the TextView to the last text baseline. If set, this
+             overrides the value set for paddingBottom. -->
+        <attr name="lastBaselineToBottomHeight" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="LinearLayoutCompat">
@@ -1138,6 +1151,7 @@
         <attr name="singleChoiceItemLayout" format="reference" />
         <attr name="listItemLayout" format="reference" />
         <attr name="showTitle" format="boolean" />
+        <attr name="buttonIconDimen" format="dimension" />
     </declare-styleable>
 
     <!-- @hide -->

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <style name="Theme.SampleDrawerLayout" parent="@style/Theme.AppCompat.NoActionBar">
+        <!-- Tell SystemUI that our activity window will draw the background for the status bar. -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!-- Set the status bar to be translucent black. -->
+        <item name="android:statusBarColor">#30000000</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="Theme.TextColors" parent="@style/Theme.AppCompat.Light">
+        <item name="android:textColorPrimary">#FF0000FF</item>
+        <item name="android:textColorSecondary">@color/color_state_list_sand</item>
+        <item name="android:textColorLink">@color/color_state_list_link</item>
+    </style>
+
+    <style name="Theme.CustomInflater" parent="@style/Theme.AppCompat.Light">
+        <item name="viewInflaterClass">androidx.appcompat.app.inflater.CustomViewInflater</item>
+    </style>
+
+    <style name="Theme.CustomInflaterBadClassName" parent="@style/Theme.AppCompat.Light">
+        <item name="viewInflaterClass">invalid.class.name</item>
+    </style>
+
+    <style name="Theme.CustomInflaterNull" parent="@style/Theme.AppCompat.Light">
+        <item name="viewInflaterClass">@null</item>
+    </style>
+
+    <style name="TextStyleAllCapsOn" parent="@android:style/TextAppearance.Medium">
+        <item name="textAllCaps">true</item>
+    </style>
+
+    <style name="TextStyleAllCapsOff" parent="@android:style/TextAppearance.Medium">
+        <item name="textAllCaps">false</item>
+    </style>
+
+    <style name="MagentaThemeOverlay">
+        <item name="colorAccent">@color/test_magenta</item>
+    </style>
+
+    <style name="MagentaSpinnerPopupTheme">
+        <item name="android:colorBackground">@color/test_magenta</item>
+    </style>
+
+    <style name="OceanSpinnerPopupTheme">
+        <item name="android:colorBackground">@color/ocean_default</item>
+    </style>
+
+    <style name="PopupEmptyStyle" />
+
+    <style name="TextView_FontResource">
+        <item name="fontFamily">@font/samplefont</item>
+        <item name="android:textAppearance">@null</item>
+    </style>
+
+    <style name="TextView_FontXmlResource">
+        <item name="fontFamily">@font/samplexmlfont</item>
+    </style>
+
+    <style name="TextView_TextStyleOverride">
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="TextView_FontResourceWithStyle">
+        <item name="fontFamily">@font/samplexmlfont</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="TextView_SansSerif">
+        <item name="fontFamily">@string/font_sans_serif</item>
+    </style>
+
+    <style name="TextView_Serif">
+        <item name="fontFamily">@string/font_serif</item>
+    </style>
+
+    <style name="TextView_Typeface_Serif">
+        <item name="android:typeface">serif</item>
+    </style>
+
+    <style name="TextView_Typeface_Monospace">
+        <item name="android:typeface">monospace</item>
+    </style>
+
+    <style name="TextAppearance" parent="TextAppearance.AppCompat" />
+</resources>

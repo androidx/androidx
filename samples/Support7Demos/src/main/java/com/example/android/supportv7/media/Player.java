@@ -16,16 +16,17 @@
 
 package com.example.android.supportv7.media;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.media.MediaControlIntent;
-import android.support.v7.media.MediaRouter.RouteInfo;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
+import androidx.mediarouter.media.MediaControlIntent;
+import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
 /**
  * Abstraction of common playback operations of media items, such as play,
@@ -77,7 +78,7 @@ public abstract class Player {
     /**
      * presentation display
      */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void updatePresentation() {}
 
     public void setCallback(Callback callback) {

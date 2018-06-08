@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2017 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The style for main list that displays all the demo activities. -->
+    <style name="CarListTheme" parent="Theme.Car.NoActionBar">
+        <item name="android:background">@color/car_card</item>
+    </style>
+
+    <!-- The main theme for all activities within the Car Demo. -->
+    <style name="CarTheme" parent="Theme.Car.Light.NoActionBar">
+        <item name="android:checkboxStyle">@style/CheckBoxStyle</item>
+    </style>
+
+    <!-- A theme for activities within the Car Demo that have a drawer. -->
+    <style name="CarDrawerTheme" parent="Theme.Car.Light.NoActionBar.Drawer">
+        <item name="android:colorPrimary">@color/car_grey_200</item>
+        <item name="android:colorPrimaryDark">@color/car_grey_400</item>
+        <item name="drawerArrowStyle">@style/CarDrawerArrowStyle</item>
+        <item name="toolbarNavigationButtonStyle">@style/CarDrawerToolbarButton</item>
+        <item name="toolbarStyle">@style/CarDrawerToolbar</item>
+    </style>
+
+    <!-- The style of the hamburger icon. This style affects the ripple color. -->
+    <style name="CarDrawerToolbarButton" parent="Widget.Car.Toolbar.Button.Navigation">
+        <item name="android:background">@drawable/car_card_ripple_background_day</item>
+    </style>
+
+    <!-- The style of the toolbar. Permanently makes the title a dark color. -->
+    <style name="CarDrawerToolbar" parent="Widget.Car.Toolbar">
+        <item name="selectableItemBackground">@color/car_card_ripple_background_dark</item>
+        <item name="selectableItemBackgroundBorderless">@color/car_card_ripple_background_dark</item>
+        <item name="colorControlHighlight">@color/car_card_ripple_background_dark</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Car.Title2.Dark</item>
+    </style>
+
+    <!-- The actual hamburger icon. Permanently makes the color a dark color. -->
+    <style name="CarDrawerArrowStyle" parent="@style/Widget.Car.DrawerArrowToggle">
+        <item name="color">@color/car_title2_dark</item>
+    </style>
+
+    <!-- A style for checkboxes. This style assumes the checkbox is on a light-colored
+         background. -->
+    <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:textColor">@color/car_body1</item>
+        <item name="android:textSize">@dimen/car_body1_size</item>
+    </style>
+</resources>

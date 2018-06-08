@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@+id/launcher_home"
+    tools:ignore="DuplicateIds">
+    <navigation android:id="@+id/launcher_home"
+                app:startDestination="@+id/main"
+                android:label="@string/home">
+        <fragment android:id="@+id/main"
+                  android:name=".MainFragment">
+            <argument android:name="myarg" android:defaultValue="Home" />
+            <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+        </fragment>
+    </navigation>
+    <fragment android:id="@+id/android"
+              android:label="@string/android"
+              android:name="androidx.navigation.testapp.AndroidFragment">
+        <argument android:name="myarg" android:defaultValue="Android!" />
+        <deepLink app:uri="www.iana.org/domains/{myarg}"/>
+        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+    </fragment>
+    <fragment android:id="@+id/first_screen"
+        android:name="androidx.navigation.testapp.MainFragment">
+        <argument android:name="myarg" android:defaultValue="one" />
+        <action android:id="@+id/next" app:destination="@+id/next_fragment"/>
+    </fragment>
+    <fragment android:id="@+id/next_fragment"
+        android:name="androidx.navigation.testapp.MainFragment">
+        <argument android:name="myarg" android:defaultValue="two" />
+        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+    </fragment>
+    <activity android:id="@+id/settings_activity"
+              app:action="android.settings.APPLICATION_DETAILS_SETTINGS"
+              app:data="package:androidx.navigation.testapp"/>
+    <activity android:id="@+id/help_activity"
+              android:name=".HelpActivity"
+              app:dataPattern="http://www.example.com/{topic}">
+        <argument android:name="topic" android:defaultValue="help_topic"/>
+    </activity>
+</navigation>

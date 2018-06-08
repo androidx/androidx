@@ -29,8 +29,8 @@
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"Glasovno pretraživanje"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"Odaberite aplikaciju"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"Prikaži sve"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"Podijeli koristeći aplikaciju <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
-    <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Podijeli sa"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"Dijeli koristeći aplikaciju <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
+    <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Dijeli sa"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"UKLJUČI"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"ISKLJUČI"</string>
     <string name="search_menu_title" msgid="146198913615257606">"Pretraži"</string>

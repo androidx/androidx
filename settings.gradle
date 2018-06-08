@@ -1,107 +1,163 @@
 /////////////////////////////
 //
+// Buildscript utils
+//
+/////////////////////////////
+
+
+// Calling includeProject(name, filePath) is shorthand for:
+//
+//   include(name)
+//   project(name).projectDir = new File(filePath)
+//
+// Note that <name> directly controls the Gradle project name, and also indirectly sets:
+//   the project name in the IDE
+//   the Maven artifactId
+//
+def includeProject(name, filePath) {
+    settings.include(name)
+
+    def file
+    if (filePath instanceof String) {
+        file = new File(filePath)
+    } else {
+        file = filePath
+    }
+    project(name).projectDir = file
+}
+
+
+/////////////////////////////
+//
 // Libraries
 //
 /////////////////////////////
 
-include ':support-annotations'
-project(':support-annotations').projectDir = new File(rootDir, 'annotations')
+includeProject(":annotation", "annotations")
+includeProject(":appcompat", "v7/appcompat")
+includeProject(":arch:core-common", "app-toolkit/common")
+includeProject(":arch:core-testing", "app-toolkit/core-testing")
+includeProject(":arch:core-runtime", "app-toolkit/runtime")
+includeProject(":asynclayoutinflater", "asynclayoutinflater")
+includeProject(":browser", "browser")
+includeProject(":car", "car")
+includeProject(":cardview", "cardview")
+includeProject(":collection", "collection")
+includeProject(":collection-ktx", "collection/ktx")
+includeProject(":contentpager", "content")
+includeProject(":coordinatorlayout", "coordinatorlayout")
+includeProject(":core", "compat")
+includeProject(":core-ktx", "core/ktx")
+includeProject(":cursoradapter", "cursoradapter")
+includeProject(":customview", "customview")
+includeProject(":documentfile", "documentfile")
+includeProject(":drawerlayout", "drawerlayout")
+includeProject(":dynamicanimation", "dynamic-animation")
+includeProject(":emoji", "emoji/core")
+includeProject(":emoji-bundled", "emoji/bundled")
+includeProject(":emoji-appcompat", "emoji/appcompat")
+includeProject(":exifinterface", "exifinterface")
+includeProject(":fragment", "fragment")
+includeProject(":gridlayout", "gridlayout")
+includeProject(":heifwriter", "heifwriter")
+includeProject(":interpolator", "interpolator")
+includeProject(":jetifier-core", "jetifier/jetifier/core")
+includeProject(":jetifier-processor", "jetifier/jetifier/processor")
+includeProject(":jetifier-gradle-plugin", "jetifier/jetifier/gradle-plugin")
+includeProject(":jetifier-standalone", "jetifier/jetifier/standalone")
+includeProject(":jetifier-preprocessor", "jetifier/jetifier/preprocessor")
+includeProject(":leanback", "leanback")
+includeProject(":leanback-preference", "leanback-preference")
+includeProject(":lifecycle:integration-tests:testapp", "lifecycle/integration-tests/testapp")
+includeProject(":lifecycle:lifecycle-common", "lifecycle/common")
+includeProject(":lifecycle:lifecycle-common-java8", "lifecycle/common-java8")
+includeProject(":lifecycle:lifecycle-compiler", "lifecycle/compiler")
+includeProject(":lifecycle:lifecycle-extensions", "lifecycle/extensions")
+includeProject(":lifecycle:lifecycle-livedata-core", "lifecycle/livedata-core")
+includeProject(":lifecycle:lifecycle-livedata", "lifecycle/livedata")
+includeProject(":lifecycle:lifecycle-process", "lifecycle/process")
+includeProject(":lifecycle:lifecycle-reactivestreams", "lifecycle/reactivestreams")
+includeProject(":lifecycle:lifecycle-reactivestreams-ktx", "lifecycle/reactivestreams/ktx")
+includeProject(":lifecycle:lifecycle-runtime", "lifecycle/runtime")
+includeProject(":lifecycle:lifecycle-service", "lifecycle/service")
+includeProject(":lifecycle:lifecycle-viewmodel", "lifecycle/viewmodel")
+includeProject(":lifecycle:lifecycle-viewmodel-ktx", "lifecycle/viewmodel/ktx")
+includeProject(":loader", "loader")
+includeProject(":localbroadcastmanager", "localbroadcastmanager")
+includeProject(":media", "media")
+includeProject(":media-widget", "media-widget")
+includeProject(":mediarouter", "mediarouter")
+includeProject(":navigation:navigation-common", "navigation/common")
+includeProject(":navigation:navigation-common-ktx", "navigation/common/ktx")
+includeProject(":navigation:navigation-runtime", "navigation/runtime/")
+includeProject(":navigation:navigation-runtime-ktx", "navigation/runtime/ktx")
+includeProject(":navigation:navigation-testing", "navigation/testing")
+includeProject(":navigation:navigation-testing-ktx", "navigation/testing/ktx")
+includeProject(":navigation:navigation-fragment", "navigation/fragment")
+includeProject(":navigation:navigation-fragment-ktx", "navigation/fragment/ktx")
+includeProject(":navigation:navigation-ui", "navigation/ui")
+includeProject(":navigation:navigation-ui-ktx", "navigation/ui/ktx")
+includeProject(":navigation:navigation-integration-tests:testapp", "navigation/integration-tests/testapp")
+includeProject(":navigation:navigation-safe-args-generator", "navigation/safe-args-generator")
+includeProject(":navigation:navigation-safe-args-gradle-plugin", "navigation/safe-args-gradle-plugin")
+includeProject(":paging:integration-tests:testapp", "paging/integration-tests/testapp")
+includeProject(":paging:paging-common", "paging/common")
+includeProject(":paging:paging-runtime", "paging/runtime")
+includeProject(":paging:paging-rxjava2", "paging/rxjava2")
+includeProject(":palette", "palette")
+includeProject(":palette-ktx", "palette/ktx")
+includeProject(":percentlayout", "percent")
+includeProject(":preference", "preference")
+includeProject(":preference-ktx", "preference/ktx")
+includeProject(":print", "print")
+includeProject(":recommendation", "recommendation")
+includeProject(":recyclerview", "v7/recyclerview")
+includeProject(":recyclerview-selection", "recyclerview-selection")
+includeProject(":room:integration-tests:testapp", "room/integration-tests/testapp")
+includeProject(":room:integration-tests:kotlintestapp", "room/integration-tests/kotlintestapp")
+includeProject(":room:room-common", "room/common")
+includeProject(":room:room-compiler", "room/compiler")
+includeProject(":room:room-guava", "room/guava")
+includeProject(":room:room-migration", "room/migration")
+includeProject(":room:room-runtime", "room/runtime")
+includeProject(":room:room-rxjava2", "room/rxjava2")
+includeProject(":room:room-testing", "room/testing")
+includeProject(":slice-core", "slices/core")
+includeProject(":slice-view", "slices/view")
+includeProject(":slice-builders", "slices/builders")
+includeProject(":slidingpanelayout", "slidingpanelayout")
+includeProject(":fragment-ktx", "fragment/ktx")
+includeProject(":sqlite:sqlite", "persistence/db")
+includeProject(":sqlite:sqlite-ktx", "persistence/db/ktx")
+includeProject(":sqlite:sqlite-framework", "persistence/db-framework")
+includeProject(":swiperefreshlayout", "swiperefreshlayout")
+includeProject(":textclassifier", "textclassifier")
+includeProject(":transition", "transition")
+includeProject(":tvprovider", "tv-provider")
+includeProject(":vectordrawable", "graphics/drawable/static")
+includeProject(":vectordrawable-animated", "graphics/drawable/animated")
+includeProject(":viewpager", "viewpager")
+includeProject(":viewpager2", "viewpager2")
+includeProject(":wear", "wear")
+includeProject(":webkit", "webkit")
+includeProject(":webkit-codegen", "webkit-codegen")
+includeProject(":work:work-runtime", "work/workmanager")
+includeProject(":work:work-runtime-ktx", "work/workmanager-ktx")
+includeProject(":work:work-firebase", "work/workmanager-firebase")
+includeProject(":work:work-testing", "work/workmanager-test")
+includeProject(":work:integration-tests:testapp", "work/integration-tests/testapp")
 
-include ':support-compat'
-project(':support-compat').projectDir = new File(rootDir, 'compat')
+/////////////////////////////
+//
+// Legacy
+//
+/////////////////////////////
 
-include ':support-media-compat'
-project(':support-media-compat').projectDir = new File(rootDir, 'media-compat')
-
-include ':support-core-ui'
-project(':support-core-ui').projectDir = new File(rootDir, 'core-ui')
-
-include ':support-fragment'
-project(':support-fragment').projectDir = new File(rootDir, 'fragment')
-
-include ':support-core-utils'
-project(':support-core-utils').projectDir = new File(rootDir, 'core-utils')
-
-include ':support-v4'
-project(':support-v4').projectDir = new File(rootDir, 'v4')
-
-include ':appcompat-v7'
-project(':appcompat-v7').projectDir = new File(rootDir, 'v7/appcompat')
-
-include ':gridlayout-v7'
-project(':gridlayout-v7').projectDir = new File(rootDir, 'v7/gridlayout')
-
-include ':mediarouter-v7'
-project(':mediarouter-v7').projectDir = new File(rootDir, 'v7/mediarouter')
-
-include ':palette-v7'
-project(':palette-v7').projectDir = new File(rootDir, 'v7/palette')
-
-include ':recyclerview-v7'
-project(':recyclerview-v7').projectDir = new File(rootDir, 'v7/recyclerview')
-
-include ':cardview-v7'
-project(':cardview-v7').projectDir = new File(rootDir, 'v7/cardview')
-
-include ':preference-v7'
-project(':preference-v7').projectDir = new File(rootDir, 'v7/preference')
-
-include ':preference-v14'
-project(':preference-v14').projectDir = new File(rootDir, 'v14/preference')
-
-include ':preference-leanback-v17'
-project(':preference-leanback-v17').projectDir = new File(rootDir, 'v17/preference-leanback')
-
-include ':support-v13'
-project(':support-v13').projectDir = new File(rootDir, 'v13')
-
-include ':leanback-v17'
-project(':leanback-v17').projectDir = new File(rootDir, 'v17/leanback')
-
-include ':design'
-project(':design').projectDir = new File(rootDir, 'design')
-
-include ':percent'
-project(':percent').projectDir = new File(rootDir, 'percent')
-
-include ':customtabs'
-project(':customtabs').projectDir = new File(rootDir, 'customtabs')
-
-include ':recommendation'
-project(':recommendation').projectDir = new File(rootDir, 'recommendation')
-
-include ':support-vector-drawable'
-project(':support-vector-drawable').projectDir = new File(rootDir, 'graphics/drawable/static')
-
-include ':animated-vector-drawable'
-project(':animated-vector-drawable').projectDir = new File(rootDir, 'graphics/drawable/animated')
-
-include ':transition'
-project(':transition').projectDir = new File(rootDir, 'transition')
-
-include ':support-dynamic-animation'
-project(':support-dynamic-animation').projectDir = new File(rootDir, 'dynamic-animation')
-
-include ':exifinterface'
-project(':exifinterface').projectDir = new File(rootDir, 'exifinterface')
-
-include ':wear'
-project(':wear').projectDir = new File(rootDir, 'wear')
-
-include ':support-tv-provider'
-project(':support-tv-provider').projectDir = new File(rootDir, 'tv-provider')
-
-include ':support-emoji'
-project(':support-emoji').projectDir = new File(rootDir, 'emoji/core')
-
-include ':support-emoji-bundled'
-project(':support-emoji-bundled').projectDir = new File(rootDir, 'emoji/bundled')
-
-include ':support-emoji-appcompat'
-project(':support-emoji-appcompat').projectDir = new File(rootDir, 'emoji/appcompat')
-
-include ':support-content'
-project(':support-content').projectDir = new File(rootDir, 'content')
+includeProject(":legacy-support-core-ui", "legacy/core-ui")
+includeProject(":legacy-support-core-utils", "legacy/core-utils")
+includeProject(":legacy-support-v4", "legacy/v4")
+includeProject(":legacy-support-v13", "legacy/v13")
+includeProject(":legacy-preference-v14", "legacy/preference-v14")
 
 /////////////////////////////
 //
@@ -109,52 +165,27 @@ project(':support-content').projectDir = new File(rootDir, 'content')
 //
 /////////////////////////////
 
-File samplesRoot = new File(rootDir, 'samples')
+File samplesRoot = new File(rootDir, "samples")
 
-include ':support-content-demos'
-project(':support-content-demos').projectDir = new File(samplesRoot, 'SupportContentDemos')
-
-include ':support-design-demos'
-project(':support-design-demos').projectDir = new File(samplesRoot, 'SupportDesignDemos')
-
-include ':support-leanback-demos'
-project(':support-leanback-demos').projectDir = new File(samplesRoot, 'SupportLeanbackDemos')
-
-include ':support-leanback-jank'
-project(':support-leanback-jank').projectDir = new File(samplesRoot, 'SupportLeanbackJank')
-
-include ':support-percent-demos'
-project(':support-percent-demos').projectDir = new File(samplesRoot, 'SupportPercentDemos')
-
-include ':support-preference-demos'
-project(':support-preference-demos').projectDir = new File(samplesRoot, 'SupportPreferenceDemos')
-
-include ':support-transition-demos'
-project(':support-transition-demos').projectDir = new File(samplesRoot, 'SupportTransitionDemos')
-
-include ':support-v4-demos'
-project(':support-v4-demos').projectDir = new File(samplesRoot, 'Support4Demos')
-
-include ':support-v7-demos'
-project(':support-v7-demos').projectDir = new File(samplesRoot, 'Support7Demos')
-
-include ':support-v13-demos'
-project(':support-v13-demos').projectDir = new File(samplesRoot, 'Support13Demos')
-
-include ':support-vector-drawable-demos'
-project(':support-vector-drawable-demos').projectDir = new File(samplesRoot, 'SupportVectorDrawableDemos')
-
-include ':support-animation-demos'
-project(':support-animation-demos').projectDir = new File(samplesRoot, 'SupportAnimationDemos')
-
-include ':support-wear-demos'
-project(':support-wear-demos').projectDir = new File(samplesRoot, 'SupportWearDemos')
-
-include ':support-app-navigation'
-project(':support-app-navigation').projectDir = new File(samplesRoot, 'SupportAppNavigation')
-
-include ':support-emoji-demos'
-project(':support-emoji-demos').projectDir = new File(samplesRoot, 'SupportEmojiDemos')
+includeProject(":support-animation-demos", new File(samplesRoot, "SupportAnimationDemos"))
+includeProject(":support-app-navigation", new File(samplesRoot, "SupportAppNavigation"))
+includeProject(":support-car-demos", new File(samplesRoot, "SupportCarDemos"))
+includeProject(":support-content-demos", new File(samplesRoot, "SupportContentDemos"))
+includeProject(":support-design-demos", new File(samplesRoot, "SupportDesignDemos"))
+includeProject(":support-emoji-demos", new File(samplesRoot, "SupportEmojiDemos"))
+includeProject(":support-leanback-demos", new File(samplesRoot, "SupportLeanbackDemos"))
+//includeProject(":support-leanback-jank", new File(samplesRoot, "SupportLeanbackJank"))
+includeProject(":support-media-demos", new File(samplesRoot, "SupportMediaDemos"))
+includeProject(":support-percent-demos", new File(samplesRoot, "SupportPercentDemos"))
+includeProject(":support-preference-demos", new File(samplesRoot, "SupportPreferenceDemos"))
+includeProject(":support-slices-demos", new File(samplesRoot, "SupportSliceDemos"))
+includeProject(":support-transition-demos", new File(samplesRoot, "SupportTransitionDemos"))
+includeProject(":support-vector-drawable-demos", new File(samplesRoot, "SupportVectorDrawableDemos"))
+includeProject(":support-v4-demos", new File(samplesRoot, "Support4Demos"))
+includeProject(":support-v7-demos", new File(samplesRoot, "Support7Demos"))
+includeProject(":support-v13-demos", new File(samplesRoot, "Support13Demos"))
+includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"))
+includeProject(":viewpager2-demos", new File(samplesRoot, "ViewPager2Demos"))
 
 /////////////////////////////
 //
@@ -162,8 +193,8 @@ project(':support-emoji-demos').projectDir = new File(samplesRoot, 'SupportEmoji
 //
 /////////////////////////////
 
-include ':support-testutils'
-project(':support-testutils').projectDir = new File(rootDir, 'testutils')
+includeProject(":internal-testutils", "testutils")
+includeProject(":internal-testutils-ktx", "testutils-ktx")
 
 /////////////////////////////
 //
@@ -171,14 +202,11 @@ project(':support-testutils').projectDir = new File(rootDir, 'testutils')
 //
 /////////////////////////////
 
-include ':support-media-compat-test-client'
-project(':support-media-compat-test-client').projectDir = new File(rootDir, 'media-compat-test-client')
-
-include ':support-media-compat-test-service'
-project(':support-media-compat-test-service').projectDir = new File(rootDir, 'media-compat-test-service')
-
-include ':support-media-compat-test-lib'
-project(':support-media-compat-test-lib').projectDir = new File(rootDir, 'media-compat-test-lib')
+includeProject(":support-media-compat-test-client", "media/version-compat-tests/current/client")
+includeProject(":support-media-compat-test-client-previous", "media/version-compat-tests/previous/client")
+includeProject(":support-media-compat-test-service", "media/version-compat-tests/current/service")
+includeProject(":support-media-compat-test-service-previous", "media/version-compat-tests/previous/service")
+includeProject(":support-media-compat-test-lib", "media/version-compat-tests/lib")
 
 /////////////////////////////
 //
@@ -186,17 +214,19 @@ project(':support-media-compat-test-lib').projectDir = new File(rootDir, 'media-
 //
 /////////////////////////////
 
-File externalRoot = new File(rootDir, '../../external')
+apply(from: "include-composite-deps.gradle")
+File externalRoot = new File(rootDir, "../../external")
 
-include ':doclava'
-project(':doclava').projectDir = new File(externalRoot, 'doclava')
-
-include ':jdiff'
-project(':jdiff').projectDir = new File(externalRoot, 'jdiff')
-
-include ':noto-emoji-compat'
-project(':noto-emoji-compat').projectDir = new File(externalRoot, 'noto-fonts/emoji-compat')
+includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
+includeProject(":webview-support-interfaces", new File(externalRoot, "webview_support_interfaces"))
 
 ///// FLATFOOT START
 
 ///// FLATFOOT END
+
+// fake project which is used for docs generation from prebuilts
+// we need real android project to generate R.java, aidl etc files that mentioned in sources
+if (!startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
+    // we don't need it in ide, so we don't configure it there
+    includeProject(":docs-fake", "docs-fake")
+}

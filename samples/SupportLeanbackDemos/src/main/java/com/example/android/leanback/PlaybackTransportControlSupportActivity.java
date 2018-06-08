@@ -19,8 +19,9 @@
 
 package com.example.android.leanback;
 
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+
+import androidx.fragment.app.FragmentActivity;
 
 import java.util.ArrayList;
 import java.util.List;

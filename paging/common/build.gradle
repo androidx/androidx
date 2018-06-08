@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import android.support.LibraryGroups
-import android.support.LibraryVersions
-import android.support.SupportLibraryExtension;
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.SupportLibraryExtension;
 
 plugins {
     id("SupportJavaLibraryPlugin")
@@ -24,18 +25,13 @@ plugins {
 }
 
 dependencies {
-    compile libs.support.annotations
-    compile project(":arch:common")
+    compile(SUPPORT_ANNOTATIONS)
+    compile(project(":arch:core-common"))
 
-    testCompile libs.junit
-    testCompile libs.mockito_core
-    compile libs.support.annotations
-    compile project(path: ':arch:common')
-    testCompile libs.kotlin.stdlib
+    testCompile(JUNIT)
+    testCompile(MOCKITO_CORE)
+    testCompile(KOTLIN_STDLIB)
 }
-
-createAndroidCheckstyle(project)
-createKotlinCheckstyle(project)
 
 supportLibrary {
     name = "Android Paging-Common"

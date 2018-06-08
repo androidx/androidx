@@ -14,34 +14,29 @@
  * limitations under the License.
  */
 
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api project(':support-annotations')
-    api project(':support-compat')
+    api(project(":annotation"))
+    api(project(":core"))
 
-    androidTestImplementation libs.junit
-    androidTestImplementation libs.test_runner,   { exclude module: 'support-annotations' }
-    androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
 }
 
 supportLibrary {
     name = "Android Support Content"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.CONTENTPAGER
     inceptionYear = "2017"
     description = "Library providing support for paging across content exposed via a ContentProvider. Use of this library allows a client to avoid expensive interprocess \"cursor window swaps\" on the UI thread."
-    legacySourceLocation = true
+    failOnDeprecationWarnings = false
 }

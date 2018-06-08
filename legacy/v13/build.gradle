@@ -1,0 +1,20 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+dependencies {
+    api(project(":legacy-support-v4"))
+}
+
+supportLibrary {
+    name = "Android Support Library v13"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.LEGACY
+    inceptionYear = "2011"
+    description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
+    failOnDeprecationWarnings = false
+}

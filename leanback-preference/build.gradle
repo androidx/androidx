@@ -1,0 +1,34 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+dependencies {
+    api(project(":collection"))
+    api(project(":appcompat"))
+    api(project(":recyclerview"))
+    api(project(":preference"))
+    api(project(":legacy-preference-v14"))
+    api(project(":leanback"))
+}
+
+android {
+    sourceSets {
+        main.java.srcDirs += [
+                'api21'
+        ]
+    }
+}
+
+supportLibrary {
+    name = "Android Support Leanback Preference v17"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.LEANBACK
+    inceptionYear = "2015"
+    description = "Android Support Leanback Preference v17"
+    minSdkVersion = 17
+    failOnDeprecationWarnings = false
+}

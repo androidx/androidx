@@ -1,0 +1,42 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License
+ */
+
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+
+import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
+
+plugins {
+    id("SupportKotlinLibraryPlugin")
+}
+
+dependencies {
+    compile("com.google.code.gson:gson:2.8.0")
+    compile("org.jetbrains.kotlin:kotlin-stdlib:1.2.20")
+    testCompile("junit:junit:4.12")
+    testCompile("com.google.truth:truth:0.34")
+}
+
+supportLibrary {
+    name = "Android Jetifier Core"
+    publish = true
+    mavenVersion = LibraryVersions.JETIFIER
+    mavenGroup = LibraryGroups.JETIFIER
+    generateDocs = false
+    inceptionYear = "2017"
+    description = "Android Jetifier Core"
+}

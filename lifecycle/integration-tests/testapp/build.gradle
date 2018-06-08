@@ -14,38 +14,15 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
+import static androidx.build.dependencies.DependenciesKt.*
 
-project.ext.noDocs = true
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
 
 android {
-    compileSdkVersion tools.current_sdk
-    buildToolsVersion tools.build_tools_version
-
     defaultConfig {
-        applicationId "android.arch.lifecycle.testapp"
-        minSdkVersion flatfoot.min_sdk
-        targetSdkVersion tools.current_sdk
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-
-    signingConfigs {
-        debug {
-            // Use a local debug keystore to avoid build server issues.
-            storeFile project.rootProject.init.debugKeystore
-        }
-    }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        applicationId "androidx.lifecycle.testapp"
     }
     buildTypes {
         // test coverage does not work w/ jack
@@ -60,24 +37,19 @@ android {
 
 dependencies {
     // IJ canont figure out transitive dependencies so need to declare them.
-    implementation project(":lifecycle:common")
-    implementation project(":lifecycle:runtime")
-    implementation project(":lifecycle:extensions")
-    annotationProcessor project(":lifecycle:compiler")
+    implementation(project(":lifecycle:lifecycle-common"))
+    implementation(project(":lifecycle:lifecycle-runtime"))
+    implementation(project(":lifecycle:lifecycle-extensions"))
+    annotationProcessor(project(":lifecycle:lifecycle-compiler"))
 
-    androidTestAnnotationProcessor project(":lifecycle:compiler")
-    androidTestImplementation(libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation(libs.espresso_core, {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    androidTestAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
 
-    testImplementation libs.junit
-    testImplementation libs.mockito_core
-    testAnnotationProcessor project(":lifecycle:compiler")
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))
 }
-createAndroidCheckstyle(project)
 
 tasks['check'].dependsOn(tasks['connectedCheck'])
 

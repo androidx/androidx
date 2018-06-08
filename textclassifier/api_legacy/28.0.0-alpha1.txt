@@ -1,0 +1,141 @@
+package androidx.view.textclassifier {
+
+  public final class TextClassification implements android.os.Parcelable {
+    method public int describeContents();
+    method public float getConfidenceScore(java.lang.String);
+    method public java.lang.String getEntity(int);
+    method public int getEntityCount();
+    method public android.graphics.drawable.Drawable getIcon();
+    method public android.content.Intent getIntent();
+    method public java.lang.CharSequence getLabel();
+    method public int getSecondaryActionsCount();
+    method public android.graphics.drawable.Drawable getSecondaryIcon(int);
+    method public android.content.Intent getSecondaryIntent(int);
+    method public java.lang.CharSequence getSecondaryLabel(int);
+    method public java.lang.String getSignature();
+    method public java.lang.String getText();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.view.textclassifier.TextClassification> CREATOR;
+  }
+
+  public static final class TextClassification.Builder {
+    ctor public TextClassification.Builder();
+    method public androidx.view.textclassifier.TextClassification.Builder addSecondaryAction(android.content.Intent, java.lang.String, android.graphics.drawable.Drawable);
+    method public androidx.view.textclassifier.TextClassification build();
+    method public androidx.view.textclassifier.TextClassification.Builder clearSecondaryActions();
+    method public androidx.view.textclassifier.TextClassification.Builder setEntityType(java.lang.String, float);
+    method public androidx.view.textclassifier.TextClassification.Builder setIcon(android.graphics.drawable.Drawable);
+    method public androidx.view.textclassifier.TextClassification.Builder setIntent(android.content.Intent);
+    method public androidx.view.textclassifier.TextClassification.Builder setLabel(java.lang.String);
+    method public androidx.view.textclassifier.TextClassification.Builder setPrimaryAction(android.content.Intent, java.lang.String, android.graphics.drawable.Drawable);
+    method public androidx.view.textclassifier.TextClassification.Builder setSignature(java.lang.String);
+    method public androidx.view.textclassifier.TextClassification.Builder setText(java.lang.String);
+  }
+
+  public static final class TextClassification.Options implements android.os.Parcelable {
+    ctor public TextClassification.Options();
+    method public int describeContents();
+    method public java.lang.String getCallingPackageName();
+    method public android.support.v4.os.LocaleListCompat getDefaultLocales();
+    method public java.util.Calendar getReferenceTime();
+    method public androidx.view.textclassifier.TextClassification.Options setDefaultLocales(android.support.v4.os.LocaleListCompat);
+    method public androidx.view.textclassifier.TextClassification.Options setReferenceTime(java.util.Calendar);
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.view.textclassifier.TextClassification.Options> CREATOR;
+  }
+
+  public class TextClassifier {
+    ctor public TextClassifier();
+    field public static final java.lang.String TYPE_ADDRESS = "address";
+    field public static final java.lang.String TYPE_EMAIL = "email";
+    field public static final java.lang.String TYPE_OTHER = "other";
+    field public static final java.lang.String TYPE_PHONE = "phone";
+    field public static final java.lang.String TYPE_UNKNOWN = "";
+    field public static final java.lang.String TYPE_URL = "url";
+  }
+
+  public final class TextLinks implements android.os.Parcelable {
+    method public int apply(android.text.Spannable, int, androidx.view.textclassifier.TextLinks.SpanFactory);
+    method public int describeContents();
+    method public java.util.Collection<androidx.view.textclassifier.TextLinks.TextLink> getLinks();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final int APPLY_STRATEGY_IGNORE = 0; // 0x0
+    field public static final int APPLY_STRATEGY_REPLACE = 1; // 0x1
+    field public static final android.os.Parcelable.Creator<androidx.view.textclassifier.TextLinks> CREATOR;
+    field public static final int STATUS_DIFFERENT_TEXT = 3; // 0x3
+    field public static final int STATUS_LINKS_APPLIED = 0; // 0x0
+    field public static final int STATUS_NO_LINKS_APPLIED = 2; // 0x2
+    field public static final int STATUS_NO_LINKS_FOUND = 1; // 0x1
+  }
+
+  public static final class TextLinks.Builder {
+    ctor public TextLinks.Builder(java.lang.String);
+    method public androidx.view.textclassifier.TextLinks.Builder addLink(int, int, java.util.Map<java.lang.String, java.lang.Float>);
+    method public androidx.view.textclassifier.TextLinks build();
+    method public androidx.view.textclassifier.TextLinks.Builder clearTextLinks();
+  }
+
+  public static final class TextLinks.Options implements android.os.Parcelable {
+    ctor public TextLinks.Options();
+    method public int describeContents();
+    method public int getApplyStrategy();
+    method public java.lang.String getCallingPackageName();
+    method public android.support.v4.os.LocaleListCompat getDefaultLocales();
+    method public androidx.view.textclassifier.TextClassifier.EntityConfig getEntityConfig();
+    method public androidx.view.textclassifier.TextLinks.SpanFactory getSpanFactory();
+    method public androidx.view.textclassifier.TextLinks.Options setApplyStrategy(int);
+    method public androidx.view.textclassifier.TextLinks.Options setDefaultLocales(android.support.v4.os.LocaleListCompat);
+    method public androidx.view.textclassifier.TextLinks.Options setEntityConfig(androidx.view.textclassifier.TextClassifier.EntityConfig);
+    method public androidx.view.textclassifier.TextLinks.Options setSpanFactory(androidx.view.textclassifier.TextLinks.SpanFactory);
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.view.textclassifier.TextLinks.Options> CREATOR;
+  }
+
+  public static final class TextLinks.TextLink implements android.os.Parcelable {
+    method public int describeContents();
+    method public float getConfidenceScore(java.lang.String);
+    method public int getEnd();
+    method public java.lang.String getEntity(int);
+    method public int getEntityCount();
+    method public int getStart();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.view.textclassifier.TextLinks.TextLink> CREATOR;
+  }
+
+  public static class TextLinks.TextLinkSpan extends android.text.style.ClickableSpan {
+    ctor public TextLinks.TextLinkSpan(androidx.view.textclassifier.TextLinks.TextLink);
+    method public final androidx.view.textclassifier.TextLinks.TextLink getTextLink();
+    method public void onClick(android.view.View);
+  }
+
+  public final class TextSelection implements android.os.Parcelable {
+    method public int describeContents();
+    method public float getConfidenceScore(java.lang.String);
+    method public java.lang.String getEntity(int);
+    method public int getEntityCount();
+    method public int getSelectionEndIndex();
+    method public int getSelectionStartIndex();
+    method public java.lang.String getSignature();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.view.textclassifier.TextSelection> CREATOR;
+  }
+
+  public static final class TextSelection.Builder {
+    ctor public TextSelection.Builder(int, int);
+    method public androidx.view.textclassifier.TextSelection build();
+    method public androidx.view.textclassifier.TextSelection.Builder setEntityType(java.lang.String, float);
+    method public androidx.view.textclassifier.TextSelection.Builder setSignature(java.lang.String);
+  }
+
+  public static final class TextSelection.Options implements android.os.Parcelable {
+    ctor public TextSelection.Options();
+    method public int describeContents();
+    method public java.lang.String getCallingPackageName();
+    method public android.support.v4.os.LocaleListCompat getDefaultLocales();
+    method public androidx.view.textclassifier.TextSelection.Options setDefaultLocales(android.support.v4.os.LocaleListCompat);
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.view.textclassifier.TextSelection.Options> CREATOR;
+  }
+
+}
+

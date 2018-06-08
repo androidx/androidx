@@ -15,12 +15,12 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.arch.persistence.room.integration.testapp">
+          package="androidx.room.integration.testapp">
     <application
         android:allowBackup="true"
         android:supportsRtl="true">
         <activity
-            android:name=".RoomPagedListActivity"
+            android:name="androidx.room.integration.testapp.RoomPagedListActivity"
             android:label="Room Live PagedList"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".RoomKeyedPagedListActivity"
+            android:name="androidx.room.integration.testapp.RoomKeyedPagedListActivity"
             android:label="Keyed Live PagedList"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -37,5 +37,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".RoomPagedListRxActivity"
+            android:label="PagedList Observable"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
-  </manifest>
+</manifest>

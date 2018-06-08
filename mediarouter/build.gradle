@@ -1,0 +1,39 @@
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+dependencies {
+    api(project(":media"))
+    api(project(":appcompat"))
+    api(project(":palette"))
+
+    androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_RULES_TMP, libs.exclude_for_espresso)
+}
+
+android {
+    sourceSets {
+        main.java.srcDirs += [
+                'jellybean',
+                'jellybean-mr1',
+                'jellybean-mr2',
+                'api24'
+        ]
+    }
+}
+
+supportLibrary {
+    name = "Android MediaRouter Support Library"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.MEDIAROUTER
+    inceptionYear = "2013"
+    description = "Android MediaRouter Support Library"
+    failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
+}

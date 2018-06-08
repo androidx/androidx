@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <!-- Framework -->
+    <!-- Margin -->
+    <dimen name="car_margin">20dp</dimen>
+
+    <!-- Gutters -->
+    <dimen name="car_gutter_size">16dp</dimen>
+
+    <!-- Keylines -->
+    <dimen name="car_keyline_1">24dp</dimen>
+    <dimen name="car_keyline_2">96dp</dimen>
+    <dimen name="car_keyline_3">112dp</dimen>
+    <dimen name="car_keyline_4">148dp</dimen>
+    <dimen name="car_keyline_1_neg">-24dp</dimen>
+    <dimen name="car_keyline_2_neg">-96dp</dimen>
+    <dimen name="car_keyline_3_neg">-112dp</dimen>
+    <dimen name="car_keyline_4_neg">-148dp</dimen>
+    <!-- The diff between keyline 1 and keyline 3. -->
+    <dimen name="car_keyline_1_keyline_3_diff">88dp</dimen>
+
+    <!-- Paddings -->
+    <dimen name="car_padding_0">4dp</dimen>
+    <dimen name="car_padding_1">10dp</dimen>
+    <dimen name="car_padding_2">12dp</dimen>
+    <dimen name="car_padding_3">16dp</dimen>
+    <dimen name="car_padding_4">20dp</dimen>
+    <dimen name="car_padding_5">40dp</dimen>
+    <dimen name="car_padding_6">64dp</dimen>
+
+    <!-- Radii -->
+    <dimen name="car_radius_1">4dp</dimen>
+    <dimen name="car_radius_2">8dp</dimen>
+    <dimen name="car_radius_3">16dp</dimen>
+    <dimen name="car_radius_5">100dp</dimen>
+
+    <!-- Car Component Dimensions -->
+    <!-- Type Sizings -->
+    <dimen name="car_title_size">32sp</dimen>
+    <dimen name="car_title2_size">32sp</dimen>
+    <dimen name="car_headline1_size">45sp</dimen>
+    <dimen name="car_headline2_size">32sp</dimen>
+    <dimen name="car_headline3_size">24sp</dimen>
+    <dimen name="car_headline4_size">20sp</dimen>
+    <dimen name="car_body1_size">32sp</dimen>
+    <dimen name="car_body2_size">26sp</dimen>
+    <dimen name="car_body3_size">16sp</dimen>
+    <dimen name="car_body4_size">14sp</dimen>
+    <dimen name="car_body5_size">18sp</dimen>
+    <dimen name="car_label1_size">26sp</dimen>
+    <dimen name="car_label2_size">64sp</dimen>
+    <dimen name="car_action1_size">26sp</dimen>
+    <dimen name="car_action2_size">26sp</dimen>
+
+    <!-- Icons and Buttons -->
+    <!-- Icons -->
+    <dimen name="car_primary_icon_size">44dp</dimen>
+    <dimen name="car_secondary_icon_size">24dp</dimen>
+    <dimen name="car_fab_icon_size">76dp</dimen>
+    <dimen name="car_app_icon_size">76dp</dimen>
+
+    <!-- Avatars -->
+    <dimen name="car_avatar_size">56dp</dimen>
+    <dimen name="car_large_avatar_size">96dp</dimen>
+
+    <!-- Minimum touch target size. -->
+    <dimen name="car_touch_target_size">76dp</dimen>
+
+    <!-- Buttons -->
+    <dimen name="car_button_height">56dp</dimen>
+    <dimen name="car_button_min_width">158dp</dimen>
+    <dimen name="car_button_horizontal_padding">@dimen/car_padding_4</dimen>
+    <dimen name="car_borderless_button_horizontal_padding">0dp</dimen>
+    <dimen name="car_button_radius">@dimen/car_radius_1</dimen>
+    <dimen name="car_pill_button_size">56dp</dimen>
+
+    <!-- Status Bar -->
+    <dimen name="car_status_bar_height">36dp</dimen>
+    <dimen name="car_status_bar_icon_size">24dp</dimen>
+
+    <!-- Navigation Bar -->
+    <dimen name="car_navigation_bar_height">80dp</dimen>
+
+    <!-- Application Bar -->
+    <dimen name="car_app_bar_height">80dp</dimen>
+    <dimen name="car_app_bar_default_elevation">8dp</dimen>
+    <dimen name="car_application_icon_size">44dp</dimen>
+
+    <!-- Action Bar -->
+    <dimen name="car_action_bar_height">96dp</dimen>
+    <dimen name="car_action_bar_buttons_space">@dimen/car_padding_4</dimen>
+    <dimen name="car_action_bar_button_width">128dp</dimen>
+    <dimen name="car_action_bar_button_height">128dp</dimen>
+    <dimen name="car_action_bar_activation_ring_stroke_width">3dp</dimen>
+    <dimen name="car_action_bar_activation_ring_radius">64dp</dimen>
+    <dimen name="car_action_bar_touch_ripple_size">38dp</dimen>
+    <dimen name="car_action_bar_button_ripple_radius">48dp</dimen>
+    <dimen name="car_action_bar_elevation">2dp</dimen>
+
+    <!-- Action Buttons -->
+    <dimen name="car_action_button_icon_inset">24dp</dimen>
+    <dimen name="car_action_button_ripple_inset">16dp</dimen>
+
+    <!-- Lists -->
+    <dimen name="car_single_line_list_item_height">96dp</dimen>
+    <dimen name="car_double_line_list_item_height">@dimen/car_single_line_list_item_height</dimen>
+    <dimen name="car_list_divider_height">1dp</dimen>
+
+    <!-- The height of a vertical line divider. -->
+    <dimen name="car_vertical_line_divider_height">60dp</dimen>
+    <dimen name="car_vertical_line_divider_width">1dp</dimen>
+
+    <!-- Cards -->
+    <dimen name="car_card_header_height">76dp</dimen>
+    <dimen name="car_card_action_bar_height">76dp</dimen>
+
+    <!-- Dialogs -->
+    <dimen name="car_dialog_header_height">@dimen/car_card_header_height</dimen>
+    <dimen name="car_dialog_action_bar_height">@dimen/car_card_action_bar_height</dimen>
+    <dimen name="car_dialog_elevation">16dp</dimen>
+    <dimen name="car_list_dialog_title_elevation">16dp</dimen>
+
+    <!-- Slide Up Menu -->
+    <dimen name="car_slide_up_menu_initial_height">76dp</dimen>
+
+    <!-- Slide Down Menu -->
+    <dimen name="car_slide_down_menu_initial_height">@dimen/car_slide_up_menu_initial_height</dimen>
+
+    <!-- Sub Header -->
+    <dimen name="car_sub_header_height">76dp</dimen>
+
+    <!-- Seekbar -->
+    <dimen name="car_seekbar_height">6dp</dimen>
+    <dimen name="car_seekbar_padding">26dp</dimen>
+    <dimen name="car_seekbar_thumb_size">24dp</dimen>
+    <dimen name="car_seekbar_thumb_stroke">1dp</dimen>
+    <!-- The space between seekbar and text in ListItem. This value is based on car_seekbar_padding.
+         It brings seekbar and text closer for visual balance while maintaining touch area. -->
+    <dimen name="car_seekbar_text_overlap">-20dp</dimen>
+
+    <!-- Scroll Bar Thumb -->
+    <dimen name="car_scroll_bar_thumb_width">6dp</dimen>
+
+    <!-- Scroll Bar and Alpha Jump Buttons -->
+    <dimen name="car_scroll_bar_button_size">56dp</dimen>
+    <dimen name="car_alpha_jump_button_size">@dimen/car_scroll_bar_button_size</dimen>
+
+    <!-- Progress Bar -->
+    <dimen name="car_progress_bar_height">@dimen/car_seekbar_height</dimen>
+
+    <!-- Text Input -->
+    <dimen name="car_text_input_line_height">2dp</dimen>
+
+    <!-- Grid Spacing -->
+    <dimen name="car_grid_spacing_minimum">32dp</dimen>
+
+    <!-- PagedListView Dimensions -->
+    <!-- Sample row height used for scroll bar calculations in the off chance that a view hasn't
+        been measured. It's highly unlikely that this value will actually be used for more than
+        a frame max. The sample row is a 96dp card + 16dp margin on either side. -->
+    <dimen name="car_sample_row_height">128dp</dimen>
+
+    <!-- The amount of space the LayoutManager will make sure the last item on the screen is
+         peeking before scrolling down -->
+    <dimen name="car_last_card_peek_amount">16dp</dimen>
+
+    <!-- Drawer Dimensions -->
+    <!-- Size of progress-bar in Drawer -->
+    <dimen name="car_drawer_progress_bar_size">48dp</dimen>
+
+    <!-- Drawer Max Width -->
+    <dimen name="car_drawer_max_width">720dp</dimen>
+
+    <!-- Dimensions of the back arrow in the drawer. -->
+    <dimen name="car_arrow_size">96dp</dimen>
+    <dimen name="car_arrow_thickness">3dp</dimen>
+    <dimen name="car_arrow_shaft_length">34dp</dimen>
+    <dimen name="car_arrow_head_length">18dp</dimen>
+    <dimen name="car_menu_bar_spacing">6dp</dimen>
+    <dimen name="car_menu_bar_length">40dp</dimen>
+
+    <!-- The size of the starting icon. -->
+    <dimen name="car_drawer_list_item_icon_size">64dp</dimen>
+
+    <!-- The margin after the starting icon. -->
+    <dimen name="car_drawer_list_item_icon_end_margin">32dp</dimen>
+
+    <!-- The ending margin on a list view. -->
+    <dimen name="car_drawer_list_item_end_margin">32dp</dimen>
+
+    <!-- The size of the starting icon in a small list item.-->
+    <dimen name="car_drawer_list_item_small_icon_size">56dp</dimen>
+
+    <!-- The size of the ending icon in a list item. -->
+    <dimen name="car_drawer_list_item_end_icon_size">56dp</dimen>
+
+    <!-- The margin between text is lies on top of each other. -->
+    <dimen name="car_text_vertical_margin">2dp</dimen>
+
+    <!-- Speed Bump -->
+    <dimen name="speed_bump_lock_out_message_height">96dp</dimen>
+    <dimen name="speed_bump_lock_out_drawable_margin_bottom">8dp</dimen>
+
+</resources>

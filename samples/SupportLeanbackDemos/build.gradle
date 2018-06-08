@@ -1,34 +1,13 @@
-apply plugin: 'com.android.application'
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
 
 dependencies {
-    implementation project(':leanback-v17')
-    implementation project(':preference-leanback-v17')
+    implementation(project(":leanback"))
+    implementation(project(":leanback-preference"))
     implementation 'com.google.code.gson:gson:2.6.2'
 }
 
-android {
-    compileSdkVersion project.ext.currentSdk
-
-    defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion project.ext.currentSdk
-    }
-
-    signingConfigs {
-        debug {
-            // Use a local debug keystore to avoid build server issues.
-            storeFile project.rootProject.init.debugKeystore
-        }
-    }
-
-    lintOptions {
-        abortOnError false
-        check 'NewApi'
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+supportTestApp {
+    minSdkVersion = 17
 }
-

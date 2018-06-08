@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="ScrollViewSize"
+        message="This TableLayout should use `android:layout_width=&quot;wrap_content&quot;`"
+        errorLine1="                android:layout_width=&quot;match_parent&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/commit_content.xml"
+            line="41"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): android.app.Fragment#getChildFragmentManager"
+        errorLine1="        mTabHost.setup(getActivity(), getChildFragmentManager(), R.id.pager);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv13/app/FragmentTabsFragment.java"
+            line="34"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="34"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="34"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `@android:color/black` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
+        errorLine1="             android:background=&quot;@android:color/black&quot;>"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/commit_content.xml"
+            line="20"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.alert_dialog_icon` appears to be unused">
+        <location
+            file="src/main/res/drawable-hdpi/alert_dialog_icon.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/alert_dialog_icon.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.red` appears to be unused"
+        errorLine1="    &lt;drawable name=&quot;red&quot;>#7f00&lt;/drawable>"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="18"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.blue` appears to be unused"
+        errorLine1="    &lt;drawable name=&quot;blue&quot;>#770000ff&lt;/drawable>"
+        errorLine2="              ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="19"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.green` appears to be unused"
+        errorLine1="    &lt;drawable name=&quot;green&quot;>#7700ff00&lt;/drawable>"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="20"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.yellow` appears to be unused"
+        errorLine1="    &lt;drawable name=&quot;yellow&quot;>#77ffff00&lt;/drawable>"
+        errorLine2="              ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="21"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.layout.simple_list_item_checkable_1` appears to be unused"
+        errorLine1="&lt;com.example.android.supportv4.view.CheckableFrameLayout"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/simple_list_item_checkable_1.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.alert_dialog_two_buttons_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;alert_dialog_two_buttons_title&quot;>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="23"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.action_bar_tabs_pager` appears to be unused"
+        errorLine1="    &lt;string name=&quot;action_bar_tabs_pager&quot;>Fragment/Action Bar Tabs Pager&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="38"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="IconMissingDensityFolder"
+        message="Missing density variation folders in `src/main/res`: drawable-xhdpi, drawable-xxhdpi">
+        <location
+            file="src/main/res"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button android:id=&quot;@+id/goto_first&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/fragment_pager.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button android:id=&quot;@+id/goto_last&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/fragment_pager.xml"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="34"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv13/app/CountingFragment.java"
+            line="63"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv13/app/CountingFragment.java"
+            line="63"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv13/app/FragmentPagerSupport.java"
+            line="127"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv13/app/FragmentPagerSupport.java"
+            line="127"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv13/app/FragmentStatePagerSupport.java"
+            line="127"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv13/app/FragmentStatePagerSupport.java"
+            line="127"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;MIME&quot;, should use `@string` resource"
+        errorLine1="                        android:text=&quot;MIME&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/commit_content.xml"
+            line="50"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Label&quot;, should use `@string` resource"
+        errorLine1="                        android:text=&quot;Label&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/commit_content.xml"
+            line="66"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;URI&quot;, should use `@string` resource"
+        errorLine1="                        android:text=&quot;URI&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/commit_content.xml"
+            line="82"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Link&quot;, should use `@string` resource"
+        errorLine1="                        android:text=&quot;Link&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/commit_content.xml"
+            line="98"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Flags&quot;, should use `@string` resource"
+        errorLine1="                        android:text=&quot;Flags&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/commit_content.xml"
+            line="114"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;No items.&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;No items.&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_pager_list.xml"
+            line="49"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RtlEnabled"
+        message="The project references RTL attributes, but does not explicitly enable or disable RTL support with `android:supportsRtl` in the manifest">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+</issues>

@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.SupportLibraryExtension
+
+import static androidx.build.dependencies.DependenciesKt.*
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+android {
+    buildTypes {
+        release {
+            proguardFiles 'proguard-rules.pro'
+        }
+    }
+
+    lintOptions {
+        disable 'GradleCompatible'
+    }
+
+    packagingOptions {
+        // This is needed due to a compatibility issue with espresso_core and play_services_base
+        // Being resolved by GMSCore in b/64815250
+        pickFirst 'protobuf.meta'
+    }
+}
+
+dependencies {
+
+    implementation(project(":work:work-runtime"))
+    implementation(PLAY_SERVICES, libs.support_exclude_config)
+    implementation(FIREBASE_JOBDISPATCHER, libs.support_exclude_config)
+    // Temporary workaround to the fact that FIREBASE_JOBDISPATCHER imports v4 of 25.0.0, but we
+    // pull in 26.1.0 on some of the dependencies of v4, but not support-media-compat.
+    implementation("com.android.support:support-v4:26.1.0", libs.support_exclude_config)
+    implementation "android.arch.persistence.room:runtime:1.0.0"
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
+
+    androidTestImplementation(project(":work:work-runtime"))
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
+}
+
+supportLibrary {
+    name = "Android WorkManager Firebase"
+    publish = true
+    mavenVersion = LibraryVersions.WORKMANAGER
+    mavenGroup = LibraryGroups.WORKMANAGER
+    inceptionYear = "2018"
+    description = "Android WorkManager Firebase library"
+    url = SupportLibraryExtension.ARCHITECTURE_URL
+}

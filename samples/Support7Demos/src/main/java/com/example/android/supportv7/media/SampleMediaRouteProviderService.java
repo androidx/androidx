@@ -16,8 +16,8 @@
 
 package com.example.android.supportv7.media;
 
-import android.support.v7.media.MediaRouteProvider;
-import android.support.v7.media.MediaRouteProviderService;
+import androidx.mediarouter.media.MediaRouteProvider;
+import androidx.mediarouter.media.MediaRouteProviderService;
 
 /**
  * Demonstrates how to register a custom media route provider service

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:background="@android:color/transparent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <!-- Note: the width is 0dp because ColumnCardView will automatically set a width based
+         on the number of columns it should take up. See ColumnCardView for more details. -->
+    <androidx.car.widget.ColumnCardView
+        android:layout_gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/car_padding_4"
+        android:layout_marginBottom="@dimen/car_padding_4"
+        android:elevation="@dimen/car_dialog_elevation"
+        app:cardBackgroundColor="?attr/dialogBackgroundColor"
+        app:cardCornerRadius="@dimen/car_radius_3">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Note: the title needs a background in order for elevation to show up. -->
+            <TextView
+                android:id="@+id/title"
+                android:background="?attr/dialogBackgroundColor"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/car_dialog_header_height"
+                android:paddingStart="@dimen/car_keyline_1"
+                android:paddingEnd="@dimen/car_keyline_1"
+                android:gravity="center_vertical|start"
+                android:visibility="gone"
+                style="?attr/dialogTitleStyle" />
+
+            <!-- Hide the scrollbar for this PagedListView because it will be implemented by
+                 @id/scrollbar. -->
+            <androidx.car.widget.PagedListView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="?attr/dialogListTheme"
+                app:gutter="none"
+                app:dividerStartMargin="@dimen/car_keyline_1"
+                app:dividerEndMargin="@dimen/car_keyline_1"
+                app:showPagedListViewDivider="true"
+                app:scrollBarEnabled="false" />
+        </LinearLayout>
+    </androidx.car.widget.ColumnCardView>
+
+    <!-- Putting this as the last child for highest z-index. It is also clickable to reduce
+         the chance of clicks on the buttons accidentally dismissing the dialog. -->
+    <androidx.car.widget.PagedScrollBarView
+        android:id="@+id/scrollbar"
+        android:layout_width="@dimen/car_margin"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/car_padding_4"
+        android:layout_marginBottom="@dimen/car_padding_4"
+        android:layout_gravity="start|top"
+        android:clickable="true"
+        android:visibility="invisible" />
+</FrameLayout>

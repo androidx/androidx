@@ -1,0 +1,101 @@
+package android.arch.persistence.room {
+
+  public class DatabaseConfiguration {
+    method public boolean isMigrationRequiredFrom(int);
+    field public final boolean allowMainThreadQueries;
+    field public final java.util.List<android.arch.persistence.room.RoomDatabase.Callback> callbacks;
+    field public final android.content.Context context;
+    field public final android.arch.persistence.room.RoomDatabase.JournalMode journalMode;
+    field public final android.arch.persistence.room.RoomDatabase.MigrationContainer migrationContainer;
+    field public final java.lang.String name;
+    field public final boolean requireMigration;
+    field public final android.arch.persistence.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory;
+  }
+
+  public class InvalidationTracker {
+    method public void addObserver(android.arch.persistence.room.InvalidationTracker.Observer);
+    method public void refreshVersionsAsync();
+    method public void removeObserver(android.arch.persistence.room.InvalidationTracker.Observer);
+  }
+
+  public static abstract class InvalidationTracker.Observer {
+    ctor protected InvalidationTracker.Observer(java.lang.String, java.lang.String...);
+    ctor public InvalidationTracker.Observer(java.lang.String[]);
+    method public abstract void onInvalidated(java.util.Set<java.lang.String>);
+  }
+
+  public class Room {
+    ctor public Room();
+    method public static <T extends android.arch.persistence.room.RoomDatabase> android.arch.persistence.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context, java.lang.Class<T>, java.lang.String);
+    method public static <T extends android.arch.persistence.room.RoomDatabase> android.arch.persistence.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context, java.lang.Class<T>);
+    field public static final java.lang.String MASTER_TABLE_NAME = "room_master_table";
+  }
+
+  public abstract class RoomDatabase {
+    ctor public RoomDatabase();
+    method public void beginTransaction();
+    method public abstract void clearAllTables();
+    method public void close();
+    method public android.arch.persistence.db.SupportSQLiteStatement compileStatement(java.lang.String);
+    method protected abstract android.arch.persistence.room.InvalidationTracker createInvalidationTracker();
+    method protected abstract android.arch.persistence.db.SupportSQLiteOpenHelper createOpenHelper(android.arch.persistence.room.DatabaseConfiguration);
+    method public void endTransaction();
+    method public android.arch.persistence.room.InvalidationTracker getInvalidationTracker();
+    method public android.arch.persistence.db.SupportSQLiteOpenHelper getOpenHelper();
+    method public boolean inTransaction();
+    method public void init(android.arch.persistence.room.DatabaseConfiguration);
+    method protected void internalInitInvalidationTracker(android.arch.persistence.db.SupportSQLiteDatabase);
+    method public boolean isOpen();
+    method public android.database.Cursor query(java.lang.String, java.lang.Object[]);
+    method public android.database.Cursor query(android.arch.persistence.db.SupportSQLiteQuery);
+    method public void runInTransaction(java.lang.Runnable);
+    method public <V> V runInTransaction(java.util.concurrent.Callable<V>);
+    method public void setTransactionSuccessful();
+    field protected java.util.List<android.arch.persistence.room.RoomDatabase.Callback> mCallbacks;
+    field protected volatile android.arch.persistence.db.SupportSQLiteDatabase mDatabase;
+  }
+
+  public static class RoomDatabase.Builder<T extends android.arch.persistence.room.RoomDatabase> {
+    method public android.arch.persistence.room.RoomDatabase.Builder<T> addCallback(android.arch.persistence.room.RoomDatabase.Callback);
+    method public android.arch.persistence.room.RoomDatabase.Builder<T> addMigrations(android.arch.persistence.room.migration.Migration...);
+    method public android.arch.persistence.room.RoomDatabase.Builder<T> allowMainThreadQueries();
+    method public T build();
+    method public android.arch.persistence.room.RoomDatabase.Builder<T> fallbackToDestructiveMigration();
+    method public android.arch.persistence.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationFrom(int...);
+    method public android.arch.persistence.room.RoomDatabase.Builder<T> openHelperFactory(android.arch.persistence.db.SupportSQLiteOpenHelper.Factory);
+    method public android.arch.persistence.room.RoomDatabase.Builder<T> setJournalMode(android.arch.persistence.room.RoomDatabase.JournalMode);
+  }
+
+  public static abstract class RoomDatabase.Callback {
+    ctor public RoomDatabase.Callback();
+    method public void onCreate(android.arch.persistence.db.SupportSQLiteDatabase);
+    method public void onOpen(android.arch.persistence.db.SupportSQLiteDatabase);
+  }
+
+  public static final class RoomDatabase.JournalMode extends java.lang.Enum {
+    method public static android.arch.persistence.room.RoomDatabase.JournalMode valueOf(java.lang.String);
+    method public static final android.arch.persistence.room.RoomDatabase.JournalMode[] values();
+    enum_constant public static final android.arch.persistence.room.RoomDatabase.JournalMode AUTOMATIC;
+    enum_constant public static final android.arch.persistence.room.RoomDatabase.JournalMode TRUNCATE;
+    enum_constant public static final android.arch.persistence.room.RoomDatabase.JournalMode WRITE_AHEAD_LOGGING;
+  }
+
+  public static class RoomDatabase.MigrationContainer {
+    ctor public RoomDatabase.MigrationContainer();
+    method public void addMigrations(android.arch.persistence.room.migration.Migration...);
+    method public java.util.List<android.arch.persistence.room.migration.Migration> findMigrationPath(int, int);
+  }
+
+}
+
+package android.arch.persistence.room.migration {
+
+  public abstract class Migration {
+    ctor public Migration(int, int);
+    method public abstract void migrate(android.arch.persistence.db.SupportSQLiteDatabase);
+    field public final int endVersion;
+    field public final int startVersion;
+  }
+
+}
+

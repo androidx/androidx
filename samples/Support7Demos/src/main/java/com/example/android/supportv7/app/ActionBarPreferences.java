@@ -15,12 +15,12 @@
  */
 package com.example.android.supportv7.app;
 
-import com.example.android.supportv7.R;
-
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.example.android.supportv7.R;
 
 /**
  * This demonstrates how to use our custom AppCompat {@link android.preference.PreferenceActivity}.

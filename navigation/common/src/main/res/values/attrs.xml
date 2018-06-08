@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <declare-styleable name="Navigator">
+        <attr name="android:id"/>
+        <attr name="android:label" />
+    </declare-styleable>
+
+    <declare-styleable name="NavGraphNavigator">
+        <attr name="startDestination" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="NavArgument">
+        <attr name="android:name" />
+        <attr name="android:defaultValue" />
+        <!--free format since in future it could be Parcelable-->
+        <attr name="type"/>
+    </declare-styleable>
+
+    <declare-styleable name="NavDeepLink">
+        <attr name="uri" format="string" />
+        <attr name="android:autoVerify" />
+    </declare-styleable>
+
+    <declare-styleable name="NavAction">
+        <attr name="android:id" />
+        <attr name="destination" format="reference" />
+        <attr name="launchSingleTop" format="boolean" />
+        <attr name="launchDocument" format="boolean" />
+        <!-- Deprecated - set popUpTo to the root of your graph and use popUpToInclusive -->
+        <attr name="clearTask" format="boolean" />
+        <attr name="popUpTo" format="reference" />
+        <attr name="popUpToInclusive" format="boolean" />
+        <attr name="enterAnim" format="reference" />
+        <attr name="exitAnim" format="reference" />
+        <attr name="popEnterAnim" format="reference" />
+        <attr name="popExitAnim" format="reference" />
+    </declare-styleable>
+</resources>

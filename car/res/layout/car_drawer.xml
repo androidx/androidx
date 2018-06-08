@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<androidx.car.moderator.SpeedBumpView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/drawerBackgroundColor" >
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/car_app_bar_height"
+      android:layout_gravity="top|start"
+      android:gravity="center_horizontal"
+      android:orientation="horizontal" >
+
+    <FrameLayout
+        android:layout_width="@dimen/car_margin"
+        android:layout_height="match_parent">
+
+      <ImageButton
+          android:id="@+id/drawer_back_button"
+          android:background="@drawable/car_drawer_button_ripple_background"
+          android:layout_width="@dimen/car_primary_icon_size"
+          android:layout_height="@dimen/car_primary_icon_size"
+          android:layout_gravity="center"
+          android:tint="@color/car_tint"
+          android:src="@drawable/ic_nav_arrow_back"
+          android:scaleType="fitCenter" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/drawer_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:includeFontPadding="false"
+        android:textColor="?attr/drawerHeaderColor"
+        android:textAppearance="@style/TextAppearance.Car.Title2" />
+  </LinearLayout>
+
+  <androidx.car.widget.PagedListView
+      android:id="@+id/drawer_list"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginTop="@dimen/car_app_bar_height"
+      android:layout_gravity="top|start"
+      app:dividerStartMargin="@dimen/car_keyline_1"
+      app:dividerEndMargin="@dimen/car_keyline_1"
+      app:gutter="start"
+      style="?attr/drawerListStyle" />
+
+  <ProgressBar
+      android:id="@+id/drawer_progress"
+      android:layout_width="@dimen/car_drawer_progress_bar_size"
+      android:layout_height="@dimen/car_drawer_progress_bar_size"
+      android:layout_gravity="center"
+      android:indeterminate="true"
+      android:visibility="gone" />
+</androidx.car.moderator.SpeedBumpView>

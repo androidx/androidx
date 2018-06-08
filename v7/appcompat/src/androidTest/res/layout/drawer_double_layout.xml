@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!--
+    A DrawerLayout is indended to be used as the top-level content view
+    using match_parent for both width and height to consume the full space available.
+-->
+<androidx.appcompat.custom.CustomDrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+    <!-- As the main content view, the view below consumes the entire
+         space available using match_parent in both dimensions. Note that
+         this child does not specify android:layout_gravity attribute. -->
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <!-- This will be set as the support action bar of the activity at runtime.
+             It needs to be a dynamic runtime call for correct vertical layering of
+             the drawer and the toolbar. -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbarStyle="outsideOverlay">
+            <TextView
+                android:id="@+id/content_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/drawer_layout_summary"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:padding="16dp"/>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- android:layout_gravity="start" tells DrawerLayout to treat
+         this as a sliding drawer on the starting side, which is
+         left for left-to-right locales. The drawer is given a fixed
+         width in dp and extends the full height of the container. A
+         solid background is used for contrast with the content view.
+         android:fitsSystemWindows="true" tells the system to have
+         DrawerLayout span the full height of the screen, including the
+         system status bar on Lollipop+ versions of the plaform. -->
+    <ListView
+            android:id="@+id/start_drawer"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="#ff333333"
+            android:fitsSystemWindows="true"/>
+
+    <!-- End drawer with fixed width. -->
+    <FrameLayout
+        android:id="@+id/end_drawer"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:background="#444" />
+</androidx.appcompat.custom.CustomDrawerLayout>
+

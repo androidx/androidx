@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import static android.support.dependencies.DependenciesKt.*
+import android.support.LibraryVersions
+import android.support.LibraryGroups
+
+buildscript {
+    ext.supportRootFolder = new File("../../../")
+    apply from: "${supportRootFolder}/buildSrc/repos.gradle"
+    apply from: "${supportRootFolder}/buildSrc/init.gradle"
+    apply from: "${supportRootFolder}/buildSrc/build_dependencies.gradle"
+    init.setSdkInLocalPropertiesFile()
+    repos.addMavenRepositories(repositories)
+
+    repositories {
+        maven {
+            url "$buildDir/localMaven/"
+        }
+    }
+    dependencies {
+        classpath build_libs.gradle
+        classpath "${LibraryGroups.NAVIGATION}:safe-args-gradle-plugin:${LibraryVersions.NAVIGATION}"
+    }
+}
+
+plugins {
+    id("SupportAndroidTestAppPlugin")
+}
+
+apply plugin: 'androidx.navigation.safeargs'
+apply from: "${supportRootFolder}/buildSrc/repos.gradle"
+repos.addMavenRepositories(repositories)
+repositories {
+    maven {
+        url "$buildDir/localMaven/"
+    }
+}
+
+android {
+    flavorDimensions "mode"
+    productFlavors {
+        foo {
+            dimension "mode"
+            applicationIdSuffix ".foo"
+        }
+        notfoo {
+            dimension "mode"
+        }
+    }
+}
+
+dependencies {
+    implementation "${LibraryGroups.NAVIGATION}:runtime:${LibraryVersions.NAVIGATION}"
+    testCompile(JUNIT)
+    testCompile(MOCKITO_CORE)
+}

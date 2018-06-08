@@ -14,41 +14,34 @@
  * limitations under the License.
  */
 
-import android.support.LibraryGroups
-import android.support.LibraryVersions
-import android.support.SupportLibraryExtension
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.SupportLibraryExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion flatfoot.min_sdk
-    }
-
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
-}
-
 dependencies {
-    api project(":lifecycle:runtime")
-    api project(":arch:common")
-    api project(":arch:runtime")
-    api libs.support.fragments, libs.support_exclude_config
-    api project(":lifecycle:common")
+    api(project(":lifecycle:lifecycle-runtime"))
+    api(project(":arch:core-common"))
+    api(project(":arch:core-runtime"))
+    api(SUPPORT_FRAGMENTS, libs.support_exclude_config)
+    api(project(":lifecycle:lifecycle-common"))
+    api(project(":lifecycle:lifecycle-livedata"))
+    api(project(":lifecycle:lifecycle-process"))
+    api(project(":lifecycle:lifecycle-service"))
+    api(project(":lifecycle:lifecycle-viewmodel"))
 
-    testImplementation project(":arch:core-testing")
-    testImplementation libs.junit
-    testImplementation libs.mockito_core
+    testImplementation(project(":arch:core-testing"))
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
 
-    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
-    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
-    androidTestImplementation libs.support.app_compat, libs.support_exclude_config
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
 }
-
-createAndroidCheckstyle(project)
 
 supportLibrary {
     name = "Android Lifecycle Extensions"
@@ -58,4 +51,5 @@ supportLibrary {
     inceptionYear = "2017"
     description = "Android Lifecycle Extensions"
     url = SupportLibraryExtension.ARCHITECTURE_URL
+    failOnDeprecationWarnings = false
 }

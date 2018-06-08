@@ -1,15 +1,17 @@
 package foo.bar;
 
-import android.arch.persistence.db.SupportSQLiteStatement;
-import android.arch.persistence.room.EntityDeletionOrUpdateAdapter;
-import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.SharedSQLiteStatement;
+import androidx.room.EntityDeletionOrUpdateAdapter;
+import androidx.room.RoomDatabase;
+import androidx.room.SharedSQLiteStatement;
+import androidx.sqlite.db.SupportSQLiteStatement;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.SuppressWarnings;
 import java.util.List;
 import javax.annotation.Generated;
 
-@Generated("android.arch.persistence.room.RoomProcessor")
+@Generated("androidx.room.RoomProcessor")
+@SuppressWarnings("unchecked")
 public class UpdateDao_Impl implements UpdateDao {
   private final RoomDatabase __db;
 
@@ -200,6 +202,17 @@ public class UpdateDao_Impl implements UpdateDao {
     try {
       __updateAdapterOfUser.handle(user);
       __updateAdapterOfBook.handle(book);
+      __db.setTransactionSuccessful();
+    } finally {
+      __db.endTransaction();
+    }
+  }
+
+  @Override
+  public void updateAndAge(User user) {
+    __db.beginTransaction();
+    try {
+      UpdateDao.super.updateAndAge(user);
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();

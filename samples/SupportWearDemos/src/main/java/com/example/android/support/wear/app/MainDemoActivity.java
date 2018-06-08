@@ -19,17 +19,18 @@ package com.example.android.support.wear.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.wear.widget.WearableRecyclerView;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.wear.widget.WearableRecyclerView;
+
 import com.example.android.support.wear.app.drawers.WearableDrawersDemo;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -51,7 +52,7 @@ public class MainDemoActivity extends Activity {
     }
 
     private Map<String, Intent> createContentMap() {
-        Map<String, Intent> contentMap = new HashMap<>();
+        Map<String, Intent> contentMap = new LinkedHashMap<>();
         contentMap.put("Wearable Recycler View", new Intent(
                 this, SimpleWearableRecyclerViewDemo.class));
         contentMap.put("Wearable Switch", new Intent(
@@ -64,6 +65,10 @@ public class MainDemoActivity extends Activity {
                 this, RoundedDrawableDemo.class));
         contentMap.put("Ambient Fragment", new Intent(
                 this, AmbientModeDemo.class));
+        contentMap.put("Alert Dialog (v7)", new Intent(
+                this, AlertDialogDemo.class));
+        contentMap.put("Confirmation Overlay", new Intent(
+                this, ConfirmationOverlayDemo.class));
 
         return contentMap;
     }

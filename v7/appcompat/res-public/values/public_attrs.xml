@@ -102,6 +102,7 @@
      <public type="attr" name="customNavigationLayout"/>
      <public type="attr" name="dialogPreferredPadding"/>
      <public type="attr" name="dialogTheme"/>
+     <public type="attr" name="dialogCornerRadius"/>
      <public type="attr" name="displayOptions"/>
      <public type="attr" name="divider"/>
      <public type="attr" name="dividerHorizontal"/>
@@ -114,6 +115,7 @@
      <public type="attr" name="editTextColor"/>
      <public type="attr" name="editTextStyle"/>
      <public type="attr" name="elevation"/>
+     <public type="attr" name="firstBaselineToTopHeight"/>
      <public type="attr" name="fontFamily"/>
      <public type="attr" name="gapBetweenBars"/>
      <public type="attr" name="goIcon"/>
@@ -129,7 +131,9 @@
      <public type="attr" name="indeterminateProgressStyle"/>
      <public type="attr" name="isLightTheme"/>
      <public type="attr" name="itemPadding"/>
+     <public type="attr" name="lastBaselineToBottomHeight"/>
      <public type="attr" name="layout"/>
+     <public type="attr" name="lineHeight"/>
      <public type="attr" name="listChoiceBackgroundIndicator"/>
      <public type="attr" name="listDividerAlertDialog"/>
      <public type="attr" name="listPopupWindowStyle"/>

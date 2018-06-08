@@ -1,0 +1,125 @@
+package android.support.v4.view {
+
+  public abstract class PagerAdapter {
+    ctor public PagerAdapter();
+    method public void destroyItem(android.view.ViewGroup, int, java.lang.Object);
+    method public deprecated void destroyItem(android.view.View, int, java.lang.Object);
+    method public void finishUpdate(android.view.ViewGroup);
+    method public deprecated void finishUpdate(android.view.View);
+    method public abstract int getCount();
+    method public int getItemPosition(java.lang.Object);
+    method public java.lang.CharSequence getPageTitle(int);
+    method public float getPageWidth(int);
+    method public java.lang.Object instantiateItem(android.view.ViewGroup, int);
+    method public deprecated java.lang.Object instantiateItem(android.view.View, int);
+    method public abstract boolean isViewFromObject(android.view.View, java.lang.Object);
+    method public void notifyDataSetChanged();
+    method public void registerDataSetObserver(android.database.DataSetObserver);
+    method public void restoreState(android.os.Parcelable, java.lang.ClassLoader);
+    method public android.os.Parcelable saveState();
+    method public void setPrimaryItem(android.view.ViewGroup, int, java.lang.Object);
+    method public deprecated void setPrimaryItem(android.view.View, int, java.lang.Object);
+    method public void startUpdate(android.view.ViewGroup);
+    method public deprecated void startUpdate(android.view.View);
+    method public void unregisterDataSetObserver(android.database.DataSetObserver);
+    field public static final int POSITION_NONE = -2; // 0xfffffffe
+    field public static final int POSITION_UNCHANGED = -1; // 0xffffffff
+  }
+
+  public class PagerTabStrip extends android.support.v4.view.PagerTitleStrip {
+    ctor public PagerTabStrip(android.content.Context);
+    ctor public PagerTabStrip(android.content.Context, android.util.AttributeSet);
+    method public boolean getDrawFullUnderline();
+    method public int getTabIndicatorColor();
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setDrawFullUnderline(boolean);
+    method public void setTabIndicatorColor(int);
+    method public void setTabIndicatorColorResource(int);
+  }
+
+  public class PagerTitleStrip extends android.view.ViewGroup {
+    ctor public PagerTitleStrip(android.content.Context);
+    ctor public PagerTitleStrip(android.content.Context, android.util.AttributeSet);
+    method public int getTextSpacing();
+    method public void setGravity(int);
+    method public void setNonPrimaryAlpha(float);
+    method public void setTextColor(int);
+    method public void setTextSize(int, float);
+    method public void setTextSpacing(int);
+  }
+
+  public class ViewPager extends android.view.ViewGroup {
+    ctor public ViewPager(android.content.Context);
+    ctor public ViewPager(android.content.Context, android.util.AttributeSet);
+    method public void addOnAdapterChangeListener(android.support.v4.view.ViewPager.OnAdapterChangeListener);
+    method public void addOnPageChangeListener(android.support.v4.view.ViewPager.OnPageChangeListener);
+    method public boolean arrowScroll(int);
+    method public boolean beginFakeDrag();
+    method protected boolean canScroll(android.view.View, boolean, int, int, int);
+    method public void clearOnPageChangeListeners();
+    method public void endFakeDrag();
+    method public boolean executeKeyEvent(android.view.KeyEvent);
+    method public void fakeDragBy(float);
+    method public android.support.v4.view.PagerAdapter getAdapter();
+    method public int getCurrentItem();
+    method public int getOffscreenPageLimit();
+    method public int getPageMargin();
+    method public boolean isFakeDragging();
+    method protected void onPageScrolled(int, float, int);
+    method public void onRestoreInstanceState(android.os.Parcelable);
+    method public android.os.Parcelable onSaveInstanceState();
+    method public void removeOnAdapterChangeListener(android.support.v4.view.ViewPager.OnAdapterChangeListener);
+    method public void removeOnPageChangeListener(android.support.v4.view.ViewPager.OnPageChangeListener);
+    method public void setAdapter(android.support.v4.view.PagerAdapter);
+    method public void setCurrentItem(int);
+    method public void setCurrentItem(int, boolean);
+    method public void setOffscreenPageLimit(int);
+    method public deprecated void setOnPageChangeListener(android.support.v4.view.ViewPager.OnPageChangeListener);
+    method public void setPageMargin(int);
+    method public void setPageMarginDrawable(android.graphics.drawable.Drawable);
+    method public void setPageMarginDrawable(int);
+    method public void setPageTransformer(boolean, android.support.v4.view.ViewPager.PageTransformer);
+    method public void setPageTransformer(boolean, android.support.v4.view.ViewPager.PageTransformer, int);
+    field public static final int SCROLL_STATE_DRAGGING = 1; // 0x1
+    field public static final int SCROLL_STATE_IDLE = 0; // 0x0
+    field public static final int SCROLL_STATE_SETTLING = 2; // 0x2
+  }
+
+  public static abstract class ViewPager.DecorView implements java.lang.annotation.Annotation {
+  }
+
+  public static class ViewPager.LayoutParams extends android.view.ViewGroup.LayoutParams {
+    ctor public ViewPager.LayoutParams();
+    ctor public ViewPager.LayoutParams(android.content.Context, android.util.AttributeSet);
+    field public int gravity;
+    field public boolean isDecor;
+  }
+
+  public static abstract interface ViewPager.OnAdapterChangeListener {
+    method public abstract void onAdapterChanged(android.support.v4.view.ViewPager, android.support.v4.view.PagerAdapter, android.support.v4.view.PagerAdapter);
+  }
+
+  public static abstract interface ViewPager.OnPageChangeListener {
+    method public abstract void onPageScrollStateChanged(int);
+    method public abstract void onPageScrolled(int, float, int);
+    method public abstract void onPageSelected(int);
+  }
+
+  public static abstract interface ViewPager.PageTransformer {
+    method public abstract void transformPage(android.view.View, float);
+  }
+
+  public static class ViewPager.SavedState extends android.support.v4.view.AbsSavedState {
+    ctor public ViewPager.SavedState(android.os.Parcelable);
+    field public static final android.os.Parcelable.Creator<android.support.v4.view.ViewPager.SavedState> CREATOR;
+  }
+
+  public static class ViewPager.SimpleOnPageChangeListener implements android.support.v4.view.ViewPager.OnPageChangeListener {
+    ctor public ViewPager.SimpleOnPageChangeListener();
+    method public void onPageScrollStateChanged(int);
+    method public void onPageScrolled(int, float, int);
+    method public void onPageSelected(int);
+  }
+
+}
+

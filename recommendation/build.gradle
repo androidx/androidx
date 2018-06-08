@@ -1,26 +1,21 @@
-import android.support.LibraryGroups
-import android.support.LibraryVersions
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    api project(':support-annotations')
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 21
-    }
+    api(project(":annotation"))
 }
 
 supportLibrary {
     name = "Android Support Recommendation"
     publish = true
     mavenVersion = LibraryVersions.SUPPORT_LIBRARY
-    mavenGroup = LibraryGroups.SUPPORT
+    mavenGroup = LibraryGroups.RECOMMENDATION
     inceptionYear = "2015"
     description = "Android Support Recommendation"
-    legacySourceLocation = true
+    minSdkVersion = 21
+    failOnDeprecationWarnings = false
 }

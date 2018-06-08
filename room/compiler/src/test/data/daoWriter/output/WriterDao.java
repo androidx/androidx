@@ -16,16 +16,18 @@
 
 package foo.bar;
 
-import android.arch.persistence.db.SupportSQLiteStatement;
-import android.arch.persistence.room.EntityInsertionAdapter;
-import android.arch.persistence.room.RoomDatabase;
+import androidx.room.EntityInsertionAdapter;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteStatement;
 
 import java.lang.Override;
 import java.lang.String;
+import java.lang.SuppressWarnings;
 import java.util.List;
 import javax.annotation.Generated;
 
-@Generated("android.arch.persistence.room.RoomProcessor")
+@Generated("androidx.room.RoomProcessor")
+@SuppressWarnings("unchecked")
 public class WriterDao_Impl implements WriterDao {
     private final RoomDatabase __db;
 

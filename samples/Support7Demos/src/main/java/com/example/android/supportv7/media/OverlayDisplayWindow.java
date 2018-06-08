@@ -16,7 +16,6 @@
 
 package com.example.android.supportv7.media;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
@@ -38,6 +37,8 @@ import android.view.TextureView.SurfaceTextureListener;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.example.android.supportv7.R;
 
@@ -186,7 +187,7 @@ public abstract class OverlayDisplayWindow {
     /**
      * Implementation for API version 17+.
      */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     private static final class JellybeanMr1Impl extends OverlayDisplayWindow {
         // When true, disables support for moving and resizing the overlay.
         // The window is made non-touchable, which makes it possible to

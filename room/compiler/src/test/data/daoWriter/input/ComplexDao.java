@@ -15,9 +15,9 @@
  */
 
 package foo.bar;
-import android.arch.persistence.room.*;
+import androidx.room.*;
 import java.util.List;
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
 @Dao
 abstract class ComplexDao {
     static class FullName {

@@ -19,7 +19,7 @@ package com.example.android.leanback;
 import android.os.Handler;
 
 class PlayerAdapter extends
-        android.support.v17.leanback.media.PlayerAdapter {
+        androidx.leanback.media.PlayerAdapter {
 
     static final int FAUX_DURATION = 33 * 1000;
 

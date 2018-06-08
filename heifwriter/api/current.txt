@@ -1,0 +1,29 @@
+package androidx.heifwriter {
+
+  public final class HeifWriter implements java.lang.AutoCloseable {
+    method public void addBitmap(android.graphics.Bitmap);
+    method public void addYuvBuffer(int, byte[]);
+    method public void close();
+    method public android.view.Surface getInputSurface();
+    method public void setInputEndOfStreamTimestamp(long);
+    method public void start();
+    method public void stop(long) throws java.lang.Exception;
+    field public static final int INPUT_MODE_BITMAP = 2; // 0x2
+    field public static final int INPUT_MODE_BUFFER = 0; // 0x0
+    field public static final int INPUT_MODE_SURFACE = 1; // 0x1
+  }
+
+  public static final class HeifWriter.Builder {
+    ctor public HeifWriter.Builder(java.lang.String, int, int, int);
+    ctor public HeifWriter.Builder(java.io.FileDescriptor, int, int, int);
+    method public androidx.heifwriter.HeifWriter build() throws java.io.IOException;
+    method public androidx.heifwriter.HeifWriter.Builder setGridEnabled(boolean);
+    method public androidx.heifwriter.HeifWriter.Builder setHandler(android.os.Handler);
+    method public androidx.heifwriter.HeifWriter.Builder setMaxImages(int);
+    method public androidx.heifwriter.HeifWriter.Builder setPrimaryIndex(int);
+    method public androidx.heifwriter.HeifWriter.Builder setQuality(int);
+    method public androidx.heifwriter.HeifWriter.Builder setRotation(int);
+  }
+
+}
+

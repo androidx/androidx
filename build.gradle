@@ -14,6 +14,17 @@
  * limitations under the License.
  */
 
+import androidx.build.DacOptions
+import androidx.build.PublishDocsRulesKt
+
+def currentJvmVersion = org.gradle.api.JavaVersion.current()
+if (currentJvmVersion.getMajorVersion() != "8") {
+  throw new Exception("Unsupported java version '" + currentJvmVersion.toString() + "'. Please install java 8.\n" +
+"\n" +
+"If you have already installed java 8, you can instruct Gradle to use it by setting the environment variable JAVA_HOME equal to its file path.")
+}
+
+
 buildscript {
     ext.supportRootFolder = project.projectDir
     apply from: 'buildSrc/repos.gradle'
@@ -25,6 +36,7 @@ buildscript {
     dependencies {
         classpath build_libs.gradle
         classpath build_libs.jacoco
+        classpath build_libs.kotlin.gradle_plugin
     }
 }
 
@@ -34,11 +46,16 @@ init.setupRepoOutAndBuildNumber()
 
 init.configureSubProjects()
 
-init.configureBuildOnServer()
+def buildTask = init.configureBuildOnServer()
 
 init.setupRelease()
 
-init.enableDoclavaAndJDiff(this)
+apply from: 'buildSrc/jetify.gradle'
+
+def allDocs = init.enableDoclavaAndJDiff(this, new DacOptions("androidx", "ANDROIDX_DATA"),
+        [PublishDocsRulesKt.RELEASE_RULE])
+
+buildTask.dependsOn(allDocs)
 
 ///// FLATFOOT START
 

@@ -1,23 +1,25 @@
 package foo.bar;
 
-import android.arch.lifecycle.ComputableLiveData;
-import android.arch.lifecycle.LiveData;
-import android.arch.persistence.room.InvalidationTracker.Observer;
-import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.RoomSQLiteQuery;
-import android.arch.persistence.room.util.StringUtil;
 import android.database.Cursor;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ComputableLiveData;
+import androidx.lifecycle.LiveData;
+import androidx.room.InvalidationTracker.Observer;
+import androidx.room.RoomDatabase;
+import androidx.room.RoomSQLiteQuery;
+import androidx.room.util.StringUtil;
 import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
+import java.lang.SuppressWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Generated;
 
-@Generated("android.arch.persistence.room.RoomProcessor")
+@Generated("androidx.room.RoomProcessor")
+@SuppressWarnings("unchecked")
 public class ComplexDao_Impl extends ComplexDao {
     private final RoomDatabase __db;
 

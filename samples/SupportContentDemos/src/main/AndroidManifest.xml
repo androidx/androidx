@@ -37,7 +37,7 @@
 
         <provider
             android:name=".UnpagedDemoDataProvider"
-            android:authorities="com.example.android.support.content.demos"
+            android:authorities="com.example.androidx.contentpager.content.demos"
             android:enabled="true"
             android:exported="false">
         </provider>

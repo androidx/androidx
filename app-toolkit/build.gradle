@@ -17,7 +17,6 @@
 buildscript {
     ext.supportRootFolder = new File(project.projectDir, "../")
     apply from: 'buildSrc/repos.gradle'
-    apply from: 'init.gradle'
     apply from: "buildSrc/build_dependencies.gradle"
     repos.addMavenRepositories(repositories)
     dependencies {
@@ -26,3 +25,6 @@ buildscript {
         classpath build_libs.kotlin.gradle_plugin
     }
 }
+
+apply from: 'init.gradle'
+apply from: 'buildSrc/jetify.gradle'

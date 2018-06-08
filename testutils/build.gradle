@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
+import static androidx.build.dependencies.DependenciesKt.*
+
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
 dependencies {
-    compile libs.junit
+    api(project(":fragment"))
+    api(project(":appcompat"))
+
+    implementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
+    implementation(ESPRESSO_CORE_TMP, libs.exclude_for_espresso)
+    implementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    implementation(JUNIT)
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 14
-    }
     lintOptions {
         disable 'InvalidPackage' // Lint is unhappy about junit package
     }
 }
 
 supportLibrary {
-    legacySourceLocation = true
+    failOnUncheckedWarnings = false
 }

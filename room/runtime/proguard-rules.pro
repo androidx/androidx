@@ -1,2 +1,2 @@
--keep public class * extends android.arch.persistence.room.RoomDatabase
--dontwarn android.arch.persistence.room.paging.**
+-keep class * extends androidx.room.RoomDatabase
+-dontwarn androidx.room.paging.**

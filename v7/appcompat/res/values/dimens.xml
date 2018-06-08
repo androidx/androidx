@@ -22,8 +22,6 @@
 
     <!-- Maximum height for a stacked tab bar as part of an action bar -->
     <dimen name="abc_action_bar_stacked_max_height">48dp</dimen>
-    <!-- Size of the indeterminate Progress Bar -->
-    <dimen name="abc_action_bar_progress_bar_size">40dp</dimen>
 
     <dimen name="abc_panel_menu_list_width">296dp</dimen>
 
@@ -75,6 +73,7 @@
     <dimen name="abc_dialog_title_divider_material">8dp</dimen>
     <dimen name="abc_dialog_list_padding_top_no_title">8dp</dimen>
     <dimen name="abc_dialog_list_padding_bottom_no_buttons">8dp</dimen>
+    <dimen name="abc_dialog_corner_radius_material">2dp</dimen>
 
     <!-- Dialog button bar height -->
     <dimen name="abc_alert_dialog_button_bar_height">48dp</dimen>
@@ -94,6 +93,9 @@
 
     <!-- Minimum "smallest width" of the display for cascading menus to be enabled. -->
     <dimen name="abc_cascading_menus_min_smallest_width">720dp</dimen>
+
+    <!-- Dimension of the AlertDialog button icon -->
+    <dimen name="abc_alert_dialog_button_dimen">48dp</dimen>
 
     <!-- Tooltip dimensions. -->
     <!-- Vertical offset from the edge of the anchor view for a touch-triggered tooltip. -->

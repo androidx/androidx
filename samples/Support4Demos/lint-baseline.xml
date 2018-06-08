@@ -1,0 +1,1423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="4" by="lint 3.0.0">
+
+    <issue
+        id="ScrollViewSize"
+        message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
+        errorLine1="        android:layout_height=&quot;match_parent&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/accessibility_roledescription.xml"
+            line="8"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ScrollViewSize"
+        message="This TextView should use `android:layout_height=&quot;wrap_content&quot;`"
+        errorLine1="                  android:layout_height=&quot;match_parent&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/sliding_pane_layout.xml"
+            line="51"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        titleQuery = titleQuery.toLowerCase();"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/model/MusicProvider.java"
+            line="121"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="            if (track.metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE).toLowerCase()"
+        errorLine2="                                                                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/model/MusicProvider.java"
+            line="123"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="InconsistentLayout"
+        message="The id &quot;details&quot; in layout &quot;fragment_layout_support&quot; is missing from the following layout configurations: layout (present in layout-land)"
+        errorLine1="    &lt;FrameLayout android:id=&quot;@+id/details&quot; android:layout_weight=&quot;1&quot;"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/fragment_layout_support.xml"
+            line="29"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 24 (current min is 14): `android.content.pm.PackageManager#MATCH_UNINSTALLED_PACKAGES`"
+        errorLine1="                    PackageManager.MATCH_UNINSTALLED_PACKAGES"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/LoaderCustomSupport.java"
+            line="232"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 24 (current min is 14): `android.content.pm.PackageManager#MATCH_DISABLED_COMPONENTS`"
+        errorLine1="                            | PackageManager.MATCH_DISABLED_COMPONENTS);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/LoaderCustomSupport.java"
+            line="233"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.R.attr#colorPrimary`"
+        errorLine1="            android.R.attr.colorPrimary, Color.DKGRAY);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
+            line="81"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_STOPPED`"
+        errorLine1="        mState = PlaybackState.STATE_STOPPED;"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/Playback.java"
+            line="110"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_STOPPED`"
+        errorLine1="            mState = PlaybackState.STATE_STOPPED;"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/Playback.java"
+            line="160"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_BUFFERING`"
+        errorLine1="                mState = PlaybackState.STATE_BUFFERING;"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/Playback.java"
+            line="170"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_PAUSED`"
+        errorLine1="        mState = PlaybackState.STATE_PAUSED;"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/Playback.java"
+            line="211"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_BUFFERING`"
+        errorLine1="                mState = PlaybackState.STATE_BUFFERING;"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/Playback.java"
+            line="226"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_PLAYING`"
+        errorLine1="                        mState = PlaybackState.STATE_PLAYING;"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/Playback.java"
+            line="297"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_BUFFERING`"
+        errorLine1="                        mState = PlaybackState.STATE_BUFFERING;"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/Playback.java"
+            line="300"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_PLAYING`"
+        errorLine1="            mState = PlaybackState.STATE_PLAYING;"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/Playback.java"
+            line="354"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `autoMirrored` is only used in API level 19 and higher (current min is 14)"
+        errorLine1="        android:autoMirrored=&quot;true&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_drawer.xml"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="WifiManagerLeak"
+        message="The WIFI_SERVICE must be looked up on the Application context or memory will leak on devices &lt; Android N. Try changing `service` to `service.getApplicationContext()`"
+        errorLine1="        this.mWifiLock = ((WifiManager) service.getSystemService(Context.WIFI_SERVICE))"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/Playback.java"
+            line="102"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="                  android:textSize=&quot;24dip&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/bidiformater_support.xml"
+            line="28"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="                  android:textSize=&quot;24dip&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/bidiformater_support.xml"
+            line="35"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="                  android:textSize=&quot;24dip&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/bidiformater_support.xml"
+            line="46"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SpUsage"
+        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
+        errorLine1="                  android:textSize=&quot;24dip&quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/bidiformater_support.xml"
+            line="53"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `PlaybackStateCompat.STATE_FAST_FORWARDING`, `PlaybackStateCompat.STATE_REWINDING`, `PlaybackStateCompat.STATE_SKIPPING_TO_NEXT`, `PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS`, `PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM`"
+        errorLine1="        switch (state.getState()) {"
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
+            line="206"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="PackageManagerGetSignatures"
+        message="Reading app signatures from getPackageInfo: The app signatures could be exploited if not validated properly; see issue explanation for details."
+        errorLine1="                    callingPackage, PackageManager.GET_SIGNATURES);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/PackageValidator.java"
+            line="103"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Service.START_STICKY_COMPATIBILITY, Service.START_STICKY, Service.START_NOT_STICKY, Service.START_REDELIVER_INTENT"
+        errorLine1="            return ServiceCompat.START_STICKY;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
+            line="150"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: MediaMetadataCompat.METADATA_KEY_TITLE, MediaMetadataCompat.METADATA_KEY_ARTIST, MediaMetadataCompat.METADATA_KEY_ALBUM, MediaMetadataCompat.METADATA_KEY_AUTHOR, MediaMetadataCompat.METADATA_KEY_WRITER, MediaMetadataCompat.METADATA_KEY_COMPOSER, MediaMetadataCompat.METADATA_KEY_COMPILATION, MediaMetadataCompat.METADATA_KEY_DATE, MediaMetadataCompat.METADATA_KEY_GENRE, MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, MediaMetadataCompat.METADATA_KEY_ART_URI, MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MediaMetadataCompat.METADATA_KEY_MEDIA_URI"
+        errorLine1="                            MusicProvider.CUSTOM_METADATA_TRACK_SOURCE).hashCode(), e);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/MediaBrowserServiceSupport.java"
+            line="596"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: MediaMetadataCompat.METADATA_KEY_TITLE, MediaMetadataCompat.METADATA_KEY_ARTIST, MediaMetadataCompat.METADATA_KEY_ALBUM, MediaMetadataCompat.METADATA_KEY_AUTHOR, MediaMetadataCompat.METADATA_KEY_WRITER, MediaMetadataCompat.METADATA_KEY_COMPOSER, MediaMetadataCompat.METADATA_KEY_COMPILATION, MediaMetadataCompat.METADATA_KEY_DATE, MediaMetadataCompat.METADATA_KEY_GENRE, MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, MediaMetadataCompat.METADATA_KEY_ART_URI, MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MediaMetadataCompat.METADATA_KEY_MEDIA_URI"
+        errorLine1="                .putString(CUSTOM_METADATA_TRACK_SOURCE, source)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/model/MusicProvider.java"
+            line="282"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: MediaMetadataCompat.METADATA_KEY_TITLE, MediaMetadataCompat.METADATA_KEY_ARTIST, MediaMetadataCompat.METADATA_KEY_ALBUM, MediaMetadataCompat.METADATA_KEY_AUTHOR, MediaMetadataCompat.METADATA_KEY_WRITER, MediaMetadataCompat.METADATA_KEY_COMPOSER, MediaMetadataCompat.METADATA_KEY_COMPILATION, MediaMetadataCompat.METADATA_KEY_DATE, MediaMetadataCompat.METADATA_KEY_GENRE, MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, MediaMetadataCompat.METADATA_KEY_ART_URI, MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, MediaMetadataCompat.METADATA_KEY_MEDIA_ID, MediaMetadataCompat.METADATA_KEY_MEDIA_URI"
+        errorLine1="            String source = track.getString(MusicProvider.CUSTOM_METADATA_TRACK_SOURCE);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/Playback.java"
+            line="165"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: PlaybackStateCompat.STATE_NONE, PlaybackStateCompat.STATE_STOPPED, PlaybackStateCompat.STATE_PAUSED, PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_FAST_FORWARDING, PlaybackStateCompat.STATE_REWINDING, PlaybackStateCompat.STATE_BUFFERING, PlaybackStateCompat.STATE_ERROR, PlaybackStateCompat.STATE_CONNECTING, PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS, PlaybackStateCompat.STATE_SKIPPING_TO_NEXT, PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM"
+        errorLine1="            Log.d(TAG, &quot;Received playback state change to state &quot; + state.getState());"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
+            line="119"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ExportedContentProvider"
+        message="Exported content providers can provide access to potentially sensitive data"
+        errorLine1="        &lt;provider android:name=&quot;.app.LoaderThrottleSupport$SimpleProvider&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="233"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ExportedContentProvider"
+        message="Exported content providers can provide access to potentially sensitive data"
+        errorLine1="        &lt;provider android:authorities=&quot;com.example.supportv4.content.sharingsupportprovider&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="378"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ExportedService"
+        message="Exported service does not require permission"
+        errorLine1="        &lt;service android:name=&quot;.media.MediaBrowserServiceSupport&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="450"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="36"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="36"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 14. Merge all the resources in this folder into `values`.">
+        <location
+            file="src/main/res/values-v11"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This AsyncTask class should be static or leaks might occur (anonymous android.os.AsyncTask)"
+        errorLine1="        new AsyncTask&lt;Void, Void, Bitmap[]&gt;() {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/AlbumArtCache.java"
+            line="94"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This AsyncTask class should be static or leaks might occur (anonymous android.os.AsyncTask)"
+        errorLine1="                    mPopulatingTask = new AsyncTask&lt;Void, Void, Void>() {"
+        errorLine2="                                      ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/LoaderThrottleSupport.java"
+            line="436"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This AsyncTask class should be static or leaks might occur (anonymous android.os.AsyncTask)"
+        errorLine1="                    AsyncTask&lt;Void, Void, Void> task = new AsyncTask&lt;Void, Void, Void>() {"
+        errorLine2="                                                       ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/LoaderThrottleSupport.java"
+            line="464"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This AsyncTask class should be static or leaks might occur (anonymous android.os.AsyncTask)"
+        errorLine1="        new AsyncTask&lt;Void, Void, State>() {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/model/MusicProvider.java"
+            line="186"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseCompoundDrawables"
+        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
+        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/list_item_icon_text.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This Handler class should be static or leaks might occur (anonymous android.os.Handler)"
+        errorLine1="        Handler mHandler = new Handler() {"
+        errorLine2="                           ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
+            line="117"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="DisableBaselineAlignment"
+        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
+        errorLine1="    &lt;LinearLayout android:orientation=&quot;horizontal&quot; android:padding=&quot;4dip&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout-land/fragment_arguments_support.xml"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DisableBaselineAlignment"
+        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
+        errorLine1="    &lt;LinearLayout android:orientation=&quot;horizontal&quot; android:padding=&quot;4dip&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/fragment_arguments_support.xml"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DisableBaselineAlignment"
+        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
+        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout-land/fragment_layout_support.xml"
+            line="21"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="            android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/fragment_arguments_support.xml"
+            line="27"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="            android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_arguments_support.xml"
+            line="27"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="            android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/send_result.xml"
+            line="27"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="        android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/simple_job_intent_controller.xml"
+            line="23"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
+        errorLine1="        android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/wakeful_alarm_controller.xml"
+            line="23"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NestedWeights"
+        message="Nested weights are bad for performance"
+        errorLine1="                android:id=&quot;@+id/fragment1&quot; android:layout_weight=&quot;1&quot;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_hide_show_support.xml"
+            line="38"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NestedWeights"
+        message="Nested weights are bad for performance"
+        errorLine1="                android:id=&quot;@+id/fragment2&quot; android:layout_weight=&quot;1&quot;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_hide_show_support.xml"
+            line="52"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.red` appears to be unused"
+        errorLine1="    &lt;drawable name=&quot;red&quot;>#7f00&lt;/drawable>"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="18"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.blue` appears to be unused"
+        errorLine1="    &lt;drawable name=&quot;blue&quot;>#770000ff&lt;/drawable>"
+        errorLine2="              ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="19"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.yellow` appears to be unused"
+        errorLine1="    &lt;drawable name=&quot;yellow&quot;>#77ffff00&lt;/drawable>"
+        errorLine2="              ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="21"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_drawer` appears to be unused"
+        errorLine1="&lt;bitmap xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/drawable/ic_drawer.xml"
+            line="20"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_drawer_am` appears to be unused">
+        <location
+            file="src/main/res/drawable-hdpi/ic_drawer_am.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_drawer_am.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_drawer_am.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.menu.shortcuts` appears to be unused"
+        errorLine1="&lt;menu xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
+        errorLine2="^">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.accessibility_delegate_button` appears to be unused"
+        errorLine1="    &lt;string name=&quot;accessibility_delegate_button&quot;>Button&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="146"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.sample_transport_controller_activity` appears to be unused"
+        errorLine1="    &lt;string name=&quot;sample_transport_controller_activity&quot;>Media/TransportController&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="189"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.error_cannot_skip` appears to be unused"
+        errorLine1="    &lt;string name=&quot;error_cannot_skip&quot;>Cannot skip&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="206"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.error_empty_metadata` appears to be unused"
+        errorLine1="    &lt;string name=&quot;error_empty_metadata&quot;>Empty metadata!&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="217"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.style.ThemeHolo` appears to be unused"
+        errorLine1="    &lt;style name=&quot;ThemeHolo&quot; parent=&quot;android:Theme&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/styles.xml"
+            line="22"
+            column="12"/>
+        <location
+            file="src/main/res/values-v11/styles.xml"
+            line="19"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="IconDipSize"
+        message="Suspicious file name `ic_equalizer_white_24dp.png`: The implied 24 `dp` size does not match the actual `dp` size (pixel size 96×96 in a `drawable-xxhdpi` folder computes to 32×32 `dp`)">
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_equalizer_white_24dp.png"/>
+    </issue>
+
+    <issue
+        id="IconDipSize"
+        message="The image `ic_equalizer_white_24dp.png` varies significantly in its density-independent (dip) size across the various density versions: drawable-xhdpi/ic_equalizer_white_24dp.png: 24x24 dp (48x48 px), drawable-xxhdpi/ic_equalizer_white_24dp.png: 32x32 dp (96x96 px)">
+        <location
+            file="src/main/res/drawable-xhdpi/ic_equalizer_white_24dp.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_equalizer_white_24dp.png"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-hdpi`: ic_default_art.png, ic_equalizer_white_24dp.png, ic_star_off.png, ic_star_on.png">
+        <location
+            file="src/main/res/drawable-hdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-mdpi`: ic_default_art.png, ic_equalizer_white_24dp.png, ic_notification.png, ic_pause_white_24dp.png, ic_play_arrow_white_24dp.png... (4 more)">
+        <location
+            file="src/main/res/drawable-mdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xhdpi`: alert_dialog_icon.png, app_sample_code.png, ic_default_art.png, ic_notification.png, ic_star_off.png... (1 more)">
+        <location
+            file="src/main/res/drawable-xhdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xxhdpi`: alert_dialog_icon.png, android_robot.png, app_sample_code.png, ic_drawer_am.png, ic_notification.png... (1 more)">
+        <location
+            file="src/main/res/drawable-xxhdpi"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button android:id=&quot;@+id/goto_first&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/fragment_pager.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button android:id=&quot;@+id/goto_last&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/fragment_pager.xml"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button android:id=&quot;@+id/home&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/fragment_stack.xml"
+            line="34"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button android:id=&quot;@+id/new_fragment&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/fragment_stack.xml"
+            line="39"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="        &lt;Button android:id=&quot;@+id/delete_fragment&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/res/layout/fragment_stack.xml"
+            line="43"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="GoogleAppIndexingWarning"
+        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
+        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="36"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="TextFields"
+        message="This text field does not specify an `inputType` or a `hint`"
+        errorLine1="    &lt;EditText android:id=&quot;@+id/saved&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/labeled_text_edit.xml"
+            line="28"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view `CustomView` overrides `onTouchEvent` but not `performClick`"
+        errorLine1="        public boolean onTouchEvent(MotionEvent event) {"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/ExploreByTouchHelperActivity.java"
+            line="130"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/activity_rounded_bitmap.xml"
+            line="31"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/drawable_compat.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/list_item_icon_text.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="KeyboardInaccessibleWidget"
+        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
+        errorLine1="            android:clickable=&quot;true&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/drawable_compat.xml"
+            line="27"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                mShowText.setText(&quot;Show clicked at &quot; + mShowTime);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
+            line="79"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                mShowText.setText(&quot;Show clicked at &quot; + mShowTime);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
+            line="79"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                mHideText.setText(&quot;Hide clicked at &quot; + mHideTime);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
+            line="84"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                mHideText.setText(&quot;Hide clicked at &quot; + mHideTime);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
+            line="84"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                mShowTextDone.setText(&quot;Shown at &quot;"
+        errorLine2="                                      ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
+            line="96"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                mShowTextDone.setText(&quot;Shown at &quot;"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
+            line="96"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                mHideTextDone.setText(&quot;Hidden after &quot;"
+        errorLine2="                                      ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
+            line="99"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                mHideTextDone.setText(&quot;Hidden after &quot;"
+        errorLine2="                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
+            line="99"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        ((TextView)tv).setText(&quot;Example of displaying an alert dialog with a DialogFragment&quot;);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentAlertDialogSupport.java"
+            line="45"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            ((TextView) tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentCustomAnimationSupport.java"
+            line="124"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView) tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentCustomAnimationSupport.java"
+            line="124"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView)tv).setText(&quot;This is an instance of MyDialogFragment&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentDialogOrActivitySupport.java"
+            line="77"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="        ((TextView)tv).setText(&quot;Example of displaying dialogs with a DialogFragment.  &quot;"
+        errorLine2="                               ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
+            line="43"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        ((TextView)tv).setText(&quot;Example of displaying dialogs with a DialogFragment.  &quot;"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
+            line="43"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                + &quot;Press the show button below to see the first dialog; pressing &quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
+            line="44"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                + &quot;successive show buttons will display other dialog styles as a &quot;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
+            line="45"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                + &quot;stack, with dismissing or back going to the previous dialog.&quot;);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
+            line="46"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            ((TextView)tv).setText(&quot;Dialog #&quot; + mNum + &quot;: using style &quot;"
+        errorLine2="                                   ^">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
+            line="153"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView)tv).setText(&quot;Dialog #&quot; + mNum + &quot;: using style &quot;"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
+            line="153"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView)tv).setText(&quot;Dialog #&quot; + mNum + &quot;: using style &quot;"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
+            line="153"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                    button.setText(&quot;Hide&quot;);"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentHideShowSupport.java"
+            line="67"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                    button.setText(&quot;Show&quot;);"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentHideShowSupport.java"
+            line="70"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView)tv).setText(&quot;The fragment saves and restores this text.&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentHideShowSupport.java"
+            line="85"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView)tv).setText(&quot;The TextView saves and restores this text.&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentHideShowSupport.java"
+            line="111"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentPagerSupport.java"
+            line="126"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentPagerSupport.java"
+            line="126"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            ((TextView) tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentStackSupport.java"
+            line="134"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView) tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentStackSupport.java"
+            line="134"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentStatePagerSupport.java"
+            line="127"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/app/FragmentStatePagerSupport.java"
+            line="127"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="        callbackData.setText(&quot;No broadcast received yet&quot;);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
+            line="60"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                    callbackData.setText(&quot;STARTED&quot;);"
+        errorLine2="                                         ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
+            line="74"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                    callbackData.setText(&quot;Got update: &quot; + intent.getIntExtra(&quot;value&quot;, 0));"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
+            line="76"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                    callbackData.setText(&quot;Got update: &quot; + intent.getIntExtra(&quot;value&quot;, 0));"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
+            line="76"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        errorLine1="                    callbackData.setText(&quot;STOPPED&quot;);"
+        errorLine2="                                         ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
+            line="78"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Demonstration of hiding and showing fragments.&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Demonstration of hiding and showing fragments.&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_hide_show_support.xml"
+            line="27"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Hide&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Hide&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_hide_show_support.xml"
+            line="35"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Hide&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;Hide&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_hide_show_support.xml"
+            line="49"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;No items.&quot;, should use `@string` resource"
+        errorLine1="            android:text=&quot;No items.&quot;/>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_pager_list.xml"
+            line="49"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Invisible item&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Invisible item&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Alvin&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Alvin&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="26"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Bart&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Bart&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="30"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Chris&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Chris&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="34"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;David&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;David&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="38"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Eric&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Eric&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="42"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Frank&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Frank&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="46"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Gary&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Gary&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="50"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Henry&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Henry&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="54"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Exclamation&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Exclamation&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/shortcuts.xml"
+            line="58"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Refresh&quot;, should use `@string` resource"
+        errorLine1="        android:title=&quot;Refresh&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/menu/swipe_refresh_menu.xml"
+            line="21"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="              android:layout_gravity=&quot;left&quot;/>"
+        errorLine2="                                      ~~~~">
+        <location
+            file="src/main/res/layout/sliding_pane_layout.xml"
+            line="33"
+            column="39"/>
+    </issue>
+
+</issues>

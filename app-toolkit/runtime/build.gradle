@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-import android.support.LibraryGroups
-import android.support.SupportLibraryExtension
-import android.support.LibraryVersions
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.SupportLibraryExtension
+import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion flatfoot.min_sdk
-    }
-}
-
 dependencies {
-    api libs.support.annotations
-    api project(":arch:common")
+    api(SUPPORT_ANNOTATIONS)
+    api(project(":arch:core-common"))
 }
-
-createAndroidCheckstyle(project)
 
 supportLibrary {
     name = "Android Arch-Runtime"

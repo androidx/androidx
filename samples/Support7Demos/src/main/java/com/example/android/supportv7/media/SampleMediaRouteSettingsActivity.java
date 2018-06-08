@@ -16,7 +16,7 @@
 
 package com.example.android.supportv7.media;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * This activity is a dummy settings activity for the

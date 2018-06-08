@@ -414,7 +414,7 @@
 
 <!-- BEGIN_INCLUDE(file_provider_declaration) -->
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.android.supportv4.my_files"
             android:grantUriPermissions="true"
             android:exported="false">
@@ -423,6 +423,14 @@
                 android:resource="@xml/my_paths" />
         </provider>
 <!-- END_INCLUDE(file_provider_declaration) -->
+
+        <activity android:name=".view.inputmethod.CommitContentSupport"
+                  android:label="@string/commit_content_support">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv13.SUPPORT13_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
 
         <!-- MediaBrowserCompat Sample -->
         <activity android:name=".media.MediaBrowserSupport"
@@ -454,7 +462,7 @@
             </intent-filter>
         </service>
 
-        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver" >
+        <receiver android:name="androidx.media.session.MediaButtonReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>

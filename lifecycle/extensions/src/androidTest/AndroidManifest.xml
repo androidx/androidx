@@ -16,17 +16,17 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.arch.lifecycle.extensions.test">
+          package="androidx.lifecycle.extensions.test">
+    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
-        <activity android:name="android.arch.lifecycle.viewmodeltest.ViewModelActivity"
+        <activity android:name="androidx.lifecycle.viewmodeltest.ViewModelActivity"
                   android:theme="@style/Base.Theme.AppCompat">
         </activity>
-        <activity android:name="android.arch.lifecycle.EmptyActivity"/>
-        <activity android:name="android.arch.lifecycle.activity.FragmentLifecycleActivity"
+        <activity android:name="androidx.lifecycle.EmptyActivity"/>
+        <activity android:name="androidx.lifecycle.activity.FragmentLifecycleActivity"
             android:theme="@style/Base.Theme.AppCompat"/>
-        <activity android:name="android.arch.lifecycle.activity.EmptyActivity"/>
-        <service android:name="android.arch.lifecycle.service.TestService"/>
+        <activity android:name="androidx.lifecycle.activity.EmptyActivity"/>
     </application>
 
 </manifest>

@@ -16,8 +16,6 @@
 
 package com.example.android.supportv4.content;
 
-import com.example.android.supportv4.R;
-
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -26,6 +24,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.example.android.supportv4.R;
 
 import java.util.Calendar;
 

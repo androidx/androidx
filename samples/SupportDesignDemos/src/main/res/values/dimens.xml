@@ -20,4 +20,6 @@
     <dimen name="bottom_sheet_peek_height">128dp</dimen>
 
     <dimen name="custom_snackbar_max_width">-1px</dimen>
+
+    <dimen name="custom_fab_size">45dp</dimen>
 </resources>

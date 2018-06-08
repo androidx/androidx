@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="androidx.core.ktx.test">
+    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+    <application>
+        <activity android:name="androidx.core.TestActivity"/>
+        <activity android:name="androidx.core.TestPreferenceActivity"/>
+    </application>
+</manifest>

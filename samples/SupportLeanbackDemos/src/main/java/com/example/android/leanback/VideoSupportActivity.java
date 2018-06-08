@@ -16,11 +16,12 @@
  */
 package com.example.android.leanback;
 
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import androidx.fragment.app.FragmentActivity;
+
 /**
- * Activity demonstrating the use of {@link android.support.v17.leanback.app.VideoFragment}
+ * Activity demonstrating the use of {@link androidx.leanback.app.VideoFragment}
  */
 public class VideoSupportActivity extends FragmentActivity {
 

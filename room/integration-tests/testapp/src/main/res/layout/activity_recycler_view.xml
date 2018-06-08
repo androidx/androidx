@@ -21,8 +21,8 @@
     android:id="@+id/activity_recycler_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="android.arch.persistence.room.integration.testapp.RoomPagedListActivity">
-    <android.support.v7.widget.RecyclerView
+    tools:context="androidx.room.integration.testapp.RoomPagedListActivity">
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -34,6 +34,14 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
     />
+    <Button
+        android:id="@+id/clearButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="@string/clear"/>
     <Button
         android:id="@+id/addButton"
         android:layout_width="wrap_content"

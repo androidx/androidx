@@ -27,13 +27,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,6 +40,15 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.ListFragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.loader.content.Loader;
 
 import com.example.android.supportv4.R;
 
@@ -471,13 +473,15 @@ public class LoaderCustomSupport extends FragmentActivity {
             Log.i("LoaderCustom", "Item clicked: " + id);
         }
 
+        @NonNull
         @Override public Loader<List<AppEntry>> onCreateLoader(int id, Bundle args) {
             // This is called when a new Loader needs to be created.  This
             // sample only has one Loader with no arguments, so it is simple.
             return new AppListLoader(getActivity());
         }
 
-        @Override public void onLoadFinished(Loader<List<AppEntry>> loader, List<AppEntry> data) {
+        @Override public void onLoadFinished(@NonNull Loader<List<AppEntry>> loader,
+                List<AppEntry> data) {
             // Set the new data in the adapter.
             mAdapter.setData(data);
 
@@ -489,7 +493,7 @@ public class LoaderCustomSupport extends FragmentActivity {
             }
         }
 
-        @Override public void onLoaderReset(Loader<List<AppEntry>> loader) {
+        @Override public void onLoaderReset(@NonNull Loader<List<AppEntry>> loader) {
             // Clear the data in the adapter.
             mAdapter.setData(null);
         }

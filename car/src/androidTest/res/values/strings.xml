@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <string name="over_uxr_text_length_limit">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+    <string name="longer_than_screen_size">
+        line 0\n
+        line 1\n
+        line 2\n
+        line 3\n
+        line 4\n
+        line 5\n
+        line 6\n
+        line 7\n
+        line 8\n
+        line 9\n
+        line 10\n
+        line 11\n
+        line 12\n
+        line 13\n
+        line 14\n
+        line 15\n
+        line 16\n
+        line 17\n
+        line 18\n
+        line 19\n
+        line 20\n
+        line 21\n
+        line 22\n
+        line 23\n
+        line 24\n
+        line 25\n
+        line 26\n
+        line 27\n
+        line 28\n
+        line 29
+    </string>
+</resources>

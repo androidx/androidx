@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <declare-styleable name="lbBaseGridView">
+        <!-- Allow DPAD key to navigate out at the front of the View (where position = 0),
+             default is false  -->
+        <attr name="focusOutFront" format="boolean" />
+        <!-- Allow DPAD key to navigate out at the end of the view, default is false -->
+        <attr name="focusOutEnd" format="boolean" />
+        <!-- Allow DPAD key to navigate out of first row, for HorizontalGridView, it's the
+             top edge, for VerticalGridView it's the "start" edge.  Default value is true.  -->
+        <attr name="focusOutSideStart" format="boolean" />
+        <!-- Allow DPAD key to navigate out of last row, for HorizontalGridView, it's the
+             bottom edge, for VerticalGridView it's the "end" edge.  Default value is true.  -->
+        <attr name="focusOutSideEnd" format="boolean" />
+        <!-- Deprecated, use android:horizontalSpacing -->
+        <attr name="horizontalMargin" format="dimension" />
+        <!-- Deprecated, use android:verticalSpacing -->
+        <attr name="verticalMargin" format="dimension" />
+        <!-- Defining space between two items horizontally -->
+        <attr name="android:horizontalSpacing" />
+        <!-- Defining space between two items vertically -->
+        <attr name="android:verticalSpacing" />
+        <!-- Defining gravity of child view -->
+        <attr name="android:gravity" />
+    </declare-styleable>
+
+    <declare-styleable name="lbHorizontalGridView">
+        <!-- Defining height of each row of HorizontalGridView -->
+        <attr name="rowHeight" format="dimension" >
+            <enum name="wrap_content" value="-2" />
+        </attr>
+        <!-- Defining number of rows -->
+        <attr name="numberOfRows" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="lbVerticalGridView">
+        <!-- Defining width of each column of VerticalGridView -->
+        <attr name="columnWidth" format="dimension" >
+            <enum name="wrap_content" value="-2" />
+        </attr>
+        <!-- Defining number of columns -->
+        <attr name="numberOfColumns" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="lbBaseCardView">
+        <!-- Defines the background of card -->
+        <attr name="cardForeground" format="reference|color"/>
+        <!-- Defines the background of card -->
+        <attr name="cardBackground" format="reference|color"/>
+        <!-- Defines the type of the card layout -->
+        <attr name="cardType" format="enum">
+            <!-- A simple card layout with a single layout region. -->
+            <enum name="mainOnly" value="0" />
+            <!-- A card layout with two layout regions: a main area which is
+                 always visible, and an info region that appears over the lower
+                 area of the main region. -->
+            <enum name="infoOver" value="1" />
+            <!-- A card layout with two layout regions: a main area which is
+                 always visible, and an info region that appears below the main
+                 region. -->
+            <enum name="infoUnder" value="2" />
+            <!-- A card layout with three layout regions: a main area which is
+                 always visible, an info region that appears below the main
+                 region, and an extra region that appears below the info region
+                 after a small delay. -->
+            <enum name="infoUnderWithExtra" value="3" />
+        </attr>
+        <!-- Defines when the info region of a card layout is displayed. -->
+        <attr name="infoVisibility" format="enum">
+            <!-- Always display the info region. -->
+            <enum name="always" value="0"/>
+            <!-- Display the info region only when activated. -->
+            <enum name="activated" value="1"/>
+            <!-- Display the info region only when selected. -->
+            <enum name="selected" value="2"/>
+        </attr>
+        <!-- Defines when the extra region of a card layout is displayed.
+             Depends on infoVisibility, meaning the extra region never displays
+             if the info region is not displayed as well. -->
+        <attr name="extraVisibility" format="enum">
+            <!-- Always display the extra region. -->
+            <enum name="always" value="0"/>
+            <!-- Display the extra region only when activated. -->
+            <enum name="activated" value="1"/>
+            <!-- Display the extra region only when selected. -->
+            <enum name="selected" value="2"/>
+        </attr>
+        <!-- Defines the delay in milliseconds before the selection animation
+             runs for a card layout. -->
+        <attr name="selectedAnimationDelay" format="integer" />
+        <!-- Defines the duration in milliseconds of the selection animation for
+             a card layout. -->
+        <attr name="selectedAnimationDuration" format="integer" />
+        <!-- Defines the duration in milliseconds of the activated animation for
+             a card layout. -->
+        <attr name="activatedAnimationDuration" format="integer" />
+    </declare-styleable>
+
+    <!-- This is the basic set of layout attributes for elements within a card
+         layout. These attributes are specified with the rest of an elements's
+         normal attributes. -->
+    <declare-styleable name="lbBaseCardView_Layout">
+        <!-- The card layout region defined by this element. At most one of
+             element of each type should be specified as an immediate child of
+             the card layout. -->
+        <attr name="layout_viewType" format="enum">
+            <!-- The main region of the card. -->
+            <enum name="main" value="0"/>
+            <!-- The info region of the card. -->
+            <enum name="info" value="1"/>
+            <!-- The extra region of the card. -->
+            <enum name="extra" value="2"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="lbImageCardView">
+        <!-- Deprecated. Use 'imageCardViewInfoAreaStyle' instead. -->
+        <attr name="infoAreaBackground" format="reference|color"/>
+        <!-- Defines what components the ImageCardView will use. -->
+        <attr name="lbImageCardViewType">
+            <flag name="Title" value="1" />
+            <flag name="Content" value="2" />
+            <flag name="IconOnRight" value="4" />
+            <flag name="IconOnLeft" value="8" />
+            <!-- Only display the main image. -->
+            <flag name="ImageOnly" value="0" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="lbSearchOrbView">
+        <!-- Defining icon of the search affordance -->
+        <attr name="searchOrbIcon" format="reference"/>
+        <!-- Defining icon tint color of the search affordance -->
+        <attr name="searchOrbIconColor" format="reference|color"/>
+        <!-- Defining color of the search affordance -->
+        <attr name="searchOrbColor" format="reference|color" />
+        <!-- Defining pulse color of the search affordance -->
+        <attr name="searchOrbBrightColor" format="reference|color" />
+    </declare-styleable>
+
+    <declare-styleable name="lbPlaybackControlsActionIcons">
+        <attr name="play" format="reference"/>
+        <attr name="pause" format="reference"/>
+        <attr name="fast_forward" format="reference"/>
+        <attr name="rewind" format="reference"/>
+        <attr name="skip_next" format="reference"/>
+        <attr name="skip_previous" format="reference"/>
+        <attr name="thumb_up_outline" format="reference"/>
+        <attr name="thumb_up" format="reference"/>
+        <attr name="thumb_down_outline" format="reference"/>
+        <attr name="thumb_down" format="reference"/>
+        <attr name="repeat" format="reference"/>
+        <attr name="repeat_one" format="reference"/>
+        <attr name="shuffle" format="reference"/>
+        <attr name="high_quality" format="reference"/>
+        <attr name="closed_captioning" format="reference"/>
+        <attr name="picture_in_picture" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="lbSlide">
+        <!-- A duplication of Slide attribute slideEdge for KitKat -->
+        <attr name="lb_slideEdge">
+            <!-- Slide to and from the left edge of the Scene. -->
+            <enum name="left" value="0x03" />
+            <!-- Slide to and from the top edge of the Scene. -->
+            <enum name="top" value="0x30" />
+            <!-- Slide to and from the right edge of the Scene. -->
+            <enum name="right" value="0x05" />
+            <!-- Slide to and from the bottom edge of the Scene. -->
+            <enum name="bottom" value="0x50" />
+            <!-- Slide to and from the x-axis position at the start of the Scene root. -->
+            <enum name="start" value="0x00800003"/>
+            <!-- Slide to and from the x-axis position at the end of the Scene root. -->
+            <enum name="end" value="0x00800005"/>
+        </attr>
+        <attr name="android:duration" />
+        <attr name="android:startDelay" />
+        <attr name="android:interpolator" />
+    </declare-styleable>
+
+    <declare-styleable name="lbResizingTextView">
+        <!-- Conditions used to trigger text resizing -->
+        <attr name="resizeTrigger">
+            <!-- Resize text whenever it lays out into the maximum number of lines -->
+            <flag name="maxLines" value="0x01" />
+        </attr>
+        <!-- Text size for resized text -->
+        <attr name="resizedTextSize" format="dimension" />
+        <!-- Whether to maintain the same line spacing when text is resized, default is false -->
+        <attr name="maintainLineSpacing" format="boolean" />
+        <!-- Adjustment to top padding for resized text -->
+        <attr name="resizedPaddingAdjustmentTop" format="dimension" />
+        <!-- Adjustment to bottom padding for resized text -->
+        <attr name="resizedPaddingAdjustmentBottom" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="LeanbackTheme">
+
+        <!-- start padding of BrowseFragment, RowsFragment, DetailsFragment -->
+        <attr name="browsePaddingStart" format="dimension" />
+        <!-- end padding of BrowseFragment, RowsFragment, DetailsFragment -->
+        <attr name="browsePaddingEnd" format="dimension" />
+        <!-- top padding of BrowseFragment -->
+        <attr name="browsePaddingTop" format="dimension" />
+        <!-- bottom padding of BrowseFragment -->
+        <attr name="browsePaddingBottom" format="dimension" />
+        <!-- start margin of RowsFragment inside BrowseFragment when HeadersFragment is visible -->
+        <attr name="browseRowsMarginStart" format="dimension" />
+        <!-- top margin of RowsFragment inside BrowseFragment when BrowseFragment title is visible -->
+        <attr name="browseRowsMarginTop" format="dimension" />
+        <!-- fading edge length of start of browse row when HeadersFragment is visible -->
+        <attr name="browseRowsFadingEdgeLength" format="dimension" />
+
+        <!-- fragment title text style -->
+        <attr name="browseTitleTextStyle" format="reference" />
+
+        <!-- fragment title icon style -->
+        <attr name="browseTitleIconStyle" format="reference" />
+
+        <!-- fragment title view style -->
+        <attr name="browseTitleViewStyle" format="reference" />
+
+        <!-- customize title view layout file, it must have title view with id browse_title_group -->
+        <attr name="browseTitleViewLayout" format="reference" />
+
+        <!-- vertical grid style inside HeadersFragment -->
+        <attr name="headersVerticalGridStyle" format="reference" />
+        <!-- header style inside HeadersFragment -->
+        <attr name="headerStyle" format="reference" />
+        <!-- Non selectable header style inside HeadersFragment -->
+        <attr name="sectionHeaderStyle" format="reference" />
+
+        <!-- vertical grid style inside RowsFragment -->
+        <attr name="rowsVerticalGridStyle" format="reference" />
+
+        <!-- horizontal grid style inside a row -->
+        <attr name="rowHorizontalGridStyle" format="reference" />
+        <!-- header style inside a row -->
+        <attr name="rowHeaderStyle" format="reference" />
+
+        <!-- header description style inside a row -->
+        <attr name="rowHeaderDescriptionStyle" format="reference" />
+
+        <!-- style for the layout that hosting Header inside a row -->
+        <attr name="rowHeaderDockStyle" format="reference" />
+
+        <!-- hover card title style -->
+        <attr name="rowHoverCardTitleStyle" format="reference" />
+        <!-- hover card description style -->
+        <attr name="rowHoverCardDescriptionStyle" format="reference" />
+
+        <!-- CardView styles -->
+        <attr name="baseCardViewStyle" format="reference" />
+        <attr name="imageCardViewStyle" format="reference" />
+        <attr name="imageCardViewImageStyle" format="reference" />
+        <attr name="imageCardViewTitleStyle" format="reference" />
+        <attr name="imageCardViewContentStyle" format="reference" />
+        <attr name="imageCardViewBadgeStyle" format="reference" />
+        <attr name="imageCardViewInfoAreaStyle" format="reference" />
+
+        <!-- for details overviews -->
+        <attr name="detailsDescriptionTitleStyle" format="reference" />
+        <attr name="detailsDescriptionSubtitleStyle" format="reference" />
+        <attr name="detailsDescriptionBodyStyle" format="reference" />
+        <attr name="detailsActionButtonStyle" format="reference" />
+
+        <!-- for playlist and playback controls styling -->
+        <attr name="playbackPaddingStart" format="dimension"/>
+        <attr name="playbackPaddingEnd" format="dimension"/>
+        <attr name="playbackMediaItemPaddingStart" format="dimension"/>
+
+        <attr name="playbackMediaListHeaderStyle" format="reference"/>
+        <attr name="playbackMediaItemRowStyle" format="reference"/>
+        <attr name="playbackMediaItemSeparatorStyle" format="reference"/>
+
+        <attr name="playbackMediaListHeaderTitleStyle" format="reference"/>
+        <attr name="playbackMediaItemDetailsStyle" format="reference"/>
+        <attr name="playbackMediaItemNumberViewFlipperStyle" format="reference"/>
+        <attr name="playbackMediaItemNumberViewFlipperLayout" format="reference"/>
+        <attr name="playbackMediaItemNumberStyle" format="reference"/>
+        <attr name="playbackMediaItemNameStyle" format="reference"/>
+        <attr name="playbackMediaItemDurationStyle" format="reference"/>
+
+        <attr name="playbackControlsButtonStyle" format="reference" />
+        <attr name="playbackControlButtonLabelStyle" format="reference" />
+        <attr name="playbackControlsTimeStyle" format="reference" />
+
+        <!-- style for a vertical grid of items -->
+        <attr name="itemsVerticalGridStyle" format="reference" />
+
+        <!-- for messages in the error fragment -->
+        <attr name="errorMessageStyle" format="reference" />
+
+        <!-- Default brand color used for the background of certain leanback visual elements
+             such as the headers fragment. If your app runs on:
+             a) SDK 21+: set colorPrimary, used by the leanback launcher and elsewhere, and defaultBrandColor will inherit it.
+             b) SDK < 21: set the brand color explicitly via defaultBrandColor, or programatically.
+         -->
+        <attr name="defaultBrandColor" format="reference|color" />
+        <!-- Default dark brand color used for the background of certain leanback visual elements
+             such as the actions background. If your app runs on:
+             a) SDK 21+: set colorPrimaryDark, used by the leanback launcher and elsewhere, and defaultBrandColorDark will inherit it.
+             b) SDK < 21: set the brand color explicitly via defaultBrandColorDark, or programatically.
+         -->
+        <attr name="defaultBrandColorDark" format="reference|color" />
+
+        <!-- Default background color for Search Icon -->
+        <attr name="defaultSearchColor" format="reference|color" />
+        <!-- Default icon color for Search Icon -->
+        <attr name="defaultSearchIconColor" format="reference|color" />
+        <!-- Default color that search orb pulses to.  If not set, this color is determined programatically based on the defaultSearchColor -->
+        <attr name="defaultSearchBrightColor" format="reference|color" />
+        <!-- Default color for SectionHeader, by default same as defaultSearchColor -->
+        <attr name="defaultSectionHeaderColor" format="reference|color" />
+
+        <!-- Style for searchOrb -->
+        <attr name="searchOrbViewStyle" format="reference"/>
+        <attr name="defaultSearchIcon" format="reference" />
+
+        <attr name="playbackProgressPrimaryColor" format="reference|color" />
+        <attr name="playbackControlsIconHighlightColor" format="reference|color" />
+        <attr name="playbackControlsActionIcons" format="reference" />
+
+        <!-- Default color for dimmed views. -->
+        <attr name="overlayDimMaskColor" format="color" />
+        <!-- Default level of dimming for active views. -->
+        <attr name="overlayDimActiveLevel" format="fraction" />
+        <!-- Default level of dimming for dimmed views. -->
+        <attr name="overlayDimDimmedLevel" format="fraction" />
+    </declare-styleable>
+
+    <declare-styleable name="LeanbackGuidedStepTheme">
+
+        <!-- Theme attribute for the overall theme used in a GuidedStepFragment. The Leanback themes
+             set the default for this, but a custom theme that does not derive from a leanback theme
+             can set this to <code>@style/Theme.Leanback.GuidedStep</code> in order to specify the
+             default GuidedStepFragment styles. -->
+        <attr name="guidedStepTheme" format="reference" />
+        <!-- Used to control the height of the fragment. By default this fragment will take
+             up the full height of it's parent. The height of this fragment is governed by
+             this property. Default weight is set to 2.0, so inorder to render the fragment
+             in half screen mode, this attribute should be set to 1.0 -->
+        <attr name="guidedStepHeightWeight" format="float" />
+
+        <!-- Y offset to the bottom of the TitleView(font baseline) used to align the
+             first action text on the right. -->
+        <attr name="guidedStepKeyline" format="float" />
+
+        <!-- @hide
+             Theme attribute used to inspect theme inheritance. -->
+        <attr name="guidedStepThemeFlag" format="boolean" />
+
+        <!-- Theme attribute of background drawable used by GuidedStepFragment. -->
+        <attr name="guidedStepBackground" format="reference|color" />
+
+        <!-- Theme attribute for the animation used when a guided step element is animated in
+             response to the IME appearing. Default is {@link
+         androidx.leanbackback.R.animator#lb_guidedstep_slide_up}. -->
+        <attr name="guidedStepImeAppearingAnimation" format="reference" />
+        <!-- Theme attribute for the animation used when a guided step element is animated in
+             response to the IME disappearing. Default is {@link
+         androidx.leanbackback.R.animator#lb_guidedstep_slide_down}. -->
+        <attr name="guidedStepImeDisappearingAnimation" format="reference" />
+
+        <!-- Theme attribute for the style of the main container in a GuidanceStylist. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_GuidanceContainerStyle}.-->
+        <attr name="guidanceContainerStyle" format="reference" />
+        <!-- Theme attribute for the style of the title in a GuidanceStylist. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_GuidanceTitleStyle}. -->
+        <attr name="guidanceTitleStyle" format="reference" />
+        <!-- Theme attribute for the style of the description in a GuidanceStylist. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_GuidanceDescriptionStyle}. -->
+        <attr name="guidanceDescriptionStyle" format="reference" />
+        <!-- Theme attribute for the style of the breadcrumb in a GuidanceStylist. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_GuidanceBreadcrumbStyle}. -->
+        <attr name="guidanceBreadcrumbStyle" format="reference" />
+        <!-- Theme attribute for the style of the icon in a GuidanceStylist. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_GuidanceIconStyle}. -->
+        <attr name="guidanceIconStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the item selector in a GuidedActionsPresenter. Default is
+             ?android:attr/selectableItemBackground. -->
+        <attr name="guidedActionsSelectorDrawable" format="reference" />
+
+        <!-- Theme attribute for the shadow elevation of GuidedActions. Default is
+             {@landroidx.leanbackback.R.dimen#lb_guidedactions_elevation}.-->
+        <attr name="guidedActionsElevation" format="dimension|reference" />
+
+        <!-- Theme attribute for the background of GuidedActions. Default is
+             {@landroidx.leanbackback.R.color#lb_guidedactions_background}.-->
+        <attr name="guidedActionsBackground" format="reference" />
+
+        <!-- Theme attribute for the dark version background of GuidedActions. Default is
+             {@landroidx.leanbackback.R.color#lb_guidedactions_background_dark}.-->
+        <attr name="guidedActionsBackgroundDark" format="reference" />
+
+        <!-- Theme attribute for the style of the list in a GuidedActionsPresenter. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_GuidedActionsListStyle}.-->
+        <attr name="guidedActionsListStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the sub actions list in a GuidedActionsPresenter. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_GuidedSubActionsListStyle}.-->
+        <attr name="guidedSubActionsListStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the list in a GuidedActionsPresenter. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_GuidedButtonActionsListStyle}.-->
+        <attr name="guidedButtonActionsListStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the container of a single action in a
+             GuidedActionsPresenter. Default is {@link
+         androidx.leanbackback.R.style#Widget_Leanback_GuidedActionItemContainerStyle}. -->
+        <attr name="guidedActionItemContainerStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's checkmark in a GuidedActionsPresenter.
+             Default is {@link
+         androidx.leanbackback.R.style#Widget_Leanback_GuidedActionItemCheckmarkStyle}. -->
+        <attr name="guidedActionItemCheckmarkStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's icon in a GuidedActionsPresenter. Default
+             is {@link
+         androidx.leanbackback.R.style#Widget_Leanback_GuidedActionItemIconStyle}. -->
+        <attr name="guidedActionItemIconStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's content in a GuidedActionsPresenter.
+             Default is {@link
+         androidx.leanbackback.R.style#Widget_Leanback_GuidedActionItemContentStyle}. -->
+        <attr name="guidedActionItemContentStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's title in a GuidedActionsPresenter. Default
+             is {@link
+         androidx.leanbackback.R.style#Widget_Leanback_GuidedActionItemTitleStyle}. -->
+        <attr name="guidedActionItemTitleStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's description in a GuidedActionsPresenter.
+             Default is {@link
+         androidx.leanbackback.R.style#Widget_Leanback_GuidedActionItemDescriptionStyle}. -->
+        <attr name="guidedActionItemDescriptionStyle" format="reference" />
+        <!-- Theme attribute for the style of an action's chevron decoration in a
+             GuidedActionsPresenter. Default is {@link
+         androidx.leanbackback.R.style#Widget_Leanback_GuidedActionItemChevronStyle}. -->
+        <attr name="guidedActionItemChevronStyle" format="reference" />
+
+        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when an action
+             is pressed. Default is {@link
+         androidx.leanbackback.R.animator#lb_guidedactions_item_pressed}. -->
+        <attr name="guidedActionPressedAnimation" format="reference" />
+        <!-- Theme attribute for the animation used in a GuidedActionsPresenter when an action
+             is unpressed. Default is {@link
+         androidx.leanbackback.R.animator#lb_guidedactions_item_unpressed}. -->
+        <attr name="guidedActionUnpressedAnimation" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the alpha value of the chevron
+             decoration when its action is enabled. Default is {@link
+         androidx.leanbackback.R.string#lb_guidedactions_item_enabled_chevron_alpha}. -->
+        <attr name="guidedActionEnabledChevronAlpha" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the alpha value of the chevron
+             decoration when its action is disabled. Default is {@link
+         androidx.leanbackback.R.string#lb_guidedactions_item_disabled_chevron_alpha}. -->
+        <attr name="guidedActionDisabledChevronAlpha" format="reference" />
+        <!-- Theme attribute used for the width weight of actions in comparison to guidance area.  Default is {@link
+         androidx.leanbackback.R.string#lb_guidedactions_width_weight}. -->
+        <attr name="guidedActionContentWidthWeight" format="reference" />
+        <!-- Theme attribute used for the width weight of actions and button actions in comparison to guidance area.  Default is {@link
+         androidx.leanbackback.R.string#lb_guidedactions_width_weight_two_panels}. -->
+        <attr name="guidedActionContentWidthWeightTwoPanels" format="reference" />
+        <!-- Theme attribute used for the width weight of button actions in compare to actions -->
+        <attr name="guidedButtonActionsWidthWeight" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the max lines of the title text
+             view when the action's isMultilineDescription is set to false. Default is {@link
+         androidx.leanbackback.R.integer#lb_guidedactions_item_title_min_lines}. -->
+        <attr name="guidedActionTitleMinLines" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the max lines of the title text
+             view when the action's isMultilineDescription is set to true. Default is {@link
+         androidx.leanbackback.R.integer#lb_guidedactions_item_title_max_lines}. -->
+        <attr name="guidedActionTitleMaxLines" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the max lines of the title text
+             view when the action's isMultilineDescription is set to false. Default is {@link
+         androidx.leanbackback.R.integer#lb_guidedactions_item_description_min_lines}. -->
+        <attr name="guidedActionDescriptionMinLines" format="reference" />
+        <!-- Theme attribute used in a GuidedActionsPresenter for the vertical padding between
+             action views in the list. Default is {@link
+         androidx.leanbackback.R.dimen#lb_guidedactions_vertical_padding}. -->
+        <attr name="guidedActionVerticalPadding" format="reference" />
+
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionsContainerStyle" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionsSelectorStyle" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedStepEntryAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedStepExitAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedStepReentryAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedStepReturnAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidanceEntryAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionsEntryAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionsSelectorShowAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionsSelectorHideAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionCheckedAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionUncheckedAnimation" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionContentWidth" format="reference" />
+        <!-- Deprecated theme attribute, do not use -->
+        <attr name="guidedActionContentWidthNoIcon" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="lbTimePicker">
+        <!-- attr indicating whether time is in 24 hour format (true) or AM/PM format (false). -->
+        <attr name="is24HourFormat" format="boolean" />
+        <!-- attr indicating whether time fields should be initially set to the current time.
+         By default, it's true i.e. TimePicker initializes fields with the current time. -->
+        <attr name="useCurrentTime" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="lbDatePicker">
+        <attr name="android:minDate" />
+        <attr name="android:maxDate" />
+        <!-- e.g. "MDY", "MY" -->
+        <attr name="datePickerFormat" format="string"/>
+    </declare-styleable>
+
+    <declare-styleable name="LeanbackOnboardingTheme">
+        <!-- Theme attribute for the overall theme used in the onboarding. The Leanback themes set
+             the default for this, but a custom theme that does not derive from a leanback theme can
+             set this to <code>@style/Theme.Leanback.Onboarding</code> in order to specify the
+             default OnboardingFragment styles. -->
+        <attr name="onboardingTheme" format="reference" />
+
+        <!-- Theme attribute for the style of the header in onboarding screen. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_OnboardingHeaderStyle}.-->
+        <attr name="onboardingHeaderStyle" format="reference" />
+        <!-- Theme attribute for the style of the title text in onboarding screen. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_OnboardingTitleStyle}.-->
+        <attr name="onboardingTitleStyle" format="reference" />
+        <!-- Theme attribute for the style of the description text in onboarding screen. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_OnboardingDescriptionStyle}.-->
+        <attr name="onboardingDescriptionStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the navigator container in onboarding screen. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_OnboardingNavigatorContainerStyle}.-->
+        <attr name="onboardingNavigatorContainerStyle" format="reference" />
+        <!-- Theme attribute for the style of the page indicator in onboarding screen. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_OnboardingPageIndicatorStyle}.-->
+        <attr name="onboardingPageIndicatorStyle" format="reference" />
+        <!-- Theme attribute for the style of the start button in onboarding screen. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_OnboardingStartButtonStyle}.-->
+        <attr name="onboardingStartButtonStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the logo in onboarding screen. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_OnboardingLogoStyle}.-->
+        <attr name="onboardingLogoStyle" format="reference" />
+
+        <!-- Theme attribute for the style of the main icon in onboarding fragment. Default is
+             {@landroidx.leanbackback.R.style#Widget_Leanback_OnboardingMainIconStyle}.-->
+        <attr name="onboardingMainIconStyle" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="PagingIndicator">
+        <!-- Attributes for the radius of the dot. -->
+        <attr name="lbDotRadius" format="reference" />
+        <!-- Attributes for the radius of the arrow. -->
+        <attr name="arrowRadius" format="reference" />
+        <!-- Attributes for the distance between the centers of the adjacent dots. -->
+        <attr name="dotToDotGap" format="reference" />
+        <!-- Attributes for the distance between the centers of the arrow circle and the adjacent dot. -->
+        <attr name="dotToArrowGap" format="reference" />
+        <!-- Attribute for background color of the dots in PagingIndicator. -->
+        <attr name="dotBgColor" format="reference" />
+        <!-- Attribute for the arrow color in PagingIndicator. -->
+        <attr name="arrowColor" format="reference" />
+        <!-- Attribute for background color of the arrow in PagingIndicator. -->
+        <attr name="arrowBgColor" format="reference" />
+    </declare-styleable>
+</resources>
