@@ -60,9 +60,14 @@ class ConstraintsCommandHandler {
 
     @WorkerThread
     void handleConstraintsChanged() {
+        int schedulerLimit = mDispatcher
+                .getWorkManager()
+                .getConfiguration()
+                .getMaxSchedulerLimit();
+
         List<WorkSpec> candidates = mDispatcher.getWorkManager().getWorkDatabase()
                 .workSpecDao()
-                .getEligibleWorkForScheduling();
+                .getEligibleWorkForScheduling(schedulerLimit);
 
         // Filter candidates that are marked as SCHEDULE_NOT_REQUESTED_AT
         List<WorkSpec> eligibleWorkSpecs = new ArrayList<>(candidates.size());

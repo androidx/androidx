@@ -29,7 +29,6 @@ import android.support.annotation.NonNull;
 
 import androidx.work.Data;
 import androidx.work.State;
-import androidx.work.impl.Scheduler;
 
 import java.util.List;
 
@@ -285,12 +284,12 @@ public interface WorkSpecDao {
             // We only want WorkSpecs which have not been previously scheduled.
             + " AND schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
             + " LIMIT "
-                + "(SELECT " + Scheduler.MAX_SCHEDULER_LIMIT + "-COUNT(*) FROM workspec WHERE"
+                + "(SELECT :schedulerLimit" + "-COUNT(*) FROM workspec WHERE"
                     + " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
                     + " AND state NOT IN " + COMPLETED_STATES
                 + ")"
     )
-    List<WorkSpec> getEligibleWorkForScheduling();
+    List<WorkSpec> getEligibleWorkForScheduling(int schedulerLimit);
 
     /**
      * Immediately prunes eligible work from the database meeting the following criteria:

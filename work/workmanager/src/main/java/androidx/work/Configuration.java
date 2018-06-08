@@ -16,7 +16,11 @@
 
 package androidx.work;
 
+import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
+
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import androidx.work.impl.utils.IdGenerator;
 
@@ -28,9 +32,16 @@ import java.util.concurrent.Executors;
  */
 public final class Configuration {
 
+    /**
+     * The minimum number of system requests which can be enqueued by {@link WorkManager}
+     * when using {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}.
+     */
+    public static final int MIN_SCHEDULER_LIMIT = 20;
+
     private final Executor mExecutor;
     private final int mMinJobSchedulerId;
     private final int mMaxJobSchedulerId;
+    private final int mMaxSchedulerLimit;
 
     private Configuration(@NonNull Configuration.Builder builder) {
         if (builder.mExecutor == null) {
@@ -40,6 +51,7 @@ public final class Configuration {
         }
         mMinJobSchedulerId = builder.mMinJobSchedulerId;
         mMaxJobSchedulerId = builder.mMaxJobSchedulerId;
+        mMaxSchedulerLimit = builder.mMaxSchedulerLimit;
     }
 
     /**
@@ -75,6 +87,22 @@ public final class Configuration {
         return mMaxJobSchedulerId;
     }
 
+    /**
+     * @return The maximum number of system requests which can be enqueued by {@link WorkManager}
+     * when using {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public int getMaxSchedulerLimit() {
+        // We double schedule jobs in SDK 23. So use half the number of max slots specified.
+        if (Build.VERSION.SDK_INT == 23) {
+            return mMaxSchedulerLimit / 2;
+        } else {
+            return mMaxSchedulerLimit;
+        }
+    }
+
     private Executor createDefaultExecutor() {
         return Executors.newFixedThreadPool(
                 // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
@@ -88,6 +116,7 @@ public final class Configuration {
 
         int mMinJobSchedulerId = IdGenerator.INITIAL_ID;
         int mMaxJobSchedulerId = Integer.MAX_VALUE;
+        int mMaxSchedulerLimit = MIN_SCHEDULER_LIMIT;
         Executor mExecutor;
 
         /**
@@ -118,6 +147,33 @@ public final class Configuration {
 
             mMinJobSchedulerId = minJobSchedulerId;
             mMaxJobSchedulerId = maxJobSchedulerId;
+            return this;
+        }
+
+        /**
+         * Specifies the maximum number of system requests made by {@link WorkManager}
+         * when using {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}.
+         * When the application exceeds this limit {@link WorkManager} maintains an internal queue
+         * of {@link WorkRequest}s, and enqueues when slots become free.
+         *
+         * {@link WorkManager} requires a minimum of {@link Configuration#MIN_SCHEDULER_LIMIT}
+         * slots. The total number of slots also cannot exceed {@code 100} which is
+         * the {@link android.app.job.JobScheduler} limit.
+         *
+         * @param maxSchedulerLimit The total number of jobs which can be enqueued by
+         *                                {@link WorkManager} when using
+         *                                {@link android.app.job.JobScheduler}.
+         * @return This {@link Builder} instance
+         * @throws IllegalArgumentException when the number of jobs <
+         *                                  {@link Configuration#MIN_SCHEDULER_LIMIT}
+         */
+        public Builder setMaxSchedulerLimit(int maxSchedulerLimit) {
+            if (maxSchedulerLimit < MIN_SCHEDULER_LIMIT) {
+                throw new IllegalArgumentException(
+                        "WorkManager needs to be able to schedule at least 20 jobs in "
+                                + "JobScheduler.");
+            }
+            mMaxSchedulerLimit = Math.min(maxSchedulerLimit, MAX_SCHEDULER_LIMIT);
             return this;
         }
 

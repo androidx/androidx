@@ -20,6 +20,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
+import androidx.work.Configuration;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,8 +40,8 @@ public class Processor implements ExecutionListener {
     private static final String TAG = "Processor";
 
     private Context mAppContext;
+    private Configuration mConfiguration;
     private WorkDatabase mWorkDatabase;
-
     private Map<String, WorkerWrapper> mEnqueuedWorkMap;
     private List<Scheduler> mSchedulers;
     private Executor mExecutor;
@@ -50,10 +52,12 @@ public class Processor implements ExecutionListener {
 
     public Processor(
             Context appContext,
+            Configuration configuration,
             WorkDatabase workDatabase,
             List<Scheduler> schedulers,
             Executor executor) {
         mAppContext = appContext;
+        mConfiguration = configuration;
         mWorkDatabase = workDatabase;
         mEnqueuedWorkMap = new HashMap<>();
         mSchedulers = schedulers;
@@ -87,11 +91,12 @@ public class Processor implements ExecutionListener {
             return false;
         }
 
-        WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
-                .withListener(this)
-                .withSchedulers(mSchedulers)
-                .withRuntimeExtras(runtimeExtras)
-                .build();
+        WorkerWrapper workWrapper =
+                new WorkerWrapper.Builder(mAppContext, mConfiguration, mWorkDatabase, id)
+                        .withListener(this)
+                        .withSchedulers(mSchedulers)
+                        .withRuntimeExtras(runtimeExtras)
+                        .build();
         mEnqueuedWorkMap.put(id, workWrapper);
         mExecutor.execute(workWrapper);
         Log.d(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));

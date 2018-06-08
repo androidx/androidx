@@ -25,6 +25,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.Configuration;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.worker.InfiniteTestWorker;
@@ -43,8 +44,10 @@ public class ProcessorTest extends DatabaseTest {
     @Before
     public void setUp() {
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
+        Configuration configuration = new Configuration.Builder().build();
         mProcessor = new Processor(
                 appContext,
+                configuration,
                 mDatabase,
                 Collections.singletonList(mock(Scheduler.class)),
                 Executors.newSingleThreadScheduledExecutor()) {
