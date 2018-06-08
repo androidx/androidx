@@ -36,6 +36,11 @@ import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Tests related to the state of the WebView APK on the device. These tests only makes sense on L+
+ * (21+) devices where the WebView implementation is provided by a WebView APK rather than the
+ * framework itself.
+ */
 @SmallTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 @RunWith(AndroidJUnit4.class)
@@ -134,5 +139,24 @@ public class WebViewApkTest {
                 Arrays.asList(WebViewGlueCommunicator.getFactory().getWebViewFeatures()));
 
         Assert.assertEquals(expectedFeatures, apkFeatures);
+    }
+
+    /**
+     * A test ensuring that our test configuration is correct. In each configuration file we declare
+     * which WebView APK to install, and pass an argument to our instrumentation declaring the
+     * version of the WebView APK we intend to install. This test ensures the version passed as an
+     * instrumentation argument matches the WebView implementation on the device (to ensure the
+     * WebView APK was indeed installed correctly).
+     */
+    @Test
+    public void testWebViewVersionMatchesInstrumentationArgs() {
+        // WebView version: e.g. 46.0.2490.14, or 67.0.3396.17.
+        String expectedWebViewVersion =
+                InstrumentationRegistry.getArguments().getString("webview-version");
+        Assume.assumeNotNull(expectedWebViewVersion);
+        String actualWebViewVersion =
+                WebViewCompat.getCurrentWebViewPackage(
+                        InstrumentationRegistry.getTargetContext()).versionName;
+        Assert.assertEquals(expectedWebViewVersion, actualWebViewVersion);
     }
 }
