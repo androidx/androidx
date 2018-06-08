@@ -28,8 +28,7 @@ import android.support.annotation.RestrictTo;
  *
  * @hide
  */
-@Entity(tableName = "systemIdInfo",
-        foreignKeys = {
+@Entity(foreignKeys = {
                 @ForeignKey(
                         entity = WorkSpec.class,
                         parentColumns = "id",

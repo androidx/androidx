@@ -42,7 +42,7 @@ public interface SystemIdInfoDao {
      * @return The instance of {@link SystemIdInfo} if exists.
      */
     @Nullable
-    @Query("SELECT * FROM systemIdInfo WHERE work_spec_id=:workSpecId")
+    @Query("SELECT * FROM SystemIdInfo WHERE work_spec_id=:workSpecId")
     SystemIdInfo getSystemIdInfo(@NonNull String workSpecId);
 
     /**
@@ -50,6 +50,6 @@ public interface SystemIdInfoDao {
      *
      * @param workSpecId The {@link WorkSpec} identifier.
      */
-    @Query("DELETE FROM systemIdInfo where work_spec_id=:workSpecId")
+    @Query("DELETE FROM SystemIdInfo where work_spec_id=:workSpecId")
     void removeSystemIdInfo(@NonNull String workSpecId);
 }
