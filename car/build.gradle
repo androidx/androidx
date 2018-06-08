@@ -39,7 +39,7 @@ android {
 supportLibrary {
     name = "Android Car Support UI"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.CAR
     mavenGroup = LibraryGroups.CAR
     inceptionYear = "2017"
     description = "Android Car Support UI"
