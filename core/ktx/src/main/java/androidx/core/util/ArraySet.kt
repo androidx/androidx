@@ -22,10 +22,12 @@ import android.util.ArraySet
 import androidx.annotation.RequiresApi
 
 /** Returns an empty new [ArraySet]. */
+@Deprecated("Use the AndroidX version of ArraySet")
 @RequiresApi(23)
 inline fun <T> arraySetOf(): ArraySet<T> = ArraySet()
 
 /** Returns a new [ArraySet] with the specified contents. */
+@Deprecated("Use the AndroidX version of ArrayMap")
 @RequiresApi(23)
 fun <T> arraySetOf(vararg values: T): ArraySet<T> {
     val set = ArraySet<T>(values.size)
