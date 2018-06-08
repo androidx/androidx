@@ -21,6 +21,7 @@ import android.support.annotation.WorkerThread;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Blocking methods for {@link WorkManager} operations.  These methods are expected to be called
@@ -127,6 +128,20 @@ public interface SynchronousWorkManager {
      */
     @WorkerThread
     long getLastCancelAllTimeMillisSync();
+
+    /**
+     * Prunes all eligible finished work from the internal database in a synchronous fashion.
+     * Eligible work must be finished ({@link State#SUCCEEDED}, {@link State#FAILED}, or
+     * {@link State#CANCELLED}), with zero unfinished dependents.
+     * <p>
+     * <b>Use this method with caution</b>; by invoking it, you (and any modules and libraries in
+     * your codebase) will no longer be able to observe the {@link WorkStatus} of the pruned work.
+     * You do not normally need to call this method - WorkManager takes care to auto-prune its work
+     * after a sane period of time.  This method also ignores the
+     * {@link OneTimeWorkRequest.Builder#keepResultsForAtLeast(long, TimeUnit)} policy.
+     */
+    @WorkerThread
+    void pruneWorkSync();
 
     /**
      * Gets the {@link WorkStatus} of a given work id in a synchronous fashion.  This method is
