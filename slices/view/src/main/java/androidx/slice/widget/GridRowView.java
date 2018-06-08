@@ -34,6 +34,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
@@ -244,7 +245,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
                     EventInfo.ROW_TYPE_GRID, mRowIndex);
             Pair<SliceItem, EventInfo> tagItem = new Pair<>(mGridContent.getContentIntent(), info);
             mViewContainer.setTag(tagItem);
-            makeClickable(mViewContainer, true);
+            makeClickable(mViewContainer, true, true);
         }
         CharSequence contentDescr = mGridContent.getContentDescription();
         if (contentDescr != null) {
@@ -313,7 +314,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         info.setPosition(EventInfo.POSITION_CELL, index, total);
         Pair<SliceItem, EventInfo> tagItem = new Pair<>(seeMoreItem, info);
         seeMoreView.setTag(tagItem);
-        makeClickable(seeMoreView, true);
+        makeClickable(seeMoreView, true, false);
     }
 
     /**
@@ -396,7 +397,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
                 info.setPosition(EventInfo.POSITION_CELL, index, total);
                 Pair<SliceItem, EventInfo> tagItem = new Pair<>(contentIntentItem, info);
                 cellContainer.setTag(tagItem);
-                makeClickable(cellContainer, true);
+                makeClickable(cellContainer, true, false);
             }
         }
     }
@@ -467,11 +468,15 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         return 0;
     }
 
-    private void makeClickable(View layout, boolean isClickable) {
+    private void makeClickable(View layout, boolean isClickable, boolean isEntireGrid) {
         layout.setOnClickListener(isClickable ? this : null);
-        layout.setOnTouchListener(isClickable ? this : null);
+        layout.setOnTouchListener(isClickable && isEntireGrid ? this : null);
+        int backgroundAttr = android.R.attr.selectableItemBackground;
+        if (!isEntireGrid && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            backgroundAttr = android.R.attr.selectableItemBackgroundBorderless;
+        }
         layout.setBackground(isClickable
-                ? SliceViewUtil.getDrawable(getContext(), android.R.attr.selectableItemBackground)
+                ? SliceViewUtil.getDrawable(getContext(), backgroundAttr)
                 : null);
         layout.setClickable(isClickable);
     }
@@ -524,7 +529,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
         mViewContainer.removeAllViews();
         setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT);
-        makeClickable(mViewContainer, false);
+        makeClickable(mViewContainer, false, true);
     }
 
     private ViewTreeObserver.OnPreDrawListener mMaxCellsUpdater =
