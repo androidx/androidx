@@ -1333,6 +1333,38 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
+    public void pruneFinishedWork() {
+        OneTimeWorkRequest enqueuedWork = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest finishedWork =
+                new OneTimeWorkRequest.Builder(TestWorker.class).setInitialState(SUCCEEDED).build();
+        OneTimeWorkRequest finishedWorkWithUnfinishedDependent =
+                new OneTimeWorkRequest.Builder(TestWorker.class).setInitialState(SUCCEEDED).build();
+        OneTimeWorkRequest finishedWorkWithLongKeepForAtLeast =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .setInitialState(SUCCEEDED)
+                        .keepResultsForAtLeast(999, TimeUnit.DAYS)
+                        .build();
+
+        insertWorkSpecAndTags(enqueuedWork);
+        insertWorkSpecAndTags(finishedWork);
+        insertWorkSpecAndTags(finishedWorkWithUnfinishedDependent);
+        insertWorkSpecAndTags(finishedWorkWithLongKeepForAtLeast);
+
+        insertDependency(enqueuedWork, finishedWorkWithUnfinishedDependent);
+
+        mWorkManagerImpl.synchronous().pruneWorkSync();
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(enqueuedWork.getStringId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(finishedWork.getStringId()), is(nullValue()));
+        assertThat(workSpecDao.getWorkSpec(finishedWorkWithUnfinishedDependent.getStringId()),
+                is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(finishedWorkWithLongKeepForAtLeast.getStringId()),
+                is(nullValue()));
+    }
+
+    @Test
+    @SmallTest
     public void testSynchronousCancelAndGetStatus() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWorkSpecAndTags(work);
