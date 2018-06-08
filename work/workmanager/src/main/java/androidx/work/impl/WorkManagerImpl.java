@@ -167,6 +167,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         mTaskExecutor = WorkManagerTaskExecutor.getInstance();
         mProcessor = new Processor(
                 context,
+                mConfiguration,
                 mWorkDatabase,
                 getSchedulers(),
                 configuration.getExecutor());
@@ -515,7 +516,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
         // Delegate to the WorkManager's schedulers.
         // Using getters here so we can use from a mocked instance
         // of WorkManagerImpl.
-        Schedulers.schedule(getWorkDatabase(), getSchedulers());
+        Schedulers.schedule(getConfiguration(), getWorkDatabase(), getSchedulers());
     }
 
     private void assertBackgroundThread(String errorMessage) {

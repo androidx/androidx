@@ -34,6 +34,7 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
@@ -81,6 +82,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     private Context mContext;
     private Scheduler mScheduler;
     private WorkManagerImpl mWorkManager;
+    private Configuration mConfiguration;
     private ExecutorService mExecutorService;
     private Processor mProcessor;
     private Processor mSpyProcessor;
@@ -108,10 +110,13 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
             }
         };
 
+        mConfiguration = new Configuration.Builder().build();
         when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
+        when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
         mExecutorService = Executors.newSingleThreadExecutor();
         mProcessor = new Processor(
                 mContext,
+                mConfiguration,
                 mDatabase,
                 Collections.singletonList(mScheduler),
                 // simulate real world use-case
