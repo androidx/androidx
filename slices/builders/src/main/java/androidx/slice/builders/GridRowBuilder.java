@@ -500,5 +500,33 @@ public class GridRowBuilder {
         public PendingIntent getContentIntent() {
             return mContentIntent;
         }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public CharSequence getTitle() {
+            for (int i = 0; i < mObjects.size(); i++) {
+                if (mTypes.get(i) == TYPE_TITLE) {
+                    return (CharSequence) mObjects.get(i);
+                }
+            }
+            return null;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public CharSequence getSubtitle() {
+            for (int i = 0; i < mObjects.size(); i++) {
+                if (mTypes.get(i) == TYPE_TEXT) {
+                    return (CharSequence) mObjects.get(i);
+                }
+            }
+            return null;
+        }
     }
 }
