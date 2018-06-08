@@ -29,6 +29,7 @@ import android.database.Cursor
  * @see Cursor.getColumnIndexOrThrow
  * @see Cursor.getBlob
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getBlob(columnName: String): ByteArray =
     getBlob(getColumnIndexOrThrow(columnName))
 
@@ -41,6 +42,7 @@ inline fun Cursor.getBlob(columnName: String): ByteArray =
  * @see Cursor.getColumnIndexOrThrow
  * @see Cursor.getDouble
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getDouble(columnName: String): Double =
     getDouble(getColumnIndexOrThrow(columnName))
 
@@ -53,6 +55,7 @@ inline fun Cursor.getDouble(columnName: String): Double =
  * @see Cursor.getColumnIndexOrThrow
  * @see Cursor.getFloat
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getFloat(columnName: String): Float = getFloat(getColumnIndexOrThrow(columnName))
 
 /**
@@ -64,6 +67,7 @@ inline fun Cursor.getFloat(columnName: String): Float = getFloat(getColumnIndexO
  * @see Cursor.getColumnIndexOrThrow
  * @see Cursor.getInt
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndexOrThrow(columnName))
 
 /**
@@ -75,6 +79,7 @@ inline fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndexOrThrow
  * @see Cursor.getColumnIndexOrThrow
  * @see Cursor.getLong
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getLong(columnName: String): Long = getLong(getColumnIndexOrThrow(columnName))
 
 /**
@@ -86,6 +91,7 @@ inline fun Cursor.getLong(columnName: String): Long = getLong(getColumnIndexOrTh
  * @see Cursor.getColumnIndexOrThrow
  * @see Cursor.getShort
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getShort(columnName: String): Short = getShort(getColumnIndexOrThrow(columnName))
 
 /**
@@ -97,6 +103,7 @@ inline fun Cursor.getShort(columnName: String): Short = getShort(getColumnIndexO
  * @see Cursor.getColumnIndexOrThrow
  * @see Cursor.getString
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getString(columnName: String): String =
     getString(getColumnIndexOrThrow(columnName))
 
@@ -187,6 +194,7 @@ inline fun Cursor.getStringOrNull(index: Int) = if (isNull(index)) null else get
  * @see Cursor.isNull
  * @see Cursor.getBlob
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getBlobOrNull(columnName: String) =
     getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getBlob(it) }
 
@@ -200,6 +208,7 @@ inline fun Cursor.getBlobOrNull(columnName: String) =
  * @see Cursor.isNull
  * @see Cursor.getDouble
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getDoubleOrNull(columnName: String) =
     getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getDouble(it) }
 
@@ -213,6 +222,7 @@ inline fun Cursor.getDoubleOrNull(columnName: String) =
  * @see Cursor.isNull
  * @see Cursor.getFloat
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getFloatOrNull(columnName: String) =
     getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getFloat(it) }
 
@@ -226,6 +236,7 @@ inline fun Cursor.getFloatOrNull(columnName: String) =
  * @see Cursor.isNull
  * @see Cursor.getInt
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getIntOrNull(columnName: String) =
     getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getInt(it) }
 
@@ -239,6 +250,7 @@ inline fun Cursor.getIntOrNull(columnName: String) =
  * @see Cursor.isNull
  * @see Cursor.getLong
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getLongOrNull(columnName: String) =
     getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getLong(it) }
 
@@ -252,6 +264,7 @@ inline fun Cursor.getLongOrNull(columnName: String) =
  * @see Cursor.isNull
  * @see Cursor.getShort
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getShortOrNull(columnName: String) =
     getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getShort(it) }
 
@@ -265,5 +278,6 @@ inline fun Cursor.getShortOrNull(columnName: String) =
  * @see Cursor.isNull
  * @see Cursor.getString
  */
+@Deprecated("Use an abstraction like Room or look up column names once prior to iteration")
 inline fun Cursor.getStringOrNull(columnName: String) =
     getColumnIndexOrThrow(columnName).let { if (isNull(it)) null else getString(it) }
