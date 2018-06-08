@@ -135,10 +135,10 @@ public final class DividerVisibilityManagerTest {
 
         for (int i = 0; i < itemCount - 1; i++) {
             int distance = views[i + 1].getTop() - views[i].getBottom();
-            if (dvm.shouldHideDivider(i)) {
-                assertEquals(distance, 0);
-            } else {
+            if (dvm.getShowDivider(i)) {
                 assertThat((double) distance, is(closeTo(2 * (dividerHeight / 2), 1.0f)));
+            } else {
+                assertEquals(distance, 0);
             }
         }
     }
@@ -146,32 +146,32 @@ public final class DividerVisibilityManagerTest {
     @Test
     public void testListItemAdapterAsVisibilityManager() {
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setHideDivider(true);
+        item0.setShowDivider(false);
 
         TextListItem item1 = new TextListItem(mActivity);
-        item1.setHideDivider(false);
+        item1.setShowDivider(true);
 
         TextListItem item2 = new TextListItem(mActivity);
-        item2.setHideDivider(true);
+        item2.setShowDivider(false);
 
         TextListItem item3 = new TextListItem(mActivity);
-        item3.setHideDivider(true);
+        item3.setShowDivider(false);
 
         // Create and populate ListItemAdapter.
         ListItemProvider provider = new ListItemProvider.ListProvider(Arrays.asList(
                 item0, item1, item2, item3));
 
         ListItemAdapter itemAdapter = new ListItemAdapter(mActivity, provider);
-        assertTrue(itemAdapter.shouldHideDivider(0));
-        assertFalse(itemAdapter.shouldHideDivider(1));
-        assertTrue(itemAdapter.shouldHideDivider(2));
-        assertTrue(itemAdapter.shouldHideDivider(3));
+        assertFalse(itemAdapter.getShowDivider(0));
+        assertTrue(itemAdapter.getShowDivider(1));
+        assertFalse(itemAdapter.getShowDivider(2));
+        assertFalse(itemAdapter.getShowDivider(3));
     }
 
     @Test
     public void testSettingItemDividersHidden() throws Throwable {
         TextListItem item0 = new TextListItem(mActivity);
-        item0.setHideDivider(true);
+        item0.setShowDivider(false);
 
         TextListItem item1 = new TextListItem(mActivity);
 
@@ -180,24 +180,24 @@ public final class DividerVisibilityManagerTest {
             mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider));
         });
 
-        assertThat(item0.shouldHideDivider(), is(true));
-        assertThat(item1.shouldHideDivider(), is(false));
+        assertFalse(item0.getShowDivider());
+        assertTrue(item1.getShowDivider());
 
         // First verify hiding divider works.
         PagedListView.DividerVisibilityManager dvm = (PagedListView.DividerVisibilityManager)
                 mPagedListView.getAdapter();
         assertThat(dvm, is(notNullValue()));
-        assertThat(dvm.shouldHideDivider(0), is(true));
-        assertThat(dvm.shouldHideDivider(1), is(false));
+        assertFalse(dvm.getShowDivider(0));
+        assertTrue(dvm.getShowDivider(1));
 
         // Then verify we can show divider by checking the space between items reserved by
         // divider decorator.
-        item0.setHideDivider(false);
+        item0.setShowDivider(true);
         mActivityRule.runOnUiThread(() -> {
             mPagedListView.getAdapter().notifyDataSetChanged();
         });
 
-        assertThat(dvm.shouldHideDivider(0), is(false));
+        assertTrue(dvm.getShowDivider(0));
         int upper = mPagedListView.getRecyclerView().getLayoutManager()
                 .findViewByPosition(0).getBottom();
         int lower = mPagedListView.getRecyclerView().getLayoutManager()
@@ -207,9 +207,15 @@ public final class DividerVisibilityManagerTest {
 
     private class TestDividerVisibilityManager implements PagedListView.DividerVisibilityManager {
         @Override
+        @Deprecated
         public boolean shouldHideDivider(int position) {
-            // Hide divider after items at even positions, show after items at odd positions.
-            return position % 2 == 0;
+            return !getShowDivider(position);
+        }
+
+        @Override
+        public boolean getShowDivider(int position) {
+            // Show divider after items at odd positions; hide after items at even positions.
+            return position % 2 != 0;
         }
     }
 

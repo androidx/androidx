@@ -304,7 +304,7 @@ public class CarListDialog extends Dialog {
 
         for (DialogSubSection section : sections) {
             SubheaderListItem header = new SubheaderListItem(getContext(), section.getTitle());
-            header.setHideDivider(true);
+            header.setShowDivider(false);
 
             listItems.add(header);
 

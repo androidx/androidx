@@ -25,8 +25,8 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
     // updated after bind() is called. Calling bind() resets to false.
     private boolean mDirty;
 
-    // Tag for indicating whether to hide the divider.
-    private boolean mHideDivider;
+    // Tag for indicating whether to show the divider.
+    private boolean mShowDivider = true;
 
     private final List<ViewBinder<VH>> mCustomBinders = new ArrayList<>();
     // Stores ViewBinders to revert customization. Does not guarantee to 1:1 match ViewBinders
@@ -131,19 +131,45 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
      * <p>Note: For this to work, one must invoke
      * {@code PagedListView.setDividerVisibilityManager(adapter} for {@link ListItemAdapter} and
      * have dividers enabled on {@link PagedListView}.
+     *
+     * @deprecated Use {@link #setShowDivider(boolean)}.
      */
+    @Deprecated
     public void setHideDivider(boolean hideDivider) {
-        mHideDivider = hideDivider;
+        setShowDivider(!hideDivider);
+    }
+
+    /**
+     * Whether to show the item divider coming after this {@code ListItem}.
+     *
+     * <p>Note: For this to work, one must invoke
+     * {@code PagedListView.setDividerVisibilityManager(adapter} for {@link ListItemAdapter} and
+     * have dividers enabled on {@link PagedListView}.
+     */
+    public void setShowDivider(boolean showDivider) {
+        mShowDivider = showDivider;
         markDirty();
     }
 
     /**
-     * @return {@code true} if the divider that comes after this ListItem should be hidden.
+     * @return {@code true} if the divider that comes after this {@code ListItem} should be hidden.
      * Defaults to false.
+     *
+     * @deprecated Use {@link #getShowDivider()}.
      */
+    @Deprecated
     public boolean shouldHideDivider() {
-        return mHideDivider;
+        return !mShowDivider;
     };
+
+    /**
+     * Returns whether or not the divider that comes after this ListItem should be shown.
+     *
+     * @return {@code true} if the divider should be shown. Defaults to {@code true}.
+     */
+    public boolean getShowDivider() {
+        return mShowDivider;
+    }
 
     /**
      * Does the work that moves the ListItem from dirty state to clean state, i.e. the work required

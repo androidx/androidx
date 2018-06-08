@@ -30,6 +30,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
@@ -290,11 +291,17 @@ public class ListItemAdapter extends
     }
 
     @Override
+    @Deprecated
     public boolean shouldHideDivider(int position) {
-        // By default we should show the divider i.e. return false.
+        return !getShowDivider(position);
+    }
+
+    @Override
+    public boolean getShowDivider(@IntRange(from = 0) int position) {
+        // By default we should show the divider i.e. return true.
 
         // Check if position is within range, and then check the item flag.
         return position >= 0 && position < getItemCount()
-                && mItemProvider.get(position).shouldHideDivider();
+                && mItemProvider.get(position).getShowDivider();
     }
 }

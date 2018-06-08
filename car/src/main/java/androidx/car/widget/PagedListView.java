@@ -174,8 +174,19 @@ public class PagedListView extends FrameLayout {
          *
          * @param position item position inside the adapter.
          * @return true if divider is to be hidden, false if divider should be shown.
+         *
+         * @deprecated use {@link #getShowDivider(int)}.
          */
+        @Deprecated
         boolean shouldHideDivider(int position);
+
+        /**
+         * Given an item position, returns whether the divider below that item should be shown.
+         *
+         * @param position item position inside the adapter.
+         * @return {@code true} if divider is to be shown; {@code false} if hidden.
+         */
+        boolean getShowDivider(int position);
     }
 
     /**
@@ -1366,7 +1377,7 @@ public class PagedListView extends FrameLayout {
                 View container = parent.getChildAt(i);
                 int itemPosition = parent.getChildAdapterPosition(container);
 
-                if (hideDividerForAdapterPosition(itemPosition)) {
+                if (!showDividerForAdapterPosition(itemPosition)) {
                     continue;
                 }
 
@@ -1436,7 +1447,7 @@ public class PagedListView extends FrameLayout {
                 RecyclerView.State state) {
             super.getItemOffsets(outRect, view, parent, state);
             int pos = parent.getChildAdapterPosition(view);
-            if (hideDividerForAdapterPosition(pos)) {
+            if (!showDividerForAdapterPosition(pos)) {
                 return;
             }
             // Add an bottom offset to all items that should have divider, even when divider is not
@@ -1446,8 +1457,9 @@ public class PagedListView extends FrameLayout {
             outRect.bottom = mDividerHeight;
         }
 
-        private boolean hideDividerForAdapterPosition(int position) {
-            return mVisibilityManager != null && mVisibilityManager.shouldHideDivider(position);
+        private boolean showDividerForAdapterPosition(int position) {
+            // If visibility manager is not set, default to show dividers.
+            return mVisibilityManager == null || mVisibilityManager.getShowDivider(position);
         }
     }
 
