@@ -21,7 +21,7 @@ import android.text.style.ClickableSpan;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.util.Preconditions;
 import androidx.textclassifier.TextLinks.SpanFactory;
 import androidx.textclassifier.TextLinks.TextLink;
@@ -29,9 +29,7 @@ import androidx.textclassifier.TextLinks.TextLinkSpan;
 
 /**
  * Parameters for generating and applying links.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class TextLinksParams {
 
     /**
@@ -48,20 +46,35 @@ public final class TextLinksParams {
     @TextLinks.ApplyStrategy
     private final int mApplyStrategy;
     private final SpanFactory mSpanFactory;
-    private final TextClassifier.EntityConfig mEntityConfig;
+    @Nullable private final TextClassifier.EntityConfig mEntityConfig;
+    @Nullable private final LocaleListCompat mDefaultLocales;
 
-    TextLinksParams(@TextLinks.ApplyStrategy int applyStrategy, SpanFactory spanFactory) {
+    TextLinksParams(
+            @TextLinks.ApplyStrategy int applyStrategy,
+            SpanFactory spanFactory,
+            @Nullable TextClassifier.EntityConfig entityConfig,
+            @Nullable LocaleListCompat defaultLocales) {
         mApplyStrategy = applyStrategy;
         mSpanFactory = spanFactory;
-        mEntityConfig = new TextClassifier.EntityConfig.Builder().build();
+        mEntityConfig = entityConfig;
+        mDefaultLocales = defaultLocales;
     }
 
     /**
      * Returns the entity config used to determine what entity types to generate.
      */
-    @NonNull
-    public TextClassifier.EntityConfig getEntityConfig() {
+    @Nullable
+    TextClassifier.EntityConfig getEntityConfig() {
         return mEntityConfig;
+    }
+
+    /**
+     * Returns an ordered list of locale preferences that can be used to disambiguate
+     * the provided text
+     */
+    @Nullable
+    LocaleListCompat getDefaultLocales() {
+        return mDefaultLocales;
     }
 
     /**
@@ -74,12 +87,11 @@ public final class TextLinksParams {
      * @return a status code indicating whether or not the links were successfully applied
      */
     @TextLinks.Status
-    public int apply(@NonNull Spannable text, @NonNull TextLinks textLinks) {
+    int apply(@NonNull Spannable text, @NonNull TextLinks textLinks) {
         Preconditions.checkNotNull(text);
         Preconditions.checkNotNull(textLinks);
 
-        final String textString = text.toString();
-        if (!textString.startsWith(textLinks.getText())) {
+        if (!canApply(text, textLinks)) {
             return TextLinks.STATUS_DIFFERENT_TEXT;
         }
         if (textLinks.getLinks().isEmpty()) {
@@ -115,6 +127,14 @@ public final class TextLinksParams {
     }
 
     /**
+     * Returns true if it is possible to apply the specified textLinks to the specified text.
+     * Otherwise, returns false.
+     */
+    boolean canApply(@NonNull Spannable text, @NonNull TextLinks textLinks) {
+        return text.toString().startsWith(textLinks.getText());
+    }
+
+    /**
      * A builder for building TextLinksParams.
      */
     public static final class Builder {
@@ -122,6 +142,8 @@ public final class TextLinksParams {
         @TextLinks.ApplyStrategy
         private int mApplyStrategy = TextLinks.APPLY_STRATEGY_IGNORE;
         private SpanFactory mSpanFactory = DEFAULT_SPAN_FACTORY;
+        @Nullable private TextClassifier.EntityConfig mEntityConfig;
+        @Nullable private LocaleListCompat mDefaultLocales;
 
         /**
          * Sets the apply strategy used to determine how to apply links to text.
@@ -146,10 +168,37 @@ public final class TextLinksParams {
         }
 
         /**
+         * Sets the entity configuration to use. This determines what types of entities the
+         * TextClassifier will look for.
+         * Set to {@code null} for the default entity config and the TextClassifier will
+         * automatically determine what links to generate.
+         *
+         * @return this builder
+         */
+        @NonNull
+        public Builder setEntityConfig(@Nullable TextClassifier.EntityConfig entityConfig) {
+            mEntityConfig = entityConfig;
+            return this;
+        }
+
+        /**
+         * @param defaultLocales ordered list of locale preferences that may be used to
+         *                       disambiguate the provided text. If no locale preferences exist,
+         *                       set this to null or an empty locale list.
+         * @return this builder
+         */
+        @NonNull
+        public Builder setDefaultLocales(@Nullable LocaleListCompat defaultLocales) {
+            mDefaultLocales = defaultLocales;
+            return this;
+        }
+
+        /**
          * Builds and returns a TextLinksParams object.
          */
         public TextLinksParams build() {
-            return new TextLinksParams(mApplyStrategy, mSpanFactory);
+            return new TextLinksParams(
+                    mApplyStrategy, mSpanFactory, mEntityConfig, mDefaultLocales);
         }
     }
 
