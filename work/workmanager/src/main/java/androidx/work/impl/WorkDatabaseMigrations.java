@@ -59,10 +59,10 @@ public class WorkDatabaseMigrations {
     private static final String REMOVE_ALARM_INFO = "DROP TABLE IF EXISTS alarmInfo";
     private static final String REMOVE_SYSTEM_ID_INFO = "DROP TABLE IF EXISTS SystemIdInfo";
 
-
     /**
      * Removes the {@code alarmInfo} table and substitutes it for a more general
      * {@code SystemIdInfo} table.
+     * Adds implicit work tags for all work (a tag with the worker class name).
      */
     public static Migration MIGRATION_1_2 = new Migration(VERSION_1, VERSION_2) {
         @Override
@@ -70,6 +70,8 @@ public class WorkDatabaseMigrations {
             database.execSQL(CREATE_SYSTEM_ID_INFO);
             database.execSQL(MIGRATE_ALARM_INFO_TO_SYSTEM_ID_INFO);
             database.execSQL(REMOVE_ALARM_INFO);
+            database.execSQL("INSERT INTO worktag(tag, work_spec_id) "
+                    + "SELECT worker_class_name AS tag, id AS work_spec_id FROM workspec");
         }
     };
 
@@ -83,6 +85,7 @@ public class WorkDatabaseMigrations {
             database.execSQL(CREATE_ALARM_INFO);
             database.execSQL(MIGRATE_SYSTEM_ID_INFO_TO_ALARM_INFO);
             database.execSQL(REMOVE_SYSTEM_ID_INFO);
+            // Don't remove implicit tags; they may have been added by the developer.
         }
     };
 }
