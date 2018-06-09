@@ -62,7 +62,7 @@ import java.util.concurrent.Executor;
  *         border="0" /></p>
  * <p>The MediaPlayer2 object has five states:</p>
  * <ol>
- *     <li><p>{@link #MEDIAPLAYER2_STATE_IDLE}: MediaPlayer2 is in the <strong>Idle</strong>
+ *     <li><p>{@link #PLAYER_STATE_IDLE}: MediaPlayer2 is in the <strong>Idle</strong>
  *         state after you create it using
  *         {@link #create()}, or after calling {@link #reset()}.</p>
  *
@@ -82,7 +82,7 @@ import java.util.concurrent.Executor;
  *         <strong>Prepared</strong> state.</p>
  *         </li>
  *
- *     <li>{@link #MEDIAPLAYER2_STATE_PREPARED}: A MediaPlayer object must be in the
+ *     <li>{@link #PLAYER_STATE_PREPARED}: A MediaPlayer object must be in the
  *         <strong>Prepared</strong> state before playback can be started for the first time.
  *         While in this state, you can set player properties
  *         such as audio/sound volume and looping by invoking the corresponding set methods.
@@ -90,7 +90,7 @@ import java.util.concurrent.Executor;
  *         the <strong>Playing</strong> state.
  *      </li>
  *
- *     <li>{@link #MEDIAPLAYER2_STATE_PLAYING}:
+ *     <li>{@link #PLAYER_STATE_PLAYING}:
  *         <p>The player plays the data source while in this state.
  *         If you register an {@link EventCallback#onInfo} <a href="#callback">callback</a>
  *         the player regularly executes the callback with
@@ -104,7 +104,7 @@ import java.util.concurrent.Executor;
  *         <li>If the looping mode was set to <code>false</code> the player will transfer
  *         to the <strong>Paused</strong> state. If you registered an {@link EventCallback#onInfo}
  *         <a href="#callback">callback</a>
- *         the player calls the callback with {@link #MEDIA_INFO_PLAYBACK_COMPLETE} before entering
+ *         the player calls the callback with {@link #MEDIA_INFO_DATA_SOURCE_END} before entering
  *         the <strong>Paused</strong> state.
  *         </li>
  *         <li>If the looping mode was set to <code>true</code>,
@@ -113,10 +113,10 @@ import java.util.concurrent.Executor;
  *         </ul>
  *         </li>
  *
- *     <li>{@link #MEDIAPLAYER2_STATE_PAUSED}: Audio/video playback pauses while in this state.
+ *     <li>{@link #PLAYER_STATE_PAUSED}: Audio/video playback pauses while in this state.
  *         Call {@link #play()} to resume playback from the position where it paused.</li>
  *
- *     <li>{@link #MEDIAPLAYER2_STATE_ERROR}: <p>In general, playback might fail due to various
+ *     <li>{@link #PLAYER_STATE_ERROR}: <p>In general, playback might fail due to various
  *          reasons such as unsupported audio/video format, poorly interleaved
  *          audio/video, resolution too high, streaming timeout, and others.
  *          In addition, due to programming errors, a playback
@@ -1056,38 +1056,38 @@ public abstract class MediaPlayer2 {
      * MediaPlayer2 has not been prepared or just has been reset.
      * In this state, MediaPlayer2 doesn't fetch data.
      */
-    public static final int MEDIAPLAYER2_STATE_IDLE = 1001;
+    public static final int PLAYER_STATE_IDLE = 1001;
 
     /**
      * MediaPlayer2 has been just prepared.
      * In this state, MediaPlayer2 just fetches data from media source,
      * but doesn't actively render data.
      */
-    public static final int MEDIAPLAYER2_STATE_PREPARED = 1002;
+    public static final int PLAYER_STATE_PREPARED = 1002;
 
     /**
      * MediaPlayer2 is paused.
      * In this state, MediaPlayer2 doesn't actively render data.
      */
-    public static final int MEDIAPLAYER2_STATE_PAUSED = 1003;
+    public static final int PLAYER_STATE_PAUSED = 1003;
 
     /**
      * MediaPlayer2 is actively playing back data.
      */
-    public static final int MEDIAPLAYER2_STATE_PLAYING = 1004;
+    public static final int PLAYER_STATE_PLAYING = 1004;
 
     /**
      * MediaPlayer2 has hit some fatal error and cannot continue playback.
      */
-    public static final int MEDIAPLAYER2_STATE_ERROR = 1005;
+    public static final int PLAYER_STATE_ERROR = 1005;
 
     /** @hide */
     @IntDef(flag = false, value = {
-            MEDIAPLAYER2_STATE_IDLE,
-            MEDIAPLAYER2_STATE_PREPARED,
-            MEDIAPLAYER2_STATE_PAUSED,
-            MEDIAPLAYER2_STATE_PLAYING,
-            MEDIAPLAYER2_STATE_ERROR })
+            PLAYER_STATE_IDLE,
+            PLAYER_STATE_PREPARED,
+            PLAYER_STATE_PAUSED,
+            PLAYER_STATE_PLAYING,
+            PLAYER_STATE_ERROR})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP)
     public @interface MediaPlayer2State {}
@@ -1141,21 +1141,15 @@ public abstract class MediaPlayer2 {
     @RestrictTo(LIBRARY_GROUP)
     public @interface MediaError {}
 
-    /* Do not change these values without updating their counterparts
-     * in include/media/mediaplayer2.h!
-     */
     /** Unspecified media player info.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_UNKNOWN = 1;
 
-    /** The player switched to this datas source because it is the
-     * next-to-be-played in the playlist.
+    /** The player just started the playback of this data source.
      * @see EventCallback#onInfo
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public static final int MEDIA_INFO_STARTED_AS_NEXT = 2;
+    public static final int MEDIA_INFO_DATA_SOURCE_START = 2;
 
     /** The player just pushed the very first video frame for rendering.
      * @see EventCallback#onInfo
@@ -1170,12 +1164,19 @@ public abstract class MediaPlayer2 {
     /** The player just completed the playback of this data source.
      * @see EventCallback#onInfo
      */
-    public static final int MEDIA_INFO_PLAYBACK_COMPLETE = 5;
+    public static final int MEDIA_INFO_DATA_SOURCE_END = 5;
 
-    /** The player just completed the playback of the full playlist.
+    /** The player just completed the playback of all the data sources set by {@link #setDataSource}
+     *  , {@link #setNextDataSource} and {@link #setNextDataSources}.
      * @see EventCallback#onInfo
      */
-    public static final int MEDIA_INFO_PLAYLIST_END = 6;
+    public static final int MEDIA_INFO_DATA_SOURCE_LIST_END = 6;
+
+    /** The player just completed an iteration of playback loop. This event is sent only when
+     *  looping is enabled by {@link #loopCurrent}.
+     * @see EventCallback#onInfo
+     */
+    public static final int MEDIA_INFO_DATA_SOURCE_REPEAT = 7;
 
     /** The player just prepared a data source.
      * @see EventCallback#onInfo
@@ -1279,11 +1280,12 @@ public abstract class MediaPlayer2 {
      */
     @IntDef(flag = false, /*prefix = "MEDIA_INFO",*/ value = {
             MEDIA_INFO_UNKNOWN,
-            MEDIA_INFO_STARTED_AS_NEXT,
+            MEDIA_INFO_DATA_SOURCE_START,
             MEDIA_INFO_VIDEO_RENDERING_START,
             MEDIA_INFO_AUDIO_RENDERING_START,
-            MEDIA_INFO_PLAYBACK_COMPLETE,
-            MEDIA_INFO_PLAYLIST_END,
+            MEDIA_INFO_DATA_SOURCE_END,
+            MEDIA_INFO_DATA_SOURCE_LIST_END,
+            MEDIA_INFO_DATA_SOURCE_REPEAT,
             MEDIA_INFO_PREPARED,
             MEDIA_INFO_VIDEO_TRACK_LAGGING,
             MEDIA_INFO_BUFFERING_START,

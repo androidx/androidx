@@ -1089,7 +1089,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         extractTracks();
                     } else if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                         this.onPrepared(mp, dsd);
-                    } else if (what == MediaPlayer2.MEDIA_INFO_PLAYBACK_COMPLETE) {
+                    } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
                         this.onCompletion(mp, dsd);
                     }
                 }
