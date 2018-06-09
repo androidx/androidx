@@ -121,6 +121,7 @@ public abstract class WorkRequest {
         public Builder(@NonNull Class<? extends Worker> workerClass) {
             mId = UUID.randomUUID();
             mWorkSpec = new WorkSpec(mId.toString(), workerClass.getName());
+            addTag(workerClass.getName());
         }
 
         /**
