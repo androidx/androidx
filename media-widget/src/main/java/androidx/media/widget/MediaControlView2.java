@@ -720,15 +720,15 @@ public class MediaControlView2 extends BaseLayout {
     }
 
     private boolean canPause() {
-        return mController.canPause();
+        return mController != null && mController.canPause();
     }
 
     private boolean canSeekBackward() {
-        return mController.canSeekBackward();
+        return mController != null && mController.canSeekBackward();
     }
 
     private boolean canSeekForward() {
-        return mController.canSeekForward();
+        return mController != null && mController.canSeekForward();
     }
 
     /**
@@ -2259,18 +2259,18 @@ public class MediaControlView2 extends BaseLayout {
         }
         @Override
         public boolean canPause() {
-            return true;
-            //return mAllowedCommands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
+            return mAllowedCommands == null || mAllowedCommands.hasCommand(
+                    SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
         }
         @Override
         public boolean canSeekBackward() {
-            return true;
-            //return mAllowedCommands.hasCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND);
+            return mAllowedCommands == null || mAllowedCommands.hasCommand(
+                    SessionCommand2.COMMAND_CODE_SESSION_REWIND);
         }
         @Override
         public boolean canSeekForward() {
-            return true;
-            //return mAllowedCommands.hasCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD);
+            return mAllowedCommands == null || mAllowedCommands.hasCommand(
+                    SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD);
         }
         @Override
         public void pause() {
@@ -2328,6 +2328,12 @@ public class MediaControlView2 extends BaseLayout {
         }
         @Override
         public long getDurationMs() {
+            // TODO Remove this if-block after b/109639439 is fixed.
+            if (mMediaMetadata2 != null) {
+                if (mMediaMetadata2.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
+                    return mMediaMetadata2.getLong(MediaMetadata2.METADATA_KEY_DURATION);
+                }
+            }
             return mController2.getDuration();
         }
         @Override
@@ -2511,8 +2517,6 @@ public class MediaControlView2 extends BaseLayout {
                 mControls = mControllerCompat.getTransportControls();
                 mPlaybackState = mControllerCompat.getPlaybackState();
                 mMediaMetadata = mControllerCompat.getMetadata();
-                updateDuration();
-                updateTitle();
                 mControllerCompat.registerCallback(new MediaControllerCompatCallback());
             }
         }
