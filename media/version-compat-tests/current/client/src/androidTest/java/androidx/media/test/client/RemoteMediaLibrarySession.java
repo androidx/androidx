@@ -93,28 +93,6 @@ public class RemoteMediaLibrarySession {
         }
     }
 
-    /////////////////////////////////////////
-    ////      Test related Methods       ////
-    /////////////////////////////////////////
-
-    public boolean isOnSubscribeCalled(@NonNull String parentId, @Nullable Bundle extras) {
-        try {
-            return mBinder.isOnSubscribeCalled(parentId, extras);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call isOnSubscribeCalled()");
-        }
-        return false;
-    }
-
-    public boolean isOnUnsubscribeCalled(@NonNull String parentId) {
-        try {
-            return mBinder.isOnUnsubscribeCalled(parentId);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call isOnUnsubscribeCalled()");
-        }
-        return false;
-    }
-
     ///////////////////////////////
     ////    Private methods    ////
     ///////////////////////////////

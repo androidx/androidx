@@ -30,6 +30,8 @@ import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_RESULT;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_RESULT_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_TIME_IN_MS;
 
+import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,7 +46,6 @@ import androidx.media.MediaLibraryService2;
 import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media.MediaMetadata2;
 import androidx.media.MediaSession2.ControllerInfo;
-import androidx.media.test.lib.TestUtils;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 
 import java.util.ArrayList;
@@ -60,11 +61,6 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     RemoteMediaLibrarySessionStub mLibrarySessionBinder;
     SyncHandler mHandler;
     HandlerThread mHandlerThread;
-
-    // Store the arguments of OnSubscribe()/Unsubscribe() when they are called.
-    String mOnSubscribeParentId;
-    Bundle mOnSubscribeExtras;
-    String mOnUnsubscribeParentId;
 
     @Override
     public void onCreate() {
@@ -108,6 +104,15 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
             return mLibrarySessionBinder;
         }
         return super.onBind(intent);
+    }
+
+    /**
+     * This changes the visibility of {@link Service#attachBaseContext(Context)} to public.
+     * This is a workaround for creating {@link MediaLibrarySession} without starting a service.
+     */
+    @Override
+    public void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
     }
 
     private class TestLibrarySessionCallback extends MediaLibrarySessionCallback {
@@ -171,21 +176,6 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                 return null;
             }
         }
-
-        @Override
-        public void onSubscribe(MediaLibrarySession session, ControllerInfo controller,
-                String parentId, Bundle extras) {
-            // Record this call so that test methods can check whether this callback is called.
-            mOnSubscribeParentId = parentId;
-            mOnSubscribeExtras = extras;
-        }
-
-        @Override
-        public void onUnsubscribe(MediaLibrarySession session, ControllerInfo controller,
-                String parentId) {
-            // Record this call so that test methods can check whether this callback is called.
-            mOnUnsubscribeParentId = parentId;
-        }
     }
 
     private List<MediaItem2> getPaginatedResult(List<String> items, int page, int pageSize) {
@@ -245,17 +235,6 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                 return;
             }
             mSession.notifyChildrenChanged(parentId, itemCount, extras);
-        }
-
-        @Override
-        public boolean isOnSubscribeCalled(String parentId, Bundle extras) throws RemoteException {
-            return parentId.equals(mOnSubscribeParentId)
-                    && TestUtils.equals(mOnSubscribeExtras, extras);
-        }
-
-        @Override
-        public boolean isOnUnsubscribeCalled(String parentId) throws RemoteException {
-            return parentId.equals(mOnUnsubscribeParentId);
         }
     }
 }

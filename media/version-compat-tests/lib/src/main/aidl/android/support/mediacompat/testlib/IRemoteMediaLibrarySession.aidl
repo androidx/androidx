@@ -19,8 +19,4 @@ package android.support.mediacompat.testlib;
 interface IRemoteMediaLibrarySession {
     void notifyChildrenChangedToOne(String parentId, int itemCount, in Bundle extras);
     void notifyChildrenChangedToAll(String parentId, int itemCount, in Bundle extras);
-
-    // Test-specific methods
-    boolean isOnSubscribeCalled(String parentId, in Bundle extras);
-    boolean isOnUnsubscribeCalled(String parentId);
 }

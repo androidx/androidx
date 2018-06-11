@@ -55,14 +55,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class RemoteMediaController2 {
 
-    private static final String TAG = "RemoteMediaController2";
+    static final String TAG = "RemoteMediaController2";
 
-    private final Context mContext;
-    private final String mControllerId;
-    private final CountDownLatch mCountDownLatch;
+    final String mControllerId;
+    final Context mContext;
+    final CountDownLatch mCountDownLatch;
 
-    private ServiceConnection mServiceConnection;
-    private IRemoteMediaController2 mBinder;
+    ServiceConnection mServiceConnection;
+    IRemoteMediaController2 mBinder;
 
     /**
      * Create a {@link MediaController2} in the client app.
@@ -367,9 +367,9 @@ public class RemoteMediaController2 {
     }
 
 
-    ///////////////////////////////
-    ////    Private methods    ////
-    ///////////////////////////////
+    //////////////////////////////////
+    ////    Non-public methods    ////
+    //////////////////////////////////
 
     /**
      * Connects to client app's RemoteMediaController2Service.
@@ -415,9 +415,10 @@ public class RemoteMediaController2 {
      * @param waitForConnection true if this method needs to wait for the connection,
      *                          false otherwise.
      */
-    private void create(SessionToken2 token, boolean waitForConnection) {
+    void create(SessionToken2 token, boolean waitForConnection) {
         try {
-            mBinder.create(mControllerId, token.toBundle(), waitForConnection);
+            mBinder.create(false /* isBrowser */, mControllerId, token.toBundle(),
+                    waitForConnection);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to create default controller with given token.");
         }
