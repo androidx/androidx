@@ -59,7 +59,7 @@ public final class MediaTimestamp2 {
      * Get the {@link java.lang.System#nanoTime system time} corresponding to the media time
      * in nanoseconds.
      */
-    public long getAnchorSytemNanoTime() {
+    public long getAnchorSystemNanoTime() {
         return mNanoTime;
     }
 

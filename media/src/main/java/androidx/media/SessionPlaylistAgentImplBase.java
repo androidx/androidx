@@ -55,7 +55,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     @GuardedBy("mLock")
     private ArrayList<MediaItem2> mShuffledList = new ArrayList<>();
     @GuardedBy("mLock")
-    private Map<MediaItem2, DataSourceDesc> mItemDsdMap = new ArrayMap<>();
+    private Map<MediaItem2, DataSourceDesc2> mItemDsdMap = new ArrayMap<>();
     @GuardedBy("mLock")
     private MediaMetadata2 mMetadata;
     @GuardedBy("mLock")
@@ -69,7 +69,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     private class MyPlayerEventCallback extends PlayerEventCallback {
         @Override
         public void onCurrentDataSourceChanged(@NonNull BaseMediaPlayer mpb,
-                @Nullable DataSourceDesc dsd) {
+                @Nullable DataSourceDesc2 dsd) {
             synchronized (mLock) {
                 if (mPlayer != mpb) {
                     return;
@@ -84,14 +84,14 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
 
     private class PlayItem {
         public int shuffledIdx;
-        public DataSourceDesc dsd;
+        public DataSourceDesc2 dsd;
         public MediaItem2 mediaItem;
 
         PlayItem(int shuffledIdx) {
             this(shuffledIdx, null);
         }
 
-        PlayItem(int shuffledIdx, DataSourceDesc dsd) {
+        PlayItem(int shuffledIdx, DataSourceDesc2 dsd) {
             this.shuffledIdx = shuffledIdx;
             if (shuffledIdx >= 0) {
                 this.mediaItem = mShuffledList.get(shuffledIdx);
@@ -403,9 +403,9 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     }
 
     @Override
-    public MediaItem2 getMediaItem(DataSourceDesc dsd) {
+    public MediaItem2 getMediaItem(DataSourceDesc2 dsd) {
         synchronized (mLock) {
-            for (Map.Entry<MediaItem2, DataSourceDesc> entry : mItemDsdMap.entrySet()) {
+            for (Map.Entry<MediaItem2, DataSourceDesc2> entry : mItemDsdMap.entrySet()) {
                 if (entry.getValue() == dsd) {
                     return entry.getKey();
                 }
@@ -428,8 +428,8 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     }
 
     @SuppressWarnings("GuardedBy")
-    private DataSourceDesc retrieveDataSourceDescLocked(MediaItem2 item) {
-        DataSourceDesc dsd = item.getDataSourceDesc();
+    private DataSourceDesc2 retrieveDataSourceDescLocked(MediaItem2 item) {
+        DataSourceDesc2 dsd = item.getDataSourceDesc();
         if (dsd != null) {
             mItemDsdMap.put(item, dsd);
             return dsd;
@@ -465,7 +465,7 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
                     curShuffledIdx = curShuffledIdx < 0 ? mPlaylist.size() - 1 : 0;
                 }
             }
-            DataSourceDesc dsd = retrieveDataSourceDescLocked(mShuffledList.get(curShuffledIdx));
+            DataSourceDesc2 dsd = retrieveDataSourceDescLocked(mShuffledList.get(curShuffledIdx));
             if (dsd != null) {
                 return new PlayItem(curShuffledIdx, dsd);
             }

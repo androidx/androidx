@@ -38,7 +38,7 @@ import java.util.concurrent.Executor;
  * notify methods to signal MediaSession2 that playlist-related state has changed.
  * <p>
  * Playlists are composed of one or multiple {@link MediaItem2} instances, which combine metadata
- * and data sources (as {@link DataSourceDesc})
+ * and data sources (as {@link DataSourceDesc2})
  * Used by {@link MediaSession2} and {@link MediaController2}.
  */
 // This class only includes methods that contain {@link MediaItem2}.
@@ -376,9 +376,9 @@ public abstract class MediaPlaylistAgent {
     public abstract void setShuffleMode(@ShuffleMode int shuffleMode);
 
     /**
-     * Called by {@link MediaSession2} when it wants to translate {@link DataSourceDesc} from the
+     * Called by {@link MediaSession2} when it wants to translate {@link DataSourceDesc2} from the
      * {@link BaseMediaPlayer.PlayerEventCallback} to the {@link MediaItem2}. Override this
-     * method if you want to create {@link DataSourceDesc}s dynamically, instead of specifying them
+     * method if you want to create {@link DataSourceDesc2}s dynamically, instead of specifying them
      * with {@link #setPlaylist(List, MediaMetadata2)}.
      * <p>
      * Session would throw an exception if this returns {@code null} for the dsd from the
@@ -391,7 +391,7 @@ public abstract class MediaPlaylistAgent {
      * @return A {@link MediaItem2} object in the playlist that matches given {@code dsd}.
      * @throws IllegalArgumentException if {@code dsd} is null
      */
-    public @Nullable MediaItem2 getMediaItem(@NonNull DataSourceDesc dsd) {
+    public @Nullable MediaItem2 getMediaItem(@NonNull DataSourceDesc2 dsd) {
         if (dsd == null) {
             throw new IllegalArgumentException("dsd shouldn't be null");
         }

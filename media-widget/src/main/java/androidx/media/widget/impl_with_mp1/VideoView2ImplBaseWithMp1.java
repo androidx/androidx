@@ -57,7 +57,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
-import androidx.media.DataSourceDesc;
+import androidx.media.DataSourceDesc2;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.SessionToken2;
@@ -504,14 +504,14 @@ class VideoView2ImplBaseWithMp1
     }
 
     /**
-     * Sets {@link DataSourceDesc} object to render using VideoView2.
-     * @param dataSource the {@link DataSourceDesc} object to play.
+     * Sets {@link DataSourceDesc2} object to render using VideoView2.
+     * @param dataSource the {@link DataSourceDesc2} object to play.
      * @see #setMediaItem
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @Override
-    public void setDataSource(@NonNull DataSourceDesc dataSource) {
+    public void setDataSource(@NonNull DataSourceDesc2 dataSource) {
     }
 
     /**

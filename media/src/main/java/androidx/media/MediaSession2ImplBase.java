@@ -1162,7 +1162,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
 
         @Override
         public void onCurrentDataSourceChanged(final BaseMediaPlayer player,
-                final DataSourceDesc dsd) {
+                final DataSourceDesc2 dsd) {
             final MediaSession2ImplBase session = getSession();
             if (session == null) {
                 return;
@@ -1195,7 +1195,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         }
 
         @Override
-        public void onMediaPrepared(final BaseMediaPlayer mpb, final DataSourceDesc dsd) {
+        public void onMediaPrepared(final BaseMediaPlayer mpb, final DataSourceDesc2 dsd) {
             final MediaSession2ImplBase session = getSession();
             if (session == null || dsd == null) {
                 return;
@@ -1284,7 +1284,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
 
         @Override
         public void onBufferingStateChanged(final BaseMediaPlayer mpb,
-                final DataSourceDesc dsd, final int state) {
+                final DataSourceDesc2 dsd, final int state) {
             final MediaSession2ImplBase session = getSession();
             if (session == null || dsd == null) {
                 return;
@@ -1359,7 +1359,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             return session;
         }
 
-        private MediaItem2 getMediaItem(MediaSession2ImplBase session, DataSourceDesc dsd) {
+        private MediaItem2 getMediaItem(MediaSession2ImplBase session, DataSourceDesc2 dsd) {
             MediaPlaylistAgent agent = session.getPlaylistAgent();
             if (agent == null) {
                 if (DEBUG) {

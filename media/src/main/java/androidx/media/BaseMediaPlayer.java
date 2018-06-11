@@ -111,7 +111,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
 
     /**
      * Prepares the player for playback.
-     * See {@link PlayerEventCallback#onMediaPrepared(BaseMediaPlayer, DataSourceDesc)} for
+     * See {@link PlayerEventCallback#onMediaPrepared(BaseMediaPlayer, DataSourceDesc2)} for
      * being notified when the preparation phase completed. During this time, the player may
      * allocate resources required to play, such as audio and video decoders.
      */
@@ -198,26 +198,26 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
      * Sets the data source to be played.
      * @param dsd
      */
-    public abstract void setDataSource(@NonNull DataSourceDesc dsd);
+    public abstract void setDataSource(@NonNull DataSourceDesc2 dsd);
 
     /**
      * Sets the data source that will be played immediately after the current one is done playing.
      * @param dsd
      */
-    public abstract void setNextDataSource(@NonNull DataSourceDesc dsd);
+    public abstract void setNextDataSource(@NonNull DataSourceDesc2 dsd);
 
     /**
      * Sets the list of data sources that will be sequentially played after the current one. Each
      * data source is played immediately after the previous one is done playing.
      * @param dsds
      */
-    public abstract void setNextDataSources(@NonNull List<DataSourceDesc> dsds);
+    public abstract void setNextDataSources(@NonNull List<DataSourceDesc2> dsds);
 
     /**
      * Returns the current data source.
      * @return the current data source, or null if none is set, or none available to play.
      */
-    public abstract @Nullable DataSourceDesc getCurrentDataSource();
+    public abstract @Nullable DataSourceDesc2 getCurrentDataSource();
 
     /**
      * Configures the player to loop on the current data source.
@@ -311,7 +311,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
          * @param dsd the new current data source. {@code null}, if no more data sources available.
          */
         public void onCurrentDataSourceChanged(@NonNull BaseMediaPlayer mpb,
-                @Nullable DataSourceDesc dsd) { }
+                @Nullable DataSourceDesc2 dsd) { }
 
         /**
          * Called when the player is <i>prepared</i>, i.e. it is ready to play the content
@@ -320,7 +320,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
          * @param dsd the data source that the player is prepared to play.
          */
         public void onMediaPrepared(@NonNull BaseMediaPlayer mpb,
-                @NonNull DataSourceDesc dsd) { }
+                @NonNull DataSourceDesc2 dsd) { }
 
         /**
          * Called to indicate that the state of the player has changed.
@@ -338,7 +338,7 @@ public abstract class BaseMediaPlayer implements AutoCloseable {
          * @param state the new buffering state.
          */
         public void onBufferingStateChanged(@NonNull BaseMediaPlayer mpb,
-                @NonNull DataSourceDesc dsd, @BuffState int state) { }
+                @NonNull DataSourceDesc2 dsd, @BuffState int state) { }
 
         /**
          * Called to indicate that the playback speed has changed.

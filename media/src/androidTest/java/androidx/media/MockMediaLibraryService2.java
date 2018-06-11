@@ -63,10 +63,10 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     public static final List<MediaItem2> SEARCH_RESULT = new ArrayList<>();
     public static final int SEARCH_RESULT_COUNT = 50;
 
-    // TODO(jaewan): Uncomment here after DataSourceDesc.builder is ready.
-//    private static final DataSourceDesc DATA_SOURCE_DESC =
-//            new DataSourceDesc.Builder().setDataSource(new FileDescriptor()).build();
-    private static final DataSourceDesc DATA_SOURCE_DESC = null;
+    // TODO(jaewan): Uncomment here after DataSourceDesc2.builder is ready.
+//    private static final DataSourceDesc2 DATA_SOURCE_DESC =
+//            new DataSourceDesc2.Builder().setDataSource(new FileDescriptor()).build();
+    private static final DataSourceDesc2 DATA_SOURCE_DESC = null;
 
     private static final String TAG = "MockMediaLibrarySvc2";
 

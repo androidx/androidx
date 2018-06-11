@@ -67,14 +67,14 @@ public class MediaItem2 {
     private final int mFlags;
     private final UUID mUUID;
     private MediaMetadata2 mMetadata;
-    private DataSourceDesc mDataSourceDesc;
+    private DataSourceDesc2 mDataSourceDesc;
 
-    private MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc dsd,
+    private MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc2 dsd,
             @Nullable MediaMetadata2 metadata, @Flags int flags) {
         this(mediaId, dsd, metadata, flags, null);
     }
 
-    private MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc dsd,
+    private MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc2 dsd,
             @Nullable MediaMetadata2 metadata, @Flags int flags, @Nullable UUID uuid) {
         if (metadata != null && !TextUtils.equals(mediaId, metadata.getMediaId())) {
             throw new IllegalArgumentException("metadata's id should be matched with the mediaid");
@@ -203,13 +203,13 @@ public class MediaItem2 {
     }
 
     /**
-     * Return the {@link DataSourceDesc}
+     * Return the {@link DataSourceDesc2}
      * <p>
      * Can be {@code null} if the MediaItem2 came from another process and anonymized
      *
      * @return data source descriptor
      */
-    public @Nullable DataSourceDesc getDataSourceDesc() {
+    public @Nullable DataSourceDesc2 getDataSourceDesc() {
         return mDataSourceDesc;
     }
 
@@ -234,7 +234,7 @@ public class MediaItem2 {
         private @Flags int mFlags;
         private String mMediaId;
         private MediaMetadata2 mMetadata;
-        private DataSourceDesc mDataSourceDesc;
+        private DataSourceDesc2 mDataSourceDesc;
 
         /**
          * Constructor for {@link Builder}
@@ -284,7 +284,7 @@ public class MediaItem2 {
          * @param dataSourceDesc data source descriptor
          * @return this instance for chaining
          */
-        public @NonNull Builder setDataSourceDesc(@Nullable DataSourceDesc dataSourceDesc) {
+        public @NonNull Builder setDataSourceDesc(@Nullable DataSourceDesc2 dataSourceDesc) {
             mDataSourceDesc = dataSourceDesc;
             return this;
         }

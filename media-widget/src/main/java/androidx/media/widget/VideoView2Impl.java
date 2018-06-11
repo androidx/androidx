@@ -26,7 +26,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
-import androidx.media.DataSourceDesc;
+import androidx.media.DataSourceDesc2;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.SessionToken2;
@@ -166,11 +166,11 @@ interface VideoView2Impl {
     void setMediaItem(@NonNull MediaItem2 mediaItem);
 
     /**
-     * Sets {@link DataSourceDesc} object to render using VideoView2.
-     * @param dataSource the {@link DataSourceDesc} object to play.
+     * Sets {@link DataSourceDesc2} object to render using VideoView2.
+     * @param dataSource the {@link DataSourceDesc2} object to play.
      * @see #setMediaItem
      */
-    void setDataSource(@NonNull DataSourceDesc dataSource);
+    void setDataSource(@NonNull DataSourceDesc2 dataSource);
 
     /**
      * Selects which view will be used to render video between SurfacView and TextureView.
