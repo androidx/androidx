@@ -39,12 +39,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ComputableLiveData<T> {
-
-    private final Executor mExecutor;
-    private final LiveData<T> mLiveData;
-
-    private AtomicBoolean mInvalid = new AtomicBoolean(true);
-    private AtomicBoolean mComputing = new AtomicBoolean(false);
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Executor mExecutor;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final LiveData<T> mLiveData;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final AtomicBoolean mInvalid = new AtomicBoolean(true);
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final AtomicBoolean mComputing = new AtomicBoolean(false);
 
     /**
      * Creates a computable live data that computes values on the arch IO thread executor.
@@ -55,7 +57,6 @@ public abstract class ComputableLiveData<T> {
     }
 
     /**
-     *
      * Creates a computable live data that computes values on the specified executor.
      *
      * @param executor Executor that is used to compute new LiveData values.
