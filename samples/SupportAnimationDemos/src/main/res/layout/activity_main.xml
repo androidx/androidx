@@ -25,13 +25,13 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.androidx.dynamicanimation.animation.SpringActivity">
+    tools:context="com.example.android.support.animation.SpringActivity">
 
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <com.example.androidx.dynamicanimation.animation.SpringView
+        <com.example.android.support.animation.SpringView
             android:id="@+id/actual_spring"
             android:layout_width="100dp"
             android:layout_height="match_parent"
