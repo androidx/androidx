@@ -22,8 +22,8 @@ import static androidx.lifecycle.Lifecycle.State.STARTED;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.arch.core.internal.SafeIterableMap;
 import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.internal.SafeIterableMap;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -57,19 +57,23 @@ import java.util.Map;
  * @see ViewModel
  */
 public abstract class LiveData<T> {
-    private final Object mDataLock = new Object();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Object mDataLock = new Object();
     static final int START_VERSION = -1;
-    private static final Object NOT_SET = new Object();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final Object NOT_SET = new Object();
 
     private SafeIterableMap<Observer<? super T>, ObserverWrapper> mObservers =
             new SafeIterableMap<>();
 
     // how many observers are in active state
-    private int mActiveCount = 0;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mActiveCount = 0;
     private volatile Object mData = NOT_SET;
     // when setData is called, we set the pending data and actual data swap happens on the main
     // thread
-    private volatile Object mPendingData = NOT_SET;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    volatile Object mPendingData = NOT_SET;
     private int mVersion = START_VERSION;
 
     private boolean mDispatchingValue;
@@ -109,7 +113,8 @@ public abstract class LiveData<T> {
         observer.mObserver.onChanged((T) mData);
     }
 
-    private void dispatchingValue(@Nullable ObserverWrapper initiator) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void dispatchingValue(@Nullable ObserverWrapper initiator) {
         if (mDispatchingValue) {
             mDispatchInvalidated = true;
             return;
@@ -349,7 +354,8 @@ public abstract class LiveData<T> {
     }
 
     class LifecycleBoundObserver extends ObserverWrapper implements GenericLifecycleObserver {
-        @NonNull final LifecycleOwner mOwner;
+        @NonNull
+        final LifecycleOwner mOwner;
 
         LifecycleBoundObserver(@NonNull LifecycleOwner owner, Observer<? super T> observer) {
             super(observer);
