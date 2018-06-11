@@ -404,8 +404,14 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
 
     @Override
     public MediaItem2 getMediaItem(DataSourceDesc dsd) {
-        // TODO: implement this
-        return null;
+        synchronized (mLock) {
+            for (Map.Entry<MediaItem2, DataSourceDesc> entry : mItemDsdMap.entrySet()) {
+                if (entry.getValue() == dsd) {
+                    return entry.getKey();
+                }
+            }
+        }
+        return super.getMediaItem(dsd);
     }
 
     @VisibleForTesting
