@@ -17,9 +17,9 @@
 package androidx.core.content.pm;
 
 import android.content.pm.PackageInfo;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.core.os.BuildCompat;
 
 /** Helper for accessing features in {@link PackageInfo}. */
 public final class PackageInfoCompat {
@@ -31,10 +31,10 @@ public final class PackageInfoCompat {
      * @see PackageInfo#getLongVersionCode()
      */
     public static long getLongVersionCode(@NonNull PackageInfo info) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return info.getLongVersionCode();
         }
-
+        //noinspection deprecation
         return info.versionCode;
     }
 

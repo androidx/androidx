@@ -19,12 +19,12 @@ package androidx.slice;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
-import androidx.core.os.BuildCompat;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -39,9 +39,8 @@ public abstract class SliceViewManager {
     /**
      * Get a {@link SliceViewManager}.
      */
-    @SuppressWarnings("NewApi")
     public static @NonNull SliceViewManager getInstance(@NonNull Context context) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return new SliceViewManagerWrapper(context);
         } else {
             return new SliceViewManagerCompat(context);

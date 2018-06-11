@@ -63,7 +63,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.NonParcelField;
@@ -878,7 +877,7 @@ public class IconCompat extends CustomVersionedParcelable {
     @IconType
     @RequiresApi(23)
     public static int getType(@NonNull Icon icon) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return icon.getType();
         }
         try {
@@ -906,7 +905,7 @@ public class IconCompat extends CustomVersionedParcelable {
     @Nullable
     @RequiresApi(23)
     public static String getResPackage(@NonNull Icon icon) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return icon.getResPackage();
         }
         try {
@@ -935,7 +934,7 @@ public class IconCompat extends CustomVersionedParcelable {
     @RequiresApi(23)
     @DrawableRes
     public static int getResId(@NonNull Icon icon) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return icon.getResId();
         }
         try {
@@ -963,7 +962,7 @@ public class IconCompat extends CustomVersionedParcelable {
     @Nullable
     @RequiresApi(23)
     public static Uri getUri(@NonNull Icon icon) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return icon.getUri();
         }
         try {

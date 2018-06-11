@@ -19,8 +19,6 @@ package androidx.webkit.internal;
 import android.os.Build;
 import android.webkit.WebView;
 
-import androidx.core.os.BuildCompat;
-
 import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
@@ -96,9 +94,8 @@ public class WebViewGlueCommunicator {
     /**
      * Load the WebView code from the WebView APK and return the classloader containing that code.
      */
-    @SuppressWarnings("NewApi")
     public static ClassLoader getWebViewClassLoader() {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return WebView.getWebViewClassLoader();
         } else {
             return getWebViewProviderFactory().getClass().getClassLoader();

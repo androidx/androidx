@@ -16,6 +16,7 @@
 
 package androidx.core.os;
 
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
@@ -51,7 +52,7 @@ public final class HandlerCompat {
      */
     public static boolean postDelayed(@NonNull Handler handler, @NonNull Runnable r,
             @Nullable Object token, long delayMillis) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return handler.postDelayed(r, token, delayMillis);
         }
 

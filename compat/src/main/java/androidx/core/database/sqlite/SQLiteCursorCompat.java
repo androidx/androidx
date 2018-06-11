@@ -17,9 +17,9 @@
 package androidx.core.database.sqlite;
 
 import android.database.sqlite.SQLiteCursor;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.core.os.BuildCompat;
 
 /**
  * Helper for accessing features in {@link android.database.AbstractWindowedCursor}
@@ -42,7 +42,7 @@ public final class SQLiteCursorCompat {
      */
     public void setFillWindowForwardOnly(
             @NonNull SQLiteCursor cursor, boolean fillWindowForwardOnly) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             cursor.setFillWindowForwardOnly(fillWindowForwardOnly);
         }
     }

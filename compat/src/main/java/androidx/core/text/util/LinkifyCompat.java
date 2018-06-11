@@ -19,6 +19,7 @@ package androidx.core.text.util;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -35,7 +36,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.PatternsCompat;
 
 import java.io.UnsupportedEncodingException;
@@ -373,7 +373,7 @@ public final class LinkifyCompat {
     }
 
     private static boolean shouldAddLinksFallbackToFramework() {
-        return BuildCompat.isAtLeastP();
+        return Build.VERSION.SDK_INT >= 28;
     }
 
     private static void addLinkMovementMethod(@NonNull TextView t) {
@@ -484,7 +484,7 @@ public final class LinkifyCompat {
     }
 
     private static String findAddress(String addr) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return WebView.findAddress(addr);
         }
         return FindAddress.findAddress(addr);

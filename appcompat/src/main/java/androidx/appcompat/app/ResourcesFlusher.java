@@ -23,7 +23,6 @@ import android.util.LongSparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -44,7 +43,7 @@ class ResourcesFlusher {
     private static boolean sResourcesImplFieldFetched;
 
     static void flush(@NonNull final Resources resources) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             // no-op on P and above
             return;
         } else if (Build.VERSION.SDK_INT >= 24) {
