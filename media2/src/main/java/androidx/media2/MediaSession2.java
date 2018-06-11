@@ -199,17 +199,20 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
     MediaSession2(Context context, String id, BaseMediaPlayer player,
             MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
             Executor callbackExecutor, SessionCallback callback) {
-        mImpl = createImpl(context, id, player, playlistAgent,
-                sessionActivity, callbackExecutor, callback);
+        mImpl = createImpl(context, id, player, playlistAgent, sessionActivity, callbackExecutor,
+                callback);
     }
 
     SupportLibraryImpl createImpl(Context context, String id, BaseMediaPlayer player,
             MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
-            Executor callbackExecutor, SessionCallback callback) {
-        return new MediaSession2ImplBase(this, context, id, player, playlistAgent,
-                sessionActivity, callbackExecutor, callback);
+            Executor callbackExecutor, MediaSession2.SessionCallback callback) {
+        return new MediaSession2ImplBase(this, context, id, player, playlistAgent, sessionActivity,
+                callbackExecutor, callback);
     }
 
+    /**
+     * Should be only used by subclass.
+     */
     SupportLibraryImpl getImpl() {
         return mImpl;
     }
@@ -787,6 +790,10 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
 
     IBinder getSessionBinder() {
         return mImpl.getSessionBinder();
+    }
+
+    IBinder getLegacyBrowerServiceBinder() {
+        return mImpl.getLegacyBrowserServiceBinder();
     }
 
     /**
@@ -1614,6 +1621,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         PlaybackInfo getPlaybackInfo();
         AudioFocusHandler getAudioFocusHandler();
         PendingIntent getSessionActivity();
+        IBinder getLegacyBrowserServiceBinder();
     }
 
     /**

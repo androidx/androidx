@@ -51,7 +51,6 @@ class MediaUtils2 {
     static final String TAG = "MediaUtils2";
 
     // Stub BrowserRoot for accepting any connection here.
-    // See MyBrowserService#onGetRoot() for detail.
     static final BrowserRoot sDefaultBrowserRoot =
             new BrowserRoot(MediaLibraryService2.SERVICE_INTERFACE, null);
 

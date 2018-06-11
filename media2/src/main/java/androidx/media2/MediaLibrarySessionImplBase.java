@@ -19,11 +19,10 @@ package androidx.media2;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.media.session.MediaSessionCompat.Token;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -35,6 +34,7 @@ import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.MediaSession2.SessionCallback;
 
 import java.util.HashSet;
 import java.util.List;
@@ -44,19 +44,20 @@ import java.util.concurrent.Executor;
 @TargetApi(Build.VERSION_CODES.KITKAT)
 class MediaLibrarySessionImplBase extends MediaSession2ImplBase
         implements MediaLibrarySession.SupportLibraryImpl {
-    private final MediaBrowserServiceCompat mBrowserServiceLegacyStub;
-
     @GuardedBy("mLock")
     private final ArrayMap<ControllerInfo, Set<String>> mSubscriptions = new ArrayMap<>();
 
-    MediaLibrarySessionImplBase(MediaLibrarySession instance, Context context, String id,
+    MediaLibrarySessionImplBase(MediaSession2 instance, Context context, String id,
             BaseMediaPlayer player, MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
-            Executor callbackExecutor, MediaSession2.SessionCallback callback) {
+            Executor callbackExecutor, SessionCallback callback) {
         super(instance, context, id, player, playlistAgent, sessionActivity, callbackExecutor,
                 callback);
-        mBrowserServiceLegacyStub = new MediaLibraryService2LegacyStub(this);
-        mBrowserServiceLegacyStub.attachToBaseContext(context);
-        mBrowserServiceLegacyStub.onCreate();
+    }
+
+    @Override
+    MediaBrowserServiceCompat createLegacyBrowserService(Context context, SessionToken2 token,
+            Token sessionToken) {
+        return new MediaLibraryService2LegacyStub(context, this, sessionToken);
     }
 
     @Override
@@ -67,12 +68,6 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
     @Override
     public MediaLibrarySessionCallback getCallback() {
         return (MediaLibrarySessionCallback) super.getCallback();
-    }
-
-    @Override
-    public IBinder getLegacySessionBinder() {
-        Intent intent = new Intent(MediaBrowserServiceCompat.SERVICE_INTERFACE);
-        return mBrowserServiceLegacyStub.onBind(intent);
     }
 
     @Override
