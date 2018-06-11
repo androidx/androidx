@@ -57,6 +57,13 @@
             android:entries="@array/entries_list_preference"
             android:entryValues="@array/entryvalues_list_preference" />
 
+        <SeekBarPreference
+            android:key="seekbar_preference"
+            android:title="Seekbar preference"
+            android:summary="This is a seekbar preference"
+            android:max="10"
+            android:defaultValue="5"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory
