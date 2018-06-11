@@ -16,3 +16,8 @@
 -keep class android.support.v4.media.** implements android.os.Parcelable {
     public static final android.os.Parcelable$Creator *;
 }
+
+# Prevent Parcelable objects from being removed or renamed.
+-keep class androidx.media.** implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
