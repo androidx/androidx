@@ -571,7 +571,7 @@ package androidx.media {
     method public abstract androidx.media.AudioAttributesCompat getAudioAttributes();
     method public long getBufferedPosition();
     method public abstract int getBufferingState();
-    method public abstract androidx.media.DataSourceDesc getCurrentDataSource();
+    method public abstract androidx.media.DataSourceDesc2 getCurrentDataSource();
     method public long getCurrentPosition();
     method public long getDuration();
     method public float getMaxPlayerVolume();
@@ -587,9 +587,9 @@ package androidx.media {
     method public abstract void reset();
     method public abstract void seekTo(long);
     method public abstract void setAudioAttributes(androidx.media.AudioAttributesCompat);
-    method public abstract void setDataSource(androidx.media.DataSourceDesc);
-    method public abstract void setNextDataSource(androidx.media.DataSourceDesc);
-    method public abstract void setNextDataSources(java.util.List<androidx.media.DataSourceDesc>);
+    method public abstract void setDataSource(androidx.media.DataSourceDesc2);
+    method public abstract void setNextDataSource(androidx.media.DataSourceDesc2);
+    method public abstract void setNextDataSources(java.util.List<androidx.media.DataSourceDesc2>);
     method public abstract void setPlaybackSpeed(float);
     method public abstract void setPlayerVolume(float);
     method public abstract void skipToNext();
@@ -607,20 +607,20 @@ package androidx.media {
 
   public static abstract class BaseMediaPlayer.PlayerEventCallback {
     ctor public BaseMediaPlayer.PlayerEventCallback();
-    method public void onBufferingStateChanged(androidx.media.BaseMediaPlayer, androidx.media.DataSourceDesc, int);
-    method public void onCurrentDataSourceChanged(androidx.media.BaseMediaPlayer, androidx.media.DataSourceDesc);
-    method public void onMediaPrepared(androidx.media.BaseMediaPlayer, androidx.media.DataSourceDesc);
+    method public void onBufferingStateChanged(androidx.media.BaseMediaPlayer, androidx.media.DataSourceDesc2, int);
+    method public void onCurrentDataSourceChanged(androidx.media.BaseMediaPlayer, androidx.media.DataSourceDesc2);
+    method public void onMediaPrepared(androidx.media.BaseMediaPlayer, androidx.media.DataSourceDesc2);
     method public void onPlaybackSpeedChanged(androidx.media.BaseMediaPlayer, float);
     method public void onPlayerStateChanged(androidx.media.BaseMediaPlayer, int);
     method public void onSeekCompleted(androidx.media.BaseMediaPlayer, long);
   }
 
-  public final class DataSourceDesc {
+  public final class DataSourceDesc2 {
     method public long getEndPosition();
     method public java.io.FileDescriptor getFileDescriptor();
     method public long getFileDescriptorLength();
     method public long getFileDescriptorOffset();
-    method public androidx.media.Media2DataSource getMedia2DataSource();
+    method public androidx.media.MediaDataSource2 getMediaDataSource2();
     method public java.lang.String getMediaId();
     method public long getStartPosition();
     method public int getType();
@@ -636,24 +636,18 @@ package androidx.media {
     field public static final int TYPE_URI = 3; // 0x3
   }
 
-  public static class DataSourceDesc.Builder {
-    ctor public DataSourceDesc.Builder();
-    ctor public DataSourceDesc.Builder(androidx.media.DataSourceDesc);
-    method public androidx.media.DataSourceDesc build();
-    method public androidx.media.DataSourceDesc.Builder setDataSource(androidx.media.Media2DataSource);
-    method public androidx.media.DataSourceDesc.Builder setDataSource(java.io.FileDescriptor);
-    method public androidx.media.DataSourceDesc.Builder setDataSource(java.io.FileDescriptor, long, long);
-    method public androidx.media.DataSourceDesc.Builder setDataSource(android.content.Context, android.net.Uri);
-    method public androidx.media.DataSourceDesc.Builder setDataSource(android.content.Context, android.net.Uri, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.net.HttpCookie>);
-    method public androidx.media.DataSourceDesc.Builder setEndPosition(long);
-    method public androidx.media.DataSourceDesc.Builder setMediaId(java.lang.String);
-    method public androidx.media.DataSourceDesc.Builder setStartPosition(long);
-  }
-
-  public abstract class Media2DataSource implements java.io.Closeable {
-    ctor public Media2DataSource();
-    method public abstract long getSize() throws java.io.IOException;
-    method public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
+  public static class DataSourceDesc2.Builder {
+    ctor public DataSourceDesc2.Builder();
+    ctor public DataSourceDesc2.Builder(androidx.media.DataSourceDesc2);
+    method public androidx.media.DataSourceDesc2 build();
+    method public androidx.media.DataSourceDesc2.Builder setDataSource(androidx.media.MediaDataSource2);
+    method public androidx.media.DataSourceDesc2.Builder setDataSource(java.io.FileDescriptor);
+    method public androidx.media.DataSourceDesc2.Builder setDataSource(java.io.FileDescriptor, long, long);
+    method public androidx.media.DataSourceDesc2.Builder setDataSource(android.content.Context, android.net.Uri);
+    method public androidx.media.DataSourceDesc2.Builder setDataSource(android.content.Context, android.net.Uri, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.net.HttpCookie>);
+    method public androidx.media.DataSourceDesc2.Builder setEndPosition(long);
+    method public androidx.media.DataSourceDesc2.Builder setMediaId(java.lang.String);
+    method public androidx.media.DataSourceDesc2.Builder setStartPosition(long);
   }
 
   public class MediaBrowser2 extends androidx.media.MediaController2 {
@@ -795,9 +789,15 @@ package androidx.media {
     field public static final int PLAYBACK_TYPE_REMOTE = 2; // 0x2
   }
 
+  public abstract class MediaDataSource2 implements java.io.Closeable {
+    ctor public MediaDataSource2();
+    method public abstract long getSize() throws java.io.IOException;
+    method public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
+  }
+
   public class MediaItem2 {
     method public static androidx.media.MediaItem2 fromBundle(android.os.Bundle);
-    method public androidx.media.DataSourceDesc getDataSourceDesc();
+    method public androidx.media.DataSourceDesc2 getDataSourceDesc();
     method public int getFlags();
     method public java.lang.String getMediaId();
     method public androidx.media.MediaMetadata2 getMetadata();
@@ -812,7 +812,7 @@ package androidx.media {
   public static final class MediaItem2.Builder {
     ctor public MediaItem2.Builder(int);
     method public androidx.media.MediaItem2 build();
-    method public androidx.media.MediaItem2.Builder setDataSourceDesc(androidx.media.DataSourceDesc);
+    method public androidx.media.MediaItem2.Builder setDataSourceDesc(androidx.media.DataSourceDesc2);
     method public androidx.media.MediaItem2.Builder setMediaId(java.lang.String);
     method public androidx.media.MediaItem2.Builder setMetadata(androidx.media.MediaMetadata2);
   }
@@ -942,7 +942,7 @@ package androidx.media {
     method public abstract int getAudioSessionId();
     method public abstract androidx.media.BaseMediaPlayer getBaseMediaPlayer();
     method public abstract long getBufferedPosition();
-    method public abstract androidx.media.DataSourceDesc getCurrentDataSource();
+    method public abstract androidx.media.DataSourceDesc2 getCurrentDataSource();
     method public abstract long getCurrentPosition();
     method public abstract androidx.media.MediaPlayer2.DrmInfo getDrmInfo();
     method public abstract android.media.MediaDrm.KeyRequest getDrmKeyRequest(byte[], byte[], java.lang.String, int, java.util.Map<java.lang.String, java.lang.String>) throws androidx.media.MediaPlayer2.NoDrmSchemeException;
@@ -974,12 +974,12 @@ package androidx.media {
     method public abstract void setAudioAttributes(androidx.media.AudioAttributesCompat);
     method public abstract void setAudioSessionId(int);
     method public abstract void setAuxEffectSendLevel(float);
-    method public abstract void setDataSource(androidx.media.DataSourceDesc);
+    method public abstract void setDataSource(androidx.media.DataSourceDesc2);
     method public abstract void setDrmEventCallback(java.util.concurrent.Executor, androidx.media.MediaPlayer2.DrmEventCallback);
     method public abstract void setDrmPropertyString(java.lang.String, java.lang.String) throws androidx.media.MediaPlayer2.NoDrmSchemeException;
     method public abstract void setEventCallback(java.util.concurrent.Executor, androidx.media.MediaPlayer2.EventCallback);
-    method public abstract void setNextDataSource(androidx.media.DataSourceDesc);
-    method public abstract void setNextDataSources(java.util.List<androidx.media.DataSourceDesc>);
+    method public abstract void setNextDataSource(androidx.media.DataSourceDesc2);
+    method public abstract void setNextDataSources(java.util.List<androidx.media.DataSourceDesc2>);
     method public abstract void setOnDrmConfigHelper(androidx.media.MediaPlayer2.OnDrmConfigHelper);
     method public abstract void setPlaybackParams(androidx.media.PlaybackParams2);
     method public abstract void setPlayerVolume(float);
@@ -1051,8 +1051,8 @@ package androidx.media {
 
   public static abstract class MediaPlayer2.DrmEventCallback {
     ctor public MediaPlayer2.DrmEventCallback();
-    method public void onDrmInfo(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, androidx.media.MediaPlayer2.DrmInfo);
-    method public void onDrmPrepared(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, int);
+    method public void onDrmInfo(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc2, androidx.media.MediaPlayer2.DrmInfo);
+    method public void onDrmPrepared(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc2, int);
   }
 
   public static abstract class MediaPlayer2.DrmInfo {
@@ -1063,14 +1063,14 @@ package androidx.media {
 
   public static abstract class MediaPlayer2.EventCallback {
     ctor public MediaPlayer2.EventCallback();
-    method public void onCallCompleted(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, int, int);
+    method public void onCallCompleted(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc2, int, int);
     method public void onCommandLabelReached(androidx.media.MediaPlayer2, java.lang.Object);
-    method public void onError(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, int, int);
-    method public void onInfo(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, int, int);
-    method public void onMediaTimeDiscontinuity(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, androidx.media.MediaTimestamp2);
-    method public void onSubtitleData(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, androidx.media.SubtitleData2);
-    method public void onTimedMetaDataAvailable(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, android.media.TimedMetaData);
-    method public void onVideoSizeChanged(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc, int, int);
+    method public void onError(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc2, int, int);
+    method public void onInfo(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc2, int, int);
+    method public void onMediaTimeDiscontinuity(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc2, androidx.media.MediaTimestamp2);
+    method public void onSubtitleData(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc2, androidx.media.SubtitleData2);
+    method public void onTimedMetaDataAvailable(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc2, androidx.media.TimedMetaData2);
+    method public void onVideoSizeChanged(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc2, int, int);
   }
 
   public static final class MediaPlayer2.MetricsConstants {
@@ -1093,7 +1093,7 @@ package androidx.media {
   }
 
   public static abstract interface MediaPlayer2.OnDrmConfigHelper {
-    method public abstract void onDrmConfig(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc);
+    method public abstract void onDrmConfig(androidx.media.MediaPlayer2, androidx.media.DataSourceDesc2);
   }
 
   public static class MediaPlayer2.ProvisioningNetworkErrorException extends android.media.MediaDrmException {
@@ -1121,7 +1121,7 @@ package androidx.media {
     ctor public MediaPlaylistAgent();
     method public abstract void addPlaylistItem(int, androidx.media.MediaItem2);
     method public abstract androidx.media.MediaItem2 getCurrentMediaItem();
-    method public androidx.media.MediaItem2 getMediaItem(androidx.media.DataSourceDesc);
+    method public androidx.media.MediaItem2 getMediaItem(androidx.media.DataSourceDesc2);
     method public abstract java.util.List<androidx.media.MediaItem2> getPlaylist();
     method public abstract androidx.media.MediaMetadata2 getPlaylistMetadata();
     method public abstract int getRepeatMode();
@@ -1251,7 +1251,7 @@ package androidx.media {
   }
 
   public static abstract interface MediaSession2.OnDataSourceMissingHelper {
-    method public abstract androidx.media.DataSourceDesc onDataSourceMissing(androidx.media.MediaSession2, androidx.media.MediaItem2);
+    method public abstract androidx.media.DataSourceDesc2 onDataSourceMissing(androidx.media.MediaSession2, androidx.media.MediaItem2);
   }
 
   public static abstract class MediaSession2.SessionCallback {
@@ -1315,7 +1315,7 @@ package androidx.media {
 
   public final class MediaTimestamp2 {
     method public long getAnchorMediaTimeUs();
-    method public long getAnchorSytemNanoTime();
+    method public long getAnchorSystemNanoTime();
     method public float getMediaClockRate();
     field public static final androidx.media.MediaTimestamp2 TIMESTAMP_UNKNOWN;
   }
@@ -1444,6 +1444,11 @@ package androidx.media {
     field public static final java.lang.String MIMETYPE_TEXT_CEA_608 = "text/cea-608";
     field public static final java.lang.String MIMETYPE_TEXT_CEA_708 = "text/cea-708";
     field public static final java.lang.String MIMETYPE_TEXT_VTT = "text/vtt";
+  }
+
+  public class TimedMetaData2 {
+    method public byte[] getMetaData();
+    method public long getTimestamp();
   }
 
   public abstract class VolumeProviderCompat {

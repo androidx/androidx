@@ -55,7 +55,7 @@ import android.support.mediacompat.testlib.IRemoteMediaSession2;
 import android.util.Log;
 
 import androidx.media.AudioAttributesCompat;
-import androidx.media.DataSourceDesc;
+import androidx.media.DataSourceDesc2;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
 import androidx.media.MediaSession2;
@@ -371,7 +371,7 @@ public class RemoteMediaSession2Service extends Service {
             MockPlaylistAgent agent = (MockPlaylistAgent) session2.getPlaylistAgent();
             switch (index) {
                 case INDEX_FOR_UNKONWN_DSD:
-                    player.notifyCurrentDataSourceChanged(new DataSourceDesc.Builder()
+                    player.notifyCurrentDataSourceChanged(new DataSourceDesc2.Builder()
                             .setDataSource(new FileDescriptor())
                             .build());
                     break;
@@ -488,7 +488,7 @@ public class RemoteMediaSession2Service extends Service {
         }
     }
 
-    private DataSourceDesc createNewDsd() {
-        return new DataSourceDesc.Builder().setDataSource(new FileDescriptor()).build();
+    private DataSourceDesc2 createNewDsd() {
+        return new DataSourceDesc2.Builder().setDataSource(new FileDescriptor()).build();
     }
 }

@@ -25,7 +25,6 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.MediaFormat;
 import android.media.ResourceBusyException;
-import android.media.TimedMetaData;
 import android.media.UnsupportedSchemeException;
 import android.os.Build;
 import android.os.PersistableBundle;
@@ -68,7 +67,7 @@ import java.util.concurrent.Executor;
  *         {@link #create()}, or after calling {@link #reset()}.</p>
  *
  *         <p>While in this state, you should call
- *         {@link #setDataSource(DataSourceDesc) setDataSource()}. It is a good
+ *         {@link #setDataSource(DataSourceDesc2) setDataSource()}. It is a good
  *         programming practice to register an {@link EventCallback#onCallCompleted onCallCompleted}
  *         <a href="#callback">callback</a> and watch for {@link #CALL_STATUS_BAD_VALUE} and
  *         {@link #CALL_STATUS_ERROR_IO}, which might be caused by <code>setDataSource</code>.
@@ -126,7 +125,7 @@ import java.util.concurrent.Executor;
  *
  *          <p>If you register an {@link EventCallback#onError}} <a href="#callback">callback</a>
  *          the callback will be performed when entering the state. When programming errors happen,
- *          such as calling {@link #prepare()} and {@link #setDataSource(DataSourceDesc)} methods
+ *          such as calling {@link #prepare()} and {@link #setDataSource(DataSourceDesc2)} methods
  *          from an <a href="#invalid_state">invalid state</a>, The callback is called with
  *          {@link #CALL_STATUS_INVALID_OPERATION} . The MediaPlayer2 object enters the
  *          <strong>Error</strong> whether or not a callback exists. </p>
@@ -467,21 +466,21 @@ public abstract class MediaPlayer2 {
     public abstract @Nullable AudioAttributesCompat getAudioAttributes();
 
     /**
-     * Sets the data source as described by a DataSourceDesc.
+     * Sets the data source as described by a DataSourceDesc2.
      *
      * @param dsd the descriptor of data source you want to play
      */
     // This is an asynchronous call.
-    public abstract void setDataSource(@NonNull DataSourceDesc dsd);
+    public abstract void setDataSource(@NonNull DataSourceDesc2 dsd);
 
     /**
-     * Sets a single data source as described by a DataSourceDesc which will be played
+     * Sets a single data source as described by a DataSourceDesc2 which will be played
      * after current data source is finished.
      *
      * @param dsd the descriptor of data source you want to play after current one
      */
     // This is an asynchronous call.
-    public abstract void setNextDataSource(@NonNull DataSourceDesc dsd);
+    public abstract void setNextDataSource(@NonNull DataSourceDesc2 dsd);
 
     /**
      * Sets a list of data sources to be played sequentially after current data source is done.
@@ -489,14 +488,14 @@ public abstract class MediaPlayer2 {
      * @param dsds the list of data sources you want to play after current one
      */
     // This is an asynchronous call.
-    public abstract void setNextDataSources(@NonNull List<DataSourceDesc> dsds);
+    public abstract void setNextDataSources(@NonNull List<DataSourceDesc2> dsds);
 
     /**
-     * Gets the current data source as described by a DataSourceDesc.
+     * Gets the current data source as described by a DataSourceDesc2.
      *
-     * @return the current DataSourceDesc
+     * @return the current DataSourceDesc2
      */
-    public abstract @NonNull DataSourceDesc getCurrentDataSource();
+    public abstract @NonNull DataSourceDesc2 getCurrentDataSource();
 
     /**
      * Configures the player to loop on the current data source.
@@ -933,12 +932,12 @@ public abstract class MediaPlayer2 {
          * no display surface was set, or the value was not determined yet.
          *
          * @param mp the MediaPlayer2 associated with this callback
-         * @param dsd the DataSourceDesc of this data source
+         * @param dsd the DataSourceDesc2 of this data source
          * @param width the width of the video
          * @param height the height of the video
          */
         public void onVideoSizeChanged(
-                MediaPlayer2 mp, DataSourceDesc dsd, int width, int height) { }
+                MediaPlayer2 mp, DataSourceDesc2 dsd, int width, int height) { }
 
         /**
          * Called to indicate available timed metadata
@@ -948,51 +947,51 @@ public abstract class MediaPlayer2 {
          * not controlled by the associated timestamp.
          * <p>
          * Currently only HTTP live streaming data URI's embedded with timed ID3 tags generates
-         * {@link TimedMetaData}.
+         * {@link TimedMetaData2}.
          *
          * @see MediaPlayer2#selectTrack(int)
-         * @see TimedMetaData
+         * @see TimedMetaData2
          *
          * @param mp the MediaPlayer2 associated with this callback
-         * @param dsd the DataSourceDesc of this data source
+         * @param dsd the DataSourceDesc2 of this data source
          * @param data the timed metadata sample associated with this event
          */
         public void onTimedMetaDataAvailable(
-                MediaPlayer2 mp, DataSourceDesc dsd, TimedMetaData data) { }
+                MediaPlayer2 mp, DataSourceDesc2 dsd, TimedMetaData2 data) { }
 
         /**
          * Called to indicate an error.
          *
          * @param mp the MediaPlayer2 the error pertains to
-         * @param dsd the DataSourceDesc of this data source
+         * @param dsd the DataSourceDesc2 of this data source
          * @param what the type of error that has occurred.
          * @param extra an extra code, specific to the error. Typically
          * implementation dependent.
          */
         public void onError(
-                MediaPlayer2 mp, DataSourceDesc dsd, @MediaError int what, int extra) { }
+                MediaPlayer2 mp, DataSourceDesc2 dsd, @MediaError int what, int extra) { }
 
         /**
          * Called to indicate an info or a warning.
          *
          * @param mp the MediaPlayer2 the info pertains to.
-         * @param dsd the DataSourceDesc of this data source
+         * @param dsd the DataSourceDesc2 of this data source
          * @param what the type of info or warning.
          * @param extra an extra code, specific to the info. Typically
          * implementation dependent.
          */
-        public void onInfo(MediaPlayer2 mp, DataSourceDesc dsd, @MediaInfo int what, int extra) { }
+        public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, @MediaInfo int what, int extra) { }
 
         /**
          * Called to acknowledge an API call.
          *
          * @param mp the MediaPlayer2 the call was made on.
-         * @param dsd the DataSourceDesc of this data source
+         * @param dsd the DataSourceDesc2 of this data source
          * @param what the enum for the API call.
          * @param status the returned status code for the call.
          */
         public void onCallCompleted(
-                MediaPlayer2 mp, DataSourceDesc dsd, @CallCompleted int what,
+                MediaPlayer2 mp, DataSourceDesc2 dsd, @CallCompleted int what,
                 @CallStatus int status) { }
 
         /**
@@ -1011,12 +1010,12 @@ public abstract class MediaPlayer2 {
          * </ul>
          *
          * @param mp the MediaPlayer2 the media time pertains to.
-         * @param dsd the DataSourceDesc of this data source
+         * @param dsd the DataSourceDesc2 of this data source
          * @param timestamp the timestamp that correlates media time, system time and clock rate,
          *     or {@link MediaTimestamp2#TIMESTAMP_UNKNOWN} in an error case.
          */
         public void onMediaTimeDiscontinuity(
-                MediaPlayer2 mp, DataSourceDesc dsd, MediaTimestamp2 timestamp) { }
+                MediaPlayer2 mp, DataSourceDesc2 dsd, MediaTimestamp2 timestamp) { }
 
         /**
          * Called to indicate {@link #notifyWhenCommandLabelReached(Object)} has been processed.
@@ -1030,11 +1029,11 @@ public abstract class MediaPlayer2 {
         /**
          * Called when when a player subtitle track has new subtitle data available.
          * @param mp the player that reports the new subtitle data
-         * @param dsd the DataSourceDesc of this data source
+         * @param dsd the DataSourceDesc2 of this data source
          * @param data the subtitle data
          */
         public void onSubtitleData(
-                MediaPlayer2 mp, DataSourceDesc dsd, @NonNull SubtitleData2 data) { }
+                MediaPlayer2 mp, DataSourceDesc2 dsd, @NonNull SubtitleData2 data) { }
     }
 
     /**
@@ -1499,9 +1498,9 @@ public abstract class MediaPlayer2 {
          * Called to give the app the opportunity to configure DRM before the session is created
          *
          * @param mp the {@code MediaPlayer2} associated with this callback
-         * @param dsd the DataSourceDesc of this data source
+         * @param dsd the DataSourceDesc2 of this data source
          */
-        void onDrmConfig(MediaPlayer2 mp, DataSourceDesc dsd);
+        void onDrmConfig(MediaPlayer2 mp, DataSourceDesc2 dsd);
     }
 
     /**
@@ -1524,22 +1523,22 @@ public abstract class MediaPlayer2 {
          * Called to indicate DRM info is available
          *
          * @param mp the {@code MediaPlayer2} associated with this callback
-         * @param dsd the DataSourceDesc of this data source
+         * @param dsd the DataSourceDesc2 of this data source
          * @param drmInfo DRM info of the source including PSSH, and subset
          *                of crypto schemes supported by this device
          */
-        public void onDrmInfo(MediaPlayer2 mp, DataSourceDesc dsd, DrmInfo drmInfo) { }
+        public void onDrmInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, DrmInfo drmInfo) { }
 
         /**
          * Called to notify the client that {@link #prepareDrm} is finished and ready for
          * key request/response.
          *
          * @param mp the {@code MediaPlayer2} associated with this callback
-         * @param dsd the DataSourceDesc of this data source
+         * @param dsd the DataSourceDesc2 of this data source
          * @param status the result of DRM preparation.
          */
         public void onDrmPrepared(
-                MediaPlayer2 mp, DataSourceDesc dsd, @PrepareDrmStatusCode int status) { }
+                MediaPlayer2 mp, DataSourceDesc2 dsd, @PrepareDrmStatusCode int status) { }
     }
 
     /**

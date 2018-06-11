@@ -38,7 +38,7 @@ public class MediaTimestamp2Test extends MediaTestBase {
     public void testConstructor() {
         MediaTimestamp2 timestamp = new MediaTimestamp2(123, 456, 0.25f);
         assertEquals(123, timestamp.getAnchorMediaTimeUs());
-        assertEquals(456, timestamp.getAnchorSytemNanoTime());
+        assertEquals(456, timestamp.getAnchorSystemNanoTime());
         assertEquals(0.25f, timestamp.getMediaClockRate());
     }
 
@@ -46,7 +46,7 @@ public class MediaTimestamp2Test extends MediaTestBase {
     public void testVoidConstructor() {
         MediaTimestamp2 timestamp = new MediaTimestamp2();
         assertEquals(0, timestamp.getAnchorMediaTimeUs());
-        assertEquals(0, timestamp.getAnchorSytemNanoTime());
+        assertEquals(0, timestamp.getAnchorSystemNanoTime());
         assertEquals(1.0f, timestamp.getMediaClockRate());
     }
 
@@ -56,7 +56,7 @@ public class MediaTimestamp2Test extends MediaTestBase {
         assertEquals(MediaTimestamp.TIMESTAMP_UNKNOWN.getAnchorMediaTimeUs(),
                 MediaTimestamp2.TIMESTAMP_UNKNOWN.getAnchorMediaTimeUs());
         assertEquals(MediaTimestamp.TIMESTAMP_UNKNOWN.getAnchorSytemNanoTime(),
-                MediaTimestamp2.TIMESTAMP_UNKNOWN.getAnchorSytemNanoTime());
+                MediaTimestamp2.TIMESTAMP_UNKNOWN.getAnchorSystemNanoTime());
         assertEquals(MediaTimestamp.TIMESTAMP_UNKNOWN.getMediaClockRate(),
                 MediaTimestamp2.TIMESTAMP_UNKNOWN.getMediaClockRate());
     }
