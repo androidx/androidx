@@ -47,28 +47,10 @@ public class SliceHints {
     public static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
 
     /**
-     * A hint to indicate that the contents of this subslice represent a list of keywords
-     * related to the parent slice.
-     */
-    public static final String HINT_KEYWORDS = "keywords";
-
-    /**
-     * Hint indicating an item representing a time-to-live for the content.
-     */
-    public static final String HINT_TTL = "ttl";
-
-    /**
-     * Hint indicating an item representing when the content was created or last updated.
-     */
-    public static final String HINT_LAST_UPDATED = "last_updated";
-
-    /**
      * Subtype to tag an item as representing a time in milliseconds since midnight,
      * January 1, 1970 UTC.
      */
     public static final String SUBTYPE_MILLIS = "millis";
-
-    public static final String HINT_PERMISSION_REQUEST = "permission_request";
 
     @IntDef({
             LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
