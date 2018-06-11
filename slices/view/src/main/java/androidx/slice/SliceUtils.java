@@ -17,6 +17,7 @@
 package androidx.slice;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
+import static android.app.slice.Slice.HINT_KEYWORDS;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
@@ -30,7 +31,6 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static androidx.slice.SliceMetadata.LOADED_ALL;
 import static androidx.slice.SliceMetadata.LOADED_NONE;
 import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
-import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 

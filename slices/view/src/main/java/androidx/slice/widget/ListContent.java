@@ -18,9 +18,12 @@ package androidx.slice.widget;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_HORIZONTAL;
+import static android.app.slice.Slice.HINT_KEYWORDS;
+import static android.app.slice.Slice.HINT_LAST_UPDATED;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
+import static android.app.slice.Slice.HINT_TTL;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
@@ -28,9 +31,6 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
-import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
-import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.widget.SliceView.MODE_LARGE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 import static androidx.slice.widget.SliceViewUtil.resolveLayoutDirection;

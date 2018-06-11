@@ -15,6 +15,7 @@
  */
 package androidx.slice;
 
+import static android.app.slice.Slice.HINT_PERMISSION_REQUEST;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceProvider.SLICE_TYPE;
@@ -23,7 +24,6 @@ import static androidx.slice.compat.SliceProviderCompat.EXTRA_BIND_URI;
 import static androidx.slice.compat.SliceProviderCompat.EXTRA_PKG;
 import static androidx.slice.compat.SliceProviderCompat.EXTRA_PROVIDER_PKG;
 import static androidx.slice.compat.SliceProviderCompat.PERMS_PREFIX;
-import static androidx.slice.core.SliceHints.HINT_PERMISSION_REQUEST;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;

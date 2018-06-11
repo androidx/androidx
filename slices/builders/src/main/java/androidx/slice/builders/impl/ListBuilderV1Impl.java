@@ -18,7 +18,9 @@ package androidx.slice.builders.impl;
 
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_ERROR;
+import static android.app.slice.Slice.HINT_KEYWORDS;
 import static android.app.slice.Slice.HINT_LARGE;
+import static android.app.slice.Slice.HINT_LAST_UPDATED;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
@@ -26,6 +28,7 @@ import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
 import static android.app.slice.Slice.HINT_SUMMARY;
 import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.HINT_TTL;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
@@ -39,9 +42,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
-import static androidx.slice.core.SliceHints.HINT_KEYWORDS;
-import static androidx.slice.core.SliceHints.HINT_LAST_UPDATED;
-import static androidx.slice.core.SliceHints.HINT_TTL;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 
