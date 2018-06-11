@@ -17,6 +17,7 @@
 package androidx.media;
 
 import static androidx.media.BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
+import static androidx.media.BaseMediaPlayer.PLAYER_STATE_IDLE;
 import static androidx.media.MediaSession2.ControllerCb;
 import static androidx.media.MediaSession2.ControllerInfo;
 import static androidx.media.MediaSession2.OnDataSourceMissingHelper;
@@ -396,6 +397,12 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         }
         if (player != null) {
             if (mAudioFocusHandler.onPlayRequested()) {
+                if (player.getPlayerState() == PLAYER_STATE_IDLE) {
+                    // Note: Ideally audio focus should be requested only when play() is called,
+                    // but it would be fine calling prepare() after the audio focus here because
+                    // play() will be triggered immediately after.
+                    player.prepare();
+                }
                 player.play();
             } else {
                 Log.w(TAG, "play() wouldn't be called because of the failure in audio focus");
