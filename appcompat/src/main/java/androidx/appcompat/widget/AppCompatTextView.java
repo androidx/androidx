@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.inputmethod.EditorInfo;
@@ -35,7 +36,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
-import androidx.core.os.BuildCompat;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.AutoSizeableTextView;
@@ -383,7 +383,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
     @Override
     public void setFirstBaselineToTopHeight(@Px @IntRange(from = 0) int firstBaselineToTopHeight) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             super.setFirstBaselineToTopHeight(firstBaselineToTopHeight);
         } else {
             TextViewCompat.setFirstBaselineToTopHeight(this, firstBaselineToTopHeight);
@@ -393,7 +393,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public void setLastBaselineToBottomHeight(
             @Px @IntRange(from = 0) int lastBaselineToBottomHeight) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             super.setLastBaselineToBottomHeight(lastBaselineToBottomHeight);
         } else {
             TextViewCompat.setLastBaselineToBottomHeight(this,

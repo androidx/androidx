@@ -37,6 +37,7 @@ import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Process;
@@ -48,7 +49,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.CoreComponentFactory;
-import androidx.core.os.BuildCompat;
 import androidx.slice.compat.CompatPermissionManager;
 import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.compat.SliceProviderWrapperContainer;
@@ -157,7 +157,7 @@ public abstract class SliceProvider extends ContentProvider implements
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public Object getWrapper() {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return new SliceProviderWrapperContainer.SliceProviderWrapper(this,
                     mAutoGrantPermissions);
         }
@@ -168,7 +168,7 @@ public abstract class SliceProvider extends ContentProvider implements
     public final boolean onCreate() {
         mPinnedSliceUris = new ArrayList<>(SliceManager.getInstance(
                 getContext()).getPinnedSlices());
-        if (!BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT < 28) {
             mCompat = new SliceProviderCompat(this,
                     onCreatePermissionManager(mAutoGrantPermissions), getContext());
         }

@@ -17,10 +17,10 @@
 package androidx.preference;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 
 import androidx.core.content.res.TypedArrayUtils;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat;
 
@@ -69,7 +69,7 @@ public class PreferenceCategory extends PreferenceGroup {
     @Override
     public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             holder.itemView.setAccessibilityHeading(true);
         }
     }
@@ -77,7 +77,7 @@ public class PreferenceCategory extends PreferenceGroup {
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {
         super.onInitializeAccessibilityNodeInfo(info);
-        if (!BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT < 28) {
             CollectionItemInfoCompat existingItemInfo = info.getCollectionItemInfo();
             if (existingItemInfo == null) {
                 return;

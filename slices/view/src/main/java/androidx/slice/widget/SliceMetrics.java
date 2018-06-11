@@ -18,11 +18,11 @@ package androidx.slice.widget;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 
 /**
  * @hide
@@ -31,7 +31,7 @@ import androidx.core.os.BuildCompat;
 class SliceMetrics {
 
     public static @Nullable SliceMetrics getInstance(@NonNull Context context, @NonNull Uri uri) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return new SliceMetricsWrapper(context, uri);
         } else {
             return null;

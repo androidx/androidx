@@ -32,11 +32,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.annotation.NonNull;
-import androidx.core.os.BuildCompat;
 import androidx.slice.render.SliceRenderActivity;
 
 import org.junit.Before;
@@ -113,11 +113,9 @@ public class SliceViewManagerTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 27)
     @Test
     public void testCallback() {
-        if (BuildCompat.isAtLeastP()) {
-            return;
-        }
         Uri uri = new Uri.Builder()
                 .scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(mContext.getPackageName())
@@ -137,11 +135,9 @@ public class SliceViewManagerTest {
         verify(callback, timeout(2000)).onSliceUpdated(any(Slice.class));
     }
 
+    @SdkSuppress(maxSdkVersion = 27)
     @Test
     public void testPinnedSpecs() {
-        if (BuildCompat.isAtLeastP()) {
-            return;
-        }
         Uri uri = new Uri.Builder()
                 .scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(mContext.getPackageName())

@@ -58,7 +58,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.collection.ArrayMap;
 import androidx.core.R;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
 
@@ -3398,7 +3397,7 @@ public class ViewCompat {
      */
     public static void addOnUnhandledKeyEventListener(@NonNull View v,
             @NonNull OnUnhandledKeyEventListenerCompat listener) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             Map<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
                     viewListeners = (Map<OnUnhandledKeyEventListenerCompat,
                             View.OnUnhandledKeyEventListener>)
@@ -3435,7 +3434,7 @@ public class ViewCompat {
      */
     public static void removeOnUnhandledKeyEventListener(@NonNull View v,
             @NonNull OnUnhandledKeyEventListenerCompat listener) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             Map<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
                     viewListeners =
                     (Map<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>)
@@ -3496,7 +3495,7 @@ public class ViewCompat {
      */
     @UiThread
     public static boolean dispatchUnhandledKeyEventPre(View root, KeyEvent evt) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return false;
         }
         return UnhandledKeyEventManager.at(root).hasFocus()
@@ -3520,7 +3519,7 @@ public class ViewCompat {
      */
     @UiThread
     public static boolean dispatchUnhandledKeyEventPost(View root, KeyEvent evt) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return false;
         }
         return UnhandledKeyEventManager.at(root).dispatch(root, evt);

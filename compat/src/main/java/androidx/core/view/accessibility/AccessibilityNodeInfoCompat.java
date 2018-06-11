@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 
 import java.util.ArrayList;
@@ -40,7 +39,6 @@ import java.util.List;
  * Helper for accessing {@link android.view.accessibility.AccessibilityNodeInfo} in a backwards
  * compatible fashion.
  */
-@SuppressWarnings("NewApi")
 public class AccessibilityNodeInfoCompat {
 
     public static class AccessibilityActionCompat {
@@ -433,7 +431,7 @@ public class AccessibilityNodeInfoCompat {
          * Action to show a tooltip.
          */
         public static final AccessibilityActionCompat ACTION_SHOW_TOOLTIP =
-                new AccessibilityActionCompat(BuildCompat.isAtLeastP()
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 28
                         ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_TOOLTIP : null);
 
         /**
@@ -441,7 +439,7 @@ public class AccessibilityNodeInfoCompat {
          * currently showing a tooltip.
          */
         public static final AccessibilityActionCompat ACTION_HIDE_TOOLTIP =
-                new AccessibilityActionCompat(BuildCompat.isAtLeastP()
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 28
                         ? AccessibilityNodeInfo.AccessibilityAction.ACTION_HIDE_TOOLTIP : null);
 
         final Object mAction;
@@ -3180,7 +3178,7 @@ public class AccessibilityNodeInfoCompat {
      */
     @Nullable
     public CharSequence getTooltipText() {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.getTooltipText();
         } else if (Build.VERSION.SDK_INT >= 19) {
             return mInfo.getExtras().getCharSequence(TOOLTIP_TEXT_KEY);
@@ -3202,7 +3200,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setTooltipText(@Nullable CharSequence tooltipText) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             mInfo.setTooltipText(tooltipText);
         } else if (Build.VERSION.SDK_INT >= 19) {
             mInfo.getExtras().putCharSequence(TOOLTIP_TEXT_KEY, tooltipText);
@@ -3222,7 +3220,7 @@ public class AccessibilityNodeInfoCompat {
      * @param paneTitle The title of the window represented by this node.
      */
     public void setPaneTitle(@Nullable CharSequence paneTitle) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             mInfo.setPaneTitle(paneTitle);
         } else if (Build.VERSION.SDK_INT >= 19) {
             mInfo.getExtras().putCharSequence(PANE_TITLE_KEY, paneTitle);
@@ -3236,7 +3234,7 @@ public class AccessibilityNodeInfoCompat {
      *         not represent a pane.
      */
     public @Nullable CharSequence getPaneTitle() {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.getPaneTitle();
         } else if (Build.VERSION.SDK_INT >= 19) {
             return mInfo.getExtras().getCharSequence(PANE_TITLE_KEY);
@@ -3255,7 +3253,7 @@ public class AccessibilityNodeInfoCompat {
      *         readers, {@code false} otherwise.
      */
     public boolean isScreenReaderFocusable() {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.isScreenReaderFocusable();
         }
         return getBooleanProperty(BOOLEAN_PROPERTY_SCREEN_READER_FOCUSABLE);
@@ -3274,7 +3272,7 @@ public class AccessibilityNodeInfoCompat {
      *                              {@code false} otherwise.
      */
     public void setScreenReaderFocusable(boolean screenReaderFocusable) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             mInfo.setScreenReaderFocusable(screenReaderFocusable);
         } else {
             setBooleanProperty(BOOLEAN_PROPERTY_SCREEN_READER_FOCUSABLE, screenReaderFocusable);
@@ -3325,7 +3323,7 @@ public class AccessibilityNodeInfoCompat {
      * @return {@code true} if the node is a heading, {@code false} otherwise.
      */
     public boolean isHeading() {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.isHeading();
         }
         if (getBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING)) return true;
@@ -3345,7 +3343,7 @@ public class AccessibilityNodeInfoCompat {
      * @param isHeading {@code true} if the node is a heading, {@code false} otherwise.
      */
     public void setHeading(boolean isHeading) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             mInfo.setHeading(isHeading);
         } else {
             setBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING, isHeading);

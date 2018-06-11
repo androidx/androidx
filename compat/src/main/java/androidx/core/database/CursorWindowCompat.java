@@ -21,7 +21,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.os.BuildCompat;
 
 /**
  * Helper for accessing features in {@link android.database.CursorWindow}
@@ -39,7 +38,7 @@ public final class CursorWindowCompat {
      */
     @NonNull
     public CursorWindow create(@Nullable String name, long windowSizeBytes) {
-        if (BuildCompat.isAtLeastP()) {
+        if (Build.VERSION.SDK_INT >= 28) {
             return new CursorWindow(name, windowSizeBytes);
         } else if (Build.VERSION.SDK_INT >= 15) {
             return new CursorWindow(name);

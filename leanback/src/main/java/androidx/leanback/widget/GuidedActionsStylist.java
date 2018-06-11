@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Build.VERSION;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -49,7 +50,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
-import androidx.core.os.BuildCompat;
 import androidx.leanback.R;
 import androidx.leanback.transition.TransitionEpicenterCallback;
 import androidx.leanback.transition.TransitionHelper;
@@ -686,7 +686,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mTitleView.setFocusable(false);
             vh.mTitleView.setClickable(false);
             vh.mTitleView.setLongClickable(false);
-            if (BuildCompat.isAtLeastP()) {
+            if (Build.VERSION.SDK_INT >= 28) {
                 if (action.isEditable()) {
                     vh.mTitleView.setAutofillHints(action.getAutofillHints());
                 } else {
@@ -707,7 +707,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             vh.mDescriptionView.setFocusable(false);
             vh.mDescriptionView.setClickable(false);
             vh.mDescriptionView.setLongClickable(false);
-            if (BuildCompat.isAtLeastP()) {
+            if (Build.VERSION.SDK_INT >= 28) {
                 if (action.isDescriptionEditable()) {
                     vh.mDescriptionView.setAutofillHints(action.getAutofillHints());
                 } else {
