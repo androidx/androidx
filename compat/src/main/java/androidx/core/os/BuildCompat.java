@@ -82,7 +82,11 @@ public class BuildCompat {
      * Checks if the device is running on a pre-release version of Android P or newer.
      * <p>
      * @return {@code true} if P APIs are available for use, {@code false} otherwise
+     * @deprecated Android P is a finalized release and this method is no longer necessary. It
+     *             will be removed in a future release of the Support Library. Instead, use
+     *             {@code Build.SDK_INT >= Build.VERSION_CODES.P}.
      */
+    @Deprecated
     public static boolean isAtLeastP() {
         return VERSION.SDK_INT >= 28;
     }

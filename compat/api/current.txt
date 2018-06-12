@@ -1145,7 +1145,7 @@ package androidx.core.os {
     method public static deprecated boolean isAtLeastNMR1();
     method public static deprecated boolean isAtLeastO();
     method public static deprecated boolean isAtLeastOMR1();
-    method public static boolean isAtLeastP();
+    method public static deprecated boolean isAtLeastP();
     method public static boolean isAtLeastQ();
   }
 
