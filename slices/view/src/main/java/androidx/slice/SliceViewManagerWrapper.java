@@ -20,6 +20,8 @@ import static androidx.slice.SliceConvert.unwrap;
 import static androidx.slice.widget.SliceLiveData.SUPPORTED_SPECS;
 
 import android.app.slice.SliceSpec;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -76,7 +78,20 @@ class SliceViewManagerWrapper extends SliceViewManagerBase {
 
     @Override
     public Collection<Uri> getSliceDescendants(Uri uri) {
-        return mManager.getSliceDescendants(uri);
+        // TODO: When this is fixed in framework, remove this try / catch (b/80118259)
+        try {
+            return mManager.getSliceDescendants(uri);
+        } catch (RuntimeException e) {
+            // Check if a provider exists for this uri
+            ContentResolver resolver = mContext.getContentResolver();
+            ContentProviderClient provider = resolver.acquireContentProviderClient(uri);
+            if (provider == null) {
+                throw new IllegalArgumentException("No provider found for " + uri);
+            } else {
+                provider.close();
+                throw e;
+            }
+        }
     }
 
     @Nullable
