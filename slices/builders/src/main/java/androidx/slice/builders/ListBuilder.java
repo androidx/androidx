@@ -246,8 +246,10 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Add a row to the list builder.
+     * @deprecated use {@link #addRow(RowBuilder)} instead
      */
     @NonNull
+    @Deprecated
     public ListBuilder addRow(@NonNull Consumer<RowBuilder> c) {
         RowBuilder b = new RowBuilder(this);
         c.accept(b);
@@ -265,8 +267,10 @@ public class ListBuilder extends TemplateSliceBuilder {
 
     /**
      * Add a grid row to the list builder.
+     * @deprecated use {@link #addGridRow(GridRowBuilder)} instead
      */
     @NonNull
+    @Deprecated
     public ListBuilder addGridRow(@NonNull Consumer<GridRowBuilder> c) {
         GridRowBuilder b = new GridRowBuilder(this);
         c.accept(b);
@@ -310,8 +314,10 @@ public class ListBuilder extends TemplateSliceBuilder {
      * representation.
      *
      * @see HeaderBuilder#setSummary(CharSequence)
+     * @deprecated use {@link #setHeader(HeaderBuilder)} instead
      */
     @NonNull
+    @Deprecated
     public ListBuilder setHeader(@NonNull Consumer<HeaderBuilder> c) {
         HeaderBuilder b = new HeaderBuilder(this);
         c.accept(b);
@@ -440,8 +446,10 @@ public class ListBuilder extends TemplateSliceBuilder {
      * Only one see more affordance can be added, this throws {@link IllegalStateException} if
      * a row or action has been previously added.
      * </p>
+     * @deprecated use {@link #setSeeMoreRow(RowBuilder)} instead.
      */
     @NonNull
+    @Deprecated
     public ListBuilder setSeeMoreRow(@NonNull Consumer<RowBuilder> c) {
         RowBuilder b = new RowBuilder(this);
         c.accept(b);
@@ -525,8 +533,10 @@ public class ListBuilder extends TemplateSliceBuilder {
      * If {@link InputRangeBuilder#setValue(int)} is not between
      * {@link InputRangeBuilder#setMin(int)} and {@link InputRangeBuilder#setMax(int)}, this
      * will throw {@link IllegalArgumentException}.
+     * @deprecated use {@link #addInputRange(InputRangeBuilder)} instead
      */
     @NonNull
+    @Deprecated
     public ListBuilder addInputRange(@NonNull Consumer<InputRangeBuilder> c) {
         InputRangeBuilder inputRangeBuilder = new InputRangeBuilder(this);
         c.accept(inputRangeBuilder);
@@ -550,8 +560,10 @@ public class ListBuilder extends TemplateSliceBuilder {
      * <p>
      * If {@link RangeBuilder#setValue(int)} is not between 0 and
      * {@link RangeBuilder#setMax(int)}, this will throw {@link IllegalArgumentException}.
+     * @deprecated use {@link #addRange(RangeBuilder)} instead
      */
     @NonNull
+    @Deprecated
     public ListBuilder addRange(@NonNull Consumer<RangeBuilder> c) {
         RangeBuilder rangeBuilder = new RangeBuilder(this);
         c.accept(rangeBuilder);
@@ -563,7 +575,6 @@ public class ListBuilder extends TemplateSliceBuilder {
      * <p>
      * A range row supports displaying a horizontal progress indicator.
      *
-     * @see ListBuilder#addRange(Consumer)
      * @see ListBuilder#addRange(RangeBuilder)
      */
     public static class RangeBuilder {
@@ -582,7 +593,6 @@ public class ListBuilder extends TemplateSliceBuilder {
          * <p>
          * A range row supports displaying a horizontal progress indicator.
          *
-         * @see ListBuilder#addRange(Consumer)
          * @see ListBuilder#addRange(RangeBuilder)
          */
         public RangeBuilder() {
@@ -737,7 +747,6 @@ public class ListBuilder extends TemplateSliceBuilder {
      * <p>
      * An input range row supports displaying a horizontal slider allowing slider input.
      *
-     * @see ListBuilder#addInputRange(Consumer)
      * @see ListBuilder#addInputRange(InputRangeBuilder)
      */
     public static class InputRangeBuilder {
@@ -760,7 +769,6 @@ public class ListBuilder extends TemplateSliceBuilder {
          * <p>
          * An input range row supports displaying a horizontal slider allowing slider input.
          *
-         * @see ListBuilder#addInputRange(Consumer)
          * @see ListBuilder#addInputRange(InputRangeBuilder)
          */
         public InputRangeBuilder() {
@@ -1047,10 +1055,17 @@ public class ListBuilder extends TemplateSliceBuilder {
         @RestrictTo(LIBRARY)
         public static final int TYPE_ACTION = 2;
 
+        /**
+         * Builder to construct a row.
+         */
         public RowBuilder() {
             mUri = null;
         }
 
+        /**
+         * Builder to construct a normal row.
+         * @param uri Uri to tag for this slice.
+         */
         public RowBuilder(Uri uri) {
             mUri = uri;
         }
@@ -1058,7 +1073,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * Builder to construct a row.
          * @param parent The builder constructing the parent slice.
+         * @deprecated TO BE REMOVED.
          */
+        @Deprecated
         public RowBuilder(@NonNull ListBuilder parent) {
             this();
         }
@@ -1066,7 +1083,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * Builder to construct a row.
          * @param uri Uri to tag for this slice.
+         * @deprecated TO BE REMOVED.
          */
+        @Deprecated
         public RowBuilder(@NonNull ListBuilder parent, @NonNull Uri uri) {
             this(uri);
         }
@@ -1074,7 +1093,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * Builder to construct a normal row.
          * @param uri Uri to tag for this slice.
+         * @deprecated TO BE REMOVED.
          */
+        @Deprecated
         public RowBuilder(@NonNull Context context, @NonNull Uri uri) {
             this(uri);
         }

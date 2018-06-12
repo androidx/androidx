@@ -4,13 +4,13 @@ package androidx.slice.builders {
     ctor public GridRowBuilder();
     ctor public deprecated GridRowBuilder(androidx.slice.builders.ListBuilder);
     method public androidx.slice.builders.GridRowBuilder addCell(androidx.slice.builders.GridRowBuilder.CellBuilder);
-    method public androidx.slice.builders.GridRowBuilder addCell(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
+    method public deprecated androidx.slice.builders.GridRowBuilder addCell(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
     method public androidx.slice.builders.GridRowBuilder setContentDescription(java.lang.CharSequence);
     method public androidx.slice.builders.GridRowBuilder setLayoutDirection(int);
     method public androidx.slice.builders.GridRowBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.GridRowBuilder setSeeMoreAction(android.app.PendingIntent);
     method public androidx.slice.builders.GridRowBuilder setSeeMoreCell(androidx.slice.builders.GridRowBuilder.CellBuilder);
-    method public androidx.slice.builders.GridRowBuilder setSeeMoreCell(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
+    method public deprecated androidx.slice.builders.GridRowBuilder setSeeMoreCell(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
   }
 
   public static class GridRowBuilder.CellBuilder {
@@ -33,24 +33,24 @@ package androidx.slice.builders {
     ctor public ListBuilder(android.content.Context, android.net.Uri, java.time.Duration);
     method public androidx.slice.builders.ListBuilder addAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder addGridRow(androidx.slice.builders.GridRowBuilder);
-    method public androidx.slice.builders.ListBuilder addGridRow(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder>);
+    method public deprecated androidx.slice.builders.ListBuilder addGridRow(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder>);
     method public androidx.slice.builders.ListBuilder addInputRange(androidx.slice.builders.ListBuilder.InputRangeBuilder);
-    method public androidx.slice.builders.ListBuilder addInputRange(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.InputRangeBuilder>);
+    method public deprecated androidx.slice.builders.ListBuilder addInputRange(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.InputRangeBuilder>);
     method public androidx.slice.builders.ListBuilder addRange(androidx.slice.builders.ListBuilder.RangeBuilder);
-    method public androidx.slice.builders.ListBuilder addRange(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.RangeBuilder>);
+    method public deprecated androidx.slice.builders.ListBuilder addRange(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.RangeBuilder>);
     method public androidx.slice.builders.ListBuilder addRow(androidx.slice.builders.ListBuilder.RowBuilder);
-    method public androidx.slice.builders.ListBuilder addRow(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
+    method public deprecated androidx.slice.builders.ListBuilder addRow(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
     method public androidx.slice.builders.ListBuilder setAccentColor(int);
     method public deprecated androidx.slice.builders.ListBuilder setColor(int);
     method public androidx.slice.builders.ListBuilder setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
-    method public androidx.slice.builders.ListBuilder setHeader(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.HeaderBuilder>);
+    method public deprecated androidx.slice.builders.ListBuilder setHeader(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.HeaderBuilder>);
     method public androidx.slice.builders.ListBuilder setIsError(boolean);
     method public deprecated androidx.slice.builders.ListBuilder setKeywords(java.util.List<java.lang.String>);
     method public androidx.slice.builders.ListBuilder setKeywords(java.util.Set<java.lang.String>);
     method public androidx.slice.builders.ListBuilder setLayoutDirection(int);
     method public androidx.slice.builders.ListBuilder setSeeMoreAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder setSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder);
-    method public androidx.slice.builders.ListBuilder setSeeMoreRow(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
+    method public deprecated androidx.slice.builders.ListBuilder setSeeMoreRow(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
     field public static final int ICON_IMAGE = 0; // 0x0
     field public static final long INFINITY = -1L; // 0xffffffffffffffffL
     field public static final int LARGE_IMAGE = 2; // 0x2
@@ -102,9 +102,9 @@ package androidx.slice.builders {
   public static class ListBuilder.RowBuilder {
     ctor public ListBuilder.RowBuilder();
     ctor public ListBuilder.RowBuilder(android.net.Uri);
-    ctor public ListBuilder.RowBuilder(androidx.slice.builders.ListBuilder);
-    ctor public ListBuilder.RowBuilder(androidx.slice.builders.ListBuilder, android.net.Uri);
-    ctor public ListBuilder.RowBuilder(android.content.Context, android.net.Uri);
+    ctor public deprecated ListBuilder.RowBuilder(androidx.slice.builders.ListBuilder);
+    ctor public deprecated ListBuilder.RowBuilder(androidx.slice.builders.ListBuilder, android.net.Uri);
+    ctor public deprecated ListBuilder.RowBuilder(android.content.Context, android.net.Uri);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(long);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat, int);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat, int, boolean);
