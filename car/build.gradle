@@ -13,6 +13,7 @@ dependencies {
     api(project(":legacy-support-v4"))
     api(project(":recyclerview"))
     api(project(":gridlayout"))
+    api(project(":preference"))
     api(SUPPORT_DESIGN, libs.exclude_for_material)
 
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
