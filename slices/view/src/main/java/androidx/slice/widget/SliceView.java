@@ -50,6 +50,9 @@ import androidx.slice.view.R;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -658,17 +661,18 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             mCurrentView.setSliceActions(null);
             return;
         }
-
-        // TODO: take priority attached to actions into account
+        // Sort actions based on priority and set them in action rows.
+        List<SliceAction> sortedActions = new ArrayList<>(mActions);
+        Collections.sort(sortedActions, SLICE_ACTION_PRIORITY_COMPARATOR);
         if (mShowActions && mMode != MODE_SHORTCUT && mActions.size() >= 2) {
             // Show in action row if available
-            mActionRow.setActions(mActions, getTintColor());
+            mActionRow.setActions(sortedActions, getTintColor());
             mActionRow.setVisibility(View.VISIBLE);
             // Hide them on the template
             mCurrentView.setSliceActions(null);
         } else {
             // Otherwise set them on the template
-            mCurrentView.setSliceActions(mActions);
+            mCurrentView.setSliceActions(sortedActions);
             mActionRow.setVisibility(View.GONE);
         }
     }
@@ -785,4 +789,31 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             }
         }
     }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final Comparator<SliceAction> SLICE_ACTION_PRIORITY_COMPARATOR =
+            new Comparator<SliceAction>() {
+                @Override
+                public int compare(SliceAction action1, SliceAction action2) {
+                    // Priority 0 is the highest and -1 meaning no priority.
+                    int priority1 = action1.getPriority();
+                    int priority2 = action2.getPriority();
+                    if (priority1 < 0 && priority2 < 0) {
+                        return 0;
+                    } else if (priority1 < 0) {
+                        return 1;
+                    } else if (priority2 < 0) {
+                        return -1;
+                    } else if (priority2 < priority1) {
+                        return 1;
+                    } else if (priority2 > priority1) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            };
 }
