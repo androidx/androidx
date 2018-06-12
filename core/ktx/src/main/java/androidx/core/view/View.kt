@@ -32,6 +32,8 @@ import androidx.core.graphics.applyCanvas
 /**
  * Performs the given action when this view is next laid out.
  *
+ * The action will only be invoked once on the next layout and then removed.
+ *
  * @see doOnLayout
  */
 inline fun View.doOnNextLayout(crossinline action: (view: View) -> Unit) {
@@ -58,6 +60,8 @@ inline fun View.doOnNextLayout(crossinline action: (view: View) -> Unit) {
  * has not requested a layout, the action will be performed straight away, otherwise the
  * action will be performed after the view is next laid out.
  *
+ * The action will only be invoked once on the next layout and then removed.
+ *
  * @see doOnNextLayout
  */
 inline fun View.doOnLayout(crossinline action: (view: View) -> Unit) {
@@ -72,6 +76,8 @@ inline fun View.doOnLayout(crossinline action: (view: View) -> Unit) {
 
 /**
  * Performs the given action when the view tree is about to be drawn.
+ *
+ * The action will only be invoked once prior to the next draw and then removed.
  */
 inline fun View.doOnPreDraw(crossinline action: (view: View) -> Unit) {
     val vto = viewTreeObserver
