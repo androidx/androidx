@@ -129,6 +129,11 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      */
     public static final int MODE_SHORTCUT    = 3;
 
+    /**
+     * Refresh last updated label every 60 seconds when the slice is visible.
+     */
+    private static final int REFRESH_LAST_UPDATED_IN_MILLIS = 60000;
+
     private int mMode = MODE_LARGE;
     private Slice mCurrentSlice;
     private SliceMetrics mCurrentSliceMetrics;
@@ -433,10 +438,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
         long lastUpdated = sliceMetadata.getLastUpdatedTime();
         long expiry = sliceMetadata.getExpiry();
-        long now = System.currentTimeMillis();
         mCurrentView.setLastUpdated(lastUpdated);
-        boolean expired = expiry != 0 && expiry != SliceHints.INFINITY && now > expiry;
-        mCurrentView.setShowLastUpdated(mShowLastUpdated && expired);
+        mCurrentView.setShowLastUpdated(mShowLastUpdated && isExpired());
 
         // Tint color can come with the slice, so may need to update it
         mCurrentView.setTint(getTintColor());
@@ -452,7 +455,30 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         updateActions();
 
         // Log slice metrics visible.
-        logSliceMetricsVisibilityChange(true);
+        logSliceMetricsVisibilityChange(true /* visible */);
+
+        // Automatically refresh the last updated label when the slice TTL isn't infinity.
+        refreshLastUpdatedLabel(true /* visible */);
+    }
+
+    private boolean isNeverExpired() {
+        SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
+        long expiry = sliceMetadata.getExpiry();
+        return expiry == SliceHints.INFINITY;
+    }
+
+    private boolean isExpired() {
+        SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
+        long expiry = sliceMetadata.getExpiry();
+        long now = System.currentTimeMillis();
+        return expiry != 0 && expiry != SliceHints.INFINITY && now > expiry;
+    }
+
+    private long getTimeToExpiry() {
+        SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
+        long expiry = sliceMetadata.getExpiry();
+        long now = System.currentTimeMillis();
+        return (expiry == 0 || expiry == SliceHints.INFINITY ||  now > expiry) ? 0 : expiry - now;
     }
 
     /**
@@ -732,14 +758,16 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         if (isShown()) {
-            logSliceMetricsVisibilityChange(true);
+            logSliceMetricsVisibilityChange(true /* visible */);
+            refreshLastUpdatedLabel(true /* visible */);
         }
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        logSliceMetricsVisibilityChange(false);
+        logSliceMetricsVisibilityChange(false /* not visible */);
+        refreshLastUpdatedLabel(false /* not visible */);
     }
 
     @Override
@@ -747,6 +775,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         super.onVisibilityChanged(changedView, visibility);
         if (isAttachedToWindow()) {
             logSliceMetricsVisibilityChange(visibility == VISIBLE);
+            refreshLastUpdatedLabel(visibility == VISIBLE);
         }
     }
 
@@ -754,14 +783,15 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
         logSliceMetricsVisibilityChange(visibility == VISIBLE);
+        refreshLastUpdatedLabel(visibility == VISIBLE);
     }
 
     private void initSliceMetrics(@Nullable Slice slice) {
         if (slice == null || slice.getUri() == null) {
-            logSliceMetricsVisibilityChange(false);
+            logSliceMetricsVisibilityChange(false /* not visible */);
             mCurrentSliceMetrics = null;
         } else if (mCurrentSlice == null || !mCurrentSlice.getUri().equals(slice.getUri())) {
-            logSliceMetricsVisibilityChange(false);
+            logSliceMetricsVisibilityChange(false /* not visible */);
             mCurrentSliceMetrics =
                     SliceMetrics.getInstance(getContext(), slice.getUri());
         }
@@ -789,6 +819,29 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             }
         }
     }
+
+    private void refreshLastUpdatedLabel(boolean visibility) {
+        if (mShowLastUpdated && !isNeverExpired()) {
+            if (visibility) {
+                mHandler.postDelayed(mRefreshLastUpdated, isExpired()
+                        ? REFRESH_LAST_UPDATED_IN_MILLIS
+                        : getTimeToExpiry() + REFRESH_LAST_UPDATED_IN_MILLIS);
+            } else {
+                mHandler.removeCallbacks(mRefreshLastUpdated);
+            }
+        }
+    }
+
+    Runnable mRefreshLastUpdated = new Runnable() {
+        @Override
+        public void run() {
+            if (isExpired()) {
+                mCurrentView.setShowLastUpdated(true);
+                mCurrentView.setSliceContent(mListContent);
+            }
+            mHandler.postDelayed(this, REFRESH_LAST_UPDATED_IN_MILLIS);
+        }
+    };
 
     /**
      * @hide
