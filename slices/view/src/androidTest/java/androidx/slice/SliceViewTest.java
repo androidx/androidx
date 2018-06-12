@@ -45,6 +45,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -162,6 +163,39 @@ public class SliceViewTest {
         List<androidx.slice.core.SliceAction> actualActions = mSliceView.getSliceActions();
         for (int i = 0; i < expectedActions.size(); i++) {
             assertEquivalent(expectedActions.get(i), actualActions.get(i));
+        }
+    }
+
+    @Test
+    public void testSortSliceActions() {
+        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
+        new Canvas(b).drawColor(0xffff0000);
+        IconCompat icon = IconCompat.createWithBitmap(b);
+
+        SliceAction a1 = new SliceAction(getIntent(""), icon, "action1").setPriority(0);
+        SliceAction a2 = new SliceAction(getIntent(""), icon, "action2").setPriority(1);
+        SliceAction a3 = new SliceAction(getIntent(""), icon, "action3").setPriority(2);
+        SliceAction a4 = new SliceAction(getIntent(""), icon, "action4").setPriority(10);
+        SliceAction a5 = new SliceAction(getIntent(""), icon, "action5").setPriority(-1);
+
+        ArrayList<SliceAction> actions = new ArrayList<>();
+        actions.add(a2);
+        actions.add(a3);
+        actions.add(a5);
+        actions.add(a1);
+        actions.add(a4);
+
+        ArrayList<SliceAction> expectedActions = new ArrayList<>();
+        expectedActions.add(a1);
+        expectedActions.add(a2);
+        expectedActions.add(a3);
+        expectedActions.add(a4);
+        expectedActions.add(a5);
+
+        Collections.sort(actions, SliceView.SLICE_ACTION_PRIORITY_COMPARATOR);
+
+        for (int i = 0; i < expectedActions.size(); i++) {
+            assertEquivalent(expectedActions.get(i), actions.get(i));
         }
     }
 
