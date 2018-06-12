@@ -19,6 +19,7 @@ package androidx.webkit;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
@@ -55,6 +56,7 @@ public class WebViewClientCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 21) // to instantiate WebResourceRequest
     public void testShouldOverrideUrlLoadingDefault() {
         // This never calls into chromium, so we don't need to do any feature checks.
 
