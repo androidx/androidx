@@ -55,11 +55,11 @@ class SliceBuildersKtxTest {
             }
         }
 
-        val slice = ListBuilder(context, testUri, ListBuilder.INFINITY).setHeader {
-            it.apply {
-                setTitle("Hello World")
-            }
-        }.build()
+        val slice = ListBuilder(context, testUri, ListBuilder.INFINITY).setHeader(
+                ListBuilder.HeaderBuilder().apply {
+                    setTitle("Hello World")
+                }
+        ).build()
 
         // Compare toString()s because Slice.equals is not implemented.
         assertEquals(sliceKtx.toString(), slice.toString())
@@ -68,8 +68,14 @@ class SliceBuildersKtxTest {
     @Test
     fun allBuildersTogether() {
         val pendingIntent = pendingIntentToTestActivity()
+        val tapAction = tapSliceAction(
+                pendingIntentToTestActivity(),
+                createIcon(R.drawable.ic_android_black_24dp),
+                ListBuilder.SMALL_IMAGE,
+                "Title"
+        )
         val sliceKtx = list(context = context, uri = testUri, ttl = ListBuilder.INFINITY) {
-            header { }
+            header { setPrimaryAction(tapAction) }
             row { }
             gridRow { cell { } }
             inputRange { setInputAction(pendingIntent) }
@@ -77,15 +83,11 @@ class SliceBuildersKtxTest {
         }
 
         val slice = ListBuilder(context, testUri, ListBuilder.INFINITY).apply {
-            setHeader { }
-            addRow { }
-            addGridRow {
-                it.addCell { }
-            }
-            addInputRange {
-                it.setInputAction(pendingIntent)
-            }
-            addRange { }
+            setHeader(ListBuilder.HeaderBuilder().setPrimaryAction(tapAction))
+            addRow(ListBuilder.RowBuilder())
+            addGridRow(GridRowBuilder().addCell(GridRowBuilder.CellBuilder()))
+            addInputRange(ListBuilder.InputRangeBuilder().setInputAction(pendingIntent))
+            addRange(ListBuilder.RangeBuilder())
         }.build()
         assertEquals(slice.toString(), sliceKtx.toString())
     }
@@ -126,27 +128,24 @@ class SliceBuildersKtxTest {
             addAction(toggleAction)
         }
 
-        val slice = ListBuilder(context, testUri, ListBuilder.INFINITY).addGridRow {
-            it.apply {
-                setPrimaryAction(tapAction)
-                addCell {
-                    it.apply {
+        val slice = ListBuilder(context, testUri, ListBuilder.INFINITY).addGridRow(
+                GridRowBuilder().apply {
+                    setPrimaryAction(tapAction)
+                    addCell(GridRowBuilder.CellBuilder().apply {
                         addTitleText(titleText1)
                         addImage(createIcon(R.drawable.ic_android_black_24dp),
                                 ListBuilder.SMALL_IMAGE)
                         addText(text1)
                     }
-                }
-                addCell {
-                    it.apply {
+                    )
+                    addCell(GridRowBuilder.CellBuilder().apply {
                         addTitleText(titleText2)
                         addImage(createIcon(R.drawable.ic_android_black_24dp),
                                 ListBuilder.SMALL_IMAGE)
                         addText(text2)
                     }
-                }
-            }
-        }.addAction(toggleAction).build()
+                    )
+                }).addAction(toggleAction).build()
 
         // Compare toString()s because Slice.equals is not implemented.
         assertEquals(sliceKtx.toString(), slice.toString())
@@ -204,26 +203,23 @@ class SliceBuildersKtxTest {
 
         val slice = ListBuilder(context, testUri, ListBuilder.INFINITY).apply {
             setAccentColor(accentColor)
-            addRow {
-                it.apply {
-                    setTitle("Title")
-                    setSubtitle("Subtitle")
-                    setPrimaryAction(rowPrimaryAction)
-                }
-            }
+            addRow(ListBuilder.RowBuilder()
+                    .setTitle("Title")
+                    .setSubtitle("Subtitle")
+                    .setPrimaryAction(rowPrimaryAction)
+            )
             addAction(sliceAction1)
             addAction(sliceAction2)
-            addGridRow {
-                it.apply {
-                    icons.forEach { icon ->
-                        addCell {
-                            it.apply {
-                                addImage(icon, ICON_IMAGE)
-                            }
-                        }
+            addGridRow(GridRowBuilder().apply {
+                icons.forEach { icon ->
+                    GridRowBuilder.CellBuilder().addImage(icon, ICON_IMAGE)
+                    addCell(GridRowBuilder.CellBuilder().apply {
+                        addImage(icon, ICON_IMAGE)
                     }
+                    )
                 }
             }
+            )
         }.build()
 
         // Compare toString()s because Slice.equals is not implemented.
