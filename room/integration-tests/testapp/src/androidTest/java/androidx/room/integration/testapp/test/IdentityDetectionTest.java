@@ -91,8 +91,7 @@ public class IdentityDetectionTest {
             openDb();
             mTestDatabase.getUserDao().loadByIds(3);
             fail("Was expecting an exception.");
-        } catch (Throwable t) {
-            assertThat(t, instanceOf(IllegalStateException.class));
+        } catch (IllegalStateException expected) {
         }
     }
 
