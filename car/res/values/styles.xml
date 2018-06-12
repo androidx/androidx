@@ -516,6 +516,7 @@ limitations under the License.
     </style>
 
     <style name="CarPreferenceFragment">
+        <item name="android:layout">@layout/preference_list_fragment_car</item>
         <item name="android:divider">@drawable/car_list_divider</item>
         <item name="allowDividerAfterLastItem">false</item>
     </style>

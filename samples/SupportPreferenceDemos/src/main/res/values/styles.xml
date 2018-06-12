@@ -29,7 +29,7 @@
         <item name="preferenceTheme">@style/PreferenceThemeOverlayLeanback</item>
     </style>
 
-    <style name="SupportPreferenceCar" parent="Theme.Car.NoActionBar">
+    <style name="SupportPreferenceCar" parent="Theme.Car.Light.NoActionBar">
         <item name="preferenceTheme">@style/PreferenceThemeOverlayCar</item>
         <item name="android:windowBackground">@color/car_card</item>
     </style>
