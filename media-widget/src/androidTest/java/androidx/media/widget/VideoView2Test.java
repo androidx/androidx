@@ -32,6 +32,7 @@ import android.app.Instrumentation;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
@@ -47,6 +48,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.BaseMediaPlayer;
+import androidx.media.DataSourceDesc2;
 import androidx.media.MediaController2;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
@@ -95,7 +97,7 @@ public class VideoView2Test {
     private KeyguardManager mKeyguardManager;
     private VideoView2 mVideoView;
     private MediaController2 mController;
-    private String mVideoPath;
+    private MediaItem2 mMediaItem;
     private Context mContext;
 
     @Rule
@@ -109,8 +111,14 @@ public class VideoView2Test {
         mKeyguardManager = (KeyguardManager)
                 mInstrumentation.getTargetContext().getSystemService(KEYGUARD_SERVICE);
         mActivity = mActivityRule.getActivity();
-        mVideoView = (VideoView2) mActivity.findViewById(R.id.videoview);
-        mVideoPath = prepareSampleVideo();
+        mVideoView = mActivity.findViewById(R.id.videoview);
+
+        Uri videoUri = Uri.parse(prepareSampleVideo());
+        DataSourceDesc2.Builder dsdBuilder = new DataSourceDesc2.Builder();
+        dsdBuilder.setDataSource(mVideoView.getContext(), videoUri, null, null);
+        mMediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
+                .setDataSourceDesc(dsdBuilder.build())
+                .build();
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -155,7 +163,6 @@ public class VideoView2Test {
                 target.write(buffer, 0, len);
             }
         }
-
         return mActivity.getFileStreamPath(VIDEO_NAME).getAbsolutePath();
     }
 
@@ -205,11 +212,11 @@ public class VideoView2Test {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SessionToken2 token = mVideoView.getMediaSessionToken();
+                SessionToken2 token = mVideoView.getMediaSessionToken2();
                 mController = new MediaController2(
                         mContext, token,
                         MainHandlerExecutor.getExecutor(mContext), callbackHelper);
-                mVideoView.setVideoPath(mVideoPath);
+                mVideoView.setMediaItem2(mMediaItem);
             }
         });
 
@@ -239,7 +246,7 @@ public class VideoView2Test {
         }
         final VideoView2.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView2.OnViewTypeChangedListener.class);
-        SessionToken2 token = mVideoView.getMediaSessionToken();
+        SessionToken2 token = mVideoView.getMediaSessionToken2();
 
         final MediaController2.ControllerCallback mockControllerCallback =
                 mock(MediaController2.ControllerCallback.class);
@@ -264,7 +271,7 @@ public class VideoView2Test {
             public void run() {
                 mVideoView.setOnViewTypeChangedListener(mockViewTypeListener);
                 mVideoView.setViewType(mVideoView.VIEW_TYPE_TEXTUREVIEW);
-                mVideoView.setVideoPath(mVideoPath);
+                mVideoView.setMediaItem2(mMediaItem);
             }
         });
         verify(mockViewTypeListener, timeout(TIME_OUT))
