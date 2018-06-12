@@ -36,6 +36,8 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
+import androidx.media.DataSourceDesc2;
+import androidx.media.MediaItem2;
 import androidx.media.widget.MediaControlView2;
 import androidx.media.widget.VideoView2;
 
@@ -75,15 +77,20 @@ public class VideoViewTest extends FragmentActivity {
 
         String errorString = null;
         Intent intent = getIntent();
-        Uri contentUri;
-        if (intent == null || (contentUri = intent.getData()) == null || !contentUri.isAbsolute()) {
+        Uri videoUri;
+        if (intent == null || (videoUri = intent.getData()) == null || !videoUri.isAbsolute()) {
             errorString = "Invalid intent";
         } else {
             mUseTextureView = intent.getBooleanExtra(USE_TEXTURE_VIEW_EXTRA_NAME, false);
             if (mUseTextureView) {
                 mVideoView.setViewType(VideoView2.VIEW_TYPE_TEXTUREVIEW);
             }
-            mVideoView.setVideoUri(contentUri);
+            DataSourceDesc2.Builder dsdBuilder = new DataSourceDesc2.Builder();
+            dsdBuilder.setDataSource(this, videoUri);
+            MediaItem2 mediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
+                    .setDataSourceDesc(dsdBuilder.build())
+                    .build();
+            mVideoView.setMediaItem2(mediaItem);
 
             mMediaControlView = new MediaControlView2(this);
             mVideoView.setMediaControlView2(mMediaControlView, 2000);

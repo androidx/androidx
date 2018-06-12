@@ -18,10 +18,12 @@ package androidx.media.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -66,14 +68,14 @@ import java.util.Map;
  * <p>
  * <em> Differences between {@link VideoView} class : </em>
  * VideoView2 covers and inherits the most of
- * VideoView's functionalities. The main differences are
+ * VideoView's functionality. The main differences are
  * <ul>
  * <li> VideoView2 inherits ViewGroup and renders videos using SurfaceView and TextureView
  * selectively while VideoView inherits SurfaceView class.
  * <li> VideoView2 is integrated with MediaControlView2 and a default MediaControlView2 instance is
  * attached to VideoView2 by default.
- * <li> If a developer wants to attach a customed MediaControlView2,
- * assign the customed media control widget using {@link #setMediaControlView2}.
+ * <li> If a developer wants to attach a custom MediaControlView2,
+ * assign the custom media control widget using {@link #setMediaControlView2}.
  * <li> VideoView2 is integrated with MediaSession and so it responses with media key events.
  * A VideoView2 keeps a MediaSession instance internally and connects it to a corresponding
  * MediaControlView2 instance.
@@ -95,7 +97,8 @@ import java.util.Map;
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
  */
-@RequiresApi(21)  // It can be lowered, using MP1 and MS1, without graurantee subtitle feature.
+@TargetApi(Build.VERSION_CODES.P)
+@RequiresApi(21)  // It can be lowered, using MP1 and MS1, without guarantee subtitle feature.
 public class VideoView2 extends BaseLayout {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
@@ -122,6 +125,8 @@ public class VideoView2 extends BaseLayout {
 
     private static final String TAG = "VideoView2";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+
+    // To use MP1 for debugging purpose, run "adb shell setprop log.tag.VV2MP1 DEBUG"
     private static final boolean USE_MP1 = Log.isLoggable("VV2MP1", Log.DEBUG);
 
     private VideoView2Impl mImpl;
@@ -206,8 +211,9 @@ public class VideoView2 extends BaseLayout {
      * before calling this method.
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.
-     * @hide  TODO: remove
+     * @hide
      */
+    // TODO: Remove with impl_with_mp1 once MP2 compat starts supporting lower devices.
     @RestrictTo(LIBRARY_GROUP)
     public MediaControllerCompat getMediaController() {
         return mImpl.getMediaController();
@@ -219,11 +225,10 @@ public class VideoView2 extends BaseLayout {
      * VideoView2 is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public SessionToken2 getMediaSessionToken() {
-        return mImpl.getMediaSessionToken();
+    public SessionToken2 getMediaSessionToken2() {
+        return mImpl.getMediaSessionToken2();
     }
 
     /**
@@ -310,31 +315,31 @@ public class VideoView2 extends BaseLayout {
      *                changed with key/value pairs through the headers parameter with
      *                "android-allow-cross-domain-redirect" as the key and "0" or "1" as the value
      *                to disallow or allow cross domain redirection.
+     *
+     * @hide
      */
     public void setVideoUri(Uri uri, @Nullable Map<String, String> headers) {
         mImpl.setVideoUri(uri, headers);
     }
 
     /**
-     * Sets {@link MediaItem2} object to render using VideoView2. Alternative way to set media
-     * object to VideoView2 is {@link #setDataSource}.
+     * Sets {@link MediaItem2} object to render using VideoView2.
      * @param mediaItem the MediaItem2 to play
-     * @see #setDataSource
-     *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void setMediaItem(@NonNull MediaItem2 mediaItem) {
+    public void setMediaItem2(@NonNull MediaItem2 mediaItem) {
+        mImpl.setMediaItem2(mediaItem);
     }
 
     /**
      * Sets {@link DataSourceDesc2} object to render using VideoView2.
      * @param dataSource the {@link DataSourceDesc2} object to play.
-     * @see #setMediaItem
+     * @see #setMediaItem2
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setDataSource(@NonNull DataSourceDesc2 dataSource) {
+        mImpl.setDataSource(dataSource);
     }
 
     /**

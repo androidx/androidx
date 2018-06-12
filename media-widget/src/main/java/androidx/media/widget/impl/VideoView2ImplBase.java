@@ -16,8 +16,6 @@
 
 package androidx.media.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
@@ -46,7 +44,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.BaseMediaPlayer;
 import androidx.media.DataSourceDesc2;
@@ -352,9 +349,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * before calling this method.
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.
-     * @hide  TODO: remove
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public MediaControllerCompat getMediaController() {
         return null;
@@ -367,9 +362,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
-    public SessionToken2 getMediaSessionToken() {
+    public SessionToken2 getMediaSessionToken2() {
         checkMediaSession();
         return mMediaSession.getToken();
     }
@@ -446,10 +440,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * Sets video path.
      *
      * @param path the path of the video.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setVideoPath(String path) {
         setVideoUri(Uri.parse(path));
@@ -459,10 +450,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * Sets video URI.
      *
      * @param uri the URI of the video.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setVideoUri(Uri uri) {
         setVideoUri(uri, null);
@@ -490,12 +478,9 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * object to VideoView2 is {@link #setDataSource}.
      * @param mediaItem the MediaItem2 to play
      * @see #setDataSource
-     *
-     * @hide TODO unhide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
-    public void setMediaItem(@NonNull MediaItem2 mediaItem) {
+    public void setMediaItem2(@NonNull MediaItem2 mediaItem) {
         // TODO add an API such as "setPlayList(List<MediaItem2>)"
         if (mPlayList != null) {
             mPlayList.clear();
@@ -511,17 +496,14 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     /**
      * Sets {@link DataSourceDesc2} object to render using VideoView2.
      * @param dataSource the {@link DataSourceDesc2} object to play.
-     * @see #setMediaItem
-     *
-     * @hide TODO unhide
+     * @see #setMediaItem2
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setDataSource(@NonNull DataSourceDesc2 dataSource) {
         MediaItem2 mediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
                 .setDataSourceDesc(dataSource)
                 .build();
-        setMediaItem(mediaItem);
+        setMediaItem2(mediaItem);
     }
 
     /**
@@ -568,9 +550,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * Registers a callback to be invoked when a view type change is done.
      * {@see #setViewType(int)}
      * @param l The callback that will be run
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public void setOnViewTypeChangedListener(VideoView2.OnViewTypeChangedListener l) {
         mViewTypeChangedListener = l;
@@ -679,11 +659,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     // Implements VideoViewInterface.SurfaceListener
     ///////////////////////////////////////////////////
 
-    /**
-     * @hide
-     */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
     public void onSurfaceCreated(View view, int width, int height) {
         if (DEBUG) {
             Log.d(TAG, "onSurfaceCreated(). mCurrentState=" + mCurrentState
@@ -695,11 +671,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         }
     }
 
-    /**
-     * @hide
-     */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
     public void onSurfaceDestroyed(View view) {
         if (DEBUG) {
             Log.d(TAG, "onSurfaceDestroyed(). mCurrentState=" + mCurrentState
@@ -707,11 +679,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         }
     }
 
-    /**
-     * @hide
-     */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
     public void onSurfaceChanged(View view, int width, int height) {
         if (DEBUG) {
             Log.d(TAG, "onSurfaceChanged(). width/height: " + width + "/" + height
@@ -719,11 +687,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         }
     }
 
-    /**
-     * @hide
-     */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
     public void onSurfaceTakeOverDone(VideoViewInterface view) {
         if (DEBUG) {
             Log.d(TAG, "onSurfaceTakeOverDone(). Now current view is: " + view);
@@ -749,7 +713,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     private void attachMediaControlView() {
         // Get MediaController from MediaSession and set it inside MediaControlView
-        mMediaControlView.setMediaSessionToken(mMediaSession.getToken());
+        mMediaControlView.setMediaSessionToken2(mMediaSession.getToken());
 
         LayoutParams params =
                 new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -1068,8 +1032,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     if (DEBUG) {
                         Log.d(TAG, "onVideoSizeChanged(): size: " + width + "/" + height);
                     }
-                    mVideoWidth = mp.getVideoWidth();
-                    mVideoHeight = mp.getVideoHeight();
+                    mVideoWidth = width;
+                    mVideoHeight = height;
                     if (DEBUG) {
                         Log.d(TAG, "onVideoSizeChanged(): mVideoSize:" + mVideoWidth + "/"
                                 + mVideoHeight);
