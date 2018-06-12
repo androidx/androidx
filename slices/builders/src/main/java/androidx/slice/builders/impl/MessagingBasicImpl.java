@@ -16,6 +16,11 @@
 
 package androidx.slice.builders.impl;
 
+import static android.app.slice.Slice.HINT_LIST_ITEM;
+import static android.app.slice.Slice.HINT_NO_TINT;
+import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.SUBTYPE_SOURCE;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.drawable.Icon;
@@ -46,14 +51,16 @@ public class MessagingBasicImpl extends TemplateBuilderImpl implements
     @Override
     public void apply(Slice.Builder builder) {
         if (mLastMessage != null) {
+            Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_LIST_ITEM);
             if (Build.VERSION.SDK_INT >= 23) {
                 if (mLastMessage.mIcon != null) {
-                    builder.addIcon(IconCompat.createFromIcon(mLastMessage.mIcon), null);
+                    sb.addSubSlice(mLastMessage.mIcon);
                 }
             }
             if (mLastMessage.mText != null) {
-                builder.addText(mLastMessage.mText, null);
+                sb.addText(mLastMessage.mText, null);
             }
+            builder.addSubSlice(sb.build());
         }
     }
 
@@ -80,7 +87,7 @@ public class MessagingBasicImpl extends TemplateBuilderImpl implements
             implements MessagingBuilder.MessageBuilder {
 
         @RequiresApi(23)
-        private Icon mIcon;
+        private Slice mIcon;
         private CharSequence mText;
         private long mTimestamp;
 
@@ -101,7 +108,8 @@ public class MessagingBasicImpl extends TemplateBuilderImpl implements
         @Override
         @RequiresApi(23)
         public void addSource(Icon source) {
-            mIcon = source;
+            mIcon = getBuilder().addIcon(IconCompat.createFromIcon(source),
+                    SUBTYPE_SOURCE, HINT_NO_TINT).addHints(HINT_TITLE).build();
         }
 
         /**
