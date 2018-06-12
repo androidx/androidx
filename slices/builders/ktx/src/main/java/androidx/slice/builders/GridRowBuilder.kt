@@ -21,7 +21,7 @@ package androidx.slice.builders
  * ensuring a type-safe DSL.
  */
 @SliceMarker
-class GridRowBuilderDsl(list: ListBuilderDsl) : GridRowBuilder(list)
+class GridRowBuilderDsl : GridRowBuilder()
 
 /**
  * Helper class annotated with @SliceMarker, which is annotated with @DslMarker.
@@ -29,16 +29,16 @@ class GridRowBuilderDsl(list: ListBuilderDsl) : GridRowBuilder(list)
  * ensuring a type-safe DSL.
  */
 @SliceMarker
-class CellBuilderDsl(gridRow: GridRowBuilderDsl) : GridRowBuilder.CellBuilder(gridRow)
+class CellBuilderDsl : GridRowBuilder.CellBuilder()
 
 /**
  * @see GridRowBuilder.addCell
  */
 inline fun GridRowBuilderDsl.cell(buildCell: CellBuilderDsl.() -> Unit) =
-        addCell(CellBuilderDsl(this).apply { buildCell() })
+        addCell(CellBuilderDsl().apply { buildCell() })
 
 /**
  * @see GridRowBuilder.setSeeMoreCell
  */
 inline fun GridRowBuilderDsl.seeMoreCell(buildCell: CellBuilderDsl.() -> Unit) =
-        setSeeMoreCell(CellBuilderDsl(this).apply { buildCell() })
+        setSeeMoreCell(CellBuilderDsl().apply { buildCell() })

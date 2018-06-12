@@ -44,7 +44,7 @@ class ListBuilderDsl(context: Context, uri: Uri, ttl: Long) : ListBuilder(contex
  * ensuring a type-safe DSL.
  */
 @SliceMarker
-class RowBuilderDsl(list: ListBuilderDsl) : ListBuilder.RowBuilder(list)
+class RowBuilderDsl : ListBuilder.RowBuilder()
 
 /**
  * Helper class annotated with @SliceMarker, which is annotated with @DslMarker.
@@ -52,7 +52,7 @@ class RowBuilderDsl(list: ListBuilderDsl) : ListBuilder.RowBuilder(list)
  * ensuring a type-safe DSL.
  */
 @SliceMarker
-class InputRangeBuilderDsl(list: ListBuilderDsl) : ListBuilder.InputRangeBuilder(list)
+class InputRangeBuilderDsl : ListBuilder.InputRangeBuilder()
 
 /**
  * Helper class annotated with @SliceMarker, which is annotated with @DslMarker.
@@ -60,7 +60,7 @@ class InputRangeBuilderDsl(list: ListBuilderDsl) : ListBuilder.InputRangeBuilder
  * ensuring a type-safe DSL.
  */
 @SliceMarker
-class RangeBuilderDsl(list: ListBuilderDsl) : ListBuilder.RangeBuilder(list)
+class RangeBuilderDsl : ListBuilder.RangeBuilder()
 
 /**
  * Helper class annotated with @SliceMarker, which is annotated with @DslMarker.
@@ -68,7 +68,7 @@ class RangeBuilderDsl(list: ListBuilderDsl) : ListBuilder.RangeBuilder(list)
  * ensuring a type-safe DSL.
  */
 @SliceMarker
-class HeaderBuilderDsl(list: ListBuilderDsl) : ListBuilder.HeaderBuilder(list)
+class HeaderBuilderDsl : ListBuilder.HeaderBuilder()
 
 /**
  * Reduces verbosity required to build a Slice in Kotlin.
@@ -108,37 +108,37 @@ inline fun list(
  * @see ListBuilder.setHeader
  */
 inline fun ListBuilderDsl.header(buildHeader: HeaderBuilderDsl.() -> Unit) =
-    setHeader(HeaderBuilderDsl(this).apply { buildHeader() })
+    setHeader(HeaderBuilderDsl().apply { buildHeader() })
 
 /**
  * @see ListBuilder.addGridRow
  */
 inline fun ListBuilderDsl.gridRow(buildGrid: GridRowBuilderDsl.() -> Unit) =
-    addGridRow(GridRowBuilderDsl(this).apply { buildGrid() })
+    addGridRow(GridRowBuilderDsl().apply { buildGrid() })
 
 /**
  * @see ListBuilder.addRow
  */
 inline fun ListBuilderDsl.row(buildRow: RowBuilderDsl.() -> Unit) =
-    addRow(RowBuilderDsl(this).apply { buildRow() })
+    addRow(RowBuilderDsl().apply { buildRow() })
 
 /**
  * @see ListBuilder.setSeeMoreRow
  */
 inline fun ListBuilderDsl.seeMoreRow(buildRow: RowBuilderDsl.() -> Unit) =
-    setSeeMoreRow(RowBuilderDsl(this).apply { buildRow() })
+    setSeeMoreRow(RowBuilderDsl().apply { buildRow() })
 
 /**
  * @see ListBuilder.addInputRange
  */
 inline fun ListBuilderDsl.inputRange(buildInputRange: InputRangeBuilderDsl.() -> Unit) =
-    addInputRange(InputRangeBuilderDsl(this).apply { buildInputRange() })
+    addInputRange(InputRangeBuilderDsl().apply { buildInputRange() })
 
 /**
  * @see ListBuilder.addRange
  */
 inline fun ListBuilderDsl.range(buildRange: RangeBuilderDsl.() -> Unit) =
-    addRange(RangeBuilderDsl(this).apply { buildRange() })
+    addRange(RangeBuilderDsl().apply { buildRange() })
 
 /**
  * Factory method to build a tappable [SliceAction].
