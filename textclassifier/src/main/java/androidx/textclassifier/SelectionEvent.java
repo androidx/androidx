@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
@@ -735,6 +736,7 @@ public final class SelectionEvent {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(28)
     @NonNull
+    @SuppressLint("WrongConstant") // Lint does not know the constants in platform and here are same
     android.view.textclassifier.SelectionEvent toPlatform() {
 
         if (getEventType() == EVENT_SELECTION_STARTED) {
@@ -773,6 +775,7 @@ public final class SelectionEvent {
 
     @NonNull
     @RequiresApi(28)
+    @SuppressLint("WrongConstant") // Lint does not know the constants in platform and here are same
     private android.view.textclassifier.SelectionEvent toPlatformSelectionActionEvent() {
         if (mTextClassification != null) {
             return android.view.textclassifier.SelectionEvent.createSelectionActionEvent(
