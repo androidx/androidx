@@ -2259,17 +2259,17 @@ public class MediaControlView2 extends BaseLayout {
         }
         @Override
         public boolean canPause() {
-            return mAllowedCommands == null || mAllowedCommands.hasCommand(
+            return mAllowedCommands != null && mAllowedCommands.hasCommand(
                     SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
         }
         @Override
         public boolean canSeekBackward() {
-            return mAllowedCommands == null || mAllowedCommands.hasCommand(
+            return mAllowedCommands != null && mAllowedCommands.hasCommand(
                     SessionCommand2.COMMAND_CODE_SESSION_REWIND);
         }
         @Override
         public boolean canSeekForward() {
-            return mAllowedCommands == null || mAllowedCommands.hasCommand(
+            return mAllowedCommands != null && mAllowedCommands.hasCommand(
                     SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD);
         }
         @Override
