@@ -16,10 +16,11 @@
 
 package androidx.media.test.service;
 
-import static androidx.media.test.lib.CommonConstants.ACTION_MOCK_MEDIA_LIBRARY_SESSION;
 import static androidx.media.test.lib.MediaBrowser2Constants.EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.GET_CHILDREN_RESULT;
 import static androidx.media.test.lib.MediaBrowser2Constants.MEDIA_ID_GET_ITEM;
+import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
+import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID;
 import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID_ERROR;
 import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_ID;
@@ -29,16 +30,20 @@ import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY_TAKES_
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_RESULT;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_RESULT_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_TIME_IN_MS;
+import static androidx.media.test.lib.MediaBrowser2Constants
+        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
+import static androidx.media.test.lib.MediaBrowser2Constants
+        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID;
+import static androidx.media.test.lib.MediaBrowser2Constants
+        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
+import static androidx.media.test.lib.MediaBrowser2Constants
+        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
 
 import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.HandlerThread;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.support.mediacompat.testlib.IRemoteMediaLibrarySession;
 import android.util.Log;
 
 import androidx.media.MediaItem2;
@@ -58,14 +63,12 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     private static final String TAG = "MockMediaLibrarySvc2";
 
     MediaLibrarySession mSession;
-    RemoteMediaLibrarySessionStub mLibrarySessionBinder;
     SyncHandler mHandler;
     HandlerThread mHandlerThread;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mLibrarySessionBinder = new RemoteMediaLibrarySessionStub();
         mHandlerThread = new HandlerThread(TAG);
         mHandlerThread.start();
         mHandler = new SyncHandler(mHandlerThread.getLooper());
@@ -80,7 +83,6 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
             mHandler.getLooper().quit();
         }
         mHandler = null;
-        mLibrarySessionBinder = null;
     }
 
     @Override
@@ -96,14 +98,6 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
         mSession = new MediaLibrarySession.Builder(MockMediaLibraryService2.this, executor,
                 new TestLibrarySessionCallback()).setPlayer(player).setId(sessionId).build();
         return mSession;
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        if (ACTION_MOCK_MEDIA_LIBRARY_SESSION.equals(intent.getAction())) {
-            return mLibrarySessionBinder;
-        }
-        return super.onBind(intent);
     }
 
     /**
@@ -176,6 +170,40 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                 return null;
             }
         }
+
+        @Override
+        public void onSubscribe(MediaLibrarySession session,
+                ControllerInfo controller, String parentId, Bundle extras) {
+            final String unsubscribedId = "unsubscribedId";
+            switch (parentId) {
+                case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL:
+                    mSession.notifyChildrenChanged(
+                            parentId,
+                            NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
+                            NOTIFY_CHILDREN_CHANGED_EXTRAS);
+                    break;
+                case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE:
+                    mSession.notifyChildrenChanged(
+                            MediaTestUtils.getTestControllerInfo(mSession),
+                            parentId,
+                            NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
+                            NOTIFY_CHILDREN_CHANGED_EXTRAS);
+                    break;
+                case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID:
+                    mSession.notifyChildrenChanged(
+                            unsubscribedId,
+                            NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
+                            NOTIFY_CHILDREN_CHANGED_EXTRAS);
+                    break;
+                case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID:
+                    mSession.notifyChildrenChanged(
+                            MediaTestUtils.getTestControllerInfo(mSession),
+                            unsubscribedId,
+                            NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
+                            NOTIFY_CHILDREN_CHANGED_EXTRAS);
+                    break;
+            }
+        }
     }
 
     private List<MediaItem2> getPaginatedResult(List<String> items, int page, int pageSize) {
@@ -213,28 +241,5 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                         .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
                         .build())
                 .build();
-    }
-
-    private class RemoteMediaLibrarySessionStub extends IRemoteMediaLibrarySession.Stub {
-        @Override
-        public void notifyChildrenChangedToOne(String parentId, int itemCount, Bundle extras)
-                throws RemoteException {
-            if (mSession == null) {
-                Log.e(TAG, "notifyChildrenChangedToOne() called when mSession is null.");
-                return;
-            }
-            mSession.notifyChildrenChanged(
-                    MediaTestUtils.getTestControllerInfo(mSession), parentId, itemCount, extras);
-        }
-
-        @Override
-        public void notifyChildrenChangedToAll(String parentId, int itemCount, Bundle extras)
-                throws RemoteException {
-            if (mSession == null) {
-                Log.e(TAG, "notifyChildrenChangedToAll() called when mSession is null.");
-                return;
-            }
-            mSession.notifyChildrenChanged(parentId, itemCount, extras);
-        }
     }
 }

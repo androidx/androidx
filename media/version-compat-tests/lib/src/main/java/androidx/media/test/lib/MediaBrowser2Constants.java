@@ -46,6 +46,17 @@ public class MediaBrowser2Constants {
     public static final List<String> SEARCH_RESULT = new ArrayList<>();
     public static final int SEARCH_RESULT_COUNT = 50;
 
+    public static final String SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL =
+            "subscribe_id_notify_children_changed_to_all";
+    public static final String SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE =
+            "subscribe_id_notify_children_changed_to_one";
+    public static final String SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID =
+            "subscribe_id_notify_children_changed_to_all_with_non_subscribed_id";
+    public static final String SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID =
+            "subscribe_id_notify_children_changed_to_one_with_non_subscribed_id";
+    public static final int NOTIFY_CHILDREN_CHANGED_ITEM_COUNT = 101;
+    public static final Bundle NOTIFY_CHILDREN_CHANGED_EXTRAS = TestUtils.createTestBundle();
+
     static {
         EXTRAS.putString(ROOT_ID, ROOT_ID);
 
