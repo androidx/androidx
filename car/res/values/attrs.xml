@@ -58,6 +58,14 @@ limitations under the License.
              within this value. If this value is not explicitly set, the scrollbar centers itself
              within the car_margin value. -->
         <attr name="scrollBarContainerWidth" format="dimension" />
+        <!-- Sets the gravity of the scrollbar, which determines its position within the
+             PagedListView. Only horizontal gravities are supported. -->
+        <attr name="scrollBarGravity">
+            <flag name="left" value="0x3" />
+            <flag name="right" value="0x5" />
+            <flag name="start" value="0x800003" />
+            <flag name="end" value="0x800005" />
+        </attr>
         <!-- Whether or not to show a vertical diving line between each item of the list. Divider
              after the last item (LinearLayoutManager) or row (GridLayoutManager) will not be shown
              but there will be an offset for divider space. -->

@@ -311,6 +311,7 @@ limitations under the License.
     <style name="Widget.Car.List" parent="android:Widget">
         <item name="dayNightStyle">auto</item>
         <item name="listDividerColor">@color/car_list_divider</item>
+        <item name="scrollBarGravity">left</item>
     </style>
 
     <!-- A styling for the PagedListView that has inverted colors for day/night. -->
