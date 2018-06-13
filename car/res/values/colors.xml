@@ -53,62 +53,31 @@
     <color name="car_red_500a">#ffd50000</color>
     <color name="car_red_700">#ffc53929</color>
     <color name="car_teal_200">#ff80cbc4</color>
+    <!-- A tinted teal 200 for disabled state. Semi-transparent color affects widget. -->
+    <color name="car_teal_200_disabled">#ffd5edec</color>
     <color name="car_teal_700">#ff00796b</color>
+    <!-- A tinted teal 700 for disabled state. Semi-transparent color affects widget. -->
+    <color name="car_teal_700_disabled">#ffacd3cf</color>
     <color name="car_indigo_800">#ff283593</color>
 
     <!--  Various colors for text sizes. "Light" and "dark" here refer to the lighter or darker
           shades. -->
-    <color name="car_title_light">@color/car_grey_100</color>
-    <color name="car_title_dark">@color/car_grey_900</color>
     <color name="car_title">@color/car_title_dark</color>
-
-    <color name="car_title2_light">@color/car_grey_100</color>
-    <color name="car_title2_dark">@color/car_grey_900</color>
     <color name="car_title2">@color/car_title2_dark</color>
 
-    <color name="car_headline1_light">@color/car_grey_100</color>
-    <color name="car_headline1_dark">@color/car_grey_800</color>
     <color name="car_headline1">@color/car_headline1_dark</color>
-
-    <color name="car_headline2_light">@color/car_grey_100</color>
-    <color name="car_headline2_dark">@color/car_grey_900</color>
     <color name="car_headline2">@color/car_headline2_dark</color>
-
-    <color name="car_headline3_light">@android:color/white</color>
-    <color name="car_headline3_dark">@color/car_grey_900</color>
     <color name="car_headline3">@color/car_headline3_dark</color>
-
-    <color name="car_headline4_light">@android:color/white</color>
-    <color name="car_headline4_dark">@android:color/black</color>
     <color name="car_headline4">@color/car_headline4_dark</color>
 
-    <color name="car_body1_light">@color/car_grey_100</color>
-    <color name="car_body1_dark">@color/car_grey_900</color>
     <color name="car_body1">@color/car_body1_dark</color>
-
-    <color name="car_body2_light">@color/car_grey_400</color>
-    <color name="car_body2_dark">@color/car_grey_650</color>
     <color name="car_body2">@color/car_body2_dark</color>
-
-    <color name="car_body3_light">@android:color/white</color>
-    <color name="car_body3_dark">@android:color/black</color>
     <color name="car_body3">@color/car_body3_dark</color>
-
-    <color name="car_body4_light">@android:color/white</color>
-    <color name="car_body4_dark">@android:color/black</color>
     <color name="car_body4">@color/car_body4_dark</color>
 
-    <color name="car_label1_light">@color/car_grey_50</color>
-    <color name="car_label1_dark">@color/car_grey_900</color>
     <color name="car_label1">@color/car_label1_dark</color>
 
-    <color name="car_action1_light">@color/car_grey_50</color>
-    <color name="car_action1_dark">@color/car_grey_900</color>
     <color name="car_action1">@color/car_action1_light</color>
-
-    <!-- The tinting colors to create a light- and dark-colored icon respectively. -->
-    <color name="car_tint_light">@color/car_grey_50</color>
-    <color name="car_tint_dark">@color/car_grey_900</color>
 
     <!-- The tinting color for an icon. This icon is assumed to be on a light background. -->
     <color name="car_tint">@color/car_tint_dark</color>
@@ -179,8 +148,6 @@
     <color name="car_seekbar_track_background">@color/car_seekbar_track_background_light</color>
 
     <!-- Misc colors -->
-    <color name="car_accent_dark">@color/car_teal_700</color>
-    <color name="car_accent_light">@color/car_teal_200</color>
     <color name="car_accent">@color/car_accent_dark</color>
 
     <!-- Speed Bump -->

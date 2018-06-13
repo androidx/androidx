@@ -86,6 +86,10 @@ public class TextListItemActivity extends Activity {
         });
         provider.mItems.add(1, update);
 
+        for (ListItem item : provider.mItems) {
+            item.setEnabled(false);
+        }
+
         mPagedListView.setAdapter(adapter);
         mPagedListView.setMaxPages(PagedListView.UNLIMITED_PAGES);
         mPagedListView.setDividerVisibilityManager(adapter);

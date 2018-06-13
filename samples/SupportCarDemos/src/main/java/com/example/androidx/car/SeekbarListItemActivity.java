@@ -46,8 +46,12 @@ public class SeekbarListItemActivity extends Activity {
 
         mPagedListView = findViewById(R.id.paged_list_view);
 
+        ListItemProvider provider = new SampleProvider(this);
+        for (int i = 0; i < provider.size(); i++) {
+            provider.get(i).setEnabled(false);
+        }
         ListItemAdapter adapter = new ListItemAdapter(this,
-                new SampleProvider(this), ListItemAdapter.BackgroundStyle.PANEL);
+                provider, ListItemAdapter.BackgroundStyle.PANEL);
         mPagedListView.setAdapter(adapter);
         mPagedListView.setMaxPages(PagedListView.UNLIMITED_PAGES);
     }
