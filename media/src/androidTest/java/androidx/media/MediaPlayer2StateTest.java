@@ -36,11 +36,11 @@ import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_PLAYER_VOLUME;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SET_SURFACE;
 import static androidx.media.MediaPlayer2.CALL_COMPLETED_SKIP_TO_NEXT;
 import static androidx.media.MediaPlayer2.CALL_STATUS_NO_ERROR;
-import static androidx.media.MediaPlayer2.MEDIAPLAYER2_STATE_ERROR;
-import static androidx.media.MediaPlayer2.MEDIAPLAYER2_STATE_IDLE;
-import static androidx.media.MediaPlayer2.MEDIAPLAYER2_STATE_PAUSED;
-import static androidx.media.MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING;
-import static androidx.media.MediaPlayer2.MEDIAPLAYER2_STATE_PREPARED;
+import static androidx.media.MediaPlayer2.PLAYER_STATE_ERROR;
+import static androidx.media.MediaPlayer2.PLAYER_STATE_IDLE;
+import static androidx.media.MediaPlayer2.PLAYER_STATE_PAUSED;
+import static androidx.media.MediaPlayer2.PLAYER_STATE_PLAYING;
+import static androidx.media.MediaPlayer2.PLAYER_STATE_PREPARED;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -736,271 +736,271 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 { sCloseOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sCloseOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sCloseOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sCloseOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sCloseOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sCloseOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sCloseOperation, PLAYER_STATE_IDLE, true },
+                { sCloseOperation, PLAYER_STATE_PREPARED, true },
+                { sCloseOperation, PLAYER_STATE_PAUSED, true },
+                { sCloseOperation, PLAYER_STATE_PLAYING, true },
+                { sCloseOperation, PLAYER_STATE_ERROR, true },
 
                 { sPlayOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sPlayOperation, MEDIAPLAYER2_STATE_IDLE, false },
-                { sPlayOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sPlayOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sPlayOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sPlayOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sPlayOperation, PLAYER_STATE_IDLE, false },
+                { sPlayOperation, PLAYER_STATE_PREPARED, true },
+                { sPlayOperation, PLAYER_STATE_PAUSED, true },
+                { sPlayOperation, PLAYER_STATE_PLAYING, true },
+                { sPlayOperation, PLAYER_STATE_ERROR, false },
 
                 { sPrepareOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sPrepareOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sPrepareOperation, MEDIAPLAYER2_STATE_PREPARED, false },
-                { sPrepareOperation, MEDIAPLAYER2_STATE_PAUSED, false },
-                { sPrepareOperation, MEDIAPLAYER2_STATE_PLAYING, false },
-                { sPrepareOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sPrepareOperation, PLAYER_STATE_IDLE, true },
+                { sPrepareOperation, PLAYER_STATE_PREPARED, false },
+                { sPrepareOperation, PLAYER_STATE_PAUSED, false },
+                { sPrepareOperation, PLAYER_STATE_PLAYING, false },
+                { sPrepareOperation, PLAYER_STATE_ERROR, false },
 
                 { sPauseOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sPauseOperation, MEDIAPLAYER2_STATE_IDLE, false },
-                { sPauseOperation, MEDIAPLAYER2_STATE_PREPARED, false },
-                { sPauseOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sPauseOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sPauseOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sPauseOperation, PLAYER_STATE_IDLE, false },
+                { sPauseOperation, PLAYER_STATE_PREPARED, false },
+                { sPauseOperation, PLAYER_STATE_PAUSED, true },
+                { sPauseOperation, PLAYER_STATE_PLAYING, true },
+                { sPauseOperation, PLAYER_STATE_ERROR, false },
 
                 { sSkipToNextOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sSkipToNextOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSkipToNextOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSkipToNextOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSkipToNextOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSkipToNextOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sSkipToNextOperation, PLAYER_STATE_IDLE, true },
+                { sSkipToNextOperation, PLAYER_STATE_PREPARED, true },
+                { sSkipToNextOperation, PLAYER_STATE_PAUSED, true },
+                { sSkipToNextOperation, PLAYER_STATE_PLAYING, true },
+                { sSkipToNextOperation, PLAYER_STATE_ERROR, false },
 
                 { sSeekToOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sSeekToOperation, MEDIAPLAYER2_STATE_IDLE, false },
-                { sSeekToOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSeekToOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSeekToOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSeekToOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sSeekToOperation, PLAYER_STATE_IDLE, false },
+                { sSeekToOperation, PLAYER_STATE_PREPARED, true },
+                { sSeekToOperation, PLAYER_STATE_PAUSED, true },
+                { sSeekToOperation, PLAYER_STATE_PLAYING, true },
+                { sSeekToOperation, PLAYER_STATE_ERROR, false },
 
                 { sGetCurrentPositionOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sGetCurrentPositionOperation, MEDIAPLAYER2_STATE_IDLE, false },
-                { sGetCurrentPositionOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetCurrentPositionOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetCurrentPositionOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetCurrentPositionOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sGetCurrentPositionOperation, PLAYER_STATE_IDLE, false },
+                { sGetCurrentPositionOperation, PLAYER_STATE_PREPARED, true },
+                { sGetCurrentPositionOperation, PLAYER_STATE_PAUSED, true },
+                { sGetCurrentPositionOperation, PLAYER_STATE_PLAYING, true },
+                { sGetCurrentPositionOperation, PLAYER_STATE_ERROR, false },
 
                 { sGetDurationOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sGetDurationOperation, MEDIAPLAYER2_STATE_IDLE, false },
-                { sGetDurationOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetDurationOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetDurationOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetDurationOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sGetDurationOperation, PLAYER_STATE_IDLE, false },
+                { sGetDurationOperation, PLAYER_STATE_PREPARED, true },
+                { sGetDurationOperation, PLAYER_STATE_PAUSED, true },
+                { sGetDurationOperation, PLAYER_STATE_PLAYING, true },
+                { sGetDurationOperation, PLAYER_STATE_ERROR, false },
 
                 { sGetBufferedPositionOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sGetBufferedPositionOperation, MEDIAPLAYER2_STATE_IDLE, false },
-                { sGetBufferedPositionOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetBufferedPositionOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetBufferedPositionOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetBufferedPositionOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sGetBufferedPositionOperation, PLAYER_STATE_IDLE, false },
+                { sGetBufferedPositionOperation, PLAYER_STATE_PREPARED, true },
+                { sGetBufferedPositionOperation, PLAYER_STATE_PAUSED, true },
+                { sGetBufferedPositionOperation, PLAYER_STATE_PLAYING, true },
+                { sGetBufferedPositionOperation, PLAYER_STATE_ERROR, false },
 
                 { sGetStateOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sGetStateOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetStateOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetStateOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetStateOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetStateOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sGetStateOperation, PLAYER_STATE_IDLE, true },
+                { sGetStateOperation, PLAYER_STATE_PREPARED, true },
+                { sGetStateOperation, PLAYER_STATE_PAUSED, true },
+                { sGetStateOperation, PLAYER_STATE_PLAYING, true },
+                { sGetStateOperation, PLAYER_STATE_ERROR, true },
 
                 { sSetAudioAttributesOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sSetAudioAttributesOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetAudioAttributesOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetAudioAttributesOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetAudioAttributesOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetAudioAttributesOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sSetAudioAttributesOperation, PLAYER_STATE_IDLE, true },
+                { sSetAudioAttributesOperation, PLAYER_STATE_PREPARED, true },
+                { sSetAudioAttributesOperation, PLAYER_STATE_PAUSED, true },
+                { sSetAudioAttributesOperation, PLAYER_STATE_PLAYING, true },
+                { sSetAudioAttributesOperation, PLAYER_STATE_ERROR, true },
 
                 { sSetDataSourceOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sSetDataSourceOperation, MEDIAPLAYER2_STATE_IDLE, false },
-                { sSetDataSourceOperation, MEDIAPLAYER2_STATE_PREPARED, false },
-                { sSetDataSourceOperation, MEDIAPLAYER2_STATE_PAUSED, false },
-                { sSetDataSourceOperation, MEDIAPLAYER2_STATE_PLAYING, false },
-                { sSetDataSourceOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sSetDataSourceOperation, PLAYER_STATE_IDLE, false },
+                { sSetDataSourceOperation, PLAYER_STATE_PREPARED, false },
+                { sSetDataSourceOperation, PLAYER_STATE_PAUSED, false },
+                { sSetDataSourceOperation, PLAYER_STATE_PLAYING, false },
+                { sSetDataSourceOperation, PLAYER_STATE_ERROR, false },
 
                 { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetNextDataSourceOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sSetNextDataSourceOperation, PLAYER_STATE_IDLE, true },
+                { sSetNextDataSourceOperation, PLAYER_STATE_PREPARED, true },
+                { sSetNextDataSourceOperation, PLAYER_STATE_PAUSED, true },
+                { sSetNextDataSourceOperation, PLAYER_STATE_PLAYING, true },
+                { sSetNextDataSourceOperation, PLAYER_STATE_ERROR, false },
 
                 { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetNextDataSourcesOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sSetNextDataSourcesOperation, PLAYER_STATE_IDLE, true },
+                { sSetNextDataSourcesOperation, PLAYER_STATE_PREPARED, true },
+                { sSetNextDataSourcesOperation, PLAYER_STATE_PAUSED, true },
+                { sSetNextDataSourcesOperation, PLAYER_STATE_PLAYING, true },
+                { sSetNextDataSourcesOperation, PLAYER_STATE_ERROR, false },
 
                 { sLoopCurrentOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sLoopCurrentOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sLoopCurrentOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sLoopCurrentOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sLoopCurrentOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sLoopCurrentOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sLoopCurrentOperation, PLAYER_STATE_IDLE, true },
+                { sLoopCurrentOperation, PLAYER_STATE_PREPARED, true },
+                { sLoopCurrentOperation, PLAYER_STATE_PAUSED, true },
+                { sLoopCurrentOperation, PLAYER_STATE_PLAYING, true },
+                { sLoopCurrentOperation, PLAYER_STATE_ERROR, true },
 
                 { sSetPlayerVolumeOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sSetPlayerVolumeOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetPlayerVolumeOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetPlayerVolumeOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetPlayerVolumeOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetPlayerVolumeOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sSetPlayerVolumeOperation, PLAYER_STATE_IDLE, true },
+                { sSetPlayerVolumeOperation, PLAYER_STATE_PREPARED, true },
+                { sSetPlayerVolumeOperation, PLAYER_STATE_PAUSED, true },
+                { sSetPlayerVolumeOperation, PLAYER_STATE_PLAYING, true },
+                { sSetPlayerVolumeOperation, PLAYER_STATE_ERROR, true },
 
                 { sGetPlayerVolumeOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sGetPlayerVolumeOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetPlayerVolumeOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetPlayerVolumeOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetPlayerVolumeOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetPlayerVolumeOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sGetPlayerVolumeOperation, PLAYER_STATE_IDLE, true },
+                { sGetPlayerVolumeOperation, PLAYER_STATE_PREPARED, true },
+                { sGetPlayerVolumeOperation, PLAYER_STATE_PAUSED, true },
+                { sGetPlayerVolumeOperation, PLAYER_STATE_PLAYING, true },
+                { sGetPlayerVolumeOperation, PLAYER_STATE_ERROR, true },
 
                 { sGetMaxPlayerVolumeOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sGetMaxPlayerVolumeOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetMaxPlayerVolumeOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetMaxPlayerVolumeOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetMaxPlayerVolumeOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetMaxPlayerVolumeOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sGetMaxPlayerVolumeOperation, PLAYER_STATE_IDLE, true },
+                { sGetMaxPlayerVolumeOperation, PLAYER_STATE_PREPARED, true },
+                { sGetMaxPlayerVolumeOperation, PLAYER_STATE_PAUSED, true },
+                { sGetMaxPlayerVolumeOperation, PLAYER_STATE_PLAYING, true },
+                { sGetMaxPlayerVolumeOperation, PLAYER_STATE_ERROR, true },
 
                 { sNotifyWhenCommandLabelReachedOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE,
                         true },
-                { sNotifyWhenCommandLabelReachedOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sNotifyWhenCommandLabelReachedOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sNotifyWhenCommandLabelReachedOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sNotifyWhenCommandLabelReachedOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sNotifyWhenCommandLabelReachedOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sNotifyWhenCommandLabelReachedOperation, PLAYER_STATE_IDLE, true },
+                { sNotifyWhenCommandLabelReachedOperation, PLAYER_STATE_PREPARED, true },
+                { sNotifyWhenCommandLabelReachedOperation, PLAYER_STATE_PAUSED, true },
+                { sNotifyWhenCommandLabelReachedOperation, PLAYER_STATE_PLAYING, true },
+                { sNotifyWhenCommandLabelReachedOperation, PLAYER_STATE_ERROR, true },
 
                 { sSetSurfaceOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sSetSurfaceOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetSurfaceOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetSurfaceOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetSurfaceOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetSurfaceOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sSetSurfaceOperation, PLAYER_STATE_IDLE, true },
+                { sSetSurfaceOperation, PLAYER_STATE_PREPARED, true },
+                { sSetSurfaceOperation, PLAYER_STATE_PAUSED, true },
+                { sSetSurfaceOperation, PLAYER_STATE_PLAYING, true },
+                { sSetSurfaceOperation, PLAYER_STATE_ERROR, true },
 
                 { sClearPendingCommandsOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sClearPendingCommandsOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sClearPendingCommandsOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sClearPendingCommandsOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sClearPendingCommandsOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sClearPendingCommandsOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sClearPendingCommandsOperation, PLAYER_STATE_IDLE, true },
+                { sClearPendingCommandsOperation, PLAYER_STATE_PREPARED, true },
+                { sClearPendingCommandsOperation, PLAYER_STATE_PAUSED, true },
+                { sClearPendingCommandsOperation, PLAYER_STATE_PLAYING, true },
+                { sClearPendingCommandsOperation, PLAYER_STATE_ERROR, true },
 
                 { sGetVideoWidthOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sGetVideoWidthOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetVideoWidthOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetVideoWidthOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetVideoWidthOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetVideoWidthOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sGetVideoWidthOperation, PLAYER_STATE_IDLE, true },
+                { sGetVideoWidthOperation, PLAYER_STATE_PREPARED, true },
+                { sGetVideoWidthOperation, PLAYER_STATE_PAUSED, true },
+                { sGetVideoWidthOperation, PLAYER_STATE_PLAYING, true },
+                { sGetVideoWidthOperation, PLAYER_STATE_ERROR, true },
 
                 { sGetVideoHeightOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sGetVideoHeightOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetVideoHeightOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetVideoHeightOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetVideoHeightOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetVideoHeightOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sGetVideoHeightOperation, PLAYER_STATE_IDLE, true },
+                { sGetVideoHeightOperation, PLAYER_STATE_PREPARED, true },
+                { sGetVideoHeightOperation, PLAYER_STATE_PAUSED, true },
+                { sGetVideoHeightOperation, PLAYER_STATE_PLAYING, true },
+                { sGetVideoHeightOperation, PLAYER_STATE_ERROR, true },
 
                 { sGetMetricsOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sGetMetricsOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetMetricsOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetMetricsOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetMetricsOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetMetricsOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sGetMetricsOperation, PLAYER_STATE_IDLE, true },
+                { sGetMetricsOperation, PLAYER_STATE_PREPARED, true },
+                { sGetMetricsOperation, PLAYER_STATE_PAUSED, true },
+                { sGetMetricsOperation, PLAYER_STATE_PLAYING, true },
+                { sGetMetricsOperation, PLAYER_STATE_ERROR, true },
 
                 { sSetPlaybackParamsOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sSetPlaybackParamsOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetPlaybackParamsOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetPlaybackParamsOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetPlaybackParamsOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetPlaybackParamsOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sSetPlaybackParamsOperation, PLAYER_STATE_IDLE, true },
+                { sSetPlaybackParamsOperation, PLAYER_STATE_PREPARED, true },
+                { sSetPlaybackParamsOperation, PLAYER_STATE_PAUSED, true },
+                { sSetPlaybackParamsOperation, PLAYER_STATE_PLAYING, true },
+                { sSetPlaybackParamsOperation, PLAYER_STATE_ERROR, true },
 
                 { sGetPlaybackParamsOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sGetPlaybackParamsOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetPlaybackParamsOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetPlaybackParamsOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetPlaybackParamsOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetPlaybackParamsOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sGetPlaybackParamsOperation, PLAYER_STATE_IDLE, true },
+                { sGetPlaybackParamsOperation, PLAYER_STATE_PREPARED, true },
+                { sGetPlaybackParamsOperation, PLAYER_STATE_PAUSED, true },
+                { sGetPlaybackParamsOperation, PLAYER_STATE_PLAYING, true },
+                { sGetPlaybackParamsOperation, PLAYER_STATE_ERROR, true },
 
                 { sGetTimestampOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sGetTimestampOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetTimestampOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetTimestampOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetTimestampOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetTimestampOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sGetTimestampOperation, PLAYER_STATE_IDLE, true },
+                { sGetTimestampOperation, PLAYER_STATE_PREPARED, true },
+                { sGetTimestampOperation, PLAYER_STATE_PAUSED, true },
+                { sGetTimestampOperation, PLAYER_STATE_PLAYING, true },
+                { sGetTimestampOperation, PLAYER_STATE_ERROR, true },
 
                 { sResetOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sResetOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sResetOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sResetOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sResetOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sResetOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sResetOperation, PLAYER_STATE_IDLE, true },
+                { sResetOperation, PLAYER_STATE_PREPARED, true },
+                { sResetOperation, PLAYER_STATE_PAUSED, true },
+                { sResetOperation, PLAYER_STATE_PLAYING, true },
+                { sResetOperation, PLAYER_STATE_ERROR, true },
 
                 { sSetAudioSessionIdOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sSetAudioSessionIdOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetAudioSessionIdOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetAudioSessionIdOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetAudioSessionIdOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetAudioSessionIdOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sSetAudioSessionIdOperation, PLAYER_STATE_IDLE, true },
+                { sSetAudioSessionIdOperation, PLAYER_STATE_PREPARED, true },
+                { sSetAudioSessionIdOperation, PLAYER_STATE_PAUSED, true },
+                { sSetAudioSessionIdOperation, PLAYER_STATE_PLAYING, true },
+                { sSetAudioSessionIdOperation, PLAYER_STATE_ERROR, true },
 
                 { sGetAudioSessionIdOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sGetAudioSessionIdOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetAudioSessionIdOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetAudioSessionIdOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetAudioSessionIdOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetAudioSessionIdOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sGetAudioSessionIdOperation, PLAYER_STATE_IDLE, true },
+                { sGetAudioSessionIdOperation, PLAYER_STATE_PREPARED, true },
+                { sGetAudioSessionIdOperation, PLAYER_STATE_PAUSED, true },
+                { sGetAudioSessionIdOperation, PLAYER_STATE_PLAYING, true },
+                { sGetAudioSessionIdOperation, PLAYER_STATE_ERROR, true },
 
                 { sAttachAuxEffectOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sAttachAuxEffectOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sAttachAuxEffectOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sAttachAuxEffectOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sAttachAuxEffectOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sAttachAuxEffectOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sAttachAuxEffectOperation, PLAYER_STATE_IDLE, true },
+                { sAttachAuxEffectOperation, PLAYER_STATE_PREPARED, true },
+                { sAttachAuxEffectOperation, PLAYER_STATE_PAUSED, true },
+                { sAttachAuxEffectOperation, PLAYER_STATE_PLAYING, true },
+                { sAttachAuxEffectOperation, PLAYER_STATE_ERROR, true },
 
                 { sSetAuxEffectSendLevelOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sSetAuxEffectSendLevelOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetAuxEffectSendLevelOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetAuxEffectSendLevelOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetAuxEffectSendLevelOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetAuxEffectSendLevelOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sSetAuxEffectSendLevelOperation, PLAYER_STATE_IDLE, true },
+                { sSetAuxEffectSendLevelOperation, PLAYER_STATE_PREPARED, true },
+                { sSetAuxEffectSendLevelOperation, PLAYER_STATE_PAUSED, true },
+                { sSetAuxEffectSendLevelOperation, PLAYER_STATE_PLAYING, true },
+                { sSetAuxEffectSendLevelOperation, PLAYER_STATE_ERROR, true },
 
                 { sGetTrackInfoOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sGetTrackInfoOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetTrackInfoOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetTrackInfoOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetTrackInfoOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetTrackInfoOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sGetTrackInfoOperation, PLAYER_STATE_IDLE, true },
+                { sGetTrackInfoOperation, PLAYER_STATE_PREPARED, true },
+                { sGetTrackInfoOperation, PLAYER_STATE_PAUSED, true },
+                { sGetTrackInfoOperation, PLAYER_STATE_PLAYING, true },
+                { sGetTrackInfoOperation, PLAYER_STATE_ERROR, false },
 
-                { sGetSelectedTrackOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetSelectedTrackOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sGetSelectedTrackOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sGetSelectedTrackOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sGetSelectedTrackOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sGetSelectedTrackOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sGetSelectedTrackOperation, PLAYER_STATE_IDLE, true },
+                { sGetSelectedTrackOperation, PLAYER_STATE_IDLE, true },
+                { sGetSelectedTrackOperation, PLAYER_STATE_PREPARED, true },
+                { sGetSelectedTrackOperation, PLAYER_STATE_PAUSED, true },
+                { sGetSelectedTrackOperation, PLAYER_STATE_PLAYING, true },
+                { sGetSelectedTrackOperation, PLAYER_STATE_ERROR, false },
 
                 { sSelectTrackOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sSelectTrackOperation, MEDIAPLAYER2_STATE_IDLE, false },
-                { sSelectTrackOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSelectTrackOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSelectTrackOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSelectTrackOperation, MEDIAPLAYER2_STATE_ERROR, false },
+                { sSelectTrackOperation, PLAYER_STATE_IDLE, false },
+                { sSelectTrackOperation, PLAYER_STATE_PREPARED, true },
+                { sSelectTrackOperation, PLAYER_STATE_PAUSED, true },
+                { sSelectTrackOperation, PLAYER_STATE_PLAYING, true },
+                { sSelectTrackOperation, PLAYER_STATE_ERROR, false },
 
                 { sDeselectTrackOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
-                { sDeselectTrackOperation, MEDIAPLAYER2_STATE_IDLE, false },
-                { sDeselectTrackOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sDeselectTrackOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sDeselectTrackOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sDeselectTrackOperation, MEDIAPLAYER2_STATE_ERROR, false},
+                { sDeselectTrackOperation, PLAYER_STATE_IDLE, false },
+                { sDeselectTrackOperation, PLAYER_STATE_PREPARED, true },
+                { sDeselectTrackOperation, PLAYER_STATE_PAUSED, true },
+                { sDeselectTrackOperation, PLAYER_STATE_PLAYING, true },
+                { sDeselectTrackOperation, PLAYER_STATE_ERROR, false},
 
                 { sSetEventCallbackOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sSetEventCallbackOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sSetEventCallbackOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sSetEventCallbackOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sSetEventCallbackOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sSetEventCallbackOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sSetEventCallbackOperation, PLAYER_STATE_IDLE, true },
+                { sSetEventCallbackOperation, PLAYER_STATE_PREPARED, true },
+                { sSetEventCallbackOperation, PLAYER_STATE_PAUSED, true },
+                { sSetEventCallbackOperation, PLAYER_STATE_PLAYING, true },
+                { sSetEventCallbackOperation, PLAYER_STATE_ERROR, true },
 
                 { sClearEventCallbackOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sClearEventCallbackOperation, MEDIAPLAYER2_STATE_IDLE, true },
-                { sClearEventCallbackOperation, MEDIAPLAYER2_STATE_PREPARED, true },
-                { sClearEventCallbackOperation, MEDIAPLAYER2_STATE_PAUSED, true },
-                { sClearEventCallbackOperation, MEDIAPLAYER2_STATE_PLAYING, true },
-                { sClearEventCallbackOperation, MEDIAPLAYER2_STATE_ERROR, true },
+                { sClearEventCallbackOperation, PLAYER_STATE_IDLE, true },
+                { sClearEventCallbackOperation, PLAYER_STATE_PREPARED, true },
+                { sClearEventCallbackOperation, PLAYER_STATE_PAUSED, true },
+                { sClearEventCallbackOperation, PLAYER_STATE_PLAYING, true },
+                { sClearEventCallbackOperation, PLAYER_STATE_ERROR, true },
         });
     }
 
@@ -1035,7 +1035,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
             mEventCallbacks.add(ecb);
         }
 
-        if (mTestState == MEDIAPLAYER2_STATE_ERROR) {
+        if (mTestState == PLAYER_STATE_ERROR) {
             MediaDataSource2 invalidDataSource = new MediaDataSource2() {
                 @Override
                 public int readAt(long position, byte[] buffer, int offset, int size)
@@ -1057,12 +1057,12 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
                     .build());
             mPlayer.prepare();
             mOnErrorCalled.waitForSignal(1000);
-            assertEquals(MEDIAPLAYER2_STATE_ERROR, mPlayer.getState());
+            assertEquals(PLAYER_STATE_ERROR, mPlayer.getState());
             return;
         }
 
         if (mTestState == MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE) {
-            mTestState = MEDIAPLAYER2_STATE_IDLE;
+            mTestState = PLAYER_STATE_IDLE;
             return;
         }
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
@@ -1072,32 +1072,32 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
             DataSourceDesc2 dsd = createDataSourceDesc(R.raw.testvideo);
             mPlayer.setNextDataSource(dsd);
         }
-        assertEquals(MEDIAPLAYER2_STATE_IDLE, mPlayer.getState());
-        if (mTestState == MEDIAPLAYER2_STATE_IDLE) {
+        assertEquals(PLAYER_STATE_IDLE, mPlayer.getState());
+        if (mTestState == PLAYER_STATE_IDLE) {
             return;
         }
 
         mPlayer.prepare();
         mOnPrepareCalled.waitForSignal(1000);
-        assertEquals(MEDIAPLAYER2_STATE_PREPARED, mPlayer.getState());
+        assertEquals(PLAYER_STATE_PREPARED, mPlayer.getState());
         if (mTestOpertation == sDeselectTrackOperation) {
             mPlayer.selectTrack(1);
         }
-        if (mTestState == MEDIAPLAYER2_STATE_PREPARED) {
+        if (mTestState == PLAYER_STATE_PREPARED) {
             return;
         }
 
         mPlayer.play();
         mOnPlayCalled.waitForSignal(1000);
-        assertEquals(MEDIAPLAYER2_STATE_PLAYING, mPlayer.getState());
-        if (mTestState == MEDIAPLAYER2_STATE_PLAYING) {
+        assertEquals(PLAYER_STATE_PLAYING, mPlayer.getState());
+        if (mTestState == PLAYER_STATE_PLAYING) {
             return;
         }
 
         mPlayer.pause();
         onPauseCalled.waitForSignal(1000);
-        assertEquals(MEDIAPLAYER2_STATE_PAUSED, mPlayer.getState());
-        if (mTestState == MEDIAPLAYER2_STATE_PAUSED) {
+        assertEquals(PLAYER_STATE_PAUSED, mPlayer.getState());
+        if (mTestState == PLAYER_STATE_PAUSED) {
             return;
         }
         fail();

@@ -558,7 +558,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         if (playTime == -1) {
             return;
         } else if (playTime == 0) {
-            while (mPlayer.getState() == MediaPlayer2.MEDIAPLAYER2_STATE_PLAYING) {
+            while (mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING) {
                 Thread.sleep(SLEEP_TIME);
             }
         } else {

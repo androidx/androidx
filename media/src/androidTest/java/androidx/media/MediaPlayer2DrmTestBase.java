@@ -286,7 +286,7 @@ public class MediaPlayer2DrmTestBase {
                 public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                     if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                         mOnPreparedCalled.signal();
-                    } else if (what == MediaPlayer2.MEDIA_INFO_PLAYBACK_COMPLETE) {
+                    } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
                         Log.v(TAG, "playLoadedVideo: onInfo_PlaybackComplete");
                         mOnPlaybackCompleted.signal();
                     }
