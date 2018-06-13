@@ -25,6 +25,7 @@ import android.media.MediaDataSource;
 import android.media.MediaDrm;
 import android.media.MediaFormat;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.TrackInfo;
 import android.media.MediaTimestamp;
 import android.media.PlaybackParams;
 import android.media.ResourceBusyException;
@@ -86,8 +87,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     static {
         sInfoEventMap = new ArrayMap<>();
         sInfoEventMap.put(MediaPlayer.MEDIA_INFO_UNKNOWN, MEDIA_INFO_UNKNOWN);
-        // TODO: Use setNextMediaPlayer for gapless playback and remove MEDIA_INFO_STARTED_AS_NEXT
-        //       from this map.
         sInfoEventMap.put(MediaPlayer.MEDIA_INFO_STARTED_AS_NEXT, MEDIA_INFO_UNKNOWN);
         sInfoEventMap.put(
                 MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START, MEDIA_INFO_VIDEO_RENDERING_START);
@@ -1642,10 +1641,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 });
         p.setOnInfoListener(new MediaPlayer.OnInfoListener() {
             @Override
-            public boolean onInfo(MediaPlayer mp, final int what, final int extra) {
+            public boolean onInfo(final MediaPlayer mp, final int what, final int extra) {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(EventCallback cb) {
+                        if (what == MediaPlayer.MEDIA_INFO_STARTED_AS_NEXT) {
+                            mPlayer.onStartedAsNext(mp);
+                            return;
+                        }
                         int w = sInfoEventMap.getOrDefault(what, MEDIA_INFO_UNKNOWN);
                         cb.onInfo(MediaPlayer2Impl.this, src.getDSD(), w, extra);
                     }
@@ -1990,6 +1993,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         @BuffState int mBufferingState = BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
         @PlayerState int mPlayerState = BaseMediaPlayer.PLAYER_STATE_IDLE;
         boolean mPlayPending;
+        boolean mSetAsNextPlayer;
 
         MediaPlayerSource(final DataSourceDesc2 dsd) {
             mDSD = dsd;
@@ -2172,6 +2176,22 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     src.mSourceState = SOURCE_STATE_PREPARED;
                     setBufferingState(src.getPlayer(),
                             BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
+                    if (i == 1) {
+                        boolean hasVideo = false;
+                        for (MediaPlayer.TrackInfo info : mp.getTrackInfo()) {
+                            if (info.getTrackType()
+                                    == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
+                                hasVideo = true;
+                                break;
+                            }
+                        }
+                        // setNextMediaPlayer() does not pass surface to next player. Use it only
+                        // for the audio-only data source.
+                        if (!hasVideo) {
+                            getCurrentPlayer().setNextMediaPlayer(src.mPlayer);
+                            src.mSetAsNextPlayer = true;
+                        }
+                    }
                     return prepareAt(i + 1);
                 }
             }
@@ -2225,10 +2245,36 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         }
                     });
                     return null;
+                } else {
+                    if (mQueue.get(1).mSetAsNextPlayer) {
+                        // Transition to next player will be handled by MEDIA_INFO_STARTED_AS_NEXT
+                        // event later.
+                        return null;
+                    }
+                    moveToNext();
+                    return playCurrent();
                 }
-                moveToNext();
+            } else {
+                Log.w(TAG, "Invalid playback complete callback from " + mp.toString());
+                return null;
             }
-            return playCurrent();
+        }
+
+        synchronized void onStartedAsNext(MediaPlayer mp) {
+            if (mQueue.size() >= 2 && mQueue.get(1).mPlayer == mp) {
+                moveToNext();
+                final MediaPlayerSource src = getFirst();
+                setMp2State(src.getPlayer(), PLAYER_STATE_PLAYING);
+                notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                    @Override
+                    public void notify(EventCallback callback) {
+                        callback.onInfo(MediaPlayer2Impl.this, src.getDSD(),
+                                MEDIA_INFO_DATA_SOURCE_START, 0);
+                    }
+                });
+                prepareAt(1);
+                applyProperties();
+            }
         }
 
         synchronized void moveToNext() {
@@ -2256,9 +2302,33 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
 
         synchronized DataSourceError playCurrent() {
             DataSourceError err = null;
-            final MediaPlayerSource src = mQueue.get(0);
+            applyProperties();
 
-            // Apply the properties to the next player instance.
+            final MediaPlayerSource src = mQueue.get(0);
+            if (src.mSourceState == SOURCE_STATE_PREPARED) {
+                // start next source only when it's in prepared state.
+                src.getPlayer().start();
+                setMp2State(src.getPlayer(), PLAYER_STATE_PLAYING);
+                notifyMediaPlayer2Event(new Mp2EventNotifier() {
+                    @Override
+                    public void notify(EventCallback callback) {
+                        callback.onInfo(MediaPlayer2Impl.this, src.getDSD(),
+                                MEDIA_INFO_DATA_SOURCE_START, 0);
+                    }
+                });
+                prepareAt(1);
+
+            } else {
+                if (src.mSourceState == SOURCE_STATE_INIT) {
+                    err = prepareAt(0);
+                }
+                src.mPlayPending = true;
+            }
+            return err;
+        }
+
+        synchronized void applyProperties() {
+            final MediaPlayerSource src = mQueue.get(0);
             if (mSurface != null) {
                 src.getPlayer().setSurface(mSurface);
             }
@@ -2280,27 +2350,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             if (mPlaybackParams != null) {
                 src.getPlayer().setPlaybackParams(mPlaybackParams);
             }
-
-            if (src.mSourceState == SOURCE_STATE_PREPARED) {
-                // start next source only when it's in prepared state.
-                src.getPlayer().start();
-                setMp2State(src.getPlayer(), PLAYER_STATE_PLAYING);
-                notifyMediaPlayer2Event(new Mp2EventNotifier() {
-                    @Override
-                    public void notify(EventCallback callback) {
-                        callback.onInfo(MediaPlayer2Impl.this, src.getDSD(),
-                                MEDIA_INFO_DATA_SOURCE_START, 0);
-                    }
-                });
-                prepareAt(1);
-
-            } else {
-                if (src.mSourceState == SOURCE_STATE_INIT) {
-                    err = prepareAt(0);
-                }
-                src.mPlayPending = true;
-            }
-            return err;
         }
 
         synchronized void onError(MediaPlayer mp) {
