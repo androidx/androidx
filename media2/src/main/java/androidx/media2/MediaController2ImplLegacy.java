@@ -781,33 +781,33 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
         if (DEBUG) {
             Log.d(TAG, "onConnectedNotLocked token=" + mToken);
         }
-        final SessionCommandGroup2 allowedCommands = new SessionCommandGroup2();
+        final SessionCommandGroup2.Builder commandsBuilder = new SessionCommandGroup2.Builder();
 
         synchronized (mLock) {
             if (mIsReleased || mConnected) {
                 return;
             }
             long sessionFlags = mControllerCompat.getFlags();
-            allowedCommands.addAllPlaybackCommands();
-            allowedCommands.addAllVolumeCommands();
-            allowedCommands.addAllSessionCommands();
+            commandsBuilder.addAllPlaybackCommands();
+            commandsBuilder.addAllVolumeCommands();
+            commandsBuilder.addAllSessionCommands();
 
-            allowedCommands.removeCommand(COMMAND_CODE_PLAYBACK_SET_SPEED);
-            allowedCommands.removeCommand(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
-            allowedCommands.removeCommand(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
-            allowedCommands.removeCommand(COMMAND_CODE_SESSION_SELECT_ROUTE);
+            commandsBuilder.removeCommand(COMMAND_CODE_PLAYBACK_SET_SPEED);
+            commandsBuilder.removeCommand(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
+            commandsBuilder.removeCommand(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
+            commandsBuilder.removeCommand(COMMAND_CODE_SESSION_SELECT_ROUTE);
 
             if ((sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0) {
-                allowedCommands.addAllPlaylistCommands();
-                allowedCommands.removeCommand(COMMAND_CODE_PLAYLIST_SET_LIST);
-                allowedCommands.removeCommand(COMMAND_CODE_PLAYLIST_SET_LIST_METADATA);
+                commandsBuilder.addAllPlaylistCommands();
+                commandsBuilder.removeCommand(COMMAND_CODE_PLAYLIST_SET_LIST);
+                commandsBuilder.removeCommand(COMMAND_CODE_PLAYLIST_SET_LIST_METADATA);
             }
 
-            allowedCommands.addCommand(new SessionCommand2(SESSION_COMMAND_ON_EXTRA_CHANGED, null));
-            allowedCommands.addCommand(
+            commandsBuilder.addCommand(new SessionCommand2(SESSION_COMMAND_ON_EXTRA_CHANGED, null));
+            commandsBuilder.addCommand(
                     new SessionCommand2(SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED, null));
 
-            mAllowedCommands = allowedCommands;
+            mAllowedCommands = commandsBuilder.build();
 
             mPlaybackStateCompat = mControllerCompat.getPlaybackState();
             if (mPlaybackStateCompat == null) {
@@ -835,7 +835,7 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mCallback.onConnected(mInstance, allowedCommands);
+                mCallback.onConnected(mInstance, commandsBuilder.build());
             }
         });
     }

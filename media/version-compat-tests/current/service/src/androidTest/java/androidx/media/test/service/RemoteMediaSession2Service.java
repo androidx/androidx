@@ -149,9 +149,11 @@ public class RemoteMediaSession2Service extends Service {
                         @Override
                         public SessionCommandGroup2 onConnect(MediaSession2 session,
                                 MediaSession2.ControllerInfo controller) {
-                            SessionCommandGroup2 commands = new SessionCommandGroup2();
-                            commands.addCommand(new SessionCommand2(
-                                    SessionCommand2.COMMAND_CODE_PLAYLIST_GET_LIST_METADATA));
+                            SessionCommandGroup2 commands = new SessionCommandGroup2.Builder()
+                                    .addCommand(new SessionCommand2(
+                                            SessionCommand2
+                                                    .COMMAND_CODE_PLAYLIST_GET_LIST_METADATA))
+                                    .build();
                             return commands;
                         }
                     });

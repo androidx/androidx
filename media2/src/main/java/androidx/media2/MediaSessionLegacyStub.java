@@ -65,10 +65,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             new SparseArray<>();
 
     static {
-        SessionCommandGroup2 group = new SessionCommandGroup2();
-        group.addAllPlaybackCommands();
-        group.addAllPlaylistCommands();
-        group.addAllVolumeCommands();
+        SessionCommandGroup2 group = new SessionCommandGroup2.Builder()
+                .addAllPlaybackCommands()
+                .addAllPlaylistCommands()
+                .addAllVolumeCommands()
+                .build();
         Set<SessionCommand2> commands = group.getCommands();
         for (SessionCommand2 command : commands) {
             sCommandsForOnCommandRequest.append(command.getCommandCode(), command);

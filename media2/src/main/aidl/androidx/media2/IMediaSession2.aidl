@@ -21,6 +21,7 @@ import android.os.ResultReceiver;
 import android.net.Uri;
 
 import androidx.media2.IMediaController2;
+import androidx.versionedparcelable.ParcelImpl;
 
 /**
  * Interface from MediaController2 to MediaSession2.
@@ -30,56 +31,57 @@ import androidx.media2.IMediaController2;
  * @hide
  */
  oneway interface IMediaSession2 {
-    void connect(IMediaController2 caller, String callingPackage);
-    void release(IMediaController2 caller);
+    void connect(IMediaController2 caller, String callingPackage) = 0;
+    void release(IMediaController2 caller) = 1;
 
-    void setVolumeTo(IMediaController2 caller, int value, int flags);
-    void adjustVolume(IMediaController2 caller, int direction, int flags);
+    void setVolumeTo(IMediaController2 caller, int value, int flags) = 2;
+    void adjustVolume(IMediaController2 caller, int direction, int flags) = 3;
 
-    void play(IMediaController2 caller);
-    void pause(IMediaController2 caller);
-    void reset(IMediaController2 caller);
-    void prepare(IMediaController2 caller);
-    void fastForward(IMediaController2 caller);
-    void rewind(IMediaController2 caller);
-    void seekTo(IMediaController2 caller, long pos);
-    void sendCustomCommand(IMediaController2 caller, in Bundle command, in Bundle args,
-            in ResultReceiver receiver);
+    void play(IMediaController2 caller) = 4;
+    void pause(IMediaController2 caller) = 5;
+    void reset(IMediaController2 caller) = 6;
+    void prepare(IMediaController2 caller) = 7;
+    void fastForward(IMediaController2 caller) = 8;
+    void rewind(IMediaController2 caller) = 9;
+    void seekTo(IMediaController2 caller, long pos) = 10;
+    void sendCustomCommand(IMediaController2 caller, in ParcelImpl sessionCommand2,
+            in Bundle args, in ResultReceiver receiver) = 11;
+    void prepareFromUri(IMediaController2 caller, in Uri uri, in Bundle extras) = 12;
+    void prepareFromSearch(IMediaController2 caller, String query, in Bundle extras) = 13;
+    void prepareFromMediaId(IMediaController2 caller, String mediaId, in Bundle extras) = 14;
+    void playFromUri(IMediaController2 caller, in Uri uri, in Bundle extras) = 15;
+    void playFromSearch(IMediaController2 caller, String query, in Bundle extras) = 16;
+    void playFromMediaId(IMediaController2 caller, String mediaId, in Bundle extras) = 17;
+    void setRating(IMediaController2 caller, String mediaId, in ParcelImpl rating2) = 18;
+    void setPlaybackSpeed(IMediaController2 caller, float speed) = 19;
 
-    void prepareFromUri(IMediaController2 caller, in Uri uri, in Bundle extras);
-    void prepareFromSearch(IMediaController2 caller, String query, in Bundle extras);
-    void prepareFromMediaId(IMediaController2 caller, String mediaId, in Bundle extras);
-    void playFromUri(IMediaController2 caller, in Uri uri, in Bundle extras);
-    void playFromSearch(IMediaController2 caller, String query, in Bundle extras);
-    void playFromMediaId(IMediaController2 caller, String mediaId, in Bundle extras);
-    void setRating(IMediaController2 caller, String mediaId, in Bundle rating);
-    void setPlaybackSpeed(IMediaController2 caller, float speed);
+    void setPlaylist(IMediaController2 caller, in List<ParcelImpl> playlist,
+            in Bundle metadata) = 20;
+    void updatePlaylistMetadata(IMediaController2 caller, in Bundle metadata) = 21;
+    void addPlaylistItem(IMediaController2 caller, int index, in ParcelImpl mediaItem) = 22;
+    void removePlaylistItem(IMediaController2 caller, in ParcelImpl mediaItem) = 23;
+    void replacePlaylistItem(IMediaController2 caller, int index, in ParcelImpl mediaItem) = 24;
+    void skipToPlaylistItem(IMediaController2 caller, in ParcelImpl mediaItem) = 25;
+    void skipToPreviousItem(IMediaController2 caller) = 26;
+    void skipToNextItem(IMediaController2 caller) = 27;
+    void setRepeatMode(IMediaController2 caller, int repeatMode) = 28;
+    void setShuffleMode(IMediaController2 caller, int shuffleMode) = 29;
 
-    void setPlaylist(IMediaController2 caller, in List<Bundle> playlist, in Bundle metadata);
-    void updatePlaylistMetadata(IMediaController2 caller, in Bundle metadata);
-    void addPlaylistItem(IMediaController2 caller, int index, in Bundle mediaItem);
-    void removePlaylistItem(IMediaController2 caller, in Bundle mediaItem);
-    void replacePlaylistItem(IMediaController2 caller, int index, in Bundle mediaItem);
-    void skipToPlaylistItem(IMediaController2 caller, in Bundle mediaItem);
-    void skipToPreviousItem(IMediaController2 caller);
-    void skipToNextItem(IMediaController2 caller);
-    void setRepeatMode(IMediaController2 caller, int repeatMode);
-    void setShuffleMode(IMediaController2 caller, int shuffleMode);
-
-    void subscribeRoutesInfo(IMediaController2 caller);
-    void unsubscribeRoutesInfo(IMediaController2 caller);
-    void selectRoute(IMediaController2 caller, in Bundle route);
+    void subscribeRoutesInfo(IMediaController2 caller) = 30;
+    void unsubscribeRoutesInfo(IMediaController2 caller) = 31;
+    void selectRoute(IMediaController2 caller, in Bundle route) = 32;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // library service specific
     //////////////////////////////////////////////////////////////////////////////////////////////
-    void getLibraryRoot(IMediaController2 caller, in Bundle rootHints);
-    void getItem(IMediaController2 caller, String mediaId);
+    void getLibraryRoot(IMediaController2 caller, in Bundle rootHints) = 33;
+    void getItem(IMediaController2 caller, String mediaId) = 34;
     void getChildren(IMediaController2 caller, String parentId, int page, int pageSize,
-            in Bundle extras);
-    void search(IMediaController2 caller, String query, in Bundle extras);
+            in Bundle extras) = 35;
+    void search(IMediaController2 caller, String query, in Bundle extras) = 36;
     void getSearchResult(IMediaController2 caller, String query, int page, int pageSize,
-            in Bundle extras);
-    void subscribe(IMediaController2 caller, String parentId, in Bundle extras);
-    void unsubscribe(IMediaController2 caller, String parentId);
+            in Bundle extras) = 37;
+    void subscribe(IMediaController2 caller, String parentId, in Bundle extras) = 38;
+    void unsubscribe(IMediaController2 caller, String parentId) = 39;
+    // Next Id : 40
 }
