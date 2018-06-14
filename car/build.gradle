@@ -14,6 +14,7 @@ dependencies {
     api(project(":recyclerview"))
     api(project(":gridlayout"))
     api(project(":preference"))
+    api(CONSTRAINT_LAYOUT, { transitive = true })
     api(SUPPORT_DESIGN, libs.exclude_for_material)
 
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)
