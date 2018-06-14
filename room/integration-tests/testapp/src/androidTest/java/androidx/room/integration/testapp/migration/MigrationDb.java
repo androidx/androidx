@@ -30,6 +30,7 @@ import androidx.room.Insert;
 import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.RoomDatabase;
+import androidx.room.RoomWarnings;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import java.util.List;
@@ -68,6 +69,7 @@ public abstract class MigrationDb extends RoomDatabase {
         public String name;
     }
 
+    @SuppressWarnings(RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD)
     @Entity(foreignKeys = {
             @ForeignKey(entity = Entity1.class,
             parentColumns = "name",

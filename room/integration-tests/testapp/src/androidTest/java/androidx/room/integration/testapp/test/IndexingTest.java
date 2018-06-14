@@ -67,7 +67,7 @@ public class IndexingTest {
 
     @Dao
     public interface SqlMasterDao {
-        @Query("SELECT * FROM sqlite_master WHERE type = 'index'")
+        @Query("SELECT name, tbl_name, sql FROM sqlite_master WHERE type = 'index'")
         List<IndexInfo> loadIndices();
     }
 

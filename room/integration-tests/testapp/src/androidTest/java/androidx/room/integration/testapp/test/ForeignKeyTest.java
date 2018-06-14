@@ -131,8 +131,8 @@ public class ForeignKeyTest {
     @Entity(foreignKeys = {
             @ForeignKey(entity = A.class,
                     parentColumns = "name",
-                    childColumns = "aName")})
-
+                    childColumns = "aName")},
+            indices = {@Index("aName")})
     static class B {
         @PrimaryKey(autoGenerate = true)
         public int id;
@@ -148,7 +148,8 @@ public class ForeignKeyTest {
             @ForeignKey(entity = A.class,
                     parentColumns = "name",
                     childColumns = "aName",
-                    deferred = true)})
+                    deferred = true)},
+            indices = {@Index("aName")})
     static class C {
         @PrimaryKey(autoGenerate = true)
         public int id;
@@ -165,7 +166,8 @@ public class ForeignKeyTest {
                     parentColumns = "name",
                     childColumns = "aName",
                     onDelete = ForeignKey.CASCADE,
-                    onUpdate = ForeignKey.CASCADE)})
+                    onUpdate = ForeignKey.CASCADE)},
+            indices = {@Index("aName")})
     static class D {
         @PrimaryKey(autoGenerate = true)
         public int id;
@@ -182,7 +184,8 @@ public class ForeignKeyTest {
                     parentColumns = {"name", "lastName"},
                     childColumns = {"aName", "aLastName"},
                     onDelete = ForeignKey.SET_NULL,
-                    onUpdate = ForeignKey.CASCADE)})
+                    onUpdate = ForeignKey.CASCADE)},
+            indices = {@Index({"aName", "aLastName"})})
     static class E {
         @PrimaryKey(autoGenerate = true)
         public int id;
