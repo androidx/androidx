@@ -215,8 +215,11 @@ public class RowContent {
             }
         }
 
+        // Possible primary actions could be in the format of slice or action.
         String[] hints = new String[] {HINT_SHORTCUT, HINT_TITLE};
         List<SliceItem> possiblePrimaries = SliceQuery.findAll(rowSlice, FORMAT_SLICE, hints, null);
+        possiblePrimaries.addAll(SliceQuery.findAll(rowSlice, FORMAT_ACTION, hints, null));
+
         if (possiblePrimaries.isEmpty() && FORMAT_ACTION.equals(rowSlice.getFormat())
                 && rowSlice.getSlice().getItems().size() == 1) {
             mPrimaryAction = rowSlice;

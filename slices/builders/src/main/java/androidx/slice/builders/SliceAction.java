@@ -342,4 +342,14 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     public SliceActionImpl getImpl() {
         return mSliceAction;
     }
+
+    /**
+     * @param builder the parent slice builder that contains the primary action.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public void setPrimaryAction(@NonNull Slice.Builder builder) {
+        builder.addAction(mSliceAction.getAction(),
+                mSliceAction.buildPrimaryActionSlice(builder), mSliceAction.getSubtype());
+    }
 }

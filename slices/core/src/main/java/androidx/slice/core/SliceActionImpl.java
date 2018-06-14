@@ -318,6 +318,23 @@ public class SliceActionImpl implements SliceAction {
      */
     @NonNull
     public Slice buildSlice(@NonNull Slice.Builder builder) {
+        return builder.addHints(HINT_SHORTCUT)
+                .addAction(mAction, buildSliceContent(builder).build(), getSubtype())
+                .build();
+    }
+
+    /**
+     * @return the primary action slice content associated with this primary action.
+     */
+    @NonNull
+    public Slice buildPrimaryActionSlice(@NonNull Slice.Builder builder) {
+        // Primary action row is annotated with shortcut and title hints.
+        return buildSliceContent(builder).addHints(HINT_SHORTCUT, HINT_TITLE).build();
+    }
+
+    /**
+     */
+    private Slice.Builder buildSliceContent(@NonNull Slice.Builder builder) {
         Slice.Builder sb = new Slice.Builder(builder);
         if (mIcon != null) {
             @Slice.SliceHint String[] hints = mImageMode == ICON_IMAGE
@@ -337,13 +354,18 @@ public class SliceActionImpl implements SliceAction {
         if (mPriority != -1) {
             sb.addInt(mPriority, SUBTYPE_PRIORITY);
         }
-        String subtype = mIsToggle ? SUBTYPE_TOGGLE : null;
-        builder.addHints(HINT_SHORTCUT);
         if (mIsActivity) {
             builder.addHints(SliceHints.HINT_ACTIVITY);
         }
-        builder.addAction(mAction, sb.build(), subtype);
-        return builder.build();
+        return sb;
+    }
+
+    /**
+     * @return the subtype of this slice action.
+     */
+    @Nullable
+    public String getSubtype() {
+        return mIsToggle ? SUBTYPE_TOGGLE : null;
     }
 
     public void setActivity(boolean isActivity) {
