@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -31,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.view.ActionMode;
+import androidx.core.view.KeyEventDispatcher;
 
 /**
  * Base class for AppCompat themed {@link android.app.Dialog}s.
@@ -38,6 +40,14 @@ import androidx.appcompat.view.ActionMode;
 public class AppCompatDialog extends Dialog implements AppCompatCallback {
 
     private AppCompatDelegate mDelegate;
+
+    // Until KeyEventDispatcher is un-hidden, it can't be implemented directly,
+    private final KeyEventDispatcher.Component mKeyDispatcher = new KeyEventDispatcher.Component() {
+        @Override
+        public boolean superDispatchKeyEvent(KeyEvent event) {
+            return AppCompatDialog.this.superDispatchKeyEvent(event);
+        }
+    };
 
     public AppCompatDialog(Context context) {
         this(context, 0);
@@ -183,5 +193,15 @@ public class AppCompatDialog extends Dialog implements AppCompatCallback {
     @Override
     public ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback) {
         return null;
+    }
+
+    private boolean superDispatchKeyEvent(KeyEvent event) {
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        View decor = getWindow().getDecorView();
+        return KeyEventDispatcher.dispatchKeyEvent(mKeyDispatcher, decor, this, event);
     }
 }
