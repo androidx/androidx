@@ -24,15 +24,17 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.slice.Slice.addHints;
+import static androidx.slice.Slice.appendHints;
 
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,6 +50,7 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -426,35 +429,70 @@ public final class SliceItem extends CustomVersionedParcelable {
     @RestrictTo(Scope.LIBRARY)
     public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
+        sb.append(indent);
+        sb.append(getFormat());
+        if (getSubType() != null) {
+            sb.append('<');
+            sb.append(getSubType());
+            sb.append('>');
+        }
+        sb.append(' ');
+        if (mHints.length > 0) {
+            appendHints(sb, mHints);
+            sb.append(' ');
+        }
+        final String nextIndent = indent + "  ";
         switch (getFormat()) {
             case FORMAT_SLICE:
-                sb.append(getSlice().toString(indent));
+                sb.append("{\n");
+                sb.append(getSlice().toString(nextIndent));
+                sb.append('\n').append(indent).append('}');
                 break;
             case FORMAT_ACTION:
-                sb.append(indent).append(getAction()).append(",\n");
-                sb.append(getSlice().toString(indent));
+                // Not using getAction because the action can actually be other types.
+                Object action = ((Pair<Object, Slice>) mObj).first;
+                sb.append('[').append(action).append("] ");
+                sb.append("{\n");
+                sb.append(getSlice().toString(nextIndent));
+                sb.append('\n').append(indent).append('}');
                 break;
             case FORMAT_TEXT:
-                sb.append(indent).append('"').append(getText()).append('"');
+                sb.append('"').append(getText()).append('"');
                 break;
             case FORMAT_IMAGE:
-                sb.append(indent).append(getIcon());
+                sb.append(getIcon());
                 break;
             case FORMAT_INT:
-                sb.append(indent).append(getInt());
+                if (android.app.slice.Slice.SUBTYPE_COLOR.equals(getSubType())) {
+                    int color = getInt();
+                    sb.append(String.format("a=0x%02x r=0x%02x g=0x%02x b=0x%02x",
+                            Color.alpha(color), Color.red(color), Color.green(color),
+                            Color.blue(color)));
+                } else if (android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION.equals(getSubType())) {
+                    sb.append(layoutDirectionToString(getInt()));
+                } else {
+                    sb.append(getInt());
+                }
                 break;
             case FORMAT_LONG:
-                sb.append(indent).append(getLong());
+                if (android.app.slice.Slice.SUBTYPE_MILLIS.equals(getSubType())) {
+                    if (getLong() == -1L) {
+                        sb.append("INFINITY");
+                    } else {
+                        sb.append(DateUtils.getRelativeTimeSpanString(getLong(),
+                                Calendar.getInstance().getTimeInMillis(),
+                                DateUtils.SECOND_IN_MILLIS,
+                                DateUtils.FORMAT_ABBREV_RELATIVE));
+                    }
+                } else {
+                    sb.append(getLong()).append('L');
+                }
                 break;
             default:
-                sb.append(indent).append(SliceItem.typeToString(getFormat()));
+                sb.append(SliceItem.typeToString(getFormat()));
                 break;
         }
-        if (!FORMAT_SLICE.equals(getFormat())) {
-            sb.append(' ');
-            addHints(sb, mHints);
-        }
-        sb.append(",\n");
+        sb.append("\n");
         return sb.toString();
     }
 
@@ -467,6 +505,21 @@ public final class SliceItem extends CustomVersionedParcelable {
     public void onPostParceling() {
         mObj = mHolder.getObj(mFormat);
         mHolder = null;
+    }
+
+    private static String layoutDirectionToString(int layoutDirection) {
+        switch (layoutDirection) {
+            case android.util.LayoutDirection.LTR:
+                return "LTR";
+            case android.util.LayoutDirection.RTL:
+                return "RTL";
+            case android.util.LayoutDirection.INHERIT:
+                return "INHERIT";
+            case android.util.LayoutDirection.LOCALE:
+                return "LOCALE";
+            default:
+                return Integer.toString(layoutDirection);
+        }
     }
 
     /**
