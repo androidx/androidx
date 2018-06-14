@@ -28,10 +28,6 @@ android {
             includes = ["wear_stubs/LICENSE"]
         }
     }
-
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
 }
 
 supportLibrary {
