@@ -876,7 +876,7 @@ public class IconCompat extends CustomVersionedParcelable {
      */
     @IconType
     @RequiresApi(23)
-    public static int getType(@NonNull Icon icon) {
+    private static int getType(@NonNull Icon icon) {
         if (Build.VERSION.SDK_INT >= 28) {
             return icon.getType();
         }
@@ -904,7 +904,7 @@ public class IconCompat extends CustomVersionedParcelable {
      */
     @Nullable
     @RequiresApi(23)
-    public static String getResPackage(@NonNull Icon icon) {
+    private static String getResPackage(@NonNull Icon icon) {
         if (Build.VERSION.SDK_INT >= 28) {
             return icon.getResPackage();
         }
@@ -933,7 +933,7 @@ public class IconCompat extends CustomVersionedParcelable {
     @IdRes
     @RequiresApi(23)
     @DrawableRes
-    public static int getResId(@NonNull Icon icon) {
+    private static int getResId(@NonNull Icon icon) {
         if (Build.VERSION.SDK_INT >= 28) {
             return icon.getResId();
         }
@@ -961,7 +961,7 @@ public class IconCompat extends CustomVersionedParcelable {
      */
     @Nullable
     @RequiresApi(23)
-    public static Uri getUri(@NonNull Icon icon) {
+    private static Uri getUri(@NonNull Icon icon) {
         if (Build.VERSION.SDK_INT >= 28) {
             return icon.getUri();
         }

@@ -1011,13 +1011,9 @@ package androidx.core.graphics.drawable {
     method public static androidx.core.graphics.drawable.IconCompat createWithData(byte[], int, int);
     method public static androidx.core.graphics.drawable.IconCompat createWithResource(android.content.Context, int);
     method public int getResId();
-    method public static int getResId(android.graphics.drawable.Icon);
     method public java.lang.String getResPackage();
-    method public static java.lang.String getResPackage(android.graphics.drawable.Icon);
     method public int getType();
-    method public static int getType(android.graphics.drawable.Icon);
     method public android.net.Uri getUri();
-    method public static android.net.Uri getUri(android.graphics.drawable.Icon);
     method public android.graphics.drawable.Drawable loadDrawable(android.content.Context);
     method public androidx.core.graphics.drawable.IconCompat setTint(int);
     method public androidx.core.graphics.drawable.IconCompat setTintList(android.content.res.ColorStateList);
