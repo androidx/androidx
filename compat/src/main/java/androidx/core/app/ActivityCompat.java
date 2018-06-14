@@ -429,9 +429,9 @@ public class ActivityCompat extends ContextCompat {
     /**
      * Requests permissions to be granted to this application. These permissions
      * must be requested in your manifest, they should not be granted to your app,
-     * and they should have protection level {@link android.content.pm.PermissionInfo
-     * #PROTECTION_DANGEROUS dangerous}, regardless whether they are declared by
-     * the platform or a third-party app.
+     * and they should have protection level {@link
+     * android.content.pm.PermissionInfo#PROTECTION_DANGEROUS dangerous}, regardless
+     * whether they are declared by the platform or a third-party app.
      * <p>
      * Normal permissions {@link android.content.pm.PermissionInfo#PROTECTION_NORMAL}
      * are granted at install time if requested in the manifest. Signature permissions
@@ -478,7 +478,7 @@ public class ActivityCompat extends ContextCompat {
      * {@link OnRequestPermissionsResultCallback#onRequestPermissionsResult(int, String[], int[])}.
      * </p>
      * <p>
-     * The <a href="http://developer.android.com/samples/RuntimePermissions/index.html">
+     * The <a href="https://github.com/googlesamples/android-RuntimePermissions">
      * RuntimePermissions</a> sample app demonstrates how to use this method to
      * request permissions at run time.
      * </p>
