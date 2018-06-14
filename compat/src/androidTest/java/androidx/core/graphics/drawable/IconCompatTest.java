@@ -336,19 +336,25 @@ public class IconCompatTest {
         // Parcelable methods.
         // Bundle.
         Bundle b = icon.toBundle();
-        assertNotNull(IconCompat.createFromBundle(b));
+        IconCompat other = IconCompat.createFromBundle(b);
+        assertNotNull(other);
+        assertNotNull(other.loadDrawable(mContext));
 
         // Parcel
         Parcel p = Parcel.obtain();
         p.writeParcelable(ParcelUtils.toParcelable(icon), 0);
         p.setDataPosition(0);
-        assertNotNull(ParcelUtils.fromParcelable(p.readParcelable(getClass().getClassLoader())));
+        other = ParcelUtils.fromParcelable(p.readParcelable(getClass().getClassLoader()));
+        assertNotNull(other);
+        assertNotNull(other.loadDrawable(mContext));
 
         // Stream.
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ParcelUtils.toOutputStream(icon, outputStream);
         InputStream input = new ByteArrayInputStream(outputStream.toByteArray());
-        assertNotNull(ParcelUtils.fromInputStream(input));
+        other = ParcelUtils.fromInputStream(input);
+        assertNotNull(other);
+        assertNotNull(other.loadDrawable(mContext));
 
         // loading drawable synchronously.
         assertNotNull(icon.loadDrawable(mContext));
