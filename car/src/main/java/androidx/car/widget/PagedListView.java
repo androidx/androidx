@@ -31,6 +31,7 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -227,30 +228,30 @@ public class PagedListView extends FrameLayout {
 
     public PagedListView(Context context) {
         super(context);
-        init(context, null /* attrs */);
+        init(context, /* attrs= */ null, R.attr.pagedListViewStyle);
     }
 
     public PagedListView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
+        init(context, attrs, R.attr.pagedListViewStyle);
     }
 
     public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs) {
         super(context, attrs, defStyleAttrs);
-        init(context, attrs);
+        init(context, attrs, defStyleAttrs);
     }
 
     public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {
         super(context, attrs, defStyleAttrs, defStyleRes);
-        init(context, attrs);
+        init(context, attrs, defStyleAttrs);
     }
 
-    private void init(Context context, AttributeSet attrs) {
+    private void init(Context context, AttributeSet attrs, int defStyleAttrs) {
         LayoutInflater.from(context).inflate(R.layout.car_paged_recycler_view,
-                this /* root */, true /* attachToRoot */);
+                /* root= */ this, /* attachToRoot= */ true);
 
         TypedArray a = context.obtainStyledAttributes(
-                attrs, R.styleable.PagedListView, R.attr.pagedListViewStyle, 0 /* defStyleRes */);
+                attrs, R.styleable.PagedListView, defStyleAttrs, /* defStyleRes= */ 0);
         mRecyclerView = findViewById(R.id.recycler_view);
 
         mMaxPages = getDefaultMaxPages();
@@ -347,6 +348,13 @@ public class PagedListView extends FrameLayout {
                 showAlphaJump();
             }
         });
+
+        if (a.hasValue(R.styleable.PagedListView_scrollBarGravity)) {
+            FrameLayout.LayoutParams layoutParams =
+                    (FrameLayout.LayoutParams) mScrollBarView.getLayoutParams();
+            layoutParams.gravity =
+                    a.getInt(R.styleable.PagedListView_scrollBarGravity, Gravity.LEFT);
+        }
 
         Drawable upButtonIcon = a.getDrawable(R.styleable.PagedListView_upButtonIcon);
         if (upButtonIcon != null) {

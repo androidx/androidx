@@ -23,6 +23,7 @@
     <!-- The main theme for all activities within the Car Demo. -->
     <style name="CarTheme" parent="Theme.Car.Light.NoActionBar">
         <item name="android:checkboxStyle">@style/CheckBoxStyle</item>
+        <item name="pagedListViewStyle">@style/CarDemoList</item>
     </style>
 
     <!-- A theme for activities within the Car Demo that have a drawer. -->
@@ -57,5 +58,10 @@
     <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
         <item name="android:textColor">@color/car_body1</item>
         <item name="android:textSize">@dimen/car_body1_size</item>
+    </style>
+
+    <!-- The default styling for a PagedListView. Currently empty, but allows for testing of various
+         styles. -->
+    <style name="CarDemoList" parent="Widget.Car.Light.List">
     </style>
 </resources>
