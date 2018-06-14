@@ -63,7 +63,7 @@ import java.util.List;
  */
 public class SliceBrowser extends AppCompatActivity implements SliceView.OnSliceActionListener {
 
-    private static final String TAG = "SlicePresenter";
+    private static final String TAG = "SliceBrowser";
 
     private static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
     private static final boolean TEST_INTENT = false;
