@@ -55,7 +55,7 @@ public class RemoteActionCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(icon.getUri(), result.getIcon().getUri());
         assertEquals(title, result.getTitle());
         assertEquals(description, result.getContentDescription());
-        assertEquals(action.getCreatorPackage(), result.getActionIntent().getCreatorPackage());
+        assertEquals(action.getTargetPackage(), result.getActionIntent().getTargetPackage());
         assertFalse(result.isEnabled());
         assertFalse(result.shouldShowIcon());
     }
@@ -76,7 +76,7 @@ public class RemoteActionCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(icon.getUri(), result.getIcon().getUri());
         assertEquals(title, result.getTitle());
         assertEquals(description, result.getContentDescription());
-        assertEquals(action.getCreatorPackage(), result.getActionIntent().getCreatorPackage());
+        assertEquals(action.getTargetPackage(), result.getActionIntent().getTargetPackage());
         assertFalse(result.isEnabled());
         assertFalse(result.shouldShowIcon());
     }
