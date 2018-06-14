@@ -17,8 +17,12 @@
 package androidx.navigation.safeargs.gradle
 
 import com.android.build.gradle.AppExtension
+import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.FeatureExtension
+import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.BaseVariant
 import groovy.util.XmlSlurper
+import org.gradle.api.DomainObjectSet
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -32,9 +36,16 @@ internal const val INTERMEDIATES_PATH = "intermediates/$PLUGIN_DIRNAME"
 class SafeArgsPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val appExtension = project.extensions.findByType(AppExtension::class.java)
+        val extension = project.extensions.findByType(BaseExtension::class.java)
                 ?: throw GradleException("safeargs plugin must be used with android plugin")
-        appExtension.applicationVariants.all { variant ->
+        val variants: DomainObjectSet<out BaseVariant> = when {
+            extension is AppExtension -> extension.applicationVariants
+            extension is LibraryExtension -> extension.libraryVariants
+            extension is FeatureExtension -> extension.featureVariants
+            else -> throw GradleException("safeargs plugin must be used with android app," +
+                    "library or feature plugin")
+        }
+        variants.all { variant ->
             val task = project.tasks.create("generateSafeArgs${variant.name.capitalize()}",
                     ArgumentsGenerationTask::class.java) { task ->
                 task.rFilePackage = variant.rFilePackage()
