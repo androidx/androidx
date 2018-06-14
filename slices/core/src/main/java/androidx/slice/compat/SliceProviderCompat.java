@@ -632,7 +632,7 @@ public class SliceProviderCompat {
     }
 
     private static ProviderHolder acquireClient(ContentResolver resolver, Uri uri) {
-        ContentProviderClient provider = resolver.acquireContentProviderClient(uri);
+        ContentProviderClient provider = resolver.acquireUnstableContentProviderClient(uri);
         if (provider == null) {
             throw new IllegalArgumentException("No provider found for " + uri);
         }
