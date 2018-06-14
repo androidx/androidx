@@ -770,8 +770,6 @@ public class IconCompat extends CustomVersionedParcelable {
                 }
                 break;
             case TYPE_URI:
-                mObj1 = Uri.parse(new String(mData, Charset.forName("UTF-16")));
-                break;
             case TYPE_RESOURCE:
                 mObj1 = new String(mData, Charset.forName("UTF-16"));
                 break;
