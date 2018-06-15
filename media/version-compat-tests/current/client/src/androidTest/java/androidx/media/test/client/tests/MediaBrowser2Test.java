@@ -16,14 +16,11 @@
 
 package androidx.media.test.client.tests;
 
-import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
-
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -36,10 +33,7 @@ import androidx.media.MediaController2;
 import androidx.media.MediaController2.ControllerCallback;
 import androidx.media.SessionCommandGroup2;
 import androidx.media.SessionToken2;
-import androidx.media.test.client.RemoteMediaLibrarySession;
-import androidx.media.test.lib.TestUtils;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
@@ -53,35 +47,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MediaBrowser2Test extends MediaController2Test {
-
-    @Test
-    public void testSubscribe() throws InterruptedException {
-        prepareLooper();
-        final String testParentId = "testSubscribeId";
-        final Bundle testExtras = TestUtils.createTestBundle();
-        final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
-
-        MediaBrowser2 browser = (MediaBrowser2) createController(token);
-        browser.subscribe(testParentId, testExtras);
-
-        // Check that onSubscribe() is called.
-        RemoteMediaLibrarySession session = new RemoteMediaLibrarySession(mContext);
-        assertTrue(session.isOnSubscribeCalled(testParentId, testExtras));
-    }
-
-    @Test
-    public void testUnsubscribe() throws InterruptedException {
-        prepareLooper();
-        final String testParentId = "testUnsubscribeId";
-        final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
-
-        MediaBrowser2 browser = (MediaBrowser2) createController(token);
-        browser.unsubscribe(testParentId);
-
-        // Check that onUnsubscribe() is called.
-        RemoteMediaLibrarySession session = new RemoteMediaLibrarySession(mContext);
-        assertTrue(session.isOnUnsubscribeCalled(testParentId));
-    }
 
     @Override
     TestControllerInterface onCreateController(final @NonNull SessionToken2 token,

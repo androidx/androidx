@@ -28,6 +28,7 @@ import android.os.ResultReceiver;
 import android.support.mediacompat.testlib.IRemoteMediaController2;
 import android.util.Log;
 
+import androidx.media.MediaBrowser2;
 import androidx.media.MediaController2;
 import androidx.media.MediaItem2;
 import androidx.media.MediaMetadata2;
@@ -90,8 +91,8 @@ public class RemoteMediaController2Service extends Service {
 
     private class RemoteMediaController2Stub extends IRemoteMediaController2.Stub {
         @Override
-        public void create(final String controllerId, Bundle tokenBundle, boolean waitForConnection)
-                throws RemoteException {
+        public void create(final boolean isBrowser, final String controllerId, Bundle tokenBundle,
+                boolean waitForConnection) throws RemoteException {
             tokenBundle.setClassLoader(MediaSession2.class.getClassLoader());
             final SessionToken2 token = SessionToken2.fromBundle(tokenBundle);
             final TestControllerCallback callback = new TestControllerCallback();
@@ -100,8 +101,14 @@ public class RemoteMediaController2Service extends Service {
                 mHandler.postAndSync(new Runnable() {
                     @Override
                     public void run() {
-                        MediaController2 controller2 = new MediaController2(
-                                RemoteMediaController2Service.this, token, mExecutor, callback);
+                        MediaController2 controller2;
+                        if (isBrowser) {
+                            controller2 = new MediaBrowser2(
+                                    RemoteMediaController2Service.this, token, mExecutor, callback);
+                        } else {
+                            controller2 = new MediaController2(
+                                    RemoteMediaController2Service.this, token, mExecutor, callback);
+                        }
                         mMediaController2Map.put(controllerId, controller2);
                     }
                 });
@@ -131,6 +138,10 @@ public class RemoteMediaController2Service extends Service {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
             // If needed, define some commands in MediaController2Constants.
         }
+
+        /**
+         * {@link MediaController2} methods.
+         */
 
         @Override
         public void play(String controllerId) throws RemoteException {
@@ -339,7 +350,24 @@ public class RemoteMediaController2Service extends Service {
             controller2.close();
         }
 
-        private class TestControllerCallback extends MediaController2.ControllerCallback {
+        /**
+         * {@link MediaBrowser2} methods.
+         */
+
+        @Override
+        public void subscribe(String controllerId, String parentId, Bundle extras)
+                throws RemoteException {
+            MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
+            browser2.subscribe(parentId, extras);
+        }
+
+        @Override
+        public void unsubscribe(String controllerId, String parentId) throws RemoteException {
+            MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
+            browser2.unsubscribe(parentId);
+        }
+
+        private class TestControllerCallback extends MediaBrowser2.BrowserCallback {
             private CountDownLatch mConnectionLatch = new CountDownLatch(1);
 
             @Override

@@ -26,6 +26,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.media.SessionToken2;
 import androidx.media.test.lib.TestUtils.SyncHandler;
+import androidx.media.test.service.RemoteMediaBrowser2;
 import androidx.media.test.service.RemoteMediaController2;
 
 import org.junit.AfterClass;
@@ -135,5 +136,13 @@ abstract class MediaSession2TestBase {
                 new RemoteMediaController2(mContext, token, waitForConnection);
         mControllers.add(controller2);
         return controller2;
+    }
+
+    final RemoteMediaBrowser2 createRemoteBrowser2(SessionToken2 token)
+            throws InterruptedException {
+        RemoteMediaBrowser2 browser2 =
+                new RemoteMediaBrowser2(mContext, token, true /* waitForConnection */);
+        mControllers.add(browser2);
+        return browser2;
     }
 }
