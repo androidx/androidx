@@ -130,19 +130,15 @@ package androidx.car.moderator {
 
 }
 
-package androidx.car.utils {
+package androidx.car.util {
 
   public class ColumnCalculator {
     method public int getColumnWidth();
     method public int getGutterSize();
-    method public static androidx.car.utils.ColumnCalculator getInstance(android.content.Context);
+    method public static androidx.car.util.ColumnCalculator getInstance(android.content.Context);
     method public int getNumOfColumns();
     method public int getNumOfGutters();
     method public int getSizeForColumnSpan(int);
-  }
-
-  public class ListItemBackgroundResolver {
-    method public static void setBackground(android.view.View, int, int);
   }
 
 }

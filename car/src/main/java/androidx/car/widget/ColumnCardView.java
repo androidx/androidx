@@ -18,12 +18,12 @@ package androidx.car.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.cardview.widget.CardView;
 import android.util.AttributeSet;
 import android.util.Log;
 
 import androidx.car.R;
-import androidx.car.utils.ColumnCalculator;
+import androidx.car.util.ColumnCalculator;
+import androidx.cardview.widget.CardView;
 
 /**
  * A {@link CardView} whose width can be specified by the number of columns that it will span.

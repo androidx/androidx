@@ -40,7 +40,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
-import androidx.car.utils.CarUxRestrictionsUtils;
+import androidx.car.util.CarUxRestrictionsUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.annotation.Retention;
