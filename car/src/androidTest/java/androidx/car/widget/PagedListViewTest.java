@@ -342,9 +342,7 @@ public final class PagedListViewTest {
                 DayNightStyle.AUTO,
                 DayNightStyle.AUTO_INVERSE,
                 DayNightStyle.ALWAYS_LIGHT,
-                DayNightStyle.ALWAYS_DARK,
-                DayNightStyle.FORCE_DAY,
-                DayNightStyle.FORCE_NIGHT,
+                DayNightStyle.ALWAYS_DARK
         };
 
         for (int style : styles) {

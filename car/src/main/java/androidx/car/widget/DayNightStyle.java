@@ -24,24 +24,12 @@ import java.lang.annotation.Retention;
 
 /**
  * Specifies how the system UI should respond to day/night mode events.
- *
- * <p>By default, the Android Auto system UI assumes the app content background is light during the
- * day and dark during the night. The system UI updates the foreground color (such as status bar
- * icon colors) to be dark during day mode and light during night mode. By setting the
- * DayNightStyle, the app can specify how the system should respond to a day/night mode event. For
- * example, if the app has a dark content background for both day and night time, the app can tell
- * the system to use {@link #FORCE_NIGHT} style so the foreground color is locked to light color for
- * both cases.
- *
- * <p>Note: Not all system UI elements can be customized with a DayNightStyle.
  */
 @IntDef({
         DayNightStyle.AUTO,
         DayNightStyle.AUTO_INVERSE,
         DayNightStyle.ALWAYS_LIGHT,
-        DayNightStyle.ALWAYS_DARK,
-        DayNightStyle.FORCE_NIGHT,
-        DayNightStyle.FORCE_DAY,
+        DayNightStyle.ALWAYS_DARK
 })
 @Retention(SOURCE)
 public @interface DayNightStyle {
@@ -64,23 +52,4 @@ public @interface DayNightStyle {
 
     /** Sets the color to be locked ot a dark variant during day and night. */
     int ALWAYS_DARK = 3;
-
-    /**
-     * Sets the foreground color to be locked to the night version, which assumes the app content
-     * background is always dark during both day and night.
-     *
-     * @deprecated Use {@link #ALWAYS_LIGHT} instead.
-     */
-    @Deprecated
-    int FORCE_NIGHT = 4;
-
-    /**
-     * Sets the foreground color to be locked to the day version, which assumes the app content
-     * background is always light during both day and night.
-     *
-     * @deprecated Use {@link #ALWAYS_DARK} instead.
-     */
-    @Deprecated
-    int FORCE_DAY = 5;
-
 }

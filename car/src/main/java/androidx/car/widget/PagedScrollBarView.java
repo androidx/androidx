@@ -437,13 +437,11 @@ public class PagedScrollBarView extends ViewGroup {
                 thumbColorResId = R.color.car_scrollbar_thumb_inverse;
                 upDownBackgroundResId = R.drawable.car_button_ripple_background_inverse;
                 break;
-            case DayNightStyle.FORCE_NIGHT:
             case DayNightStyle.ALWAYS_LIGHT:
                 tintResId = R.color.car_tint_light;
                 thumbColorResId = R.color.car_scrollbar_thumb_light;
                 upDownBackgroundResId = R.drawable.car_button_ripple_background_night;
                 break;
-            case DayNightStyle.FORCE_DAY:
             case DayNightStyle.ALWAYS_DARK:
                 tintResId = R.color.car_tint_dark;
                 thumbColorResId = R.color.car_scrollbar_thumb_dark;
