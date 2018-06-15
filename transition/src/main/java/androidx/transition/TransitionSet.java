@@ -78,8 +78,10 @@ public class TransitionSet extends Transition {
 
     private ArrayList<Transition> mTransitions = new ArrayList<>();
     private boolean mPlayTogether = true;
-    private int mCurrentListeners;
-    private boolean mStarted = false;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mCurrentListeners;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mStarted = false;
     // Flags to know whether or not the interpolator, path motion, epicenter, propagation
     // have changed
     private int mChangeFlags = 0;
