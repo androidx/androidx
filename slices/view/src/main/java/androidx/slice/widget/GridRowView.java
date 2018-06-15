@@ -121,6 +121,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     @Override
+    public void setInsets(int l, int t, int r, int b) {
+        super.setInsets(l, t, r, b);
+        mViewContainer.setPadding(l, t + getExtraTopPadding(), r, b + getExtraBottomPadding());
+    }
+
+    @Override
     public int getSmallHeight() {
         // GridRow is small if its the first element in a list without a header presented in small
         if (mGridContent == null) {
@@ -189,7 +195,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         if (!scheduleMaxCellsUpdate()) {
             populateViews();
         }
-        mViewContainer.setPadding(0, getExtraTopPadding(), 0, getExtraBottomPadding());
+        mViewContainer.setPadding(mInsetStart, mInsetTop + getExtraTopPadding(), mInsetEnd,
+                mInsetBottom + getExtraBottomPadding());
     }
 
     /**

@@ -62,8 +62,6 @@
         android:layout_margin="8dp"
         android:orientation="vertical"
         android:background="?android:attr/colorBackground"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
         android:elevation="10dp" >
 
         <androidx.slice.widget.SliceView

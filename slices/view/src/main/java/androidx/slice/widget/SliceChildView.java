@@ -55,6 +55,10 @@ public abstract class SliceChildView extends FrameLayout {
     protected int mGridBottomPadding;
     protected boolean mShowLastUpdated;
     protected long mLastUpdated = -1;
+    protected int mInsetStart;
+    protected int mInsetTop;
+    protected int mInsetEnd;
+    protected int mInsetBottom;
 
     public SliceChildView(@NonNull Context context) {
         super(context);
@@ -74,6 +78,16 @@ public abstract class SliceChildView extends FrameLayout {
      */
     public void setSliceContent(ListContent content) {
         // Do nothing
+    }
+
+    /**
+     * Sets the insets (padding) for the slice.
+     */
+    public void setInsets(int l, int t, int r, int b) {
+        mInsetStart = l;
+        mInsetTop = t;
+        mInsetEnd = r;
+        mInsetBottom = b;
     }
 
     /**
