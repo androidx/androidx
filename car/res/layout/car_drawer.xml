@@ -20,7 +20,10 @@ limitations under the License.
     android:layout_height="match_parent"
     android:background="?attr/drawerBackgroundColor" >
 
+  <!-- This View needs a background to ensure a drop shadow shows up. -->
     <LinearLayout
+        android:id="@+id/drawer_toolbar"
+        android:background="?attr/drawerBackgroundColor"
         android:layout_width="match_parent"
         android:layout_height="@dimen/car_app_bar_height"
         android:layout_gravity="top|start"
