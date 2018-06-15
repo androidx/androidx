@@ -58,8 +58,9 @@ limitations under the License.
         <item name="android:textColor">@color/car_title2_light</item>
     </style>
 
-    <!-- The styling for subheader text. This text uses color accent. -->
-    <style name="TextAppearance.Car.Subheader" parent="TextAppearance.Car.Title2" >
+    <!-- The styling for subheader text. This text uses android:colorAccent defined in the theme as
+         its text color. -->
+    <style name="TextAppearance.Car.Subheader" parent="TextAppearance.Car.Action2">
         <item name="android:textColor">?attr/android:colorAccent</item>
     </style>
 
@@ -163,12 +164,20 @@ limitations under the License.
         <item name="android:textColor">@color/car_body4</item>
     </style>
 
-    <!-- The styling for action button text. -->
+    <!-- The styling for action button text. This style is all-caps. -->
     <style name="TextAppearance.Car.Action1">
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textSize">@dimen/car_action1_size</item>
+        <item name="android:textColor">@color/car_accent</item>
+    </style>
+
+    <!-- The styling for action button text. This style is sentence case. -->
+    <style name="TextAppearance.Car.Action2">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_action2_size</item>
         <item name="android:textColor">@color/car_accent</item>
     </style>
 
