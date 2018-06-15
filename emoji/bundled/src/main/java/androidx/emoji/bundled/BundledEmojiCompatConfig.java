@@ -47,7 +47,7 @@ public class BundledEmojiCompatConfig extends EmojiCompat.Config {
     private static class BundledMetadataLoader implements EmojiCompat.MetadataRepoLoader {
         private final Context mContext;
 
-        private BundledMetadataLoader(@NonNull Context context) {
+        BundledMetadataLoader(@NonNull Context context) {
             mContext = context.getApplicationContext();
         }
 
@@ -68,8 +68,7 @@ public class BundledEmojiCompatConfig extends EmojiCompat.Config {
         private final EmojiCompat.MetadataRepoLoaderCallback mLoaderCallback;
         private final Context mContext;
 
-        private InitRunnable(final Context context,
-                final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        InitRunnable(Context context, EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             mContext = context;
             mLoaderCallback = loaderCallback;
         }
