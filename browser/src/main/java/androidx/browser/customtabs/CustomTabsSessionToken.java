@@ -33,7 +33,9 @@ import androidx.core.app.BundleCompat;
  */
 public class CustomTabsSessionToken {
     private static final String TAG = "CustomTabsSessionToken";
-    private final ICustomTabsCallback mCallbackBinder;
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ICustomTabsCallback mCallbackBinder;
     private final CustomTabsCallback mCallback;
 
     /* package */ static class MockCallback extends ICustomTabsCallback.Stub {

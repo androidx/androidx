@@ -263,7 +263,8 @@ public final class CustomTabsIntent {
         ContextCompat.startActivity(context, intent, startAnimationBundle);
     }
 
-    private CustomTabsIntent(Intent intent, Bundle startAnimationBundle) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    CustomTabsIntent(Intent intent, Bundle startAnimationBundle) {
         this.intent = intent;
         this.startAnimationBundle = startAnimationBundle;
     }

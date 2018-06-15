@@ -55,7 +55,8 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
     private final Uri mUri;
     private final List<BrowserActionItem> mMenuItems;
 
-    private BrowserActionsFallMenuUiListener mMenuUiListener;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    BrowserActionsFallMenuUiListener mMenuUiListener;
 
     private BrowserActionsFallbackMenuDialog mBrowserActionsDialog;
 

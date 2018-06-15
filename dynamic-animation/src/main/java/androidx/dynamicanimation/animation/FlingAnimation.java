@@ -191,7 +191,7 @@ public final class FlingAnimation extends DynamicAnimation<FlingAnimation> {
         mFlingForce.setValueThreshold(threshold);
     }
 
-    private static final class DragForce implements Force {
+    static final class DragForce implements Force {
 
         private static final float DEFAULT_FRICTION = -4.2f;
 

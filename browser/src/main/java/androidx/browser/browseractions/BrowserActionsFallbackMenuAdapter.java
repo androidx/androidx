@@ -85,7 +85,7 @@ class BrowserActionsFallbackMenuAdapter extends BaseAdapter {
         return convertView;
     }
 
-    private static class ViewHolderItem {
+    static class ViewHolderItem {
         ImageView mIcon;
         TextView mText;
     }
