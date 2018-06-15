@@ -81,7 +81,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
     private static final long INVALID_LONG_VALUE = -1;
     private static final int IS_RECORDING_PROHIBITED = 1;
 
-    private Program(Builder builder) {
+    Program(Builder builder) {
         super(builder);
     }
 
