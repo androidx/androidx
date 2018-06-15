@@ -26,7 +26,8 @@ import androidx.annotation.Nullable;
 
 class CardViewBaseImpl implements CardViewImpl {
 
-    private final RectF mCornerRect = new RectF();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final RectF mCornerRect = new RectF();
 
     @Override
     public void initStatic() {
