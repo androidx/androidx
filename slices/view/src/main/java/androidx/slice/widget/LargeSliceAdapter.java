@@ -72,6 +72,10 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     private long mLastUpdated;
     private SliceView mParent;
     private LargeTemplateView mTemplateView;
+    private int mInsetStart;
+    private int mInsetTop;
+    private int mInsetEnd;
+    private int mInsetBottom;
 
     public LargeSliceAdapter(Context context) {
         mContext = context;
@@ -84,6 +88,18 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     public void setParents(SliceView parent, LargeTemplateView templateView) {
         mParent = parent;
         mTemplateView = templateView;
+    }
+
+    /**
+     * Sets the insets (padding) for slice view. LargeSliceAdapter will handle determining
+     * if a child needs a particular padding, i.e. if it's the first row then the top inset
+     * will be applied to it whereas subsequent rows would get a top inset of 0.
+     */
+    public void setInsets(int l, int t, int r, int b) {
+        mInsetStart = l;
+        mInsetTop = t;
+        mInsetEnd = r;
+        mInsetBottom = b;
     }
 
     /**
@@ -255,6 +271,10 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             mSliceChildView.setSliceActions(isHeader ? mSliceActions : null);
             mSliceChildView.setLastUpdated(isHeader ? mLastUpdated : -1);
             mSliceChildView.setShowLastUpdated(isHeader && mShowLastUpdated);
+            // Only apply top / bottom insets to first / last rows
+            int top = position == 0 ? mInsetTop : 0;
+            int bottom = position == getItemCount() - 1 ? mInsetBottom : 0;
+            mSliceChildView.setInsets(mInsetStart, top, mInsetEnd, bottom);
             if (mSliceChildView instanceof RowView) {
                 ((RowView) mSliceChildView).setSingleItem(getItemCount() == 1);
             }

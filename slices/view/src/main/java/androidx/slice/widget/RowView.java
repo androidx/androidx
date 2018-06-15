@@ -104,8 +104,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private View mDivider;
     private ArrayMap<SliceActionImpl, SliceActionView> mToggles = new ArrayMap<>();
     private LinearLayout mEndContainer;
-    private ProgressBar mRangeBar;
     private View mSeeMoreView;
+    private ProgressBar mRangeBar;
 
     private int mRowIndex;
     private RowContent mRowContent;
@@ -152,6 +152,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
         mIdealRangeHeight = context.getResources().getDimensionPixelSize(
                 R.dimen.abc_slice_row_range_height);
+    }
+
+    @Override
+    public void setInsets(int l, int t, int r, int b) {
+        super.setInsets(l, t, r, b);
+        mRootView.setPadding(l, t, r, b);
+        if (mRangeBar != null) {
+            updateRangePadding();
+        }
     }
 
     /**
@@ -242,7 +251,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        mRootView.layout(0, 0, mRootView.getMeasuredWidth(), getRowContentHeight());
+        int insets = mInsetStart + mInsetEnd;
+        mRootView.layout(0, 0, mRootView.getMeasuredWidth() + insets, getRowContentHeight());
         if (mRangeBar != null) {
             // If we're on aa platform where SeekBar can't be stretched vertically, then
             // mMeasuredRangeHeight can (and probably will) be smaller than mIdealRangeHeight, so we
@@ -378,9 +388,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         boolean hasEndItemAction = endAction != null;
 
         if (mRowAction != null) {
-            // If there are outside actions make only the content bit clickable
-            // TODO: if start item is an image touch feedback should include it
-            setViewClickable((hasEndItemAction || hasStartAction) ? mContent : mRootView, true);
+            setViewClickable(mRootView, true);
         } else if (hasEndItemAction != hasStartAction && (endItemCount == 1 || hasStartAction)) {
             // Single action; make whole row clickable for it
             if (!mToggles.isEmpty()) {
@@ -488,6 +496,28 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 seekBar.setThumb(thumbDrawable);
             }
             seekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
+        }
+        updateRangePadding();
+    }
+
+    private void updateRangePadding() {
+        if (mRangeBar != null) {
+            int thumbSize = mRangeBar instanceof SeekBar
+                    ? ((SeekBar) mRangeBar).getThumb().getIntrinsicWidth() : 0;
+            int topInsetPadding = mRowContent != null
+                    ? mRowContent.getLineCount() > 0 ? 0 : mInsetTop
+                    : mInsetTop;
+            // Check if the app defined inset is large enough for the drawable
+            if (thumbSize != 0 && mInsetStart >= thumbSize / 2 && mInsetEnd >= thumbSize / 2) {
+                // If row content has text then the top inset gets applied to mContent layout
+                // not the range layout.
+                mRangeBar.setPadding(mInsetStart, topInsetPadding, mInsetEnd, mInsetBottom);
+            } else {
+                // App defined inset not bug enough; we need to apply one
+                int thumbPadding = thumbSize != 0 ? thumbSize / 2 : 0;
+                mRangeBar.setPadding(mInsetStart + thumbPadding, topInsetPadding,
+                        mInsetEnd + thumbPadding, mInsetBottom);
+            }
         }
     }
 

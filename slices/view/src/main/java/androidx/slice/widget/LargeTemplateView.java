@@ -86,6 +86,12 @@ public class LargeTemplateView extends SliceChildView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    @Override
+    public void setInsets(int l, int t, int r, int b) {
+        super.setInsets(l, t, r, b);
+        mAdapter.setInsets(l, t, r, b);
+    }
+
     /**
      * Called when the foreground view handling touch feedback should be activated.
      * @param event the event to handle.

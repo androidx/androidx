@@ -214,6 +214,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         mTouchSlopSquared = slop * slop;
         mHandler = new Handler();
 
+        mCurrentView.setInsets(getPaddingStart(), getPaddingTop(), getPaddingEnd(),
+                getPaddingBottom());
+        setClipToPadding(false);
+
         super.setOnClickListener(this);
     }
 
@@ -373,6 +377,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         }
 
         int childHeight = height + getPaddingTop() + getPaddingBottom();
+        childWidth = childWidth + getPaddingLeft() + getPaddingRight();
         int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY);
         int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
         measureChild(mCurrentView, childWidthMeasureSpec, childHeightMeasureSpec);
@@ -389,9 +394,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         View v = mCurrentView;
-        final int left = getPaddingLeft();
-        final int top = getPaddingTop();
-        v.layout(left, top, left + v.getMeasuredWidth(), top + v.getMeasuredHeight());
+        final int left = 0;
+        final int top = 0;
+        v.layout(left, top, left + v.getMeasuredWidth() + getPaddingRight() + getPaddingLeft(),
+                top + v.getMeasuredHeight());
         if (mActionRow.getVisibility() != View.GONE) {
             mActionRow.layout(left,
                     top + v.getMeasuredHeight(),
@@ -631,6 +637,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
         // If the view changes we should apply any configurations to it
         if (newView) {
+            mCurrentView.setInsets(getPaddingStart(), getPaddingTop(), getPaddingEnd(),
+                    getPaddingBottom());
             applyConfigurations();
             if (mListContent != null && mListContent.isValid()) {
                 mCurrentView.setSliceContent(mListContent);
