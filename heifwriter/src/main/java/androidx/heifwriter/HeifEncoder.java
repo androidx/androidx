@@ -72,33 +72,45 @@ public final class HeifEncoder implements AutoCloseable,
     private static final double MAX_COMPRESS_RATIO = 0.25f;
     private static final int INPUT_BUFFER_POOL_SIZE = 2;
 
-    private MediaCodec mEncoder;
-
-    private final Callback mCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaCodec mEncoder;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Callback mCallback;
     private final HandlerThread mHandlerThread;
-    private final Handler mHandler;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Handler mHandler;
     private final @InputMode int mInputMode;
 
-    private final int mWidth;
-    private final int mHeight;
-    private final int mGridWidth;
-    private final int mGridHeight;
-    private final int mGridRows;
-    private final int mGridCols;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mWidth;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mHeight;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mGridWidth;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mGridHeight;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mGridRows;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mGridCols;
     private final int mNumTiles;
-    private final boolean mUseGrid;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final boolean mUseGrid;
 
     private int mInputIndex;
-    private boolean mInputEOS;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mInputEOS;
     private final Rect mSrcRect;
     private final Rect mDstRect;
     private ByteBuffer mCurrentBuffer;
     private final ArrayList<ByteBuffer> mEmptyBuffers = new ArrayList<>();
     private final ArrayList<ByteBuffer> mFilledBuffers = new ArrayList<>();
-    private final ArrayList<Integer> mCodecInputBuffers = new ArrayList<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ArrayList<Integer> mCodecInputBuffers = new ArrayList<>();
 
     // Helper for tracking EOS when surface is used
-    private SurfaceEOSTracker mEOSTracker;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    SurfaceEOSTracker mEOSTracker;
 
     // Below variables are to handle GL copy from client's surface
     // to encoder surface when tiles are used.
@@ -544,7 +556,8 @@ public final class HeifEncoder implements AutoCloseable,
      *
      * Must be called on the handler looper that also handles the MediaCodec callback.
      */
-    private void maybeCopyOneTileYUV() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void maybeCopyOneTileYUV() {
         ByteBuffer currentBuffer;
         while ((currentBuffer = getCurrentBuffer()) != null && !mCodecInputBuffers.isEmpty()) {
             int index = mCodecInputBuffers.remove(0);
@@ -662,7 +675,8 @@ public final class HeifEncoder implements AutoCloseable,
      * Routine to release all resources. Must be run on the same looper that
      * handles the MediaCodec callbacks.
      */
-    private void stopInternal() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void stopInternal() {
         if (DEBUG) Log.d(TAG, "stopInternal");
 
         // after start, mEncoder is only accessed on handler, so no need to sync
@@ -807,7 +821,8 @@ public final class HeifEncoder implements AutoCloseable,
     /**
      * MediaCodec callback for HEVC encoding.
      */
-    private class EncoderCallback extends MediaCodec.Callback {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    class EncoderCallback extends MediaCodec.Callback {
         private boolean mOutputEOS;
 
         @Override
