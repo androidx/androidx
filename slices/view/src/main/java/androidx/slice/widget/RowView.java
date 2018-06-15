@@ -282,9 +282,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             boolean sameStructure = new SliceStructure(slice.getSlice()).equals(prevSs);
             isUpdate = sameSliceId && sameStructure;
         }
+        mIsHeader = isHeader;
         mRowContent = new RowContent(getContext(), slice, mIsHeader);
         mRowIndex = index;
-        mIsHeader = ListContent.isValidHeader(slice);
         mHeaderActions = null;
         populateViews(isUpdate);
     }

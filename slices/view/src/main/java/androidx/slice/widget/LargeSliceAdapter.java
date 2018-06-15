@@ -262,15 +262,19 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             // Touch listener used to pipe events to touch feedback drawable
             mSliceChildView.setOnTouchListener(this);
 
-            final boolean isHeader = position == HEADER_INDEX;
+            // A RowBuilder or HeaderBuilder might be in first position where certain things
+            // can be added to it (e.g. last updated, slice actions). Headers are styled slightly
+            // differently so we must note that difference.
+            final boolean isFirstPosition = position == HEADER_INDEX;
+            final boolean isHeader = ListContent.isValidHeader(item);
             int mode = mParent != null ? mParent.getMode() : MODE_LARGE;
             mSliceChildView.setMode(mode);
             mSliceChildView.setTint(mColor);
             mSliceChildView.setStyle(mAttrs, mDefStyleAttr, mDefStyleRes);
             mSliceChildView.setSliceItem(item, isHeader, position, getItemCount(), mSliceObserver);
-            mSliceChildView.setSliceActions(isHeader ? mSliceActions : null);
-            mSliceChildView.setLastUpdated(isHeader ? mLastUpdated : -1);
-            mSliceChildView.setShowLastUpdated(isHeader && mShowLastUpdated);
+            mSliceChildView.setSliceActions(isFirstPosition ? mSliceActions : null);
+            mSliceChildView.setLastUpdated(isFirstPosition ? mLastUpdated : -1);
+            mSliceChildView.setShowLastUpdated(isFirstPosition && mShowLastUpdated);
             // Only apply top / bottom insets to first / last rows
             int top = position == 0 ? mInsetTop : 0;
             int bottom = position == getItemCount() - 1 ? mInsetBottom : 0;
