@@ -60,17 +60,7 @@ limitations under the License.
 
     <!-- The styling for subheader text. This text uses color accent. -->
     <style name="TextAppearance.Car.Subheader" parent="TextAppearance.Car.Title2" >
-        <item name="android:textColor">@color/car_accent</item>
-    </style>
-
-    <!-- Subheader text that is permanently a dark color. -->
-    <style name="TextAppearance.Car.Subheader.Dark" parent="TextAppearance.Car.Subheader" >
-        <item name="android:textColor">@color/car_accent_dark</item>
-    </style>
-
-    <!-- Subheader text that is permanently a light color. -->
-    <style name="TextAppearance.Car.Subheader.Light" parent="TextAppearance.Car.Subheader" >
-        <item name="android:textColor">@color/car_accent_light</item>
+        <item name="android:textColor">?attr/android:colorAccent</item>
     </style>
 
     <!-- The styling for the main headline text. The color of this text changes based on the
