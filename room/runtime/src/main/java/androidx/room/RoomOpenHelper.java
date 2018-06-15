@@ -60,7 +60,7 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
 
     public RoomOpenHelper(@NonNull DatabaseConfiguration configuration, @NonNull Delegate delegate,
             @NonNull String legacyHash) {
-        this(configuration, delegate, null, legacyHash);
+        this(configuration, delegate, "", legacyHash);
     }
 
     @Override
