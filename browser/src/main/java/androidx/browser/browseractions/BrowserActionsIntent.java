@@ -149,7 +149,8 @@ public class BrowserActionsIntent {
         return mIntent;
     }
 
-    private BrowserActionsIntent(@NonNull Intent intent) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    BrowserActionsIntent(@NonNull Intent intent) {
         this.mIntent = intent;
     }
 
