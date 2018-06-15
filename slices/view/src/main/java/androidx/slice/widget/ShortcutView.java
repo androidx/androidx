@@ -153,7 +153,7 @@ public class ShortcutView extends SliceChildView {
         SliceItem primaryAction = mListContent.getPrimaryAction();
         Slice slice = mListContent.getSlice();
 
-        if (primaryAction != null) {
+        if (primaryAction != null && primaryAction.getSlice().getItems().size() != 0) {
             // Preferred case: slice has a primary action
             mActionItem = primaryAction.getSlice().getItems().get(0);
             mIcon = SliceQuery.find(primaryAction.getSlice(), FORMAT_IMAGE, (String) null,

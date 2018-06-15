@@ -540,6 +540,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 addAction(new SliceActionImpl(sliceItem), color, container, isStart);
                 return true;
             } else {
+                if (sliceItem.getSlice().getItems().size() == 0) {
+                    return false;
+                }
                 sliceItem = sliceItem.getSlice().getItems().get(0);
             }
         }
