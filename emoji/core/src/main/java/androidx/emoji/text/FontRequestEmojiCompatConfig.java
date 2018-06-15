@@ -176,7 +176,8 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         private @Nullable RetryPolicy mRetryPolicy;
 
         // Following three variables must be touched only on the thread associated with mHandler.
-        private EmojiCompat.MetadataRepoLoaderCallback mCallback;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        EmojiCompat.MetadataRepoLoaderCallback mCallback;
         private ContentObserver mObserver;
         private Runnable mHandleMetadataCreationRunner;
 
@@ -283,7 +284,8 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
 
         // Must be called on the mHandler.
         @RequiresApi(19)
-        private void createMetadata() {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        void createMetadata() {
             if (mCallback == null) {
                 return;  // Already handled or cancelled. Do nothing.
             }

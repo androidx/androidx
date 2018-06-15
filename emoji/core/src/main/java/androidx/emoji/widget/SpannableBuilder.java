@@ -360,7 +360,8 @@ public final class SpannableBuilder extends SpannableStringBuilder {
      * Wraps a DynamicLayout$ChangeWatcher in order to prevent firing of events to DynamicLayout.
      */
     private static class WatcherWrapper implements TextWatcher, SpanWatcher {
-        private final Object mObject;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        final Object mObject;
         private final AtomicInteger mBlockCalls = new AtomicInteger(0);
 
         WatcherWrapper(Object object) {
