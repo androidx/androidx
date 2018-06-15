@@ -248,7 +248,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     // These are initialized in performCreateView and unavailable outside of the
     // onCreateView/onDestroyView lifecycle
-    private LifecycleRegistry mViewLifecycleRegistry;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    LifecycleRegistry mViewLifecycleRegistry;
     LifecycleOwner mViewLifecycleOwner;
     MutableLiveData<LifecycleOwner> mViewLifecycleOwnerLiveData = new MutableLiveData<>();
 
@@ -2260,7 +2261,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Calls the start transition listener. This must be called on the UI thread.
      */
-    private void callStartTransitionListener() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void callStartTransitionListener() {
         final OnStartEnterTransitionListener listener;
         if (mAnimationInfo == null) {
             listener = null;
@@ -2874,14 +2876,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // If app has requested a specific transition style, this is the one to use.
         int mNextTransitionStyle;
 
-        private Object mEnterTransition = null;
-        private Object mReturnTransition = USE_DEFAULT_TRANSITION;
-        private Object mExitTransition = null;
-        private Object mReenterTransition = USE_DEFAULT_TRANSITION;
-        private Object mSharedElementEnterTransition = null;
-        private Object mSharedElementReturnTransition = USE_DEFAULT_TRANSITION;
-        private Boolean mAllowReturnTransitionOverlap;
-        private Boolean mAllowEnterTransitionOverlap;
+        Object mEnterTransition = null;
+        Object mReturnTransition = USE_DEFAULT_TRANSITION;
+        Object mExitTransition = null;
+        Object mReenterTransition = USE_DEFAULT_TRANSITION;
+        Object mSharedElementEnterTransition = null;
+        Object mSharedElementReturnTransition = USE_DEFAULT_TRANSITION;
+        Boolean mAllowReturnTransitionOverlap;
+        Boolean mAllowEnterTransitionOverlap;
 
         SharedElementCallback mEnterTransitionCallback = null;
         SharedElementCallback mExitTransitionCallback = null;

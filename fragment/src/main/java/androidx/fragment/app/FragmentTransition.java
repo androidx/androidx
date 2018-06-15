@@ -831,7 +831,8 @@ class FragmentTransition {
      * @return The mapping of shared element names to the Views in the hierarchy or null
      * if there is no shared element transition.
      */
-    private static ArrayMap<String, View> captureInSharedElements(FragmentTransitionImpl impl,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ArrayMap<String, View> captureInSharedElements(FragmentTransitionImpl impl,
             ArrayMap<String, String> nameOverrides, Object sharedElementTransition,
             FragmentContainerTransition fragments) {
         Fragment inFragment = fragments.lastIn;
@@ -903,7 +904,8 @@ class FragmentTransition {
      * @param enterTransition The transition used for the incoming Fragment's views
      * @param inIsPop Is the incoming fragment being added as a pop transaction?
      */
-    private static View getInEpicenterView(ArrayMap<String, View> inSharedElements,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static View getInEpicenterView(ArrayMap<String, View> inSharedElements,
             FragmentContainerTransition fragments,
             Object enterTransition, boolean inIsPop) {
         BackStackRecord inTransaction = fragments.lastInTransaction;
@@ -970,7 +972,8 @@ class FragmentTransition {
      * @param sharedElements The shared element Views
      * @param isStart Call the start or end call on the SharedElementCallback
      */
-    private static void callSharedElementStartEnd(Fragment inFragment, Fragment outFragment,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void callSharedElementStartEnd(Fragment inFragment, Fragment outFragment,
             boolean isPop, ArrayMap<String, View> sharedElements, boolean isStart) {
         SharedElementCallback sharedElementCallback = isPop
                 ? outFragment.getEnterTransitionCallback()
@@ -991,7 +994,8 @@ class FragmentTransition {
         }
     }
 
-    private static ArrayList<View> configureEnteringExitingViews(FragmentTransitionImpl impl,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ArrayList<View> configureEnteringExitingViews(FragmentTransitionImpl impl,
             Object transition,
             Fragment fragment, ArrayList<View> sharedElements, View nonExistentView) {
         ArrayList<View> viewList = null;
@@ -1015,7 +1019,8 @@ class FragmentTransition {
     /**
      * Sets the visibility of all Views in {@code views} to {@code visibility}.
      */
-    private static void setViewVisibility(ArrayList<View> views, int visibility) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void setViewVisibility(ArrayList<View> views, int visibility) {
         if (views == null) {
             return;
         }
