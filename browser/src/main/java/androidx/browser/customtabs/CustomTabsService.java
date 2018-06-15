@@ -98,7 +98,8 @@ public abstract class CustomTabsService extends Service {
      */
     public static final int RELATION_HANDLE_ALL_URLS = 2;
 
-    private final Map<IBinder, DeathRecipient> mDeathRecipientMap = new ArrayMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Map<IBinder, DeathRecipient> mDeathRecipientMap = new ArrayMap<>();
 
     private ICustomTabsService.Stub mBinder = new ICustomTabsService.Stub() {
 

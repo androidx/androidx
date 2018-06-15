@@ -74,12 +74,14 @@ class AnimationHandler {
      */
     private final SimpleArrayMap<AnimationFrameCallback, Long> mDelayedCallbackStartTime =
             new SimpleArrayMap<>();
-    private final ArrayList<AnimationFrameCallback> mAnimationCallbacks = new ArrayList<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ArrayList<AnimationFrameCallback> mAnimationCallbacks = new ArrayList<>();
     private final AnimationCallbackDispatcher mCallbackDispatcher =
             new AnimationCallbackDispatcher();
 
     private AnimationFrameCallbackProvider mProvider;
-    private long mCurrentFrameTime = 0;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    long mCurrentFrameTime = 0;
     private boolean mListDirty = false;
 
     public static AnimationHandler getInstance() {
@@ -104,7 +106,8 @@ class AnimationHandler {
         mProvider = provider;
     }
 
-    private AnimationFrameCallbackProvider getProvider() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    AnimationFrameCallbackProvider getProvider() {
         if (mProvider == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 mProvider = new FrameCallbackProvider16(mCallbackDispatcher);
@@ -143,7 +146,8 @@ class AnimationHandler {
         }
     }
 
-    private void doAnimationFrame(long frameTime) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void doAnimationFrame(long frameTime) {
         long currentTime = SystemClock.uptimeMillis();
         for (int i = 0; i < mAnimationCallbacks.size(); i++) {
             final AnimationFrameCallback callback = mAnimationCallbacks.get(i);
@@ -219,7 +223,7 @@ class AnimationHandler {
 
         private final Runnable mRunnable;
         private final Handler mHandler;
-        private long mLastFrameTime = -1;
+        long mLastFrameTime = -1;
 
         FrameCallbackProvider14(AnimationCallbackDispatcher dispatcher) {
             super(dispatcher);
