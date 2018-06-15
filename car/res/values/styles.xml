@@ -235,7 +235,7 @@ limitations under the License.
         <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
         <item name="android:textSize">@dimen/car_action1_size</item>
         <item name="android:background">@drawable/car_button_background</item>
-        <item name="android:textColor">@color/car_accent</item>
+        <item name="android:textColor">@color/car_action1</item>
     </style>
 
     <style name="Widget.Car.Button.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored">
