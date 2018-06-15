@@ -3864,8 +3864,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      */
     static class StartEnterTransitionListener
             implements Fragment.OnStartEnterTransitionListener {
-        private final boolean mIsBack;
-        private final BackStackRecord mRecord;
+        final boolean mIsBack;
+        final BackStackRecord mRecord;
         private int mNumPostponed;
 
         StartEnterTransitionListener(BackStackRecord record, boolean isBack) {
@@ -3940,7 +3940,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         public final Animation animation;
         public final Animator animator;
 
-        private AnimationOrAnimator(Animation animation) {
+        AnimationOrAnimator(Animation animation) {
             this.animation = animation;
             this.animator = null;
             if (animation == null) {
@@ -3948,7 +3948,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             }
         }
 
-        private AnimationOrAnimator(Animator animator) {
+        AnimationOrAnimator(Animator animator) {
             this.animation = null;
             this.animator = animator;
             if (animator == null) {
@@ -3963,7 +3963,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     private static class AnimationListenerWrapper implements AnimationListener {
         private final AnimationListener mWrapped;
 
-        private AnimationListenerWrapper(AnimationListener wrapped) {
+        AnimationListenerWrapper(AnimationListener wrapped) {
             mWrapped = wrapped;
         }
 
