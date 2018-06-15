@@ -2895,7 +2895,9 @@ public class ExifInterface {
     static final int[] IFD_FORMAT_BYTES_PER_FORMAT = new int[] {
             0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8, 1
     };
-    private static final byte[] EXIF_ASCII_PREFIX = new byte[] {
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final byte[] EXIF_ASCII_PREFIX = new byte[] {
             0x41, 0x53, 0x43, 0x49, 0x49, 0x0, 0x0, 0x0
     };
 
@@ -2904,11 +2906,13 @@ public class ExifInterface {
         public final long numerator;
         public final long denominator;
 
-        private Rational(double value) {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        Rational(double value) {
             this((long) (value * 10000), 10000);
         }
 
-        private Rational(long numerator, long denominator) {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        Rational(long numerator, long denominator) {
             // Handle erroneous case
             if (denominator == 0) {
                 this.numerator = 0;
@@ -2935,7 +2939,8 @@ public class ExifInterface {
         public final int numberOfComponents;
         public final byte[] bytes;
 
-        private ExifAttribute(int format, int numberOfComponents, byte[] bytes) {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        ExifAttribute(int format, int numberOfComponents, byte[] bytes) {
             this.format = format;
             this.numberOfComponents = numberOfComponents;
             this.bytes = bytes;
@@ -3047,7 +3052,8 @@ public class ExifInterface {
             return "(" + IFD_FORMAT_NAMES[format] + ", data length:" + bytes.length + ")";
         }
 
-        private Object getValue(ByteOrder byteOrder) {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        Object getValue(ByteOrder byteOrder) {
             ByteOrderedDataInputStream inputStream = null;
             try {
                 inputStream = new ByteOrderedDataInputStream(bytes);
@@ -3300,21 +3306,24 @@ public class ExifInterface {
         public final int primaryFormat;
         public final int secondaryFormat;
 
-        private ExifTag(String name, int number, int format) {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        ExifTag(String name, int number, int format) {
             this.name = name;
             this.number = number;
             this.primaryFormat = format;
             this.secondaryFormat = -1;
         }
 
-        private ExifTag(String name, int number, int primaryFormat, int secondaryFormat) {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        ExifTag(String name, int number, int primaryFormat, int secondaryFormat) {
             this.name = name;
             this.number = number;
             this.primaryFormat = primaryFormat;
             this.secondaryFormat = secondaryFormat;
         }
 
-        private boolean isFormatCompatible(int format) {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        boolean isFormatCompatible(int format) {
             if (primaryFormat == IFD_FORMAT_UNDEFINED || format == IFD_FORMAT_UNDEFINED) {
                 return true;
             } else if (primaryFormat == format || secondaryFormat == format) {
@@ -3612,8 +3621,8 @@ public class ExifInterface {
     // The following values are defined for handling JPEG streams. In this implementation, we are
     // not only getting information from EXIF but also from some JPEG special segments such as
     // MARKER_COM for user comment and MARKER_SOFx for image width and height.
-
-    private static final Charset ASCII = Charset.forName("US-ASCII");
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final Charset ASCII = Charset.forName("US-ASCII");
     // Identifier for EXIF APP1 segment in JPEG
     static final byte[] IDENTIFIER_EXIF_APP1 = "Exif\0\0".getBytes(ASCII);
     // JPEG segment markers, that each marker consumes two bytes beginning with 0xff and ending with
@@ -6120,8 +6129,10 @@ public class ExifInterface {
 
         private DataInputStream mDataInputStream;
         private ByteOrder mByteOrder = ByteOrder.BIG_ENDIAN;
-        private final int mLength;
-        private int mPosition;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        final int mLength;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        int mPosition;
 
         public ByteOrderedDataInputStream(InputStream in) throws IOException {
             mDataInputStream = new DataInputStream(in);
