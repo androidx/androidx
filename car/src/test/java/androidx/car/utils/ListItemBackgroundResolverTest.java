@@ -21,6 +21,9 @@ import static org.mockito.Mockito.verify;
 
 import android.view.View;
 
+import androidx.car.R;
+import androidx.car.util.ListItemBackgroundResolver;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,8 +31,6 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-
-import androidx.car.R;
 
 /**
  * Tests for {@link ListItemBackgroundResolver}.
