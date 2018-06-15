@@ -896,24 +896,30 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     public void testSkipToNext() throws Exception {
-        testPlaylist(true);
+        testSetNextDataSources(true, true);
     }
 
     @Test
     @LargeTest
-    public void testPlaylist() throws Exception {
-        testPlaylist(false);
+    public void testSetNextDataSourcesWithVideos() throws Exception {
+        testSetNextDataSources(true, false);
     }
 
-    private void testPlaylist(boolean skip) throws Exception {
-        if (!checkLoadResource(
-                R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz)) {
+    @Test
+    @LargeTest
+    public void testSetNextDataSourcesWithAudios() throws Exception {
+        testSetNextDataSources(false, false);
+    }
+
+    private void testSetNextDataSources(boolean video, boolean skip) throws Exception {
+        int res1 = video ? R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz
+                : R.raw.loudsoftmp3;
+        int res2 = video ? R.raw.testvideo : R.raw.testmp3;
+        if (!checkLoadResource(res1)) {
             return; // skip
         }
-        final DataSourceDesc2 dsd1 = createDataSourceDesc(
-                R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
-        final DataSourceDesc2 dsd2 = createDataSourceDesc(
-                R.raw.testvideo);
+        final DataSourceDesc2 dsd1 = createDataSourceDesc(res1);
+        final DataSourceDesc2 dsd2 = createDataSourceDesc(res2);
         ArrayList<DataSourceDesc2> nextDSDs = new ArrayList<DataSourceDesc2>(2);
         nextDSDs.add(dsd2);
         nextDSDs.add(dsd1);
@@ -927,7 +933,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             @Override
             public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
-                    Log.i(LOG_TAG, "testPlaylist: prepared dsd MediaId=" + dsd.getMediaId());
+                    Log.i(LOG_TAG, "testSetNextDataSources: prepared dsd MediaId="
+                            + dsd.getMediaId());
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
                     if (dsd == dsd1) {
