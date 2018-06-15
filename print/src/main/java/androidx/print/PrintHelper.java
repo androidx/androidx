@@ -66,14 +66,16 @@ public final class PrintHelper {
      *
      * There is a bug in the PrintActivity that causes it to ignore the orientation
      */
-    private static final boolean PRINT_ACTIVITY_RESPECTS_ORIENTATION =
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final boolean PRINT_ACTIVITY_RESPECTS_ORIENTATION =
             Build.VERSION.SDK_INT < 20 || Build.VERSION.SDK_INT > 23;
 
     /**
      * Whether the print subsystem handles min margins correctly. If not the print helper needs
      * to fake this.
      */
-    private static final boolean IS_MIN_MARGINS_HANDLING_CORRECT = Build.VERSION.SDK_INT != 23;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final boolean IS_MIN_MARGINS_HANDLING_CORRECT = Build.VERSION.SDK_INT != 23;
 
     /**
      * image will be scaled but leave white space
@@ -131,10 +133,12 @@ public final class PrintHelper {
     @Retention(RetentionPolicy.SOURCE)
     private @interface Orientation {}
 
-    private final Context mContext;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Context mContext;
 
     BitmapFactory.Options mDecodeOptions = null;
-    private final Object mLock = new Object();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Object mLock = new Object();
 
     @ScaleMode int mScaleMode = SCALE_MODE_FILL;
     @ColorMode int mColorMode = COLOR_MODE_COLOR;
@@ -373,11 +377,11 @@ public final class PrintHelper {
 
     @RequiresApi(19)
     private class PrintUriAdapter extends PrintDocumentAdapter {
-        private final String mJobName;
-        private final Uri mImageFile;
-        private final OnPrintFinishCallback mCallback;
-        private final int mFittingMode;
-        private PrintAttributes mAttributes;
+        final String mJobName;
+        final Uri mImageFile;
+        final OnPrintFinishCallback mCallback;
+        final int mFittingMode;
+        PrintAttributes mAttributes;
         AsyncTask<Uri, Boolean, Bitmap> mLoadBitmap;
         Bitmap mBitmap;
 
@@ -400,6 +404,7 @@ public final class PrintHelper {
             synchronized (this) {
                 mAttributes = newPrintAttributes;
             }
+
 
             if (cancellationSignal.isCanceled()) {
                 layoutResultCallback.onLayoutCancelled();
@@ -493,7 +498,7 @@ public final class PrintHelper {
         }
 
         @SuppressWarnings("deprecation") // Call to requestCancelDecode()
-        private void cancelLoad() {
+        void cancelLoad() {
             synchronized (mLock) { // prevent race with set null below
                 if (mDecodeOptions != null) {
                     if (Build.VERSION.SDK_INT < 24) {
@@ -536,7 +541,8 @@ public final class PrintHelper {
      * @param bitmap The bitmap to be printed.
      * @return true iff the picture should best be printed on a portrait orientation paper.
      */
-    private static boolean isPortrait(Bitmap bitmap) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static boolean isPortrait(Bitmap bitmap) {
         return bitmap.getWidth() <= bitmap.getHeight();
     }
 
@@ -577,7 +583,8 @@ public final class PrintHelper {
      *                    {@link #SCALE_MODE_FIT}
      * @return Matrix to be used in canvas.drawBitmap(bitmap, matrix, null) call
      */
-    private static Matrix getMatrix(int imageWidth, int imageHeight, RectF content,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static Matrix getMatrix(int imageWidth, int imageHeight, RectF content,
             @ScaleMode int fittingMode) {
         Matrix matrix = new Matrix();
 
@@ -610,7 +617,8 @@ public final class PrintHelper {
      * @param writeResultCallback Callback to call once written
      */
     @RequiresApi(19)
-    private void writeBitmap(final PrintAttributes attributes, final int fittingMode,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void writeBitmap(final PrintAttributes attributes, final int fittingMode,
             final Bitmap bitmap, final ParcelFileDescriptor fileDescriptor,
             final CancellationSignal cancellationSignal,
             final PrintDocumentAdapter.WriteResultCallback writeResultCallback) {
@@ -733,8 +741,8 @@ public final class PrintHelper {
      * @return the Bitmap
      * @throws FileNotFoundException if the Uri does not point to an image
      */
-    private Bitmap loadConstrainedBitmap(Uri uri)
-            throws FileNotFoundException {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Bitmap loadConstrainedBitmap(Uri uri) throws FileNotFoundException {
         if (uri == null || mContext == null) {
             throw new IllegalArgumentException("bad argument to getScaledBitmap");
         }
@@ -803,7 +811,8 @@ public final class PrintHelper {
         }
     }
 
-    private static Bitmap convertBitmapForColorMode(Bitmap original, @ColorMode int colorMode) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static Bitmap convertBitmapForColorMode(Bitmap original, @ColorMode int colorMode) {
         if (colorMode != COLOR_MODE_MONOCHROME) {
             return original;
         }
