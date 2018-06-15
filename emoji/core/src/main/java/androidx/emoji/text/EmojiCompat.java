@@ -99,22 +99,30 @@ public class EmojiCompat {
 
     /**
      * EmojiCompat instance is constructed, however the initialization did not start yet.
+     *
+     * @see #getLoadState()
      */
     public static final int LOAD_STATE_DEFAULT = 3;
 
     /**
      * EmojiCompat is initializing.
+     *
+     * @see #getLoadState()
      */
     public static final int LOAD_STATE_LOADING = 0;
 
     /**
      * EmojiCompat successfully initialized.
+     *
+     * @see #getLoadState()
      */
     public static final int LOAD_STATE_SUCCEEDED = 1;
 
     /**
      * An unrecoverable error occurred during initialization of EmojiCompat. Calls to functions
      * such as {@link #process(CharSequence)} will fail.
+     *
+     * @see #getLoadState()
      */
     public static final int LOAD_STATE_FAILED = 2;
 
@@ -129,11 +137,15 @@ public class EmojiCompat {
 
     /**
      * Replace strategy that uses the value given in {@link EmojiCompat.Config}.
+     *
+     * @see #process(CharSequence, int, int, int, int)
      */
     public static final int REPLACE_STRATEGY_DEFAULT = 0;
 
     /**
      * Replace strategy to add {@link EmojiSpan}s for all emoji that were found.
+     *
+     * @see #process(CharSequence, int, int, int, int)
      */
     public static final int REPLACE_STRATEGY_ALL = 1;
 
@@ -153,12 +165,16 @@ public class EmojiCompat {
 
     /**
      * {@link EmojiCompat} will start loading metadata when {@link #init(Config)} is called.
+     *
+     * @see Config#setMetadataLoadStrategy(int)
      */
     public static final int LOAD_STRATEGY_DEFAULT = 0;
 
     /**
      * {@link EmojiCompat} will wait for {@link #load()} to be called by developer in order to
      * start loading metadata.
+     *
+     * @see Config#setMetadataLoadStrategy(int)
      */
     public static final int LOAD_STRATEGY_MANUAL = 1;
 
@@ -1015,6 +1031,32 @@ public class EmojiCompat {
          * will start loading the metadata during {@link EmojiCompat#init(Config)}. When set to
          * {@link EmojiCompat#LOAD_STRATEGY_MANUAL}, you should call {@link EmojiCompat#load()} to
          * initiate metadata loading.
+         * <p/>
+         * Default implementations of {@link EmojiCompat.MetadataRepoLoader} start a thread
+         * during their {@link EmojiCompat.MetadataRepoLoader#load} functions. Just instantiating
+         * and starting a thread might take time especially in older devices. Since
+         * {@link EmojiCompat#init(Config)} has to be called before any EmojiCompat widgets are
+         * inflated, this results in time spent either on your Application.onCreate or Activity
+         * .onCreate. If you'd like to gain more control on when to start loading the metadata
+         * and be able to call {@link EmojiCompat#init(Config)} with absolute minimum time cost you
+         * can use {@link EmojiCompat#LOAD_STRATEGY_MANUAL}.
+         * <p/>
+         * When set to {@link EmojiCompat#LOAD_STRATEGY_MANUAL}, {@link EmojiCompat} will wait
+         * for {@link #load()} to be called by the developer in order to start loading metadata,
+         * therefore you should call {@link EmojiCompat#load()} to initiate metadata loading.
+         * {@link #load()} can be called from any thread.
+         * <pre>
+         * EmojiCompat.Config config = new FontRequestEmojiCompatConfig(context, fontRequest)
+         *         .setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL);
+         *
+         * // EmojiCompat will not start loading metadata and MetadataRepoLoader#load(...)
+         * // will not be called
+         * EmojiCompat.init(config);
+         *
+         * // At any time (i.e. idle time or executorService is ready)
+         * // call EmojiCompat#load() to start loading metadata.
+         * executorService.execute(() -> EmojiCompat.get().load());
+         * </pre>
          *
          * @param strategy one of {@link EmojiCompat#LOAD_STRATEGY_DEFAULT},
          *                  {@link EmojiCompat#LOAD_STRATEGY_MANUAL}
