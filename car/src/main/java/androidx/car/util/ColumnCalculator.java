@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.car.utils;
+package androidx.car.util;
 
 import android.content.Context;
 import android.content.res.Resources;
-import androidx.annotation.Px;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 
+import androidx.annotation.Px;
 import androidx.car.R;
 
 /**

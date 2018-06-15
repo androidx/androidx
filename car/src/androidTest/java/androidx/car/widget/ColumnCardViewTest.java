@@ -25,13 +25,13 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.ViewTreeObserver;
 
+import androidx.car.test.R;
+import androidx.car.util.ColumnCalculator;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.car.test.R;
-import androidx.car.utils.ColumnCalculator;
 
 /** Instrumentation unit tests for {@link ColumnCardView}. */
 @SmallTest

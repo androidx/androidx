@@ -30,7 +30,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
-import androidx.car.utils.CarUxRestrictionsUtils;
+import androidx.car.util.CarUxRestrictionsUtils;
 
 import java.lang.annotation.Retention;
 import java.util.ArrayList;

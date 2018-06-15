@@ -28,7 +28,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.car.R;
-import androidx.car.utils.CarUxRestrictionsHelper;
+import androidx.car.util.CarUxRestrictionsHelper;
 import androidx.car.widget.PagedListView;
 import androidx.recyclerview.widget.RecyclerView;
 

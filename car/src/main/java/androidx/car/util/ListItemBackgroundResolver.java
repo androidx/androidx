@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.car.utils;
+package androidx.car.util;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.view.View;
 
+import androidx.annotation.RestrictTo;
 import androidx.car.R;
 
 /**
  * A utility class that will set the current background for a View that represents an card entry
  * in a list. The class will set the background depending on the position of the card within the
  * list.
+ *
+ * @hide
  */
+@RestrictTo(LIBRARY_GROUP)
 public class ListItemBackgroundResolver {
     private ListItemBackgroundResolver() {}
 

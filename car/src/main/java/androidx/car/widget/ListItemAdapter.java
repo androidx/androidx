@@ -33,8 +33,8 @@ import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
-import androidx.car.utils.CarUxRestrictionsHelper;
-import androidx.car.utils.ListItemBackgroundResolver;
+import androidx.car.util.CarUxRestrictionsHelper;
+import androidx.car.util.ListItemBackgroundResolver;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
