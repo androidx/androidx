@@ -138,7 +138,7 @@ public class SwitchCompat extends CompoundButton {
     private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
     private int mMinFlingVelocity;
 
-    private float mThumbPosition;
+    float mThumbPosition;
 
     /**
      * Width required to draw the switch track and thumb. Includes padding and

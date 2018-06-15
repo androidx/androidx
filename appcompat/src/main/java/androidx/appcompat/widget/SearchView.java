@@ -1867,7 +1867,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         /**
          * Returns true if the text field is empty, or contains only whitespace.
          */
-        private boolean isEmpty() {
+        boolean isEmpty() {
             return TextUtils.getTrimmedLength(getText()) == 0;
         }
 
@@ -1983,7 +1983,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
             return ic;
         }
 
-        private void showSoftInputIfNecessary() {
+        void showSoftInputIfNecessary() {
             if (mHasPendingShowSoftInputRequest) {
                 final InputMethodManager imm = (InputMethodManager)
                         getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -1992,7 +1992,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
             }
         }
 
-        private void setImeVisibility(final boolean visible) {
+        void setImeVisibility(final boolean visible) {
             final InputMethodManager imm = (InputMethodManager)
                         getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             if (!visible) {

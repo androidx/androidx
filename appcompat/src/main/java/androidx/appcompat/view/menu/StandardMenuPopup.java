@@ -57,7 +57,8 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
     // StandardMenuPopup.
     final MenuPopupWindow mPopup;
 
-    private final OnGlobalLayoutListener mGlobalLayoutListener = new OnGlobalLayoutListener() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final OnGlobalLayoutListener mGlobalLayoutListener = new OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
             // Only move the popup if it's showing and non-modal. We don't want
@@ -96,7 +97,8 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
     private View mAnchorView;
     View mShownAnchorView;
     private Callback mPresenterCallback;
-    private ViewTreeObserver mTreeObserver;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ViewTreeObserver mTreeObserver;
 
     /** Whether the popup has been dismissed. Once dismissed, it cannot be opened again. */
     private boolean mWasDismissed;

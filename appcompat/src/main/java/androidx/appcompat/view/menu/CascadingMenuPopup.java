@@ -94,7 +94,8 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
      */
     final List<CascadingMenuInfo> mShowingMenus = new ArrayList<>();
 
-    private final OnGlobalLayoutListener mGlobalLayoutListener = new OnGlobalLayoutListener() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final OnGlobalLayoutListener mGlobalLayoutListener = new OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
             // Only move the popup if it's showing and non-modal. We don't want
@@ -205,7 +206,8 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
     private boolean mForceShowIcon;
     private boolean mShowTitle;
     private Callback mPresenterCallback;
-    private ViewTreeObserver mTreeObserver;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ViewTreeObserver mTreeObserver;
     private PopupWindow.OnDismissListener mOnDismissListener;
 
     /** Whether popup menus should disable exit animations when closing. */

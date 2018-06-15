@@ -292,7 +292,8 @@ class AppCompatTextHelper {
         }
     }
 
-    private void onAsyncTypefaceReceived(WeakReference<TextView> textViewWeak, Typeface typeface) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onAsyncTypefaceReceived(WeakReference<TextView> textViewWeak, Typeface typeface) {
         if (mAsyncFontPending) {
             mFontTypeface = typeface;
             final TextView textView = textViewWeak.get();
