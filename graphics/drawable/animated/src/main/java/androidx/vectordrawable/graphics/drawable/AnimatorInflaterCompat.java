@@ -163,7 +163,7 @@ public class AnimatorInflaterCompat {
          * Care must be taken when using this option because on every evaluation
          * a new <code>PathParser.PathDataNode[]</code> will be allocated.
          */
-        private PathDataEvaluator() {
+        PathDataEvaluator() {
         }
 
         /**

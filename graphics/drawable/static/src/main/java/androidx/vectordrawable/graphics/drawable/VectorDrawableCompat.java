@@ -1066,8 +1066,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         private static final Matrix IDENTITY_MATRIX = new Matrix();
         private final Matrix mFinalPathMatrix = new Matrix();
 
-        private Paint mStrokePaint;
-        private Paint mFillPaint;
+        Paint mStrokePaint;
+        Paint mFillPaint;
         private PathMeasure mPathMeasure;
 
         /////////////////////////////////////////////////////
@@ -1285,7 +1285,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     private static class VGroup {
         // mStackedMatrix is only used temporarily when drawing, it combines all
         // the parents' local matrices with the current one.
-        private final Matrix mStackedMatrix = new Matrix();
+        final Matrix mStackedMatrix = new Matrix();
 
         /////////////////////////////////////////////////////
         // Variables below need to be copied (deep copy if applicable) for mutation.
@@ -1301,7 +1301,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
         // mLocalMatrix is updated based on the update of transformation information,
         // either parsed from the XML or by animation.
-        private final Matrix mLocalMatrix = new Matrix();
+        final Matrix mLocalMatrix = new Matrix();
         int mChangingConfigurations;
         private int[] mThemeAttrs;
         private String mGroupName = null;
