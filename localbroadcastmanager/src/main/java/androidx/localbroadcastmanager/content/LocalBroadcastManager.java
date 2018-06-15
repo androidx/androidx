@@ -291,7 +291,8 @@ public final class LocalBroadcastManager {
         }
     }
 
-    private void executePendingBroadcasts() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void executePendingBroadcasts() {
         while (true) {
             final BroadcastRecord[] brs;
             synchronized (mReceivers) {
