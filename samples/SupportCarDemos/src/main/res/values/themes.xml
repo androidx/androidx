@@ -35,6 +35,14 @@
         <item name="toolbarStyle">@style/CarDrawerToolbar</item>
     </style>
 
+    <!-- A theme for drawers that have a custom layout. -->
+    <style name="CarDrawerTheme.Custom">
+        <item name="drawerBackButtonId">@id/custom_drawer_back_button</item>
+        <item name="drawerListId">@id/custom_drawer_list</item>
+        <item name="drawerTitleId">@id/custom_drawer_title</item>
+        <item name="drawerProgressId">@id/custom_drawer_progress</item>
+    </style>
+
     <!-- The style of the hamburger icon. This style affects the ripple color. -->
     <style name="CarDrawerToolbarButton" parent="Widget.Car.Toolbar.Button.Navigation">
         <item name="android:background">@drawable/car_card_ripple_background_day</item>

@@ -79,6 +79,10 @@ limitations under the License.
         <item name="drawerItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="drawerItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
         <item name="drawerListStyle">@style/Widget.Car.List</item>
+        <item name="drawerBackButtonId">@id/car_drawer_back_button</item>
+        <item name="drawerListId">@id/car_drawer_list</item>
+        <item name="drawerTitleId">@id/car_drawer_title</item>
+        <item name="drawerProgressId">@id/car_drawer_progress</item>
     </style>
 
     <!-- A Theme for activities that have a drawer affordance. This theme will automatically switch

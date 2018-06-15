@@ -18,7 +18,9 @@ package androidx.car.drawer;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +29,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.AnimRes;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -82,13 +85,19 @@ public class CarDrawerController {
      * Creates a {@link CarDrawerController} that will control the navigation of the drawer given by
      * {@code drawerLayout}.
      *
-     * <p>The given {@code drawerLayout} should either have a child View that is inflated from
-     * {@code R.layout.car_drawer} or ensure that it three children that have the IDs found in that
-     * layout.
+     * <p>The given {@code drawerLayout} should either have a child view that is inflated from
+     * {@code R.layout.car_drawer} or ensure that its child views have the IDs expected in that
+     * layout. The ids expected can be configured in the theme by {@code R.attr.drawerBackButtonId},
+     * {@code R.attr.drawerListId}, {@code R.attr.drawerTitleId} and
+     * {@code R.attr.drawerProgressId}.
      *
      * @param drawerLayout The top-level container for the window content that shows the
      *                     interactive drawer.
      * @param drawerToggle The {@link ActionBarDrawerToggle} that will open the drawer.
+     * @attr ref R.styleable#CarTheme_drawerBackButtonId
+     * @attr ref R.styleable#CarTheme_drawerListId
+     * @attr ref R.styleable#CarTheme_drawerProgressId
+     * @attr ref R.styleable#CarTheme_drawerTitleId
      */
     public CarDrawerController(@NonNull DrawerLayout drawerLayout,
             @NonNull ActionBarDrawerToggle drawerToggle) {
@@ -96,12 +105,28 @@ public class CarDrawerController {
         mDrawerToggle = drawerToggle;
         mDrawerLayout = drawerLayout;
 
-        mTitleView = drawerLayout.findViewById(R.id.drawer_title);
-        mDrawerList = drawerLayout.findViewById(R.id.drawer_list);
-        mDrawerList.setMaxPages(PagedListView.ItemCap.UNLIMITED);
-        mProgressBar = drawerLayout.findViewById(R.id.drawer_progress);
+        TypedValue outValue = new TypedValue();
+        Resources.Theme theme = mContext.getTheme();
 
-        drawerLayout.findViewById(R.id.drawer_back_button).setOnClickListener(v -> {
+        mTitleView = drawerLayout.findViewById(
+                theme.resolveAttribute(R.attr.drawerTitleId, outValue, true)
+                        ? outValue.resourceId
+                        : R.id.car_drawer_title);
+        mDrawerList = drawerLayout.findViewById(
+                theme.resolveAttribute(R.attr.drawerListId, outValue, true)
+                        ? outValue.resourceId
+                        : R.id.car_drawer_list);
+        mDrawerList.setMaxPages(PagedListView.ItemCap.UNLIMITED);
+        mProgressBar = drawerLayout.findViewById(
+                theme.resolveAttribute(R.attr.drawerProgressId, outValue, true)
+                        ? outValue.resourceId
+                        : R.id.car_drawer_progress);
+
+        @IdRes int backButtonId = theme.resolveAttribute(R.attr.drawerBackButtonId, outValue, true)
+                ? outValue.resourceId
+                : R.id.car_drawer_back_button;
+
+        drawerLayout.findViewById(backButtonId).setOnClickListener(v -> {
             if (!maybeHandleUpClick()) {
                 closeDrawer();
             }
