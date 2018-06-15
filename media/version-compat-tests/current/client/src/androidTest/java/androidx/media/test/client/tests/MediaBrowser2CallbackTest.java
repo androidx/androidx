@@ -18,7 +18,17 @@ package androidx.media.test.client.tests;
 
 import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
 import static androidx.media.test.lib.MediaBrowser2Constants.EXTRAS;
+import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
+import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_ID;
+import static androidx.media.test.lib.MediaBrowser2Constants
+        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
+import static androidx.media.test.lib.MediaBrowser2Constants
+        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID;
+import static androidx.media.test.lib.MediaBrowser2Constants
+        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
+import static androidx.media.test.lib.MediaBrowser2Constants
+        .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -52,7 +62,6 @@ import androidx.media.MediaSession2.CommandButton;
 import androidx.media.SessionCommand2;
 import androidx.media.SessionCommandGroup2;
 import androidx.media.SessionToken2;
-import androidx.media.test.client.RemoteMediaLibrarySession;
 import androidx.media.test.lib.MediaBrowser2Constants;
 import androidx.media.test.lib.TestUtils;
 
@@ -378,9 +387,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
     public void testOnChildrenChanged_calledWhenSubscribed() throws InterruptedException {
         // This test uses MediaLibrarySession.notifyChildrenChanged().
         prepareLooper();
-        final String expectedParentId = "expectedParentId";
-        final int testChildrenCount = 101;
-        final Bundle testExtras = TestUtils.createTestBundle();
+        final String expectedParentId = SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
 
         final CountDownLatch latch = new CountDownLatch(1);
         final BrowserCallback controllerCallbackProxy = new BrowserCallback() {
@@ -388,8 +395,8 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
             public void onChildrenChanged(MediaBrowser2 browser, String parentId,
                     int itemCount, Bundle extras) {
                 assertEquals(expectedParentId, parentId);
-                assertEquals(testChildrenCount, itemCount);
-                assertTrue(TestUtils.equals(testExtras, extras));
+                assertEquals(NOTIFY_CHILDREN_CHANGED_ITEM_COUNT, itemCount);
+                assertTrue(TestUtils.equals(NOTIFY_CHILDREN_CHANGED_EXTRAS, extras));
                 latch.countDown();
             }
         };
@@ -399,11 +406,8 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
                 token, true, controllerCallbackProxy);
         browser.subscribe(expectedParentId, null);
 
-        // Should trigger onChildrenChanged() for the browser.
-        RemoteMediaLibrarySession session = new RemoteMediaLibrarySession(mContext);
-        session.notifyChildrenChanged(expectedParentId, testChildrenCount, testExtras);
-
-        // onChildrenChanged() should be called.
+        // The MediaLibrarySession in MockMediaLibraryService2 is supposed to call
+        // notifyChildrenChanged() in its callback onSubscribe().
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -411,9 +415,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
     public void testOnChildrenChanged_calledWhenSubscribed2() throws InterruptedException {
         // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
         prepareLooper();
-        final String expectedParentId = "expectedParentId";
-        final int testChildrenCount = 101;
-        final Bundle testExtras = TestUtils.createTestBundle();
+        final String expectedParentId = SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
 
         final CountDownLatch latch = new CountDownLatch(1);
         final BrowserCallback controllerCallbackProxy = new BrowserCallback() {
@@ -421,8 +423,8 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
             public void onChildrenChanged(MediaBrowser2 browser, String parentId,
                     int itemCount, Bundle extras) {
                 assertEquals(expectedParentId, parentId);
-                assertEquals(testChildrenCount, itemCount);
-                assertTrue(TestUtils.equals(testExtras, extras));
+                assertEquals(NOTIFY_CHILDREN_CHANGED_ITEM_COUNT, itemCount);
+                assertTrue(TestUtils.equals(NOTIFY_CHILDREN_CHANGED_EXTRAS, extras));
                 latch.countDown();
             }
         };
@@ -432,12 +434,8 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
                 token, true, controllerCallbackProxy);
         browser.subscribe(expectedParentId, null);
 
-        // Should trigger onChildrenChanged() for the browser.
-        RemoteMediaLibrarySession session = new RemoteMediaLibrarySession(mContext);
-        session.notifyChildrenChanged(
-                TEST_CONTROLLER_INFO, expectedParentId, testChildrenCount, testExtras);
-
-        // onChildrenChanged() should be called.
+        // The MediaLibrarySession in MockMediaLibraryService2 is supposed to call
+        // notifyChildrenChanged(ControllerInfo) in its callback onSubscribe().
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -445,9 +443,8 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
     public void testOnChildrenChanged_notCalledWhenNotSubscribed() throws InterruptedException {
         // This test uses MediaLibrarySession.notifyChildrenChanged().
         prepareLooper();
-        final String subscribedMediaId = "subscribedMediaId";
-        final String anotherMediaId = "anotherMediaId";
-        final int testChildrenCount = 101;
+        final String subscribedMediaId =
+                SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID;
         final CountDownLatch latch = new CountDownLatch(1);
 
         final BrowserCallback controllerCallbackProxy = new BrowserCallback() {
@@ -464,12 +461,9 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
                 token, true, controllerCallbackProxy);
         browser.subscribe(subscribedMediaId, null);
 
-        // Shouldn't trigger onChildrenChanged() for the browser,
-        // because the browser didn't subscribe this media id.
-        RemoteMediaLibrarySession session = new RemoteMediaLibrarySession(mContext);
-        session.notifyChildrenChanged(anotherMediaId, testChildrenCount, null /* extras */);
-
-        // onChildrenChanged() should not be called.
+        // The MediaLibrarySession in MockMediaLibraryService2 is supposed to call
+        // notifyChildrenChanged() in its callback onSubscribe(), but with a different media ID.
+        // Therefore, onChildrenChanged() should not be called.
         assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -477,9 +471,8 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
     public void testOnChildrenChanged_notCalledWhenNotSubscribed2() throws InterruptedException {
         // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
         prepareLooper();
-        final String subscribedMediaId = "subscribedMediaId";
-        final String anotherMediaId = "anotherMediaId";
-        final int testChildrenCount = 101;
+        final String subscribedMediaId =
+                SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
         final CountDownLatch latch = new CountDownLatch(1);
 
         final BrowserCallback controllerCallbackProxy = new BrowserCallback() {
@@ -496,13 +489,10 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
                 token, true, controllerCallbackProxy);
         browser.subscribe(subscribedMediaId, null);
 
-        // Shouldn't trigger onChildrenChanged() for the browser,
-        // because the browser didn't subscribe this media id.
-        RemoteMediaLibrarySession session = new RemoteMediaLibrarySession(mContext);
-        session.notifyChildrenChanged(
-                TEST_CONTROLLER_INFO, anotherMediaId, testChildrenCount, null /* extras */);
-
-        // onChildrenChanged() should not be called.
+        // The MediaLibrarySession in MockMediaLibraryService2 is supposed to call
+        // notifyChildrenChanged(ControllerInfo) in its callback onSubscribe(),
+        // but with a different media ID.
+        // Therefore, onChildrenChanged() should not be called.
         assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 

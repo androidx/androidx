@@ -17,12 +17,11 @@
 package android.support.mediacompat.testlib;
 
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.ResultReceiver;
 
 interface IRemoteMediaController2 {
 
-    void create(String controllerId, in Bundle token, boolean waitForConnection);
+    void create(boolean isBrowser, String controllerId, in Bundle token, boolean waitForConnection);
     void runCustomTestCommands(String controllerId, int command, in Bundle args);
 
     // MediaController2 Methods
@@ -59,4 +58,8 @@ interface IRemoteMediaController2 {
     void unsubscribeRoutesInfo(String controllerId);
     void selectRoute(String controllerId, in Bundle route);
     void close(String controllerId);
+
+    // MediaBrowser2 methods
+    void subscribe(String controllerId, String parentId, in Bundle extras);
+    void unsubscribe(String controllerId, String parentId);
 }
