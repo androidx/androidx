@@ -193,7 +193,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * On L+, with RenderThread, the UI thread has idle time after it has passed a frame off to
      * RenderThread but before the next frame begins. We schedule prefetch work in this window.
      */
-    private static final boolean ALLOW_THREAD_GAP_WORK = Build.VERSION.SDK_INT >= 21;
+    static final boolean ALLOW_THREAD_GAP_WORK = Build.VERSION.SDK_INT >= 21;
 
     /**
      * FocusFinder#findNextFocus is broken on ICS MR1 and older for View.FOCUS_BACKWARD direction.
@@ -519,14 +519,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     private NestedScrollingChildHelper mScrollingChildHelper;
     private final int[] mScrollOffset = new int[2];
-    private final int[] mScrollConsumed = new int[2];
+    final int[] mScrollConsumed = new int[2];
     private final int[] mNestedOffsets = new int[2];
 
     /**
      * Reusable int array for use in calls to {@link #scrollStep(int, int, int[])} so that the
      * method may mutate it to "return" 2 ints.
      */
-    private final int[] mScrollStepConsumed = new int[2];
+    final int[] mScrollStepConsumed = new int[2];
 
     /**
      * These are views that had their a11y importance changed during a layout. We defer these events
@@ -1770,7 +1770,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * any other necessary operations (such as a call to {@link #consumePendingUpdateOperations()})
      * is already handled.
      */
-    private void scrollStep(int dx, int dy, @Nullable int[] consumed) {
+    void scrollStep(int dx, int dy, @Nullable int[] consumed) {
         startInterceptRequestLayout();
         onEnterLayoutOrScroll();
 
@@ -4975,7 +4975,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
-        private OverScroller mScroller;
+        OverScroller mScroller;
         Interpolator mInterpolator = sQuinticInterpolator;
 
         // When set to true, postOnAnimation callbacks are delayed until the run method completes
@@ -10001,7 +10001,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         }
 
-        private void onSmoothScrollerStopped(SmoothScroller smoothScroller) {
+        void onSmoothScrollerStopped(SmoothScroller smoothScroller) {
             if (mSmoothScroller == smoothScroller) {
                 mSmoothScroller = null;
             }
@@ -10753,7 +10753,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         static final int FLAG_SET_A11Y_ITEM_DELEGATE = 1 << 14;
 
-        private int mFlags;
+        int mFlags;
 
         private static final List<Object> FULLUPDATE_PAYLOADS = Collections.EMPTY_LIST;
 
@@ -10764,9 +10764,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         // If non-null, view is currently considered scrap and may be reused for other data by the
         // scrap container.
-        private Recycler mScrapContainer = null;
+        Recycler mScrapContainer = null;
         // Keeps whether this ViewHolder lives in Change scrap or Attached scrap
-        private boolean mInChangeScrap = false;
+        boolean mInChangeScrap = false;
 
         // Saves isImportantForAccessibility value for the view item while it's in hidden state and
         // marked as unimportant for accessibility.
@@ -11046,7 +11046,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * Called when the child view enters the hidden state
          */
-        private void onEnteredHiddenState(RecyclerView parent) {
+        void onEnteredHiddenState(RecyclerView parent) {
             // While the view item is in hidden state, make it invisible for the accessibility.
             if (mPendingAccessibilityState != PENDING_ACCESSIBILITY_STATE_NOT_SET) {
                 mWasImportantForAccessibilityBeforeHidden = mPendingAccessibilityState;
@@ -11061,7 +11061,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         /**
          * Called when the child view leaves the hidden state
          */
-        private void onLeftHiddenState(RecyclerView parent) {
+        void onLeftHiddenState(RecyclerView parent) {
             parent.setChildImportantForAccessibilityInternal(this,
                     mWasImportantForAccessibilityBeforeHidden);
             mWasImportantForAccessibilityBeforeHidden = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
@@ -11137,7 +11137,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * Returns whether we have animations referring to this view holder or not.
          * This is similar to isRecyclable flag but does not check transient state.
          */
-        private boolean shouldBeKeptAsChild() {
+        boolean shouldBeKeptAsChild() {
             return (mFlags & FLAG_NOT_RECYCLABLE) != 0;
         }
 
@@ -11145,7 +11145,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @return True if ViewHolder is not referenced by RecyclerView animations but has
          * transient state which will prevent it from being recycled.
          */
-        private boolean doesTransientStatePreventRecycling() {
+        boolean doesTransientStatePreventRecycling() {
             return (mFlags & FLAG_NOT_RECYCLABLE) == 0 && ViewCompat.hasTransientState(itemView);
         }
 
@@ -11584,7 +11584,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return mTargetPosition;
         }
 
-        private void onAnimation(int dx, int dy) {
+        void onAnimation(int dx, int dy) {
             // TODO(b/72745539): If mRunning is false, we call stop, which is a no op if mRunning
             // is false. Also, if recyclerView is null, we call stop, and stop assumes recyclerView
             // is not null (as does the code following this block).  This should be cleaned up.
@@ -12072,7 +12072,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
 
         /** Owned by SmoothScroller */
-        private int mTargetPosition = RecyclerView.NO_POSITION;
+        int mTargetPosition = RecyclerView.NO_POSITION;
 
         private SparseArray<Object> mData;
 

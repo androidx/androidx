@@ -39,7 +39,8 @@ public final class AsyncDifferConfig<T> {
     @NonNull
     private final DiffUtil.ItemCallback<T> mDiffCallback;
 
-    private AsyncDifferConfig(
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    AsyncDifferConfig(
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
             @NonNull DiffUtil.ItemCallback<T> diffCallback) {

@@ -174,15 +174,16 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     /**
      * Currently selected view holder
      */
-    private ViewHolder mSelected = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ViewHolder mSelected = null;
 
     /**
      * The reference coordinates for the action start. For drag & drop, this is the time long
      * press is completed vs for swipe, this is the initial touch point.
      */
-    private float mInitialTouchX;
+    float mInitialTouchX;
 
-    private float mInitialTouchY;
+    float mInitialTouchY;
 
     /**
      * Set when ItemTouchHelper is assigned to a RecyclerView.
@@ -197,9 +198,9 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     /**
      * The diff between the last event and initial touch.
      */
-    private float mDx;
+    float mDx;
 
-    private float mDy;
+    float mDy;
 
     /**
      * The coordinates of the selected view at the time it is selected. We record these values
@@ -213,13 +214,14 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     /**
      * The pointer we are tracking.
      */
-    private int mActivePointerId = ACTIVE_POINTER_ID_NONE;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mActivePointerId = ACTIVE_POINTER_ID_NONE;
 
     /**
      * Developer callback which controls the behavior of ItemTouchHelper.
      */
     @NonNull
-    private Callback mCallback;
+    Callback mCallback;
 
     /**
      * Current mode.
@@ -231,7 +233,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      * {@link Callback#getAbsoluteMovementFlags(RecyclerView, ViewHolder)} for the current
      * action state.
      */
-    private int mSelectedFlags;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mSelectedFlags;
 
     /**
      * When a View is dragged or swiped and needs to go back to where it was, we create a Recover
@@ -244,13 +247,14 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
     private int mSlop;
 
-    private RecyclerView mRecyclerView;
+    RecyclerView mRecyclerView;
 
     /**
      * When user drags a view to the edge, we start scrolling the LayoutManager as long as View
      * is partially out of bounds.
      */
-    private final Runnable mScrollRunnable = new Runnable() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Runnable mScrollRunnable = new Runnable() {
         @Override
         public void run() {
             if (mSelected != null && scrollIfNecessary()) {
@@ -266,7 +270,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     /**
      * Used for detecting fling swipe
      */
-    private VelocityTracker mVelocityTracker;
+    VelocityTracker mVelocityTracker;
 
     //re-used list for selecting a swap target
     private List<ViewHolder> mSwapTargets;
@@ -284,19 +288,22 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      * until view reaches its final position (end of recover animation), we keep a reference so
      * that it can be drawn above other children.
      */
-    private View mOverdrawChild = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    View mOverdrawChild = null;
 
     /**
      * We cache the position of the overdraw child to avoid recalculating it each time child
      * position callback is called. This value is invalidated whenever a child is attached or
      * detached.
      */
-    private int mOverdrawChildPosition = -1;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mOverdrawChildPosition = -1;
 
     /**
      * Used to detect long press.
      */
-    private GestureDetectorCompat mGestureDetector;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    GestureDetectorCompat mGestureDetector;
 
     /**
      * Callback for when long press occurs.
@@ -562,7 +569,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      *                    current action, but may not be null if actionState is ACTION_STATE_DRAG.
      * @param actionState The type of action
      */
-    private void select(@Nullable ViewHolder selected, int actionState) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void select(@Nullable ViewHolder selected, int actionState) {
         if (selected == mSelected && actionState == mActionState) {
             return;
         }
@@ -686,7 +694,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         mRecyclerView.invalidate();
     }
 
-    private void postDispatchSwipe(final RecoverAnimation anim, final int swipeDir) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void postDispatchSwipe(final RecoverAnimation anim, final int swipeDir) {
         // wait until animations are complete.
         mRecyclerView.post(new Runnable() {
             @Override
@@ -709,7 +718,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         });
     }
 
-    private boolean hasRunningRecoverAnim() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean hasRunningRecoverAnim() {
         final int size = mRecoverAnimations.size();
         for (int i = 0; i < size; i++) {
             if (!mRecoverAnimations.get(i).mEnded) {
@@ -722,7 +732,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     /**
      * If user drags the view to the edge, trigger a scroll if necessary.
      */
-    private boolean scrollIfNecessary() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean scrollIfNecessary() {
         if (mSelected == null) {
             mDragScrollStartTimeInMs = Long.MIN_VALUE;
             return false;
@@ -837,7 +848,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     /**
      * Checks if we should swap w/ another view holder.
      */
-    private void moveIfNecessary(ViewHolder viewHolder) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void moveIfNecessary(ViewHolder viewHolder) {
         if (mRecyclerView.isLayoutRequested()) {
             return;
         }
@@ -897,7 +909,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     /**
      * Returns the animation type or 0 if cannot be found.
      */
-    private void endRecoverAnimation(ViewHolder viewHolder, boolean override) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void endRecoverAnimation(ViewHolder viewHolder, boolean override) {
         final int recoverAnimSize = mRecoverAnimations.size();
         for (int i = recoverAnimSize - 1; i >= 0; i--) {
             final RecoverAnimation anim = mRecoverAnimations.get(i);
@@ -918,7 +931,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         outRect.setEmpty();
     }
 
-    private void obtainVelocityTracker() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void obtainVelocityTracker() {
         if (mVelocityTracker != null) {
             mVelocityTracker.recycle();
         }
@@ -961,7 +975,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     /**
      * Checks whether we should select a View for swiping.
      */
-    private void checkSelectForSwipe(int action, MotionEvent motionEvent, int pointerIndex) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void checkSelectForSwipe(int action, MotionEvent motionEvent, int pointerIndex) {
         if (mSelected != null || action != MotionEvent.ACTION_MOVE
                 || mActionState == ACTION_STATE_DRAG || !mCallback.isItemViewSwipeEnabled()) {
             return;
@@ -1018,7 +1033,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         select(vh, ACTION_STATE_SWIPE);
     }
 
-    private View findChildView(MotionEvent event) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    View findChildView(MotionEvent event) {
         // first check elevated views, if none, then call RV
         final float x = event.getX();
         final float y = event.getY();
@@ -1134,7 +1150,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         select(viewHolder, ACTION_STATE_SWIPE);
     }
 
-    private RecoverAnimation findAnimation(MotionEvent event) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    RecoverAnimation findAnimation(MotionEvent event) {
         if (mRecoverAnimations.isEmpty()) {
             return null;
         }
@@ -1148,7 +1165,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         return null;
     }
 
-    private void updateDxDy(MotionEvent ev, int directionFlags, int pointerIndex) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void updateDxDy(MotionEvent ev, int directionFlags, int pointerIndex) {
         final float x = ev.getX(pointerIndex);
         final float y = ev.getY(pointerIndex);
 
@@ -1294,7 +1312,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         mRecyclerView.setChildDrawingOrderCallback(mChildDrawingOrderCallback);
     }
 
-    private void removeChildDrawingOrderCallbackIfNecessary(View view) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void removeChildDrawingOrderCallbackIfNecessary(View view) {
         if (view == mOverdrawChild) {
             mOverdrawChild = null;
             // only remove if we've added
