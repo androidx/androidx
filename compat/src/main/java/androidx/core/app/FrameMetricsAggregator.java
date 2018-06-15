@@ -309,6 +309,9 @@ public class FrameMetricsAggregator {
      */
     private static class FrameMetricsBaseImpl {
 
+        FrameMetricsBaseImpl() {
+        }
+
         public void add(Activity activity) {
         }
 

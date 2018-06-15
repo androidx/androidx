@@ -78,14 +78,21 @@ public class Person {
                 .build();
     }
 
-    @Nullable private CharSequence mName;
-    @Nullable private IconCompat mIcon;
-    @Nullable private String mUri;
-    @Nullable private String mKey;
-    private boolean mIsBot;
-    private boolean mIsImportant;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable CharSequence mName;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable IconCompat mIcon;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable String mUri;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable String mKey;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsBot;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsImportant;
 
-    private Person(Builder builder) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Person(Builder builder) {
         mName = builder.mName;
         mIcon = builder.mIcon;
         mUri = builder.mUri;
@@ -195,17 +202,17 @@ public class Person {
 
     /** Builder for the immutable {@link Person} class. */
     public static class Builder {
-        @Nullable private CharSequence mName;
-        @Nullable private IconCompat mIcon;
-        @Nullable private String mUri;
-        @Nullable private String mKey;
-        private boolean mIsBot;
-        private boolean mIsImportant;
+        @Nullable CharSequence mName;
+        @Nullable IconCompat mIcon;
+        @Nullable String mUri;
+        @Nullable String mKey;
+        boolean mIsBot;
+        boolean mIsImportant;
 
         /** Creates a new, empty {@link Builder}. */
         public Builder() { }
 
-        private Builder(Person person) {
+        Builder(Person person) {
             mName = person.mName;
             mIcon = person.mIcon;
             mUri = person.mUri;

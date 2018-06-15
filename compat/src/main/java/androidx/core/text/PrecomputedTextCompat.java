@@ -88,7 +88,7 @@ public class PrecomputedTextCompat implements Spannable {
 
         private final int mHyphenationFrequency;
 
-        private final PrecomputedText.Params mWrapped;
+        final PrecomputedText.Params mWrapped;
 
         /**
          * A builder for creating {@link Params}.
@@ -190,7 +190,7 @@ public class PrecomputedTextCompat implements Spannable {
             }
         }
 
-        private Params(@NonNull TextPaint paint, @NonNull TextDirectionHeuristic textDir,
+        Params(@NonNull TextPaint paint, @NonNull TextDirectionHeuristic textDir,
                 int strategy, int frequency) {
             if (Build.VERSION.SDK_INT >= 28) {
                 mWrapped = new PrecomputedText.Params.Builder(paint).setBreakStrategy(strategy)

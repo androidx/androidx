@@ -87,8 +87,10 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
 
     private volatile Status mStatus = Status.PENDING;
 
-    private final AtomicBoolean mCancelled = new AtomicBoolean();
-    private final AtomicBoolean mTaskInvoked = new AtomicBoolean();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final AtomicBoolean mCancelled = new AtomicBoolean();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final AtomicBoolean mTaskInvoked = new AtomicBoolean();
 
     /**
      * Indicates the current status of the task. Each status will be set only once
