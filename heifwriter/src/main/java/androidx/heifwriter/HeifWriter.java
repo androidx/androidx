@@ -84,17 +84,24 @@ public final class HeifWriter implements AutoCloseable {
     private final @InputMode int mInputMode;
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
-    private int mNumTiles;
-    private final int mRotation;
-    private final int mMaxImages;
-    private final int mPrimaryIndex;
-    private final ResultWaiter mResultWaiter = new ResultWaiter();
-
-    private MediaMuxer mMuxer;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mNumTiles;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mRotation;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mMaxImages;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mPrimaryIndex;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ResultWaiter mResultWaiter = new ResultWaiter();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaMuxer mMuxer;
     private HeifEncoder mHeifEncoder;
     final AtomicBoolean mMuxerStarted = new AtomicBoolean(false);
-    private int[] mTrackIndexArray;
-    private int mOutputIndex;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int[] mTrackIndexArray;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mOutputIndex;
     private boolean mStarted;
 
     private final List<Pair<Integer, ByteBuffer>> mExifList = new ArrayList<>();
@@ -287,7 +294,8 @@ public final class HeifWriter implements AutoCloseable {
     }
 
     @SuppressLint("WrongConstant")
-    private HeifWriter(@NonNull String path,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    HeifWriter(@NonNull String path,
                        @NonNull FileDescriptor fd,
                        int width,
                        int height,
@@ -449,7 +457,8 @@ public final class HeifWriter implements AutoCloseable {
     }
 
     @SuppressLint("WrongConstant")
-    private void processExifData() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void processExifData() {
         if (!mMuxerStarted.get()) {
             return;
         }
@@ -519,7 +528,8 @@ public final class HeifWriter implements AutoCloseable {
      * Routine to stop and release writer, must be called on the same looper
      * that receives heif encoder callbacks.
      */
-    private void closeInternal() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void closeInternal() {
         if (DEBUG) Log.d(TAG, "closeInternal");
 
         if (mMuxer != null) {
@@ -539,7 +549,8 @@ public final class HeifWriter implements AutoCloseable {
     /**
      * Callback from the heif encoder.
      */
-    private class HeifCallback extends HeifEncoder.Callback {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    class HeifCallback extends HeifEncoder.Callback {
         private boolean mEncoderStopped;
         /**
          * Upon receiving output format from the encoder, add the requested number of
@@ -636,7 +647,8 @@ public final class HeifWriter implements AutoCloseable {
         }
     }
 
-    private static class ResultWaiter {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static class ResultWaiter {
         private boolean mDone;
         private Exception mException;
 
