@@ -59,13 +59,15 @@ public class CountingTaskExecutorRule extends TestWatcher {
         ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
-    private void increment() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void increment() {
         synchronized (mCountLock) {
             mTaskCount++;
         }
     }
 
-    private void decrement() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void decrement() {
         synchronized (mCountLock) {
             mTaskCount--;
             if (mTaskCount == 0) {

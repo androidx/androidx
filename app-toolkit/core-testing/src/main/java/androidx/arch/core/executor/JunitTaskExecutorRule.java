@@ -45,11 +45,13 @@ public class JunitTaskExecutorRule implements TestRule {
 
     }
 
-    private void beforeStart() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void beforeStart() {
         ArchTaskExecutor.getInstance().setDelegate(mTaskExecutor);
     }
 
-    private void afterFinished() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void afterFinished() {
         ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
@@ -84,7 +86,8 @@ public class JunitTaskExecutorRule implements TestRule {
         };
     }
 
-    private void finishExecutors() throws InterruptedException, MultipleFailureException {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void finishExecutors() throws InterruptedException, MultipleFailureException {
         mTaskExecutor.shutdown(10);
         final List<Throwable> errors = mTaskExecutor.getErrors();
         if (!errors.isEmpty()) {
