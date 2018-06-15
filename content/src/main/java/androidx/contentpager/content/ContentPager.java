@@ -203,7 +203,8 @@ public class ContentPager {
     private final @GuardedBy("mContentLock") Set<Query> mActiveQueries = new HashSet<>();
     private final @GuardedBy("mContentLock") CursorCache mCursorCache;
 
-    private final Stats mStats = new Stats();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Stats mStats = new Stats();
 
     /**
      * Creates a new ContentPager with a default cursor cache size of 1.
@@ -317,7 +318,8 @@ public class ContentPager {
     }
 
     @WorkerThread
-    private Cursor loadContentInBackground(Query query) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Cursor loadContentInBackground(Query query) {
         if (DEBUG) Log.v(TAG, "Loading cursor for query: " + query);
         mStats.increment(Stats.EXTRA_TOTAL_QUERIES);
 
@@ -447,7 +449,8 @@ public class ContentPager {
 
     // Called in the foreground when the cursor is ready for the client.
     @MainThread
-    private void onCursorReady(Query query, Cursor cursor) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onCursorReady(Query query, Cursor cursor) {
         synchronized (mContentLock) {
             mActiveQueries.remove(query);
         }
@@ -668,7 +671,7 @@ public class ContentPager {
         private int mCompatPaged;
         private int mProviderPaged;
 
-        private void increment(String prop) {
+        void increment(String prop) {
             switch (prop) {
                 case EXTRA_TOTAL_QUERIES:
                     ++mTotalQueries;
@@ -689,13 +692,6 @@ public class ContentPager {
                 default:
                     throw new IllegalArgumentException("Unknown property: " + prop);
             }
-        }
-
-        private void reset() {
-            mTotalQueries = 0;
-            mResolvedQueries = 0;
-            mCompatPaged = 0;
-            mProviderPaged = 0;
         }
 
         void includeStats(Bundle bundle) {

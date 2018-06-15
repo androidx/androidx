@@ -38,8 +38,10 @@ public final class LoaderQueryRunner implements ContentPager.QueryRunner {
     private static final String TAG = "LoaderQueryRunner";
     private static final String CONTENT_URI_KEY = "contentUri";
 
-    private final Context mContext;
-    private final LoaderManager mLoaderMgr;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Context mContext;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final LoaderManager mLoaderMgr;
 
     public LoaderQueryRunner(@NonNull Context context, @NonNull LoaderManager loaderMgr) {
         mContext = context;
