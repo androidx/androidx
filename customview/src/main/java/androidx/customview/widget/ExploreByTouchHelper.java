@@ -116,10 +116,12 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private MyNodeProvider mNodeProvider;
 
     /** Identifier for the virtual view that holds accessibility focus. */
-    private int mAccessibilityFocusedVirtualViewId = INVALID_ID;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mAccessibilityFocusedVirtualViewId = INVALID_ID;
 
     /** Identifier for the virtual view that holds keyboard focus. */
-    private int mKeyboardFocusedVirtualViewId = INVALID_ID;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mKeyboardFocusedVirtualViewId = INVALID_ID;
 
     /** Identifier for the virtual view that is currently hovered. */
     private int mHoveredVirtualViewId = INVALID_ID;
