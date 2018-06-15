@@ -66,8 +66,6 @@ limitations under the License.
         <item name="listItemBackgroundColor">@color/car_card_dark</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
-        <item name="listItemSubheaderTextAppearance">
-            @style/TextAppearance.Car.Subheader.Light</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
     </style>
 
