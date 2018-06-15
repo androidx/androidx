@@ -183,11 +183,13 @@ class MetadataListReader {
         }
     }
 
-    private static int toUnsignedShort(final short value) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static int toUnsignedShort(final short value) {
         return value & 0xFFFF;
     }
 
-    private static long toUnsignedInt(final int value) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static long toUnsignedInt(final int value) {
         return value & 0xFFFFFFFFL;
     }
 

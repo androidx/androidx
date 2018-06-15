@@ -215,7 +215,8 @@ public final class MetadataRepo {
             this(1);
         }
 
-        private Node(final int defaultChildrenSize) {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        Node(final int defaultChildrenSize) {
             mChildren = new SparseArray<>(defaultChildrenSize);
         }
 
@@ -227,7 +228,8 @@ public final class MetadataRepo {
             return mData;
         }
 
-        private void put(@NonNull final EmojiMetadata data, final int start, final int end) {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        void put(@NonNull final EmojiMetadata data, final int start, final int end) {
             Node node = get(data.getCodepointAt(start));
             if (node == null) {
                 node = new Node();

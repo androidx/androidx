@@ -675,7 +675,8 @@ final class EmojiProcessor {
          *
          * @return start index of the character
          */
-        private static int findIndexBackward(final CharSequence cs, final int from,
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        static int findIndexBackward(final CharSequence cs, final int from,
                 final int numCodePoints) {
             int currentIndex = from;
             boolean waitingHighSurrogate = false;
@@ -730,7 +731,8 @@ final class EmojiProcessor {
          *
          * @return start index of the character
          */
-        private static int findIndexForward(final CharSequence cs, final int from,
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        static int findIndexForward(final CharSequence cs, final int from,
                 final int numCodePoints) {
             int currentIndex = from;
             boolean waitingLowSurrogate = false;

@@ -178,7 +178,8 @@ public final class EmojiEditTextHelper {
         return mEmojiReplaceStrategy;
     }
 
-    private static class HelperInternal {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static class HelperInternal {
 
         KeyListener getKeyListener(@NonNull KeyListener keyListener) {
             return keyListener;

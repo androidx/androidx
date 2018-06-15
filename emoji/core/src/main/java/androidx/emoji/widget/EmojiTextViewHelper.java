@@ -124,7 +124,8 @@ public final class EmojiTextViewHelper {
         mHelper.setAllCaps(allCaps);
     }
 
-    private static class HelperInternal {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static class HelperInternal {
 
         void updateTransformationMethod() {
             // do nothing

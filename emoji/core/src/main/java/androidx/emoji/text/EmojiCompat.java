@@ -204,22 +204,26 @@ public class EmojiCompat {
     /**
      * Metadata loader instance given in the Config instance.
      */
-    private final MetadataRepoLoader mMetadataLoader;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final MetadataRepoLoader mMetadataLoader;
 
     /**
      * @see Config#setReplaceAll(boolean)
      */
-    private final boolean mReplaceAll;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final boolean mReplaceAll;
 
     /**
      * @see Config#setUseEmojiAsDefaultStyle(boolean)
      */
-    private final boolean mUseEmojiAsDefaultStyle;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final boolean mUseEmojiAsDefaultStyle;
 
     /**
      * @see Config#setUseEmojiAsDefaultStyle(boolean, List)
      */
-    private final int[] mEmojiAsDefaultStyleExceptions;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int[] mEmojiAsDefaultStyleExceptions;
 
     /**
      * @see Config#setEmojiSpanIndicatorEnabled(boolean)
@@ -387,7 +391,8 @@ public class EmojiCompat {
         }
     }
 
-    private void onMetadataLoadSuccess() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onMetadataLoadSuccess() {
         final Collection<InitCallback> initCallbacks = new ArrayList<>();
         mInitLock.writeLock().lock();
         try {
@@ -401,7 +406,8 @@ public class EmojiCompat {
         mMainHandler.post(new ListenerDispatcher(initCallbacks, mLoadState));
     }
 
-    private void onMetadataLoadFailed(@Nullable final Throwable throwable) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onMetadataLoadFailed(@Nullable final Throwable throwable) {
         final Collection<InitCallback> initCallbacks = new ArrayList<>();
         mInitLock.writeLock().lock();
         try {
@@ -870,14 +876,22 @@ public class EmojiCompat {
      * @see #init(EmojiCompat.Config)
      */
     public abstract static class Config {
-        private final MetadataRepoLoader mMetadataLoader;
-        private boolean mReplaceAll;
-        private boolean mUseEmojiAsDefaultStyle;
-        private int[] mEmojiAsDefaultStyleExceptions;
-        private Set<InitCallback> mInitCallbacks;
-        private boolean mEmojiSpanIndicatorEnabled;
-        private int mEmojiSpanIndicatorColor = Color.GREEN;
-        @LoadStrategy private int mMetadataLoadStrategy = LOAD_STRATEGY_DEFAULT;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        final MetadataRepoLoader mMetadataLoader;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        boolean mReplaceAll;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        boolean mUseEmojiAsDefaultStyle;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        int[] mEmojiAsDefaultStyleExceptions;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        Set<InitCallback> mInitCallbacks;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        boolean mEmojiSpanIndicatorEnabled;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        int mEmojiSpanIndicatorColor = Color.GREEN;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        @LoadStrategy int mMetadataLoadStrategy = LOAD_STRATEGY_DEFAULT;
 
         /**
          * Default constructor.
@@ -1164,7 +1178,8 @@ public class EmojiCompat {
             }
         }
 
-        private void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
             //noinspection ConstantConditions
             if (metadataRepo == null) {
                 mEmojiCompat.onMetadataLoadFailed(
