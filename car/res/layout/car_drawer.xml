@@ -16,7 +16,6 @@ limitations under the License.
 <androidx.car.moderator.SpeedBumpView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/drawerBackgroundColor" >
@@ -33,7 +32,7 @@ limitations under the License.
             android:layout_height="match_parent">
 
             <ImageButton
-                android:id="@+id/drawer_back_button"
+                android:id="@id/car_drawer_back_button"
                 android:background="@drawable/car_drawer_button_ripple_background"
                 android:layout_width="@dimen/car_primary_icon_size"
                 android:layout_height="@dimen/car_primary_icon_size"
@@ -44,7 +43,7 @@ limitations under the License.
         </FrameLayout>
 
         <TextView
-            android:id="@+id/drawer_title"
+            android:id="@id/car_drawer_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -54,7 +53,7 @@ limitations under the License.
     </LinearLayout>
 
     <androidx.car.widget.PagedListView
-        android:id="@+id/drawer_list"
+        android:id="@id/car_drawer_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/car_app_bar_height"
@@ -65,7 +64,7 @@ limitations under the License.
         style="?attr/drawerListStyle" />
 
     <ProgressBar
-        android:id="@+id/drawer_progress"
+        android:id="@id/car_drawer_progress"
         android:layout_width="@dimen/car_drawer_progress_bar_size"
         android:layout_height="@dimen/car_drawer_progress_bar_size"
         android:layout_gravity="center"

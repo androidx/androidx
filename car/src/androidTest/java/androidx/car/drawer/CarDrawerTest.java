@@ -81,7 +81,7 @@ public final class CarDrawerTest {
         mActivityRule.launchActivity(new Intent());
         mActivity = mActivityRule.getActivity();
 
-        mDrawerList = mActivity.findViewById(R.id.drawer_list);
+        mDrawerList = mActivity.findViewById(R.id.car_drawer_list);
     }
 
     @After

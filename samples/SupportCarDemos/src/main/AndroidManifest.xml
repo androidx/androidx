@@ -108,6 +108,18 @@
                        android:value=".SupportCarDemoActivity" />
         </activity>
 
+        <activity android:name=".CustomDrawerDemoActivity"
+                  android:label="@string/custom_drawer_demo_activity_title"
+                  android:theme="@style/CarDrawerTheme.Custom"
+                  android:parentActivityName=".SupportCarDemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".SupportCarDemoActivity" />
+        </activity>
+
         <activity android:name=".SubheaderListItemActivity"
                   android:label="SubheaderListItem"
                   android:parentActivityName=".SupportCarDemoActivity">

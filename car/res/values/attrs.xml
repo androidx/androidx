@@ -219,6 +219,17 @@ limitations under the License.
         <attr name="drawerItemBodyTextAppearance" format="reference"/>
         <!-- The styling of the list in the drawer. -->
         <attr name="drawerListStyle" format="reference"/>
+        <!-- The id of the view that will function as the back button within the drawer. The back
+             button should navigate up the drawer stack or exit the drawer completely if the
+             stack is empty. -->
+        <attr name="drawerBackButtonId" format="reference"/>
+        <!-- The id of the view that renders the list of items in the drawer. -->
+        <attr name="drawerListId" format="reference"/>
+        <!-- The id of the view that will render the title in the drawer. -->
+        <attr name="drawerTitleId" format="reference"/>
+        <!-- The id of the view that will render a loading indicator for when the drawer contents
+             are being fetched and the list of items cannot be displayed at the moment. -->
+        <attr name="drawerProgressId" format="reference"/>
 
     </declare-styleable>
 </resources>

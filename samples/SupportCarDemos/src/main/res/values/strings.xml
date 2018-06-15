@@ -57,6 +57,8 @@
     <string name="drawer_demo_root_item_label">Item %1$d</string>
     <string name="drawer_demo_subitem_label">SubItem %1$d</string>
 
+    <string name="custom_drawer_demo_activity_title">Custom Drawer Demo</string>
+
     <!-- Strings for CarAlertDialog Demo. -->
     <string name="alert_dialog_checkbox_title">Title</string>
     <string name="alert_dialog_checkbox_body">Body</string>
