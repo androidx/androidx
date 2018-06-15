@@ -76,8 +76,10 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     private static int sTwiceBaseCacheSize;
 
     private int[] mHashes;
-    private Object[] mArray;
-    private int mSize;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Object[] mArray;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mSize;
     private MapCollections<E, E> mCollections;
 
     private int indexOf(Object key, int hash) {
