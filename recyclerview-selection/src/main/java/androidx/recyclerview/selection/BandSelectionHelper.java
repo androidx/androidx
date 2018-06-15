@@ -60,7 +60,8 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
 
     private final BandHost mHost;
     private final ItemKeyProvider<K> mKeyProvider;
-    private final SelectionTracker<K> mSelectionTracker;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SelectionTracker<K> mSelectionTracker;
     private final BandPredicate mBandPredicate;
     private final FocusDelegate<K> mFocusDelegate;
     private final OperationMonitor mLock;
@@ -308,7 +309,8 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
     /**
      * @see OnScrollListener
      */
-    private void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
         if (!isActive()) {
             return;
         }

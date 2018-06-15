@@ -42,7 +42,8 @@ public abstract class BandPredicate {
      */
     public abstract boolean canInitiate(MotionEvent e);
 
-    private static boolean hasSupportedLayoutManager(@NonNull RecyclerView recyclerView) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static boolean hasSupportedLayoutManager(@NonNull RecyclerView recyclerView) {
         RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
         return lm instanceof GridLayoutManager
                 || lm instanceof LinearLayoutManager;

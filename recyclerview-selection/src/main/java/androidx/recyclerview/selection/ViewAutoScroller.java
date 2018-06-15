@@ -100,7 +100,8 @@ final class ViewAutoScroller extends AutoScroller {
      * responsible to do any clean up (such as unsubscribing scrollListeners) after the run has
      * finished, and re-run this method on the next UI frame if applicable.
      */
-    private void runScroll() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void runScroll() {
         if (DEBUG) checkState(mLastLocation != null);
 
         if (VERBOSE) Log.v(TAG, "Running in background using event location @ " + mLastLocation);
