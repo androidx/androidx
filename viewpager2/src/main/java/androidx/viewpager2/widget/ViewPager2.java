@@ -297,8 +297,7 @@ public class ViewPager2 extends ViewGroup {
         private final FragmentManager mFragmentManager;
         private final FragmentProvider mFragmentProvider;
 
-        private FragmentStateAdapter(FragmentManager fragmentManager,
-                FragmentProvider fragmentProvider) {
+        FragmentStateAdapter(FragmentManager fragmentManager, FragmentProvider fragmentProvider) {
             this.mFragmentManager = fragmentManager;
             this.mFragmentProvider = fragmentProvider;
         }
@@ -418,7 +417,7 @@ public class ViewPager2 extends ViewGroup {
     }
 
     private static class FragmentViewHolder extends RecyclerView.ViewHolder {
-        private Fragment mFragment;
+        Fragment mFragment;
 
         private FragmentViewHolder(FrameLayout container) {
             super(container);
