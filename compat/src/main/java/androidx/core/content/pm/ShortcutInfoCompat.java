@@ -48,7 +48,7 @@ public class ShortcutInfoCompat {
     IconCompat mIcon;
     boolean mIsAlwaysBadged;
 
-    private ShortcutInfoCompat() { }
+    ShortcutInfoCompat() { }
 
     /**
      * @return {@link ShortcutInfo} object from this compat object.
