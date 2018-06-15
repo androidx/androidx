@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.car.R;
+import androidx.car.utils.DropShadowScrollListener;
 import androidx.car.widget.PagedListView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
@@ -112,15 +113,18 @@ public class CarDrawerController {
                 theme.resolveAttribute(R.attr.drawerTitleId, outValue, true)
                         ? outValue.resourceId
                         : R.id.car_drawer_title);
+        mProgressBar = drawerLayout.findViewById(
+                theme.resolveAttribute(R.attr.drawerProgressId, outValue, true)
+                        ? outValue.resourceId
+                        : R.id.car_drawer_progress);
+
         mDrawerList = drawerLayout.findViewById(
                 theme.resolveAttribute(R.attr.drawerListId, outValue, true)
                         ? outValue.resourceId
                         : R.id.car_drawer_list);
         mDrawerList.setMaxPages(PagedListView.ItemCap.UNLIMITED);
-        mProgressBar = drawerLayout.findViewById(
-                theme.resolveAttribute(R.attr.drawerProgressId, outValue, true)
-                        ? outValue.resourceId
-                        : R.id.car_drawer_progress);
+        mDrawerList.setOnScrollListener(new DropShadowScrollListener(
+                mDrawerLayout.findViewById(R.id.drawer_toolbar)));
 
         @IdRes int backButtonId = theme.resolveAttribute(R.attr.drawerBackButtonId, outValue, true)
                 ? outValue.resourceId
@@ -252,7 +256,7 @@ public class CarDrawerController {
      *
      * <p>This should be called from the associated Activity's
      * {@link androidx.appcompat.app.AppCompatActivity#onPostCreate(Bundle)} method to synchronize
-     * after teh DRawerLayout's instance state has been restored, and any other time when the
+     * after the DrawerLayout's instance state has been restored, and any other time when the
      * state may have diverged in such a way that this controller's associated
      * {@link ActionBarDrawerToggle} had not been notified.
      */
