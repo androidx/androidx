@@ -480,8 +480,8 @@ class VersionedParcelStream extends VersionedParcel {
     // TODO: Use less buffers
     private static class FieldBuffer {
 
-        private final ByteArrayOutputStream mOutput = new ByteArrayOutputStream();
-        private final DataOutputStream mDataStream = new DataOutputStream(mOutput);
+        final ByteArrayOutputStream mOutput = new ByteArrayOutputStream();
+        final DataOutputStream mDataStream = new DataOutputStream(mOutput);
         private final int mFieldId;
         private final DataOutputStream mTarget;
 
@@ -503,9 +503,9 @@ class VersionedParcelStream extends VersionedParcel {
     }
 
     private static class InputBuffer {
-        private final DataInputStream mInputStream;
+        final DataInputStream mInputStream;
         private final int mSize;
-        private final int mFieldId;
+        final int mFieldId;
 
         InputBuffer(int fieldId, int size, DataInputStream inputStream) throws IOException {
             mSize = size;
