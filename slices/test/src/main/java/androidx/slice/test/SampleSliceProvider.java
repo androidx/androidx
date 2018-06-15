@@ -88,7 +88,6 @@ public class SampleSliceProvider extends SliceProvider {
             "contact",
             "contact2",
             "gallery",
-            "gallery2",
             "weather",
             "reservation",
             "loadlist",
@@ -160,9 +159,7 @@ public class SampleSliceProvider extends SliceProvider {
             case "/contact2":
                 return createContact2(sliceUri);
             case "/gallery":
-                return createGallery(sliceUri, true /* showHeader */);
-            case "/gallery2":
-                return createGallery(sliceUri, false /* showHeader */);
+                return createGallery(sliceUri);
             case "/weather":
                 return createWeather(sliceUri);
             case "/reservation":
@@ -200,8 +197,11 @@ public class SampleSliceProvider extends SliceProvider {
                 IconCompat.createWithResource(getContext(), R.drawable.weather_1), SMALL_IMAGE,
                 "Weather is happening!");
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        lb.setHeader(new HeaderBuilder()
+                .setTitle("Mountain View Weather")
+                .setSubtitle("High 69\u00B0, Low 62\u00B0")
+                .setPrimaryAction(primaryAction));
         return lb.addGridRow(new GridRowBuilder()
-                        .setPrimaryAction(primaryAction)
                         .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.weather_1),
@@ -235,7 +235,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .build();
     }
 
-    private Slice createGallery(Uri sliceUri, boolean showHeader) {
+    private Slice createGallery(Uri sliceUri) {
         SliceAction primaryAction = new SliceAction(
                 getBroadcastIntent(ACTION_TOAST, "open photo album"),
                 IconCompat.createWithResource(getContext(), R.drawable.slices_1),
@@ -243,20 +243,18 @@ public class SampleSliceProvider extends SliceProvider {
                 "Open photo album");
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xff4285F4);
-        if (showHeader) {
-            lb.addRow(new RowBuilder()
-                    .setTitle("Family trip to Hawaii")
-                    .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
-                    .setPrimaryAction(primaryAction))
-                    .addAction(new SliceAction(
-                            getBroadcastIntent(ACTION_TOAST, "cast photo album"),
-                            IconCompat.createWithResource(getContext(), R.drawable.ic_cast),
-                            "Cast photo album"))
-                    .addAction(new SliceAction(
-                            getBroadcastIntent(ACTION_TOAST, "share photo album"),
-                            IconCompat.createWithResource(getContext(), R.drawable.ic_share),
-                            "Share photo album"));
-        }
+        lb.addRow(new RowBuilder()
+                .setTitle("Family trip to Hawaii")
+                .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
+                .setPrimaryAction(primaryAction))
+                .addAction(new SliceAction(
+                        getBroadcastIntent(ACTION_TOAST, "cast photo album"),
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_cast),
+                        "Cast photo album"))
+                .addAction(new SliceAction(
+                        getBroadcastIntent(ACTION_TOAST, "share photo album"),
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_share),
+                        "Share photo album"));
         int[] galleryResId = new int[] {R.drawable.slices_1, R.drawable.slices_2,
                 R.drawable.slices_3, R.drawable.slices_4};
         int imageCount = 7;
@@ -316,14 +314,14 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createBigPicSlice(Uri sliceUri) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
+        b.setHeader(new HeaderBuilder().setTitle("This is a nice cat"));
         GridRowBuilder gb = new GridRowBuilder();
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "Cats you follow");
         IconCompat ic = IconCompat.createWithResource(getContext(), R.drawable.cat);
         SliceAction primaryAction = new SliceAction(pi, ic, LARGE_IMAGE, "Cats you follow");
         gb.setPrimaryAction(primaryAction);
         gb.addCell(new GridRowBuilder.CellBuilder()
-                .addImage(ic, LARGE_IMAGE)
-                .addTitleText("This is a nice cat").addText("Who is she"));
+                .addImage(ic, LARGE_IMAGE));
         b.addGridRow(gb);
         return b.build();
     }
@@ -335,7 +333,8 @@ public class SampleSliceProvider extends SliceProvider {
         SliceAction primaryAction = new SliceAction(pi,
                 IconCompat.createWithResource(getContext(), R.drawable.cat_1),
                 SMALL_IMAGE, "Cats you follow");
-        gb.setPrimaryAction(primaryAction);
+        b.setHeader(new HeaderBuilder().setTitle("Cats you follow")
+                .setPrimaryAction(primaryAction));
         if (customSeeMore) {
             GridRowBuilder.CellBuilder cb = new GridRowBuilder.CellBuilder();
             cb.addImage(IconCompat.createWithResource(getContext(), R.drawable.ic_right_caret),

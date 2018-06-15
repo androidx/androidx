@@ -26,7 +26,6 @@ import static android.app.slice.Slice.HINT_TTL;
 import static androidx.slice.SliceMetadata.LOADED_ALL;
 import static androidx.slice.SliceMetadata.LOADED_NONE;
 import static androidx.slice.SliceMetadata.LOADED_PARTIAL;
-import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.INFINITY;
 
 import static junit.framework.Assert.assertEquals;
@@ -87,7 +86,7 @@ public class SliceMetadataTest {
     public void testIsErrorSlice() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.setHeader(new ListBuilder.HeaderBuilder(lb)
+        lb.setHeader(new ListBuilder.HeaderBuilder()
                 .setTitle("Title")
                 .setPrimaryAction(getAction("Action")));
         lb.setIsError(true);
@@ -100,7 +99,7 @@ public class SliceMetadataTest {
     public void testIsNotErrorSlice() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.setHeader(new ListBuilder.HeaderBuilder(lb)
+        lb.setHeader(new ListBuilder.HeaderBuilder()
                 .setTitle("Title")
                 .setPrimaryAction(getAction("Action")));
         lb.setIsError(false);
@@ -110,44 +109,11 @@ public class SliceMetadataTest {
     }
 
     @Test
-    public void testGetTitleFromGrid() {
-        Uri uri = Uri.parse("content://pkg/slice");
-
-        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        GridRowBuilder gb = new GridRowBuilder(lb);
-        gb.setPrimaryAction(getAction("Action"));
-        gb.addCell(new GridRowBuilder.CellBuilder(gb).addText("Text").addTitleText("Title"));
-        gb.addCell(new GridRowBuilder.CellBuilder(gb).addTitleText("Title2"));
-        lb.addGridRow(gb);
-
-        SliceMetadata sliceMetadata = SliceMetadata.from(mContext, lb.build());
-        assertEquals("Title", sliceMetadata.getTitle());
-    }
-
-    @Test
-    public void testGetTitleFromGridFromPrimaryAction() {
-        Uri uri = Uri.parse("content://pkg/slice");
-        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
-        new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createWithBitmap(b);
-
-        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        GridRowBuilder gb = new GridRowBuilder(lb);
-        gb.setPrimaryAction(getAction("Action"));
-        gb.addCell(new GridRowBuilder.CellBuilder(gb).addImage(icon, ICON_IMAGE));
-        gb.addCell(new GridRowBuilder.CellBuilder(gb).addImage(icon, ICON_IMAGE));
-        lb.addGridRow(gb);
-
-        SliceMetadata sliceMetadata = SliceMetadata.from(mContext, lb.build());
-        assertEquals("Action", sliceMetadata.getTitle());
-    }
-
-    @Test
     public void testGetTitle() {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
+        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder();
         rb.setTitle("Title");
         rb.setSubtitle("Subtitle");
         rb.setPrimaryAction(getAction("Action"));
@@ -158,24 +124,11 @@ public class SliceMetadataTest {
     }
 
     @Test
-    public void testGetTitleFromPrimaryAction() {
-        Uri uri = Uri.parse("content://pkg/slice");
-
-        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        ListBuilder.HeaderBuilder hb = new ListBuilder.HeaderBuilder(lb);
-        hb.setPrimaryAction(getAction("Action"));
-        lb.setHeader(hb);
-
-        SliceMetadata sliceMetadata = SliceMetadata.from(mContext, lb.build());
-        assertEquals("Action", sliceMetadata.getTitle());
-    }
-
-    @Test
     public void testGetSubtitle() {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
+        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder();
         rb.setTitle("Title");
         rb.setSubtitle("Subtitle");
         rb.setPrimaryAction(getAction("Action"));
@@ -190,7 +143,7 @@ public class SliceMetadataTest {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("Text")
                 .setPrimaryAction(getAction("Action")));
 
@@ -211,7 +164,7 @@ public class SliceMetadataTest {
         SliceAction action3 = new SliceAction(pi, icon, "action3");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                     .setTitle("Text")
                     .setPrimaryAction(getAction("Action")))
                 .addAction(action1)
@@ -237,11 +190,12 @@ public class SliceMetadataTest {
         SliceAction primaryAction = getAction("Action");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        GridRowBuilder grb = new GridRowBuilder(lb);
+        lb.setHeader(new ListBuilder.HeaderBuilder().setTitle("Header"));
+        GridRowBuilder grb = new GridRowBuilder();
         grb.setPrimaryAction(primaryAction);
-        grb.addCell(new GridRowBuilder.CellBuilder(grb).addText("some text"));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb).addText("some text"));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb).addText("some text"));
+        grb.addCell(new GridRowBuilder.CellBuilder().addText("some text"));
+        grb.addCell(new GridRowBuilder.CellBuilder().addText("some text"));
+        grb.addCell(new GridRowBuilder.CellBuilder().addText("some text"));
         lb.addGridRow(grb);
 
         Slice gridSlice = lb.build();
@@ -261,7 +215,7 @@ public class SliceMetadataTest {
         SliceAction endAction = new SliceAction(pi, "toogle action", false);
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb)
+        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder()
                 .setTitle("a title")
                 .addEndItem(endAction)
                 .setPrimaryAction(primaryAction);
@@ -285,7 +239,7 @@ public class SliceMetadataTest {
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
         lb.addAction(sliceAction);
-        ListBuilder.HeaderBuilder hb = new ListBuilder.HeaderBuilder(lb);
+        ListBuilder.HeaderBuilder hb = new ListBuilder.HeaderBuilder();
         hb.setTitle("header title");
         hb.setPrimaryAction(primaryAction);
         lb.setHeader(hb);
@@ -307,7 +261,7 @@ public class SliceMetadataTest {
         SliceAction endAction2 = new SliceAction(pi, "toogle action", false);
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb)
+        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder()
                 .setTitle("a title")
                 .addEndItem(endAction1)
                 .addEndItem(endAction2);
@@ -319,28 +273,11 @@ public class SliceMetadataTest {
     }
 
     @Test
-    public void testGetHeaderTypeGrid() {
-        Uri uri = Uri.parse("content://pkg/slice");
-
-        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        GridRowBuilder grb = new GridRowBuilder(lb);
-        grb.setPrimaryAction(getAction("Action"));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb).addText("some text"));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb).addText("some text"));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb).addText("some text"));
-        lb.addGridRow(grb);
-
-        Slice gridSlice = lb.build();
-        SliceMetadata gridInfo = SliceMetadata.from(mContext, gridSlice);
-        assertEquals(EventInfo.ROW_TYPE_GRID, gridInfo.getHeaderType());
-    }
-
-    @Test
     public void testGetHeaderTypeRow() {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("a title")
                 .setPrimaryAction(getAction("Action")));
 
@@ -356,7 +293,7 @@ public class SliceMetadataTest {
 
         SliceAction toggleAction = new SliceAction(pi, "toggle", false /* isChecked */);
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRow(new ListBuilder.RowBuilder(lb)
+        lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle("another title")
                 .setPrimaryAction(getAction("Action"))
                 .addEndItem(toggleAction));
@@ -372,7 +309,7 @@ public class SliceMetadataTest {
         PendingIntent pi = getIntent("");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addInputRange(new ListBuilder.InputRangeBuilder(lb)
+        lb.addInputRange(new ListBuilder.InputRangeBuilder()
                 .setTitle("another title")
                 .setValue(5)
                 .setMax(10)
@@ -389,7 +326,7 @@ public class SliceMetadataTest {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        lb.addRange(new ListBuilder.RangeBuilder(lb)
+        lb.addRange(new ListBuilder.RangeBuilder()
                 .setTitle("another title")
                 .setValue(5)
                 .setPrimaryAction(getAction("Action"))
@@ -405,62 +342,13 @@ public class SliceMetadataTest {
         Uri uri = Uri.parse("content://pkg/slice");
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        ListBuilder.HeaderBuilder hb = new ListBuilder.HeaderBuilder(lb);
+        ListBuilder.HeaderBuilder hb = new ListBuilder.HeaderBuilder();
         hb.setTitle("header title").setPrimaryAction(getAction("Action"));
         lb.setHeader(hb);
 
         Slice headerSlice = lb.build();
         SliceMetadata headerInfo = SliceMetadata.from(mContext, headerSlice);
         assertEquals(EventInfo.ROW_TYPE_LIST, headerInfo.getHeaderType());
-    }
-
-    @Test
-    public void testHasLargeModeFullGrid() {
-        // If a grid is "full" with two text and an image there is a different small / large state.
-        Uri uri = Uri.parse("content://pkg/slice");
-        Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
-        new Canvas(b).drawColor(0xffff0000);
-        IconCompat icon = IconCompat.createWithBitmap(b);
-
-        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        GridRowBuilder grb = new GridRowBuilder(lb);
-        grb.setPrimaryAction(getAction("Action"));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb)
-                .addText("some text")
-                .addText("more text")
-                .addImage(icon, ICON_IMAGE));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb)
-                .addText("some text")
-                .addText("more text")
-                .addImage(icon, ICON_IMAGE));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb)
-                .addText("some text")
-                .addText("more text")
-                .addImage(icon, ICON_IMAGE));
-        lb.addGridRow(grb);
-
-        Slice gridSlice = lb.build();
-        SliceMetadata gridInfo = SliceMetadata.from(mContext, gridSlice);
-        assertTrue(gridInfo.hasLargeMode());
-    }
-
-    @Test
-    public void testHasLargeModeGrid() {
-        // If a grid is not "full" either no image or an image and one text item, small / large
-        // is the same.
-        Uri uri = Uri.parse("content://pkg/slice");
-
-        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
-        GridRowBuilder grb = new GridRowBuilder(lb);
-        grb.setPrimaryAction(getAction("Action"));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb).addText("some text"));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb).addText("some text"));
-        grb.addCell(new GridRowBuilder.CellBuilder(grb).addText("some text"));
-        lb.addGridRow(grb);
-
-        Slice gridSlice = lb.build();
-        SliceMetadata gridInfo = SliceMetadata.from(mContext, gridSlice);
-        assertTrue(!gridInfo.hasLargeMode());
     }
 
     @Test
@@ -680,7 +568,8 @@ public class SliceMetadataTest {
 
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, INFINITY);
-        Slice slice = lb.addInputRange(new ListBuilder.InputRangeBuilder(lb)
+        Slice slice = lb.addInputRange(new ListBuilder.InputRangeBuilder()
+                .setTitle("Input range")
                 .setInputAction(broadcast)
                 .setPrimaryAction(getAction("Action"))
                 .setMax(70)
@@ -784,7 +673,7 @@ public class SliceMetadataTest {
         assertEquals(LOADED_NONE, actualState1);
 
         ListBuilder lb = new ListBuilder(mContext, uri, INFINITY);
-        Slice s2 = lb.addRow(new ListBuilder.RowBuilder(lb)
+        Slice s2 = lb.addRow(new ListBuilder.RowBuilder()
                 .setTitle(null, true /* isLoading */))
                 .build();
         SliceMetadata SliceMetadata2 = SliceMetadata.from(mContext, s2);
@@ -792,7 +681,7 @@ public class SliceMetadataTest {
         assertEquals(LOADED_PARTIAL, actualState2);
 
         ListBuilder lb2 = new ListBuilder(mContext, uri, INFINITY);
-        Slice s3 = lb2.addRow(new ListBuilder.RowBuilder(lb2)
+        Slice s3 = lb2.addRow(new ListBuilder.RowBuilder()
                 .setTitle("Title", false /* isLoading */)
                 .setPrimaryAction(getAction("Action")))
                 .build();

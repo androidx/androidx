@@ -83,6 +83,9 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     private Set<String> mKeywords;
     private Slice mSliceHeader;
     private boolean mIsError;
+    private boolean mFirstRowChecked;
+    private boolean mIsFirstRowTypeValid;
+    private boolean mFirstRowHasText;
 
     public ListBuilderV1Impl(Slice.Builder b, SliceSpec spec) {
         this(b, spec, new SystemClock());
@@ -135,6 +138,13 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             throw new IllegalStateException("A slice requires a primary action; ensure one of your "
                     + "builders has called #setPrimaryAction with a valid SliceAction.");
         }
+        if (mFirstRowChecked && !mIsFirstRowTypeValid) {
+            throw new IllegalStateException("A slice cannot have the first row be"
+                    + " constructed from a GridRowBuilder, consider using #setHeader.");
+        }
+        if (mFirstRowChecked && !mFirstRowHasText) {
+            throw new IllegalStateException("A slice requires the first row to have some text.");
+        }
         return slice;
     }
 
@@ -146,6 +156,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     public void addRow(@NonNull RowBuilder builder) {
         RowBuilderImpl impl = new RowBuilderImpl(createChildBuilder());
         impl.fillFrom(builder);
+        checkRow(true, impl.hasText());
         addRow(impl);
     }
 
@@ -154,6 +165,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @NonNull
     public void addRow(@NonNull RowBuilderImpl builder) {
+        checkRow(true, builder.hasText());
         builder.getBuilder().addHints(HINT_LIST_ITEM);
         getBuilder().addSubSlice(builder.build());
     }
@@ -163,6 +175,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     @NonNull
     @Override
     public void addGridRow(@NonNull GridRowBuilder builder) {
+        checkRow(false, false);
         GridRowBuilderListV1Impl impl = new GridRowBuilderListV1Impl(this, builder);
         impl.getBuilder().addHints(HINT_LIST_ITEM);
         getBuilder().addSubSlice(impl.build());
@@ -172,6 +185,9 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
      */
     @Override
     public void setHeader(@NonNull HeaderBuilder builder) {
+        mIsFirstRowTypeValid = true;
+        mFirstRowHasText = true;
+        mFirstRowChecked = true;
         HeaderBuilderImpl impl = new HeaderBuilderImpl(this);
         impl.fillFrom(builder);
         mSliceHeader = impl.build();
@@ -191,12 +207,14 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     @Override
     public void addInputRange(InputRangeBuilder builder) {
         InputRangeBuilderImpl impl = new InputRangeBuilderImpl(createChildBuilder(), builder);
+        checkRow(true, impl.hasText());
         getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);
     }
 
     @Override
     public void addRange(RangeBuilder builder) {
         RangeBuilderImpl impl = new RangeBuilderImpl(createChildBuilder(), builder);
+        checkRow(true, impl.hasText());
         getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);
     }
 
@@ -262,6 +280,18 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
     }
 
     /**
+     * There are some requirements that first row of a list is not a grid row and has some text.
+     * This method helps check whether first row fulfils these requirements.
+     */
+    private void checkRow(boolean isTypeValid, boolean hasText) {
+        if (!mFirstRowChecked) {
+            mFirstRowChecked = true;
+            mIsFirstRowTypeValid = isTypeValid;
+            mFirstRowHasText = hasText;
+        }
+    }
+
+    /**
      * Builder to construct an input row.
      */
     public static class RangeBuilderImpl extends TemplateBuilderImpl {
@@ -321,6 +351,9 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
                     .addInt(mMin, SUBTYPE_MIN)
                     .addInt(mMax, SUBTYPE_MAX)
                     .addInt(mValue, SUBTYPE_VALUE);
+        }
+        boolean hasText() {
+            return mTitle != null || mSubtitle != null;
         }
     }
 
@@ -589,6 +622,10 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
         }
 
+        boolean hasText() {
+            return mTitleItem != null || mSubtitleItem != null;
+        }
+
         /**
          */
         @Override
@@ -679,6 +716,9 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             if (mPrimaryAction != null) {
                 Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
                 b.addSubSlice(mPrimaryAction.buildSlice(sb), null /* subtype */);
+            }
+            if (mSubtitleItem == null && mTitleItem == null) {
+                throw new IllegalStateException("Header requires a title or subtitle to be set.");
             }
         }
 
