@@ -87,9 +87,9 @@ public class MessagingBasicImpl extends TemplateBuilderImpl implements
             implements MessagingBuilder.MessageBuilder {
 
         @RequiresApi(23)
-        private Slice mIcon;
-        private CharSequence mText;
-        private long mTimestamp;
+        Slice mIcon;
+        CharSequence mText;
+        long mTimestamp;
 
         /**
          */
