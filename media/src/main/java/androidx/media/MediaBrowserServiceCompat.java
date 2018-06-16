@@ -1524,7 +1524,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         int fromIndex = pageSize * page;
         int toIndex = fromIndex + pageSize;
         if (page < 0 || pageSize < 1 || fromIndex >= list.size()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         if (toIndex > list.size()) {
             toIndex = list.size();
