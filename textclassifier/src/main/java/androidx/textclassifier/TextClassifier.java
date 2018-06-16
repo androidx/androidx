@@ -321,7 +321,7 @@ public abstract class TextClassifier {
         private final Collection<String> mIncludedEntityTypes;
         private final boolean mIncludeDefaultEntityTypes;
 
-        private EntityConfig(
+        EntityConfig(
                 Collection<String> includedEntityTypes,
                 Collection<String> excludedEntityTypes,
                 Collection<String> hints,

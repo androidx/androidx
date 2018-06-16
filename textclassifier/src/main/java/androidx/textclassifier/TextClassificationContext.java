@@ -38,7 +38,7 @@ public final class TextClassificationContext {
     private final String mWidgetType;
     @Nullable private final String mWidgetVersion;
 
-    private TextClassificationContext(
+    TextClassificationContext(
             String packageName,
             String widgetType,
             String widgetVersion) {

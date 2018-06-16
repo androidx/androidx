@@ -48,7 +48,7 @@ public final class TextSelection {
     @NonNull private final EntityConfidence mEntityConfidence;
     @Nullable private final String mId;
 
-    private TextSelection(
+    TextSelection(
             int startIndex,
             int endIndex,
             @NonNull EntityConfidence entityConfidence,
@@ -269,7 +269,7 @@ public final class TextSelection {
         private final int mEndIndex;
         @Nullable private final LocaleListCompat mDefaultLocales;
 
-        private Request(
+        Request(
                 CharSequence text,
                 int startIndex,
                 int endIndex,

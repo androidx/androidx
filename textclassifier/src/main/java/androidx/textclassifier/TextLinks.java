@@ -89,7 +89,7 @@ public final class TextLinks {
     @IntDef({APPLY_STRATEGY_IGNORE, APPLY_STRATEGY_REPLACE})
     public @interface ApplyStrategy {}
 
-    private TextLinks(String fullText, List<TextLink> links) {
+    TextLinks(String fullText, List<TextLink> links) {
         mFullText = fullText;
         mLinks = Collections.unmodifiableList(links);
     }
@@ -290,7 +290,7 @@ public final class TextLinks {
         @Nullable private final LocaleListCompat mDefaultLocales;
         @Nullable private final EntityConfig mEntityConfig;
 
-        private Request(
+        Request(
                 CharSequence text,
                 LocaleListCompat defaultLocales,
                 EntityConfig entityConfig) {
