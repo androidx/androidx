@@ -18,6 +18,7 @@ package androidx.webkit.internal;
 
 import android.net.Uri;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
@@ -70,5 +71,12 @@ public class WebViewProviderAdapter {
         mImpl.postMessageToMainFrame(
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                         new WebMessageAdapter(message)), targetOrigin);
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#getWebViewClient()}.
+     */
+    public WebViewClient getWebViewClient() {
+        return mImpl.getWebViewClient();
     }
 }

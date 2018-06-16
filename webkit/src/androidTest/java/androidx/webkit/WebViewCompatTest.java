@@ -19,7 +19,9 @@ package androidx.webkit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
@@ -34,6 +36,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
@@ -224,6 +227,22 @@ public class WebViewCompatTest {
         } catch (MalformedURLException e) {
             Assert.fail("The privacy policy URL should be a well-formed URL");
         }
+    }
+
+    @Test
+    public void testGetWebViewClient() throws Exception {
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.GET_WEB_VIEW_CLIENT));
+
+        // getWebViewClient should return a default WebViewClient if it hasn't been set yet
+        WebViewClient client = mWebViewOnUiThread.getWebViewClient();
+        assertNotNull(client);
+        assertTrue(client instanceof WebViewClient);
+
+        // getWebViewClient should return the client after it has been set
+        WebViewClient client2 = new WebViewClient();
+        assertNotSame(client, client2);
+        mWebViewOnUiThread.setWebViewClient(client2);
+        assertSame(client2, mWebViewOnUiThread.getWebViewClient());
     }
 
     /**

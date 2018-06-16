@@ -251,7 +251,12 @@ public enum WebViewFeatureInternal {
      * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)}.
      */
     WEB_MESSAGE_CALLBACK_ON_MESSAGE(WebViewFeature.WEB_MESSAGE_CALLBACK_ON_MESSAGE,
-            Build.VERSION_CODES.M);
+            Build.VERSION_CODES.M),
+
+    /**
+     * This feature covers {@link WebViewCompat#getWebViewClient(WebView)}.
+     */
+    GET_WEB_VIEW_CLIENT(WebViewFeature.GET_WEB_VIEW_CLIENT, Build.VERSION_CODES.O);
 
     private final String mFeatureValue;
     private final int mOsVersion;
