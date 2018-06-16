@@ -161,7 +161,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
     private Animator.AnimatorListener mAnimatorListener = null;
 
     // Use an array to keep track of multiple call back associated with one drawable.
-    private ArrayList<Animatable2Compat.AnimationCallback> mAnimationCallbacks = null;
+    ArrayList<Animatable2Compat.AnimationCallback> mAnimationCallbacks = null;
 
 
     AnimatedVectorDrawableCompat() {
@@ -582,7 +582,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
         VectorDrawableCompat mVectorDrawable;
         // Combining the array of Animators into a single AnimatorSet to hook up listener easier.
         AnimatorSet mAnimatorSet;
-        private ArrayList<Animator> mAnimators;
+        ArrayList<Animator> mAnimators;
         ArrayMap<Animator, String> mTargetNameMap;
 
         public AnimatedVectorDrawableCompatState(Context context,
