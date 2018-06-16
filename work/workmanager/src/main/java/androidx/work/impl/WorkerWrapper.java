@@ -57,8 +57,10 @@ public class WorkerWrapper implements Runnable {
 
     private static final String TAG = "WorkerWrapper";
     private Context mAppContext;
-    private String mWorkSpecId;
-    private ExecutionListener mListener;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    String mWorkSpecId;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ExecutionListener mListener;
     private List<Scheduler> mSchedulers;
     private Extras.RuntimeExtras mRuntimeExtras;
     private WorkSpec mWorkSpec;
@@ -72,7 +74,7 @@ public class WorkerWrapper implements Runnable {
 
     private volatile boolean mInterrupted;
 
-    private WorkerWrapper(Builder builder) {
+    WorkerWrapper(Builder builder) {
         mAppContext = builder.mAppContext;
         mWorkSpecId = builder.mWorkSpecId;
         mListener = builder.mListener;
@@ -434,15 +436,15 @@ public class WorkerWrapper implements Runnable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class Builder {
-        private Context mAppContext;
+        Context mAppContext;
         @Nullable
-        private Worker mWorker;
-        private Configuration mConfiguration;
-        private WorkDatabase mWorkDatabase;
-        private String mWorkSpecId;
-        private ExecutionListener mListener;
-        private List<Scheduler> mSchedulers;
-        private Extras.RuntimeExtras mRuntimeExtras;
+        Worker mWorker;
+        Configuration mConfiguration;
+        WorkDatabase mWorkDatabase;
+        String mWorkSpecId;
+        ExecutionListener mListener;
+        List<Scheduler> mSchedulers;
+        Extras.RuntimeExtras mRuntimeExtras;
 
         public Builder(@NonNull Context context,
                 @NonNull Configuration configuration,

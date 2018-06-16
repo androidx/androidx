@@ -137,7 +137,7 @@ public class ForceStopRunnable implements Runnable {
         SystemJobScheduler.jobSchedulerCancelAll(mContext);
     }
 
-    private void setAlarm(int alarmId) {
+    void setAlarm(int alarmId) {
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         // Using FLAG_UPDATE_CURRENT, because we only ever want once instance of this alarm.
         PendingIntent pendingIntent = getPendingIntent(alarmId, FLAG_UPDATE_CURRENT);
