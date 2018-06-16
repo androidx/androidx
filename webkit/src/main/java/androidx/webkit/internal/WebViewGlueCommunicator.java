@@ -47,7 +47,7 @@ public class WebViewGlueCommunicator {
     }
 
     private static class LAZY_FACTORY_HOLDER {
-        private static final WebViewProviderFactory INSTANCE =
+        static final WebViewProviderFactory INSTANCE =
                         WebViewGlueCommunicator.createGlueProviderFactory();
     }
 
@@ -65,7 +65,8 @@ public class WebViewGlueCommunicator {
         return (InvocationHandler) createProviderFactoryMethod.invoke(null);
     }
 
-    private static WebViewProviderFactory createGlueProviderFactory() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static WebViewProviderFactory createGlueProviderFactory() {
         // We do not support pre-L devices since their WebView APKs cannot be updated.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return new IncompatibleApkWebViewProviderFactory();
