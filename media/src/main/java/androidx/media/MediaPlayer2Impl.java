@@ -2464,6 +2464,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             mAudioSessionId = null;
             mSyncParams = null;
             mPlaybackParams = null;
+            mLooping = false;
 
             setMp2State(src.getPlayer(), PLAYER_STATE_IDLE);
             setBufferingState(src.getPlayer(), BaseMediaPlayer.BUFFERING_STATE_UNKNOWN);
