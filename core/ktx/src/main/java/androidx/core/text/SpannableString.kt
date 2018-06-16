@@ -18,6 +18,7 @@
 
 package androidx.core.text
 
+import android.annotation.SuppressLint
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -44,6 +45,7 @@ inline operator fun Spannable.plusAssign(span: Any) =
 inline operator fun Spannable.minusAssign(span: Any) = removeSpan(span)
 
 /** Clear all spans from this text. */
+@SuppressLint("SyntheticAccessor") // TODO remove https://issuetracker.google.com/issues/110243369
 inline fun Spannable.clearSpans() = getSpans<Any>().forEach { removeSpan(it) }
 
 /**
