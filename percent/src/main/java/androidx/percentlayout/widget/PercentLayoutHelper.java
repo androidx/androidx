@@ -387,8 +387,8 @@ public class PercentLayoutHelper {
         // as the framework code can call onMeasure() multiple times before the onLayout() is
         // called. Those multiple invocations of onMeasure() are not guaranteed to be called with
         // the same set of width / height.
-        private boolean mIsHeightComputedFromAspectRatio;
-        private boolean mIsWidthComputedFromAspectRatio;
+        boolean mIsHeightComputedFromAspectRatio;
+        boolean mIsWidthComputedFromAspectRatio;
 
         public PercentMarginLayoutParams(int width, int height) {
             super(width, height);
