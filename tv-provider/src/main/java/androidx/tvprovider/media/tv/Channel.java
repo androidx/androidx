@@ -91,9 +91,9 @@ public final class Channel {
     private static final int IS_SYSTEM_APPROVED = 1;
     private static final int IS_LOCKED = 1;
 
-    private ContentValues mValues;
+    ContentValues mValues;
 
-    private Channel(Builder builder) {
+    Channel(Builder builder) {
         mValues = builder.mValues;
     }
 
@@ -593,7 +593,7 @@ public final class Channel {
      * The builder class that makes it easy to chain setters to create a {@link Channel} object.
      */
     public static final class Builder {
-        private ContentValues mValues;
+        ContentValues mValues;
 
         public Builder() {
             mValues = new ContentValues();
@@ -609,7 +609,7 @@ public final class Channel {
          * @param id The value of {@link Channels#_ID} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        private Builder setId(long id) {
+        Builder setId(long id) {
             mValues.put(Channels._ID, id);
             return this;
         }

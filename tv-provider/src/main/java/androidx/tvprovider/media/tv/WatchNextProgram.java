@@ -105,7 +105,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
      */
     public static final int WATCH_NEXT_TYPE_UNKNOWN = -1;
 
-    private WatchNextProgram(Builder builder) {
+    WatchNextProgram(Builder builder) {
         super(builder);
     }
 
