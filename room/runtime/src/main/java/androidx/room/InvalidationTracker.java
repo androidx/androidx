@@ -97,18 +97,22 @@ public class InvalidationTracker {
     @VisibleForTesting
     long[] mTableVersions;
 
-    private Object[] mQueryArgs = new Object[1];
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Object[] mQueryArgs = new Object[1];
 
     // max id in the last syc
-    private long mMaxVersion = 0;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    long mMaxVersion = 0;
 
-    private final RoomDatabase mDatabase;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final RoomDatabase mDatabase;
 
     AtomicBoolean mPendingRefresh = new AtomicBoolean(false);
 
     private volatile boolean mInitialized = false;
 
-    private volatile SupportSQLiteStatement mCleanupStatement;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    volatile SupportSQLiteStatement mCleanupStatement;
 
     private ObservedTableTracker mObservedTableTracker;
 
@@ -278,7 +282,8 @@ public class InvalidationTracker {
         }
     }
 
-    private boolean ensureInitialization() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean ensureInitialization() {
         if (!mDatabase.isOpen()) {
             return false;
         }
