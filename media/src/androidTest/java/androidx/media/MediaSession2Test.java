@@ -18,6 +18,7 @@ package androidx.media;
 
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
+import static androidx.media.BaseMediaPlayer.PLAYER_STATE_IDLE;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_FIXED;
 
@@ -504,6 +505,22 @@ public class MediaSession2Test extends MediaSession2TestBase {
         prepareLooper();
         mSession.play();
         assertTrue(mPlayer.mPlayCalled);
+    }
+
+    @Test
+    public void testPlay_autoPrepare() throws Exception {
+        prepareLooper();
+
+        final MockPlayer player = new MockPlayer(2);
+        player.mLastPlayerState = PLAYER_STATE_IDLE;
+
+        try (MediaSession2 session = new MediaSession2.Builder(mContext)
+                .setId("testPlay_autoPrepare").setPlayer(player).build()) {
+            session.play();
+            assertTrue(player.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertTrue(player.mPlayCalled);
+            assertTrue(player.mPrepareCalled);
+        }
     }
 
     @Test
