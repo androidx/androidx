@@ -84,7 +84,7 @@ public final class TextClassification implements Parcelable {
     @NonNull private final EntityConfidence mEntityConfidence;
     @NonNull private final String mSignature;
 
-    private TextClassification(
+    TextClassification(
             @Nullable String text,
             @Nullable Drawable primaryIcon,
             @Nullable String primaryLabel,
@@ -300,7 +300,7 @@ public final class TextClassification implements Parcelable {
                 }
             };
 
-    private TextClassification(Parcel in) {
+    TextClassification(Parcel in) {
         mText = in.readString();
         mPrimaryIcon = in.readInt() == 0
                 ? null : new BitmapDrawable(null, Bitmap.CREATOR.createFromParcel(in));
@@ -628,7 +628,7 @@ public final class TextClassification implements Parcelable {
                     }
                 };
 
-        private Options(Parcel in) {
+        Options(Parcel in) {
             if (in.readInt() > 0) {
                 mDefaultLocales = LocaleListCompat.forLanguageTags(in.readString());
             }

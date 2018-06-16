@@ -176,7 +176,7 @@ public class TextClassifier {
                     }
                 };
 
-        private EntityConfig(Parcel in) {
+        EntityConfig(Parcel in) {
             mEntityPreset = in.readInt();
             mExcludedEntityTypes = new ArraySet<>(in.createStringArrayList());
             mIncludedEntityTypes = new ArraySet<>(in.createStringArrayList());

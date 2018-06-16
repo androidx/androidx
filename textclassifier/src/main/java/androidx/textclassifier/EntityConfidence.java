@@ -40,7 +40,8 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 final class EntityConfidence implements Parcelable {
 
-    private final ArrayMap<String, Float> mEntityConfidence = new ArrayMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ArrayMap<String, Float> mEntityConfidence = new ArrayMap<>();
     private final ArrayList<String> mSortedEntities = new ArrayList<>();
 
     EntityConfidence() {}
@@ -125,7 +126,7 @@ final class EntityConfidence implements Parcelable {
                 }
             };
 
-    private EntityConfidence(Parcel in) {
+    EntityConfidence(Parcel in) {
         final int numEntities = in.readInt();
         mEntityConfidence.ensureCapacity(numEntities);
         for (int i = 0; i < numEntities; ++i) {
@@ -143,6 +144,9 @@ final class EntityConfidence implements Parcelable {
 
     /** Helper to sort entities according to their confidence. */
     private class EntityConfidenceComparator implements Comparator<String> {
+        EntityConfidenceComparator() {
+        }
+
         @Override
         public int compare(String e1, String e2) {
             float score1 = mEntityConfidence.get(e1);
