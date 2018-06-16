@@ -91,11 +91,11 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
 
     private final boolean mPopupSet;
 
-    private DropdownPopup mPopup;
+    DropdownPopup mPopup;
 
-    private int mDropDownWidth;
+    int mDropDownWidth;
 
-    private final Rect mTempRect = new Rect();
+    final Rect mTempRect = new Rect();
 
     /**
      * Construct a new spinner with the given context's theme.

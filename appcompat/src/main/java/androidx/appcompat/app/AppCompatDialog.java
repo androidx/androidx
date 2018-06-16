@@ -195,7 +195,8 @@ public class AppCompatDialog extends Dialog implements AppCompatCallback {
         return null;
     }
 
-    private boolean superDispatchKeyEvent(KeyEvent event) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean superDispatchKeyEvent(KeyEvent event) {
         return super.dispatchKeyEvent(event);
     }
 

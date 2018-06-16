@@ -159,7 +159,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
         hide();
     }
 
-    private void show(boolean fromTouch) {
+    void show(boolean fromTouch) {
         if (!ViewCompat.isAttachedToWindow(mAnchor)) {
             return;
         }
@@ -188,7 +188,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
         mAnchor.postDelayed(mHideRunnable, timeout);
     }
 
-    private void hide() {
+    void hide() {
         if (sActiveHandler == this) {
             sActiveHandler = null;
             if (mPopup != null) {

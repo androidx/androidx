@@ -107,7 +107,7 @@ class DropDownListView extends ListView {
      * Runnable posted when we are awaiting hover event resolution. When set,
      * drawable state changes are postponed.
      */
-    private ResolveHoverRunnable mResolveHoverRunnable;
+    ResolveHoverRunnable mResolveHoverRunnable;
 
     /**
      * <p>Creates a new list view wrapper.</p>
@@ -697,6 +697,9 @@ class DropDownListView extends ListView {
      * Runnable that forces hover event resolution and updates drawable state.
      */
     private class ResolveHoverRunnable implements Runnable {
+        ResolveHoverRunnable() {
+        }
+
         @Override
         public void run() {
             // Resolved hover event as standard hover exit.
