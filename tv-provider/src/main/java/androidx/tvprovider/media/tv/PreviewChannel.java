@@ -59,7 +59,8 @@ public class PreviewChannel {
     private static final long INVALID_CHANNEL_ID = -1;
     private static final int IS_BROWSABLE = 1;
 
-    private ContentValues mValues;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ContentValues mValues;
     private volatile Bitmap mLogoImage;
 
     private Uri mLogoUri;
@@ -71,7 +72,7 @@ public class PreviewChannel {
      */
     private volatile boolean mLogoFetched;
 
-    private PreviewChannel(Builder builder) {
+    PreviewChannel(Builder builder) {
         mValues = builder.mValues;
         mLogoImage = builder.mLogoBitmap;
         mLogoUri = builder.mLogoUri;
@@ -343,9 +344,9 @@ public class PreviewChannel {
      * displayName and appLinkIntentUri; use the respective methods to set them.
      */
     public static final class Builder {
-        private ContentValues mValues;
-        private Bitmap mLogoBitmap;
-        private Uri mLogoUri;
+        ContentValues mValues;
+        Bitmap mLogoBitmap;
+        Uri mLogoUri;
 
         public Builder() {
             mValues = new ContentValues();
@@ -355,7 +356,7 @@ public class PreviewChannel {
             mValues = new ContentValues(other.mValues);
         }
 
-        private Builder setId(long id) {
+        Builder setId(long id) {
             mValues.put(Channels._ID, id);
             return this;
         }
@@ -373,8 +374,8 @@ public class PreviewChannel {
             return this;
         }
 
-        // Private because this is always the same: setType(TvContractCompat.Channels.TYPE_PREVIEW)
-        private Builder setType(@Type String type) {
+        // Not public because this is always the same: setType(TvContractCompat.Channels.TYPE_PREVIEW)
+        Builder setType(@Type String type) {
             mValues.put(Channels.COLUMN_TYPE, type);
             return this;
         }
