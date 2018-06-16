@@ -144,7 +144,8 @@ final class DefaultBandHost<K> extends GridModel.GridHost<K> {
         mRecyclerView.invalidate();
     }
 
-    private void onDrawBand(@NonNull Canvas c) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onDrawBand(@NonNull Canvas c) {
         mBand.draw(c);
     }
 

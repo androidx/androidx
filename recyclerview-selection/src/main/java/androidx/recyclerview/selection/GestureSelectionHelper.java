@@ -210,7 +210,8 @@ final class GestureSelectionHelper implements OnItemTouchListener {
     // It's possible for events to go over the top/bottom of the RecyclerView.
     // We want to get a Y-coordinate within the RecyclerView so we can find the childView underneath
     // correctly.
-    private static float getInboundY(float max, float y) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static float getInboundY(float max, float y) {
         if (y < 0f) {
             return 0f;
         } else if (y > max) {

@@ -181,7 +181,8 @@ final class GridModel<K> {
         return mPositionNearestOrigin;
     }
 
-    private void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         if (!mIsActive) {
             return;
         }

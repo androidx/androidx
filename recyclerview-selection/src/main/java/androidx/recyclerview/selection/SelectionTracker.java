@@ -447,13 +447,13 @@ public abstract class SelectionTracker<K> {
      */
     public static final class Builder<K> {
 
-        private final RecyclerView mRecyclerView;
+        final RecyclerView mRecyclerView;
         private final RecyclerView.Adapter<?> mAdapter;
         private final Context mContext;
         private final String mSelectionId;
         private final StorageStrategy<K> mStorage;
 
-        private SelectionPredicate<K> mSelectionPredicate =
+        SelectionPredicate<K> mSelectionPredicate =
                 SelectionPredicates.createSelectAnything();
         private OperationMonitor mMonitor = new OperationMonitor();
         private ItemKeyProvider<K> mKeyProvider;
