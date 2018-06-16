@@ -182,7 +182,7 @@ public class ActionRow extends FrameLayout {
     }
 
     @RequiresApi(21)
-    private boolean handleRemoteInputClick(View view, SliceItem action,
+    boolean handleRemoteInputClick(View view, SliceItem action,
             RemoteInput input) {
         if (input == null) {
             return false;

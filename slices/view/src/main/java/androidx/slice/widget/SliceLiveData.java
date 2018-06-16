@@ -113,18 +113,18 @@ public final class SliceLiveData {
     }
 
     private static class CachedLiveDataImpl extends LiveData<Slice> {
-        private final SliceViewManager mSliceViewManager;
+        final SliceViewManager mSliceViewManager;
         private final OnErrorListener mListener;
-        private final Context mContext;
-        private Uri mUri;
+        final Context mContext;
+        Uri mUri;
         private boolean mActive;
-        private Uri mPendingUri;
+        Uri mPendingUri;
         private boolean mLive;
-        private SliceStructure mStructure;
-        private Context mPendingContext;
-        private Intent mPendingIntent;
+        SliceStructure mStructure;
+        Context mPendingContext;
+        Intent mPendingIntent;
 
-        private CachedLiveDataImpl(final Context context, final SliceViewManager manager,
+        CachedLiveDataImpl(final Context context, final SliceViewManager manager,
                 final InputStream input, final OnErrorListener listener) {
             super();
             mContext = context;
@@ -153,7 +153,7 @@ public final class SliceLiveData {
             });
         }
 
-        private void goLive(Uri actionUri, Context context, Intent intent) {
+        void goLive(Uri actionUri, Context context, Intent intent) {
             mLive = true;
             mPendingUri = actionUri;
             mPendingContext = context;
@@ -181,7 +181,7 @@ public final class SliceLiveData {
             }
         }
 
-        private void onSliceError(int error, Throwable t) {
+        void onSliceError(int error, Throwable t) {
             mListener.onSliceError(error, t);
             if (mLive) {
                 mSliceViewManager.unregisterSliceCallback(mUri, mSliceCallback);
@@ -197,7 +197,7 @@ public final class SliceLiveData {
             }
         };
 
-        private final SliceViewManager.SliceCallback mSliceCallback =
+        final SliceViewManager.SliceCallback mSliceCallback =
                 new SliceViewManager.SliceCallback() {
             @Override
             public void onSliceUpdated(@NonNull Slice s) {
@@ -236,11 +236,11 @@ public final class SliceLiveData {
     }
 
     private static class SliceLiveDataImpl extends LiveData<Slice> {
-        private final Intent mIntent;
-        private final SliceViewManager mSliceViewManager;
-        private Uri mUri;
+        final Intent mIntent;
+        final SliceViewManager mSliceViewManager;
+        Uri mUri;
 
-        private SliceLiveDataImpl(Context context, Uri uri) {
+        SliceLiveDataImpl(Context context, Uri uri) {
             super();
             mSliceViewManager = SliceViewManager.getInstance(context);
             mUri = uri;
@@ -248,7 +248,7 @@ public final class SliceLiveData {
             // TODO: Check if uri points at a Slice?
         }
 
-        private SliceLiveDataImpl(Context context, Intent intent) {
+        SliceLiveDataImpl(Context context, Intent intent) {
             super();
             mSliceViewManager = SliceViewManager.getInstance(context);
             mUri = null;
@@ -283,7 +283,7 @@ public final class SliceLiveData {
             }
         };
 
-        private final SliceViewManager.SliceCallback mSliceCallback =
+        final SliceViewManager.SliceCallback mSliceCallback =
                 new SliceViewManager.SliceCallback() {
             @Override
             public void onSliceUpdated(@NonNull Slice s) {
