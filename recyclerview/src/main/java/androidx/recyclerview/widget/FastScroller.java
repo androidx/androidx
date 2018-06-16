@@ -78,8 +78,10 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
     private final int mMargin;
 
     // Final values for the vertical scroll bar
-    private final StateListDrawable mVerticalThumbDrawable;
-    private final Drawable mVerticalTrackDrawable;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final StateListDrawable mVerticalThumbDrawable;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Drawable mVerticalTrackDrawable;
     private final int mVerticalThumbWidth;
     private final int mVerticalTrackWidth;
 
@@ -114,8 +116,10 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
 
     private final int[] mVerticalRange = new int[2];
     private final int[] mHorizontalRange = new int[2];
-    private final ValueAnimator mShowHideAnimator = ValueAnimator.ofFloat(0, 1);
-    @AnimationState private int mAnimationState = ANIMATION_STATE_OUT;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ValueAnimator mShowHideAnimator = ValueAnimator.ofFloat(0, 1);
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @AnimationState int mAnimationState = ANIMATION_STATE_OUT;
     private final Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
@@ -182,11 +186,12 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
         cancelHide();
     }
 
-    private void requestRedraw() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void requestRedraw() {
         mRecyclerView.invalidate();
     }
 
-    private void setState(@State int state) {
+    void setState(@State int state) {
         if (state == STATE_DRAGGING && mState != STATE_DRAGGING) {
             mVerticalThumbDrawable.setState(PRESSED_STATE_SET);
             cancelHide();
@@ -552,6 +557,9 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
 
         private boolean mCanceled = false;
 
+        AnimatorListener() {
+        }
+
         @Override
         public void onAnimationEnd(Animator animation) {
             // Cancel is always followed by a new directive, so don't update state.
@@ -575,6 +583,8 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
     }
 
     private class AnimatorUpdater implements AnimatorUpdateListener {
+        AnimatorUpdater() {
+        }
 
         @Override
         public void onAnimationUpdate(ValueAnimator valueAnimator) {

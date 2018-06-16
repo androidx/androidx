@@ -113,11 +113,14 @@ import java.util.concurrent.Executor;
  */
 public class AsyncListDiffer<T> {
     private final ListUpdateCallback mUpdateCallback;
-    private final AsyncDifferConfig<T> mConfig;
-    private final Executor mMainThreadExecutor;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final AsyncDifferConfig<T> mConfig;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Executor mMainThreadExecutor;
 
     private static class MainThreadExecutor implements Executor {
         final Handler mHandler = new Handler(Looper.getMainLooper());
+        MainThreadExecutor() {}
         @Override
         public void execute(@NonNull Runnable command) {
             mHandler.post(command);
@@ -177,7 +180,8 @@ public class AsyncListDiffer<T> {
     private List<T> mReadOnlyList = Collections.emptyList();
 
     // Max generation of currently scheduled runnable
-    private int mMaxScheduledGeneration;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mMaxScheduledGeneration;
 
     /**
      * Get the current List - any diffing to present this list has already been computed and
@@ -306,7 +310,8 @@ public class AsyncListDiffer<T> {
         });
     }
 
-    private void latchList(@NonNull List<T> newList, @NonNull DiffUtil.DiffResult diffResult) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void latchList(@NonNull List<T> newList, @NonNull DiffUtil.DiffResult diffResult) {
         mList = newList;
         // notify last, after list is updated
         mReadOnlyList = Collections.unmodifiableList(newList);

@@ -176,7 +176,7 @@ class MessageThreadUtil<T> implements ThreadUtil<T> {
 
         private static SyncQueueItem sPool;
         private static final Object sPoolLock = new Object();
-        private SyncQueueItem next;
+        SyncQueueItem next;
         public int what;
         public int arg1;
         public int arg2;
