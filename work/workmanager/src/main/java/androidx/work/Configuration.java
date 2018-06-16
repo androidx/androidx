@@ -43,7 +43,7 @@ public final class Configuration {
     private final int mMaxJobSchedulerId;
     private final int mMaxSchedulerLimit;
 
-    private Configuration(@NonNull Configuration.Builder builder) {
+    Configuration(@NonNull Configuration.Builder builder) {
         if (builder.mExecutor == null) {
             mExecutor = createDefaultExecutor();
         } else {

@@ -45,7 +45,8 @@ public final class Data {
 
     private static final String TAG = "Data";
 
-    private Map<String, Object> mValues;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Map<String, Object> mValues;
 
     Data() {    // stub required for room
     }
@@ -385,7 +386,8 @@ public final class Data {
         return 31 * mValues.hashCode();
     }
 
-    private static Boolean[] convertPrimitiveBooleanArray(boolean[] value) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static Boolean[] convertPrimitiveBooleanArray(boolean[] value) {
         Boolean[] returnValue = new Boolean[value.length];
         for (int i = 0; i < value.length; ++i) {
             returnValue[i] = value[i];
@@ -393,7 +395,8 @@ public final class Data {
         return returnValue;
     }
 
-    private static Integer[] convertPrimitiveIntArray(int[] value) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static Integer[] convertPrimitiveIntArray(int[] value) {
         Integer[] returnValue = new Integer[value.length];
         for (int i = 0; i < value.length; ++i) {
             returnValue[i] = value[i];
@@ -401,7 +404,8 @@ public final class Data {
         return returnValue;
     }
 
-    private static Long[] convertPrimitiveLongArray(long[] value) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static Long[] convertPrimitiveLongArray(long[] value) {
         Long[] returnValue = new Long[value.length];
         for (int i = 0; i < value.length; ++i) {
             returnValue[i] = value[i];
@@ -409,7 +413,8 @@ public final class Data {
         return returnValue;
     }
 
-    private static Float[] convertPrimitiveFloatArray(float[] value) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static Float[] convertPrimitiveFloatArray(float[] value) {
         Float[] returnValue = new Float[value.length];
         for (int i = 0; i < value.length; ++i) {
             returnValue[i] = value[i];
@@ -417,7 +422,8 @@ public final class Data {
         return returnValue;
     }
 
-    private static Double[] convertPrimitiveDoubleArray(double[] value) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static Double[] convertPrimitiveDoubleArray(double[] value) {
         Double[] returnValue = new Double[value.length];
         for (int i = 0; i < value.length; ++i) {
             returnValue[i] = value[i];

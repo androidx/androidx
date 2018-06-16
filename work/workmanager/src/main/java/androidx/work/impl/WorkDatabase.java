@@ -122,7 +122,8 @@ public abstract class WorkDatabase extends RoomDatabase {
         };
     }
 
-    private static String getPruneSQL() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static String getPruneSQL() {
         return PRUNE_SQL_FORMAT_PREFIX + getPruneDate() + PRUNE_SQL_FORMAT_SUFFIX;
     }
 

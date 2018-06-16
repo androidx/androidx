@@ -52,7 +52,7 @@ public final class Constraints {
     public Constraints() { // stub required for room
     }
 
-    private Constraints(Builder builder) {
+    Constraints(Builder builder) {
         mRequiresCharging = builder.mRequiresCharging;
         mRequiresDeviceIdle = Build.VERSION.SDK_INT >= 23 && builder.mRequiresDeviceIdle;
         mRequiredNetworkType = builder.mRequiredNetworkType;
@@ -168,12 +168,12 @@ public final class Constraints {
      * Builder for {@link Constraints} class.
      */
     public static final class Builder {
-        private boolean mRequiresCharging = false;
-        private boolean mRequiresDeviceIdle = false;
-        private NetworkType mRequiredNetworkType = NetworkType.NOT_REQUIRED;
-        private boolean mRequiresBatteryNotLow = false;
-        private boolean mRequiresStorageNotLow = false;
-        private ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
+        boolean mRequiresCharging = false;
+        boolean mRequiresDeviceIdle = false;
+        NetworkType mRequiredNetworkType = NetworkType.NOT_REQUIRED;
+        boolean mRequiresBatteryNotLow = false;
+        boolean mRequiresStorageNotLow = false;
+        ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
 
         /**
          * Specify whether device should be plugged in for {@link WorkRequest} to run.
