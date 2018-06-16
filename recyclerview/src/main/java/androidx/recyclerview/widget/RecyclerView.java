@@ -10755,7 +10755,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         int mFlags;
 
-        private static final List<Object> FULLUPDATE_PAYLOADS = Collections.EMPTY_LIST;
+        private static final List<Object> FULLUPDATE_PAYLOADS = Collections.emptyList();
 
         List<Object> mPayloads = null;
         List<Object> mUnmodifiedPayloads = null;

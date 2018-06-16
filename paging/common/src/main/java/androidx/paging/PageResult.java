@@ -29,7 +29,7 @@ import java.util.List;
 class PageResult<T> {
     @SuppressWarnings("unchecked")
     private static final PageResult INVALID_RESULT =
-            new PageResult(Collections.EMPTY_LIST, 0);
+            new PageResult(Collections.emptyList(), 0);
 
     @SuppressWarnings("unchecked")
     static <T> PageResult<T> getInvalidResult() {

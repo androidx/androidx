@@ -36,7 +36,7 @@ public class TestAdapter<K> extends Adapter<TestHolder> {
     private final AdapterDataObserver mAdapterObserver;
 
     public TestAdapter() {
-        this(Collections.EMPTY_LIST);
+        this(Collections.<K>emptyList());
     }
 
     public TestAdapter(List<K> items) {

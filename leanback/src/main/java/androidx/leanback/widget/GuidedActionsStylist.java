@@ -1443,7 +1443,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
                 mSubActionsGridView.setVisibility(View.INVISIBLE);
                 mSubActionsBackground.setVisibility(View.INVISIBLE);
                 mSubActionsGridView.setLayoutParams(lp);
-                adapter.setActions(Collections.EMPTY_LIST);
+                adapter.setActions(Collections.<GuidedAction>emptyList());
                 mActionsGridView.requestFocus();
             }
         }
