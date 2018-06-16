@@ -73,7 +73,8 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
 
     }
 
-    private void onAttached(@NonNull View view) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onAttached(@NonNull View view) {
         RecyclerView.ViewHolder holder = mRecyclerView.findContainingViewHolder(view);
         int position = holder.getAdapterPosition();
         long id = holder.getItemId();
@@ -83,7 +84,8 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
         }
     }
 
-    private void onDetached(@NonNull View view) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onDetached(@NonNull View view) {
         RecyclerView.ViewHolder holder = mRecyclerView.findContainingViewHolder(view);
         int position = holder.getAdapterPosition();
         long id = holder.getItemId();

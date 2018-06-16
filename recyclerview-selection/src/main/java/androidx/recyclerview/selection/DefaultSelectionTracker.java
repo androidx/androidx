@@ -352,7 +352,8 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
         return mAdapterObserver;
     }
 
-    private void onDataSetChanged() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onDataSetChanged() {
         mSelection.clearProvisionalSelection();
 
         notifySelectionRefresh();
@@ -437,7 +438,8 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
         }
     }
 
-    private void updateForRegularRange(int begin, int end, boolean selected) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void updateForRegularRange(int begin, int end, boolean selected) {
         checkArgument(end >= begin);
 
         for (int i = begin; i <= end; i++) {
@@ -454,7 +456,8 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
         }
     }
 
-    private void updateForProvisionalRange(int begin, int end, boolean selected) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void updateForProvisionalRange(int begin, int end, boolean selected) {
         checkArgument(end >= begin);
 
         for (int i = begin; i <= end; i++) {
@@ -518,6 +521,9 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     }
 
     private final class RangeCallbacks extends Range.Callbacks {
+        RangeCallbacks() {
+        }
+
         @Override
         void updateForRange(int begin, int end, boolean selected, int type) {
             switch (type) {
