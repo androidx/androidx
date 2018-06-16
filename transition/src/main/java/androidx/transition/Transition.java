@@ -217,7 +217,8 @@ public abstract class Transition implements Cloneable {
 
     // Track all animators in use in case the transition gets canceled and needs to
     // cancel running animators
-    private ArrayList<Animator> mCurrentAnimators = new ArrayList<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ArrayList<Animator> mCurrentAnimators = new ArrayList<>();
 
     // Number of per-target instances of this Transition currently running. This count is
     // determined by calls to start() and end()

@@ -99,7 +99,8 @@ public class ChangeTransform extends Transition {
      */
     private static final boolean SUPPORTS_VIEW_REMOVAL_SUPPRESSION = Build.VERSION.SDK_INT >= 21;
 
-    private boolean mUseOverlay = true;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mUseOverlay = true;
     private boolean mReparent = true;
     private Matrix mTempMatrix = new Matrix();
 
@@ -432,11 +433,13 @@ public class ChangeTransform extends Transition {
         startLocal.postConcat(toLocal);
     }
 
-    private static void setIdentityTransforms(View view) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void setIdentityTransforms(View view) {
         setTransforms(view, 0, 0, 0, 1, 1, 0, 0, 0);
     }
 
-    private static void setTransforms(View view, float translationX, float translationY,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void setTransforms(View view, float translationX, float translationY,
             float translationZ, float scaleX, float scaleY, float rotationX,
             float rotationY, float rotationZ) {
         view.setTranslationX(translationX);
