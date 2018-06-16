@@ -69,7 +69,7 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
         }
     };
 
-    private ActivityInitializationListener mInitializationListener =
+    ActivityInitializationListener mInitializationListener =
             new ActivityInitializationListener() {
                 @Override
                 public void onCreate() {
@@ -134,14 +134,14 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
         dispatchStopIfNeeded();
     }
 
-    private void dispatchPauseIfNeeded() {
+    void dispatchPauseIfNeeded() {
         if (mResumedCounter == 0) {
             mPauseSent = true;
             mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
         }
     }
 
-    private void dispatchStopIfNeeded() {
+    void dispatchStopIfNeeded() {
         if (mStartedCounter == 0 && mPauseSent) {
             mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
             mStopSent = true;
