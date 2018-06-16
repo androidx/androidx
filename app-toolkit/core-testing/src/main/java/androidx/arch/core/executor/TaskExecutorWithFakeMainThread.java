@@ -35,12 +35,14 @@ import java.util.concurrent.TimeUnit;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TaskExecutorWithFakeMainThread extends TaskExecutor {
-    private List<Throwable> mCaughtExceptions = Collections.synchronizedList(new ArrayList
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    List<Throwable> mCaughtExceptions = Collections.synchronizedList(new ArrayList
             <Throwable>());
 
     private ExecutorService mIOService;
 
-    private Thread mMainThread;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Thread mMainThread;
     private final int mIOThreadCount;
 
     private ExecutorService mMainThreadService =
