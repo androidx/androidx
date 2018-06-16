@@ -33,8 +33,8 @@ import java.util.List;
  * {@link MediaLibraryService2} and {@link android.support.v4.media.MediaBrowserCompat}.
  */
 class MediaSessionService2LegacyStub extends MediaBrowserServiceCompat {
-    private final MediaSessionManager mManager;
     private final MediaSession2.SupportLibraryImpl mSessionImpl;
+    final MediaSessionManager mManager;
 
     MediaSessionService2LegacyStub(Context context,
             MediaSession2.SupportLibraryImpl session, MediaSessionCompat.Token token) {
@@ -48,7 +48,8 @@ class MediaSessionService2LegacyStub extends MediaBrowserServiceCompat {
 
     @Override
     public BrowserRoot onGetRoot(String clientPackageName, int clientUid, Bundle rootHints) {
-        final ControllerInfo controller = getController();
+        RemoteUserInfo info = getCurrentBrowserInfo();
+        final ControllerInfo controller = createControllerInfo(info);
         // Call callbacks directly instead of execute on the executor. Here's the reason.
         // We need to return browser root here. So if we run the callback on the executor, we
         // should wait for the completion.
@@ -73,6 +74,12 @@ class MediaSessionService2LegacyStub extends MediaBrowserServiceCompat {
         result.sendResult(null);
     }
 
+    ControllerInfo createControllerInfo(RemoteUserInfo info) {
+        // TODO: Keep newly created ControllerInfo from onGetRoot, and don't create controller
+        //       in other places.
+        return new ControllerInfo(info, mManager.isTrustedForMediaControl(info), null);
+    }
+
     ControllerInfo getController() {
         RemoteUserInfo info = getCurrentBrowserInfo();
         if (info == null) {
@@ -88,7 +95,8 @@ class MediaSessionService2LegacyStub extends MediaBrowserServiceCompat {
                 return controller;
             }
         }
-        // TODO: Keep this newly created ControllerInfo
-        return new ControllerInfo(info, mManager.isTrustedForMediaControl(info), null);
+        // TODO: Keep newly created ControllerInfo from onGetRoot, and don't create controller
+        //       in other places.
+        return createControllerInfo(info);
     }
 }

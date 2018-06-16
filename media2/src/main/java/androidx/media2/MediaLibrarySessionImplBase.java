@@ -45,7 +45,7 @@ import java.util.concurrent.Executor;
 class MediaLibrarySessionImplBase extends MediaSession2ImplBase
         implements MediaLibrarySession.SupportLibraryImpl {
     @GuardedBy("mLock")
-    private final ArrayMap<ControllerInfo, Set<String>> mSubscriptions = new ArrayMap<>();
+    private final ArrayMap<ControllerCb, Set<String>> mSubscriptions = new ArrayMap<>();
 
     MediaLibrarySessionImplBase(MediaSession2 instance, Context context, String id,
             BaseMediaPlayer player, MediaPlaylistAgent playlistAgent, PendingIntent sessionActivity,
@@ -71,6 +71,11 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
     }
 
     @Override
+    MediaLibraryService2LegacyStub getLegacyBrowserService() {
+        return (MediaLibraryService2LegacyStub) super.getLegacyBrowserService();
+    }
+
+    @Override
     public void notifyChildrenChanged(final String parentId, final int itemCount,
             final Bundle extras) {
         if (TextUtils.isEmpty(parentId)) {
@@ -80,18 +85,14 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
             throw new IllegalArgumentException("itemCount shouldn't be negative");
         }
 
-        final List<ControllerInfo> controllers = getConnectedControllers();
-        final NotifyRunnable runnable = new NotifyRunnable() {
+        notifyToAllControllers(new NotifyRunnable() {
             @Override
             public void run(ControllerCb callback) throws RemoteException {
-                callback.onChildrenChanged(parentId, itemCount, extras);
+                if (isSubscribed(callback, parentId)) {
+                    callback.onChildrenChanged(parentId, itemCount, extras);
+                }
             }
-        };
-        for (int i = 0; i < controllers.size(); i++) {
-            if (isSubscribed(controllers.get(i), parentId)) {
-                notifyToController(controllers.get(i), runnable);
-            }
-        }
+        });
     }
 
     @Override
@@ -109,7 +110,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
         notifyToController(controller, new NotifyRunnable() {
             @Override
             public void run(ControllerCb callback) throws RemoteException {
-                if (!isSubscribed(controller, parentId)) {
+                if (!isSubscribed(callback, parentId)) {
                     if (DEBUG) {
                         Log.d(TAG, "Skipping notifyChildrenChanged() to " + controller
                                 + " because it hasn't subscribed");
@@ -197,10 +198,10 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
     @Override
     public void onSubscribeOnExecutor(ControllerInfo controller, String parentId, Bundle option) {
         synchronized (mLock) {
-            Set<String> subscription = mSubscriptions.get(controller);
+            Set<String> subscription = mSubscriptions.get(controller.getControllerCb());
             if (subscription == null) {
                 subscription = new HashSet<>();
-                mSubscriptions.put(controller, subscription);
+                mSubscriptions.put(controller.getControllerCb(), subscription);
             }
             subscription.add(parentId);
         }
@@ -213,7 +214,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
     public void onUnsubscribeOnExecutor(ControllerInfo controller, String parentId) {
         getCallback().onUnsubscribe(getInstance(), controller, parentId);
         synchronized (mLock) {
-            mSubscriptions.remove(controller);
+            mSubscriptions.remove(controller.getControllerCb());
         }
     }
 
@@ -240,10 +241,16 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
         });
     }
 
+    @Override
+    void notifyToAllControllers(NotifyRunnable runnable) {
+        super.notifyToAllControllers(runnable);
+        notifyToController(getLegacyBrowserService().getControllersForAll(), runnable);
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean isSubscribed(ControllerInfo controller, String parentId) {
+    boolean isSubscribed(ControllerCb callback, String parentId) {
         synchronized (mLock) {
-            Set<String> subscriptions = mSubscriptions.get(controller);
+            Set<String> subscriptions = mSubscriptions.get(callback);
             if (subscriptions == null || !subscriptions.contains(parentId)) {
                 return false;
             }
