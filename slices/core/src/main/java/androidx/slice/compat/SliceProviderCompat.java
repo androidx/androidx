@@ -97,7 +97,8 @@ public class SliceProviderCompat {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Context mContext;
 
-    private String mCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    String mCallback;
     private final SliceProvider mProvider;
     private CompatPinnedList mPinnedList;
     private CompatPermissionManager mPermissionManager;
@@ -640,7 +641,7 @@ public class SliceProviderCompat {
     }
 
     private static class ProviderHolder implements AutoCloseable {
-        private final ContentProviderClient mProvider;
+        final ContentProviderClient mProvider;
 
         ProviderHolder(ContentProviderClient provider) {
             this.mProvider = provider;
