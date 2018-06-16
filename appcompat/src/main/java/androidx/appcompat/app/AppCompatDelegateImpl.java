@@ -209,7 +209,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     private boolean mLongPressBackDown;
 
-    private boolean mIsDestroyed;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsDestroyed;
 
     @NightMode
     private int mLocalNightMode = MODE_NIGHT_UNSPECIFIED;
