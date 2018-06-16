@@ -56,7 +56,7 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
     private CharSequence[] mEntryValues;
     private CharSequence mDialogTitle;
     private CharSequence mDialogMessage;
-    private Set<String> mInitialSelections;
+    Set<String> mInitialSelections;
     private String mInitialSelection;
 
     public static LeanbackListPreferenceDialogFragment newInstanceSingle(String key) {

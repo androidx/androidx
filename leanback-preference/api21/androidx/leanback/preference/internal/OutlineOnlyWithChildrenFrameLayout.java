@@ -39,7 +39,7 @@ import androidx.annotation.RestrictTo;
 public class OutlineOnlyWithChildrenFrameLayout extends FrameLayout {
 
     private ViewOutlineProvider mMagicalOutlineProvider;
-    private ViewOutlineProvider mInnerOutlineProvider;
+    ViewOutlineProvider mInnerOutlineProvider;
 
     public OutlineOnlyWithChildrenFrameLayout(Context context) {
         super(context);
