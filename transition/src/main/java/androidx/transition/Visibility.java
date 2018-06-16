@@ -82,6 +82,9 @@ public abstract class Visibility extends Transition {
     };
 
     private static class VisibilityInfo {
+        VisibilityInfo() {
+        }
+
         boolean mVisibilityChange;
         boolean mFadeIn;
         int mStartVisibility;

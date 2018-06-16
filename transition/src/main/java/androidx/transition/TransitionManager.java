@@ -86,7 +86,8 @@ public class TransitionManager {
     private ArrayMap<Scene, ArrayMap<Scene, Transition>> mScenePairTransitions = new ArrayMap<>();
     private static ThreadLocal<WeakReference<ArrayMap<ViewGroup, ArrayList<Transition>>>>
             sRunningTransitions = new ThreadLocal<>();
-    private static ArrayList<ViewGroup> sPendingTransitions = new ArrayList<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ArrayList<ViewGroup> sPendingTransitions = new ArrayList<>();
 
     /**
      * Sets a specific transition to occur when the given scene is entered.
