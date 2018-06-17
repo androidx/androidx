@@ -335,7 +335,7 @@ public final class ContentRecommendation
     private boolean mAutoDismiss;
     private int mStatus;
 
-    private ContentRecommendation(Builder builder) {
+    ContentRecommendation(Builder builder) {
         mIdTag = builder.mBuilderIdTag;
         mTitle = builder.mBuilderTitle;
         mText = builder.mBuilderText;
@@ -711,28 +711,28 @@ public final class ContentRecommendation
      * </pre>
      */
     public static final class Builder {
-        private String mBuilderIdTag;
-        private String mBuilderTitle;
-        private String mBuilderText;
-        private String mBuilderSourceName;
-        private Bitmap mBuilderContentImage;
-        private int mBuilderBadgeIconId;
-        private String mBuilderBackgroundImageUri;
-        private int mBuilderColor;
-        private String mBuilderGroup;
-        private String mBuilderSortKey;
-        private int mBuilderProgressAmount;
-        private int mBuilderProgressMax;
-        private boolean mBuilderAutoDismiss;
-        private IntentData mBuilderContentIntentData;
-        private IntentData mBuilderDismissIntentData;
-        private String[] mBuilderContentTypes;
-        private String[] mBuilderContentGenres;
-        private String mBuilderPriceType;
-        private String mBuilderPriceValue;
-        private int mBuilderStatus;
-        private String mBuilderMaturityRating;
-        private long mBuilderRunningTime;
+        String mBuilderIdTag;
+        String mBuilderTitle;
+        String mBuilderText;
+        String mBuilderSourceName;
+        Bitmap mBuilderContentImage;
+        int mBuilderBadgeIconId;
+        String mBuilderBackgroundImageUri;
+        int mBuilderColor;
+        String mBuilderGroup;
+        String mBuilderSortKey;
+        int mBuilderProgressAmount;
+        int mBuilderProgressMax;
+        boolean mBuilderAutoDismiss;
+        IntentData mBuilderContentIntentData;
+        IntentData mBuilderDismissIntentData;
+        String[] mBuilderContentTypes;
+        String[] mBuilderContentGenres;
+        String mBuilderPriceType;
+        String mBuilderPriceValue;
+        int mBuilderStatus;
+        String mBuilderMaturityRating;
+        long mBuilderRunningTime;
 
         /**
          * Constructs a new Builder.
@@ -1153,7 +1153,8 @@ public final class ContentRecommendation
      * @return the non-null reference that was validated
      * @throws NullPointerException if {@code reference} is null
      */
-    private static <T> T checkNotNull(final T reference) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static <T> T checkNotNull(final T reference) {
         if (reference == null) {
             throw new NullPointerException();
         }
