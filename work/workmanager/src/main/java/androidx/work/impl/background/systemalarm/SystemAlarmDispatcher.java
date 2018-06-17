@@ -53,13 +53,16 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     private static final String KEY_START_ID = "KEY_START_ID";
     private static final int DEFAULT_START_ID = 0;
 
-    private final Context mContext;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Context mContext;
     private final WorkTimer mWorkTimer;
     private final Processor mProcessor;
     private final WorkManagerImpl mWorkManager;
-    private final CommandHandler mCommandHandler;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final CommandHandler mCommandHandler;
     private final Handler mMainHandler;
-    private final List<Intent> mIntents;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final List<Intent> mIntents;
     // The executor service responsible for dispatching all the commands.
     private final ExecutorService mCommandExecutorService;
 
@@ -172,7 +175,8 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     }
 
     @MainThread
-    private void checkForCommandsCompleted() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void checkForCommandsCompleted() {
         assertMainThread();
         // if there are no more intents to process, and the command handler
         // has no more pending commands, stop the service.
