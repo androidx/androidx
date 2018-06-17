@@ -275,7 +275,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         protected SliceAction mPrimaryAction;
         protected int mLayoutDir = -1;
 
-        private RangeBuilderImpl(Slice.Builder sb, RangeBuilder builder) {
+        RangeBuilderImpl(Slice.Builder sb, RangeBuilder builder) {
             super(sb, null);
             if (builder != null) {
                 mValueSet = builder.isValueSet();
@@ -331,7 +331,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         private PendingIntent mAction;
         private IconCompat mThumb;
 
-        private InputRangeBuilderImpl(Slice.Builder sb, InputRangeBuilder builder) {
+        InputRangeBuilderImpl(Slice.Builder sb, InputRangeBuilder builder) {
             super(sb, null);
             mValueSet = builder.isValueSet();
             mMin = builder.getMin();
@@ -385,11 +385,11 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
         /**
          */
-        protected RowBuilderImpl(Slice.Builder builder) {
+        RowBuilderImpl(Slice.Builder builder) {
             super(builder, null);
         }
 
-        private void fillFrom(RowBuilder builder) {
+        void fillFrom(RowBuilder builder) {
             if (builder.getUri() != null) {
                 setBuilder(new Slice.Builder(builder.getUri()));
             }
@@ -628,7 +628,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
 
         /**
          */
-        private HeaderBuilderImpl(@NonNull ListBuilderV1Impl parent) {
+        HeaderBuilderImpl(@NonNull ListBuilderV1Impl parent) {
             super(parent.createChildBuilder(), null);
         }
 
@@ -638,7 +638,7 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
             super(new Slice.Builder(uri), null);
         }
 
-        private void fillFrom(HeaderBuilder builder) {
+        void fillFrom(HeaderBuilder builder) {
             if (builder.getUri() != null) {
                 setBuilder(new Slice.Builder(builder.getUri()));
             }

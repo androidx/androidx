@@ -49,7 +49,8 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
      */
     public static final int MAXIMUM_RETAINED_MESSAGES = 50;
 
-    private MessagingBuilder mBuilder;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MessagingBuilder mBuilder;
 
     /**
      * Create a MessagingSliceBuilder with the specified uri.
@@ -101,7 +102,7 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
      */
     public static final class MessageBuilder extends TemplateSliceBuilder {
 
-        private MessagingBuilder.MessageBuilder mImpl;
+        MessagingBuilder.MessageBuilder mImpl;
 
         /**
          * Creates a MessageBuilder with the specified parent.
