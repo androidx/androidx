@@ -302,7 +302,8 @@ public class MigrationTestHelper extends TestWatcher {
         return SchemaBundle.deserialize(input);
     }
 
-    private static TableInfo toTableInfo(EntityBundle entityBundle) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static TableInfo toTableInfo(EntityBundle entityBundle) {
         return new TableInfo(entityBundle.getTableName(), toColumnMap(entityBundle),
                 toForeignKeys(entityBundle.getForeignKeys()), toIndices(entityBundle.getIndices()));
     }
