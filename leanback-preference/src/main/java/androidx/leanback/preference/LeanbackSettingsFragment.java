@@ -179,6 +179,8 @@ public abstract class LeanbackSettingsFragment extends Fragment
     }
 
     private class RootViewOnKeyListener implements View.OnKeyListener {
+        RootViewOnKeyListener() {
+        }
 
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
