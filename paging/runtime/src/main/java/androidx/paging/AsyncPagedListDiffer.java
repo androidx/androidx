@@ -116,8 +116,10 @@ import java.util.concurrent.Executor;
 public class AsyncPagedListDiffer<T> {
     // updateCallback notifications must only be notified *after* new data and item count are stored
     // this ensures Adapter#notifyItemRangeInserted etc are accessing the new data
-    private final ListUpdateCallback mUpdateCallback;
-    private final AsyncDifferConfig<T> mConfig;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ListUpdateCallback mUpdateCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final AsyncDifferConfig<T> mConfig;
 
     @SuppressWarnings("RestrictedApi")
     Executor mMainThreadExecutor = ArchTaskExecutor.getMainThreadExecutor();
@@ -136,7 +138,8 @@ public class AsyncPagedListDiffer<T> {
     private PagedList<T> mSnapshot;
 
     // Max generation of currently scheduled runnable
-    private int mMaxScheduledGeneration;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mMaxScheduledGeneration;
 
     /**
      * Convenience for {@code AsyncPagedListDiffer(new AdapterListUpdateCallback(adapter),
@@ -313,7 +316,8 @@ public class AsyncPagedListDiffer<T> {
         });
     }
 
-    private void latchPagedList(
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void latchPagedList(
             PagedList<T> newList, PagedList<T> diffSnapshot,
             DiffUtil.DiffResult diffResult) {
         if (mSnapshot == null || mPagedList != null) {
