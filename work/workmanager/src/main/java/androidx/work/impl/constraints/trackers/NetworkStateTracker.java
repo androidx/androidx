@@ -103,7 +103,8 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         return Build.VERSION.SDK_INT >= 24;
     }
 
-    private NetworkState getActiveNetworkState() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    NetworkState getActiveNetworkState() {
         // Use getActiveNetworkInfo() instead of getNetworkInfo(network) because it can detect VPNs.
         NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
         boolean isConnected = info != null && info.isConnected();
@@ -125,6 +126,9 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
 
     @RequiresApi(24)
     private class NetworkStateCallback extends NetworkCallback {
+        NetworkStateCallback() {
+        }
+
         @Override
         public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
             // The Network parameter is unreliable when a VPN app is running - use active network.
@@ -140,6 +144,9 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     }
 
     private class NetworkStateBroadcastReceiver extends BroadcastReceiver {
+        NetworkStateBroadcastReceiver() {
+        }
+
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent == null || intent.getAction() == null) {

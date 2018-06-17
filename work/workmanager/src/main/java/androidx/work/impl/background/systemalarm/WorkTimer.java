@@ -42,9 +42,9 @@ class WorkTimer {
     private static final String TAG = "WorkTimer";
 
     private final ScheduledExecutorService mExecutorService;
-    private final Map<String, WorkTimerRunnable> mTimerMap;
-    private final Map<String, TimeLimitExceededListener> mListeners;
-    private final Object mLock;
+    final Map<String, WorkTimerRunnable> mTimerMap;
+    final Map<String, TimeLimitExceededListener> mListeners;
+    final Object mLock;
 
     WorkTimer() {
         mTimerMap = new HashMap<>();
