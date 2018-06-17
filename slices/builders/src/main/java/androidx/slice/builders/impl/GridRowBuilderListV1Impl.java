@@ -137,7 +137,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
         /**
          */
-        private CellBuilderImpl(@NonNull GridRowBuilderListV1Impl parent) {
+        CellBuilderImpl(@NonNull GridRowBuilderListV1Impl parent) {
             super(parent.createChildBuilder(), null);
         }
 

@@ -70,7 +70,7 @@ public class MessagingListV1Impl extends TemplateBuilderImpl implements Messagin
      */
     public static final class MessageBuilder extends TemplateBuilderImpl
             implements MessagingBuilder.MessageBuilder {
-        private final ListBuilderV1Impl.RowBuilderImpl mListBuilder;
+        final ListBuilderV1Impl.RowBuilderImpl mListBuilder;
 
         /**
          */
