@@ -153,12 +153,12 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     private OnSliceActionListener mSliceObserver;
     private int mTouchSlopSquared;
-    private View.OnLongClickListener mLongClickListener;
+    View.OnLongClickListener mLongClickListener;
     private View.OnClickListener mOnClickListener;
     private int mDownX;
     private int mDownY;
-    private boolean mPressing;
-    private boolean mInLongpress;
+    boolean mPressing;
+    boolean mInLongpress;
     private Handler mHandler;
     int[] mClickInfo;
 

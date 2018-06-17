@@ -85,9 +85,9 @@ public abstract class SliceViewManagerBase extends SliceViewManager {
 
     private class SliceListenerImpl {
 
-        private Uri mUri;
-        private final Executor mExecutor;
-        private final SliceCallback mCallback;
+        Uri mUri;
+        final Executor mExecutor;
+        final SliceCallback mCallback;
         private boolean mPinned;
 
         SliceListenerImpl(Uri uri, Executor executor, SliceCallback callback) {
@@ -101,7 +101,7 @@ public abstract class SliceViewManagerBase extends SliceViewManager {
             tryPin();
         }
 
-        private void tryPin() {
+        void tryPin() {
             if (!mPinned) {
                 try {
                     pinSlice(mUri);
@@ -120,7 +120,7 @@ public abstract class SliceViewManagerBase extends SliceViewManager {
             }
         }
 
-        private final Runnable mUpdateSlice = new Runnable() {
+        final Runnable mUpdateSlice = new Runnable() {
             @Override
             public void run() {
                 tryPin();

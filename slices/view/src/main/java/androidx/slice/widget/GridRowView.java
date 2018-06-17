@@ -93,10 +93,10 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     private GridContent mGridContent;
     private LinearLayout mViewContainer;
     private View mForeground;
-    private int mMaxCells = -1;
+    int mMaxCells = -1;
     private int[] mLoc = new int[2];
 
-    private boolean mMaxCellUpdateScheduled;
+    boolean mMaxCellUpdateScheduled;
 
     public GridRowView(Context context) {
         this(context, null);
@@ -219,7 +219,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
-    private int getMaxCells() {
+    int getMaxCells() {
         if (mGridContent == null || !mGridContent.isValid() || getWidth() == 0) {
             return -1;
         }
@@ -234,7 +234,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
-    private void populateViews() {
+    void populateViews() {
         if (mGridContent == null || !mGridContent.isValid()) {
             resetView();
             return;
