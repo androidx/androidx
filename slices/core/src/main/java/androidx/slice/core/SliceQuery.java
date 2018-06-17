@@ -218,11 +218,13 @@ public class SliceQuery {
         }), null);
     }
 
-    private static boolean checkFormat(SliceItem item, String format) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static boolean checkFormat(SliceItem item, String format) {
         return format == null || format.equals(item.getFormat());
     }
 
-    private static boolean checkSubtype(SliceItem item, String subtype) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static boolean checkSubtype(SliceItem item, String subtype) {
         return subtype == null || subtype.equals(item.getSubType());
     }
 
