@@ -107,23 +107,23 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private View mSeeMoreView;
     private ProgressBar mRangeBar;
 
-    private int mRowIndex;
-    private RowContent mRowContent;
+    int mRowIndex;
+    RowContent mRowContent;
     private SliceActionImpl mRowAction;
     private boolean mIsHeader;
     private List<SliceAction> mHeaderActions;
     private boolean mIsSingleItem;
 
     // Indicates if there's a slider in this row that is currently being interacted with.
-    private boolean mIsRangeSliding;
+    boolean mIsRangeSliding;
     // Indicates that there was an update to the row but we skipped it while the slice was
     // being interacted with.
-    private boolean mRangeHasPendingUpdate;
-    private boolean mRangeUpdaterRunning;
-    private Handler mHandler;
-    private long mLastSentRangeUpdate;
-    private int mRangeValue;
-    private int mRangeMinValue;
+    boolean mRangeHasPendingUpdate;
+    boolean mRangeUpdaterRunning;
+    Handler mHandler;
+    long mLastSentRangeUpdate;
+    int mRangeValue;
+    int mRangeMinValue;
     private SliceItem mRangeItem;
 
     private int mImageSize;
@@ -521,7 +521,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
     }
 
-    private void sendSliderValue() {
+    void sendSliderValue() {
         if (mRangeItem != null) {
             try {
                 mLastSentRangeUpdate = System.currentTimeMillis();
@@ -699,7 +699,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
     }
 
-    private Runnable mRangeUpdater = new Runnable() {
+    Runnable mRangeUpdater = new Runnable() {
         @Override
         public void run() {
             sendSliderValue();

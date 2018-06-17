@@ -60,22 +60,37 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     static final int HEADER_INDEX = 0;
 
     private final IdGenerator mIdGen = new IdGenerator();
-    private final Context mContext;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Context mContext;
     private List<SliceWrapper> mSlices = new ArrayList<>();
-    private SliceView.OnSliceActionListener mSliceObserver;
-    private int mColor;
-    private AttributeSet mAttrs;
-    private int mDefStyleAttr;
-    private int mDefStyleRes;
-    private List<SliceAction> mSliceActions;
-    private boolean mShowLastUpdated;
-    private long mLastUpdated;
-    private SliceView mParent;
-    private LargeTemplateView mTemplateView;
-    private int mInsetStart;
-    private int mInsetTop;
-    private int mInsetEnd;
-    private int mInsetBottom;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    SliceView.OnSliceActionListener mSliceObserver;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mColor;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    AttributeSet mAttrs;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mDefStyleAttr;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mDefStyleRes;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    List<SliceAction> mSliceActions;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mShowLastUpdated;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    long mLastUpdated;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    SliceView mParent;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    LargeTemplateView mTemplateView;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mInsetStart;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mInsetTop;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mInsetEnd;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mInsetBottom;
 
     public LargeSliceAdapter(Context context) {
         mContext = context;
@@ -212,9 +227,9 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     }
 
     protected static class SliceWrapper {
-        private final SliceItem mItem;
-        private final int mType;
-        private final long mId;
+        final SliceItem mItem;
+        final int mType;
+        final long mId;
 
         public SliceWrapper(SliceItem item, IdGenerator idGen, int mode) {
             mItem = item;
@@ -305,6 +320,9 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         private long mNextLong = 0;
         private final ArrayMap<String, Long> mCurrentIds = new ArrayMap<>();
         private final ArrayMap<String, Integer> mUsedIds = new ArrayMap<>();
+
+        IdGenerator() {
+        }
 
         public long getId(SliceItem item, int mode) {
             String str = genString(item);

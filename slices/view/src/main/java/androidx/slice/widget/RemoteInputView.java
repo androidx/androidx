@@ -72,7 +72,7 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
      */
     public static final Object VIEW_TAG = new Object();
 
-    private RemoteEditText mEditText;
+    RemoteEditText mEditText;
     private ImageButton mSendButton;
     private ProgressBar mProgressBar;
     private SliceItem mAction;
@@ -123,7 +123,7 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
         mEditText.mRemoteInputView = this;
     }
 
-    private void sendRemoteInput() {
+    void sendRemoteInput() {
         Bundle results = new Bundle();
         results.putString(mRemoteInput.getResultKey(), mEditText.getText().toString());
         Intent fillInIntent = new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
@@ -181,7 +181,7 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
         return true;
     }
 
-    private void onDefocus() {
+    void onDefocus() {
         setVisibility(INVISIBLE);
     }
 
@@ -299,7 +299,7 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
     public static class RemoteEditText extends EditText {
 
         private final Drawable mBackground;
-        private RemoteInputView mRemoteInputView;
+        RemoteInputView mRemoteInputView;
         boolean mShowImeOnInputConnection;
 
         public RemoteEditText(Context context, AttributeSet attrs) {

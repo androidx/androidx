@@ -51,7 +51,7 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
         CompoundButton.OnCheckedChangeListener {
     private static final String TAG = "SliceActionView";
 
-    private static final int[] STATE_CHECKED = {
+    static final int[] STATE_CHECKED = {
             android.R.attr.state_checked
     };
 
