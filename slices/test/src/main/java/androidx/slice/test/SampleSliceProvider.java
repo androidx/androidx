@@ -952,9 +952,9 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Handler mHandler = new Handler();
     private SparseArray<String> mListSummaries = new SparseArray<>();
-    private long mListLastUpdate;
+    long mListLastUpdate;
     private SparseArray<String> mGridSummaries = new SparseArray<>();
-    private long mGridLastUpdate;
+    long mGridLastUpdate;
 
     private void update(long delay, final SparseArray<String> summaries, final int id,
             final String s, final Uri uri, final Runnable r) {
