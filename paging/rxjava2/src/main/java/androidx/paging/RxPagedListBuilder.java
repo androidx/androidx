@@ -267,7 +267,7 @@ public final class RxPagedListBuilder<Key, Value> {
 
         private ObservableEmitter<PagedList<Value>> mEmitter;
 
-        private PagingObservableOnSubscribe(@Nullable Key initialLoadKey,
+        PagingObservableOnSubscribe(@Nullable Key initialLoadKey,
                 @NonNull PagedList.Config config,
                 @Nullable PagedList.BoundaryCallback boundaryCallback,
                 @NonNull DataSource.Factory<Key, Value> dataSourceFactory,

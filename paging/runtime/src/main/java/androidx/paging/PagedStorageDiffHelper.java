@@ -91,7 +91,7 @@ class PagedStorageDiffHelper {
         private final int mOffset;
         private final ListUpdateCallback mCallback;
 
-        private OffsettingListUpdateCallback(int offset, ListUpdateCallback callback) {
+        OffsettingListUpdateCallback(int offset, ListUpdateCallback callback) {
             mOffset = offset;
             mCallback = callback;
         }
