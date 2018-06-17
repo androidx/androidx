@@ -47,9 +47,11 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     private static final String KEY_BACK_STACK_IDS = "androidx-nav-fragment:navigator:backStackIds";
 
     private Context mContext;
-    private FragmentManager mFragmentManager;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    FragmentManager mFragmentManager;
     private int mContainerId;
-    private ArrayDeque<Integer> mBackStack = new ArrayDeque<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ArrayDeque<Integer> mBackStack = new ArrayDeque<>();
 
     private final FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener =
             new FragmentManager.OnBackStackChangedListener() {
