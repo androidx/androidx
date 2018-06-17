@@ -41,7 +41,8 @@ import java.util.NoSuchElementException;
  * {@link #getStartDestination starting destination} to be added to the back stack.</p>
  */
 public class NavGraph extends NavDestination implements Iterable<NavDestination> {
-    private final SparseArrayCompat<NavDestination> mNodes = new SparseArrayCompat<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SparseArrayCompat<NavDestination> mNodes = new SparseArrayCompat<>();
     private int mStartDestId;
 
     /**

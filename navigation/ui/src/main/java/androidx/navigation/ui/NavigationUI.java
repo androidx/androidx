@@ -67,7 +67,8 @@ public class NavigationUI {
         return onNavDestinationSelected(item, navController, false);
     }
 
-    private static boolean onNavDestinationSelected(@NonNull MenuItem item,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static boolean onNavDestinationSelected(@NonNull MenuItem item,
             @NonNull NavController navController, boolean popUp) {
         NavOptions.Builder builder = new NavOptions.Builder()
                 .setLaunchSingleTop(true)
@@ -236,7 +237,8 @@ public class NavigationUI {
      * both the default case (the destination's id matches the given id) and the nested case where
      * the given id is a parent/grandparent/etc of the destination.
      */
-    private static boolean matchDestination(@NonNull NavDestination destination,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static boolean matchDestination(@NonNull NavDestination destination,
             @IdRes int destId) {
         NavDestination currentDestination = destination;
         while (currentDestination.getId() != destId && currentDestination.getParent() != null) {
@@ -249,7 +251,8 @@ public class NavigationUI {
      * Finds the actual start destination of the graph, handling cases where the graph's starting
      * destination is itself a NavGraph.
      */
-    private static NavDestination findStartDestination(@NonNull NavGraph graph) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static NavDestination findStartDestination(@NonNull NavGraph graph) {
         NavDestination startDestination = graph;
         while (startDestination instanceof NavGraph) {
             NavGraph parent = (NavGraph) startDestination;

@@ -64,7 +64,8 @@ public class NavController {
     public static final String KEY_DEEP_LINK_INTENT =
             "android-support-nav:controller:deepLinkIntent";
 
-    private final Context mContext;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Context mContext;
     private Activity mActivity;
     private NavInflater mInflater;
     private NavGraph mGraph;
@@ -72,7 +73,8 @@ public class NavController {
     private Bundle mNavigatorStateToRestore;
     private int[] mBackStackToRestore;
 
-    private final Deque<NavDestination> mBackStack = new ArrayDeque<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Deque<NavDestination> mBackStack = new ArrayDeque<>();
 
     private final SimpleNavigatorProvider mNavigatorProvider = new SimpleNavigatorProvider() {
         @Nullable
@@ -91,7 +93,8 @@ public class NavController {
         }
     };
 
-    private final Navigator.OnNavigatorNavigatedListener mOnNavigatedListener =
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Navigator.OnNavigatorNavigatedListener mOnNavigatedListener =
             new Navigator.OnNavigatorNavigatedListener() {
                 @Override
                 public void onNavigatorNavigated(@NonNull Navigator navigator, @IdRes int destId,
@@ -325,7 +328,8 @@ public class NavController {
         }
     }
 
-    private void dispatchOnNavigated(NavDestination destination) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void dispatchOnNavigated(NavDestination destination) {
         for (OnNavigatedListener listener : mOnNavigatedListeners) {
             listener.onNavigated(this, destination);
         }
@@ -555,7 +559,8 @@ public class NavController {
         return mBackStack.peekLast();
     }
 
-    private NavDestination findDestination(@IdRes int destinationId) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    NavDestination findDestination(@IdRes int destinationId) {
         if (mGraph == null) {
             return null;
         }
