@@ -15,5 +15,6 @@
 # When layoutManager xml attribute is used, RecyclerView inflates
 #LayoutManagers' constructors using reflection.
 -keep public class * extends androidx.recyclerview.widget.RecyclerView$LayoutManager {
-    public <init>(...);
+    public <init>(android.content.Context, android.util.AttributeSet, int, int);
+    public <init>();
 }

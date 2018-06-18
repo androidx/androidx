@@ -1,7 +1,7 @@
--keep class * extends androidx.lifecycle.ViewModel {
+-keepclassmembers,allowshrinking,allowobfuscation class * extends androidx.lifecycle.ViewModel {
     <init>();
 }
 
--keep class * extends androidx.lifecycle.AndroidViewModel {
+-keepclassmembers,allowshrinking,allowobfuscation class * extends androidx.lifecycle.AndroidViewModel {
     <init>(android.app.Application);
 }
