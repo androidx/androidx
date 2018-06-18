@@ -36,7 +36,7 @@ import java.util.List;
  */
 class MediaLibraryService2LegacyStub extends MediaBrowserServiceCompat {
     // Name 'mSession' is already used by MediaBrowserServiceCompat.
-    private final MediaLibrarySession.SupportLibraryImpl mLibrarySession;
+    final MediaLibrarySession.SupportLibraryImpl mLibrarySession;
 
     MediaLibraryService2LegacyStub(MediaLibrarySession.SupportLibraryImpl session) {
         super();

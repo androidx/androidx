@@ -67,24 +67,36 @@ public final class DataSourceDesc2 {
      */
     public static final long FD_LENGTH_UNKNOWN = LONG_MAX;
 
-    private int mType = TYPE_NONE;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mType = TYPE_NONE;
 
-    private MediaDataSource2 mMediaDataSource2;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaDataSource2 mMediaDataSource2;
 
-    private FileDescriptor mFD;
-    private long mFDOffset = 0;
-    private long mFDLength = FD_LENGTH_UNKNOWN;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    FileDescriptor mFD;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    long mFDOffset = 0;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    long mFDLength = FD_LENGTH_UNKNOWN;
 
-    private Uri mUri;
-    private Map<String, String> mUriHeader;
-    private List<HttpCookie> mUriCookies;
-    private Context mUriContext;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Uri mUri;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Map<String, String> mUriHeader;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    List<HttpCookie> mUriCookies;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Context mUriContext;
 
-    private String mMediaId;
-    private long mStartPositionMs = 0;
-    private long mEndPositionMs = POSITION_UNKNOWN;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    String mMediaId;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    long mStartPositionMs = 0;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    long mEndPositionMs = POSITION_UNKNOWN;
 
-    private DataSourceDesc2() {
+    DataSourceDesc2() {
     }
 
     /**

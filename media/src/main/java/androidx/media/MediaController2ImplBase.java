@@ -80,12 +80,15 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
     static final String TAG = "MC2ImplBase";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    private final MediaController2 mInstance;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final MediaController2 mInstance;
     private final Context mContext;
     private final Object mLock = new Object();
 
-    private final SessionToken2 mToken;
-    private final ControllerCallback mCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SessionToken2 mToken;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ControllerCallback mCallback;
     private final Executor mCallbackExecutor;
     private final IBinder.DeathRecipient mDeathRecipient;
 
@@ -805,7 +808,8 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
         }
     }
 
-    private void connectToSession(IMediaSession2 sessionBinder) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void connectToSession(IMediaSession2 sessionBinder) {
         try {
             sessionBinder.connect(mControllerStub, mContext.getPackageName());
         } catch (RemoteException e) {
@@ -1133,6 +1137,9 @@ class MediaController2ImplBase implements MediaController2.SupportLibraryImpl {
 
     // This will be called on the main thread.
     private class SessionServiceConnection implements ServiceConnection {
+        SessionServiceConnection() {
+        }
+
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // Note that it's always main-thread.

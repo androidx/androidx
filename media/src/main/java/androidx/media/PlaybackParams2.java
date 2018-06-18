@@ -82,14 +82,14 @@ public final class PlaybackParams2 {
     private Float mSpeed;
     private PlaybackParams mPlaybackParams;
 
-    private PlaybackParams2(Integer audioFallbackMode, Float pitch, Float speed) {
+    PlaybackParams2(Integer audioFallbackMode, Float pitch, Float speed) {
         mAudioFallbackMode = audioFallbackMode;
         mPitch = pitch;
         mSpeed = speed;
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private PlaybackParams2(PlaybackParams playbackParams) {
+    PlaybackParams2(PlaybackParams playbackParams) {
         mPlaybackParams = playbackParams;
     }
 

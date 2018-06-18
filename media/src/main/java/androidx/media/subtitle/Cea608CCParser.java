@@ -653,7 +653,7 @@ class Cea608CCParser {
             mCol = clamp(mCol + col, 1, MAX_COLS);
         }
 
-        private void moveBaselineTo(int baseRow, int windowSize) {
+        void moveBaselineTo(int baseRow, int windowSize) {
             if (mRow == baseRow) {
                 return;
             }
@@ -888,7 +888,7 @@ class Cea608CCParser {
                     && mData2 >= 0x30 && mData2 <= 0x3f);
         }
 
-        private boolean isExtendedChar() {
+        boolean isExtendedChar() {
             return ((mData1 == 0x12 || mData1 == 0x1A
                     || mData1 == 0x13 || mData1 == 0x1B)
                     && mData2 >= 0x20 && mData2 <= 0x3f);

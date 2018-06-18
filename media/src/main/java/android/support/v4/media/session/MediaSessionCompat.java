@@ -918,7 +918,8 @@ public class MediaSessionCompat {
         return null;
     }
 
-    private static PlaybackStateCompat getStateWithUpdatedPosition(
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static PlaybackStateCompat getStateWithUpdatedPosition(
             PlaybackStateCompat state, MediaMetadataCompat metadata) {
         if (state == null || state.getPosition() == PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN) {
             return state;
@@ -957,7 +958,7 @@ public class MediaSessionCompat {
      */
     public abstract static class Callback {
         final Object mCallbackObj;
-        private WeakReference<MediaSessionImpl> mSessionImpl;
+        WeakReference<MediaSessionImpl> mSessionImpl;
         private CallbackHandler mCallbackHandler = null;
         private boolean mMediaPlayPauseKeyPending;
 
@@ -973,7 +974,7 @@ public class MediaSessionCompat {
             }
         }
 
-        private void setSessionImpl(MediaSessionImpl impl, Handler handler) {
+        void setSessionImpl(MediaSessionImpl impl, Handler handler) {
             mSessionImpl = new WeakReference<MediaSessionImpl>(impl);
             if (mCallbackHandler != null) {
                 mCallbackHandler.removeCallbacksAndMessages(null);
@@ -1044,7 +1045,7 @@ public class MediaSessionCompat {
             return false;
         }
 
-        private void handleMediaPlayPauseKeySingleTapIfPending() {
+        void handleMediaPlayPauseKeySingleTapIfPending() {
             if (!mMediaPlayPauseKeyPending) {
                 return;
             }
@@ -1885,7 +1886,7 @@ public class MediaSessionCompat {
      */
     @RestrictTo(LIBRARY)
     public static final class ResultReceiverWrapper implements Parcelable {
-        private ResultReceiver mResultReceiver;
+        ResultReceiver mResultReceiver;
 
         public ResultReceiverWrapper(ResultReceiver resultReceiver) {
             mResultReceiver = resultReceiver;
@@ -3340,13 +3341,13 @@ public class MediaSessionCompat {
         private final Object mSessionObj;
         private final Token mToken;
 
-        private boolean mDestroyed = false;
-        private final RemoteCallbackList<IMediaControllerCallback> mExtraControllerCallbacks =
+        boolean mDestroyed = false;
+        final RemoteCallbackList<IMediaControllerCallback> mExtraControllerCallbacks =
                 new RemoteCallbackList<>();
 
-        private PlaybackStateCompat mPlaybackState;
-        private List<QueueItem> mQueue;
-        private MediaMetadataCompat mMetadata;
+        PlaybackStateCompat mPlaybackState;
+        List<QueueItem> mQueue;
+        MediaMetadataCompat mMetadata;
         @RatingCompat.Style int mRatingType;
         boolean mCaptioningEnabled;
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
