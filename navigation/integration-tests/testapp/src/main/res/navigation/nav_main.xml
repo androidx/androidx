@@ -20,7 +20,8 @@
                 app:startDestination="@+id/main"
                 android:label="@string/home">
         <fragment android:id="@+id/main"
-                  android:name=".MainFragment">
+                  android:name=".MainFragment"
+                  android:label="@string/home">
             <argument android:name="myarg" android:defaultValue="Home" />
             <action android:id="@+id/next" app:destination="@+id/first_screen"/>
         </fragment>
