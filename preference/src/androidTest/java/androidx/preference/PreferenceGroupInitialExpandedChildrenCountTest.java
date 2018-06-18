@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
@@ -204,6 +205,26 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         expandButton.performClick();
         preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
         assertPreferencesAreExpanded(preferenceGroupAdapter);
+    }
+
+    /**
+     * Verifies that clicking the expand button will notify the registered listener.
+     */
+    @Test
+    @UiThreadTest
+    public void clickExpandButton_shouldNotifyOnExpandButtonClickListener() {
+        mScreen.setInitialExpandedChildrenCount(INITIAL_EXPANDED_COUNT);
+        final PreferenceGroup.OnExpandButtonClickListener listener =
+                mock(PreferenceGroup.OnExpandButtonClickListener.class);
+        mScreen.setOnExpandButtonClickListener(listener);
+
+        // First showing 5 preference with expand button
+        final PreferenceGroupAdapter preferenceGroupAdapter = new PreferenceGroupAdapter(mScreen);
+
+        // Click the expand button, should notify the listener
+        final Preference expandButton = preferenceGroupAdapter.getItem(INITIAL_EXPANDED_COUNT);
+        expandButton.performClick();
+        verify(listener).onExpandButtonClick();
     }
 
     /**

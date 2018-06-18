@@ -146,6 +146,11 @@ final class CollapsiblePreferenceGroupController {
             public boolean onPreferenceClick(Preference preference) {
                 group.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
                 mPreferenceGroupAdapter.onPreferenceHierarchyChange(preference);
+                final PreferenceGroup.OnExpandButtonClickListener listener =
+                        group.getOnExpandButtonClickListener();
+                if (listener != null) {
+                    listener.onExpandButtonClick();
+                }
                 return true;
             }
         });
