@@ -35,7 +35,7 @@ import androidx.leanback.widget.RowPresenter;
  */
 @Deprecated
 public class PlaybackFragmentGlueHost extends PlaybackGlueHost implements PlaybackSeekUi {
-    private final PlaybackFragment mFragment;
+    final PlaybackFragment mFragment;
 
     public PlaybackFragmentGlueHost(PlaybackFragment fragment) {
         this.mFragment = fragment;

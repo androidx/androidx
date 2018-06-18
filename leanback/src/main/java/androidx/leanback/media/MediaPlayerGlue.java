@@ -72,8 +72,10 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     MediaPlayer mPlayer = new MediaPlayer();
     private final PlaybackControlsRow.RepeatAction mRepeatAction;
     private Runnable mRunnable;
-    private Handler mHandler = new Handler();
-    private boolean mInitialized = false; // true when the MediaPlayer is prepared/initialized
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Handler mHandler = new Handler();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mInitialized = false; // true when the MediaPlayer is prepared/initialized
     private Action mSelectedAction; // the action which is currently selected by the user
     private long mLastKeyDownEvent = 0L; // timestamp when the last DPAD_CENTER KEY_DOWN occurred
     private Uri mMediaSourceUri = null;

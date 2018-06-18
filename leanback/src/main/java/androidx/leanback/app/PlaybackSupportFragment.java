@@ -123,6 +123,9 @@ public class PlaybackSupportFragment extends Fragment {
         int mPosition;
         boolean mSmooth = true;
 
+        SetSelectionRunnable() {
+        }
+
         @Override
         public void run() {
             if (mRowsSupportFragment == null) {
@@ -305,14 +308,16 @@ public class PlaybackSupportFragment extends Fragment {
                 }
             };
 
-    private void setBgAlpha(int alpha) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void setBgAlpha(int alpha) {
         mBgAlpha = alpha;
         if (mBackgroundView != null) {
             mBackgroundView.getBackground().setAlpha(alpha);
         }
     }
 
-    private void enableVerticalGridAnimations(boolean enable) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void enableVerticalGridAnimations(boolean enable) {
         if (getVerticalGridView() != null) {
             getVerticalGridView().setAnimateChildLayout(enable);
         }
@@ -416,7 +421,8 @@ public class PlaybackSupportFragment extends Fragment {
         }
     }
 
-    private boolean onInterceptInputEvent(InputEvent event) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean onInterceptInputEvent(InputEvent event) {
         final boolean controlsHidden = !mControlVisible;
         if (DEBUG) Log.v(TAG, "onInterceptInputEvent hidden " + controlsHidden + " " + event);
         boolean consumeEvent = false;

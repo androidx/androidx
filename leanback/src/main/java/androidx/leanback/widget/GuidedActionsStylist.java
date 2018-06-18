@@ -419,7 +419,8 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
     private EditListener mEditListener;
 
-    private GuidedAction mExpandedAction = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    GuidedAction mExpandedAction = null;
     Object mExpandTransition;
     private boolean mBackToCollapseSubActions = true;
     private boolean mBackToCollapseActivatorView = true;

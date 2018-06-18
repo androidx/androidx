@@ -54,8 +54,10 @@ final class DetailsBackgroundVideoHelper {
 
     private int mCurrentState = INITIAL;
 
-    private ValueAnimator mBackgroundAnimator;
-    private Drawable mBackgroundDrawable;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ValueAnimator mBackgroundAnimator;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Drawable mBackgroundDrawable;
     private PlaybackGlue mPlaybackGlue;
     private boolean mBackgroundDrawableVisible;
 
@@ -114,7 +116,8 @@ final class DetailsBackgroundVideoHelper {
         return mCurrentState == PLAY_VIDEO;
     }
 
-    private void updateState(int state) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void updateState(int state) {
         if (state == mCurrentState) {
             return;
         }
@@ -153,7 +156,8 @@ final class DetailsBackgroundVideoHelper {
         applyState();
     }
 
-    private void internalStartPlayback() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void internalStartPlayback() {
         if (mPlaybackGlue != null) {
             mPlaybackGlue.play();
         }
@@ -233,6 +237,8 @@ final class DetailsBackgroundVideoHelper {
     }
 
     private class PlaybackControlStateCallback extends PlaybackGlue.PlayerCallback {
+        PlaybackControlStateCallback() {
+        }
 
         @Override
         public void onPreparedStateChanged(PlaybackGlue glue) {

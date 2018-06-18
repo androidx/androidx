@@ -35,7 +35,8 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     private final List mItems = new ArrayList<Object>();
 
     // To compute the payload correctly, we should use a temporary list to hold all the old items.
-    private final List mOldItems = new ArrayList<Object>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final List mOldItems = new ArrayList<Object>();
 
     // Un modifiable version of mItems;
     private List mUnmodifiableItems;
