@@ -335,7 +335,7 @@ public class IconCompat extends CustomVersionedParcelable {
         if (mType != TYPE_RESOURCE) {
             throw new IllegalStateException("called getResPackage() on " + this);
         }
-        return ((String) mObj1).split(":")[0];
+        return ((String) mObj1).split(":", -1)[0];
     }
 
     /**
@@ -458,10 +458,10 @@ public class IconCompat extends CustomVersionedParcelable {
                 return;
             }
             // Do some splitting to parse out each of the components.
-            String resName = resPackage.split(":")[1];
-            String resType = resName.split("/")[0];
-            resName = resName.split("/")[1];
-            resPackage = resPackage.split(":")[0];
+            String resName = resPackage.split(":", -1)[1];
+            String resType = resName.split("/", -1)[0];
+            resName = resName.split("/", -1)[1];
+            resPackage = resPackage.split(":", -1)[0];
             Resources res = getResources(context, resPackage);
             int id = res.getIdentifier(resName, resType, resPackage);
             if (mInt1 != id) {

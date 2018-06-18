@@ -598,7 +598,6 @@ public class ContentPager {
 
         /** @return true if an entry is present for the Uri. */
         @WorkerThread
-        @GuardedBy("mContentLock")
         boolean hasEntry(Uri uri) {
             return get(uri) != null;
         }
