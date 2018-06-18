@@ -544,7 +544,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         updateLayoutHeight(animate);
     }
 
-    private boolean isBitmapRecycled(Bitmap bitmap) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static boolean isBitmapRecycled(Bitmap bitmap) {
         return bitmap != null && bitmap.isRecycled();
     }
 
@@ -1042,15 +1043,18 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
     }
 
-    private boolean isPlayActionSupported() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean isPlayActionSupported() {
         return (mState.getActions() & (ACTION_PLAY | ACTION_PLAY_PAUSE)) != 0;
     }
 
-    private boolean isPauseActionSupported() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean isPauseActionSupported() {
         return (mState.getActions() & (ACTION_PAUSE | ACTION_PLAY_PAUSE)) != 0;
     }
 
-    private boolean isStopActionSupported() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean isStopActionSupported() {
         return (mState.getActions() & ACTION_STOP) != 0;
     }
 
