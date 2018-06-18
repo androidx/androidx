@@ -128,6 +128,9 @@ public class PlaybackFragment extends Fragment {
         int mPosition;
         boolean mSmooth = true;
 
+        SetSelectionRunnable() {
+        }
+
         @Override
         public void run() {
             if (mRowsFragment == null) {
@@ -310,14 +313,14 @@ public class PlaybackFragment extends Fragment {
                 }
             };
 
-    private void setBgAlpha(int alpha) {
+    void setBgAlpha(int alpha) {
         mBgAlpha = alpha;
         if (mBackgroundView != null) {
             mBackgroundView.getBackground().setAlpha(alpha);
         }
     }
 
-    private void enableVerticalGridAnimations(boolean enable) {
+    void enableVerticalGridAnimations(boolean enable) {
         if (getVerticalGridView() != null) {
             getVerticalGridView().setAnimateChildLayout(enable);
         }
@@ -421,7 +424,7 @@ public class PlaybackFragment extends Fragment {
         }
     }
 
-    private boolean onInterceptInputEvent(InputEvent event) {
+    boolean onInterceptInputEvent(InputEvent event) {
         final boolean controlsHidden = !mControlVisible;
         if (DEBUG) Log.v(TAG, "onInterceptInputEvent hidden " + controlsHidden + " " + event);
         boolean consumeEvent = false;

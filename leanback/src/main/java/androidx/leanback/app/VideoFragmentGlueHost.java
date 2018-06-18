@@ -30,6 +30,7 @@ import androidx.leanback.media.SurfaceHolderGlueHost;
 @Deprecated
 public class VideoFragmentGlueHost extends PlaybackFragmentGlueHost
         implements SurfaceHolderGlueHost {
+    @SuppressWarnings("HidingField") // Supertype field is package scope to avoid synthetic accessor
     private final VideoFragment mFragment;
 
     public VideoFragmentGlueHost(VideoFragment fragment) {

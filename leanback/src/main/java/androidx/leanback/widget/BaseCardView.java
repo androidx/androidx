@@ -678,7 +678,7 @@ public class BaseCardView extends FrameLayout {
         }
     }
 
-    private void cancelAnimations() {
+    void cancelAnimations() {
         if (mAnim != null) {
             mAnim.cancel();
             mAnim = null;

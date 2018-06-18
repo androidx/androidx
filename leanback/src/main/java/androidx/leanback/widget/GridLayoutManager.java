@@ -1021,7 +1021,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private void dispatchChildSelectedAndPositioned() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void dispatchChildSelectedAndPositioned() {
         if (!hasOnChildViewHolderSelectedListener()) {
             return;
         }

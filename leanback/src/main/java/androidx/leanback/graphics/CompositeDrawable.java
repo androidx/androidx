@@ -243,7 +243,7 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
      */
     public static final class ChildDrawable {
         private final BoundsRule mBoundsRule;
-        private final Drawable mDrawable;
+        final Drawable mDrawable;
         private final Rect adjustedBounds = new Rect();
         final CompositeDrawable mParent;
 

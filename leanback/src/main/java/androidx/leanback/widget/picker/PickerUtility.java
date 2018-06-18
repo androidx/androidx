@@ -37,7 +37,7 @@ class PickerUtility {
         public final String[] months;
         public final String[] days;
 
-        private DateConstant(Locale locale, Resources resources) {
+        DateConstant(Locale locale, Resources resources) {
             this.locale = locale;
             DateFormatSymbols symbols = DateFormatSymbols.getInstance(locale);
             months = symbols.getShortMonths();
@@ -54,7 +54,7 @@ class PickerUtility {
         public final String[] minutes;
         public final String[] ampm;
 
-        private TimeConstant(Locale locale, Resources resources) {
+        TimeConstant(Locale locale, Resources resources) {
             this.locale = locale;
             DateFormatSymbols symbols = DateFormatSymbols.getInstance(locale);
             hours12 = createStringIntArrays(1, 12, "%02d");
