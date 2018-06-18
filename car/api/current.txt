@@ -221,6 +221,7 @@ package androidx.car.widget {
     ctor public ListItem();
     method public final void addViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>);
     method public final void addViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>, androidx.car.widget.ListItem.ViewBinder<VH>);
+    method public boolean getShowDivider();
     method public abstract int getViewType();
     method protected boolean isDirty();
     method protected void markClean();
@@ -229,8 +230,9 @@ package androidx.car.widget {
     method public boolean removeViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>);
     method protected abstract void resolveDirtyState();
     method public abstract void setEnabled(boolean);
-    method public void setHideDivider(boolean);
-    method public boolean shouldHideDivider();
+    method public deprecated void setHideDivider(boolean);
+    method public void setShowDivider(boolean);
+    method public deprecated boolean shouldHideDivider();
   }
 
   public static abstract interface ListItem.ViewBinder<VH> {
@@ -248,11 +250,12 @@ package androidx.car.widget {
     ctor public ListItemAdapter(android.content.Context, androidx.car.widget.ListItemProvider);
     ctor public ListItemAdapter(android.content.Context, androidx.car.widget.ListItemProvider, int);
     method public int getItemCount();
+    method public boolean getShowDivider(int);
     method public void onBindViewHolder(androidx.car.widget.ListItem.ViewHolder, int);
     method public androidx.car.widget.ListItem.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
     method public void registerListItemViewType(int, int, java.util.function.Function<android.view.View, androidx.car.widget.ListItem.ViewHolder>);
     method public void setMaxItems(int);
-    method public boolean shouldHideDivider(int);
+    method public deprecated boolean shouldHideDivider(int);
     method public void start();
     method public void stop();
   }
@@ -322,7 +325,8 @@ package androidx.car.widget {
   }
 
   public static abstract interface PagedListView.DividerVisibilityManager {
-    method public abstract boolean shouldHideDivider(int);
+    method public abstract boolean getShowDivider(int);
+    method public abstract deprecated boolean shouldHideDivider(int);
   }
 
   public static abstract class PagedListView.Gutter implements java.lang.annotation.Annotation {
