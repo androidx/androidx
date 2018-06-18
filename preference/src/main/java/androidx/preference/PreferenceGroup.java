@@ -53,7 +53,8 @@ import java.util.List;
  */
 public abstract class PreferenceGroup extends Preference {
     private static final String TAG = "PreferenceGroup";
-    private final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
     private final Handler mHandler = new Handler();
     /**
      * The container for child {@link Preference}s. This is sorted based on the ordering, please

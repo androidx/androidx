@@ -38,10 +38,14 @@ public class MultiSelectListPreferenceDialogFragmentCompat extends PreferenceDia
     private static final String SAVE_STATE_ENTRY_VALUES =
             "MultiSelectListPreferenceDialogFragmentCompat.entryValues";
 
-    private Set<String> mNewValues = new HashSet<>();
-    private boolean mPreferenceChanged;
-    private CharSequence[] mEntries;
-    private CharSequence[] mEntryValues;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Set<String> mNewValues = new HashSet<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mPreferenceChanged;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    CharSequence[] mEntries;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    CharSequence[] mEntryValues;
 
     public static MultiSelectListPreferenceDialogFragmentCompat newInstance(String key) {
         final MultiSelectListPreferenceDialogFragmentCompat fragment =

@@ -29,7 +29,8 @@ public class ListPreferenceDialogFragmentCompat extends PreferenceDialogFragment
     private static final String SAVE_STATE_ENTRY_VALUES =
             "ListPreferenceDialogFragment.entryValues";
 
-    private int mClickedDialogEntryIndex;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mClickedDialogEntryIndex;
     private CharSequence[] mEntries;
     private CharSequence[] mEntryValues;
 
