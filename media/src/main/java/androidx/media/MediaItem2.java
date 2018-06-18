@@ -69,7 +69,7 @@ public class MediaItem2 {
     private MediaMetadata2 mMetadata;
     private DataSourceDesc2 mDataSourceDesc;
 
-    private MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc2 dsd,
+    MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc2 dsd,
             @Nullable MediaMetadata2 metadata, @Flags int flags) {
         this(mediaId, dsd, metadata, flags, null);
     }

@@ -211,7 +211,8 @@ public final class MediaControllerCompat {
         return null;
     }
 
-    private static void validateCustomAction(String action, Bundle args) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void validateCustomAction(String action, Bundle args) {
         if (action == null) {
             return;
         }
@@ -686,7 +687,7 @@ public final class MediaControllerCompat {
      * registered using {@link #registerCallback}
      */
     public static abstract class Callback implements IBinder.DeathRecipient {
-        private final Object mCallbackObj;
+        final Object mCallbackObj;
         MessageHandler mHandler;
         IMediaControllerCallback mIControllerCallback;
 
@@ -1942,14 +1943,14 @@ public final class MediaControllerCompat {
     static class MediaControllerImplApi21 implements MediaControllerImpl {
         protected final Object mControllerObj;
 
-        private final Object mLock = new Object();
+        final Object mLock = new Object();
 
         @GuardedBy("mLock")
         private final List<Callback> mPendingCallbacks = new ArrayList<>();
 
         private HashMap<Callback, ExtraCallback> mCallbackMap = new HashMap<>();
 
-        private final MediaSessionCompat.Token mSessionToken;
+        final MediaSessionCompat.Token mSessionToken;
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat.Token sessionToken)
                 throws RemoteException {
@@ -2193,7 +2194,7 @@ public final class MediaControllerCompat {
         }
 
         @GuardedBy("mLock")
-        private void processPendingCallbacksLocked() {
+        void processPendingCallbacksLocked() {
             if (mSessionToken.getExtraBinder() == null) {
                 return;
             }

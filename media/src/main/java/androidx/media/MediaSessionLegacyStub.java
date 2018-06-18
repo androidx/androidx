@@ -91,9 +91,10 @@ import java.util.Set;
 class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     private static final String TAG = "MediaSessionLegacyStub";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    private static final SparseArray<SessionCommand2> sCommandsForOnCommandRequest =
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final SparseArray<SessionCommand2> sCommandsForOnCommandRequest =
             new SparseArray<>();
 
     static {
@@ -107,17 +108,20 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
     }
 
-    private final Object mLock = new Object();
+    final Object mLock = new Object();
 
     final MediaSession2.SupportLibraryImpl mSession;
     final Context mContext;
 
     @GuardedBy("mLock")
-    private final ArrayMap<IBinder, ControllerInfo> mControllers = new ArrayMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ArrayMap<IBinder, ControllerInfo> mControllers = new ArrayMap<>();
     @GuardedBy("mLock")
-    private final Set<IBinder> mConnectingControllers = new HashSet<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Set<IBinder> mConnectingControllers = new HashSet<>();
     @GuardedBy("mLock")
-    private final ArrayMap<ControllerInfo, SessionCommandGroup2> mAllowedCommandGroupMap =
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ArrayMap<ControllerInfo, SessionCommandGroup2> mAllowedCommandGroupMap =
             new ArrayMap<>();
 
     MediaSessionLegacyStub(MediaSession2.SupportLibraryImpl session) {
@@ -206,7 +210,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
     }
 
-    private boolean isAllowedCommand(ControllerInfo controller, SessionCommand2 command) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean isAllowedCommand(ControllerInfo controller, SessionCommand2 command) {
         SessionCommandGroup2 allowedCommands;
         synchronized (mLock) {
             allowedCommands = mAllowedCommandGroupMap.get(controller);
@@ -214,7 +219,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         return allowedCommands != null && allowedCommands.hasCommand(command);
     }
 
-    private boolean isAllowedCommand(ControllerInfo controller, int commandCode) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean isAllowedCommand(ControllerInfo controller, int commandCode) {
         SessionCommandGroup2 allowedCommands;
         synchronized (mLock) {
             allowedCommands = mAllowedCommandGroupMap.get(controller);

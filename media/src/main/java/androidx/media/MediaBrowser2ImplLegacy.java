@@ -44,7 +44,8 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
     public static final String EXTRA_ITEM_COUNT = "android.media.browse.extra.ITEM_COUNT";
 
     @GuardedBy("mLock")
-    private final HashMap<Bundle, MediaBrowserCompat> mBrowserCompats = new HashMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final HashMap<Bundle, MediaBrowserCompat> mBrowserCompats = new HashMap<>();
     @GuardedBy("mLock")
     private final HashMap<String, List<SubscribeCallback>> mSubscribeCallbacks = new HashMap<>();
 
@@ -272,7 +273,8 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
         }
     }
 
-    private Bundle getExtrasWithoutPagination(Bundle extras) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Bundle getExtrasWithoutPagination(Bundle extras) {
         if (extras == null) {
             return null;
         }
@@ -287,7 +289,7 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
     }
 
     private class GetLibraryRootCallback extends MediaBrowserCompat.ConnectionCallback {
-        private final Bundle mExtras;
+        final Bundle mExtras;
 
         GetLibraryRootCallback(Bundle extras) {
             super();
@@ -325,6 +327,9 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
     }
 
     private class SubscribeCallback extends SubscriptionCallback {
+        SubscribeCallback() {
+        }
+
         @Override
         public void onError(String parentId) {
             onChildrenLoaded(parentId, null, null);
@@ -366,9 +371,9 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy
     }
 
     private class GetChildrenCallback extends SubscriptionCallback {
-        private final String mParentId;
-        private final int mPage;
-        private final int mPageSize;
+        final String mParentId;
+        final int mPage;
+        final int mPageSize;
 
         GetChildrenCallback(String parentId, int page, int pageSize) {
             super();

@@ -1375,7 +1375,7 @@ public class MediaSession2 implements MediaInterface2.SessionPlayer, AutoCloseab
         private Bundle mExtras;
         private boolean mEnabled;
 
-        private CommandButton(@Nullable SessionCommand2 command, int iconResId,
+        CommandButton(@Nullable SessionCommand2 command, int iconResId,
                 @Nullable String displayName, Bundle extras, boolean enabled) {
             mCommand = command;
             mIconResId = iconResId;

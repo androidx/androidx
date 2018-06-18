@@ -110,7 +110,7 @@ public class ClosedCaptionRenderer extends SubtitleController.Renderer {
      */
     class Cea608CCWidget extends ClosedCaptionWidget implements Cea608CCParser.DisplayListener {
         private static final String DUMMY_TEXT = "1234567890123456789012345678901234";
-        private final Rect mTextBounds = new Rect();
+        final Rect mTextBounds = new Rect();
 
         Cea608CCWidget(Context context) {
             this(context, null);

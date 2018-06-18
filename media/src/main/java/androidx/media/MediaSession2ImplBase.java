@@ -77,12 +77,14 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     private final MediaSession2Stub mSession2Stub;
     private final MediaSessionLegacyStub mSessionLegacyStub;
     private final Executor mCallbackExecutor;
-    private final SessionCallback mCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SessionCallback mCallback;
     private final SessionToken2 mSessionToken;
     private final AudioManager mAudioManager;
     private final BaseMediaPlayer.PlayerEventCallback mPlayerEventCallback;
     private final MediaPlaylistAgent.PlaylistEventCallback mPlaylistEventCallback;
-    private final AudioFocusHandler mAudioFocusHandler;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final AudioFocusHandler mAudioFocusHandler;
     private final MediaSession2 mInstance;
     private final PendingIntent mSessionActivity;
 
@@ -1049,7 +1051,8 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         // Note: AudioInfo is updated outside of this API.
     }
 
-    private void notifyPlaylistChangedOnExecutor(MediaPlaylistAgent playlistAgent,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void notifyPlaylistChangedOnExecutor(MediaPlaylistAgent playlistAgent,
             final List<MediaItem2> list, final MediaMetadata2 metadata) {
         synchronized (mLock) {
             if (playlistAgent != mPlaylistAgent) {
@@ -1066,7 +1069,8 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         });
     }
 
-    private void notifyPlaylistMetadataChangedOnExecutor(MediaPlaylistAgent playlistAgent,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void notifyPlaylistMetadataChangedOnExecutor(MediaPlaylistAgent playlistAgent,
             final MediaMetadata2 metadata) {
         synchronized (mLock) {
             if (playlistAgent != mPlaylistAgent) {
@@ -1083,7 +1087,8 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         });
     }
 
-    private void notifyRepeatModeChangedOnExecutor(MediaPlaylistAgent playlistAgent,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void notifyRepeatModeChangedOnExecutor(MediaPlaylistAgent playlistAgent,
             final int repeatMode) {
         synchronized (mLock) {
             if (playlistAgent != mPlaylistAgent) {
@@ -1100,7 +1105,8 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         });
     }
 
-    private void notifyShuffleModeChangedOnExecutor(MediaPlaylistAgent playlistAgent,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void notifyShuffleModeChangedOnExecutor(MediaPlaylistAgent playlistAgent,
             final int shuffleMode) {
         synchronized (mLock) {
             if (playlistAgent != mPlaylistAgent) {
@@ -1163,7 +1169,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     private static class MyPlayerEventCallback extends PlayerEventCallback {
         private final WeakReference<MediaSession2ImplBase> mSession;
 
-        private MyPlayerEventCallback(MediaSession2ImplBase session) {
+        MyPlayerEventCallback(MediaSession2ImplBase session) {
             mSession = new WeakReference<>(session);
         }
 
@@ -1366,7 +1372,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
             return session;
         }
 
-        private MediaItem2 getMediaItem(MediaSession2ImplBase session, DataSourceDesc2 dsd) {
+        MediaItem2 getMediaItem(MediaSession2ImplBase session, DataSourceDesc2 dsd) {
             MediaPlaylistAgent agent = session.getPlaylistAgent();
             if (agent == null) {
                 if (DEBUG) {
@@ -1388,7 +1394,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
     private static class MyPlaylistEventCallback extends PlaylistEventCallback {
         private final WeakReference<MediaSession2ImplBase> mSession;
 
-        private MyPlaylistEventCallback(MediaSession2ImplBase session) {
+        MyPlaylistEventCallback(MediaSession2ImplBase session) {
             mSession = new WeakReference<>(session);
         }
 

@@ -50,13 +50,15 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
     private long mLastUpdateTimeMs;
     private long mLastTimeMs;
 
-    private Runnable mRunnable;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Runnable mRunnable;
 
     private final LongSparseArray<Run> mRunsByEndTime = new LongSparseArray<Run>();
     private final LongSparseArray<Run> mRunsByID = new LongSparseArray<Run>();
 
     private CueList mCues;
-    private final ArrayList<Cue> mActiveCues = new ArrayList<Cue>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ArrayList<Cue> mActiveCues = new ArrayList<Cue>();
     protected boolean mVisible;
 
     public boolean DEBUG = false;
@@ -384,7 +386,7 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
     static class CueList {
         private static final String TAG = "CueList";
         // simplistic, inefficient implementation
-        private SortedMap<Long, ArrayList<Cue>> mCues;
+        SortedMap<Long, ArrayList<Cue>> mCues;
         public boolean DEBUG = false;
 
         private boolean addEvent(Cue cue, long timeMs) {
@@ -401,7 +403,7 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
             return true;
         }
 
-        private void removeEvent(Cue cue, long timeMs) {
+        void removeEvent(Cue cue, long timeMs) {
             ArrayList<Cue> cues = mCues.get(timeMs);
             if (cues != null) {
                 cues.remove(cue);
@@ -614,6 +616,9 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
         public long mEndTimeMs = -1;
         public long mRunID = 0;
         private long mStoredEndTimeMs = -1;
+
+        Run() {
+        }
 
         public void storeByEndTimeMs(LongSparseArray<Run> runsByEndTime) {
             // remove old value if any

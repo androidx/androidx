@@ -33,7 +33,8 @@ import java.util.List;
 class MediaBrowserServiceCompatApi26 {
     private static final String TAG = "MBSCompatApi26";
 
-    private static Field sResultFlags;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static Field sResultFlags;
     static {
         try {
             sResultFlags = MediaBrowserService.Result.class.getDeclaredField("mFlags");

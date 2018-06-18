@@ -691,8 +691,8 @@ public final class MediaBrowserCompat {
      * Callbacks for subscription related events.
      */
     public static abstract class SubscriptionCallback {
-        private final Object mSubscriptionCallbackObj;
-        private final IBinder mToken;
+        final Object mSubscriptionCallbackObj;
+        final IBinder mToken;
         WeakReference<Subscription> mSubscriptionRef;
 
         public SubscriptionCallback() {
@@ -757,7 +757,7 @@ public final class MediaBrowserCompat {
         public void onError(@NonNull String parentId, @NonNull Bundle options) {
         }
 
-        private void setSubscription(Subscription subscription) {
+        void setSubscription(Subscription subscription) {
             mSubscriptionRef = new WeakReference<>(subscription);
         }
 

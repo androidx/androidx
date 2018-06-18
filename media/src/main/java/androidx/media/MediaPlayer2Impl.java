@@ -79,10 +79,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     private static final int SOURCE_STATE_PREPARING = 1;
     private static final int SOURCE_STATE_PREPARED = 2;
 
-    private static ArrayMap<Integer, Integer> sInfoEventMap;
-    private static ArrayMap<Integer, Integer> sErrorEventMap;
-    private static ArrayMap<Integer, Integer> sPrepareDrmStatusMap;
-    private static ArrayMap<Integer, Integer> sStateMap;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ArrayMap<Integer, Integer> sInfoEventMap;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ArrayMap<Integer, Integer> sErrorEventMap;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ArrayMap<Integer, Integer> sPrepareDrmStatusMap;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static ArrayMap<Integer, Integer> sStateMap;
 
     static {
         sInfoEventMap = new ArrayMap<>();
@@ -134,16 +138,18 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         sStateMap.put(PLAYER_STATE_ERROR, BaseMediaPlayer.PLAYER_STATE_ERROR);
     }
 
-    private MediaPlayerSourceQueue mPlayer;
+    MediaPlayerSourceQueue mPlayer;
 
     private HandlerThread mHandlerThread;
     private final Handler mEndPositionHandler;
     private final Handler mTaskHandler;
-    private final Object mTaskLock = new Object();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Object mTaskLock = new Object();
     @GuardedBy("mTaskLock")
     private final ArrayDeque<Task> mPendingTasks = new ArrayDeque<>();
     @GuardedBy("mTaskLock")
-    private Task mCurrentTask;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Task mCurrentTask;
 
     private final Object mLock = new Object();
     //--- guarded by |mLock| start
@@ -151,10 +157,12 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     private ArrayMap<PlayerEventCallback, Executor> mPlayerEventCallbackMap =
             new ArrayMap<>();
     private Pair<Executor, DrmEventCallback> mDrmEventCallbackRecord;
-    private BaseMediaPlayerImpl mBaseMediaPlayerImpl;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    BaseMediaPlayerImpl mBaseMediaPlayerImpl;
     //--- guarded by |mLock| end
 
-    private void handleDataSourceError(final DataSourceError err) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void handleDataSourceError(final DataSourceError err) {
         if (err == null) {
             return;
         }
@@ -344,7 +352,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         return mPlayer.getMediaPlayer2State();
     }
 
-    private @BaseMediaPlayer.PlayerState int getPlayerState() {
+    @BaseMediaPlayer.PlayerState int getPlayerState() {
         return mPlayer.getPlayerState();
     }
 
@@ -353,7 +361,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * During buffering, see {@link #getBufferedPosition()} for the quantifying the amount already
      * buffered.
      */
-    private @BaseMediaPlayer.BuffState int getBufferingState() {
+    @BaseMediaPlayer.BuffState int getBufferingState() {
         return  mPlayer.getBufferingState();
     }
 
@@ -509,7 +517,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * @param e the {@link Executor} to be used for the events.
      * @param cb the callback to receive the events.
      */
-    private void registerPlayerEventCallback(@NonNull Executor e,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void registerPlayerEventCallback(@NonNull Executor e,
             @NonNull PlayerEventCallback cb) {
         if (cb == null) {
             throw new IllegalArgumentException("Illegal null PlayerEventCallback");
@@ -527,7 +536,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * Removes a previously registered callback for player events
      * @param cb the callback to remove
      */
-    private void unregisterPlayerEventCallback(@NonNull PlayerEventCallback cb) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void unregisterPlayerEventCallback(@NonNull PlayerEventCallback cb) {
         if (cb == null) {
             throw new IllegalArgumentException("Illegal null PlayerEventCallback");
         }
@@ -605,7 +615,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @GuardedBy("mTaskLock")
-    private void processPendingTask_l() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void processPendingTask_l() {
         if (mCurrentTask != null) {
             return;
         }
@@ -616,7 +627,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    private static void handleDataSource(MediaPlayerSource src)
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void handleDataSource(MediaPlayerSource src)
             throws IOException {
         final DataSourceDesc2 dsd = src.getDSD();
         Preconditions.checkNotNull(dsd, "the DataSourceDesc2 cannot be null");
@@ -1379,7 +1391,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    private void setPlaybackParamsInternal(final PlaybackParams params) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void setPlaybackParamsInternal(final PlaybackParams params) {
         PlaybackParams current = null;
         try {
             current = mPlayer.getPlaybackParams();
@@ -1397,7 +1410,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    private void notifyMediaPlayer2Event(final Mp2EventNotifier notifier) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void notifyMediaPlayer2Event(final Mp2EventNotifier notifier) {
         final Pair<Executor, EventCallback> record;
         synchronized (mLock) {
             record = mMp2EventCallbackRecord;
@@ -1412,7 +1426,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    private void notifyPlayerEvent(final PlayerEventNotifier notifier) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void notifyPlayerEvent(final PlayerEventNotifier notifier) {
         ArrayMap<PlayerEventCallback, Executor> map;
         synchronized (mLock) {
             map = new ArrayMap<>(mPlayerEventCallbackMap);
@@ -1430,7 +1445,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    private void notifyDrmEvent(final DrmEventNotifier notifier) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void notifyDrmEvent(final DrmEventNotifier notifier) {
         final Pair<Executor, DrmEventCallback> record;
         synchronized (mLock) {
             record = mDrmEventCallbackRecord;
@@ -1457,7 +1473,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         void notify(DrmEventCallback callback);
     }
 
-    private void setEndPositionTimerIfNeeded(
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void setEndPositionTimerIfNeeded(
             final MediaPlayer.OnCompletionListener completionListener,
             final MediaPlayerSource src, MediaTimestamp timedsd) {
         if (src == mPlayer.getFirst()) {
@@ -1485,7 +1502,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
     }
 
-    private void setUpListeners(final MediaPlayerSource src) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void setUpListeners(final MediaPlayerSource src) {
         MediaPlayer p = src.getPlayer();
         final MediaPlayer.OnPreparedListener preparedListener =
                 new MediaPlayer.OnPreparedListener() {
@@ -1753,7 +1771,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             return Arrays.asList(mSupportedSchemes);
         }
 
-        private DrmInfoImpl(Map<UUID, byte[]> pssh, UUID[] supportedSchemes) {
+        DrmInfoImpl(Map<UUID, byte[]> pssh, UUID[] supportedSchemes) {
             mMapPssh = pssh;
             mSupportedSchemes = supportedSchemes;
         }
@@ -1904,10 +1922,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     private abstract class Task implements Runnable {
-        private final int mMediaCallType;
-        private final boolean mNeedToWaitForEventToComplete;
-        private DataSourceDesc2 mDSD;
-        private boolean mSkip;
+        final int mMediaCallType;
+        final boolean mNeedToWaitForEventToComplete;
+        DataSourceDesc2 mDSD;
+        boolean mSkip;
 
         Task(int mediaCallType, boolean needToWaitForEventToComplete) {
             mMediaCallType = mediaCallType;
@@ -1954,7 +1972,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             }
         }
 
-        private void sendCompleteNotification(final int status) {
+        void sendCompleteNotification(final int status) {
             // In {@link #notifyWhenCommandLabelReached} case, a separate callback
             // {#link #onCommandLabelReached} is already called in {@code process()}.
             if (mMediaCallType == CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED) {
@@ -2623,6 +2641,9 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     private class BaseMediaPlayerImpl extends BaseMediaPlayer {
+        BaseMediaPlayerImpl() {
+        }
+
         @Override
         public void play() {
             MediaPlayer2Impl.this.play();

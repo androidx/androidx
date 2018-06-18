@@ -143,7 +143,7 @@ import java.util.concurrent.Executor;
 class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl {
 
     private static final String TAG = "MC2ImplLegacy";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     // Note: Using {@code null} doesn't helpful here because MediaBrowserServiceCompat always wraps
     //       the rootHints so it becomes non-null.
@@ -152,41 +152,57 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
         sDefaultRootExtras.putBoolean(MediaConstants2.ROOT_EXTRA_DEFAULT, true);
     }
 
-    private final Context mContext;
+    final Context mContext;
 
-    private final SessionToken2 mToken;
-    private final ControllerCallback mCallback;
-    private final Executor mCallbackExecutor;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SessionToken2 mToken;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ControllerCallback mCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Executor mCallbackExecutor;
 
-    private final HandlerThread mHandlerThread;
-    private final Handler mHandler;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final HandlerThread mHandlerThread;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Handler mHandler;
 
     final Object mLock = new Object();
 
-    private MediaController2 mInstance;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaController2 mInstance;
 
     @GuardedBy("mLock")
-    private MediaBrowserCompat mBrowserCompat;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaBrowserCompat mBrowserCompat;
     @GuardedBy("mLock")
     private boolean mIsReleased;
     @GuardedBy("mLock")
-    private List<MediaItem2> mPlaylist;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    List<MediaItem2> mPlaylist;
     @GuardedBy("mLock")
-    private MediaMetadata2 mPlaylistMetadata;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaMetadata2 mPlaylistMetadata;
     @GuardedBy("mLock")
-    private @RepeatMode int mRepeatMode;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @RepeatMode int mRepeatMode;
     @GuardedBy("mLock")
-    private @ShuffleMode int mShuffleMode;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @ShuffleMode int mShuffleMode;
     @GuardedBy("mLock")
-    private int mPlayerState;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mPlayerState;
     @GuardedBy("mLock")
-    private MediaItem2 mCurrentMediaItem;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaItem2 mCurrentMediaItem;
     @GuardedBy("mLock")
-    private int mBufferingState;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mBufferingState;
     @GuardedBy("mLock")
-    private PlaybackInfo mPlaybackInfo;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    PlaybackInfo mPlaybackInfo;
     @GuardedBy("mLock")
-    private SessionCommandGroup2 mAllowedCommands;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    SessionCommandGroup2 mAllowedCommands;
 
     // Media 1.0 variables
     @GuardedBy("mLock")
@@ -194,9 +210,11 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     @GuardedBy("mLock")
     private ControllerCompatCallback mControllerCompatCallback;
     @GuardedBy("mLock")
-    private PlaybackStateCompat mPlaybackStateCompat;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    PlaybackStateCompat mPlaybackStateCompat;
     @GuardedBy("mLock")
-    private MediaMetadataCompat mMediaMetadataCompat;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaMetadataCompat mMediaMetadataCompat;
 
     // Assignment should be used with the lock hold, but should be used without a lock to prevent
     // potential deadlock.
@@ -828,7 +846,8 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
         }
     }
 
-    private void connectToSession(MediaSessionCompat.Token sessionCompatToken) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void connectToSession(MediaSessionCompat.Token sessionCompatToken) {
         MediaControllerCompat controllerCompat = null;
         try {
             controllerCompat = new MediaControllerCompat(mContext, sessionCompatToken);
@@ -871,7 +890,8 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
         sendCommand(command, null, null);
     }
 
-    private void sendCommand(String command, ResultReceiver receiver) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void sendCommand(String command, ResultReceiver receiver) {
         sendCommand(command, null, receiver);
     }
 
@@ -894,6 +914,9 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     }
 
     private class ConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
+        ConnectionCallback() {
+        }
+
         @Override
         public void onConnected() {
             MediaBrowserCompat browser = getBrowserCompat();
@@ -916,6 +939,9 @@ class MediaController2ImplLegacy implements MediaController2.SupportLibraryImpl 
     }
 
     private final class ControllerCompatCallback extends MediaControllerCompat.Callback {
+        ControllerCompatCallback() {
+        }
+
         @Override
         public void onSessionReady() {
             sendCommand(CONTROLLER_COMMAND_CONNECT, new ResultReceiver(mHandler) {
