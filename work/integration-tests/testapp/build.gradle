@@ -37,8 +37,8 @@ dependencies {
     implementation project(':work:work-runtime')
     implementation project(':work:work-firebase')
     implementation "android.arch.lifecycle:extensions:1.1.0"
-    implementation "android.arch.persistence.room:runtime:1.1.0"
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.0"
+    implementation "android.arch.persistence.room:runtime:1.1.1-rc1"
+    annotationProcessor "android.arch.persistence.room:compiler:1.1.1-rc1"
     implementation MULTIDEX
     implementation "com.android.support:recyclerview-v7:26.1.0"
     implementation "com.android.support:appcompat-v7:26.1.0"
