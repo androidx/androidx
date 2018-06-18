@@ -29,7 +29,7 @@ public class ListPreferenceDialogFragment extends PreferenceDialogFragment {
     private static final String SAVE_STATE_ENTRY_VALUES =
             "ListPreferenceDialogFragment.entryValues";
 
-    private int mClickedDialogEntryIndex;
+    int mClickedDialogEntryIndex;
     private CharSequence[] mEntries;
     private CharSequence[] mEntryValues;
 

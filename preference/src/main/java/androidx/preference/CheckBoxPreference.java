@@ -120,6 +120,9 @@ public class CheckBoxPreference extends TwoStatePreference {
     }
 
     private class Listener implements CompoundButton.OnCheckedChangeListener {
+        Listener() {
+        }
+
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (!callChangeListener(isChecked)) {
