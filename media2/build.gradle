@@ -1,0 +1,19 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+
+plugins {
+    id("SupportAndroidLibraryPlugin")
+}
+
+dependencies {
+    implementation(project(":media"))
+}
+
+supportLibrary {
+    name = "AndroidX media2 library"
+    publish = true
+    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenGroup = LibraryGroups.MEDIA2
+    inceptionYear = "2018"
+    description = "Media2"
+}
