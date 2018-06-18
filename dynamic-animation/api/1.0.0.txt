@@ -1,0 +1,103 @@
+package androidx.dynamicanimation.animation {
+
+  public abstract class DynamicAnimation<T extends androidx.dynamicanimation.animation.DynamicAnimation<T>> {
+    method public T addEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener);
+    method public T addUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener);
+    method public void cancel();
+    method public float getMinimumVisibleChange();
+    method public boolean isRunning();
+    method public void removeEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener);
+    method public void removeUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener);
+    method public T setMaxValue(float);
+    method public T setMinValue(float);
+    method public T setMinimumVisibleChange(float);
+    method public T setStartValue(float);
+    method public T setStartVelocity(float);
+    method public void start();
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty ALPHA;
+    field public static final float MIN_VISIBLE_CHANGE_ALPHA = 0.00390625f;
+    field public static final float MIN_VISIBLE_CHANGE_PIXELS = 1.0f;
+    field public static final float MIN_VISIBLE_CHANGE_ROTATION_DEGREES = 0.1f;
+    field public static final float MIN_VISIBLE_CHANGE_SCALE = 0.002f;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty ROTATION;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty ROTATION_X;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty ROTATION_Y;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty SCALE_X;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty SCALE_Y;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty SCROLL_X;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty SCROLL_Y;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty TRANSLATION_X;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty TRANSLATION_Y;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty TRANSLATION_Z;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty X;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty Y;
+    field public static final androidx.dynamicanimation.animation.DynamicAnimation.ViewProperty Z;
+  }
+
+  public static abstract interface DynamicAnimation.OnAnimationEndListener {
+    method public abstract void onAnimationEnd(androidx.dynamicanimation.animation.DynamicAnimation, boolean, float, float);
+  }
+
+  public static abstract interface DynamicAnimation.OnAnimationUpdateListener {
+    method public abstract void onAnimationUpdate(androidx.dynamicanimation.animation.DynamicAnimation, float, float);
+  }
+
+  public static abstract class DynamicAnimation.ViewProperty extends androidx.dynamicanimation.animation.FloatPropertyCompat {
+  }
+
+  public final class FlingAnimation extends androidx.dynamicanimation.animation.DynamicAnimation {
+    ctor public FlingAnimation(androidx.dynamicanimation.animation.FloatValueHolder);
+    ctor public FlingAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>);
+    method public float getFriction();
+    method public androidx.dynamicanimation.animation.FlingAnimation setFriction(float);
+    method public androidx.dynamicanimation.animation.FlingAnimation setMaxValue(float);
+    method public androidx.dynamicanimation.animation.FlingAnimation setMinValue(float);
+    method public androidx.dynamicanimation.animation.FlingAnimation setStartVelocity(float);
+  }
+
+  public abstract class FloatPropertyCompat<T> {
+    ctor public FloatPropertyCompat(java.lang.String);
+    method public static <T> androidx.dynamicanimation.animation.FloatPropertyCompat<T> createFloatPropertyCompat(android.util.FloatProperty<T>);
+    method public abstract float getValue(T);
+    method public abstract void setValue(T, float);
+  }
+
+  public final class FloatValueHolder {
+    ctor public FloatValueHolder();
+    ctor public FloatValueHolder(float);
+    method public float getValue();
+    method public void setValue(float);
+  }
+
+  public final class SpringAnimation extends androidx.dynamicanimation.animation.DynamicAnimation {
+    ctor public SpringAnimation(androidx.dynamicanimation.animation.FloatValueHolder);
+    ctor public SpringAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>);
+    ctor public SpringAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>, float);
+    method public void animateToFinalPosition(float);
+    method public boolean canSkipToEnd();
+    method public androidx.dynamicanimation.animation.SpringForce getSpring();
+    method public androidx.dynamicanimation.animation.SpringAnimation setSpring(androidx.dynamicanimation.animation.SpringForce);
+    method public void skipToEnd();
+  }
+
+  public final class SpringForce {
+    ctor public SpringForce();
+    ctor public SpringForce(float);
+    method public float getDampingRatio();
+    method public float getFinalPosition();
+    method public float getStiffness();
+    method public androidx.dynamicanimation.animation.SpringForce setDampingRatio(float);
+    method public androidx.dynamicanimation.animation.SpringForce setFinalPosition(float);
+    method public androidx.dynamicanimation.animation.SpringForce setStiffness(float);
+    field public static final float DAMPING_RATIO_HIGH_BOUNCY = 0.2f;
+    field public static final float DAMPING_RATIO_LOW_BOUNCY = 0.75f;
+    field public static final float DAMPING_RATIO_MEDIUM_BOUNCY = 0.5f;
+    field public static final float DAMPING_RATIO_NO_BOUNCY = 1.0f;
+    field public static final float STIFFNESS_HIGH = 10000.0f;
+    field public static final float STIFFNESS_LOW = 200.0f;
+    field public static final float STIFFNESS_MEDIUM = 1500.0f;
+    field public static final float STIFFNESS_VERY_LOW = 50.0f;
+  }
+
+}
+

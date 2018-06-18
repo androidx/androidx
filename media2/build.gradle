@@ -19,7 +19,7 @@ dependencies {
 supportLibrary {
     name = "AndroidX media2 library"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.MEDIA2
     mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "Media2"

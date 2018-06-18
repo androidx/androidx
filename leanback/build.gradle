@@ -32,7 +32,7 @@ android {
 supportLibrary {
     name = "Android Support Leanback v17"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.LEANBACK
     mavenGroup = LibraryGroups.LEANBACK
     inceptionYear = "2014"
     description = "Android Support Leanback v17"
