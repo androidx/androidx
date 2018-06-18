@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
+           xmlns:tools="http://schemas.android.com/tools">
     <!-- Format string indicating the number of extra items that aren't being displayed.
          [CHAR LIMIT=none] -->
     <string name="abc_slice_more_content">+ <xliff:g id="number" example="5">%1$d</xliff:g></string>
@@ -25,7 +26,7 @@
     <string name="abc_slice_show_more">Show more</string>
 
     <!-- Format string indicating how old the content in the template is. [CHAR LIMIT=150]-->
-    <string name="abc_slice_updated">Updated <xliff:g id="time" example="5 min ago">%1$s</xliff:g></string>
+    <string name="abc_slice_updated" tools:ignore="MissingTranslation">Updated <xliff:g id="time" example="5 min ago">%1$s</xliff:g></string>
 
     <!-- Text describing a time in the past in minutes, ideally this string should use an
          abbreviated format of the word "minute", if available. [CHAR LIMIT=15]-->
@@ -48,5 +49,5 @@
 
     <!-- Text indicating that there was a failure connecting to the app providing the slice
          [CHAR LIMIT=none]-->
-    <string name="abc_slice_error">Couldn\'t connect</string>
+    <string name="abc_slice_error" tools:ignore="MissingTranslation">Couldn\'t connect</string>
 </resources>
