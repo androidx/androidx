@@ -81,7 +81,8 @@ class NestedScrollViewFlingWatcher implements FlingWatcher, OnScrollChangeListen
         }
     }
 
-    private void onEndOfFlingFound() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onEndOfFlingFound() {
         mMainThreadHandler.removeCallbacks(mNotifyListenerRunnable);
         NestedScrollView nestedScrollView = mNestedScrollView.get();
         if (nestedScrollView != null) {

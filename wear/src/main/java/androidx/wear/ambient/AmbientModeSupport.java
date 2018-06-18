@@ -151,9 +151,11 @@ public final class AmbientModeSupport extends Fragment {
                     }
                 }
             };
-    private AmbientDelegate mDelegate;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    AmbientDelegate mDelegate;
     @Nullable
-    private AmbientCallback mSuppliedCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    AmbientCallback mSuppliedCallback;
     private AmbientController mController;
 
     /**

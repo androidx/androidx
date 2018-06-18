@@ -69,8 +69,8 @@ public class PageIndicatorView extends View implements OnPageChangeListener {
     private int mDotColor;
     private int mDotColorSelected;
     private boolean mDotFadeWhenIdle;
-    private int mDotFadeOutDelay;
-    private int mDotFadeOutDuration;
+    int mDotFadeOutDelay;
+    int mDotFadeOutDuration;
     private int mDotFadeInDuration;
     private float mDotShadowDx;
     private float mDotShadowDy;
@@ -80,7 +80,7 @@ public class PageIndicatorView extends View implements OnPageChangeListener {
     private int mNumberOfPositions;
     private int mSelectedPosition;
     private int mCurrentViewPagerState;
-    private boolean mVisible;
+    boolean mVisible;
 
     public PageIndicatorView(Context context) {
         this(context, null);

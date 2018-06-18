@@ -67,7 +67,8 @@ public class SinglePageUi implements SinglePagePresenter.Ui {
                     R.layout.ws_single_page_nav_drawer_7_item,
             };
 
-    private final WearableNavigationDrawerView mDrawer;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final WearableNavigationDrawerView mDrawer;
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
     private final Runnable mCloseDrawerRunnable =
             new Runnable() {
@@ -170,7 +171,7 @@ public class SinglePageUi implements SinglePagePresenter.Ui {
         private final int mIndex;
         private final WearableNavigationDrawerPresenter mPresenter;
 
-        private OnSelectedClickHandler(int index, WearableNavigationDrawerPresenter presenter) {
+        OnSelectedClickHandler(int index, WearableNavigationDrawerPresenter presenter) {
             mIndex = index;
             mPresenter = presenter;
         }

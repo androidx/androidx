@@ -119,11 +119,14 @@ public class ConfirmationOverlay {
     @OverlayType
     private int mType = SUCCESS_ANIMATION;
     private int mDurationMillis = DEFAULT_ANIMATION_DURATION_MS;
-    private OnAnimationFinishedListener mListener;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    OnAnimationFinishedListener mListener;
     private String mMessage;
-    private View mOverlayView;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    View mOverlayView;
     private Drawable mOverlayDrawable;
-    private boolean mIsShowing = false;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsShowing = false;
 
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
     private final Runnable mHideRunnable =

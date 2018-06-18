@@ -44,7 +44,8 @@ public class MultiPageUi implements MultiPagePresenter.Ui {
 
     private static final String TAG = "MultiPageUi";
 
-    private WearableNavigationDrawerPresenter mPresenter;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    WearableNavigationDrawerPresenter mPresenter;
 
     @Nullable private ViewPager mNavigationPager;
     @Nullable private PageIndicatorView mPageIndicatorView;
