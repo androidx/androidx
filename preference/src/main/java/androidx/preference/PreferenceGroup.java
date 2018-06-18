@@ -70,7 +70,8 @@ public abstract class PreferenceGroup extends Preference {
 
     private int mInitialExpandedChildrenCount = Integer.MAX_VALUE;
 
-    private final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
     private final Handler mHandler = new Handler();
     private final Runnable mClearRecycleCacheRunnable = new Runnable() {
         @Override

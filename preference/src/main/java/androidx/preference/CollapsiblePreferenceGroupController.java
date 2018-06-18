@@ -27,7 +27,8 @@ import java.util.List;
  */
 final class CollapsiblePreferenceGroupController {
 
-    private final PreferenceGroupAdapter mPreferenceGroupAdapter;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final PreferenceGroupAdapter mPreferenceGroupAdapter;
     private final Context mContext;
 
     /**

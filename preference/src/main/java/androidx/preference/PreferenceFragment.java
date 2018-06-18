@@ -124,7 +124,7 @@ public abstract class PreferenceFragment extends Fragment implements
             "androidx.preference.PreferenceFragment.DIALOG";
 
     private PreferenceManager mPreferenceManager;
-    private RecyclerView mList;
+    RecyclerView mList;
     private boolean mHavePrefs;
     private boolean mInitDone;
 
@@ -522,7 +522,7 @@ public abstract class PreferenceFragment extends Fragment implements
         mHandler.obtainMessage(MSG_BIND_PREFERENCES).sendToTarget();
     }
 
-    private void bindPreferences() {
+    void bindPreferences() {
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         if (preferenceScreen != null) {
             getListView().setAdapter(onCreateAdapter(preferenceScreen));
@@ -763,6 +763,9 @@ public abstract class PreferenceFragment extends Fragment implements
         private Drawable mDivider;
         private int mDividerHeight;
         private boolean mAllowDividerAfterLastItem = true;
+
+        DividerDecoration() {
+        }
 
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {

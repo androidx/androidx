@@ -124,7 +124,8 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
             "androidx.preference.PreferenceFragment.DIALOG";
 
     private PreferenceManager mPreferenceManager;
-    private RecyclerView mList;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    RecyclerView mList;
     private boolean mHavePrefs;
     private boolean mInitDone;
 
@@ -527,7 +528,8 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         mHandler.obtainMessage(MSG_BIND_PREFERENCES).sendToTarget();
     }
 
-    private void bindPreferences() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void bindPreferences() {
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         if (preferenceScreen != null) {
             getListView().setAdapter(onCreateAdapter(preferenceScreen));
@@ -769,6 +771,9 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         private Drawable mDivider;
         private int mDividerHeight;
         private boolean mAllowDividerAfterLastItem = true;
+
+        DividerDecoration() {
+        }
 
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {

@@ -85,9 +85,9 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     };
 
     private static class PreferenceLayout {
-        private int mResId;
-        private int mWidgetResId;
-        private String mName;
+        int mResId;
+        int mWidgetResId;
+        String mName;
 
         PreferenceLayout() {}
 
@@ -149,7 +149,8 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         return new PreferenceGroupAdapter(preferenceGroup, handler);
     }
 
-    private void syncMyPreferences() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void syncMyPreferences() {
         for (final Preference preference : mPreferenceListInternal) {
             // Clear out the listeners in anticipation of some items being removed. This listener
             // will be (re-)added to the remaining prefs when we flatten.
