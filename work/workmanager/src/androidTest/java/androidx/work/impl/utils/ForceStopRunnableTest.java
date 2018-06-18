@@ -16,6 +16,8 @@
 
 package androidx.work.impl.utils;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.doNothing;
@@ -28,7 +30,9 @@ import static org.mockito.Mockito.when;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -43,6 +47,8 @@ import org.junit.runner.RunWith;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ForceStopRunnableTest {
+
+    private static final String PREFERENCES_FILE_NAME = "androidx.work.util.preferences.test";
 
     private Context mContext;
     private WorkManagerImpl mWorkManager;
@@ -108,5 +114,22 @@ public class ForceStopRunnableTest {
         when(runnable.shouldCancelPersistedJobs()).thenReturn(false);
         runnable.run();
         verify(runnable, times(0)).cancelAllInJobScheduler();
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
+    public void testMigratePersistedJobs() {
+        SharedPreferences testSharedPreferences =
+                mContext.getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
+        testSharedPreferences.edit()
+                .clear()
+                .apply();
+        Preferences testPreferences = new Preferences(testSharedPreferences);
+        when(mWorkManager.getPreferences()).thenReturn(testPreferences);
+        ForceStopRunnable runnable = spy(mRunnable);
+        doNothing().when(runnable).cancelAllInJobScheduler();
+        assertThat(runnable.shouldCancelPersistedJobs(), is(true));
+        runnable.run();
+        assertThat(runnable.shouldCancelPersistedJobs(), is(false));
     }
 }
