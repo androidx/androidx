@@ -20,6 +20,10 @@
 
     <fragment
             android:id="@+id/start_test"
+            android:name="androidx.navigation.fragment.test.EmptyFragment"/>
+
+    <fragment
+            android:id="@+id/immediate_test"
             android:name="androidx.navigation.fragment.test.ImmediateNavigationActivity$NavigateOnResumeFragment"/>
 
     <fragment

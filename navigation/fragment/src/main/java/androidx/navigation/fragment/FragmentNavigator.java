@@ -52,11 +52,19 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     private int mContainerId;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     ArrayDeque<Integer> mBackStack = new ArrayDeque<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mPendingBackStackOperations = 0;
 
     private final FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener =
             new FragmentManager.OnBackStackChangedListener() {
                 @Override
                 public void onBackStackChanged() {
+                    if (mPendingBackStackOperations != 0) {
+                        // This was an expected back stack operation caused by a navigate() call,
+                        // nothing else to do
+                        mPendingBackStackOperations--;
+                        return;
+                    }
                     // The initial Fragment won't be on the back stack, so the
                     // real count of destinations is the back stack entry count + 1
                     int newCount = mFragmentManager.getBackStackEntryCount() + 1;
@@ -139,8 +147,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 && mBackStack.peekLast() == destId;
 
         int backStackEffect;
-        if (!initialNavigation && !isClearTask && !isSingleTopReplacement) {
-            ft.addToBackStack(getBackStackName(destId));
+        if (initialNavigation || isClearTask) {
             backStackEffect = BACK_STACK_DESTINATION_ADDED;
         } else if (isSingleTopReplacement) {
             // Single Top means we only want one instance on the back stack
@@ -151,15 +158,18 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 // on the back stack in its place
                 mFragmentManager.popBackStack();
                 ft.addToBackStack(getBackStackName(destId));
+                mPendingBackStackOperations++;
             }
             backStackEffect = BACK_STACK_UNCHANGED;
         } else {
+            ft.addToBackStack(getBackStackName(destId));
+            mPendingBackStackOperations++;
             backStackEffect = BACK_STACK_DESTINATION_ADDED;
         }
         ft.setReorderingAllowed(true);
         ft.commit();
         // The commit succeeded, update our view of the world
-        if (initialNavigation || !isSingleTopReplacement) {
+        if (backStackEffect == BACK_STACK_DESTINATION_ADDED) {
             mBackStack.add(destId);
         }
         dispatchOnNavigatorNavigated(destId, backStackEffect);
