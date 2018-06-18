@@ -30,6 +30,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
@@ -100,6 +101,7 @@ public class ListItemAdapter extends
     static final int LIST_ITEM_TYPE_SUBHEADER = 3;
 
     private final SparseIntArray mViewHolderLayoutResIds = new SparseIntArray();
+
     private final SparseArray<Function<View, ListItem.ViewHolder>> mViewHolderCreator =
             new SparseArray<>();
 
@@ -130,11 +132,11 @@ public class ListItemAdapter extends
         mItemProvider = itemProvider;
         mBackgroundStyle = backgroundStyle;
 
-        registerListItemViewType(LIST_ITEM_TYPE_TEXT,
+        registerListItemViewTypeInternal(LIST_ITEM_TYPE_TEXT,
                 R.layout.car_list_item_text_content, TextListItem::createViewHolder);
-        registerListItemViewType(LIST_ITEM_TYPE_SEEKBAR,
+        registerListItemViewTypeInternal(LIST_ITEM_TYPE_SEEKBAR,
                 R.layout.car_list_item_seekbar_content, SeekbarListItem::createViewHolder);
-        registerListItemViewType(LIST_ITEM_TYPE_SUBHEADER,
+        registerListItemViewTypeInternal(LIST_ITEM_TYPE_SUBHEADER,
                 R.layout.car_list_item_subheader_content, SubheaderListItem::createViewHolder);
 
         mUxRestrictionsHelper =
@@ -167,18 +169,47 @@ public class ListItemAdapter extends
     }
 
     /**
-     * Registers a function that returns {@link RecyclerView.ViewHolder}
-     * for its matching view type returned by {@link ListItem#getViewType()}.
+     * Registers a custom {@link ListItem} that this adapter will handle. The custom list item will
+     * be identified by the unique view id that is passed to this method. The {@code function}
+     * should a reference to the method that will create the {@code ViewHolder} that houses the
+     * custom {@code ListItem}.
+     *
+     * <pre>{@code
+     * int viewType = -1;
+     *
+     * registerListItemViewType(
+     *     viewType,
+     *     R.layout.custom_view_layout,
+     *     CustomListItem::createViewHolder);
+     * }</pre>
      *
      * <p>The function will receive a view as {@link RecyclerView.ViewHolder#itemView}. This view
-     * uses background defined by {@link BackgroundStyle}.
+     * uses a background defined by {@link BackgroundStyle}.
      *
-     * <p>Subclasses of {@link ListItem} in package androidx.car.widget are already registered.
+     * <p>Subclasses of {@link ListItem} in package {@code androidx.car.widget} are already
+     * registered.
      *
-     * @param viewType use negative value for custom view type.
+     * @param viewType A unique id for the custom view. Use negative values for custom view type.
+     * @param layoutResId The layout structure that will bs used for the custom view type.
      * @param function function to create ViewHolder for {@code viewType}.
      */
-    public void registerListItemViewType(int viewType, @LayoutRes int layoutResId,
+    public void registerListItemViewType(
+            @IntRange(from = Integer.MIN_VALUE, to = -1) int viewType,
+            @LayoutRes int layoutResId,
+            Function<View, ListItem.ViewHolder> function) {
+        if (viewType >= 0) {
+            throw new IllegalArgumentException("Custom view types should use negative values.");
+        }
+
+        registerListItemViewTypeInternal(viewType, layoutResId, function);
+    }
+
+    /**
+     * An internal method for registering view types that allows for positive ids for view type.
+     *
+     * @see #registerListItemViewTypeInternal(int, int, Function)
+     */
+    private void registerListItemViewTypeInternal(int viewType, @LayoutRes int layoutResId,
             Function<View, ListItem.ViewHolder> function) {
         if (mViewHolderLayoutResIds.get(viewType) != 0
                 || mViewHolderCreator.get(viewType) != null) {
