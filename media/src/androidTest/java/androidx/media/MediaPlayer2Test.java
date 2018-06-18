@@ -420,6 +420,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             mp.setAudioAttributes(attributes);
             mp.loopCurrent(true);
             final Monitor onCompletionCalled = new Monitor();
+            final Monitor onDataSourceRepeatCalled = new Monitor();
             final Monitor onPlayCalled = new Monitor();
             MediaPlayer2.EventCallback ecb =
                     new MediaPlayer2.EventCallback() {
@@ -429,6 +430,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                             if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
                                 Log.i("@@@", "got oncompletion");
                                 onCompletionCalled.signal();
+                            } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_REPEAT) {
+                                onDataSourceRepeatCalled.signal();
                             }
                         }
 
@@ -448,7 +451,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             onPlayCalled.waitForSignal();
             assertTrue(mp.getState() == MediaPlayer2.PLAYER_STATE_PLAYING);
 
-            onCompletionCalled.waitForCountedSignals(3); // allow for several loops
+            onDataSourceRepeatCalled.waitForCountedSignals(3); // allow for several loops
             assertTrue(mp.getState() == MediaPlayer2.PLAYER_STATE_PLAYING);
 
             onCompletionCalled.reset();
@@ -2675,11 +2678,14 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.setDataSource(dsd);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
+        final Monitor onDataSourceRepeatCalled = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onInfo(MediaPlayer2 mp, DataSourceDesc2 dsd, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
+                } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_REPEAT) {
+                    onDataSourceRepeatCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
                     mOnCompletionCalled.signal();
                 }
@@ -2704,16 +2710,16 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPrepareCalled.waitForSignal();
 
         mOnPlayCalled.reset();
-        mOnCompletionCalled.reset();
+        onDataSourceRepeatCalled.reset();
         mPlayer.play();
         mOnPlayCalled.waitForSignal();
         assertEquals(MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
         assertTrue(mPlayer.getCurrentPosition() >= start);
 
-        mOnCompletionCalled.waitForSignal();
+        onDataSourceRepeatCalled.waitForSignal();
         assertEquals(MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
         assertTrue(mPlayer.getCurrentPosition() >= start);
-        mOnCompletionCalled.waitForCountedSignals(2);
+        onDataSourceRepeatCalled.waitForCountedSignals(2);
         assertEquals(MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
         assertTrue(mPlayer.getCurrentPosition() >= start);
 
