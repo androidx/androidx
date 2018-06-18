@@ -92,9 +92,9 @@ public class MediaRouteButton extends View {
 
     private boolean mAttachedToWindow;
 
-    private static final SparseArray<Drawable.ConstantState> sRemoteIndicatorCache =
+    static final SparseArray<Drawable.ConstantState> sRemoteIndicatorCache =
             new SparseArray<>(2);
-    private RemoteIndicatorLoader mRemoteIndicatorLoader;
+    RemoteIndicatorLoader mRemoteIndicatorLoader;
     private Drawable mRemoteIndicator;
     private boolean mRemoteActive;
     private boolean mIsConnecting;

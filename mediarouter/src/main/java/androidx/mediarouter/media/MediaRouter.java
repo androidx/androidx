@@ -232,7 +232,7 @@ public final class MediaRouter {
      */
     public static final int AVAILABILITY_FLAG_REQUIRE_MATCH = 1 << 1;
 
-    private MediaRouter(Context context) {
+    MediaRouter(Context context) {
         mContext = context;
     }
 
@@ -810,12 +810,12 @@ public final class MediaRouter {
      */
     public static class RouteInfo {
         private final ProviderInfo mProvider;
-        private final String mDescriptorId;
-        private final String mUniqueId;
+        final String mDescriptorId;
+        final String mUniqueId;
         private String mName;
         private String mDescription;
         private Uri mIconUri;
-        private boolean mEnabled;
+        boolean mEnabled;
         private boolean mConnecting;
         private int mConnectionState;
         private boolean mCanDisconnect;
@@ -1694,8 +1694,8 @@ public final class MediaRouter {
      * </p>
      */
     public static final class ProviderInfo {
-        private final MediaRouteProvider mProviderInstance;
-        private final List<RouteInfo> mRoutes = new ArrayList<>();
+        final MediaRouteProvider mProviderInstance;
+        final List<RouteInfo> mRoutes = new ArrayList<>();
 
         private final ProviderMetadata mMetadata;
         private MediaRouteProviderDescriptor mDescriptor;
@@ -2488,12 +2488,12 @@ public final class MediaRouter {
             return -1;
         }
 
-        private String getUniqueId(ProviderInfo provider, String routeDescriptorId) {
+        String getUniqueId(ProviderInfo provider, String routeDescriptorId) {
             String componentName = provider.getComponentName().flattenToShortString();
             return mUniqueIdMap.get(new Pair<>(componentName, routeDescriptorId));
         }
 
-        private void updateSelectedRouteIfNeeded(boolean selectedRouteDescriptorChanged) {
+        void updateSelectedRouteIfNeeded(boolean selectedRouteDescriptorChanged) {
             // Update default route.
             if (mDefaultRoute != null && !mDefaultRoute.isSelectable()) {
                 Log.i(TAG, "Clearing the default route because it "
