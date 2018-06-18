@@ -75,7 +75,7 @@ import java.util.Map;
 class VideoView2ImplBaseWithMp1
         implements VideoView2Impl, VideoViewInterfaceWithMp1.SurfaceListener {
     private static final String TAG = "VideoView2ImplBase_1";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private static final long DEFAULT_SHOW_CONTROLLER_INTERVAL_MS = 2000;
 
     private static final int STATE_ERROR = -1;
@@ -93,48 +93,48 @@ class VideoView2ImplBaseWithMp1
     private static final int SIZE_TYPE_FULL = 1;
 
     private AccessibilityManager mAccessibilityManager;
-    private AudioManager mAudioManager;
+    AudioManager mAudioManager;
     private AudioAttributes mAudioAttributes;
-    private int mAudioFocusType = AudioManager.AUDIOFOCUS_GAIN; // legacy focus gain
-    private boolean mAudioFocused = false;
+    int mAudioFocusType = AudioManager.AUDIOFOCUS_GAIN; // legacy focus gain
+    boolean mAudioFocused = false;
 
     private VideoView2.OnViewTypeChangedListener mViewTypeChangedListener;
 
-    private VideoViewInterfaceWithMp1 mCurrentView;
-    private VideoTextureViewWithMp1 mTextureView;
-    private VideoSurfaceViewWithMp1 mSurfaceView;
+    androidx.media.widget.VideoViewInterfaceWithMp1 mCurrentView;
+    private androidx.media.widget.VideoTextureViewWithMp1 mTextureView;
+    private androidx.media.widget.VideoSurfaceViewWithMp1 mSurfaceView;
 
     protected MediaPlayer mMediaPlayer;
-    private Uri mUri;
-    private Map<String, String> mHeaders;
-    private MediaControlView2 mMediaControlView;
+    Uri mUri;
+    Map<String, String> mHeaders;
+    MediaControlView2 mMediaControlView;
     protected MediaSessionCompat mMediaSession;
-    private MediaControllerCompat mMediaController;
+    MediaControllerCompat mMediaController;
     private MediaMetadata2 mMediaMetadata;
     private MediaMetadataRetriever mRetriever;
-    private boolean mNeedUpdateMediaType;
-    private Bundle mMediaTypeData;
-    private String mTitle;
+    boolean mNeedUpdateMediaType;
+    Bundle mMediaTypeData;
+    String mTitle;
 
     private WindowManager mManager;
-    private View mMusicView;
+    View mMusicView;
     private Drawable mMusicAlbumDrawable;
     private String mMusicTitleText;
     private String mMusicArtistText;
     private int mPrevWidth;
     private int mPrevHeight;
-    private int mDominantColor;
+    int mDominantColor;
     private int mSizeType;
 
     private PlaybackStateCompat.Builder mStateBuilder;
 
-    private int mTargetState = STATE_IDLE;
-    private int mCurrentState = STATE_IDLE;
-    private int mCurrentBufferPercentage;
-    private long mSeekWhenPrepared;  // recording the seek position while preparing
+    int mTargetState = STATE_IDLE;
+    int mCurrentState = STATE_IDLE;
+    int mCurrentBufferPercentage;
+    long mSeekWhenPrepared;  // recording the seek position while preparing
 
-    private int mVideoWidth;
-    private int mVideoHeight;
+    int mVideoWidth;
+    int mVideoHeight;
 
     protected ArrayList<Integer> mVideoTrackIndices;
     protected ArrayList<Integer> mAudioTrackIndices;
@@ -143,17 +143,17 @@ class VideoView2ImplBaseWithMp1
     protected int mSelectedVideoTrackIndex;
     protected int mSelectedAudioTrackIndex;
 
-    private float mSpeed;
+    float mSpeed;
     private float mFallbackSpeed;  // keep the original speed before 'pause' is called.
-    private int mVolumeLevel;
+    int mVolumeLevel;
     protected VideoView2 mInstance;
 
     private long mShowControllerIntervalMs;
 
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mRouteSelector;
-    private MediaRouter.RouteInfo mRoute;
-    private RoutePlayer mRoutePlayer;
+    MediaRouter.RouteInfo mRoute;
+    RoutePlayer mRoutePlayer;
 
     private final MediaRouter.Callback mRouterCallback = new MediaRouter.Callback() {
         @Override
@@ -693,13 +693,13 @@ class VideoView2ImplBaseWithMp1
                 && mCurrentState != STATE_PREPARING;
     }
 
-    private boolean needToStart() {
+    boolean needToStart() {
         return (mMediaPlayer != null || mRoutePlayer != null)
                 && isAudioGranted()
                 && isWaitingPlayback();
     }
 
-    private boolean isMusicMediaType() {
+    boolean isMusicMediaType() {
         return mVideoTrackIndices != null && mVideoTrackIndices.size() == 0;
     }
 
@@ -707,7 +707,7 @@ class VideoView2ImplBaseWithMp1
         return mCurrentState != STATE_PLAYING && mTargetState == STATE_PLAYING;
     }
 
-    private boolean isAudioGranted() {
+    boolean isAudioGranted() {
         return mAudioFocused || mAudioFocusType == AudioManager.AUDIOFOCUS_NONE;
     }
 
@@ -736,7 +736,7 @@ class VideoView2ImplBaseWithMp1
     };
 
     @SuppressWarnings("deprecation")
-    private void requestAudioFocus(int focusType) {
+    void requestAudioFocus(int focusType) {
         int result;
         if (android.os.Build.VERSION.SDK_INT >= 26) {
             AudioFocusRequest focusRequest;
@@ -760,7 +760,7 @@ class VideoView2ImplBaseWithMp1
     }
 
     // Creates a MediaPlayer instance and prepare playback.
-    private void openVideo(Uri uri, Map<String, String> headers) {
+    void openVideo(Uri uri, Map<String, String> headers) {
         resetPlayer();
         mUri = uri;
         if (isRemotePlayback()) {
@@ -828,7 +828,7 @@ class VideoView2ImplBaseWithMp1
      * Reset the media player in any state
      */
     @SuppressWarnings("deprecation")
-    private void resetPlayer() {
+    void resetPlayer() {
         if (mMediaPlayer != null) {
             mMediaPlayer.reset();
             mMediaPlayer.release();
@@ -845,7 +845,7 @@ class VideoView2ImplBaseWithMp1
         mVideoHeight = 0;
     }
 
-    private void updatePlaybackState() {
+    void updatePlaybackState() {
         if (mStateBuilder == null) {
             long playbackActions = PlaybackStateCompat.ACTION_PLAY
                     | PlaybackStateCompat.ACTION_PAUSE
@@ -895,7 +895,7 @@ class VideoView2ImplBaseWithMp1
         }
     }
 
-    private void applySpeed() {
+    void applySpeed() {
         if (android.os.Build.VERSION.SDK_INT < 23) {
             return;
         }
@@ -916,7 +916,7 @@ class VideoView2ImplBaseWithMp1
         }
     }
 
-    private boolean isRemotePlayback() {
+    boolean isRemotePlayback() {
         if (mMediaController == null) {
             return false;
         }
@@ -959,7 +959,7 @@ class VideoView2ImplBaseWithMp1
         // No-op
     }
 
-    private void extractMetadata() {
+    void extractMetadata() {
         if (mRetriever == null) {
             return;
         }
@@ -979,7 +979,7 @@ class VideoView2ImplBaseWithMp1
     }
 
     @SuppressWarnings("deprecation")
-    private void extractAudioMetadata() {
+    void extractAudioMetadata() {
         if (mRetriever == null || !isMusicMediaType()) {
             return;
         }
@@ -1214,6 +1214,9 @@ class VideoView2ImplBaseWithMp1
     };
 
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
+        MediaSessionCallback() {
+        }
+
         @Override
         public void onCommand(String command, Bundle args, ResultReceiver receiver) {
             if (isRemotePlayback()) {

@@ -46,15 +46,15 @@ import java.util.Map;
 @RequiresApi(28)
 class VideoView2ImplApi28WithMp1 extends VideoView2ImplBaseWithMp1 {
     private static final String TAG = "VideoView2ImplApi28_1";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static final int INVALID_TRACK_INDEX = -1;
 
-    private ArrayList<Pair<Integer, SubtitleTrack>> mSubtitleTrackIndices;
+    ArrayList<Pair<Integer, SubtitleTrack>> mSubtitleTrackIndices;
     private SubtitleController mSubtitleController;
 
     // selected video/audio/subtitle track index as MediaPlayer returns
-    private int mSelectedSubtitleTrackIndex;
+    int mSelectedSubtitleTrackIndex;
 
     private SubtitleAnchorView mSubtitleAnchorView;
     private boolean mSubtitleEnabled;
