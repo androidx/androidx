@@ -42,7 +42,7 @@ public class WearableRecyclerView extends RecyclerView {
     private final ScrollManager mScrollManager = new ScrollManager();
     private boolean mCircularScrollingEnabled;
     private boolean mEdgeItemsCenteringEnabled;
-    private boolean mCenterEdgeItemsWhenThereAreChildren;
+    boolean mCenterEdgeItemsWhenThereAreChildren;
 
     private int mOriginalPaddingTop = NO_VALUE;
     private int mOriginalPaddingBottom = NO_VALUE;
@@ -100,7 +100,7 @@ public class WearableRecyclerView extends RecyclerView {
         }
     }
 
-    private void setupCenteredPadding() {
+    void setupCenteredPadding() {
         if (getChildCount() < 1 || !mEdgeItemsCenteringEnabled) {
             return;
         }
