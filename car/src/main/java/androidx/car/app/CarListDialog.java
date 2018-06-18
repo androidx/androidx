@@ -67,7 +67,8 @@ public class CarListDialog extends Dialog {
 
     private ListItemAdapter mAdapter;
     private final int mInitialPosition;
-    private PagedListView mList;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    PagedListView mList;
     private PagedScrollBarView mScrollBarView;
 
     @Nullable
@@ -87,7 +88,7 @@ public class CarListDialog extends Dialog {
                 }
             };
 
-    private CarListDialog(Context context, Builder builder) {
+    CarListDialog(Context context, Builder builder) {
         super(context, getDialogTheme(context));
         mInitialPosition = builder.mInitialPosition;
         mOnClickListener = builder.mOnClickListener;
@@ -320,7 +321,8 @@ public class CarListDialog extends Dialog {
      * <p>If this is called after an adapter change but before the new layout, the visibility
      * determination may not be correct.
      */
-    private void updateScrollbar() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void updateScrollbar() {
         RecyclerView recyclerView = mList.getRecyclerView();
 
         boolean isAtStart = mList.isAtStart();
@@ -417,11 +419,11 @@ public class CarListDialog extends Dialog {
     public static final class Builder {
         private final Context mContext;
 
-        private CharSequence mTitle;
-        private int mInitialPosition;
-        private String[] mItems;
-        private DialogSubSection[] mSections;
-        private DialogInterface.OnClickListener mOnClickListener;
+        CharSequence mTitle;
+        int mInitialPosition;
+        String[] mItems;
+        DialogSubSection[] mSections;
+        DialogInterface.OnClickListener mOnClickListener;
 
         private boolean mCancelable = true;
         private OnCancelListener mOnCancelListener;

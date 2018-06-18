@@ -545,6 +545,9 @@ public class PagedScrollBarView extends ViewGroup {
     private static class AlphaJumpButtonClickListener implements View.OnClickListener {
         private PaginationListener mPaginationListener;
 
+        AlphaJumpButtonClickListener() {
+        }
+
         public void setPaginationListener(PaginationListener listener) {
             mPaginationListener = listener;
         }

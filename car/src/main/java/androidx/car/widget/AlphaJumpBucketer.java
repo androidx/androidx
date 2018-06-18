@@ -94,7 +94,8 @@ public class AlphaJumpBucketer {
      * @return The input string with whitespace trimmed, and also words like "the", "a" and so on
      *    removed.
      */
-    private static String preprocess(String s) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static String preprocess(String s) {
         s = s.trim().toLowerCase();
 
         for (String word : PREFIX_WORDS) {
