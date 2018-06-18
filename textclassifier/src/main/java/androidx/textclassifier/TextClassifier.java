@@ -96,7 +96,7 @@ public class TextClassifier {
      */
     /* package */ Collection<String> getEntitiesForPreset(@EntityPreset int entityPreset) {
         // TODO: forward call to the classifier implementation.
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**

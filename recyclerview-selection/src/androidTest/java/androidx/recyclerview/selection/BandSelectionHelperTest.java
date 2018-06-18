@@ -102,7 +102,7 @@ public class BandSelectionHelperTest {
 
     @Test
     public void testStartsBand_NoItems() {
-        mAdapter.updateTestModelIds(Collections.EMPTY_LIST);
+        mAdapter.updateTestModelIds(Collections.<String>emptyList());
         assertTrue(mBandController.shouldStart(mStartEvent));
     }
 
