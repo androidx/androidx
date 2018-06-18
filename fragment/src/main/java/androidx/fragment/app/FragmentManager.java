@@ -944,7 +944,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     @Override
     public List<Fragment> getFragments() {
         if (mAdded.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         synchronized (mAdded) {
             return (List<Fragment>) mAdded.clone();

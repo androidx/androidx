@@ -33,7 +33,7 @@ final class PagedStorage<T> extends AbstractList<T> {
     /**
      * Lists instances are compared (with instance equality) to PLACEHOLDER_LIST to check if an item
      * in that position is already loading. We use a singleton placeholder list that is distinct
-     * from Collections.EMPTY_LIST for safety.
+     * from Collections.emptyList() for safety.
      */
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private static final List PLACEHOLDER_LIST = new ArrayList();

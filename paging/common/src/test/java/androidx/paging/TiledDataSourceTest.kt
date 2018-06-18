@@ -25,7 +25,6 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
-import java.util.Collections
 
 @Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
@@ -61,7 +60,7 @@ class TiledDataSourceTest {
             }
         }
 
-        assertEquals(Collections.EMPTY_LIST, EmptyDataSource().loadInitial(0, 1, 5))
+        assertEquals(emptyList<String>(), EmptyDataSource().loadInitial(0, 1, 5))
     }
 
     @Test
