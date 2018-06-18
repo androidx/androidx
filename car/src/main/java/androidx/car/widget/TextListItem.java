@@ -1023,7 +1023,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         }
 
         @NonNull
-        private View[] getWidgetViews() {
+        View[] getWidgetViews() {
             return mWidgetViews;
         }
     }

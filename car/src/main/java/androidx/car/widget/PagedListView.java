@@ -100,7 +100,7 @@ public class PagedListView extends FrameLayout {
 
     private RecyclerView mRecyclerView;
     private PagedSnapHelper mSnapHelper;
-    private final Handler mHandler = new Handler();
+    final Handler mHandler = new Handler();
     private boolean mScrollBarEnabled;
     @VisibleForTesting
     PagedScrollBarView mScrollBarView;
@@ -118,7 +118,7 @@ public class PagedListView extends FrameLayout {
     /** Maximum number of pages to show. */
     private int mMaxPages;
 
-    private OnScrollListener mOnScrollListener;
+    OnScrollListener mOnScrollListener;
 
     /** Number of visible rows per page */
     private int mDefaultMaxPages = DEFAULT_MAX_CLICKS;
@@ -1045,7 +1045,7 @@ public class PagedListView extends FrameLayout {
      * @param animate {@code true} if the scrollbar should animate to its new position.
      *                {@code false} if no animation is used
      */
-    private void updatePaginationButtons(boolean animate) {
+    void updatePaginationButtons(boolean animate) {
         if (!mScrollBarEnabled) {
             // Don't change the visibility of the ScrollBar unless it's enabled.
             return;
@@ -1202,7 +1202,7 @@ public class PagedListView extends FrameLayout {
         mScrollBarView.setShowAlphaJump(supportsAlphaJump);
     }
 
-    private void showAlphaJump() {
+    void showAlphaJump() {
         if (mAlphaJumpView == null && mAdapter instanceof IAlphaJumpAdapter) {
             mAlphaJumpView = new AlphaJumpOverlayView(getContext());
             mAlphaJumpView.init(this, (IAlphaJumpAdapter) mAdapter);
@@ -1237,7 +1237,7 @@ public class PagedListView extends FrameLayout {
                 }
             };
 
-    private final Runnable mPaginationRunnable =
+    final Runnable mPaginationRunnable =
             new Runnable() {
                 @Override
                 public void run() {
@@ -1286,7 +1286,7 @@ public class PagedListView extends FrameLayout {
     private static class ItemSpacingDecoration extends RecyclerView.ItemDecoration {
         private int mItemSpacing;
 
-        private ItemSpacingDecoration(int itemSpacing) {
+        ItemSpacingDecoration(int itemSpacing) {
             mItemSpacing = itemSpacing;
         }
 
@@ -1338,7 +1338,7 @@ public class PagedListView extends FrameLayout {
          *     of the dividing lin.e If this value is {@link #INVALID_RESOURCE_ID}, then the top
          *     container view of each child will be used.
          */
-        private DividerDecoration(Context context, int dividerStartMargin,
+        DividerDecoration(Context context, int dividerStartMargin,
                 int dividerEndMargin, @IdRes int dividerStartId, @IdRes int dividerEndId,
                 @ColorRes int listDividerColor) {
             mContext = context;
@@ -1463,7 +1463,7 @@ public class PagedListView extends FrameLayout {
     private static class TopOffsetDecoration extends RecyclerView.ItemDecoration {
         private int mTopOffset;
 
-        private TopOffsetDecoration(int topOffset) {
+        TopOffsetDecoration(int topOffset) {
             mTopOffset = topOffset;
         }
 

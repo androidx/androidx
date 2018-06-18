@@ -59,7 +59,8 @@ class SpeedBumpController {
     /** The delay between when the permit pool has been depleted and when it begins to refill. */
     private static final long PERMIT_FILL_DELAY_MS = 600L;
 
-    private final ContentRateLimiter mContentRateLimiter = new ContentRateLimiter(
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ContentRateLimiter mContentRateLimiter = new ContentRateLimiter(
             ACQUIRED_PERMITS_PER_SECOND,
             MAX_PERMIT_POOL,
             PERMIT_FILL_DELAY_MS);
@@ -68,17 +69,23 @@ class SpeedBumpController {
      * Whether or not the user is currently allowed to interact with any child views of
      * {@code SpeedBumpView}.
      */
-    private boolean mInteractionPermitted = true;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mInteractionPermitted = true;
 
-    private final int mLockOutMessageDurationMs;
-    private final Handler mHandler = new Handler();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final int mLockOutMessageDurationMs;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Handler mHandler = new Handler();
 
     private final Context mContext;
-    private final View mLockoutMessageView;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final View mLockoutMessageView;
     private final ImageView mLockoutImageView;
 
-    @Nullable private final Car mCar;
-    @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable final Car mCar;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable CarUxRestrictionsManager mCarUxRestrictionsManager;
 
     /**
      * Creates the {@code SpeedBumpController} and associate it with the given
@@ -252,7 +259,8 @@ class SpeedBumpController {
      *
      * <p>If driver optimization is required, then unlimited mode is off.
      */
-    private void updateUnlimitedModeEnabled(CarUxRestrictions restrictions) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void updateUnlimitedModeEnabled(CarUxRestrictions restrictions) {
         // If driver optimization is not required, then there is no need to limit anything.
         mContentRateLimiter.setUnlimitedMode(!restrictions.isRequiresDistractionOptimization());
     }

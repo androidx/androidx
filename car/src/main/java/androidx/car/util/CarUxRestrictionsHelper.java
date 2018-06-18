@@ -44,10 +44,13 @@ public class CarUxRestrictionsHelper {
 
     // mCar is created in the constructor, but can be null if connection to the car is not
     // successful.
-    @Nullable private final Car mCar;
-    @Nullable private CarUxRestrictionsManager mCarUxRestrictionsManager;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable final Car mCar;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable CarUxRestrictionsManager mCarUxRestrictionsManager;
 
-    private final CarUxRestrictionsManager.OnUxRestrictionsChangedListener mListener;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final CarUxRestrictionsManager.OnUxRestrictionsChangedListener mListener;
 
     public CarUxRestrictionsHelper(Context context,
             CarUxRestrictionsManager.OnUxRestrictionsChangedListener listener) {

@@ -52,7 +52,7 @@ class MinTouchTargetHelper {
     static class TouchTargetSubject {
         private View mSubjectView;
 
-        private TouchTargetSubject(@NonNull View subject) {
+        TouchTargetSubject(@NonNull View subject) {
             mSubjectView = subject;
         }
 
