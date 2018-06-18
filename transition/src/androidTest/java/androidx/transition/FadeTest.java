@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -250,6 +251,7 @@ public class FadeTest extends BaseTest {
 
         assertNotNull(activity.findViewById(R.id.redSquare));
 
+        reset(listener);
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
