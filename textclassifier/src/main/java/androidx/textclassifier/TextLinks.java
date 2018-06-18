@@ -80,7 +80,7 @@ public final class TextLinks implements Parcelable {
     @IntDef({APPLY_STRATEGY_IGNORE, APPLY_STRATEGY_REPLACE})
     public @interface ApplyStrategy {}
 
-    private TextLinks(String fullText, ArrayList<TextLink> links) {
+    TextLinks(String fullText, ArrayList<TextLink> links) {
         mFullText = fullText;
         mLinks = Collections.unmodifiableList(links);
     }
@@ -171,7 +171,7 @@ public final class TextLinks implements Parcelable {
                 }
             };
 
-    private TextLinks(Parcel in) {
+    TextLinks(Parcel in) {
         mFullText = in.readString();
         mLinks = in.createTypedArrayList(TextLink.CREATOR);
     }
@@ -269,7 +269,7 @@ public final class TextLinks implements Parcelable {
                     }
                 };
 
-        private TextLink(Parcel in) {
+        TextLink(Parcel in) {
             mEntityScores = EntityConfidence.CREATOR.createFromParcel(in);
             mStart = in.readInt();
             mEnd = in.readInt();
@@ -427,7 +427,7 @@ public final class TextLinks implements Parcelable {
                     }
                 };
 
-        private Options(Parcel in) {
+        Options(Parcel in) {
             if (in.readInt() > 0) {
                 mDefaultLocales = LocaleListCompat.forLanguageTags(in.readString());
             }
@@ -533,7 +533,8 @@ public final class TextLinks implements Parcelable {
     /**
      * @throws IllegalArgumentException if the value is invalid
      */
-    private static void checkValidApplyStrategy(int applyStrategy) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void checkValidApplyStrategy(int applyStrategy) {
         if (applyStrategy != APPLY_STRATEGY_IGNORE && applyStrategy != APPLY_STRATEGY_REPLACE) {
             throw new IllegalArgumentException(
                     "Invalid apply strategy. See TextLinks.ApplyStrategy for options.");

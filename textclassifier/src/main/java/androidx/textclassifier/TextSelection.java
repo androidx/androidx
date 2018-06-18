@@ -42,7 +42,7 @@ public final class TextSelection implements Parcelable {
     @NonNull private final EntityConfidence mEntityConfidence;
     @NonNull private final String mSignature;
 
-    private TextSelection(
+    TextSelection(
             int startIndex, int endIndex, @NonNull Map<String, Float> entityConfidence,
             @NonNull String signature) {
         mStartIndex = startIndex;
@@ -139,7 +139,7 @@ public final class TextSelection implements Parcelable {
                 }
             };
 
-    private TextSelection(Parcel in) {
+    TextSelection(Parcel in) {
         mStartIndex = in.readInt();
         mEndIndex = in.readInt();
         mEntityConfidence = EntityConfidence.CREATOR.createFromParcel(in);
@@ -278,7 +278,7 @@ public final class TextSelection implements Parcelable {
                     }
                 };
 
-        private Options(Parcel in) {
+        Options(Parcel in) {
             if (in.readInt() > 0) {
                 mDefaultLocales = LocaleListCompat.forLanguageTags(in.readString());
             }
