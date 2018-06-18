@@ -43,14 +43,19 @@ import android.widget.TextView;
  */
 public class SeekBarPreference extends Preference {
 
-    private int mSeekBarValue;
-    private int mMin;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mSeekBarValue;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mMin;
     private int mMax;
     private int mSeekBarIncrement;
-    private boolean mTrackingTouch;
-    private SeekBar mSeekBar;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mTrackingTouch;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    SeekBar mSeekBar;
     private TextView mSeekBarValueTextView;
-    private boolean mAdjustable; // whether the seekbar should respond to the left/right keys
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mAdjustable; // whether the seekbar should respond to the left/right keys
     private boolean mShowSeekBarValue; // whether to show the seekbar value TextView next to the bar
 
     private static final String TAG = "SeekBarPreference";
@@ -280,7 +285,8 @@ public class SeekBarPreference extends Preference {
      * Persist the seekBar's seekbar value if callChangeListener
      * returns true, otherwise set the seekBar's value to the stored value
      */
-    private void syncValueInternal(SeekBar seekBar) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void syncValueInternal(SeekBar seekBar) {
         int seekBarValue = mMin + seekBar.getProgress();
         if (seekBarValue != mSeekBarValue) {
             if (callChangeListener(seekBarValue)) {

@@ -38,10 +38,10 @@ public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFra
     private static final String SAVE_STATE_ENTRY_VALUES =
             "MultiSelectListPreferenceDialogFragment.entryValues";
 
-    private Set<String> mNewValues = new HashSet<>();
-    private boolean mPreferenceChanged;
-    private CharSequence[] mEntries;
-    private CharSequence[] mEntryValues;
+    Set<String> mNewValues = new HashSet<>();
+    boolean mPreferenceChanged;
+    CharSequence[] mEntries;
+    CharSequence[] mEntryValues;
 
     public static MultiSelectListPreferenceDialogFragment newInstance(String key) {
         final MultiSelectListPreferenceDialogFragment fragment =
