@@ -28,6 +28,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
@@ -82,14 +83,21 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
         mActionView = null;
 
         if (action.isDefaultToggle()) {
-            Switch switchView = new Switch(getContext());
+            Switch switchView = (Switch) LayoutInflater.from(getContext()).inflate(
+                    R.layout.abc_slice_switch, this, false);
             addView(switchView);
             switchView.setChecked(action.isChecked());
             switchView.setOnCheckedChangeListener(this);
             switchView.setMinimumHeight(mImageSize);
             switchView.setMinimumWidth(mImageSize);
             if (color != -1) {
-                // TODO - find nice way to tint toggles
+                Drawable trackDrawable = DrawableCompat.wrap(switchView.getTrackDrawable());
+                DrawableCompat.setTint(trackDrawable, color);
+                switchView.setTrackDrawable(trackDrawable);
+
+                Drawable thumbDrawable = DrawableCompat.wrap(switchView.getThumbDrawable());
+                DrawableCompat.setTint(thumbDrawable, color);
+                switchView.setTrackDrawable(thumbDrawable);
             }
             mActionView = switchView;
 
