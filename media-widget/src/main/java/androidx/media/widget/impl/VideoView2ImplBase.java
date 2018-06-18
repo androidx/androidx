@@ -76,7 +76,7 @@ import java.util.concurrent.Executor;
 @RequiresApi(28)
 class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceListener {
     private static final String TAG = "VideoView2ImplBase";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static final int STATE_ERROR = -1;
     private static final int STATE_IDLE = 0;
@@ -94,54 +94,54 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     private VideoView2.OnViewTypeChangedListener mViewTypeChangedListener;
 
-    private VideoViewInterface mCurrentView;
+    VideoViewInterface mCurrentView;
     private VideoTextureView mTextureView;
     private VideoSurfaceView mSurfaceView;
 
-    private MediaPlayer2 mMediaPlayer;
-    private MediaItem2 mMediaItem;
+    MediaPlayer2 mMediaPlayer;
+    MediaItem2 mMediaItem;
     private List<MediaItem2> mPlayList;
-    private MediaControlView2 mMediaControlView;
-    private MediaSession2 mMediaSession;
+    MediaControlView2 mMediaControlView;
+    MediaSession2 mMediaSession;
     private String mTitle;
     private Executor mCallbackExecutor;
 
     private WindowManager mManager;
-    private View mMusicView;
+    View mMusicView;
     private Drawable mMusicAlbumDrawable;
     private String mMusicTitleText;
     private String mMusicArtistText;
     private boolean mIsMusicMediaType;
     private int mPrevWidth;
     private int mPrevHeight;
-    private int mDominantColor;
+    int mDominantColor;
     private int mSizeType;
 
-    private int mTargetState = STATE_IDLE;
-    private int mCurrentState = STATE_IDLE;
-    private long mSeekWhenPrepared;  // recording the seek position while preparing
+    int mTargetState = STATE_IDLE;
+    int mCurrentState = STATE_IDLE;
+    long mSeekWhenPrepared;  // recording the seek position while preparing
 
-    private int mVideoWidth;
-    private int mVideoHeight;
+    int mVideoWidth;
+    int mVideoHeight;
 
     private ArrayList<Integer> mVideoTrackIndices;
-    private ArrayList<Integer> mAudioTrackIndices;
-    private ArrayList<Pair<Integer, SubtitleTrack>> mSubtitleTrackIndices;
+    ArrayList<Integer> mAudioTrackIndices;
+    ArrayList<Pair<Integer, SubtitleTrack>> mSubtitleTrackIndices;
     private SubtitleController mSubtitleController;
 
     // selected audio/subtitle track index as MediaPlayer returns
-    private int mSelectedAudioTrackIndex;
-    private int mSelectedSubtitleTrackIndex;
+    int mSelectedAudioTrackIndex;
+    int mSelectedSubtitleTrackIndex;
 
     private SubtitleAnchorView mSubtitleAnchorView;
     private boolean mSubtitleEnabled;
 
-    private VideoView2 mInstance;
+    VideoView2 mInstance;
 
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mRouteSelector;
-    private MediaRouter.RouteInfo mRoute;
-    private RoutePlayer mRoutePlayer;
+    MediaRouter.RouteInfo mRoute;
+    RoutePlayer mRoutePlayer;
 
     private final MediaRouter.Callback mRouterCallback = new MediaRouter.Callback() {
         @Override
@@ -726,7 +726,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 && mMediaSession.getPlayerState() != BaseMediaPlayer.PLAYER_STATE_IDLE;
     }
 
-    private boolean needToStart() {
+    boolean needToStart() {
         return (mMediaPlayer != null || mRoutePlayer != null) && isWaitingPlayback();
     }
 
@@ -735,7 +735,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     // Creates a MediaPlayer instance and prepare playback.
-    private void openVideo() {
+    void openVideo() {
         if (DEBUG) {
             Log.d(TAG, "openVideo()");
         }
@@ -806,7 +806,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     /*
      * Reset the media player in any state
      */
-    private void resetPlayer() {
+    void resetPlayer() {
         if (mMediaPlayer != null) {
             mMediaPlayer.reset();
             mTextureView.setMediaPlayer(null);
@@ -818,7 +818,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mVideoHeight = 0;
     }
 
-    private boolean isRemotePlayback() {
+    boolean isRemotePlayback() {
         return mRoutePlayer != null
                 && mMediaSession != null && mMediaSession.getVolumeProvider() != null;
     }
@@ -843,7 +843,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         }
     }
 
-    private void extractTracks() {
+    void extractTracks() {
         List<MediaPlayer2.TrackInfo> trackInfos = mMediaPlayer.getTrackInfo();
         mVideoTrackIndices = new ArrayList<>();
         mAudioTrackIndices = new ArrayList<>();
@@ -881,7 +881,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 new SessionCommand2(MediaControlView2.EVENT_UPDATE_TRACK_STATUS, null), data);
     }
 
-    private void extractMetadata() {
+    void extractMetadata() {
         if (mMediaItem.getMetadata() != null) {
             // If a MediaItem2 instance has its own metadata, then use it.
             // TODO: merge metadata from metadata retriever
@@ -968,7 +968,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         inflateMusicView(R.layout.embedded_music);
     }
 
-    private void sendMetadata() {
+    void sendMetadata() {
         // Get and set duration and title values as MediaMetadata for MediaControlView2
         MediaMetadata2.Builder builder = new MediaMetadata2.Builder();
 
