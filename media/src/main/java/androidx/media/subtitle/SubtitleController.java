@@ -173,7 +173,8 @@ public class SubtitleController {
         return true;
     }
 
-    private void doSelectTrack(SubtitleTrack track) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void doSelectTrack(SubtitleTrack track) {
         mTrackIsExplicit = true;
         if (mSelectedTrack == track) {
             return;
@@ -290,7 +291,8 @@ public class SubtitleController {
         processOnAnchor(mHandler.obtainMessage(WHAT_SELECT_DEFAULT_TRACK));
     }
 
-    private void doSelectDefaultTrack() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void doSelectDefaultTrack() {
         if (mTrackIsExplicit) {
             if (mVisibilityIsExplicit) {
                 return;
@@ -372,7 +374,8 @@ public class SubtitleController {
         processOnAnchor(mHandler.obtainMessage(WHAT_SHOW));
     }
 
-    private void doShow() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void doShow() {
         mShowing = true;
         mVisibilityIsExplicit = true;
         if (mSelectedTrack != null) {
@@ -389,7 +392,8 @@ public class SubtitleController {
         processOnAnchor(mHandler.obtainMessage(WHAT_HIDE));
     }
 
-    private void doHide() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void doHide() {
         mVisibilityIsExplicit = true;
         if (mSelectedTrack != null) {
             mSelectedTrack.hide();

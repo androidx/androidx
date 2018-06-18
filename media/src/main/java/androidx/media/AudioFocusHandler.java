@@ -128,19 +128,19 @@ public class AudioFocusHandler {
         private final IntentFilter mIntentFilter =
                 new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         private final OnAudioFocusChangeListener mAudioFocusListener = new AudioFocusListener();
-        private final Object mLock = new Object();
+        final Object mLock = new Object();
         private final Context mContext;
-        private final MediaSession2 mSession;
+        final MediaSession2 mSession;
         private final AudioManager mAudioManager;
 
         @GuardedBy("mLock")
-        private AudioAttributesCompat mAudioAttributes;
+        AudioAttributesCompat mAudioAttributes;
         @GuardedBy("mLock")
         private boolean mHasAudioFocus;
         @GuardedBy("mLock")
-        private boolean mResumeWhenAudioFocusGain;
+        boolean mResumeWhenAudioFocusGain;
         @GuardedBy("mLock")
-        private boolean mHasRegisteredReceiver;
+        boolean mHasRegisteredReceiver;
 
         AudioFocusHandlerImplBase(Context context, MediaSession2 session) {
             mContext = context;
@@ -370,6 +370,9 @@ public class AudioFocusHandler {
         }
 
         private class NoisyIntentReceiver extends BroadcastReceiver {
+            NoisyIntentReceiver() {
+            }
+
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (DEBUG) {
@@ -415,6 +418,9 @@ public class AudioFocusHandler {
         private class AudioFocusListener implements OnAudioFocusChangeListener {
             private float mPlayerVolumeBeforeDucking;
             private float mPlayerDuckingVolume;
+
+            AudioFocusListener() {
+            }
 
             // This is the thread where the AudioManager was originally instantiated.
             // see: b/78617702

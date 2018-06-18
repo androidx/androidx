@@ -39,21 +39,23 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     @VisibleForTesting
     static final int NO_VALID_ITEMS = -2;
 
-    private final PlayItem mEopPlayItem = new PlayItem(END_OF_PLAYLIST, null);
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final PlayItem mEopPlayItem = new PlayItem(END_OF_PLAYLIST, null);
 
-    private final Object mLock = new Object();
+    final Object mLock = new Object();
     private final MediaSession2ImplBase mSession;
     private final MyPlayerEventCallback mPlayerCallback;
 
     @GuardedBy("mLock")
-    private BaseMediaPlayer mPlayer;
+    BaseMediaPlayer mPlayer;
     @GuardedBy("mLock")
     private OnDataSourceMissingHelper mDsmHelper;
     // TODO: Check if having the same item is okay (b/74090741)
     @GuardedBy("mLock")
     private ArrayList<MediaItem2> mPlaylist = new ArrayList<>();
     @GuardedBy("mLock")
-    private ArrayList<MediaItem2> mShuffledList = new ArrayList<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ArrayList<MediaItem2> mShuffledList = new ArrayList<>();
     @GuardedBy("mLock")
     private Map<MediaItem2, DataSourceDesc2> mItemDsdMap = new ArrayMap<>();
     @GuardedBy("mLock")
@@ -63,10 +65,14 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     @GuardedBy("mLock")
     private int mShuffleMode;
     @GuardedBy("mLock")
-    private PlayItem mCurrent;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    PlayItem mCurrent;
 
     // Called on session callback executor.
     private class MyPlayerEventCallback extends PlayerEventCallback {
+        MyPlayerEventCallback() {
+        }
+
         @Override
         public void onCurrentDataSourceChanged(@NonNull BaseMediaPlayer mpb,
                 @Nullable DataSourceDesc2 dsd) {
@@ -427,8 +433,8 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         }
     }
 
-    @SuppressWarnings("GuardedBy")
-    private DataSourceDesc2 retrieveDataSourceDescLocked(MediaItem2 item) {
+    @SuppressWarnings({"GuardedBy", "WeakerAccess"}) /* synthetic access */
+    DataSourceDesc2 retrieveDataSourceDescLocked(MediaItem2 item) {
         DataSourceDesc2 dsd = item.getDataSourceDesc();
         if (dsd != null) {
             mItemDsdMap.put(item, dsd);
@@ -450,8 +456,8 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
     }
 
     // TODO: consider to call updateCurrentIfNeededLocked inside (b/74090741)
-    @SuppressWarnings("GuardedBy")
-    private PlayItem getNextValidPlayItemLocked(int curShuffledIdx, int direction) {
+    @SuppressWarnings({"GuardedBy", "WeakerAccess"}) /* synthetic access */
+    PlayItem getNextValidPlayItemLocked(int curShuffledIdx, int direction) {
         int size = mPlaylist.size();
         if (curShuffledIdx == END_OF_PLAYLIST) {
             curShuffledIdx = (direction > 0) ? -1 : size;
@@ -473,8 +479,8 @@ class SessionPlaylistAgentImplBase extends MediaPlaylistAgent {
         return null;
     }
 
-    @SuppressWarnings("GuardedBy")
-    private void updateCurrentIfNeededLocked() {
+    @SuppressWarnings({"GuardedBy", "WeakerAccess"}) /* synthetic access */
+    void updateCurrentIfNeededLocked() {
         if (!hasValidItem() || mCurrent.isValid()) {
             return;
         }

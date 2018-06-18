@@ -164,7 +164,8 @@ public class AudioAttributesCompat {
     private static final SparseIntArray SUPPRESSIBLE_USAGES;
 
     // used by tests
-    private static boolean sForceLegacyBehavior;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static boolean sForceLegacyBehavior;
 
     static {
         SUPPRESSIBLE_USAGES = new SparseIntArray();
@@ -243,9 +244,9 @@ public class AudioAttributesCompat {
     int mContentType = CONTENT_TYPE_UNKNOWN;
     int mFlags = 0x0;
     Integer mLegacyStream;
-    private AudioAttributesCompatApi21.Wrapper mAudioAttributesWrapper;
+    AudioAttributesCompatApi21.Wrapper mAudioAttributesWrapper;
 
-    private AudioAttributesCompat() {
+    AudioAttributesCompat() {
     }
 
     /**
@@ -720,7 +721,8 @@ public class AudioAttributesCompat {
         public static final int STREAM_ACCESSIBILITY = 10;
     }
 
-    private static int usageForStreamType(int streamType) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static int usageForStreamType(int streamType) {
         switch (streamType) {
             case AudioManager.STREAM_VOICE_CALL:
                 return USAGE_VOICE_COMMUNICATION;

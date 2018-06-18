@@ -245,7 +245,8 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
         });
     }
 
-    private boolean isSubscribed(ControllerInfo controller, String parentId) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean isSubscribed(ControllerInfo controller, String parentId) {
         synchronized (mLock) {
             Set<String> subscriptions = mSubscriptions.get(controller);
             if (subscriptions == null || !subscriptions.contains(parentId)) {
@@ -256,7 +257,8 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase
     }
 
     // Debug only
-    private void dumpSubscription() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void dumpSubscription() {
         if (!DEBUG) {
             return;
         }
