@@ -92,7 +92,6 @@ package androidx.webkit {
     method public static boolean isFeatureSupported(java.lang.String);
     field public static final java.lang.String CREATE_WEB_MESSAGE_CHANNEL = "CREATE_WEB_MESSAGE_CHANNEL";
     field public static final java.lang.String DISABLED_ACTION_MODE_MENU_ITEMS = "DISABLED_ACTION_MODE_MENU_ITEMS";
-    field public static final java.lang.String GET_WEB_VIEW_CLIENT = "GET_WEB_VIEW_CLIENT";
     field public static final java.lang.String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
     field public static final java.lang.String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
     field public static final java.lang.String RECEIVE_HTTP_ERROR = "RECEIVE_HTTP_ERROR";

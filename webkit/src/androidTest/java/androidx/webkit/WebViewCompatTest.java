@@ -32,6 +32,7 @@ import android.os.Build;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
@@ -230,9 +231,8 @@ public class WebViewCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testGetWebViewClient() throws Exception {
-        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.GET_WEB_VIEW_CLIENT));
-
         // getWebViewClient should return a default WebViewClient if it hasn't been set yet
         WebViewClient client = mWebViewOnUiThread.getWebViewClient();
         assertNotNull(client);

@@ -35,7 +35,8 @@ import androidx.webkit.WebResourceRequestCompat;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
-import androidx.webkit.WebViewFeature.WebViewSupportFeature;
+
+import org.chromium.support_lib_boundary.util.Features;
 
 import java.util.List;
 
@@ -254,14 +255,14 @@ public enum WebViewFeatureInternal {
             Build.VERSION_CODES.M),
 
     /**
-     * This feature covers {@link WebViewCompat#getWebViewClient(WebView)}.
+     * This internal-only feature covers {@link WebViewCompat#getWebViewClient(WebView)}.
      */
-    GET_WEB_VIEW_CLIENT(WebViewFeature.GET_WEB_VIEW_CLIENT, Build.VERSION_CODES.O);
+    GET_WEB_VIEW_CLIENT(Features.GET_WEB_VIEW_CLIENT, Build.VERSION_CODES.O);
 
     private final String mFeatureValue;
     private final int mOsVersion;
 
-    WebViewFeatureInternal(@WebViewSupportFeature String featureValue, int osVersion) {
+    WebViewFeatureInternal(String featureValue, int osVersion) {
         mFeatureValue = featureValue;
         mOsVersion = osVersion;
     }
@@ -269,7 +270,7 @@ public enum WebViewFeatureInternal {
     /**
      * Return the {@link WebViewFeatureInternal} corresponding to {@param feature}.
      */
-    public static WebViewFeatureInternal getFeature(@WebViewSupportFeature String feature) {
+    public static WebViewFeatureInternal getFeature(String feature) {
         for (WebViewFeatureInternal internalFeature : WebViewFeatureInternal.values()) {
             if (internalFeature.mFeatureValue.equals(feature)) return internalFeature;
         }
@@ -277,15 +278,15 @@ public enum WebViewFeatureInternal {
     }
 
     /**
-     * Return whether this {@link WebViewFeature} is supported by the framework of the current
-     * device.
+     * Return whether this {@link WebViewFeatureInternal} is supported by the framework of the
+     * current device.
      */
     public boolean isSupportedByFramework() {
         return Build.VERSION.SDK_INT >= mOsVersion;
     }
 
     /**
-     * Return whether this {@link WebViewFeature} is supported by the current WebView APK.
+     * Return whether this {@link WebViewFeatureInternal} is supported by the current WebView APK.
      */
     public boolean isSupportedByWebView() {
         String[] webviewFeatures = LAZY_HOLDER.WEBVIEW_APK_FEATURES;
