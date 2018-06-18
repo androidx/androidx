@@ -51,15 +51,19 @@ public class WebViewApkTest {
     private static class WebViewVersion implements Comparable<WebViewVersion> {
         private static final Pattern CHROMIUM_VERSION_REGEX =
                 Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)$");
+        private static final Pattern OLD_CHROMIUM_VERSION_REGEX =
+                Pattern.compile("^(3[789]|4[01]) \\(.*\\)$");
 
         private int[] mComponents;
 
         WebViewVersion(String versionString) {
-            final Matcher m = CHROMIUM_VERSION_REGEX.matcher(versionString);
-            if (m.matches()) {
+            Matcher m;
+            if ((m = CHROMIUM_VERSION_REGEX.matcher(versionString)).matches()) {
                 mComponents = new int[] { Integer.parseInt(m.group(1)),
                     Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)),
                     Integer.parseInt(m.group(4)) };
+            } else if ((m = OLD_CHROMIUM_VERSION_REGEX.matcher(versionString)).matches()) {
+                mComponents = new int[] { Integer.parseInt(m.group(1)), 0, 0, 0 };
             } else {
                 throw new IllegalArgumentException("Invalid WebView version string: '"
                         + versionString + "'");
