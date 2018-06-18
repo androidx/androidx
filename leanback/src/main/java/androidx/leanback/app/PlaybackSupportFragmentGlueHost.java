@@ -30,7 +30,7 @@ import androidx.leanback.widget.RowPresenter;
  * the interaction between this class and {@link PlaybackSupportFragment}.
  */
 public class PlaybackSupportFragmentGlueHost extends PlaybackGlueHost implements PlaybackSeekUi {
-    private final PlaybackSupportFragment mFragment;
+    final PlaybackSupportFragment mFragment;
 
     public PlaybackSupportFragmentGlueHost(PlaybackSupportFragment fragment) {
         this.mFragment = fragment;

@@ -45,7 +45,8 @@ public class MediaControllerAdapter extends PlayerAdapter {
     private static final boolean DEBUG = false;
 
     private MediaControllerCompat mController;
-    private Handler mHandler = new Handler();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Handler mHandler = new Handler();
 
     // Runnable object to update current media's playing position.
     private final Runnable mPositionUpdaterRunnable = new Runnable() {
@@ -57,11 +58,13 @@ public class MediaControllerAdapter extends PlayerAdapter {
     };
 
     // Update period to post runnable.
-    private int getUpdatePeriod() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int getUpdatePeriod() {
         return 16;
     }
 
-    private boolean mIsBuffering = false;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsBuffering = false;
 
     MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {

@@ -103,7 +103,8 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
     private final ActionOnFocusListener mActionOnFocusListener;
     private final ActionEditListener mActionEditListener;
     private final ActionAutofillListener mActionAutofillListener;
-    private final List<GuidedAction> mActions;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final List<GuidedAction> mActions;
     private ClickListener mClickListener;
     final GuidedActionsStylist mStylist;
     GuidedActionAdapterGroup mGroup;
@@ -560,6 +561,9 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
     }
 
     private class ActionAutofillListener implements GuidedActionAutofillSupport.OnAutofillListener {
+        ActionAutofillListener() {
+        }
+
         @Override
         public void onAutofill(View view) {
             mGroup.fillAndGoNext(GuidedActionAdapter.this, (EditText) view);

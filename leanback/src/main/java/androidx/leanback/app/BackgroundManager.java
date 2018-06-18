@@ -103,7 +103,8 @@ public final class BackgroundManager {
     private int mWidthPx;
     int mBackgroundColor;
     Drawable mBackgroundDrawable;
-    private boolean mAttached;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mAttached;
     private long mLastSetTime;
 
     private final Interpolator mAccelerateInterpolator;
