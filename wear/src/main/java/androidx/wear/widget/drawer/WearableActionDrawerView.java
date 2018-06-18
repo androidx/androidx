@@ -79,21 +79,21 @@ public class WearableActionDrawerView extends WearableDrawerView {
 
     private static final String TAG = "WearableActionDrawer";
 
-    private final RecyclerView mActionList;
-    private final int mTopPadding;
-    private final int mBottomPadding;
-    private final int mLeftPadding;
-    private final int mRightPadding;
-    private final int mFirstItemTopPadding;
-    private final int mLastItemBottomPadding;
-    private final int mIconRightMargin;
+    final RecyclerView mActionList;
+    final int mTopPadding;
+    final int mBottomPadding;
+    final int mLeftPadding;
+    final int mRightPadding;
+    final int mFirstItemTopPadding;
+    final int mLastItemBottomPadding;
+    final int mIconRightMargin;
     private final boolean mShowOverflowInPeek;
     @Nullable private final ImageView mPeekActionIcon;
     @Nullable private final ImageView mPeekExpandIcon;
-    private final RecyclerView.Adapter<RecyclerView.ViewHolder> mActionListAdapter;
+    final RecyclerView.Adapter<RecyclerView.ViewHolder> mActionListAdapter;
     private OnMenuItemClickListener mOnMenuItemClickListener;
     private Menu mMenu;
-    @Nullable private CharSequence mTitle;
+    @Nullable CharSequence mTitle;
 
     public WearableActionDrawerView(Context context) {
         this(context, null);
@@ -245,11 +245,11 @@ public class WearableActionDrawerView extends WearableDrawerView {
         }
     }
 
-    private boolean hasTitle() {
+    boolean hasTitle() {
         return mTitle != null;
     }
 
-    private void onMenuItemClicked(int position) {
+    void onMenuItemClicked(int position) {
         if (position >= 0 && position < getMenu().size()) { // Sanity check.
             WearableActionDrawerMenuItem menuItem =
                     (WearableActionDrawerMenuItem) getMenu().getItem(position);
@@ -263,7 +263,7 @@ public class WearableActionDrawerView extends WearableDrawerView {
         }
     }
 
-    private void updatePeekIcons() {
+    void updatePeekIcons() {
         if (mPeekActionIcon == null || mPeekExpandIcon == null) {
             return;
         }

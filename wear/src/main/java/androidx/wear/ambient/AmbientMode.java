@@ -152,9 +152,9 @@ public final class AmbientMode extends Fragment {
                     }
                 }
             };
-    private AmbientDelegate mDelegate;
+    AmbientDelegate mDelegate;
     @Nullable
-    private AmbientCallback mSuppliedCallback;
+    AmbientCallback mSuppliedCallback;
     private AmbientController mController;
 
     /**

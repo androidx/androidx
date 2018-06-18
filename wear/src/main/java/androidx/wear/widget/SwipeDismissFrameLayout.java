@@ -101,13 +101,13 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
     private final OnSwipeProgressChangedListener mOnSwipeProgressListener =
             new MyOnSwipeProgressChangedListener();
 
-    private final ArrayList<Callback> mCallbacks = new ArrayList<>();
-    private final int mAnimationTime;
-    private final DecelerateInterpolator mCancelInterpolator;
-    private final AccelerateInterpolator mDismissInterpolator;
-    private final DecelerateInterpolator mCompleteDismissGestureInterpolator;
+    final ArrayList<Callback> mCallbacks = new ArrayList<>();
+    final int mAnimationTime;
+    final DecelerateInterpolator mCancelInterpolator;
+    final AccelerateInterpolator mDismissInterpolator;
+    final DecelerateInterpolator mCompleteDismissGestureInterpolator;
 
-    private boolean mStarted;
+    boolean mStarted;
 
     /**
      * Simple constructor to use when creating a view from code.
@@ -202,7 +202,7 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
      * Resets this view to the original state. This method cancels any pending animations on this
      * view and resets the alpha as well as x translation values.
      */
-    private void resetTranslationAndAlpha() {
+    void resetTranslationAndAlpha() {
         animate().cancel();
         setTranslationX(0);
         setAlpha(1);
@@ -210,6 +210,8 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
     }
 
     private final class MyOnPreSwipeListener implements OnPreSwipeListener {
+        MyOnPreSwipeListener() {
+        }
 
         @Override
         public boolean onPreSwipe(SwipeDismissLayout layout, float xDown, float yDown) {
@@ -223,6 +225,8 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
     }
 
     private final class MyOnDismissedListener implements OnDismissedListener {
+        MyOnDismissedListener() {
+        }
 
         @Override
         public void onDismissed(SwipeDismissLayout layout) {
@@ -250,6 +254,8 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
     }
 
     private final class MyOnSwipeProgressChangedListener implements OnSwipeProgressChangedListener {
+        MyOnSwipeProgressChangedListener() {
+        }
 
         @Override
         public void onSwipeProgressChanged(SwipeDismissLayout layout, float progress,

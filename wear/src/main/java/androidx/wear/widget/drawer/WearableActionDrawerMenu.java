@@ -36,8 +36,10 @@ import java.util.List;
 /* package */ class WearableActionDrawerMenu implements Menu {
 
     private final Context mContext;
-    private final List<WearableActionDrawerMenuItem> mItems = new ArrayList<>();
-    private final WearableActionDrawerMenuListener mListener;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final List<WearableActionDrawerMenuItem> mItems = new ArrayList<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final WearableActionDrawerMenuListener mListener;
     private final WearableActionDrawerMenuItem.MenuItemChangedListener mItemChangedListener =
             new WearableActionDrawerMenuItem.MenuItemChangedListener() {
                 @Override

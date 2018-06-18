@@ -110,7 +110,7 @@ public class WearableNavigationDrawerView extends WearableDrawerView {
      */
     @Nullable private final GestureDetector mGestureDetector;
     @NavigationStyle private final int mNavigationStyle;
-    private final WearableNavigationDrawerPresenter mPresenter;
+    final WearableNavigationDrawerPresenter mPresenter;
     private final SimpleOnGestureListener mOnGestureListener =
             new SimpleOnGestureListener() {
                 @Override

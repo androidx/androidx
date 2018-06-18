@@ -144,11 +144,11 @@ public class WearableDrawerLayout extends FrameLayout
     /**
      * Helper for dragging the top drawer.
      */
-    private final ViewDragHelper mTopDrawerDragger;
+    final ViewDragHelper mTopDrawerDragger;
     /**
      * Helper for dragging the bottom drawer.
      */
-    private final ViewDragHelper mBottomDrawerDragger;
+    final ViewDragHelper mBottomDrawerDragger;
     private final boolean mIsAccessibilityEnabled;
     private final FlingWatcherFactory mFlingWatcher;
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
@@ -158,19 +158,19 @@ public class WearableDrawerLayout extends FrameLayout
     /**
      * Top drawer view.
      */
-    @Nullable private WearableDrawerView mTopDrawerView;
+    @Nullable WearableDrawerView mTopDrawerView;
     /**
      * Bottom drawer view.
      */
-    @Nullable private WearableDrawerView mBottomDrawerView;
+    @Nullable WearableDrawerView mBottomDrawerView;
     /**
      * What we have inferred the scrolling content view to be, should one exist.
      */
-    @Nullable private View mScrollingContentView;
+    @Nullable View mScrollingContentView;
     /**
      * Listens to drawer events.
      */
-    private DrawerStateCallback mDrawerStateCallback;
+    DrawerStateCallback mDrawerStateCallback;
     private int mSystemWindowInsetBottom;
     /**
      * Tracks the amount of nested scroll in the up direction. This is used with {@link
@@ -180,31 +180,31 @@ public class WearableDrawerLayout extends FrameLayout
     /**
      * Tracks whether the top drawer should be opened after layout.
      */
-    private boolean mShouldOpenTopDrawerAfterLayout;
+    boolean mShouldOpenTopDrawerAfterLayout;
     /**
      * Tracks whether the bottom drawer should be opened after layout.
      */
-    private boolean mShouldOpenBottomDrawerAfterLayout;
+    boolean mShouldOpenBottomDrawerAfterLayout;
     /**
      * Tracks whether the top drawer should be peeked after layout.
      */
-    private boolean mShouldPeekTopDrawerAfterLayout;
+    boolean mShouldPeekTopDrawerAfterLayout;
     /**
      * Tracks whether the bottom drawer should be peeked after layout.
      */
-    private boolean mShouldPeekBottomDrawerAfterLayout;
+    boolean mShouldPeekBottomDrawerAfterLayout;
     /**
      * Tracks whether the top drawer is in a state where it can be closed. The content in the drawer
      * can scroll, and {@link #mTopDrawerDragger} should not intercept events unless the top drawer
      * is scrolled to the bottom of its content.
      */
-    private boolean mCanTopDrawerBeClosed;
+    boolean mCanTopDrawerBeClosed;
     /**
      * Tracks whether the bottom drawer is in a state where it can be closed. The content in the
      * drawer can scroll, and {@link #mBottomDrawerDragger} should not intercept events unless the
      * bottom drawer is scrolled to the top of its content.
      */
-    private boolean mCanBottomDrawerBeClosed;
+    boolean mCanBottomDrawerBeClosed;
     /**
      * Tracks whether the last scroll resulted in a fling. Fling events do not contain the amount
      * scrolled, which makes it difficult to determine when to unlock an open drawer. To work around
@@ -255,7 +255,7 @@ public class WearableDrawerLayout extends FrameLayout
         mIsAccessibilityEnabled = accessibilityManager.isEnabled();
     }
 
-    private static void animatePeekVisibleAfterBeingClosed(WearableDrawerView drawer) {
+    static void animatePeekVisibleAfterBeingClosed(WearableDrawerView drawer) {
         final View content = drawer.getDrawerContent();
         if (content != null) {
             content.animate()
@@ -288,7 +288,7 @@ public class WearableDrawerLayout extends FrameLayout
      * Shows the drawer's contents. If the drawer is peeking, an animation is used to fade out the
      * peek view and fade in the drawer content.
      */
-    private static void showDrawerContentMaybeAnimate(WearableDrawerView drawerView) {
+    static void showDrawerContentMaybeAnimate(WearableDrawerView drawerView) {
         drawerView.bringToFront();
         final View contentView = drawerView.getDrawerContent();
         if (contentView != null) {
@@ -801,7 +801,7 @@ public class WearableDrawerLayout extends FrameLayout
         invalidate();
     }
 
-    private void openDrawerWithoutAnimation(WearableDrawerView drawer) {
+    void openDrawerWithoutAnimation(WearableDrawerView drawer) {
         if (drawer == null) {
             return;
         }
@@ -831,7 +831,7 @@ public class WearableDrawerLayout extends FrameLayout
      * @return the drawer with the specified gravity
      */
     @Nullable
-    private WearableDrawerView findDrawerWithGravity(int gravity) {
+    WearableDrawerView findDrawerWithGravity(int gravity) {
         switch (gravity) {
             case Gravity.TOP:
                 return mTopDrawerView;
@@ -890,7 +890,7 @@ public class WearableDrawerLayout extends FrameLayout
         mNestedScrollingParentHelper.onStopNestedScroll(target);
     }
 
-    private boolean canDrawerContentScrollVertically(
+    boolean canDrawerContentScrollVertically(
             @Nullable WearableDrawerView drawerView, int direction) {
         if (drawerView == null) {
             return false;
@@ -931,7 +931,7 @@ public class WearableDrawerLayout extends FrameLayout
         }
     }
 
-    private void allowAccessibilityFocusOnAllChildren() {
+    void allowAccessibilityFocusOnAllChildren() {
         if (!mIsAccessibilityEnabled) {
             return;
         }
@@ -941,7 +941,7 @@ public class WearableDrawerLayout extends FrameLayout
         }
     }
 
-    private void allowAccessibilityFocusOnOnly(WearableDrawerView drawer) {
+    void allowAccessibilityFocusOnOnly(WearableDrawerView drawer) {
         if (!mIsAccessibilityEnabled) {
             return;
         }
@@ -1036,6 +1036,8 @@ public class WearableDrawerLayout extends FrameLayout
      * For communicating with top drawer view dragger.
      */
     private class TopDrawerDraggerCallback extends DrawerDraggerCallback {
+        TopDrawerDraggerCallback() {
+        }
 
         @Override
         public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
@@ -1107,6 +1109,8 @@ public class WearableDrawerLayout extends FrameLayout
      * For communicating with bottom drawer view dragger.
      */
     private class BottomDrawerDraggerCallback extends DrawerDraggerCallback {
+        BottomDrawerDraggerCallback() {
+        }
 
         @Override
         public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
@@ -1179,7 +1183,7 @@ public class WearableDrawerLayout extends FrameLayout
 
         private final int mGravity;
 
-        private ClosePeekRunnable(int gravity) {
+        ClosePeekRunnable(int gravity) {
             mGravity = gravity;
         }
 

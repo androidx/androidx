@@ -99,7 +99,7 @@ public class CircledImageView extends View {
     private float mImageHorizontalOffcenterPercentage = 0f;
     private Integer mImageTint;
     private Integer mSquareDimen;
-    private int mCurrentColor;
+    int mCurrentColor;
 
     private final AnimatorUpdateListener mAnimationListener =
             new AnimatorUpdateListener() {
@@ -720,11 +720,11 @@ public class CircledImageView extends View {
         private final int[] mShaderColors = new int[]{Color.BLACK, Color.TRANSPARENT};
         private final float[] mShaderStops = new float[]{0.6f, 1f};
         private final RectF mBounds = new RectF();
-        private final float mShadowWidth;
+        final float mShadowWidth;
         private final Paint mShadowPaint = new Paint();
 
         private float mShadowRadius;
-        private float mShadowVisibility;
+        float mShadowVisibility;
         private float mInnerCircleRadius;
         private float mInnerCircleBorderWidth;
 

@@ -26,16 +26,19 @@ import androidx.annotation.VisibleForTesting;
  */
 class CircularProgressLayoutController {
 
-    private final CircularProgressLayout mLayout;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final CircularProgressLayout mLayout;
     @VisibleForTesting CountDownTimer mTimer;
     private boolean mIsIndeterminate;
-    private boolean mIsTimerRunning;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsTimerRunning;
 
     /**
      * Called when the timer is finished.
      */
     @Nullable
-    private CircularProgressLayout.OnTimerFinishedListener mOnTimerFinishedListener;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    CircularProgressLayout.OnTimerFinishedListener mOnTimerFinishedListener;
 
     CircularProgressLayoutController(CircularProgressLayout layout) {
         mLayout = layout;

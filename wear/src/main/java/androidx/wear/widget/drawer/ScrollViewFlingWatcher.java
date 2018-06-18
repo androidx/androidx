@@ -81,7 +81,8 @@ class ScrollViewFlingWatcher implements FlingWatcher, OnScrollChangeListener {
         }
     }
 
-    private void onEndOfFlingFound() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onEndOfFlingFound() {
         mMainThreadHandler.removeCallbacks(mNotifyListenerRunnable);
 
         ScrollView scrollView = mScrollView.get();
