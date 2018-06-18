@@ -107,7 +107,7 @@ public final class CarDrawerTest {
             throw new RuntimeException(throwable);
         }
         // Wait for PagedListView to layout by using espresso to scroll to a position.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+        onView(withId(R.id.car_recycler_view)).perform(scrollToPosition(0));
     }
 
     @Test

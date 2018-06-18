@@ -252,7 +252,7 @@ public class PagedListView extends FrameLayout {
 
         TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.PagedListView, defStyleAttrs, /* defStyleRes= */ 0);
-        mRecyclerView = findViewById(R.id.recycler_view);
+        mRecyclerView = findViewById(R.id.car_recycler_view);
 
         mMaxPages = getDefaultMaxPages();
 

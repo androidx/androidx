@@ -80,7 +80,7 @@ public class SubheaderListItemTest {
             throw new RuntimeException(throwable);
         }
         // Wait for paged list view to layout by using espresso to scroll to a position.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+        onView(withId(R.id.car_recycler_view)).perform(scrollToPosition(0));
     }
 
     private SubheaderListItem.ViewHolder getViewHolderAtPosition(int position) {
