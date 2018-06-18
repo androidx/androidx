@@ -201,7 +201,7 @@ public class MediaControlView2 extends BaseLayout {
     public static final int BUTTON_SETTINGS = 11;
 
     private static final String TAG = "MediaControlView2";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     static final String KEY_VIDEO_TRACK_COUNT = "VideoTrackCount";
     static final String KEY_AUDIO_TRACK_COUNT = "AudioTrackCount";
@@ -258,41 +258,41 @@ public class MediaControlView2 extends BaseLayout {
     private static final int RESOURCE_NON_EXISTENT = -1;
     private static final String RESOURCE_EMPTY = "";
 
-    private Resources mResources;
-    private ControllerInterface mController;
-    private OnFullScreenListener mOnFullScreenListener;
+    Resources mResources;
+    ControllerInterface mController;
+    OnFullScreenListener mOnFullScreenListener;
     private AccessibilityManager mAccessibilityManager;
-    private SessionCommandGroup2 mAllowedCommands;
-    private int mPrevState;
+    SessionCommandGroup2 mAllowedCommands;
+    int mPrevState;
     private int mPrevWidth;
     private int mOriginalLeftBarWidth;
-    private int mVideoTrackCount;
-    private int mAudioTrackCount;
-    private int mSubtitleTrackCount;
-    private int mSettingsMode;
-    private int mSelectedSubtitleTrackIndex;
-    private int mSelectedAudioTrackIndex;
-    private int mSelectedVideoQualityIndex;
-    private int mSelectedSpeedIndex;
+    int mVideoTrackCount;
+    int mAudioTrackCount;
+    int mSubtitleTrackCount;
+    int mSettingsMode;
+    int mSelectedSubtitleTrackIndex;
+    int mSelectedAudioTrackIndex;
+    int mSelectedVideoQualityIndex;
+    int mSelectedSpeedIndex;
     private int mEmbeddedSettingsItemWidth;
     private int mFullSettingsItemWidth;
     private int mSettingsItemHeight;
     private int mSettingsWindowMargin;
-    private int mMediaType;
-    private int mSizeType;
-    private int mUxState;
-    private long mDuration;
-    private long mPlaybackActions;
-    private long mShowControllerIntervalMs;
-    private boolean mDragging;
-    private boolean mIsFullScreen;
-    private boolean mOverflowIsShowing;
-    private boolean mIsStopped;
-    private boolean mSeekAvailable;
-    private boolean mIsAdvertisement;
-    private boolean mIsMute;
+    int mMediaType;
+    int mSizeType;
+    int mUxState;
+    long mDuration;
+    long mPlaybackActions;
+    long mShowControllerIntervalMs;
+    boolean mDragging;
+    boolean mIsFullScreen;
+    boolean mOverflowIsShowing;
+    boolean mIsStopped;
+    boolean mSeekAvailable;
+    boolean mIsAdvertisement;
+    boolean mIsMute;
     private boolean mNeedUxUpdate;
-    private boolean mNeedToHideBars;
+    boolean mNeedToHideBars;
 
     // Relating to Title Bar View
     private ViewGroup mRoot;
@@ -305,10 +305,10 @@ public class MediaControlView2 extends BaseLayout {
 
     // Relating to Center View
     private ViewGroup mCenterView;
-    private View mTransportControls;
-    private ImageButton mPlayPauseButton;
-    private ImageButton mFfwdButton;
-    private ImageButton mRewButton;
+    View mTransportControls;
+    ImageButton mPlayPauseButton;
+    ImageButton mFfwdButton;
+    ImageButton mRewButton;
     private ImageButton mNextButton;
     private ImageButton mPrevButton;
 
@@ -317,7 +317,7 @@ public class MediaControlView2 extends BaseLayout {
 
     // Relating to Progress Bar View
     private View mProgressBar;
-    private ProgressBar mProgress;
+    ProgressBar mProgress;
     private View mProgressBuffer;
 
     // Relating to Bottom Bar View
@@ -327,21 +327,21 @@ public class MediaControlView2 extends BaseLayout {
     private ViewGroup mBottomBarLeftView;
     private ViewGroup mTimeView;
     private TextView mEndTime;
-    private TextView mCurrentTime;
+    TextView mCurrentTime;
     private TextView mAdSkipView;
     private StringBuilder mFormatBuilder;
     private Formatter mFormatter;
 
     // Relating to Bottom Bar Right View
     private ViewGroup mBottomBarRightView;
-    private ViewGroup mBasicControls;
-    private ViewGroup mExtraControls;
-    private ViewGroup mCustomButtons;
-    private ImageButton mSubtitleButton;
-    private ImageButton mFullScreenButton;
-    private ImageButton mOverflowShowButton;
-    private ImageButton mOverflowHideButton;
-    private ImageButton mMuteButton;
+    ViewGroup mBasicControls;
+    ViewGroup mExtraControls;
+    ViewGroup mCustomButtons;
+    ImageButton mSubtitleButton;
+    ImageButton mFullScreenButton;
+    ImageButton mOverflowShowButton;
+    ImageButton mOverflowHideButton;
+    ImageButton mMuteButton;
     private ImageButton mVideoQualityButton;
     private ImageButton mSettingsButton;
     private TextView mAdRemainingView;
@@ -349,24 +349,24 @@ public class MediaControlView2 extends BaseLayout {
     // Relating to Settings List View
     private ListView mSettingsListView;
     private PopupWindow mSettingsWindow;
-    private SettingsAdapter mSettingsAdapter;
-    private SubSettingsAdapter mSubSettingsAdapter;
+    SettingsAdapter mSettingsAdapter;
+    SubSettingsAdapter mSubSettingsAdapter;
     private List<String> mSettingsMainTextsList;
-    private List<String> mSettingsSubTextsList;
+    List<String> mSettingsSubTextsList;
     private List<Integer> mSettingsIconIdsList;
-    private List<String> mSubtitleDescriptionsList;
-    private List<String> mAudioTrackList;
-    private List<String> mVideoQualityList;
-    private List<String> mPlaybackSpeedTextList;
-    private List<Float> mPlaybackSpeedList;
+    List<String> mSubtitleDescriptionsList;
+    List<String> mAudioTrackList;
+    List<String> mVideoQualityList;
+    List<String> mPlaybackSpeedTextList;
+    List<Float> mPlaybackSpeedList;
 
-    private AnimatorSet mHideMainBarsAnimator;
-    private AnimatorSet mHideProgressBarAnimator;
-    private AnimatorSet mHideAllBarsAnimator;
-    private AnimatorSet mShowMainBarsAnimator;
-    private AnimatorSet mShowAllBarsAnimator;
-    private ValueAnimator mOverflowShowAnimator;
-    private ValueAnimator mOverflowHideAnimator;
+    AnimatorSet mHideMainBarsAnimator;
+    AnimatorSet mHideProgressBarAnimator;
+    AnimatorSet mHideAllBarsAnimator;
+    AnimatorSet mShowMainBarsAnimator;
+    AnimatorSet mShowAllBarsAnimator;
+    ValueAnimator mOverflowShowAnimator;
+    ValueAnimator mOverflowHideAnimator;
 
     public MediaControlView2(@NonNull Context context) {
         this(context, null);
@@ -705,11 +705,11 @@ public class MediaControlView2 extends BaseLayout {
     // Protected or private methods
     ///////////////////////////////////////////////////
 
-    private boolean isPlaying() {
+    boolean isPlaying() {
         return mController.isPlaying();
     }
 
-    private long getCurrentPosition() {
+    long getCurrentPosition() {
         return mController.getCurrentPosition();
     }
 
@@ -745,7 +745,7 @@ public class MediaControlView2 extends BaseLayout {
         return root;
     }
 
-    private View inflateLayout(Context context, int resId) {
+    static View inflateLayout(Context context, int resId) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         return inflater.inflate(resId, null);
@@ -1120,7 +1120,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    private final Runnable mUpdateProgress = new Runnable() {
+    final Runnable mUpdateProgress = new Runnable() {
         @Override
         public void run() {
             boolean isShowing = getVisibility() == View.VISIBLE;
@@ -1132,7 +1132,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private String stringForTime(long timeMs) {
+    String stringForTime(long timeMs) {
         long totalSeconds = timeMs / 1000;
 
         long seconds = totalSeconds % 60;
@@ -1147,7 +1147,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    private long setProgress() {
+    long setProgress() {
         if (mController == null || mDragging) {
             return 0;
         }
@@ -1207,7 +1207,7 @@ public class MediaControlView2 extends BaseLayout {
         return currentPosition;
     }
 
-    private void togglePausePlayState() {
+    void togglePausePlayState() {
         if (isPlaying()) {
             mController.pause();
             mPlayPauseButton.setImageDrawable(
@@ -1271,7 +1271,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final Runnable mHideMainBars = new Runnable() {
+    Runnable mHideMainBars = new Runnable() {
         @Override
         public void run() {
             if (!isPlaying()) {
@@ -1282,7 +1282,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     };
 
-    private final Runnable mHideProgressBar = new Runnable() {
+    final Runnable mHideProgressBar = new Runnable() {
         @Override
         public void run() {
             if (!isPlaying()) {
@@ -1608,14 +1608,14 @@ public class MediaControlView2 extends BaseLayout {
                 }
             };
 
-    private void updateDuration() {
+    void updateDuration() {
         if (mController.hasMetadata()) {
             mDuration = mController.getDurationMs();
             setProgress();
         }
     }
 
-    private void updateTitle() {
+    void updateTitle() {
         if (mController.hasMetadata()) {
             mTitleView.setText(mController.getTitle());
         }
@@ -1646,7 +1646,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    private void updateAudioMetadata() {
+    void updateAudioMetadata() {
         if (mMediaType != MEDIA_TYPE_MUSIC) {
             return;
         }
@@ -1668,7 +1668,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    private void updateLayout() {
+    void updateLayout() {
         if (mIsAdvertisement) {
             mRewButton.setVisibility(View.GONE);
             mFfwdButton.setVisibility(View.GONE);
@@ -1941,7 +1941,7 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    private void displaySettingsWindow(BaseAdapter adapter) {
+    void displaySettingsWindow(BaseAdapter adapter) {
         // Set Adapter
         mSettingsListView.setAdapter(adapter);
 
@@ -1964,12 +1964,12 @@ public class MediaControlView2 extends BaseLayout {
         mNeedToHideBars = true;
     }
 
-    private void dismissSettingsWindow() {
+    void dismissSettingsWindow() {
         mNeedToHideBars = true;
         mSettingsWindow.dismiss();
     }
 
-    private void animateOverflow(ValueAnimator animation) {
+    void animateOverflow(ValueAnimator animation) {
         RelativeLayout.LayoutParams extraControlsParams =
                 (RelativeLayout.LayoutParams) mExtraControls.getLayoutParams();
         int iconWidth = mResources.getDimensionPixelSize(R.dimen.mcv2_icon_size);
@@ -1997,13 +1997,13 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    private void resetHideCallbacks() {
+    void resetHideCallbacks() {
         removeCallbacks(mHideMainBars);
         removeCallbacks(mHideProgressBar);
         postDelayed(mHideMainBars, mShowControllerIntervalMs);
     }
 
-    private void updateAllowedCommands(SessionCommandGroup2 commands) {
+    void updateAllowedCommands(SessionCommandGroup2 commands) {
         if (DEBUG) {
             Log.d(TAG, "updateAllowedCommands(): commands: " + commands);
         }
@@ -2228,8 +2228,8 @@ public class MediaControlView2 extends BaseLayout {
 
     class Controller2 implements ControllerInterface {
         private MediaController2 mController2;
-        private int mPlaybackState;
-        private MediaMetadata2 mMediaMetadata2;
+        int mPlaybackState;
+        MediaMetadata2 mMediaMetadata2;
         private Executor mCallbackExecutor;
 
         Controller2(SessionToken2 token) {
@@ -2509,9 +2509,9 @@ public class MediaControlView2 extends BaseLayout {
 
     class ControllerCompat implements ControllerInterface {
         private MediaControllerCompat mControllerCompat;
-        private MediaControllerCompat.TransportControls mControls;
-        private MediaMetadataCompat mMediaMetadata;
-        private PlaybackStateCompat mPlaybackState;
+        MediaControllerCompat.TransportControls mControls;
+        MediaMetadataCompat mMediaMetadata;
+        PlaybackStateCompat mPlaybackState;
 
         ControllerCompat(MediaControllerCompat controllerCompat) {
             mControllerCompat = controllerCompat;
@@ -2639,6 +2639,9 @@ public class MediaControlView2 extends BaseLayout {
         }
 
         private class MediaControllerCompatCallback extends MediaControllerCompat.Callback {
+            MediaControllerCompatCallback() {
+            }
+
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat state) {
                 mPlaybackState = state;

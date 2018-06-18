@@ -191,11 +191,13 @@ public class RoutePlayer extends MediaSession.Callback {
         });
     }
 
-    private void updateSessionStatus(String sessionId, MediaSessionStatus sessionStatus) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void updateSessionStatus(String sessionId, MediaSessionStatus sessionStatus) {
         mSessionId = sessionId;
     }
 
-    private void updateItemStatus(String itemId, MediaItemStatus itemStatus) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void updateItemStatus(String itemId, MediaItemStatus itemStatus) {
         mItemId = itemId;
         if (itemStatus == null || mCallback == null) return;
         mCallback.onPlayerStateChanged(itemStatus);
