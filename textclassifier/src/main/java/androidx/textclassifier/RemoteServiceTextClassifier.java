@@ -43,13 +43,16 @@ public final class RemoteServiceTextClassifier extends TextClassifier {
     private static final int REQUEST_TIMEOUT_SECOND = 2;
 
     @NonNull
-    private final TextClassificationSessionId mSessionId = new TextClassificationSessionId();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final TextClassificationSessionId mSessionId = new TextClassificationSessionId();
     @NonNull
     private final Context mContext;
     @NonNull
-    private final TextClassifier mFallBack = TextClassifier.NO_OP;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final TextClassifier mFallBack = TextClassifier.NO_OP;
     @NonNull
-    private final ServiceManager mServiceManager;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ServiceManager mServiceManager;
 
     public RemoteServiceTextClassifier(
             @NonNull Context context,
@@ -193,7 +196,7 @@ public final class RemoteServiceTextClassifier extends TextClassifier {
 
     private final class SelectionEventProcessor extends RequestProcessor<SelectionEvent, Boolean> {
 
-        private SelectionEventProcessor(SelectionEvent selectionEvent) {
+        SelectionEventProcessor(SelectionEvent selectionEvent) {
             super(selectionEvent, "onSelectionEvent");
         }
 
@@ -217,7 +220,7 @@ public final class RemoteServiceTextClassifier extends TextClassifier {
         @NonNull
         public final ResponseReceiver<ResultT> responseReceiver;
 
-        private RequestProcessor(
+        RequestProcessor(
                 @NonNull RequestT request, @NonNull String requestName) {
             this.request = request;
             this.requestName = requestName;
@@ -262,6 +265,9 @@ public final class RemoteServiceTextClassifier extends TextClassifier {
 
         private final CountDownLatch mLatch = new CountDownLatch(1);
         private volatile ResultT mResponse;
+
+        ResponseReceiver() {
+        }
 
         public void onSuccess(ResultT response) {
             mResponse = response;

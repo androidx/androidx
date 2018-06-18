@@ -37,7 +37,8 @@ public final class TextLinksParams {
     /**
      * A function to create spans from TextLinks.
      */
-    private static final SpanFactory DEFAULT_SPAN_FACTORY = new SpanFactory() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final SpanFactory DEFAULT_SPAN_FACTORY = new SpanFactory() {
         @Override
         public TextLinkSpan createSpan(TextLink textLink) {
             return new TextLinkSpan(textLink);
@@ -49,7 +50,7 @@ public final class TextLinksParams {
     private final SpanFactory mSpanFactory;
     private final TextClassifier.EntityConfig mEntityConfig;
 
-    private TextLinksParams(@TextLinks.ApplyStrategy int applyStrategy, SpanFactory spanFactory) {
+    TextLinksParams(@TextLinks.ApplyStrategy int applyStrategy, SpanFactory spanFactory) {
         mApplyStrategy = applyStrategy;
         mSpanFactory = spanFactory;
         mEntityConfig = new TextClassifier.EntityConfig.Builder().build();
@@ -154,7 +155,8 @@ public final class TextLinksParams {
 
     /** @throws IllegalArgumentException if the value is invalid */
     @TextLinks.ApplyStrategy
-    private static int checkApplyStrategy(int applyStrategy) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static int checkApplyStrategy(int applyStrategy) {
         if (applyStrategy != TextLinks.APPLY_STRATEGY_IGNORE
                 && applyStrategy != TextLinks.APPLY_STRATEGY_REPLACE) {
             throw new IllegalArgumentException(

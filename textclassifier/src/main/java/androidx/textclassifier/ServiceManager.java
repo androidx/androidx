@@ -49,26 +49,32 @@ final class ServiceManager {
     private static final long TIMEOUT_IDLE_BIND_MILLIS = TimeUnit.MINUTES.toMillis(1);
 
     @NonNull
-    private final Object mLock = new Object();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Object mLock = new Object();
 
     @Nullable
     @GuardedBy("mLock")
-    private ITextClassifierService mService;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ITextClassifierService mService;
 
     @GuardedBy("mLock")
-    private boolean mBinding;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mBinding;
 
     @NonNull
-    private final Context mContext;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Context mContext;
 
     @NonNull
-    private final Intent mServiceIntent;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Intent mServiceIntent;
 
     @NonNull
     private final Handler mMainThreadHandler;
 
     @NonNull
-    private final TextClassifierServiceConnection mServiceConnection =
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final TextClassifierServiceConnection mServiceConnection =
             new TextClassifierServiceConnection();
 
     @NonNull
@@ -164,7 +170,7 @@ final class ServiceManager {
         @NonNull
         private volatile CountDownLatch mLatch = new CountDownLatch(1);
 
-        private TextClassifierServiceConnection() {}
+        TextClassifierServiceConnection() {}
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -190,12 +196,12 @@ final class ServiceManager {
         /**
          * Returns a newly created latch to await service connection.
          */
-        private CountDownLatch newLatch() {
+        CountDownLatch newLatch() {
             mLatch = new CountDownLatch(1);
             return mLatch;
         }
 
-        private void cleanupService() {
+        void cleanupService() {
             synchronized (mLock) {
                 mContext.unbindService(this);
                 init(null);

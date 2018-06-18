@@ -79,7 +79,7 @@ public final class TextClassification {
     @NonNull private final EntityConfidence mEntityConfidence;
     @Nullable private final String mId;
 
-    private TextClassification(
+    TextClassification(
             @Nullable String text,
             @NonNull List<RemoteActionCompat> actions,
             @NonNull EntityConfidence entityConfidence,
@@ -337,7 +337,7 @@ public final class TextClassification {
         @Nullable private final LocaleListCompat mDefaultLocales;
         @Nullable private final Calendar mReferenceTime;
 
-        private Request(
+        Request(
                 CharSequence text,
                 int startIndex,
                 int endIndex,

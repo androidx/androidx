@@ -255,7 +255,7 @@ public abstract class TextClassifierService extends Service {
             @Nullable TextClassificationSessionId sessionId, @NonNull SelectionEvent event) {}
 
     @Nullable
-    private TextClassificationSessionId createTextClassificationSessionIdFromBundle(
+    TextClassificationSessionId createTextClassificationSessionIdFromBundle(
             @Nullable Bundle bundle) {
         if (bundle == null) {
             return null;
