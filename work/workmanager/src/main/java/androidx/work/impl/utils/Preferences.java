@@ -20,7 +20,9 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 
 /**
  * Preferences for WorkManager.
@@ -39,9 +41,13 @@ public class Preferences {
 
     private SharedPreferences mSharedPreferences;
 
-    public Preferences(Context context) {
-        mSharedPreferences =
-                context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE);
+    public Preferences(@NonNull Context context) {
+        this(context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE));
+    }
+
+    @VisibleForTesting
+    Preferences(@NonNull SharedPreferences preferences) {
+        mSharedPreferences = preferences;
     }
 
     /**
@@ -82,7 +88,7 @@ public class Preferences {
      * {@link android.app.job.JobScheduler}.
      */
     public void setMigratedPersistedJobs() {
-        mSharedPreferences.edit().putBoolean(KEY_MIGRATE_PERSISTED_JOBS, true).apply();
+        mSharedPreferences.edit().putBoolean(KEY_MIGRATE_PERSISTED_JOBS, false).apply();
     }
 
     /**
