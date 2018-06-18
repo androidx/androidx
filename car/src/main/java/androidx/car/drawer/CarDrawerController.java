@@ -325,7 +325,8 @@ public class CarDrawerController {
     }
 
     /** Clears stack down to root adapter and switches to root adapter. */
-    private void cleanupStackAndShowRoot() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void cleanupStackAndShowRoot() {
         while (mAdapterStack.size() > 1) {
             CarDrawerAdapter adapter = mAdapterStack.pop();
             adapter.setTitleChangeListener(null);

@@ -64,7 +64,7 @@ public class CarAlertDialog extends Dialog {
     private Button mNegativeButton;
     private ButtonPanelTouchDelegate mButtonPanelTouchDelegate;
 
-    private CarAlertDialog(Context context, Builder builder) {
+    CarAlertDialog(Context context, Builder builder) {
         super(context, getDialogTheme(context));
 
         mTitle = builder.mTitle;
@@ -361,12 +361,12 @@ public class CarAlertDialog extends Dialog {
     public static final class Builder {
         private final Context mContext;
 
-        private CharSequence mTitle;
-        private CharSequence mBody;
-        private CharSequence mPositiveButtonText;
-        private OnClickListener mPositiveButtonListener;
-        private CharSequence mNegativeButtonText;
-        private OnClickListener mNegativeButtonListener;
+        CharSequence mTitle;
+        CharSequence mBody;
+        CharSequence mPositiveButtonText;
+        OnClickListener mPositiveButtonListener;
+        CharSequence mNegativeButtonText;
+        OnClickListener mNegativeButtonListener;
 
         private boolean mCancelable = true;
         private OnCancelListener mOnCancelListener;
