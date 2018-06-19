@@ -34,13 +34,15 @@ import androidx.core.graphics.drawable.IconCompat;
 import java.util.Set;
 
 /**
- * Convert between {@link androidx.slice.Slice} and {@link android.app.slice.Slice}
+ * Convert between {@link androidx.slice.Slice androidx.slice.Slice} and
+ * {@link android.app.slice.Slice android.app.slice.Slice}
  */
 @RequiresApi(28)
 public class SliceConvert {
 
     /**
-     * Convert {@link androidx.slice.Slice} to {@link android.app.slice.Slice}
+     * Convert {@link androidx.slice.Slice androidx.slice.Slice} to
+     * {@link android.app.slice.Slice android.app.slice.Slice}
      */
     public static android.app.slice.Slice unwrap(androidx.slice.Slice slice) {
         if (slice == null || slice.getUri() == null) return null;
@@ -93,7 +95,8 @@ public class SliceConvert {
     }
 
     /**
-     * Convert {@link android.app.slice.Slice} to {@link androidx.slice.Slice}
+     * Convert {@link android.app.slice.Slice android.app.slice.Slice} to
+     * {@link androidx.slice.Slice androidx.slice.Slice}
      */
     public static androidx.slice.Slice wrap(android.app.slice.Slice slice, Context context) {
         if (slice == null || slice.getUri() == null) return null;
