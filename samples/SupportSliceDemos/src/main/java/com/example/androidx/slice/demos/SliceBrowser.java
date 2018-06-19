@@ -21,12 +21,14 @@ import static androidx.slice.test.SampleSliceProvider.URI_PATHS;
 import static androidx.slice.test.SampleSliceProvider.getUri;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
@@ -49,10 +51,13 @@ import androidx.lifecycle.LiveData;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceMetadata;
+import androidx.slice.SliceUtils;
 import androidx.slice.widget.EventInfo;
 import androidx.slice.widget.SliceLiveData;
 import androidx.slice.widget.SliceView;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -153,6 +158,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         mTypeMenu.add("Large");
         menu.add("Open");
         menu.add("Toggle scrolling");
+        menu.add("Show serialized");
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -183,6 +189,13 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
                 mSliceView.setScrollable(mScrollingEnabled);
                 String message = "Scrolling " + (mScrollingEnabled ? "enabled" : "disabled");
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                return true;
+            case "Show serialized":
+                Slice currentSlice = mSliceView.getSlice();
+                setSlice(null);
+                if (currentSlice != null) {
+                    setSlice(serAndUnSer(currentSlice, getApplicationContext()));
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -217,6 +230,15 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             mSliceUris.add(getUri(URI_PATHS[i], getApplicationContext()));
         }
         populateAdapter(String.valueOf(mSearchView.getQuery()));
+    }
+
+    private void setSlice(Slice s) {
+        if (mSliceLiveData != null) {
+            mSliceLiveData.removeObservers(this);
+        }
+        Toast.makeText(getApplicationContext(),
+                "Showing serialized slice", Toast.LENGTH_SHORT).show();
+        mSliceView.setSlice(s);
     }
 
     private void addSlice(Intent intent) {
@@ -314,5 +336,30 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
                         Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private Slice serAndUnSer(Slice s, Context context) {
+        try {
+            Log.d(TAG, "Serializing: " + s);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            SliceUtils.serializeSlice(s, context, outputStream,
+                    new SliceUtils.SerializeOptions()
+                            .setMaxImageWidth(500)
+                            .setMaxImageHeight(500)
+                            .setImageMode(SliceUtils.SerializeOptions.MODE_CONVERT)
+                            .setActionMode(SliceUtils.SerializeOptions.MODE_CONVERT)
+                            .setImageConversionFormat(Bitmap.CompressFormat.JPEG, 50));
+
+            byte[] bytes = outputStream.toByteArray();
+            Log.d(TAG, "Serialized length: " + bytes.length);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+            return SliceUtils.parseSlice(context, inputStream, "UTF-8",
+                    new SliceUtils.SliceActionListener() {
+                        @Override
+                        public void onSliceAction(Uri actionUri, Context context, Intent intent) { }
+                    });
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
