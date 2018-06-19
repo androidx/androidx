@@ -349,6 +349,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             if (!skipSliderUpdate) {
                 determineRangeValues(range);
                 addRange(range);
+            } else {
+                // Even if we're skipping the update, we should still update the range item
+                mRangeItem = range;
             }
             return;
         }
