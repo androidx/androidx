@@ -46,12 +46,12 @@ import android.os.Bundle;
 import android.os.HandlerThread;
 import android.util.Log;
 
-import androidx.media.MediaItem2;
-import androidx.media.MediaLibraryService2;
-import androidx.media.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
-import androidx.media.MediaMetadata2;
-import androidx.media.MediaSession2.ControllerInfo;
 import androidx.media.test.lib.TestUtils.SyncHandler;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaLibraryService2;
+import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaSession2.ControllerInfo;
 
 import java.util.ArrayList;
 import java.util.List;

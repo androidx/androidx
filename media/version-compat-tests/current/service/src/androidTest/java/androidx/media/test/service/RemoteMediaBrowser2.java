@@ -23,8 +23,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media.MediaBrowser2;
-import androidx.media.SessionToken2;
+import androidx.media2.MediaBrowser2;
+import androidx.media2.SessionToken2;
 
 /**
  * Represents remote {@link MediaBrowser2} the client app's MediaController2Service.

@@ -25,12 +25,12 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.media.MediaLibraryService2.MediaLibrarySession;
-import androidx.media.MediaSession2;
 import androidx.media.test.lib.TestUtils;
 import androidx.media.test.service.MockMediaLibraryService2;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.RemoteMediaBrowser2;
+import androidx.media2.MediaLibraryService2.MediaLibrarySession;
+import androidx.media2.MediaSession2;
 
 import org.junit.After;
 import org.junit.Before;

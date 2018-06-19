@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":media"))
+    api(project(":media2"))
     api(project(":mediarouter"))
     api(project(":appcompat"))
     api(project(":palette"))

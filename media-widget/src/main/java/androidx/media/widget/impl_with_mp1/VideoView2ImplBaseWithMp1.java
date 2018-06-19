@@ -54,10 +54,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media.AudioAttributesCompat;
-import androidx.media.DataSourceDesc2;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.SessionToken2;
+import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.SessionToken2;
 import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouteSelector;
@@ -359,7 +359,7 @@ class VideoView2ImplBaseWithMp1
 
     /**
      * Returns {@link SessionToken2} so that developers create their own
-     * {@link androidx.media.MediaController2} instance. This method should be called when
+     * {@link androidx.media2.MediaController2} instance. This method should be called when
      * VideoView2 is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.

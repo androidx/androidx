@@ -18,7 +18,6 @@ package androidx.media.test.client.tests;
 
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
-import static androidx.media.MediaMetadata2.METADATA_KEY_DURATION;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_DSD;
@@ -37,6 +36,7 @@ import static androidx.media.test.lib.MediaSession2Constants.CustomCommands
         .UPDATE_PLAYER_WITH_VOLUME_PROVIDER;
 import static androidx.media.test.lib.MediaSession2Constants
         .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
+import static androidx.media2.MediaMetadata2.METADATA_KEY_DURATION;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -56,20 +56,20 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
-import androidx.media.BaseMediaPlayer;
-import androidx.media.MediaController2;
-import androidx.media.MediaController2.PlaybackInfo;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.MediaPlaylistAgent;
-import androidx.media.MediaSession2;
-import androidx.media.MediaSession2.ControllerInfo;
-import androidx.media.SessionCommand2;
-import androidx.media.SessionCommandGroup2;
-import androidx.media.SessionToken2;
 import androidx.media.test.client.MediaTestUtils;
 import androidx.media.test.client.RemoteMediaSession2;
 import androidx.media.test.lib.TestUtils;
+import androidx.media2.BaseMediaPlayer;
+import androidx.media2.MediaController2;
+import androidx.media2.MediaController2.PlaybackInfo;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlaylistAgent;
+import androidx.media2.MediaSession2;
+import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.SessionCommand2;
+import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionToken2;
 
 import org.junit.After;
 import org.junit.Before;

@@ -23,8 +23,8 @@ import android.util.AttributeSet;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.media.subtitle.SubtitleController.Anchor;
-import androidx.media.subtitle.SubtitleTrack.RenderingWidget;
+import androidx.media2.subtitle.SubtitleController.Anchor;
+import androidx.media2.subtitle.SubtitleTrack.RenderingWidget;
 
 @RequiresApi(21)
 class SubtitleAnchorView extends BaseLayout implements Anchor {

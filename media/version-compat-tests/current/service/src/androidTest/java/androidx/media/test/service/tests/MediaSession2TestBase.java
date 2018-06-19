@@ -24,10 +24,10 @@ import android.support.test.InstrumentationRegistry;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
-import androidx.media.SessionToken2;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media.test.service.RemoteMediaBrowser2;
 import androidx.media.test.service.RemoteMediaController2;
+import androidx.media2.SessionToken2;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

@@ -281,8 +281,8 @@ public final class MediaRouter {
      * @param uniqueRouteDescriptorBundle a bundle created by
      *            {@link RouteInfo#getUniqueRouteDescriptorBundle()}
      * @return A route for the given {@code uniqueRouteDescriptorBundle} if exist, otherwise null.
-     * @see androidx.media.MediaSession2#notifyRoutesInfoChanged
-     * @see androidx.media.MediaController2.ControllerCallback#onRoutesInfoChanged
+     * @see androidx.media2.MediaSession2#notifyRoutesInfoChanged
+     * @see androidx.media2.MediaController2.ControllerCallback#onRoutesInfoChanged
      */
     public @Nullable RouteInfo getRoute(Bundle uniqueRouteDescriptorBundle) {
         if (uniqueRouteDescriptorBundle == null) {
@@ -1299,8 +1299,8 @@ public final class MediaRouter {
          *
          * @return the bundle of {@link MediaRouteDescriptor} with a global unique route id
          * associated with this route.
-         * @see androidx.media.MediaSession2#notifyRoutesInfoChanged
-         * @see androidx.media.MediaController2.ControllerCallback#onRoutesInfoChanged
+         * @see androidx.media2.MediaSession2#notifyRoutesInfoChanged
+         * @see androidx.media2.MediaController2.ControllerCallback#onRoutesInfoChanged
          */
         public @NonNull Bundle getUniqueRouteDescriptorBundle() {
             Bundle bundle = mDescriptor.asBundle();
