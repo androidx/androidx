@@ -45,5 +45,12 @@
 
     <color name="car_seekbar_track_background">@color/car_seekbar_track_background_dark</color>
 
+    <!-- Colors for the switch widget (thumb and track) -->
+    <color name="car_switch_thumb_on">@color/car_teal_200</color>
+    <color name="car_switch_thumb_on_disabled">@color/car_teal_200_disabled</color>
+    <color name="car_switch_track_on">@color/car_teal_200_disabled</color>
+    <color name="car_switch_thumb_off">@color/car_body2</color>
+    <color name="car_switch_track_off">@color/car_grey_700</color>
+
     <color name="speed_bump_background">#FF4C4C4C</color>
 </resources>
