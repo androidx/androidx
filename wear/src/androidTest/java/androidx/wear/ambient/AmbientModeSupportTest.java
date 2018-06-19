@@ -49,6 +49,7 @@ public class AmbientModeSupportTest {
         assertTrue(activity.mEnterAmbientCalled);
         assertFalse(activity.mUpdateAmbientCalled);
         assertFalse(activity.mExitAmbientCalled);
+        assertFalse(activity.mAmbientOffloadInvalidatedCalled);
     }
 
     @Test
@@ -59,6 +60,7 @@ public class AmbientModeSupportTest {
         assertFalse(activity.mEnterAmbientCalled);
         assertTrue(activity.mUpdateAmbientCalled);
         assertFalse(activity.mExitAmbientCalled);
+        assertFalse(activity.mAmbientOffloadInvalidatedCalled);
     }
 
     @Test
@@ -69,6 +71,18 @@ public class AmbientModeSupportTest {
         assertFalse(activity.mEnterAmbientCalled);
         assertFalse(activity.mUpdateAmbientCalled);
         assertTrue(activity.mExitAmbientCalled);
+        assertFalse(activity.mAmbientOffloadInvalidatedCalled);
+    }
+
+    @Test
+    public void testAmbientOffloadInvalidatedCallback() throws Throwable {
+        AmbientModeSupportTestActivity activity = mActivityRule.getActivity();
+
+        WearableActivityController.getLastInstance().invalidateAmbientOffload();
+        assertFalse(activity.mEnterAmbientCalled);
+        assertFalse(activity.mUpdateAmbientCalled);
+        assertFalse(activity.mExitAmbientCalled);
+        assertTrue(activity.mAmbientOffloadInvalidatedCalled);
     }
 
     @Test
@@ -85,5 +99,16 @@ public class AmbientModeSupportTest {
 
         WearableActivityController.getLastInstance().setAmbient(false);
         assertFalse(activity.getAmbientController().isAmbient());
+    }
+
+    @Test
+    public void testEnableAmbientOffload() {
+        AmbientModeSupportTestActivity activity = mActivityRule.getActivity();
+
+        activity.getAmbientController().setAmbientOffloadEnabled(true);
+        assertTrue(WearableActivityController.getLastInstance().isAmbientOffloadEnabled());
+
+        activity.getAmbientController().setAmbientOffloadEnabled(false);
+        assertFalse(WearableActivityController.getLastInstance().isAmbientOffloadEnabled());
     }
 }

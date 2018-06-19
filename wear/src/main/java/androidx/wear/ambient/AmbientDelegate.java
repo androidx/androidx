@@ -74,6 +74,15 @@ final class AmbientDelegate {
          * method. If they do not, an exception will be thrown.</em>
          */
         void onExitAmbient();
+
+        /**
+         * Called to inform an activity that whatever decomposition it has sent to Sidekick is no
+         * longer valid and should be re-sent before enabling ambient offload.
+         *
+         * <p><em>Derived classes must call through to the super class's implementation of this
+         * method. If they do not, an exception will be thrown.</em>
+         */
+        void onAmbientOffloadInvalidated();
     }
 
     AmbientDelegate(@Nullable Activity activity,
@@ -141,6 +150,13 @@ final class AmbientDelegate {
     void setAmbientEnabled() {
         if (mWearableController != null) {
             mWearableController.setAmbientEnabled();
+        }
+    }
+
+    /** Sets whether this activity is currently in a state that supports ambient offload mode. */
+    public void setAmbientOffloadEnabled(boolean enabled) {
+        if (mWearableController != null) {
+            mWearableController.setAmbientOffloadEnabled(enabled);
         }
     }
 

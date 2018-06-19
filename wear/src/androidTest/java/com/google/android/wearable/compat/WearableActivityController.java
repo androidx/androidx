@@ -35,6 +35,7 @@ public class WearableActivityController {
     private boolean mAmbientEnabled = false;
     private boolean mAutoResumeEnabled = true;
     private boolean mAmbient = false;
+    private boolean mAmbientOffloadEnabled = false;
 
     public WearableActivityController(String tag, Activity activity, AmbientCallback callback) {
         sLastInstance = this;
@@ -58,6 +59,10 @@ public class WearableActivityController {
 
     public void updateAmbient() {
         mCallback.onUpdateAmbient();
+    }
+
+    public void invalidateAmbientOffload() {
+        mCallback.onInvalidateAmbientOffload();
     }
 
     public void setAmbientEnabled() {
@@ -84,6 +89,14 @@ public class WearableActivityController {
         mAmbient = ambient;
     }
 
+    public void setAmbientOffloadEnabled(boolean enabled) {
+        mAmbientOffloadEnabled = enabled;
+    }
+
+    public boolean isAmbientOffloadEnabled() {
+        return mAmbientOffloadEnabled;
+    }
+
     /** Stub version of {@link WearableActivityController.AmbientCallback}. */
     public static class AmbientCallback {
         public void onEnterAmbient(Bundle ambientDetails) {}
@@ -91,5 +104,7 @@ public class WearableActivityController {
         public void onExitAmbient() {}
 
         public void onUpdateAmbient() {}
+
+        public void onInvalidateAmbientOffload() {}
     }
 }
