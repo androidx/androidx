@@ -25,7 +25,7 @@
 
     <dimen name="lb_preference_item_padding_start">24dp</dimen>
     <dimen name="lb_preference_item_padding_end">56dp</dimen>
-    <dimen name="lb_preference_item_icon_size">32dp</dimen>
+    <dimen name="lb_preference_item_icon_size">24dp</dimen>
     <dimen name="lb_preference_item_icon_margin_end">16dp</dimen>
 
     <dimen name="lb_preference_item_primary_text_size">14sp</dimen>
