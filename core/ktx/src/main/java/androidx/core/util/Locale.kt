@@ -26,7 +26,7 @@ import java.util.Locale
  *
  * @see TextUtils.getLayoutDirectionFromLocale
  */
-@Deprecated("Moved to androidx.core.text package")
+@Deprecated("Moved to androidx.core.text package", level = DeprecationLevel.ERROR)
 inline val Locale.layoutDirection: Int
     @RequiresApi(17)
     get() = newLayoutDirection

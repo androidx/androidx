@@ -34,7 +34,11 @@ import androidx.annotation.StyleRes
 inline fun <reified T> Context.getSystemService(): T? =
         ContextCompat.getSystemService(this, T::class.java)
 
-@Deprecated("Use getSystemService", ReplaceWith("this.getSystemService<T>()"))
+@Deprecated(
+    "Use getSystemService",
+    ReplaceWith("this.getSystemService<T>()"),
+    DeprecationLevel.ERROR
+)
 inline fun <reified T> Context.systemService(): T? =
         ContextCompat.getSystemService(this, T::class.java)
 
