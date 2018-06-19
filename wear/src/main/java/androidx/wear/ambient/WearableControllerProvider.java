@@ -64,6 +64,11 @@ public class WearableControllerProvider {
                     public void onExitAmbient() {
                         callback.onExitAmbient();
                     }
+
+                    @Override
+                    public void onInvalidateAmbientOffload() {
+                        callback.onAmbientOffloadInvalidated();
+                    }
                 };
 
         verifyAmbientCallbacksPresent();

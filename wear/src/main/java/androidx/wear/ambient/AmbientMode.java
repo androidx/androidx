@@ -127,6 +127,12 @@ public final class AmbientMode extends Fragment {
          * running (after onResume, before onPause).
          */
         public void onExitAmbient() {}
+
+        /**
+         * Called to inform an activity that whatever decomposition it has sent to Sidekick is no
+         * longer valid and should be re-sent before enabling ambient offload.
+         */
+        public void onAmbientOffloadInvalidated() {}
     }
 
     private final AmbientDelegate.AmbientCallback mCallback =
@@ -149,6 +155,13 @@ public final class AmbientMode extends Fragment {
                 public void onUpdateAmbient() {
                     if (mSuppliedCallback != null) {
                         mSuppliedCallback.onUpdateAmbient();
+                    }
+                }
+
+                @Override
+                public void onAmbientOffloadInvalidated() {
+                    if (mSuppliedCallback != null) {
+                        mSuppliedCallback.onAmbientOffloadInvalidated();
                     }
                 }
             };
@@ -277,6 +290,15 @@ public final class AmbientMode extends Fragment {
          */
         public boolean isAmbient() {
             return mDelegate == null ? false : mDelegate.isAmbient();
+        }
+
+        /**
+         * Sets whether this activity is currently in a state that supports ambient offload mode.
+         */
+        public void setAmbientOffloadEnabled(boolean enabled) {
+            if (mDelegate != null) {
+                mDelegate.setAmbientOffloadEnabled(enabled);
+            }
         }
     }
 }
