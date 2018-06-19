@@ -2127,7 +2127,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      * a postponed transaction has been started with
      * {@link Fragment#startPostponedEnterTransition()}
      */
-    private void scheduleCommit() {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void scheduleCommit() {
         synchronized (this) {
             boolean postponeReady =
                     mPostponedTransactions != null && !mPostponedTransactions.isEmpty();
@@ -2524,7 +2525,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      *                    This is false when the transaction is canceled when a postponed
      *                    transaction is popped.
      */
-    private void completeExecute(BackStackRecord record, boolean isPop, boolean runTransitions,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void completeExecute(BackStackRecord record, boolean isPop, boolean runTransitions,
             boolean moveToState) {
         if (isPop) {
             record.executePopOps(moveToState);
