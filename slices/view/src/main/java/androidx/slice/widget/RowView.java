@@ -46,6 +46,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -403,8 +404,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private void addSubtitle(final SliceItem subtitleItem) {
         CharSequence subtitleTimeString = null;
         if (mShowLastUpdated && mLastUpdated != -1) {
-            subtitleTimeString = getResources().getString(R.string.abc_slice_updated,
-                    SliceViewUtil.getRelativeTimeString(mLastUpdated));
+            CharSequence relativeTime = getRelativeTimeString(mLastUpdated);
+            if (relativeTime != null) {
+                subtitleTimeString =
+                        getResources().getString(R.string.abc_slice_updated, relativeTime);
+            }
         }
         CharSequence subtitle = subtitleItem != null ? subtitleItem.getText() : null;
         boolean subtitleExists = !TextUtils.isEmpty(subtitle)
@@ -436,6 +440,23 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         // Need to request a layout to update the weights for these views when RV recycles them
         mSecondaryText.requestLayout();
         mLastUpdatedText.requestLayout();
+    }
+
+    private CharSequence getRelativeTimeString(long time) {
+        long difference = System.currentTimeMillis() - time;
+        if (difference > DateUtils.YEAR_IN_MILLIS) {
+            int years = (int) (difference / DateUtils.YEAR_IN_MILLIS);
+            return getResources().getQuantityString(
+                    R.plurals.abc_slice_duration_years, years, years);
+        } else if (difference > DateUtils.DAY_IN_MILLIS) {
+            int days = (int) (difference / DateUtils.DAY_IN_MILLIS);
+            return getResources().getQuantityString(R.plurals.abc_slice_duration_days, days, days);
+        } else if (difference > DateUtils.MINUTE_IN_MILLIS) {
+            int mins = (int) (difference / DateUtils.MINUTE_IN_MILLIS);
+            return getResources().getQuantityString(R.plurals.abc_slice_duration_min, mins, mins);
+        } else {
+            return null;
+        }
     }
 
     private void determineRangeValues(SliceItem rangeItem) {
