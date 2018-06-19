@@ -148,7 +148,7 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Override
-    public WorkContinuation then(List<OneTimeWorkRequest> work) {
+    public @NonNull WorkContinuation then(List<OneTimeWorkRequest> work) {
         // TODO (rahulrav@) We need to decide if we want to allow chaining of continuations after
         // an initial call to enqueue()
         return new WorkContinuationImpl(mWorkManagerImpl,
@@ -159,12 +159,12 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Override
-    public LiveData<List<WorkStatus>> getStatuses() {
+    public @NonNull LiveData<List<WorkStatus>> getStatuses() {
         return mWorkManagerImpl.getStatusesById(mAllIds);
     }
 
     @Override
-    public List<WorkStatus> getStatusesSync() {
+    public @NonNull List<WorkStatus> getStatusesSync() {
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
             throw new IllegalStateException("Cannot getStatusesSync on main thread!");
         }
@@ -201,12 +201,12 @@ public class WorkContinuationImpl extends WorkContinuation
     }
 
     @Override
-    public SynchronousWorkContinuation synchronous() {
+    public @NonNull SynchronousWorkContinuation synchronous() {
         return this;
     }
 
     @Override
-    protected WorkContinuation combineInternal(
+    protected @NonNull WorkContinuation combineInternal(
             @Nullable OneTimeWorkRequest work,
             @NonNull List<WorkContinuation> continuations) {
 

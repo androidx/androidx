@@ -17,6 +17,7 @@
 package androidx.work;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
 import java.util.List;
@@ -124,7 +125,8 @@ public interface SynchronousWorkManager {
      * own repository that must be updated or deleted in case someone cancels their work without
      * their prior knowledge.
      *
-     * @return The timestamp in milliseconds when a method that cancelled all work was last invoked
+     * @return The timestamp in milliseconds when a method that cancelled all work was last invoked;
+     *         this timestamp may be {@code 0L} if this never occurred.
      */
     @WorkerThread
     long getLastCancelAllTimeMillisSync();
@@ -148,10 +150,11 @@ public interface SynchronousWorkManager {
      * expected to be called from a background thread.
      *
      * @param id The id of the work
-     * @return A {@link WorkStatus} associated with {@code id}
+     * @return A {@link WorkStatus} associated with {@code id}, or {@code null} if {@code id} is not
+     *         known to WorkManager
      */
     @WorkerThread
-    WorkStatus getStatusByIdSync(@NonNull UUID id);
+    @Nullable WorkStatus getStatusByIdSync(@NonNull UUID id);
 
     /**
      * Gets the {@link WorkStatus} for all work with a given tag in a synchronous fashion.  This
@@ -161,7 +164,7 @@ public interface SynchronousWorkManager {
      * @return A list of {@link WorkStatus} for work tagged with {@code tag}
      */
     @WorkerThread
-    List<WorkStatus> getStatusesByTagSync(@NonNull String tag);
+    @NonNull List<WorkStatus> getStatusesByTagSync(@NonNull String tag);
 
     /**
      * Gets the {@link WorkStatus} for all work for the chain of work with a given unique name in a
@@ -171,5 +174,5 @@ public interface SynchronousWorkManager {
      * @return A list of {@link WorkStatus} for work in the chain named {@code uniqueWorkName}
      */
     @WorkerThread
-    List<WorkStatus> getStatusesForUniqueWorkSync(@NonNull String uniqueWorkName);
+    @NonNull List<WorkStatus> getStatusesForUniqueWorkSync(@NonNull String uniqueWorkName);
 }
