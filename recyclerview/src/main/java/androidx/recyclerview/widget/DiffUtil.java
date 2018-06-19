@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.widget;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -493,6 +494,12 @@ public class DiffUtil {
      */
     public static class DiffResult {
         /**
+         * Signifies an item not present in the list.
+         */
+        public static final int NO_POSITION = -1;
+
+
+        /**
          * While reading the flags below, keep in mind that when multiple items move in a list,
          * Myers's may pick any of them as the anchor item and consider that one NOT_CHANGED while
          * picking others as additions and removals. This is completely fine as we later detect
@@ -641,6 +648,54 @@ public class DiffUtil {
                 return; // already set by a latter item
             }
             findMatchingItem(x, y, snakeIndex, true);
+        }
+
+        /**
+         * Given a position in the old list, returns the position in the new list, or
+         * {@code NO_POSITION} if it was removed.
+         *
+         * @param oldListPosition Position of item in old list
+         *
+         * @return Position of item in new list, or {@code NO_POSITION} if not present.
+         *
+         * @see #NO_POSITION
+         * @see #convertNewPositionToOld(int)
+         */
+        public int convertOldPositionToNew(@IntRange(from = 0) int oldListPosition) {
+            if (oldListPosition < 0 || oldListPosition >= mOldItemStatuses.length) {
+                throw new IndexOutOfBoundsException("Index out of bounds - passed position = "
+                        + oldListPosition + ", old list size = " + mOldItemStatuses.length);
+            }
+            final int status = mOldItemStatuses[oldListPosition];
+            if ((status & FLAG_MASK) == 0) {
+                return NO_POSITION;
+            } else {
+                return status >> FLAG_OFFSET;
+            }
+        }
+
+        /**
+         * Given a position in the new list, returns the position in the old list, or
+         * {@code NO_POSITION} if it was removed.
+         *
+         * @param newListPosition Position of item in new list
+         *
+         * @return Position of item in old list, or {@code NO_POSITION} if not present.
+         *
+         * @see #NO_POSITION
+         * @see #convertOldPositionToNew(int)
+         */
+        public int convertNewPositionToOld(@IntRange(from = 0) int newListPosition) {
+            if (newListPosition < 0 || newListPosition >= mNewItemStatuses.length) {
+                throw new IndexOutOfBoundsException("Index out of bounds - passed position = "
+                        + newListPosition + ", new list size = " + mNewItemStatuses.length);
+            }
+            final int status = mNewItemStatuses[newListPosition];
+            if ((status & FLAG_MASK) == 0) {
+                return NO_POSITION;
+            } else {
+                return status >> FLAG_OFFSET;
+            }
         }
 
         /**
