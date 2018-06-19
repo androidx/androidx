@@ -75,7 +75,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionIcon the icon to display for this action.
      * @param actionTitle the title for this action, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
+     * @deprecated TO BE REMOVED
      */
+    @Deprecated
     public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @NonNull CharSequence actionTitle) {
         this(action, actionIcon, ICON_IMAGE, actionTitle);
@@ -97,7 +99,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @see ListBuilder#ICON_IMAGE
      * @see ListBuilder#SMALL_IMAGE
      * @see ListBuilder#LARGE_IMAGE
+     * @deprecated TO BE REMOVED
      */
+    @Deprecated
     public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @ListBuilder.ImageMode int imageMode, @NonNull CharSequence actionTitle) {
         mSliceAction = new SliceActionImpl(action, actionIcon, imageMode, actionTitle);
@@ -112,7 +116,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionTitle the title for this toggle, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
      * @param isChecked the state of the toggle.
+     * @deprecated TO BE REMOVED
      */
+    @Deprecated
     public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @NonNull CharSequence actionTitle, boolean isChecked) {
         mSliceAction = new SliceActionImpl(action, actionIcon, actionTitle, isChecked);
@@ -125,10 +131,79 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionTitle the title for this toggle, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
      * @param isChecked the state of the toggle.
+     * @deprecated TO BE REMOVED
      */
+    @Deprecated
     public SliceAction(@NonNull PendingIntent action, @NonNull CharSequence actionTitle,
             boolean isChecked) {
         mSliceAction = new SliceActionImpl(action, actionTitle, isChecked);
+    }
+
+    /**
+     * Construct a SliceAction representing a tappable icon.
+     *
+     * @param action the pending intent to invoke for this action.
+     * @param actionIcon the icon to display for this action.
+     * @param imageMode the mode this icon should be displayed in.
+     * @param actionTitle the title for this action, also used for content description if one hasn't
+     *                    been set via {@link #setContentDescription(CharSequence)}.
+     *
+     * @see ListBuilder#ICON_IMAGE
+     * @see ListBuilder#SMALL_IMAGE
+     * @see ListBuilder#LARGE_IMAGE
+     */
+    public static SliceAction create(@NonNull PendingIntent action,
+            @NonNull IconCompat actionIcon, @ListBuilder.ImageMode int imageMode,
+            @NonNull CharSequence actionTitle) {
+        return new SliceAction(action, actionIcon, imageMode, actionTitle);
+    }
+
+    /**
+     * Construct a SliceAction representing a tappable icon that launches an
+     * activity when clicked.
+     *
+     * @param action the pending intent to invoke for this action.
+     * @param actionIcon the icon to display for this action.
+     * @param imageMode the mode this icon should be displayed in.
+     * @param actionTitle the title for this action, also used for content description if one hasn't
+     *                    been set via {@link #setContentDescription(CharSequence)}.
+     *
+     * @see ListBuilder#ICON_IMAGE
+     * @see ListBuilder#SMALL_IMAGE
+     * @see ListBuilder#LARGE_IMAGE
+     */
+    public static SliceAction createDeeplink(@NonNull PendingIntent action,
+            @NonNull IconCompat actionIcon, @ListBuilder.ImageMode int imageMode,
+            @NonNull CharSequence actionTitle) {
+        return new SliceAction(action, actionIcon, imageMode, actionTitle);
+    }
+
+    /**
+     * Construct a SliceAction representing a default toggle.
+     *
+     * @param action the pending intent to invoke for this toggle.
+     * @param actionTitle the title for this toggle, also used for content description if one hasn't
+     *                    been set via {@link #setContentDescription(CharSequence)}.
+     * @param isChecked the state of the toggle.
+     */
+    public static SliceAction createToggle(@NonNull PendingIntent action,
+            @NonNull CharSequence actionTitle, boolean isChecked) {
+        return new SliceAction(action, actionTitle, isChecked);
+    }
+
+    /**
+     * Construct a SliceAction representing a custom toggle icon.
+     *
+     * @param action the pending intent to invoke for this toggle.
+     * @param actionIcon the icon to display for this toggle, should have a checked and unchecked
+     *                   state.
+     * @param actionTitle the title for this toggle, also used for content description if one hasn't
+     *                    been set via {@link #setContentDescription(CharSequence)}.
+     * @param isChecked the state of the toggle.
+     */
+    public static SliceAction createToggle(@NonNull PendingIntent action,
+            @NonNull IconCompat actionIcon, @NonNull CharSequence actionTitle, boolean isChecked) {
+        return new SliceAction(action, actionIcon, actionTitle, isChecked);
     }
 
     /**
@@ -188,6 +263,11 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     @Override
     public CharSequence getTitle() {
         return mSliceAction.getTitle();
+    }
+
+    @Override
+    public boolean isActivity() {
+        return false;
     }
 
     /**
