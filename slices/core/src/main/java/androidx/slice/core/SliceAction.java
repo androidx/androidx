@@ -86,6 +86,11 @@ public interface SliceAction {
     boolean isChecked();
 
     /**
+     * @return whether this activity launches an activity or not.
+     */
+    boolean isActivity();
+
+    /**
      * @return the image mode to use for this action.
      */
     @SliceHints.ImageMode int getImageMode();

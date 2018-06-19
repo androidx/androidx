@@ -302,6 +302,11 @@ public class SliceActionImpl implements SliceAction {
         return mSliceItem;
     }
 
+    @Override
+    public boolean isActivity() {
+        return false;
+    }
+
     /**
      * @param builder this should be a new builder that has any additional hints the action might
      *                need.

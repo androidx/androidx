@@ -40,6 +40,7 @@ import android.util.SparseArray;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.collection.ArraySet;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
@@ -199,7 +200,7 @@ public class SampleSliceProvider extends SliceProvider {
                 IconCompat.createWithResource(getContext(), R.drawable.weather_1), SMALL_IMAGE,
                 "Weather is happening!");
         ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
-        return lb.addGridRow(new GridRowBuilder(lb)
+        return lb.addGridRow(new GridRowBuilder()
                         .setPrimaryAction(primaryAction)
                         .addCell(new CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
@@ -259,7 +260,7 @@ public class SampleSliceProvider extends SliceProvider {
         int[] galleryResId = new int[] {R.drawable.slices_1, R.drawable.slices_2,
                 R.drawable.slices_3, R.drawable.slices_4};
         int imageCount = 7;
-        GridRowBuilder grb = new GridRowBuilder(lb);
+        GridRowBuilder grb = new GridRowBuilder();
         for (int i = 0; i < imageCount; i++) {
             IconCompat ic = IconCompat.createWithResource(getContext(),
                     galleryResId[i % galleryResId.length]);
@@ -299,7 +300,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .setSubtitle(subtitle)
                 .setSummary(summary.toString())
                 .setPrimaryAction(primaryAction));
-        GridRowBuilder grb = new GridRowBuilder(lb);
+        GridRowBuilder grb = new GridRowBuilder();
 
         for (int i = 0; i < count; i++) {
             final int index = i;
@@ -315,12 +316,12 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createBigPicSlice(Uri sliceUri) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
-        GridRowBuilder gb = new GridRowBuilder(b);
+        GridRowBuilder gb = new GridRowBuilder();
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "Cats you follow");
         IconCompat ic = IconCompat.createWithResource(getContext(), R.drawable.cat);
         SliceAction primaryAction = new SliceAction(pi, ic, LARGE_IMAGE, "Cats you follow");
         gb.setPrimaryAction(primaryAction);
-        gb.addCell(new GridRowBuilder.CellBuilder(gb)
+        gb.addCell(new GridRowBuilder.CellBuilder()
                 .addImage(ic, LARGE_IMAGE)
                 .addTitleText("This is a nice cat").addText("Who is she"));
         b.addGridRow(gb);
@@ -329,14 +330,14 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createCatSlice(Uri sliceUri, boolean customSeeMore) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
-        GridRowBuilder gb = new GridRowBuilder(b);
+        GridRowBuilder gb = new GridRowBuilder();
         PendingIntent pi = getBroadcastIntent(ACTION_TOAST, "Cats you follow");
         SliceAction primaryAction = new SliceAction(pi,
                 IconCompat.createWithResource(getContext(), R.drawable.cat_1),
                 SMALL_IMAGE, "Cats you follow");
         gb.setPrimaryAction(primaryAction);
         if (customSeeMore) {
-            GridRowBuilder.CellBuilder cb = new GridRowBuilder.CellBuilder(gb);
+            GridRowBuilder.CellBuilder cb = new GridRowBuilder.CellBuilder();
             cb.addImage(IconCompat.createWithResource(getContext(), R.drawable.ic_right_caret),
                     ICON_IMAGE);
             cb.setContentIntent(pi);
@@ -345,27 +346,27 @@ public class SampleSliceProvider extends SliceProvider {
         } else {
             gb.setSeeMoreAction(pi);
         }
-        gb.addCell(new GridRowBuilder.CellBuilder(gb)
+        gb.addCell(new GridRowBuilder.CellBuilder()
                 .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_1),
                         SMALL_IMAGE)
                 .addTitleText("Oreo"))
-                .addCell(new GridRowBuilder.CellBuilder(gb)
+                .addCell(new GridRowBuilder.CellBuilder()
                         .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_2),
                                 SMALL_IMAGE)
                         .addTitleText("Silver"))
-                .addCell(new GridRowBuilder.CellBuilder(gb)
+                .addCell(new GridRowBuilder.CellBuilder()
                         .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_3),
                                 SMALL_IMAGE)
                         .addTitleText("Drake"))
-                .addCell(new GridRowBuilder.CellBuilder(gb)
+                .addCell(new GridRowBuilder.CellBuilder()
                         .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_5),
                                 SMALL_IMAGE)
                         .addTitleText("Olive"))
-                .addCell(new GridRowBuilder.CellBuilder(gb)
+                .addCell(new GridRowBuilder.CellBuilder()
                         .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_4),
                                 SMALL_IMAGE)
                         .addTitleText("Lady Marmalade"))
-                .addCell(new GridRowBuilder.CellBuilder(gb)
+                .addCell(new GridRowBuilder.CellBuilder()
                         .addImage(IconCompat.createWithResource(getContext(), R.drawable.cat_6),
                                 SMALL_IMAGE)
                         .addTitleText("Grapefruit"));
@@ -374,8 +375,8 @@ public class SampleSliceProvider extends SliceProvider {
 
     private Slice createContact2(Uri sliceUri) {
         ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);
-        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(b);
-        GridRowBuilder gb = new GridRowBuilder(b);
+        ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder();
+        GridRowBuilder gb = new GridRowBuilder();
         IconCompat ic = IconCompat.createWithResource(getContext(), R.drawable.mady);
         SliceAction sliceAction = new SliceAction(getBroadcastIntent(ACTION_TOAST, "View contact"),
                 ic, SMALL_IMAGE, "View contact");
@@ -386,24 +387,24 @@ public class SampleSliceProvider extends SliceProvider {
                         .setPrimaryAction(sliceAction)
                         .addEndItem(ic, SMALL_IMAGE))
                 .addGridRow(gb
-                        .addCell(new GridRowBuilder.CellBuilder(gb)
+                        .addCell(new GridRowBuilder.CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.ic_call),
                                         ICON_IMAGE)
                                 .addText("Call")
                                 .setContentIntent(getBroadcastIntent(ACTION_TOAST, "call")))
-                        .addCell(new GridRowBuilder.CellBuilder(gb)
+                        .addCell(new GridRowBuilder.CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.ic_text),
                                         ICON_IMAGE)
                                 .addText("Text")
                                 .setContentIntent(getBroadcastIntent(ACTION_TOAST, "text")))
-                        .addCell(new GridRowBuilder.CellBuilder(gb)
+                        .addCell(new GridRowBuilder.CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.ic_video), ICON_IMAGE)
                                 .setContentIntent(getBroadcastIntent(ACTION_TOAST, "video"))
                                 .addText("Video"))
-                        .addCell(new GridRowBuilder.CellBuilder(gb)
+                        .addCell(new GridRowBuilder.CellBuilder()
                                 .addImage(IconCompat.createWithResource(getContext(),
                                         R.drawable.ic_email), ICON_IMAGE)
                                 .addText("Email")
@@ -521,7 +522,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .setPrimaryAction(action));
 
         for (int i = 0; i < sGroceryList.size(); i++) {
-            ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
+            ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder();
             rb.setTitle(sGroceryList.get(i));
 
             SliceAction checkBox = new SliceAction(getGroceryIntent(i),
@@ -681,7 +682,7 @@ public class SampleSliceProvider extends SliceProvider {
             final int iconId = wifiIcons[i % wifiIcons.length];
             IconCompat icon = IconCompat.createWithResource(getContext(), iconId);
             final String networkName = "Network" + i;
-            ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder(lb);
+            ListBuilder.RowBuilder rb = new ListBuilder.RowBuilder();
             rb.setTitleItem(icon, ICON_IMAGE).setTitle(networkName);
             boolean locked = i % 3 == 0;
             if (locked) {
@@ -699,7 +700,7 @@ public class SampleSliceProvider extends SliceProvider {
 
         // Add keywords
         String[] keywords = new String[]{"internet", "wifi", "data", "network"};
-        lb.setKeywords(Arrays.asList(keywords));
+        lb.setKeywords(new ArraySet<>(Arrays.asList(keywords)));
 
         // Add see more intent
         if (TEST_CUSTOM_SEE_MORE) {
@@ -770,12 +771,12 @@ public class SampleSliceProvider extends SliceProvider {
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
 
         // Primary action toggle
-        ListBuilder.RowBuilder primaryToggle = new ListBuilder.RowBuilder(lb);
+        ListBuilder.RowBuilder primaryToggle = new ListBuilder.RowBuilder();
         primaryToggle.setTitle("Primary action is a toggle")
                 .setPrimaryAction(toggleAction);
 
         // End toggle + normal primary action
-        ListBuilder.RowBuilder endToggle = new ListBuilder.RowBuilder(lb);
+        ListBuilder.RowBuilder endToggle = new ListBuilder.RowBuilder();
         endToggle.setTitle("Only end toggles")
                 .setSubtitle("Normal primary action")
                 .setPrimaryAction(primaryAction)
@@ -783,14 +784,14 @@ public class SampleSliceProvider extends SliceProvider {
                 .addEndItem(toggleAction2);
 
         // Start toggle + normal primary
-        ListBuilder.RowBuilder startToggle = new ListBuilder.RowBuilder(lb);
+        ListBuilder.RowBuilder startToggle = new ListBuilder.RowBuilder();
         startToggle.setTitle("One start toggle")
                 .setTitleItem(toggleAction)
                 .setSubtitle("Normal primary action")
                 .setPrimaryAction(primaryAction);
 
         // Start + end toggles + normal primary action
-        ListBuilder.RowBuilder someToggles = new ListBuilder.RowBuilder(lb);
+        ListBuilder.RowBuilder someToggles = new ListBuilder.RowBuilder();
         someToggles.setTitleItem(toggleAction)
                 .setPrimaryAction(primaryAction)
                 .setTitle("Start & end toggles")
@@ -799,19 +800,19 @@ public class SampleSliceProvider extends SliceProvider {
                 .addEndItem(toggleAction3);
 
         // Start toggle ONLY
-        ListBuilder.RowBuilder startToggleOnly = new ListBuilder.RowBuilder(lb);
+        ListBuilder.RowBuilder startToggleOnly = new ListBuilder.RowBuilder();
         startToggleOnly.setTitle("Start action is a toggle")
                 .setSubtitle("No other actions")
                 .setTitleItem(toggleAction);
 
         // End toggle ONLY
-        ListBuilder.RowBuilder endToggleOnly = new ListBuilder.RowBuilder(lb);
+        ListBuilder.RowBuilder endToggleOnly = new ListBuilder.RowBuilder();
         endToggleOnly.setTitle("End action is a toggle")
                 .setSubtitle("No other actions")
                 .addEndItem(toggleAction);
 
         // All toggles: end item should be ignored / replaced with primary action
-        ListBuilder.RowBuilder muchToggles = new ListBuilder.RowBuilder(lb);
+        ListBuilder.RowBuilder muchToggles = new ListBuilder.RowBuilder();
         muchToggles.setTitleItem(toggleAction)
                 .setTitle("All toggles")
                 .setSubtitle("Even the primary action")
@@ -909,30 +910,30 @@ public class SampleSliceProvider extends SliceProvider {
         SliceAction simpleAction = new SliceAction(
                 getBroadcastIntent(ACTION_TOAST, "icon action"), ic2, "icon");
         ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);
-        return lb.addRow(new ListBuilder.RowBuilder(lb)
+        return lb.addRow(new ListBuilder.RowBuilder()
                         .setTitle("Single title")
                         .setPrimaryAction(simpleAction))
-                .addRow(new ListBuilder.RowBuilder(lb)
+                .addRow(new ListBuilder.RowBuilder()
                         .setSubtitle("Single subtitle"))
                  //Time stamps
-                .addRow(new ListBuilder.RowBuilder(lb)
+                .addRow(new ListBuilder.RowBuilder()
                         .setTitleItem(System.currentTimeMillis()))
-                .addRow(new ListBuilder.RowBuilder(lb)
+                .addRow(new ListBuilder.RowBuilder()
                         .addEndItem(System.currentTimeMillis()))
                 // Toggle actions
-                .addRow(new ListBuilder.RowBuilder(lb)
+                .addRow(new ListBuilder.RowBuilder()
                         .setTitleItem(toggleAction))
-                .addRow(new ListBuilder.RowBuilder(lb)
+                .addRow(new ListBuilder.RowBuilder()
                         .addEndItem(toggleAction))
                 // Icon actions
-                .addRow(new ListBuilder.RowBuilder(lb)
+                .addRow(new ListBuilder.RowBuilder()
                         .setTitleItem(simpleAction))
-                .addRow(new ListBuilder.RowBuilder(lb)
+                .addRow(new ListBuilder.RowBuilder()
                         .addEndItem(simpleAction))
                 // Images
-                .addRow(new ListBuilder.RowBuilder(lb)
+                .addRow(new ListBuilder.RowBuilder()
                         .setTitleItem(image, SMALL_IMAGE))
-                .addRow(new ListBuilder.RowBuilder(lb)
+                .addRow(new ListBuilder.RowBuilder()
                         .addEndItem(image, SMALL_IMAGE))
                 .build();
     }
