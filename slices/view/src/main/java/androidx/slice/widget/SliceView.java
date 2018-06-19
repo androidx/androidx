@@ -134,11 +134,14 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      */
     private static final int REFRESH_LAST_UPDATED_IN_MILLIS = 60000;
 
+    ListContent mListContent;
+    SliceChildView mCurrentView;
+    View.OnLongClickListener mLongClickListener;
+    Handler mHandler;
+
     private int mMode = MODE_LARGE;
     private Slice mCurrentSlice;
     private SliceMetrics mCurrentSliceMetrics;
-    private ListContent mListContent;
-    private SliceChildView mCurrentView;
     private List<SliceAction> mActions;
     private ActionRow mActionRow;
 
@@ -158,13 +161,11 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     private OnSliceActionListener mSliceObserver;
     private int mTouchSlopSquared;
-    View.OnLongClickListener mLongClickListener;
     private View.OnClickListener mOnClickListener;
     private int mDownX;
     private int mDownY;
     boolean mPressing;
     boolean mInLongpress;
-    private Handler mHandler;
     int[] mClickInfo;
 
     public SliceView(Context context) {
@@ -484,7 +485,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         return expiry == SliceHints.INFINITY;
     }
 
-    private boolean isExpired() {
+    boolean isExpired() {
         SliceMetadata sliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
         long expiry = sliceMetadata.getExpiry();
         long now = System.currentTimeMillis();
