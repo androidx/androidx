@@ -368,7 +368,7 @@ public class WindowInsetsCompat {
         if (SDK_INT >= 28) {
             return new WindowInsetsCompat(((WindowInsets) mInsets).consumeDisplayCutout());
         } else {
-            return null;
+            return this;
         }
     }
 
