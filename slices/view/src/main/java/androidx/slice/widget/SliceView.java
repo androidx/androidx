@@ -424,8 +424,19 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      */
     public void setSlice(@Nullable Slice slice) {
         initSliceMetrics(slice);
-        if (slice != null && (mCurrentSlice == null
-                || !mCurrentSlice.getUri().equals(slice.getUri()))) {
+        boolean isUpdate = slice != null && mCurrentSlice != null
+                && slice.getUri().equals(mCurrentSlice.getUri());
+        if (isUpdate) {
+            // If its an update check the loading state
+            SliceMetadata oldSliceData = SliceMetadata.from(getContext(), mCurrentSlice);
+            SliceMetadata newSliceData = SliceMetadata.from(getContext(), slice);
+            if (oldSliceData.getLoadingState() == SliceMetadata.LOADED_ALL
+                    && newSliceData.getLoadingState() == SliceMetadata.LOADED_NONE) {
+                // If it's the same slice going from "loaded all" to "loaded none"... let's
+                // ignore the update.
+                return;
+            }
+        } else {
             mCurrentView.resetView();
         }
         mCurrentSlice = slice;
