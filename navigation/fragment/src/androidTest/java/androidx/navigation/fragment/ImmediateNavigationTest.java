@@ -48,6 +48,10 @@ public class ImmediateNavigationTest {
         final ImmediateNavigationActivity activity = mActivityRule.launchActivity(intent);
         instrumentation.waitForIdleSync();
         NavController navController = activity.getNavController();
+        navController.navigate(R.id.immediate_test);
+        instrumentation.waitForIdleSync();
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
+        navController.popBackStack();
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.immediate_test));
     }
 }
