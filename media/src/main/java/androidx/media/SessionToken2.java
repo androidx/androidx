@@ -259,14 +259,16 @@ public final class SessionToken2 {
                         public void onSessionReady() {
                             synchronized (listener) {
                                 listener.onSessionToken2Created(token,
-                                        controller.getSessionToken2());
+                                        SessionToken2.fromBundle(
+                                                controller.getSessionToken2Bundle()));
                                 listener.notify();
                             }
                         }
                     };
                     controller.registerCallback(callback);
                     if (controller.isSessionReady()) {
-                        listener.onSessionToken2Created(token, controller.getSessionToken2());
+                        listener.onSessionToken2Created(token,
+                                SessionToken2.fromBundle(controller.getSessionToken2Bundle()));
                     }
                     synchronized (listener) {
                         listener.wait(WAIT_TIME_MS_FOR_SESSION_READY);
@@ -274,7 +276,7 @@ public final class SessionToken2 {
                             // token for framework session.
                             SessionToken2 token2 = new SessionToken2(
                                     new SessionToken2ImplLegacy(token));
-                            token.setSessionToken2(token2);
+                            token.setSessionToken2Bundle(token2.toBundle());
                             listener.onSessionToken2Created(token, token2);
                         }
                     }
