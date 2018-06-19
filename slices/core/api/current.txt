@@ -68,6 +68,7 @@ package androidx.slice.core {
     method public abstract int getImageMode();
     method public abstract int getPriority();
     method public abstract java.lang.CharSequence getTitle();
+    method public abstract boolean isActivity();
     method public abstract boolean isChecked();
     method public abstract boolean isDefaultToggle();
     method public abstract boolean isToggle();
