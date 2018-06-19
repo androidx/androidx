@@ -28,6 +28,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -266,6 +267,24 @@ class WebViewOnUiThread {
             @Override
             public void run() {
                 mWebView.evaluateJavascript(script, result);
+            }
+        });
+    }
+
+    public void setWebViewClient(final WebViewClient client) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.setWebViewClient(client);
+            }
+        });
+    }
+
+    public WebViewClient getWebViewClient() {
+        return getValue(new ValueGetter<WebViewClient>() {
+            @Override
+            public WebViewClient capture() {
+                return WebViewCompat.getWebViewClient(mWebView);
             }
         });
     }

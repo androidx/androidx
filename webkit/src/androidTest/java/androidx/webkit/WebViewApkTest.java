@@ -139,6 +139,10 @@ public class WebViewApkTest {
             expectedFeatures.add(Features.WEB_MESSAGE_CALLBACK_ON_MESSAGE);
         }
 
+        if (apkVersion.compareTo(new WebViewVersion("69.0.3461.0")) >= 0) {
+            expectedFeatures.add(Features.GET_WEB_VIEW_CLIENT);
+        }
+
         final HashSet<String> apkFeatures = new HashSet<>(
                 Arrays.asList(WebViewGlueCommunicator.getFactory().getWebViewFeatures()));
 

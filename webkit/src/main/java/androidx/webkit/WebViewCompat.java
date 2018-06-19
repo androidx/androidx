@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Looper;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -417,6 +418,32 @@ public class WebViewCompat {
                     targetOrigin);
         } else if (feature.isSupportedByWebView()) {
             getProvider(webview).postWebMessage(message, targetOrigin);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets the WebViewClient.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#POST_WEB_MESSAGE}.
+     *
+     * <p>
+     * @return the WebViewClient, or a default client if not yet set
+     */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_CLIENT,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static @NonNull WebViewClient getWebViewClient(@NonNull WebView webview) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.GET_WEB_VIEW_CLIENT);
+        if (feature.isSupportedByFramework()) {
+            return webview.getWebViewClient();
+        } else if (feature.isSupportedByWebView()) {
+            return getProvider(webview).getWebViewClient();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
