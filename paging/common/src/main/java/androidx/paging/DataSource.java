@@ -271,7 +271,7 @@ public abstract class DataSource<Key, Value> {
         @PageResult.ResultType
         final int mResultType;
         private final DataSource mDataSource;
-        private final PageResult.Receiver<T> mReceiver;
+        final PageResult.Receiver<T> mReceiver;
 
         // mSignalLock protects mPostExecutor, and mHasSignalled
         private final Object mSignalLock = new Object();

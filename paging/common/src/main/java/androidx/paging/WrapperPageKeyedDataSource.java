@@ -24,7 +24,8 @@ import java.util.List;
 
 class WrapperPageKeyedDataSource<K, A, B> extends PageKeyedDataSource<K, B> {
     private final PageKeyedDataSource<K, A> mSource;
-    private final Function<List<A>, List<B>> mListFunction;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Function<List<A>, List<B>> mListFunction;
 
     WrapperPageKeyedDataSource(PageKeyedDataSource<K, A> source,
             Function<List<A>, List<B>> listFunction) {
