@@ -198,7 +198,11 @@ inline fun View.postOnAnimationDelayed(
  *
  * @param config Bitmap config of the desired bitmap. Defaults to [Bitmap.Config.ARGB_8888].
  */
-@Deprecated("Renamed to drawToBitmap()", ReplaceWith("this.drawToBitmap(config)"))
+@Deprecated(
+    "Renamed to drawToBitmap()",
+    ReplaceWith("this.drawToBitmap(config)"),
+    DeprecationLevel.ERROR
+)
 inline fun View.toBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888) = drawToBitmap(config)
 
 /**

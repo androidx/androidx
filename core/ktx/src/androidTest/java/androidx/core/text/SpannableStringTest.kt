@@ -18,6 +18,7 @@ package androidx.core.text
 
 import android.graphics.Typeface.BOLD
 import android.text.SpannableString
+import android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import org.junit.Assert.assertEquals
@@ -28,28 +29,10 @@ class SpannableStringTest {
 
     @Test fun toSpannableString() = assertTrue("Hello, World".toSpannable() is SpannableString)
 
-    @Test fun plusAssign() {
-        val s = "Hello, World".toSpannable()
-
-        val bold = StyleSpan(BOLD)
-        s += bold
-        assertEquals(0, s.getSpanStart(bold))
-        assertEquals(s.length, s.getSpanEnd(bold))
-    }
-
-    @Test fun minusAssign() {
-        val s = "Hello, World".toSpannable()
-        val bold = StyleSpan(BOLD)
-        s += bold
-        assertTrue(s.getSpans<Any>().isNotEmpty())
-        s -= bold
-        assertTrue(s.getSpans<Any>().isEmpty())
-    }
-
     @Test fun clearSpans() {
         val s = "Hello, World".toSpannable()
-        s += StyleSpan(BOLD)
-        s += UnderlineSpan()
+        s.setSpan(StyleSpan(BOLD), 0, s.length, SPAN_INCLUSIVE_EXCLUSIVE)
+        s.setSpan(UnderlineSpan(), 0, s.length, SPAN_INCLUSIVE_EXCLUSIVE)
         assertTrue(s.getSpans<Any>().isNotEmpty())
         s.clearSpans()
         assertTrue(s.getSpans<Any>().isEmpty())
