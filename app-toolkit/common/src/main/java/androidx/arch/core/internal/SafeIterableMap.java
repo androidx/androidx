@@ -34,7 +34,8 @@ import java.util.WeakHashMap;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 
-    private Entry<K, V> mStart;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Entry<K, V> mStart;
     private Entry<K, V> mEnd;
     // using WeakHashMap over List<WeakReference>, so we don't have to manually remove
     // WeakReferences that have null in them.
@@ -313,6 +314,9 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
     private class IteratorWithAdditions implements Iterator<Map.Entry<K, V>>, SupportRemove<K, V> {
         private Entry<K, V> mCurrent;
         private boolean mBeforeStart = true;
+
+        IteratorWithAdditions() {
+        }
 
         @SuppressWarnings("ReferenceEquality")
         @Override
