@@ -52,6 +52,8 @@ public class MockPlayer extends BaseMediaPlayer {
 
     public MockPlayer(int count) {
         mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
+        // This prevents MS2#play() from triggering BaseMediaPlayer#prepare().
+        mLastPlayerState = PLAYER_STATE_PAUSED;
     }
 
     @Override
