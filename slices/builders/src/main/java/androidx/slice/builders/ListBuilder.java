@@ -215,6 +215,10 @@ public class ListBuilder extends TemplateSliceBuilder {
     /**
      * Construct the slice.
      * <p>
+     * Note that a ListBuilder slice requires a row containing a piece of text that is not created
+     * from a {@link GridRowBuilder}. If the first row added does not fulfill this requirement,
+     * build the slice will throw {@link IllegalStateException}.
+     * <p>
      * Note that a slice requires a primary action, this can be set on any of the rows given to the
      * list builder. If a primary action has not been set on any of the rows, building this slice
      * will throw {@link IllegalStateException}.
@@ -257,7 +261,9 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * Add a grid row to the list builder.
+     * Add a grid row to the list builder. Note that grid rows cannot be the first row in your
+     * slice. Adding a grid row first without calling {@link #setHeader(HeaderBuilder)} will
+     * result in {@link IllegalStateException} when the slice is built.
      */
     @NonNull
     public ListBuilder addGridRow(@NonNull GridRowBuilder builder) {

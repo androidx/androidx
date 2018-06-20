@@ -23,6 +23,7 @@ import static android.app.slice.Slice.HINT_LAST_UPDATED;
 import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_SEE_MORE;
 import static android.app.slice.Slice.HINT_SHORTCUT;
+import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.HINT_TTL;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
@@ -415,16 +416,24 @@ public class ListContent {
      */
     @Nullable
     public SliceItem getPrimaryAction() {
+        SliceItem action = null;
         if (mHeaderItem != null) {
             if (mHeaderItem.hasHint(HINT_HORIZONTAL)) {
                 GridContent gc = new GridContent(mContext, mHeaderItem);
-                return gc.getContentIntent();
+                action = gc.getContentIntent();
             } else {
                 RowContent rc = new RowContent(mContext, mHeaderItem, false);
-                return rc.getPrimaryAction();
+                action = rc.getPrimaryAction();
             }
         }
-        return null;
+        if (action == null) {
+            String[] hints = new String[]{HINT_SHORTCUT, HINT_TITLE};
+            action = SliceQuery.find(mSlice, FORMAT_ACTION, hints, null);
+        }
+        if (action == null) {
+            action = SliceQuery.find(mSlice, FORMAT_ACTION, (String) null, null);
+        }
+        return action;
     }
 
     @Nullable
