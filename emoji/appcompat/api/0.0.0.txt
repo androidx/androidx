@@ -1,0 +1,24 @@
+package androidx.emoji.widget {
+
+  public class EmojiAppCompatButton extends androidx.appcompat.widget.AppCompatButton {
+    ctor public EmojiAppCompatButton(android.content.Context);
+    ctor public EmojiAppCompatButton(android.content.Context, android.util.AttributeSet);
+    ctor public EmojiAppCompatButton(android.content.Context, android.util.AttributeSet, int);
+  }
+
+  public class EmojiAppCompatEditText extends androidx.appcompat.widget.AppCompatEditText {
+    ctor public EmojiAppCompatEditText(android.content.Context);
+    ctor public EmojiAppCompatEditText(android.content.Context, android.util.AttributeSet);
+    ctor public EmojiAppCompatEditText(android.content.Context, android.util.AttributeSet, int);
+    method public int getMaxEmojiCount();
+    method public void setMaxEmojiCount(int);
+  }
+
+  public class EmojiAppCompatTextView extends androidx.appcompat.widget.AppCompatTextView {
+    ctor public EmojiAppCompatTextView(android.content.Context);
+    ctor public EmojiAppCompatTextView(android.content.Context, android.util.AttributeSet);
+    ctor public EmojiAppCompatTextView(android.content.Context, android.util.AttributeSet, int);
+  }
+
+}
+
