@@ -51,6 +51,7 @@ public class SlicePermissionActivity extends Activity implements OnClickListener
     private Uri mUri;
     private String mCallingPkg;
     private String mProviderPkg;
+    private AlertDialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,16 +69,16 @@ public class SlicePermissionActivity extends Activity implements OnClickListener
             CharSequence app2 = BidiFormatter.getInstance().unicodeWrap(
                     loadSafeLabel(pm, pm.getApplicationInfo(mProviderPkg, 0))
                     .toString());
-            AlertDialog dialog = new AlertDialog.Builder(this)
+            mDialog = new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.abc_slice_permission_title, app1, app2))
                     .setView(R.layout.abc_slice_permission_request)
                     .setNegativeButton(R.string.abc_slice_permission_deny, this)
                     .setPositiveButton(R.string.abc_slice_permission_allow, this)
                     .setOnDismissListener(this)
                     .show();
-            TextView t1 = dialog.getWindow().getDecorView().findViewById(R.id.text1);
+            TextView t1 = mDialog.getWindow().getDecorView().findViewById(R.id.text1);
             t1.setText(getString(R.string.abc_slice_permission_text_1, app2));
-            TextView t2 = dialog.getWindow().getDecorView().findViewById(R.id.text2);
+            TextView t2 = mDialog.getWindow().getDecorView().findViewById(R.id.text2);
             t2.setText(getString(R.string.abc_slice_permission_text_2, app2));
         } catch (NameNotFoundException e) {
             Log.e(TAG, "Couldn't find package", e);
@@ -136,5 +137,13 @@ public class SlicePermissionActivity extends Activity implements OnClickListener
     @Override
     public void onDismiss(DialogInterface dialog) {
         finish();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mDialog != null && mDialog.isShowing()) {
+            mDialog.cancel();
+        }
     }
 }
