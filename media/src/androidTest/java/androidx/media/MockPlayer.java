@@ -53,7 +53,7 @@ public class MockPlayer extends BaseMediaPlayer {
         mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
         mVolume = getMaxPlayerVolume();
         mChangePlayerStateWithTransportControl = false;
-        // This prevents MS2#play() from triggering BMP#pause().
+        // This prevents MS2#play() from triggering BaseMediaPlayer#prepare().
         mLastPlayerState = PLAYER_STATE_PAUSED;
     }
 
@@ -61,7 +61,7 @@ public class MockPlayer extends BaseMediaPlayer {
         mCountDownLatch = null;
         mVolume = getMaxPlayerVolume();
         mChangePlayerStateWithTransportControl = changePlayerStateWithTransportControl;
-        // This prevents MS2#play() from triggering BMP#pause().
+        // This prevents MS2#play() from triggering BaseMediaPlayer#prepare().
         mLastPlayerState = PLAYER_STATE_PAUSED;
     }
 
