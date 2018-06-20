@@ -45,7 +45,6 @@ import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
 import androidx.car.test.R;
 import androidx.car.utils.CarUxRestrictionsTestUtils;
@@ -747,49 +746,6 @@ public class TextListItemTest {
                 is(equalTo(bodyPrimary.getBody().getTextSize())));
         assertThat(titlePrimary.getTitle().getTextColors(),
                 is(equalTo(bodyPrimary.getBody().getTextColors())));
-    }
-
-    @Test
-    public void testNoCarriedOverLayoutParamsForTextView() throws Throwable {
-        TextListItem singleLine = new TextListItem(mActivity);
-        singleLine.setTitle("title");
-
-        setupPagedListView(Arrays.asList(singleLine));
-
-        // Manually rebind the view holder of a single line item to a double line item.
-        TextListItem doubleLine = new TextListItem(mActivity);
-        doubleLine.setTitle("title");
-        doubleLine.setBody("body");
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        mActivityRule.runOnUiThread(() -> doubleLine.bind(viewHolder));
-
-        RelativeLayout.LayoutParams titleLayoutParams =
-                (RelativeLayout.LayoutParams) viewHolder.getTitle().getLayoutParams();
-        RelativeLayout.LayoutParams bodyLayoutParams =
-                (RelativeLayout.LayoutParams) viewHolder.getTitle().getLayoutParams();
-        assertThat(titleLayoutParams.getRule(RelativeLayout.CENTER_VERTICAL), is(equalTo(0)));
-        assertThat(bodyLayoutParams.getRule(RelativeLayout.CENTER_VERTICAL), is(equalTo(0)));
-    }
-
-    @Test
-    public void testNoCarriedOverLayoutParamsForPrimaryIcon() throws Throwable {
-        TextListItem smallIcon = new TextListItem(mActivity);
-        smallIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
-        smallIcon.setBody("body");  // Small icon of items with body text should use top margin.
-        setupPagedListView(Arrays.asList(smallIcon));
-
-        // Manually rebind the view holder.
-        TextListItem largeIcon = new TextListItem(mActivity);
-        largeIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
-        largeIcon.setPrimaryActionIconSize(TextListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
-        TextListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
-        mActivityRule.runOnUiThread(() -> largeIcon.bind(viewHolder));
-
-        RelativeLayout.LayoutParams iconLayoutParams =
-                (RelativeLayout.LayoutParams) viewHolder.getPrimaryIcon().getLayoutParams();
-        assertThat(iconLayoutParams.getRule(RelativeLayout.CENTER_VERTICAL),
-                is(equalTo(RelativeLayout.TRUE)));
-        assertThat(iconLayoutParams.topMargin, is(equalTo(0)));
     }
 
     @Test

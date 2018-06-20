@@ -488,7 +488,7 @@ package androidx.car.widget {
     method public android.widget.Button getAction2();
     method public android.view.View getAction2Divider();
     method public android.widget.TextView getBody();
-    method public android.widget.RelativeLayout getContainerLayout();
+    method public android.view.ViewGroup getContainerLayout();
     method public android.widget.ImageView getPrimaryIcon();
     method public android.widget.ImageView getSupplementalIcon();
     method public android.view.View getSupplementalIconDivider();

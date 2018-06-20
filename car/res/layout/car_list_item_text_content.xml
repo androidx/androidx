@@ -14,97 +14,134 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:foreground="@drawable/car_card_ripple_background">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/car_single_line_list_item_height"
+    android:foreground="@drawable/car_card_ripple_background"
+    android:paddingEnd="@dimen/car_keyline_1" >
+
     <!-- Primary Action. -->
     <ImageView
         android:id="@+id/primary_icon"
         android:layout_width="@dimen/car_single_line_list_item_height"
-        android:layout_height="@dimen/car_single_line_list_item_height"/>
+        android:layout_height="@dimen/car_single_line_list_item_height"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <!-- Text. -->
     <TextView
         android:id="@+id/title"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:singleLine="true"
-        android:ellipsize="end"/>
+        android:ellipsize="end"
+        android:textAppearance="@style/TextAppearance.Car.Body1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/body"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/barrier"
+        app:layout_constraintVertical_chainStyle="packed"/>
+
     <TextView
         android:id="@+id/body"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Car.Body2"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/barrier"/>
+
+    <!-- A barrier between the text and any supplemental icons or actions. -->
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="start"
+        app:barrierAllowsGoneWidgets="false"
+        app:constraint_referenced_ids="supplemental_icon_divider,supplemental_icon,switch_divider,switch_widget,action2_divider,action2,action1_divider,action1" />
 
     <!-- Supplemental action(s) - only one of the following groups should be visible. -->
     <!-- End icon with divider. -->
     <View
         android:id="@+id/supplemental_icon_divider"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@id/supplemental_icon"
         android:layout_marginEnd="@dimen/car_padding_4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/supplemental_icon"
         style="@style/CarListVerticalDivider"/>
+
     <ImageView
         android:id="@+id/supplemental_icon"
         android:background="@drawable/car_button_ripple_background"
-        android:layout_centerVertical="true"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="@dimen/car_keyline_1"
-        android:scaleType="fitCenter"/>
+        android:scaleType="fitCenter"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Switch with divider. -->
     <View
         android:id="@+id/switch_divider"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/switch_widget"
         android:layout_marginEnd="@dimen/car_padding_4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/switch_widget"
         style="@style/CarListVerticalDivider"/>
     <Switch
-        android:id="@id/switch_widget"
-        android:layout_centerVertical="true"
+        android:id="@+id/switch_widget"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="@dimen/car_keyline_1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         style="@android:style/Widget.Material.CompoundButton.Switch"/>
 
     <!-- Up to 2 action buttons with dividers. -->
     <View
         android:id="@+id/action2_divider"
-        android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/action2"
         android:layout_marginEnd="@dimen/car_padding_4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/action2"
         style="@style/CarListVerticalDivider"/>
+
     <Button
-        android:id="@id/action2"
-        android:layout_centerVertical="true"
+        android:id="@+id/action2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@+id/action1_divider"
         android:layout_marginEnd="@dimen/car_padding_4"
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/action1_divider"
         style="?android:attr/borderlessButtonStyle"/>
     <View
-        android:id="@id/action1_divider"
-        android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/action1"
+        android:id="@+id/action1_divider"
         android:layout_marginEnd="@dimen/car_padding_4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/action1"
         style="@style/CarListVerticalDivider"/>
     <Button
-        android:id="@id/action1"
-        android:layout_centerVertical="true"
+        android:id="@+id/action1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="@dimen/car_keyline_1"
         android:ellipsize="end"
         android:maxLength="@integer/car_borderless_button_text_length_limit"
         android:maxLines="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         style="?android:attr/borderlessButtonStyle"/>
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
