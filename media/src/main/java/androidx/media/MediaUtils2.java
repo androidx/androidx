@@ -21,7 +21,6 @@ import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_ICON;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_ICON_URI;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_SUBTITLE;
 import static androidx.media.MediaMetadata2.METADATA_KEY_DISPLAY_TITLE;
-import static androidx.media.MediaMetadata2.METADATA_KEY_EXTRAS;
 import static androidx.media.MediaMetadata2.METADATA_KEY_MEDIA_ID;
 import static androidx.media.MediaMetadata2.METADATA_KEY_MEDIA_URI;
 import static androidx.media.MediaMetadata2.METADATA_KEY_TITLE;
@@ -32,7 +31,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
-import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
@@ -220,64 +218,6 @@ class MediaUtils2 {
         }
 
         return metadata2Builder.build();
-    }
-
-    /**
-     * Creates a {@link MediaMetadata2} from the {@link MediaMetadataCompat}.
-     *
-     * @param metadataCompat A {@link MediaMetadataCompat} object.
-     * @return The newly created {@link MediaMetadata2} object.
-     */
-    static MediaMetadata2 convertToMediaMetadata2(MediaMetadataCompat metadataCompat) {
-        if (metadataCompat == null) {
-            return null;
-        }
-        return new MediaMetadata2(metadataCompat.getBundle());
-    }
-
-    /**
-     * Creates a {@link MediaMetadataCompat} from the {@link MediaMetadata2}.
-     *
-     * @param metadata2 A {@link MediaMetadata2} object.
-     * @return The newly created {@link MediaMetadataCompat} object.
-     */
-    static MediaMetadataCompat convertToMediaMetadataCompat(MediaMetadata2 metadata2) {
-        if (metadata2 == null) {
-            return null;
-        }
-
-        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
-
-        List<String> skippedKeys = new ArrayList<>();
-        Bundle bundle = metadata2.toBundle();
-        for (String key : bundle.keySet()) {
-            Object value = bundle.get(key);
-            if (value instanceof CharSequence) {
-                builder.putText(key, (CharSequence) value);
-            } else if (value instanceof Rating2) {
-                builder.putRating(key, convertToRatingCompat((Rating2) value));
-            } else if (value instanceof Bitmap) {
-                builder.putBitmap(key, (Bitmap) value);
-            } else if (value instanceof Long) {
-                builder.putLong(key, (Long) value);
-            } else {
-                // There is no 'float' or 'bundle' type in MediaMetadataCompat.
-                skippedKeys.add(key);
-            }
-        }
-
-        MediaMetadataCompat result = builder.build();
-        for (String key : skippedKeys) {
-            Object value = bundle.get(key);
-            if (value instanceof Float) {
-                // Compatibility for MediaMetadata2.Builder.putFloat()
-                result.getBundle().putFloat(key, (Float) value);
-            } else if (METADATA_KEY_EXTRAS.equals(value)) {
-                // Compatibility for MediaMetadata2.Builder.setExtras()
-                result.getBundle().putBundle(key, (Bundle) value);
-            }
-        }
-        return result;
     }
 
     /**
