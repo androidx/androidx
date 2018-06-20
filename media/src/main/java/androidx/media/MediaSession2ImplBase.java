@@ -145,7 +145,7 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
         }
         String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
                 new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
-        mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mSessionToken);
+        mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mSessionToken.toBundle());
         mSessionCompat.setCallback(mSessionLegacyStub, mHandler);
         mSessionCompat.setSessionActivity(sessionActivity);
         updatePlayer(player, playlistAgent, volumeProvider);
