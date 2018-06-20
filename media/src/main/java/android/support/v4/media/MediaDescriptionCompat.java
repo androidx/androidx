@@ -378,8 +378,11 @@ public final class MediaDescriptionCompat implements Parcelable {
             bob.setIconBitmap(MediaDescriptionCompatApi21.getIconBitmap(descriptionObj));
             bob.setIconUri(MediaDescriptionCompatApi21.getIconUri(descriptionObj));
             Bundle extras = MediaDescriptionCompatApi21.getExtras(descriptionObj);
-            Uri mediaUri = extras == null ? null :
-                    (Uri) extras.getParcelable(DESCRIPTION_KEY_MEDIA_URI);
+            Uri mediaUri = null;
+            if (extras != null) {
+                extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                mediaUri = extras.getParcelable(DESCRIPTION_KEY_MEDIA_URI);
+            }
             if (mediaUri != null) {
                 if (extras.containsKey(DESCRIPTION_KEY_NULL_BUNDLE_FLAG) && extras.size() == 2) {
                     // The extras were only created for the media URI, so we set it back to null to

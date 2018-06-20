@@ -581,13 +581,13 @@ public final class MediaMetadataCompat implements Parcelable {
     }
 
     /**
-     * Gets the bundle backing the metadata object. This is available to support
-     * backwards compatibility. Apps should not modify the bundle directly.
+     * Gets a copy of the bundle for this metadata object. This is available to support
+     * backwards compatibility.
      *
-     * @return The Bundle backing this metadata.
+     * @return A copy of the bundle for this metadata object.
      */
     public Bundle getBundle() {
-        return mBundle;
+        return new Bundle(mBundle);
     }
 
     /**
@@ -675,6 +675,7 @@ public final class MediaMetadataCompat implements Parcelable {
          */
         public Builder(MediaMetadataCompat source) {
             mBundle = new Bundle(source.mBundle);
+            mBundle.setClassLoader(MediaMetadataCompat.class.getClassLoader());
         }
 
         /**
