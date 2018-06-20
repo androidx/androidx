@@ -43,8 +43,10 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
+import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
 import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
 import androidx.collection.LruCache;
@@ -93,11 +95,12 @@ public final class AppCompatDrawableManager {
 
     private static void installDefaultInflateDelegates(@NonNull AppCompatDrawableManager manager) {
         // This sdk version check will affect src:appCompat code path.
-        // Although VectorDrawable exists in Android framework from Lollipop, AppCompat will use the
-        // VectorDrawableCompat before Nougat to utilize the bug fixes in VectorDrawableCompat.
+        // Although VectorDrawable exists in Android framework from Lollipop, AppCompat will use
+        // (Animated)VectorDrawableCompat before Nougat to utilize bug fixes & feature backports.
         if (Build.VERSION.SDK_INT < 24) {
             manager.addDelegate("vector", new VdcInflateDelegate());
             manager.addDelegate("animated-vector", new AvdcInflateDelegate());
+            manager.addDelegate("animated-selector", new AsldcInflateDelegate());
         }
     }
 
@@ -789,6 +792,21 @@ public final class AppCompatDrawableManager {
                         .createFromXmlInner(context, context.getResources(), parser, attrs, theme);
             } catch (Exception e) {
                 Log.e("AvdcInflateDelegate", "Exception while inflating <animated-vector>", e);
+                return null;
+            }
+        }
+    }
+
+    @RequiresApi(11)
+    static class AsldcInflateDelegate implements InflateDelegate {
+        @Override
+        public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
+                @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {
+            try {
+                return AnimatedStateListDrawableCompat
+                        .createFromXmlInner(context, context.getResources(), parser, attrs, theme);
+            } catch (Exception e) {
+                Log.e("AsldcInflateDelegate", "Exception while inflating <animated-selector>", e);
                 return null;
             }
         }

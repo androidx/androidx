@@ -36,4 +36,9 @@
     <color name="color_sky_night">#3050CF</color>
     <color name="color_sky">@color/color_sky_day</color>
 
+    <drawable name="red">#7f00</drawable>
+    <drawable name="blue">#770000ff</drawable>
+    <drawable name="black">#77ffffff</drawable>
+    <drawable name="yellow">#77ffff00</drawable>
+
 </resources>
