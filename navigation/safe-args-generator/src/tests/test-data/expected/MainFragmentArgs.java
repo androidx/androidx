@@ -2,6 +2,8 @@ package a.b;
 
 import android.os.Bundle;
 import java.lang.IllegalArgumentException;
+import java.lang.Object;
+import java.lang.Override;
 import java.lang.String;
 
 public class MainFragmentArgs {
@@ -68,6 +70,47 @@ public class MainFragmentArgs {
         __outBundle.putFloat("floatArg", this.floatArg);
         __outBundle.putBoolean("boolArg", this.boolArg);
         return __outBundle;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+        MainFragmentArgs that = (MainFragmentArgs) object;
+        if (main != null ? !main.equals(that.main) : that.main != null) {
+            return false;
+        }
+        if (optional != that.optional) {
+            return false;
+        }
+        if (reference != that.reference) {
+            return false;
+        }
+        if (Float.compare(that.floatArg, floatArg) != 0) {
+            return false;
+        }
+        if (boolArg != that.boolArg) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (main != null ? main.hashCode() : 0);
+        result = 31 * result + optional;
+        result = 31 * result + reference;
+        result = 31 * result + Float.floatToIntBits(floatArg);
+        result = 31 * result + (boolArg ? 1 : 0);
+        return result;
     }
 
     public static class Builder {

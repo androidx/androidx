@@ -28,6 +28,7 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
@@ -90,11 +91,62 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
                 .returns(arg.type.typeName())
                 .build()
     }
+
+    fun equalsMethod(className: ClassName) = MethodSpec.methodBuilder("equals").apply {
+        addAnnotation(Override::class.java)
+        addModifiers(Modifier.PUBLIC)
+        addParameter(TypeName.OBJECT, "object")
+        addCode("""
+                if (this == object) {
+                    return true;
+                }
+                if (object == null || getClass() != object.getClass()) {
+                    return false;
+                }
+                if (!super.equals(object)) {
+                    return false;
+                }
+
+                """.trimIndent())
+        addStatement("${className.simpleName()} that = (${className.simpleName()}) object")
+        args.forEach {
+            val compareExpression = when (it.type) {
+                NavType.INT, NavType.BOOLEAN, NavType.REFERENCE -> "${it.name} != that.${it.name}"
+                NavType.FLOAT -> "Float.compare(that.${it.name}, ${it.name}) != 0"
+                NavType.STRING -> "${it.name} != null ? !${it.name}.equals(that.${it.name}) " +
+                        ": that.${it.name} != null"
+            }
+            beginControlFlow("if ($N)", compareExpression).apply {
+                addStatement("return false")
+            }
+            endControlFlow()
+        }
+        addStatement("return true")
+        returns(TypeName.BOOLEAN)
+    }.build()
+
+    fun hashCodeMethod() = MethodSpec.methodBuilder("hashCode").apply {
+        addAnnotation(Override::class.java)
+        addModifiers(Modifier.PUBLIC)
+        addStatement("int result = super.hashCode()")
+        args.forEach {
+            val hashCodeExpression = when (it.type) {
+                NavType.INT, NavType.REFERENCE -> it.name
+                NavType.FLOAT -> "Float.floatToIntBits(${it.name})"
+                NavType.STRING -> "(${it.name} != null ? ${it.name}.hashCode() : 0)"
+                NavType.BOOLEAN -> "(${it.name} ? 1 : 0)"
+            }
+            addStatement("result = 31 * result + $N", hashCodeExpression)
+        }
+        addStatement("return result")
+        returns(TypeName.INT)
+    }.build()
 }
 
 fun generateDestinationDirectionsTypeSpec(
-        className: ClassName,
-        destination: Destination): TypeSpec {
+    className: ClassName,
+    destination: Destination
+): TypeSpec {
     val actionTypes = destination.actions.map { action ->
         action to generateDirectionsTypeSpec(action)
     }
@@ -204,6 +256,8 @@ internal fun generateArgsJavaFile(destination: Destination): JavaFile {
             .addMethod(fromBundleMethod)
             .addMethods(specs.getters())
             .addMethod(specs.toBundleMethod("toBundle"))
+            .addMethod(specs.equalsMethod(className))
+            .addMethod(specs.hashCodeMethod())
             .addType(builderTypeSpec)
             .build()
 
