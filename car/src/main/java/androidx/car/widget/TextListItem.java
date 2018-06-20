@@ -25,22 +25,22 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.DimenRes;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.annotation.Retention;
@@ -270,9 +270,8 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private void setText() {
         setTextContent();
         setTextVerticalMargin();
-        // Only set start margin because text end is relative to the start of supplemental actions.
         setTextStartMargin();
-        setTextEndLayout();
+        setTextEndMargin();
     }
 
     private void setOnClickListener() {
@@ -287,7 +286,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             case PRIMARY_ACTION_TYPE_ICON:
                 mBinders.add(vh -> {
                     vh.getPrimaryIcon().setVisibility(View.VISIBLE);
-
                     vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
                 });
                 break;
@@ -329,6 +327,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             default:
                 throw new IllegalStateException("Unknown primary action icon size.");
         }
+
         int iconSize = mContext.getResources().getDimensionPixelSize(sizeResId);
 
         // Start margin of icon.
@@ -346,26 +345,28 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         }
 
         mBinders.add(vh -> {
-            RelativeLayout.LayoutParams layoutParams =
-                    (RelativeLayout.LayoutParams) vh.getPrimaryIcon().getLayoutParams();
+            ConstraintLayout.LayoutParams layoutParams =
+                    (ConstraintLayout.LayoutParams) vh.getPrimaryIcon().getLayoutParams();
             layoutParams.height = layoutParams.width = iconSize;
             layoutParams.setMarginStart(startMargin);
 
-            // Set all relevant fields in layout params to avoid carried over params when the item
-            // gets bound to a recycled view holder.
             if (mPrimaryActionIconSize == PRIMARY_ACTION_ICON_SIZE_LARGE) {
-                // Large icon is always centered vertically.
-                layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+                // A large icon is always vertically centered.
+                layoutParams.verticalBias = 0.5f;
                 layoutParams.topMargin = 0;
             } else {
-                // Pin the icon to the same position it would've been in for non-long-text item,
-                // namely so that the center line of icon matches that of line item.
-                layoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
+                // Align the icon to the top of the parent. This allows the topMargin to shift it
+                // down relative to the top.
+                layoutParams.verticalBias = 0f;
 
+                // For all other icon sizes, the icon should be centered within the height of
+                // car_double_line_list_item_height. Note: the actual height of the item can be
+                // larger than this.
                 int itemHeight = mContext.getResources().getDimensionPixelSize(
                         R.dimen.car_double_line_list_item_height);
                 layoutParams.topMargin = (itemHeight - iconSize) / 2;
             }
+
             vh.getPrimaryIcon().requestLayout();
         });
     }
@@ -419,15 +420,31 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         }
         int startMargin = mContext.getResources().getDimensionPixelSize(startMarginResId);
         mBinders.add(vh -> {
-            RelativeLayout.LayoutParams titleLayoutParams =
-                    (RelativeLayout.LayoutParams) vh.getTitle().getLayoutParams();
+            MarginLayoutParams titleLayoutParams =
+                    (MarginLayoutParams) vh.getTitle().getLayoutParams();
             titleLayoutParams.setMarginStart(startMargin);
             vh.getTitle().requestLayout();
 
-            RelativeLayout.LayoutParams bodyLayoutParams =
-                    (RelativeLayout.LayoutParams) vh.getBody().getLayoutParams();
+            MarginLayoutParams bodyLayoutParams =
+                    (MarginLayoutParams) vh.getBody().getLayoutParams();
             bodyLayoutParams.setMarginStart(startMargin);
             vh.getBody().requestLayout();
+        });
+    }
+
+    private void setTextEndMargin() {
+        int endMargin = mSupplementalActionType == SUPPLEMENTAL_ACTION_NO_ACTION
+                ? 0
+                : mContext.getResources().getDimensionPixelSize(R.dimen.car_padding_4);
+
+        mBinders.add(vh -> {
+            MarginLayoutParams titleLayoutParams =
+                    (MarginLayoutParams) vh.getTitle().getLayoutParams();
+            titleLayoutParams.setMarginEnd(endMargin);
+
+            MarginLayoutParams bodyLayoutParams =
+                    (MarginLayoutParams) vh.getBody().getLayoutParams();
+            bodyLayoutParams.setMarginEnd(endMargin);
         });
     }
 
@@ -440,9 +457,8 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         if (!TextUtils.isEmpty(mTitle) && TextUtils.isEmpty(mBody)) {
             // Title only - view is aligned center vertically by itself.
             mBinders.add(vh -> {
-                RelativeLayout.LayoutParams layoutParams =
-                        (RelativeLayout.LayoutParams) vh.getTitle().getLayoutParams();
-                layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+                MarginLayoutParams layoutParams =
+                        (MarginLayoutParams) vh.getTitle().getLayoutParams();
                 layoutParams.topMargin = 0;
                 vh.getTitle().requestLayout();
             });
@@ -451,10 +467,8 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                 // Body uses top and bottom margin.
                 int margin = mContext.getResources().getDimensionPixelSize(
                          R.dimen.car_padding_3);
-                RelativeLayout.LayoutParams layoutParams =
-                        (RelativeLayout.LayoutParams) vh.getBody().getLayoutParams();
-                layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
-                layoutParams.removeRule(RelativeLayout.BELOW);
+                MarginLayoutParams layoutParams =
+                        (MarginLayoutParams) vh.getBody().getLayoutParams();
                 layoutParams.topMargin = margin;
                 layoutParams.bottomMargin = margin;
                 vh.getBody().requestLayout();
@@ -466,94 +480,16 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                 int padding1 = resources.getDimensionPixelSize(R.dimen.car_padding_1);
                 int padding3 = resources.getDimensionPixelSize(R.dimen.car_padding_3);
 
-                RelativeLayout.LayoutParams titleLayoutParams =
-                        (RelativeLayout.LayoutParams) vh.getTitle().getLayoutParams();
-                titleLayoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
+                MarginLayoutParams titleLayoutParams =
+                        (MarginLayoutParams) vh.getTitle().getLayoutParams();
                 titleLayoutParams.topMargin = padding3;
                 vh.getTitle().requestLayout();
+
                 // Body is below title with a margin, and has bottom margin.
-                RelativeLayout.LayoutParams bodyLayoutParams =
-                        (RelativeLayout.LayoutParams) vh.getBody().getLayoutParams();
-                bodyLayoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
-                bodyLayoutParams.addRule(RelativeLayout.BELOW, R.id.title);
+                MarginLayoutParams bodyLayoutParams =
+                        (MarginLayoutParams) vh.getBody().getLayoutParams();
                 bodyLayoutParams.topMargin = padding1;
                 bodyLayoutParams.bottomMargin = padding3;
-                vh.getBody().requestLayout();
-            });
-        }
-    }
-
-    /**
-     * Returns the id of the leading (left most in LTR) view of supplemental actions.
-     * The view could be one of the supplemental actions (icon, button, switch), or their divider.
-     * Returns 0 if none is enabled.
-     */
-    @IdRes
-    private int getSupplementalActionLeadingView() {
-        int leadingViewId;
-        switch (mSupplementalActionType) {
-            case SUPPLEMENTAL_ACTION_NO_ACTION:
-                leadingViewId = 0;
-                break;
-            case SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON:
-                leadingViewId = mShowSupplementalIconDivider
-                        ? R.id.supplemental_icon_divider : R.id.supplemental_icon;
-                break;
-            case SUPPLEMENTAL_ACTION_ONE_ACTION:
-                leadingViewId = mShowAction1Divider ? R.id.action1_divider : R.id.action1;
-                break;
-            case SUPPLEMENTAL_ACTION_TWO_ACTIONS:
-                leadingViewId = mShowAction2Divider ? R.id.action2_divider : R.id.action2;
-                break;
-            case SUPPLEMENTAL_ACTION_SWITCH:
-                leadingViewId = mShowSwitchDivider ? R.id.switch_divider : R.id.switch_widget;
-                break;
-            default:
-                throw new IllegalStateException("Unknown supplemental action type.");
-        }
-        return leadingViewId;
-    }
-
-    private void setTextEndLayout() {
-        // Figure out which view the text should align to.
-        @IdRes int leadingViewId = getSupplementalActionLeadingView();
-
-        if (leadingViewId == 0) {
-            // There is no supplemental action. Text should align to parent end with KL1 padding.
-            mBinders.add(vh -> {
-                Resources resources = mContext.getResources();
-                int padding = resources.getDimensionPixelSize(R.dimen.car_keyline_1);
-
-                RelativeLayout.LayoutParams titleLayoutParams =
-                        (RelativeLayout.LayoutParams) vh.getTitle().getLayoutParams();
-                titleLayoutParams.setMarginEnd(padding);
-                titleLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-                titleLayoutParams.removeRule(RelativeLayout.START_OF);
-
-                RelativeLayout.LayoutParams bodyLayoutParams =
-                        (RelativeLayout.LayoutParams) vh.getBody().getLayoutParams();
-                bodyLayoutParams.setMarginEnd(padding);
-                bodyLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-                bodyLayoutParams.removeRule(RelativeLayout.START_OF);
-            });
-        } else {
-            // Text align to start of leading supplemental view with padding.
-            mBinders.add(vh -> {
-                Resources resources = mContext.getResources();
-                int padding = resources.getDimensionPixelSize(R.dimen.car_padding_4);
-
-                RelativeLayout.LayoutParams titleLayoutParams =
-                        (RelativeLayout.LayoutParams) vh.getTitle().getLayoutParams();
-                titleLayoutParams.setMarginEnd(padding);
-                titleLayoutParams.removeRule(RelativeLayout.ALIGN_PARENT_END);
-                titleLayoutParams.addRule(RelativeLayout.START_OF, leadingViewId);
-                vh.getTitle().requestLayout();
-
-                RelativeLayout.LayoutParams bodyLayoutParams =
-                        (RelativeLayout.LayoutParams) vh.getBody().getLayoutParams();
-                bodyLayoutParams.setMarginEnd(padding);
-                bodyLayoutParams.removeRule(RelativeLayout.ALIGN_PARENT_END);
-                bodyLayoutParams.addRule(RelativeLayout.START_OF, leadingViewId);
                 vh.getBody().requestLayout();
             });
         }
@@ -891,7 +827,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
         private final View[] mWidgetViews;
 
-        private RelativeLayout mContainerLayout;
+        private ViewGroup mContainerLayout;
 
         private ImageView mPrimaryIcon;
 
@@ -963,7 +899,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         }
 
         @NonNull
-        public RelativeLayout getContainerLayout() {
+        public ViewGroup getContainerLayout() {
             return mContainerLayout;
         }
 
