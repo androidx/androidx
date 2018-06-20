@@ -49,7 +49,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
 import androidx.core.app.ComponentActivity;
-import androidx.media.SessionToken2;
 import androidx.media.VolumeProviderCompat;
 
 import java.lang.ref.WeakReference;
@@ -534,14 +533,14 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Gets the SessionToken2 for the session that this controller is connected to.
+     * Gets the SessionToken2 as bundle for the session that this controller is connected to.
      *
-     * @return The session's token.
+     * @return The session's token as bundle.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public @Nullable SessionToken2 getSessionToken2() {
-        return mToken.getSessionToken2();
+    public @Nullable Bundle getSessionToken2Bundle() {
+        return mToken.getSessionToken2Bundle();
     }
 
     /**
@@ -2232,9 +2231,8 @@ public final class MediaControllerCompat {
                             IMediaSession.Stub.asInterface(
                                     BundleCompat.getBinder(
                                             resultData, MediaSessionCompat.KEY_EXTRA_BINDER)));
-                    mediaControllerImpl.mSessionToken.setSessionToken2(
-                            SessionToken2.fromBundle(
-                                    resultData.getBundle(MediaSessionCompat.KEY_SESSION_TOKEN2)));
+                    mediaControllerImpl.mSessionToken.setSessionToken2Bundle(
+                            resultData.getBundle(MediaSessionCompat.KEY_SESSION_TOKEN2_BUNDLE));
                     mediaControllerImpl.processPendingCallbacksLocked();
                 }
             }
