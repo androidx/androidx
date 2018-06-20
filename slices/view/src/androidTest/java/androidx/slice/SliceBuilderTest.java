@@ -26,6 +26,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.SliceLiveData;
@@ -43,6 +44,7 @@ import org.junit.runner.RunWith;
 public class SliceBuilderTest {
 
     private final Context mContext = InstrumentationRegistry.getContext();
+    private final Uri mUri = Uri.parse("content://pkg/slice");
 
     @Before
     public void setup() {
@@ -51,10 +53,10 @@ public class SliceBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testThrowForInvalidRangeMax() {
-        Uri uri = Uri.parse("content://pkg/slice");
-        ListBuilder lb = new ListBuilder(mContext, uri, INFINITY);
-        Slice slice = lb.addInputRange(new ListBuilder.InputRangeBuilder(lb)
+        ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
+        Slice slice = lb.addInputRange(new ListBuilder.InputRangeBuilder()
                 .setInputAction(getIntent(""))
+                .setTitle("Input range")
                 .setMax(20)
                 .setMin(50))
                 .build();
@@ -62,9 +64,9 @@ public class SliceBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testThrowForInvalidRangeMin() {
-        Uri uri = Uri.parse("content://pkg/slice");
-        ListBuilder lb = new ListBuilder(mContext, uri, INFINITY);
-        Slice slice = lb.addInputRange(new ListBuilder.InputRangeBuilder(lb)
+        ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
+        Slice slice = lb.addInputRange(new ListBuilder.InputRangeBuilder()
+                .setTitle("Input range")
                 .setInputAction(getIntent(""))
                 .setMax(20)
                 .setMin(30))
@@ -73,14 +75,71 @@ public class SliceBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testThrowForInvalidRangeValue() {
-        Uri uri = Uri.parse("content://pkg/slice");
-        ListBuilder lb = new ListBuilder(mContext, uri, INFINITY);
-        Slice slice = lb.addInputRange(new ListBuilder.InputRangeBuilder(lb)
+        ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
+        Slice slice = lb.addInputRange(new ListBuilder.InputRangeBuilder()
                 .setInputAction(getIntent(""))
+                .setTitle("Input range")
                 .setMax(80)
                 .setValue(100)
                 .setMin(30))
                 .build();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThrowForGridRowFirst() {
+        ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
+        lb.addGridRow(new GridRowBuilder().addCell(
+                new GridRowBuilder.CellBuilder().addTitleText("Title").addText("Text")));
+        lb.build();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThrowForTextlessHeader() {
+        ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
+        lb.setHeader(new ListBuilder.HeaderBuilder());
+        lb.build();
+    }
+
+    public void testNoThrowForFirstHeader() {
+        ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
+        lb.setHeader(new ListBuilder.HeaderBuilder()
+                .setTitle("Title"));
+        lb.build();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThrowForNoTextFirstInputRange() {
+        ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
+        lb.addInputRange(new ListBuilder.InputRangeBuilder()
+                .setInputAction(getIntent(""))
+                .setMax(80)
+                .setValue(70)
+                .setMin(30))
+                .build();
+    }
+
+    public void testNoThrowForFirstInputRange() {
+        ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
+        lb.addInputRange(new ListBuilder.InputRangeBuilder()
+                .setInputAction(getIntent(""))
+                .setTitle("Title")
+                .setMax(80)
+                .setValue(70)
+                .setMin(30))
+                .build();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThrowForNoTextFirstRow() {
+        ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
+        lb.addRow(new ListBuilder.RowBuilder().addEndItem(System.currentTimeMillis()));
+        lb.build();
+    }
+
+    public void testNoThrowForFirstRow() {
+        ListBuilder lb = new ListBuilder(mContext, mUri, INFINITY);
+        lb.addRow(new ListBuilder.RowBuilder().setTitle("Title"));
+        lb.build();
     }
 
     private PendingIntent getIntent(String action) {
