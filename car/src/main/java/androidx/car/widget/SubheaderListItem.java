@@ -20,7 +20,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.car.drivingstate.CarUxRestrictions;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -28,7 +27,6 @@ import android.widget.TextView;
 import androidx.annotation.DimenRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
 
@@ -56,7 +54,6 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
 
     private final List<ViewBinder<ViewHolder>> mBinders = new ArrayList<>();
 
-    @StyleRes private int mListItemSubheaderTextAppearance;
     private String mText;
 
     public SubheaderListItem(Context context, String text) {
@@ -64,12 +61,6 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
         mContext = context;
         mText = text;
         mTextStartMarginType = TEXT_START_MARGIN_TYPE_NONE;
-
-        TypedArray a = context.getTheme().obtainStyledAttributes(R.styleable.ListItem);
-        mListItemSubheaderTextAppearance = a.getResourceId(
-                R.styleable.ListItem_listItemSubheaderTextAppearance,
-                R.style.TextAppearance_Car_Subheader);
-        a.recycle();
 
         markDirty();
     }
@@ -131,8 +122,6 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
     @Override
     protected void resolveDirtyState() {
         mBinders.clear();
-
-        setItemLayoutHeight();
         setText();
     }
 
@@ -146,14 +135,6 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
         }
 
         viewHolder.getText().setEnabled(mIsEnabled);
-    }
-
-    private void setItemLayoutHeight() {
-        int height = mContext.getResources().getDimensionPixelSize(R.dimen.car_sub_header_height);
-        mBinders.add(vh -> {
-            vh.itemView.getLayoutParams().height = height;
-            vh.itemView.requestLayout();
-        });
     }
 
     private void setText() {
@@ -172,14 +153,14 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
                 throw new IllegalStateException("Unknown text start margin type.");
         }
 
+        int startMargin = mContext.getResources().getDimensionPixelSize(textStartMarginDimen);
+
         mBinders.add(vh -> {
             vh.getText().setText(mText);
-            vh.getText().setTextAppearance(mListItemSubheaderTextAppearance);
 
             ViewGroup.MarginLayoutParams layoutParams =
                     (ViewGroup.MarginLayoutParams) vh.getText().getLayoutParams();
-            layoutParams.setMarginStart(
-                    mContext.getResources().getDimensionPixelSize(textStartMarginDimen));
+            layoutParams.setMarginStart(startMargin);
             vh.getText().requestLayout();
         });
     }
@@ -188,12 +169,11 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
      * Holds views of SubHeaderListItem.
      */
     public static class ViewHolder extends ListItem.ViewHolder {
-
         private TextView mText;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            mText = itemView.findViewById(R.id.text);
+            mText = itemView.findViewById(R.id.sub_header_text);
         }
 
         /**
