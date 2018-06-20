@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
 import java.util.List;
@@ -41,5 +42,5 @@ public interface SynchronousWorkContinuation {
      * @return A {@link  List} of {@link WorkStatus}es
      */
     @WorkerThread
-    List<WorkStatus> getStatusesSync();
+    @NonNull List<WorkStatus> getStatusesSync();
 }
