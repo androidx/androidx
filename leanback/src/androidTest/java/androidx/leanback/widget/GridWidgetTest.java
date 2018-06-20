@@ -3497,7 +3497,7 @@ public class GridWidgetTest {
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.vertical_linear);
         intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
-        int[] items = new int[2];
+        final int[] items = new int[2];
         for (int i = 0; i < items.length; i++) {
             items[i] = 300;
         }
@@ -3511,7 +3511,12 @@ public class GridWidgetTest {
         mGridView.setSelectedPositionSmooth(0);
         waitForScrollIdle(mVerifyLayout);
 
-        mActivity.addItems(items.length, new int[]{300});
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(items.length, new int[]{300});
+            }
+        });
 
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -4623,7 +4628,12 @@ public class GridWidgetTest {
                         .ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
             }
         });
-        mActivity.addItems(0, new int[]{childHeight, childHeight});
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(0, new int[]{childHeight, childHeight});
+            }
+        });
         waitForItemAnimation();
         setSelectedPosition(0);
 
@@ -4789,9 +4799,14 @@ public class GridWidgetTest {
                         .ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
             }
         });
-        int[] widthArrays = new int[numChildViews];
+        final int[] widthArrays = new int[numChildViews];
         Arrays.fill(widthArrays, childSize);
-        mActivity.addItems(0, widthArrays);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(0, widthArrays);
+            }
+        });
     }
 
     private void testScrollingAction(boolean isRTL, boolean isHorizontal) throws Throwable {
@@ -4960,7 +4975,12 @@ public class GridWidgetTest {
                         .ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
             }
         });
-        mActivity.addItems(0, new int[]{childHeight, childHeight});
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(0, new int[]{childHeight, childHeight});
+            }
+        });
         waitForItemAnimation();
         setSelectedPosition(1);
 
