@@ -46,13 +46,12 @@ import java.util.regex.Pattern;
 @RunWith(AndroidJUnit4.class)
 public class WebViewApkTest {
     /**
-     * Represents a WebView version. Is comparable.
+     * Represents a WebView version. Is comparable. This supports version numbers following the
+     * scheme outlined at https://www.chromium.org/developers/version-numbers.
      */
     private static class WebViewVersion implements Comparable<WebViewVersion> {
         private static final Pattern CHROMIUM_VERSION_REGEX =
                 Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)$");
-        private static final Pattern OLD_CHROMIUM_VERSION_REGEX =
-                Pattern.compile("^(3[789]|4[01]) \\(.*\\)$");
 
         private int[] mComponents;
 
@@ -62,8 +61,6 @@ public class WebViewApkTest {
                 mComponents = new int[] { Integer.parseInt(m.group(1)),
                     Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)),
                     Integer.parseInt(m.group(4)) };
-            } else if ((m = OLD_CHROMIUM_VERSION_REGEX.matcher(versionString)).matches()) {
-                mComponents = new int[] { Integer.parseInt(m.group(1)), 0, 0, 0 };
             } else {
                 throw new IllegalArgumentException("Invalid WebView version string: '"
                         + versionString + "'");
@@ -92,11 +89,25 @@ public class WebViewApkTest {
         }
     }
 
+    private WebViewVersion getInstalledWebViewVersionFromPackage() {
+        Context context = InstrumentationRegistry.getTargetContext();
+        // Before M42, we used the major version number, followed by other text wrapped in
+        // parentheses.
+        final Pattern oldVersionNameFormat =
+                Pattern.compile("^(37|38|39|40|41) \\(.*\\)$");
+        String installedVersionName = WebViewCompat.getCurrentWebViewPackage(context).versionName;
+        Matcher m = oldVersionNameFormat.matcher(installedVersionName);
+        if (m.matches()) {
+            // There's no way to get the full version number, so just assume 0s for the later
+            // numbers.
+            installedVersionName = "" + m.group(1) + ".0.0.0";
+        }
+        return new WebViewVersion(installedVersionName);
+    }
+
     @Test
     public void testApkSupportsExpectedFeatures() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        final WebViewVersion apkVersion =
-                new WebViewVersion(WebViewCompat.getCurrentWebViewPackage(context).versionName);
+        final WebViewVersion apkVersion = getInstalledWebViewVersionFromPackage();
 
         // For simplicity, we require this test to run on at least the first WebView canary
         // supporting the bulk of WebView features (there's nothing interesting to test before the
