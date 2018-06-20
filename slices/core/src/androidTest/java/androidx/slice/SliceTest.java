@@ -185,7 +185,7 @@ public class SliceTest {
 
         SliceItem item = s.getItems().get(0);
         assertEquals(FORMAT_LONG, item.getFormat());
-        assertEquals(43, item.getTimestamp());
+        assertEquals(43, item.getLong());
     }
 
     @Test

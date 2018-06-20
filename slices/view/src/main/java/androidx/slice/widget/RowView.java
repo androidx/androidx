@@ -625,7 +625,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             addedView = iv;
         } else if (timeStamp != null) {
             TextView tv = new TextView(getContext());
-            tv.setText(SliceViewUtil.getRelativeTimeString(sliceItem.getTimestamp()));
+            tv.setText(SliceViewUtil.getTimestampString(getContext(), sliceItem.getLong()));
             tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSubtitleSize);
             tv.setTextColor(mSubtitleColor);
             container.addView(tv);

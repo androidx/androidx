@@ -126,11 +126,11 @@ public class SliceMetadata {
         mContext = context;
         SliceItem ttlItem = SliceQuery.find(slice, FORMAT_LONG, HINT_TTL, null);
         if (ttlItem != null) {
-            mExpiry = ttlItem.getTimestamp();
+            mExpiry = ttlItem.getLong();
         }
         SliceItem updatedItem = SliceQuery.find(slice, FORMAT_LONG, HINT_LAST_UPDATED, null);
         if (updatedItem != null) {
-            mLastUpdated = updatedItem.getTimestamp();
+            mLastUpdated = updatedItem.getLong();
         }
 
         mListContent = new ListContent(context, slice, null, 0, 0);
