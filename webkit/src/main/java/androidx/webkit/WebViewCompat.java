@@ -29,14 +29,17 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresFeature;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.internal.WebViewProviderAdapter;
 import androidx.webkit.internal.WebViewProviderFactory;
+import androidx.webkit.internal.polyfill.WebViewCompatPolyfill;
 
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
+import org.chromium.support_lib_boundary.util.Features;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -424,27 +427,27 @@ public class WebViewCompat {
     }
 
     /**
-     * Gets the WebViewClient.
+     * Gets the WebViewClient for the WebView argument.
      *
      * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#POST_WEB_MESSAGE}.
+     * This method should only be called on devices with API level 19 and up
+     * ({@link Build.VERSION_CODES#KITKAT}).
      *
      * <p>
      * @return the WebViewClient, or a default client if not yet set
      */
     @SuppressLint("NewApi")
-    @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_CLIENT,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     public static @NonNull WebViewClient getWebViewClient(@NonNull WebView webview) {
         final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.GET_WEB_VIEW_CLIENT);
+                WebViewFeatureInternal.getFeature(Features.GET_WEB_VIEW_CLIENT);
         if (feature.isSupportedByFramework()) {
             return webview.getWebViewClient();
         } else if (feature.isSupportedByWebView()) {
             return getProvider(webview).getWebViewClient();
         } else {
+            WebViewClient client = WebViewCompatPolyfill.getWebViewClient(webview);
+            if (client != null) return client;
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
