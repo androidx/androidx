@@ -68,7 +68,7 @@ import java.util.List;
 public class GridRowView extends SliceChildView implements View.OnClickListener,
         View.OnTouchListener {
 
-    private static final String TAG = "GridView";
+    private static final String TAG = "GridRowView";
 
     private static final int TITLE_TEXT_LAYOUT = R.layout.abc_slice_title;
     private static final int TEXT_LAYOUT = R.layout.abc_slice_secondary_text;
@@ -497,16 +497,20 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     @Override
     public void onClick(View view) {
         Pair<SliceItem, EventInfo> tagItem = (Pair<SliceItem, EventInfo>) view.getTag();
-        final SliceItem actionItem = tagItem.first;
+        final SliceItem sliceItem = tagItem.first;
         final EventInfo info = tagItem.second;
-        if (actionItem != null && FORMAT_ACTION.equals(actionItem.getFormat())) {
-            try {
-                actionItem.fireAction(null, null);
-                if (mObserver != null) {
-                    mObserver.onSliceAction(info, actionItem);
+        if (sliceItem != null) {
+            final SliceItem actionItem = SliceQuery.find(sliceItem,
+                    FORMAT_ACTION, (String) null, null);
+            if (actionItem != null) {
+                try {
+                    actionItem.fireAction(null, null);
+                    if (mObserver != null) {
+                        mObserver.onSliceAction(info, actionItem);
+                    }
+                } catch (PendingIntent.CanceledException e) {
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
                 }
-            } catch (PendingIntent.CanceledException e) {
-                Log.e(TAG, "PendingIntent for slice cannot be sent", e);
             }
         }
     }
