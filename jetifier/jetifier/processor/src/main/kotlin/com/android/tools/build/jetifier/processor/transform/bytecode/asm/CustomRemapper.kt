@@ -26,8 +26,16 @@ import org.objectweb.asm.commons.Remapper
 class CustomRemapper(private val remapper: CoreRemapper) : Remapper() {
 
     override fun map(typeName: String): String {
-        return remapper.rewriteType(JavaType(typeName)).fullName
+        if (typeName.endsWith(".FakeClassName")) {
+            // If ASM detects a package it adds ".FakeClassName" as a suffix. That breaks us because
+            // we don't expect '.' as a package separator.
+            return mapInternal(typeName.removeSuffix(".FakeClassName")) + ".FakeClassName"
+        }
+
+        return mapInternal(typeName)
     }
+
+    private fun mapInternal(typeName: String) = remapper.rewriteType(JavaType(typeName)).fullName
 
     override fun mapValue(value: Any?): Any? {
         val stringMaybe = value as? String
