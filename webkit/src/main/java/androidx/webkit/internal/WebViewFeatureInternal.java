@@ -257,7 +257,12 @@ public enum WebViewFeatureInternal {
     /**
      * This internal-only feature covers {@link WebViewCompat#getWebViewClient(WebView)}.
      */
-    GET_WEB_VIEW_CLIENT(Features.GET_WEB_VIEW_CLIENT, Build.VERSION_CODES.O);
+    GET_WEB_VIEW_CLIENT(Features.GET_WEB_VIEW_CLIENT, Build.VERSION_CODES.O),
+
+    /**
+     * This feature covers {@link WebViewCompat#getWebChromeClient(WebView)}.
+     */
+    GET_WEB_CHROME_CLIENT(WebViewFeature.GET_WEB_CHROME_CLIENT, Build.VERSION_CODES.O);
 
     private final String mFeatureValue;
     private final int mOsVersion;

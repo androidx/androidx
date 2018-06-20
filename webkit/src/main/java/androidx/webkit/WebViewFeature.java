@@ -78,7 +78,8 @@ public class WebViewFeature {
             WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK,
             CREATE_WEB_MESSAGE_CHANNEL,
             POST_WEB_MESSAGE,
-            WEB_MESSAGE_CALLBACK_ON_MESSAGE
+            WEB_MESSAGE_CALLBACK_ON_MESSAGE,
+            GET_WEB_CHROME_CLIENT
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -319,6 +320,12 @@ public class WebViewFeature {
      */
     public static final String WEB_MESSAGE_CALLBACK_ON_MESSAGE =
             Features.WEB_MESSAGE_CALLBACK_ON_MESSAGE;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebViewCompat#getWebChromeClient(WebView)}
+     */
+    public static final String GET_WEB_CHROME_CLIENT = Features.GET_WEB_CHROME_CLIENT;
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
