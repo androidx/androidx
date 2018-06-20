@@ -87,6 +87,8 @@ public class SampleSliceProvider extends SliceProvider {
             "toggletester",
             "contact",
             "contact2",
+            "contact3",
+            "contact4",
             "gallery",
             "weather",
             "reservation",
@@ -158,6 +160,10 @@ public class SampleSliceProvider extends SliceProvider {
                 return createContact(sliceUri);
             case "/contact2":
                 return createContact2(sliceUri);
+            case "/contact3":
+                return createContact3(sliceUri);
+            case "/contact4":
+                return createContact4(sliceUri);
             case "/gallery":
                 return createGallery(sliceUri);
             case "/weather":
@@ -451,6 +457,34 @@ public class SampleSliceProvider extends SliceProvider {
                 .addAction(new SliceAction(getBroadcastIntent(ACTION_TOAST, "email"),
                         IconCompat.createWithResource(getContext(), R.drawable.ic_email),
                         "Email mady"))
+                .build();
+    }
+
+    private Slice createContact3(Uri sliceUri) {
+        SliceAction sendEmail = new SliceAction(getBroadcastIntent(ACTION_TOAST, "send email"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_email),
+                "send contact email");
+        return new ListBuilder(getContext(), sliceUri, INFINITY).addRow(new RowBuilder()
+                .setTitle("Mady")
+                .setTitleItem(
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_call), ICON_IMAGE)
+                .setPrimaryAction(sendEmail))
+                .build();
+    }
+
+    private Slice createContact4(Uri sliceUri) {
+        SliceAction sendEmail = new SliceAction(getBroadcastIntent(ACTION_TOAST, "send email"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_email),
+                "send contact email");
+        SliceAction sendNote = new SliceAction(getBroadcastIntent(ACTION_TOAST, "send note"),
+                IconCompat.createWithResource(getContext(), R.drawable.ic_note),
+                "send contact note");
+        return new ListBuilder(getContext(), sliceUri, INFINITY).addRow(new RowBuilder()
+                .setTitle("Mady")
+                .setTitleItem(
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_call), ICON_IMAGE)
+                .addEndItem(sendNote, false)
+                .setPrimaryAction(sendEmail))
                 .build();
     }
 

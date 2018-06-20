@@ -362,6 +362,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             // Use these if we have them instead
             endItems = mHeaderActions;
         }
+        // Add start item to end of row for the top row if end items are empty.
+        if (mRowIndex == 0 && startItem != null && endItems.isEmpty()) {
+            endItems.add(startItem);
+        }
         // If we're here we might be able to show end items
         int endItemCount = 0;
         boolean firstItemIsADefaultToggle = false;
