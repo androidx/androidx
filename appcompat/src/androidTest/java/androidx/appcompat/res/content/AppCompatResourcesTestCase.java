@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotNull;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -29,8 +28,6 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.test.R;
-import androidx.appcompat.testutils.TestUtils;
-import androidx.core.graphics.ColorUtils;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,27 +44,15 @@ public class AppCompatResourcesTestCase {
     }
 
     @Test
-    public void testGetColorStateListWithThemedAttributes() {
+    public void testColorStateListCaching() {
         final Activity context = mActivityTestRule.getActivity();
-
-        final int colorForegound = TestUtils.getThemeAttrColor(
-                context, android.R.attr.colorForeground);
-
-        final ColorStateList result = AppCompatResources.getColorStateList(
+        final ColorStateList result1 = AppCompatResources.getColorStateList(
                 context, R.color.color_state_list_themed_attrs);
-
-        assertNotNull(result);
-
-        // Now check the state colors
-
-        // Disabled color should equals colorForeground with 50% of its alpha
-        final int expectedDisabled = ColorUtils.setAlphaComponent(colorForegound,
-                Math.round(Color.alpha(colorForegound) * 0.5f));
-        assertEquals(expectedDisabled, result.getColorForState(
-                new int[]{-android.R.attr.state_enabled}, 0));
-
-        // Default color should equal colorForeground
-        assertEquals(colorForegound, result.getDefaultColor());
+        final ColorStateList result2 = AppCompatResources.getColorStateList(
+                context, R.color.color_state_list_themed_attrs);
+        assertNotNull(result1);
+        assertNotNull(result2);
+        assertEquals(result1, result2);
     }
 
     @Test

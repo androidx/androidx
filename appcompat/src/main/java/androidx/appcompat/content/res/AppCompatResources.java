@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatDrawableManager;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ColorStateListInflaterCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -114,7 +115,7 @@ public final class AppCompatResources {
         final Resources r = context.getResources();
         final XmlPullParser xml = r.getXml(resId);
         try {
-            return AppCompatColorStateListInflater.createFromXml(r, xml, context.getTheme());
+            return ColorStateListInflaterCompat.createFromXml(r, xml, context.getTheme());
         } catch (Exception e) {
             Log.e(LOG_TAG, "Failed to inflate ColorStateList, leaving it to the framework", e);
         }

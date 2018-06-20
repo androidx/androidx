@@ -16,6 +16,13 @@
 
 package androidx.vectordrawable.graphics.drawable.tests;
 
+import static android.graphics.Bitmap.Config.ARGB_8888;
+import static android.graphics.Color.TRANSPARENT;
+import static android.graphics.Color.alpha;
+import static android.graphics.Color.blue;
+import static android.graphics.Color.green;
+import static android.graphics.Color.red;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -27,7 +34,6 @@ import android.content.res.Resources.Theme;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.test.InstrumentationRegistry;
@@ -46,6 +52,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -114,7 +121,7 @@ public class VectorDrawableTest {
             R.drawable.vector_icon_filltype_nonzero_golden,
     };
 
-    private static final int[] EDGES = new int[] {
+    private static final int[] EDGES = new int[]{
             -1,
             -1,
             -1,
@@ -145,10 +152,59 @@ public class VectorDrawableTest {
             -1,
     };
 
+    private static final int[] GRADIENT_ICON_RES_IDS = new int[]{
+            R.drawable.vector_icon_gradient_1,
+            R.drawable.vector_icon_gradient_2,
+            R.drawable.vector_icon_gradient_3,
+            R.drawable.vector_icon_gradient_1_clamp,
+            R.drawable.vector_icon_gradient_2_repeat,
+            R.drawable.vector_icon_gradient_3_mirror,
+    };
+
+    /* Golden images for vectors with gradients. Note some images have platform level variants:
+            * v26: Skia gradient rendering changed in O.
+            * v28: Skia anti-aliasing changed in P.
+    */
+    private static final int[] GRADIENT_GOLDEN_IMAGES = new int[]{
+            R.drawable.vector_icon_gradient_1_golden,
+            R.drawable.vector_icon_gradient_2_golden,
+            R.drawable.vector_icon_gradient_3_golden,
+            R.drawable.vector_icon_gradient_1_clamp_golden,
+            R.drawable.vector_icon_gradient_2_repeat_golden,
+            R.drawable.vector_icon_gradient_3_mirror_golden,
+    };
+
+    private static final int[] STATEFUL_RES_IDS = new int[]{
+            // All these icons are using the same color state list, make sure it works for either
+            // the same drawable ID or different ID but same content.
+            R.drawable.vector_icon_state_list,
+            R.drawable.vector_icon_state_list,
+            R.drawable.vector_icon_state_list_2,
+    };
+
+    private static final int[][] STATEFUL_GOLDEN_IMAGES = new int[][]{
+            {
+                    R.drawable.vector_icon_state_list_golden,
+                    R.drawable.vector_icon_state_list_golden,
+                    R.drawable.vector_icon_state_list_2_golden
+            },
+            {
+                    R.drawable.vector_icon_state_list_pressed_golden,
+                    R.drawable.vector_icon_state_list_pressed_golden,
+                    R.drawable.vector_icon_state_list_2_pressed_golden
+            }
+    };
+
+    private static final int[][] STATEFUL_STATE_SETS = new int[][]{
+            {},
+            {android.R.attr.state_pressed}
+    };
+
     private static final int TEST_ICON = R.drawable.vector_icon_create;
 
     private static final int IMAGE_WIDTH = 64;
     private static final int IMAGE_HEIGHT = 64;
+
     // A small value is actually making sure that the values are matching
     // exactly with the golden image.
     // We can increase the threshold if the Skia is drawing with some variance
@@ -168,20 +224,36 @@ public class VectorDrawableTest {
 
     @Before
     public void setup() {
-        final int width = IMAGE_WIDTH;
-        final int height = IMAGE_HEIGHT;
-
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        mBitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_HEIGHT, ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
         mContext = InstrumentationRegistry.getContext();
         mResources = mContext.getResources();
         mTheme = mContext.getTheme();
+        mTheme.applyStyle(R.style.VectorDrawableTestTheme, false);
     }
 
     @Test
     public void testSimpleVectorDrawables() throws Exception {
-        verifyVectorDrawables(ICON_RES_IDS, GOLDEN_IMAGES,  EDGES, null);
+        verifyVectorDrawables(ICON_RES_IDS, GOLDEN_IMAGES, EDGES, null);
+    }
+
+
+    @Test
+    public void testVectorDrawableGradient() throws Exception {
+        int[] edges = new int[GRADIENT_ICON_RES_IDS.length];
+        Arrays.fill(edges, -1);
+        verifyVectorDrawables(GRADIENT_ICON_RES_IDS, GRADIENT_GOLDEN_IMAGES, edges, null);
+    }
+
+    @Test
+    public void testColorStateList() throws XmlPullParserException, IOException {
+        int[] edges = new int[STATEFUL_RES_IDS.length];
+        Arrays.fill(edges, -1);
+        for (int i = 0; i < STATEFUL_STATE_SETS.length; i++) {
+            verifyVectorDrawables(
+                    STATEFUL_RES_IDS, STATEFUL_GOLDEN_IMAGES[i], edges, STATEFUL_STATE_SETS[i]);
+        }
     }
 
     private void verifyVectorDrawables(int[] resIds, int[] goldenImages, int[] edges,
@@ -194,7 +266,7 @@ public class VectorDrawableTest {
                 mVectorDrawable.setState(stateSet);
             }
 
-            mBitmap.eraseColor(0);
+            mBitmap.eraseColor(TRANSPARENT);
             mVectorDrawable.draw(mCanvas);
 
             if (DBG_DUMP_PNG) {
@@ -289,14 +361,15 @@ public class VectorDrawableTest {
             for (int y = 0; y < idealHeight; y++) {
                 int idealColor = ideal.getPixel(x, y);
                 int givenColor = given.getPixel(x, y);
-                if (idealColor == givenColor)
+                if (idealColor == givenColor) {
                     continue;
+                }
 
                 float totalError = 0;
-                totalError += Math.abs(Color.red(idealColor) - Color.red(givenColor));
-                totalError += Math.abs(Color.green(idealColor) - Color.green(givenColor));
-                totalError += Math.abs(Color.blue(idealColor) - Color.blue(givenColor));
-                totalError += Math.abs(Color.alpha(idealColor) - Color.alpha(givenColor));
+                totalError += Math.abs(red(idealColor) - red(givenColor));
+                totalError += Math.abs(green(idealColor) - green(givenColor));
+                totalError += Math.abs(blue(idealColor) - blue(givenColor));
+                totalError += Math.abs(alpha(idealColor) - alpha(givenColor));
 
                 if ((totalError / 1024.0f) >= PIXEL_ERROR_THRESHOLD) {
                     if (edge == null) {
