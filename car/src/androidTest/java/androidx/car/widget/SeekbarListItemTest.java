@@ -260,7 +260,7 @@ public class SeekbarListItemTest {
 
         setupPagedListView(Arrays.asList(item));
 
-        onView(withId(R.id.recycler_view)).perform(
+        onView(withId(R.id.car_recycler_view)).perform(
                 actionOnItemAtPosition(0, clickChildViewWithId(R.id.primary_icon)));
 
         assertTrue(clicked[0]);
@@ -286,7 +286,7 @@ public class SeekbarListItemTest {
 
         setupPagedListView(Arrays.asList(item));
 
-        onView(withId(R.id.recycler_view)).perform(
+        onView(withId(R.id.car_recycler_view)).perform(
                 actionOnItemAtPosition(0, clickChildViewWithId(R.id.supplemental_icon)));
 
         assertTrue(clicked[0]);
@@ -377,7 +377,7 @@ public class SeekbarListItemTest {
             throw new RuntimeException(throwable);
         }
         // Wait for paged list view to layout by using espresso to scroll to a position.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+        onView(withId(R.id.car_recycler_view)).perform(scrollToPosition(0));
     }
 
     private void verifyViewDefaultVisibility(View view) {
@@ -413,7 +413,7 @@ public class SeekbarListItemTest {
             throw new RuntimeException(throwable);
         }
         // Wait for paged list view to layout by using espresso to scroll to a position.
-        onView(withId(R.id.recycler_view)).perform(scrollToPosition(0));
+        onView(withId(R.id.car_recycler_view)).perform(scrollToPosition(0));
     }
 
     private static ViewAction clickChildViewWithId(final int id) {
