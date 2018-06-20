@@ -25,7 +25,8 @@ data class JavaType(val fullName: String) {
 
     init {
         if (fullName.contains('.')) {
-            throw IllegalArgumentException("The type does not support '.' as package separator!")
+            throw IllegalArgumentException(
+                "The type does not support '.' as package separator! Received '$fullName'.")
         }
     }
 
