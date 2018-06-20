@@ -321,7 +321,7 @@ limitations under the License.
 
     <!-- A styling for the PagedListView that is fixed to a light color. -->
     <style name="Widget.Car.Light.List" parent="Widget.Car.List">
-        <item name="dayNightStyle">force_night</item>
+        <item name="dayNightStyle">always_light</item>
     </style>
 
     <!-- A styling for the PagedListView that is fixed to a light color and has dividers that are
@@ -332,7 +332,7 @@ limitations under the License.
 
     <!-- A styling for the PagedListView that is fixed to a dark color. -->
     <style name="Widget.Car.Dark.List" parent="Widget.Car.List">
-        <item name="dayNightStyle">force_day</item>
+        <item name="dayNightStyle">always_dark</item>
     </style>
 
     <!-- A styling for the PagedListView that is fixed to a dark color and has dividers that are

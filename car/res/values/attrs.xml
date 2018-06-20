@@ -114,12 +114,6 @@ limitations under the License.
             <enum name="always_light" value="2" />
             <!-- Fixes the colors to be dark colored.  -->
             <enum name="always_dark" value="3" />
-            <!-- Fixes the colors to be light colored.
-                 Deprecated: use "always_light" instead. -->
-            <enum name="force_night" value="4" />
-            <!-- Fixes the colors to be dark colored.
-                 Deprecated: use "always_dark" instead. -->
-            <enum name="force_day" value="5" />
         </attr>
     </declare-styleable>
 
