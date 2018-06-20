@@ -547,8 +547,8 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
                 (ArrayObjectAdapter) getControlsRow().getPrimaryActionsAdapter();
         if (mPlayPauseAction != null) {
             int index = !isPlaying
-                    ? PlaybackControlsRow.PlayPauseAction.PLAY
-                    : PlaybackControlsRow.PlayPauseAction.PAUSE;
+                    ? PlaybackControlsRow.PlayPauseAction.INDEX_PLAY
+                    : PlaybackControlsRow.PlayPauseAction.INDEX_PAUSE;
             if (mPlayPauseAction.getIndex() != index) {
                 mPlayPauseAction.setIndex(index);
                 notifyItemChanged(primaryActionsAdapter, mPlayPauseAction);
