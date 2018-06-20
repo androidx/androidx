@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -46,19 +47,19 @@ import java.util.concurrent.Executor;
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class RoutePlayer2 extends BaseMediaPlayer {
-    private static final String TAG = "RemotePlaybackClient";
+    private static final String TAG = "RoutePlayer2";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     String mItemId;
+    int mCurrentPlayerState;
     long mDuration;
+    long mLastStatusChangedTime;
+    long mPosition;
     boolean mCanResume;
-
-    private RemotePlaybackClient mClient;
-    private ArrayMap<PlayerEventCallback, Executor> mPlayerEventCallbackMap =
+    ArrayMap<PlayerEventCallback, Executor> mPlayerEventCallbackMap =
             new ArrayMap<>();
+    private RemotePlaybackClient mClient;
     private DataSourceDesc2 mDsd;
-    private int mCurrentPlayerState;
-    private long mPosition;
 
     private StatusCallback mStatusCallback = new StatusCallback() {
         @Override
@@ -68,9 +69,14 @@ public class RoutePlayer2 extends BaseMediaPlayer {
             if (DEBUG && !isSessionActive(sessionStatus)) {
                 Log.v(TAG, "onItemStatusChanged() is called, but session is not active.");
             }
-            mItemId = itemId;
-            updatePlayerState(itemStatus.getPlaybackState());
-            updateSeekStatus(itemStatus.getContentPosition());
+            mLastStatusChangedTime = SystemClock.elapsedRealtime();
+            mPosition = itemStatus.getContentPosition();
+            mCurrentPlayerState = convertPlaybackStateToPlayerState(itemStatus.getPlaybackState());
+            if (mPlayerEventCallbackMap.size() > 0) {
+                for (PlayerEventCallback callback : mPlayerEventCallbackMap.keySet()) {
+                    callback.onPlayerStateChanged(RoutePlayer2.this, mCurrentPlayerState);
+                }
+            }
         }
     };
 
@@ -111,6 +117,9 @@ public class RoutePlayer2 extends BaseMediaPlayer {
                     if (DEBUG && !isSessionActive(sessionStatus)) {
                         Log.v(TAG, "play() is called, but session is not active.");
                     }
+                    // Do nothing since this returns the buffering state--
+                    // StatusCallback#onItemStatusChanged is called when the session reaches the
+                    // play state.
                 }
             });
         }
@@ -132,6 +141,9 @@ public class RoutePlayer2 extends BaseMediaPlayer {
                         Log.v(TAG, "pause() is called, but session is not active.");
                     }
                     mCanResume = true;
+                    // Do not update playback state here since this returns the buffering state--
+                    // StatusCallback#onItemStatusChanged is called when the session reaches the
+                    // pause state.
                 }
             });
         }
@@ -169,8 +181,12 @@ public class RoutePlayer2 extends BaseMediaPlayer {
                         Log.v(TAG, "seekTo(long) is called, but session is not active.");
                     }
                     if (itemStatus != null) {
-                        updatePlayerState(itemStatus.getPlaybackState());
-                        updateSeekStatus(itemStatus.getContentPosition());
+                        if (mPlayerEventCallbackMap.size() > 0) {
+                            for (PlayerEventCallback callback : mPlayerEventCallbackMap.keySet()) {
+                                callback.onSeekCompleted(RoutePlayer2.this,
+                                        itemStatus.getContentPosition());
+                            }
+                        }
                     }
                 }
             });
@@ -179,7 +195,11 @@ public class RoutePlayer2 extends BaseMediaPlayer {
 
     @Override
     public long getCurrentPosition() {
-        return mPosition;
+        long expectedPosition = mPosition;
+        if (mCurrentPlayerState == PLAYER_STATE_PLAYING) {
+            expectedPosition = mPosition + (SystemClock.elapsedRealtime() - mLastStatusChangedTime);
+        }
+        return expectedPosition;
     }
 
     @Override
@@ -287,24 +307,6 @@ public class RoutePlayer2 extends BaseMediaPlayer {
         mPosition = position;
     }
 
-    void updateSeekStatus(long position) {
-        mPosition = position;
-        if (mPlayerEventCallbackMap.size() > 0) {
-            for (PlayerEventCallback callback : mPlayerEventCallbackMap.keySet()) {
-                callback.onSeekCompleted(this, position);
-            }
-        }
-    }
-
-    void updatePlayerState(int playbackState) {
-        mCurrentPlayerState = convertPlaybackStateToPlayerState(playbackState);
-        if (mPlayerEventCallbackMap.size() > 0) {
-            for (PlayerEventCallback callback : mPlayerEventCallbackMap.keySet()) {
-                callback.onPlayerStateChanged(this, mCurrentPlayerState);
-            }
-        }
-    }
-
     boolean isSessionActive(MediaSessionStatus status) {
         if (status == null || status.getSessionState() == MediaSessionStatus.SESSION_STATE_ENDED
                 || status.getSessionState() == MediaSessionStatus.SESSION_STATE_INVALIDATED) {
@@ -313,7 +315,7 @@ public class RoutePlayer2 extends BaseMediaPlayer {
         return true;
     }
 
-    private int convertPlaybackStateToPlayerState(int playbackState) {
+    int convertPlaybackStateToPlayerState(int playbackState) {
         int playerState = PLAYER_STATE_IDLE;
         switch (playbackState) {
             case MediaItemStatus.PLAYBACK_STATE_PENDING:
@@ -349,8 +351,10 @@ public class RoutePlayer2 extends BaseMediaPlayer {
                         mItemId = itemId;
                         if (itemStatus != null) {
                             mDuration = itemStatus.getContentDuration();
-                            updatePlayerState(itemStatus.getPlaybackState());
                         }
+                        // Do not update playback state here since this returns the buffering state.
+                        // StatusCallback#onItemStatusChanged is called when the session reaches the
+                        // play state.
                     }
                 });
     }

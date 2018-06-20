@@ -1041,16 +1041,15 @@ class MediaSession2ImplBase implements MediaSession2.SupportLibraryImpl {
                 }
             });
         }
-        // TODO: b/109714642
-//        final float speed = getPlaybackSpeed();
-//        if (speed != oldPlayer.getPlaybackSpeed()) {
-//            notifyToAllControllers(new NotifyRunnable() {
-//                @Override
-//                public void run(ControllerCb callback) throws RemoteException {
-//                    callback.onPlaybackSpeedChanged(currentTimeMs, positionMs, speed);
-//                }
-//            });
-//        }
+        final float speed = getPlaybackSpeed();
+        if (speed != oldPlayer.getPlaybackSpeed()) {
+            notifyToAllControllers(new NotifyRunnable() {
+                @Override
+                public void run(ControllerCb callback) throws RemoteException {
+                    callback.onPlaybackSpeedChanged(currentTimeMs, positionMs, speed);
+                }
+            });
+        }
         // Note: AudioInfo is updated outside of this API.
     }
 

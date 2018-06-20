@@ -155,6 +155,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 resetPlayer();
                 mRoute = route;
                 mRoutePlayer = new RoutePlayer2(mInstance.getContext(), route);
+                // TODO: Replace with MediaSession2#setPlaylist once b/110811730 is fixed.
                 mRoutePlayer.setDataSource(mMediaItem.getDataSourceDesc());
                 mRoutePlayer.setCurrentPosition(localPlaybackPosition);
                 if (mMediaSession != null) {
@@ -176,7 +177,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
         @Override
         public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route, int reason) {
-            // TODO: b/109909344
             long currentPosition = 0;
             int currentState = 0;
             if (mRoute != null && mRoutePlayer != null) {
@@ -189,18 +189,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 mRoute = null;
             }
             if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
-                // Resume local playback (if necessary)
                 openVideo();
-                if (mMediaSession != null && mMediaPlayer != null) {
-                    mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(),
-                            mMediaSession.getPlaylistAgent(), null);
-                    mMediaSession.seekTo(currentPosition);
-
-                    if (currentState == BaseMediaPlayer.PLAYER_STATE_PAUSED) {
-                        mMediaSession.pause();
-                    } else if (currentState == BaseMediaPlayer.PLAYER_STATE_PLAYING) {
-                        mMediaSession.play();
-                    }
+                mMediaSession.seekTo(currentPosition);
+                if (currentState == BaseMediaPlayer.PLAYER_STATE_PLAYING) {
+                    mMediaSession.play();
                 }
             }
         }
@@ -730,6 +722,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             if (isRemotePlayback()) {
                 mRoutePlayer.setDataSource(dsd);
                 return;
+            } else {
+                if (mMediaPlayer != null) {
+                    // TODO: Remove once b/110811730 is fixed.
+                    mMediaPlayer.setDataSource(dsd);
+                }
             }
         }
 
