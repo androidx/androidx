@@ -36,7 +36,7 @@ public abstract class WorkContinuation {
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
      *         {@link OneTimeWorkRequest}
      */
-    public final WorkContinuation then(@NonNull OneTimeWorkRequest... work) {
+    public final @NonNull WorkContinuation then(@NonNull OneTimeWorkRequest... work) {
         return then(Arrays.asList(work));
     }
 
@@ -48,7 +48,7 @@ public abstract class WorkContinuation {
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
      *         {@link OneTimeWorkRequest}
      */
-    public abstract WorkContinuation then(@NonNull List<OneTimeWorkRequest> work);
+    public abstract @NonNull WorkContinuation then(@NonNull List<OneTimeWorkRequest> work);
 
     /**
      * Returns a {@link LiveData} list of {@link WorkStatus} that provides information about work,
@@ -57,7 +57,7 @@ public abstract class WorkContinuation {
      *
      * @return A {@link LiveData} containing a list of {@link WorkStatus}es
      */
-    public abstract LiveData<List<WorkStatus>> getStatuses();
+    public abstract @NonNull LiveData<List<WorkStatus>> getStatuses();
 
     /**
      * Enqueues the instance of {@link WorkContinuation} on the background thread.
@@ -70,7 +70,7 @@ public abstract class WorkContinuation {
      * @return A {@link SynchronousWorkContinuation} object, which gives access to synchronous
      *         methods
      */
-    public abstract SynchronousWorkContinuation synchronous();
+    public abstract @NonNull SynchronousWorkContinuation synchronous();
 
     /**
      * Combines multiple {@link WorkContinuation}s to allow for complex chaining.
@@ -79,7 +79,7 @@ public abstract class WorkContinuation {
      *                      return value
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public static WorkContinuation combine(@NonNull WorkContinuation... continuations) {
+    public static @NonNull WorkContinuation combine(@NonNull WorkContinuation... continuations) {
         return combine(Arrays.asList(continuations));
     }
 
@@ -90,7 +90,7 @@ public abstract class WorkContinuation {
      *                      return value
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public static WorkContinuation combine(@NonNull List<WorkContinuation> continuations) {
+    public static @NonNull WorkContinuation combine(@NonNull List<WorkContinuation> continuations) {
         if (continuations.size() < 2) {
             throw new IllegalArgumentException(
                     "WorkContinuation.combine() needs at least 2 continuations.");
@@ -109,7 +109,7 @@ public abstract class WorkContinuation {
      *                      {@link OneTimeWorkRequest} provided.
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public static WorkContinuation combine(
+    public static @NonNull WorkContinuation combine(
             @NonNull OneTimeWorkRequest work,
             @NonNull WorkContinuation... continuations) {
         return combine(work, Arrays.asList(continuations));
@@ -125,7 +125,7 @@ public abstract class WorkContinuation {
      *                      {@link OneTimeWorkRequest} provided.
      * @return A {@link WorkContinuation} that allows further chaining
      */
-    public static WorkContinuation combine(
+    public static @NonNull WorkContinuation combine(
             @NonNull OneTimeWorkRequest work,
             @NonNull List<WorkContinuation> continuations) {
         return continuations.get(0).combineInternal(work, continuations);
@@ -135,7 +135,7 @@ public abstract class WorkContinuation {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    protected abstract WorkContinuation combineInternal(
+    protected abstract @NonNull WorkContinuation combineInternal(
             @Nullable OneTimeWorkRequest work,
             @NonNull List<WorkContinuation> continuations);
 }

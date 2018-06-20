@@ -97,7 +97,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static WorkManagerImpl getInstance() {
+    public static @Nullable WorkManagerImpl getInstance() {
         synchronized (sLock) {
             if (sDelegatedInstance != null) {
                 return sDelegatedInstance;
@@ -265,12 +265,12 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work) {
+    public @NonNull WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work) {
         return new WorkContinuationImpl(this, work);
     }
 
     @Override
-    public WorkContinuation beginUniqueWork(
+    public @NonNull WorkContinuation beginUniqueWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<OneTimeWorkRequest> work) {
@@ -370,7 +370,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public LiveData<Long> getLastCancelAllTimeMillis() {
+    public @NonNull LiveData<Long> getLastCancelAllTimeMillis() {
         return mPreferences.getLastCancelAllTimeMillisLiveData();
     }
 
@@ -392,7 +392,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public LiveData<WorkStatus> getStatusById(@NonNull UUID id) {
+    public @NonNull LiveData<WorkStatus> getStatusById(@NonNull UUID id) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
                 dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id.toString()));
@@ -423,7 +423,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public LiveData<List<WorkStatus>> getStatusesByTag(@NonNull String tag) {
+    public @NonNull LiveData<List<WorkStatus>> getStatusesByTag(@NonNull String tag) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
                 workSpecDao.getWorkStatusPojoLiveDataForTag(tag);
@@ -431,7 +431,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public List<WorkStatus> getStatusesByTagSync(@NonNull String tag) {
+    public @NonNull List<WorkStatus> getStatusesByTagSync(@NonNull String tag) {
         assertBackgroundThread("Cannot call getStatusesByTagSync on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForTag(tag);
@@ -439,7 +439,8 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public LiveData<List<WorkStatus>> getStatusesForUniqueWork(@NonNull String uniqueWorkName) {
+    public @NonNull LiveData<List<WorkStatus>> getStatusesForUniqueWork(
+            @NonNull String uniqueWorkName) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
                 workSpecDao.getWorkStatusPojoLiveDataForName(uniqueWorkName);
@@ -447,7 +448,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public List<WorkStatus> getStatusesForUniqueWorkSync(@NonNull String uniqueWorkName) {
+    public @NonNull List<WorkStatus> getStatusesForUniqueWorkSync(@NonNull String uniqueWorkName) {
         assertBackgroundThread("Cannot call getStatusesByNameBlocking on main thread!");
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         List<WorkSpec.WorkStatusPojo> input = workSpecDao.getWorkStatusPojoForName(uniqueWorkName);
@@ -455,7 +456,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
     }
 
     @Override
-    public SynchronousWorkManager synchronous() {
+    public @NonNull SynchronousWorkManager synchronous() {
         return this;
     }
 
