@@ -36,6 +36,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SMALL_IMAGE;
+import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 import static androidx.slice.widget.SliceViewUtil.resolveLayoutDirection;
 
 import android.app.slice.Slice;
@@ -68,7 +69,7 @@ public class GridContent {
     private SliceItem mSeeMoreItem;
     private int mMaxCellLineCount;
     private boolean mHasImage;
-    private int mLargestImageMode = -1;
+    private int mLargestImageMode = UNKNOWN_IMAGE;
     private SliceItem mContentDescr;
 
     private int mBigPicMinHeight;
@@ -297,9 +298,11 @@ public class GridContent {
         } else {
             boolean twoLines = getMaxCellLineCount() > 1;
             boolean hasImage = hasImage();
+            boolean iconImagesOrNone = mLargestImageMode == ICON_IMAGE
+                    || mLargestImageMode == UNKNOWN_IMAGE;
             return (twoLines && !isSmall)
                     ? hasImage ? mMaxHeight : mMinHeight
-                    : mLargestImageMode == ICON_IMAGE ? mMinHeight : mImageTextHeight;
+                    : iconImagesOrNone ? mMinHeight : mImageTextHeight;
         }
     }
 

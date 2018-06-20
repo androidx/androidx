@@ -326,9 +326,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
      * Adds a cell to the grid view based on the provided {@link SliceItem}.
      */
     private void addCell(GridContent.CellContent cell, int index, int total) {
-        final int maxCellText = getMode() == MODE_SMALL
-                ? MAX_CELL_TEXT_SMALL
-                : MAX_CELL_TEXT;
+        final int maxCellText = getMode() == MODE_SMALL && mGridContent.hasImage()
+                ? MAX_CELL_TEXT_SMALL : MAX_CELL_TEXT;
         LinearLayout cellContainer = new LinearLayout(getContext());
         cellContainer.setOrientation(LinearLayout.VERTICAL);
         cellContainer.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -352,7 +351,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
             }
             // If we have more than 1 remove non-titles
             Iterator<SliceItem> iterator = textItems.iterator();
-            while (textItems.size() > 1) {
+            while (textItems.size() > maxCellText) {
                 SliceItem item = iterator.next();
                 if (!item.hasAnyHints(HINT_TITLE, HINT_LARGE)) {
                     iterator.remove();
