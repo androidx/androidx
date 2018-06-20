@@ -159,6 +159,11 @@ public class WorkerWrapper implements Runnable {
                 result = mWorker.doWork();
             } catch (Exception | Error e) {
                 result = Worker.Result.FAILURE;
+                Log.e(TAG,
+                        String.format(
+                                "Worker %s failed because it threw an exception/error",
+                                mWorkSpecId),
+                        e);
             }
 
             try {
