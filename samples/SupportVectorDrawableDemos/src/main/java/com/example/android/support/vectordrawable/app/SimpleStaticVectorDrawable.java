@@ -16,7 +16,6 @@
 
 package com.example.android.support.vectordrawable.app;
 
-import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable.ConstantState;
@@ -26,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import com.example.android.support.vectordrawable.R;
@@ -35,7 +35,7 @@ import java.text.DecimalFormat;
 /**
  * Simple demo for VectorDrawableCompat.
  */
-public class SimpleStaticVectorDrawable extends Activity {
+public class SimpleStaticVectorDrawable extends AppCompatActivity {
     private static final String LOG_TAG = "SimpleStaticVectorDrawable";
 
     protected int[] mIcons = {
@@ -74,7 +74,11 @@ public class SimpleStaticVectorDrawable extends Activity {
             R.drawable.vector_drawable29,
             R.drawable.vector_drawable30,
             R.drawable.vector_test01,
-            R.drawable.vector_test02
+            R.drawable.vector_test02,
+            R.drawable.vector_icon_gradient_1,
+            R.drawable.vector_icon_gradient_2,
+            R.drawable.vector_icon_gradient_3,
+            R.drawable.vector_icon_state_list
     };
 
     private static final int EXTRA_TESTS = 2;
@@ -86,12 +90,13 @@ public class SimpleStaticVectorDrawable extends Activity {
         LinearLayout container = new LinearLayout(this);
         scrollView.addView(container);
         container.setOrientation(LinearLayout.VERTICAL);
-        Resources res = this.getResources();
+        final Resources res = this.getResources();
+        final Resources.Theme theme = getTheme();
         container.setBackgroundColor(0xFF888888);
         VectorDrawableCompat[] d = new VectorDrawableCompat[mIcons.length];
         long time = android.os.SystemClock.currentThreadTimeMillis();
         for (int i = 0; i < mIcons.length; i++) {
-            d[i] = VectorDrawableCompat.create(res, mIcons[i], getTheme());
+            d[i] = VectorDrawableCompat.create(res, mIcons[i], theme);
         }
         time = android.os.SystemClock.currentThreadTimeMillis() - time;
 

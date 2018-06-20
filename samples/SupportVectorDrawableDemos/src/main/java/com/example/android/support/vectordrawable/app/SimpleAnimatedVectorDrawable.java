@@ -16,7 +16,6 @@
 
 package com.example.android.support.vectordrawable.app;
 
-import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
@@ -25,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.example.android.support.vectordrawable.R;
@@ -34,7 +34,8 @@ import java.text.DecimalFormat;
 /**
  * Simple demo for AnimatedVectorDrawableCompat.
  */
-public class SimpleAnimatedVectorDrawable extends Activity implements View.OnClickListener {
+public class SimpleAnimatedVectorDrawable extends AppCompatActivity implements
+        View.OnClickListener {
     private static final String LOG_TAG = "TestActivity";
 
     private static final String LOGCAT = "VectorDrawable1";

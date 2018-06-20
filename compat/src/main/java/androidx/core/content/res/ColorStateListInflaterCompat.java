@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.appcompat.content.res;
+package androidx.core.content.res;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -24,30 +26,37 @@ import android.util.AttributeSet;
 import android.util.StateSet;
 import android.util.Xml;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.R;
-import androidx.core.graphics.ColorUtils;
+import androidx.annotation.RestrictTo;
+import androidx.core.R;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
-final class AppCompatColorStateListInflater {
+/**
+ * @hide
+ */
+@RestrictTo(LIBRARY_GROUP)
+public final class ColorStateListInflaterCompat {
 
     private static final int DEFAULT_COLOR = Color.RED;
 
-    private AppCompatColorStateListInflater() {}
+    private ColorStateListInflaterCompat() {
+    }
 
     /**
      * Creates a ColorStateList from an XML document using given a set of
-     * {@link Resources} and a {@link Theme}.
+     * {@link Resources} and a {@link android.content.res.Resources.Theme}.
      *
-     * @param r Resources against which the ColorStateList should be inflated.
+     * @param r      Resources against which the ColorStateList should be inflated.
      * @param parser Parser for the XML document defining the ColorStateList.
-     * @param theme Optional theme to apply to the color state list, may be
-     *              {@code null}.
+     * @param theme  Optional theme to apply to the color state list, may be
+     *               {@code null}.
      * @return A new color state list.
      */
     @NonNull
@@ -72,11 +81,11 @@ final class AppCompatColorStateListInflater {
      * Create from inside an XML document. Called on a parser positioned at a
      * tag in an XML document, tries to create a ColorStateList from that tag.
      *
-     * @throws XmlPullParserException if the current tag is not &lt;selector>
      * @return A new color state list for the current tag.
+     * @throws XmlPullParserException if the current tag is not &lt;selector>
      */
     @NonNull
-    private static ColorStateList createFromXmlInner(@NonNull Resources r,
+    public static ColorStateList createFromXmlInner(@NonNull Resources r,
             @NonNull XmlPullParser parser, @NonNull AttributeSet attrs,
             @Nullable Resources.Theme theme)
             throws XmlPullParserException, IOException {
@@ -166,7 +175,10 @@ final class AppCompatColorStateListInflater {
                 : theme.obtainStyledAttributes(set, attrs, 0, 0);
     }
 
-    private static int modulateColorAlpha(int color, float alphaMod) {
-        return ColorUtils.setAlphaComponent(color, Math.round(Color.alpha(color) * alphaMod));
+    @ColorInt
+    private static int modulateColorAlpha(@ColorInt int color,
+            @FloatRange(from = 0f, to = 1f) float alphaMod) {
+        int alpha = Math.round(Color.alpha(color) * alphaMod);
+        return (color & 0x00ffffff) | (alpha << 24);
     }
 }
