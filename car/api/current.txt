@@ -416,10 +416,9 @@ package androidx.car.widget {
   public static class SeekbarListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
     ctor public SeekbarListItem.ViewHolder(android.view.View);
     method protected void applyUxRestrictions(android.car.drivingstate.CarUxRestrictions);
-    method public android.widget.RelativeLayout getContainerLayout();
+    method public android.view.ViewGroup getContainerLayout();
     method public android.widget.ImageView getPrimaryIcon();
     method public android.widget.SeekBar getSeekBar();
-    method public android.widget.LinearLayout getSeekBarContainer();
     method public android.widget.ImageView getSupplementalIcon();
     method public android.view.View getSupplementalIconDivider();
     method public android.widget.TextView getText();
