@@ -36,10 +36,10 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
-import androidx.media.DataSourceDesc2;
-import androidx.media.MediaItem2;
 import androidx.media.widget.MediaControlView2;
 import androidx.media.widget.VideoView2;
+import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaItem2;
 
 /**
  * Test application for VideoView2/MediaControlView2

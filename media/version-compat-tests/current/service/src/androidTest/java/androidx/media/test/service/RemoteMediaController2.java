@@ -36,13 +36,13 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media.MediaController2;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.Rating2;
-import androidx.media.SessionCommand2;
-import androidx.media.SessionToken2;
 import androidx.media.test.lib.MediaController2Constants;
+import androidx.media2.MediaController2;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.Rating2;
+import androidx.media2.SessionCommand2;
+import androidx.media2.SessionToken2;
 
 import java.util.List;
 import java.util.UUID;

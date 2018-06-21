@@ -19,7 +19,7 @@ package androidx.media.widget;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.media.MediaPlayer2;
+import androidx.media2.MediaPlayer2;
 
 interface VideoViewInterface {
     /**

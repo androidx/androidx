@@ -22,12 +22,12 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 
-import androidx.media.DataSourceDesc2;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.MediaSession2;
-import androidx.media.MediaSession2.CommandButton;
-import androidx.media.MediaSession2.ControllerInfo;
+import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaSession2;
+import androidx.media2.MediaSession2.CommandButton;
+import androidx.media2.MediaSession2.ControllerInfo;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;

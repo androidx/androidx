@@ -21,7 +21,7 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation(project(":media"))
+    androidTestImplementation(project(":media2"))
     androidTestImplementation(project(":support-media-compat-test-lib"))
 
     androidTestImplementation(TEST_RUNNER_TMP, libs.exclude_for_espresso)

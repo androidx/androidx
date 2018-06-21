@@ -35,15 +35,15 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.MediaSession2;
-import androidx.media.MediaSession2.CommandButton;
-import androidx.media.MediaSession2.ControllerInfo;
-import androidx.media.SessionCommand2;
-import androidx.media.SessionCommandGroup2;
-import androidx.media.SessionToken2;
 import androidx.media.test.lib.MediaSession2Constants;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaSession2;
+import androidx.media2.MediaSession2.CommandButton;
+import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.SessionCommand2;
+import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionToken2;
 
 import java.util.ArrayList;
 import java.util.List;

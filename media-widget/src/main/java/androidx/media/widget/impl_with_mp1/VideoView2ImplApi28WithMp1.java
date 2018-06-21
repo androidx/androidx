@@ -30,11 +30,11 @@ import android.view.ViewGroup.LayoutParams;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.media.SubtitleData2;
-import androidx.media.subtitle.Cea708CaptionRenderer;
-import androidx.media.subtitle.ClosedCaptionRenderer;
-import androidx.media.subtitle.SubtitleController;
-import androidx.media.subtitle.SubtitleTrack;
+import androidx.media2.SubtitleData2;
+import androidx.media2.subtitle.Cea708CaptionRenderer;
+import androidx.media2.subtitle.ClosedCaptionRenderer;
+import androidx.media2.subtitle.SubtitleController;
+import androidx.media2.subtitle.SubtitleTrack;
 
 import java.io.IOException;
 import java.util.ArrayList;

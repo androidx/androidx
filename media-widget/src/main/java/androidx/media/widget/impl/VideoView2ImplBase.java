@@ -45,20 +45,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media.AudioAttributesCompat;
-import androidx.media.BaseMediaPlayer;
-import androidx.media.DataSourceDesc2;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.MediaPlayer2;
-import androidx.media.MediaSession2;
-import androidx.media.SessionCommand2;
-import androidx.media.SessionCommandGroup2;
-import androidx.media.SessionToken2;
-import androidx.media.SubtitleData2;
-import androidx.media.subtitle.Cea708CaptionRenderer;
-import androidx.media.subtitle.ClosedCaptionRenderer;
-import androidx.media.subtitle.SubtitleController;
-import androidx.media.subtitle.SubtitleTrack;
+import androidx.media2.BaseMediaPlayer;
+import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlayer2;
+import androidx.media2.MediaSession2;
+import androidx.media2.SessionCommand2;
+import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionToken2;
+import androidx.media2.SubtitleData2;
+import androidx.media2.subtitle.Cea708CaptionRenderer;
+import androidx.media2.subtitle.ClosedCaptionRenderer;
+import androidx.media2.subtitle.SubtitleController;
+import androidx.media2.subtitle.SubtitleTrack;
 import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouteSelector;
@@ -357,7 +357,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     /**
      * Returns {@link SessionToken2} so that developers create their own
-     * {@link androidx.media.MediaController2} instance. This method should be called when
+     * {@link androidx.media2.MediaController2} instance. This method should be called when
      * VideoView2 is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if interal MediaSession is not created yet.

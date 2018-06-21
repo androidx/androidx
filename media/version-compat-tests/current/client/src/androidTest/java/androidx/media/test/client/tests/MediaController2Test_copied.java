@@ -16,7 +16,7 @@
 
 package androidx.media.test.client.tests;
 
-import androidx.media.MediaController2;
+import androidx.media2.MediaController2;
 
 /**
  * Tests {@link MediaController2}.
