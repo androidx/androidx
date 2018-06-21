@@ -1849,6 +1849,7 @@ package androidx.core.view {
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[], int);
     method public static void dispatchStartTemporaryDetach(android.view.View);
     method public static int generateViewId();
+    method public static androidx.core.view.AccessibilityDelegateCompat getAccessibilityDelegate(android.view.View);
     method public static int getAccessibilityLiveRegion(android.view.View);
     method public static androidx.core.view.accessibility.AccessibilityNodeProviderCompat getAccessibilityNodeProvider(android.view.View);
     method public static deprecated float getAlpha(android.view.View);
@@ -1897,6 +1898,7 @@ package androidx.core.view {
     method public static boolean hasOnClickListeners(android.view.View);
     method public static boolean hasOverlappingRendering(android.view.View);
     method public static boolean hasTransientState(android.view.View);
+    method public static boolean isAccessibilityHeading(android.view.View);
     method public static boolean isAttachedToWindow(android.view.View);
     method public static boolean isFocusedByDefault(android.view.View);
     method public static boolean isImportantForAccessibility(android.view.View);
@@ -1908,6 +1910,7 @@ package androidx.core.view {
     method public static boolean isNestedScrollingEnabled(android.view.View);
     method public static deprecated boolean isOpaque(android.view.View);
     method public static boolean isPaddingRelative(android.view.View);
+    method public static boolean isScreenReaderFocusable(android.view.View);
     method public static deprecated void jumpDrawablesToCurrentState(android.view.View);
     method public static android.view.View keyboardNavigationClusterSearch(android.view.View, android.view.View, int);
     method public static void offsetLeftAndRight(android.view.View, int);
@@ -1927,6 +1930,7 @@ package androidx.core.view {
     method public static deprecated int resolveSizeAndState(int, int, int);
     method public static boolean restoreDefaultFocus(android.view.View);
     method public static void setAccessibilityDelegate(android.view.View, androidx.core.view.AccessibilityDelegateCompat);
+    method public static void setAccessibilityHeading(android.view.View, boolean);
     method public static void setAccessibilityLiveRegion(android.view.View, int);
     method public static deprecated void setActivated(android.view.View, boolean);
     method public static deprecated void setAlpha(android.view.View, float);
@@ -1961,6 +1965,7 @@ package androidx.core.view {
     method public static deprecated void setSaveFromParentEnabled(android.view.View, boolean);
     method public static deprecated void setScaleX(android.view.View, float);
     method public static deprecated void setScaleY(android.view.View, float);
+    method public static void setScreenReaderFocusable(android.view.View, boolean);
     method public static void setScrollIndicators(android.view.View, int);
     method public static void setScrollIndicators(android.view.View, int, int);
     method public static void setTooltipText(android.view.View, java.lang.CharSequence);

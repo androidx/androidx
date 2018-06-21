@@ -58,8 +58,10 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.collection.ArrayMap;
 import androidx.core.R;
+import androidx.core.view.AccessibilityDelegateCompat.AccessibilityDelegateAdapter;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
+import androidx.core.view.accessibility.WrapperForExternalAccessibilityDelegate;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -666,13 +668,21 @@ public class ViewCompat {
      * Starting in {@link android.os.Build.VERSION_CODES#M API 23}, delegate
      * methods are called <i>after</i> host methods, which all properties to be
      * modified without being overwritten by the host class.
+     * <p>
+     * If an AccessibilityDelegateCompat is already attached to the view, and this method sets
+     * the delegate to null, an empty delegate will be attached to ensure that other compatibility
+     * behavior continues to work for this view.
      *
      * @param delegate the object to which accessibility method calls should be
      *                 delegated
      * @see AccessibilityDelegateCompat
      */
-    public static void setAccessibilityDelegate(@NonNull View v,
-            AccessibilityDelegateCompat delegate) {
+    public static void setAccessibilityDelegate(
+            @NonNull View v, AccessibilityDelegateCompat delegate) {
+        if ((delegate == null)
+                && (getAccessibilityDelegateInternal(v) instanceof AccessibilityDelegateAdapter)) {
+            delegate = new AccessibilityDelegateCompat();
+        }
         v.setAccessibilityDelegate(delegate == null ? null : delegate.getBridge());
     }
 
@@ -849,12 +859,49 @@ public class ViewCompat {
     /**
      * Checks whether provided View has an accessibility delegate attached to it.
      *
-     * @param v The View instance to check
+     * @param view The View instance to check
      * @return True if the View has an accessibility delegate
      */
-    public static boolean hasAccessibilityDelegate(@NonNull View v) {
+    public static boolean hasAccessibilityDelegate(@NonNull View view) {
+        return getAccessibilityDelegateInternal(view) != null;
+    }
+
+    /**
+     * Get the current accessibility delegate.
+     * @see #setAccessibilityDelegate(View, AccessibilityDelegateCompat)
+     *
+     * @param view The view whose delegate is of interest
+     * @return A compat wrapper for the current delegate. If no delegate is attached, you may
+     *         still get an object that is being used to provide backward compatibility. Returns
+     *         {@code null} if there is no delegate attached.
+     */
+    @Nullable
+    public static AccessibilityDelegateCompat getAccessibilityDelegate(@NonNull View view) {
+        final View.AccessibilityDelegate delegate = getAccessibilityDelegateInternal(view);
+        if (delegate == null) {
+            return null;
+        }
+        if (delegate instanceof AccessibilityDelegateAdapter) {
+            return ((AccessibilityDelegateAdapter) delegate).mCompat;
+        }
+        return new WrapperForExternalAccessibilityDelegate(delegate);
+    }
+
+    static AccessibilityDelegateCompat getOrCreateAccessibilityDelegateCompat(
+            @NonNull View v) {
+        AccessibilityDelegateCompat delegateCompat = getAccessibilityDelegate(v);
+        if (delegateCompat == null) {
+            delegateCompat = new AccessibilityDelegateCompat();
+            setAccessibilityDelegate(v, delegateCompat);
+        }
+        return delegateCompat;
+    }
+
+
+    private static @Nullable View.AccessibilityDelegate
+            getAccessibilityDelegateInternal(@NonNull View v) {
         if (sAccessibilityDelegateCheckFailed) {
-            return false; // View implementation might have changed.
+            return null; // View implementation might have changed.
         }
         if (sAccessibilityDelegateField == null) {
             try {
@@ -863,14 +910,18 @@ public class ViewCompat {
                 sAccessibilityDelegateField.setAccessible(true);
             } catch (Throwable t) {
                 sAccessibilityDelegateCheckFailed = true;
-                return false;
+                return null;
             }
         }
         try {
-            return sAccessibilityDelegateField.get(v) != null;
+            Object o = sAccessibilityDelegateField.get(v);
+            if (o instanceof View.AccessibilityDelegate) {
+                return (View.AccessibilityDelegate) o;
+            }
+            return null;
         } catch (Throwable t) {
             sAccessibilityDelegateCheckFailed = true;
-            return false;
+            return null;
         }
     }
 
@@ -3506,6 +3557,204 @@ public class ViewCompat {
             return false;
         }
         return UnhandledKeyEventManager.at(root).dispatch(root, evt);
+    }
+
+    /**
+     * When screen readers (one type of accessibility tool) decide what should be read to the
+     * user, they typically look for input focusable ({@link View#isFocusable()}) parents of
+     * non-focusable text items, and read those focusable parents and their non-focusable children
+     * as a unit. In some situations, this behavior is desirable for views that should not take
+     * input focus. Setting an item to be screen reader focusable requests that the view be
+     * treated as a unit by screen readers without any effect on input focusability. The default
+     * value of {@code false} lets screen readers use other signals, like focusable, to determine
+     * how to group items.
+     * @param view The view whose title should be set
+     * @param screenReaderFocusable Whether the view should be treated as a unit by screen reader
+     *                              accessibility tools.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: No-op
+     * </ul>
+     */
+    @UiThread
+    public static void setScreenReaderFocusable(View view, boolean screenReaderFocusable) {
+        screenReaderFocusableProperty().set(view, screenReaderFocusable);
+    }
+
+    /**
+     * Returns whether the view should be treated as a focusable unit by screen reader
+     * accessibility tools.
+     * @see #setScreenReaderFocusable(View, boolean)
+     *
+     * @param view The view to check for screen reader focusability.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: Always returns {@code false}</li>
+     * </ul>
+     *
+     * @return Whether the view should be treated as a focusable unit by screen reader.
+     */
+    @UiThread
+    public static boolean isScreenReaderFocusable(View view) {
+        Boolean result = screenReaderFocusableProperty().get(view);
+        return result == null ? false : result.booleanValue();
+    }
+
+    @TargetApi(28)
+    private static AccessibilityViewProperty<Boolean> screenReaderFocusableProperty() {
+        return new AccessibilityViewProperty<Boolean>(
+                R.id.tag_screen_reader_focusable, Boolean.class, 28) {
+
+            @Override
+            Boolean frameworkGet(View view) {
+                return view.isScreenReaderFocusable();
+            }
+
+            @Override
+            void frameworkSet(View view, Boolean value) {
+                view.setScreenReaderFocusable(value);
+            }
+
+            @Override
+            boolean shouldUpdate(Boolean oldValue, Boolean newValue) {
+                return !booleanNullToFalseEquals(oldValue, newValue);
+            }
+        };
+    }
+
+    /**
+     * Gets whether this view is a heading for accessibility purposes.
+     *
+     * @param view The view checked if it is a heading.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: Always returns {@code false}</li>
+     * </ul>
+     *
+     * @return {@code true} if the view is a heading, {@code false} otherwise.
+     */
+    @UiThread
+    public static boolean isAccessibilityHeading(View view) {
+        Boolean result = accessibilityHeadingProperty().get(view);
+        return result == null ? false : result.booleanValue();
+    }
+
+    /**
+     * Set if view is a heading for a section of content for accessibility purposes.
+     *
+     * @param view The view to set if it is a heading.
+     * @param isHeading {@code true} if the view is a heading, {@code false} otherwise.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: No-op
+     * </ul>
+     */
+    @UiThread
+    public static void setAccessibilityHeading(View view, boolean isHeading) {
+        accessibilityHeadingProperty().set(view, isHeading);
+    }
+
+    @TargetApi(28)
+    private static AccessibilityViewProperty<Boolean> accessibilityHeadingProperty() {
+        return new AccessibilityViewProperty<Boolean>(
+                R.id.tag_accessibility_heading, Boolean.class, 28) {
+
+            @Override
+            Boolean frameworkGet(View view) {
+                return view.isAccessibilityHeading();
+            }
+
+            @Override
+            void frameworkSet(View view, Boolean value) {
+                view.setAccessibilityHeading(value);
+            }
+
+            @Override
+            boolean shouldUpdate(Boolean oldValue, Boolean newValue) {
+                return !booleanNullToFalseEquals(oldValue, newValue);
+            }
+        };
+    }
+
+
+    abstract static class AccessibilityViewProperty<T> {
+        private final int mTagKey;
+        private final Class<T> mType;
+        private final int mFrameworkMinimumSdk;
+
+        AccessibilityViewProperty(int tagKey, Class<T> type, int frameworkMinimumSdk) {
+            mTagKey = tagKey;
+            mType = type;
+            mFrameworkMinimumSdk = frameworkMinimumSdk;
+        }
+
+        void set(View view, T value) {
+            if (frameworkAvailable()) {
+                frameworkSet(view, value);
+            } else if (extrasAvailable() && shouldUpdate(get(view), value)) {
+                getOrCreateAccessibilityDelegateCompat(view);
+                view.setTag(mTagKey, value);
+                notifyViewAccessibilityStateChangedIfNeeded(view,
+                        AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED);
+            }
+        }
+
+        T get(View view) {
+            if (frameworkAvailable()) {
+                return frameworkGet(view);
+            } else if (extrasAvailable()) {
+                Object value = view.getTag(mTagKey);
+                if (mType.isInstance(value)) {
+                    return (T) value;
+                }
+            }
+            return null;
+        }
+
+        private boolean frameworkAvailable() {
+            return Build.VERSION.SDK_INT >= mFrameworkMinimumSdk;
+        }
+
+        private boolean extrasAvailable() {
+            return Build.VERSION.SDK_INT >= 19;
+        }
+
+        boolean shouldUpdate(T oldValue, T newValue) {
+            return !newValue.equals(oldValue);
+        }
+
+        abstract T frameworkGet(View view);
+        abstract void frameworkSet(View view, T value);
+
+        boolean booleanNullToFalseEquals(Boolean a, Boolean b) {
+            boolean aBool = a == null ? false : a.booleanValue();
+            boolean bBool = b == null ? false : b.booleanValue();
+            return aBool == bBool;
+        }
+    }
+
+    @TargetApi(19)
+    static void notifyViewAccessibilityStateChangedIfNeeded(View view, int changeType) {
+        // If this is a live region, we should send a subtree change event
+        // from this view immediately. Otherwise, we can let it propagate up.
+        // getAccessibilityLiveRegion only works past 19.
+        if (getAccessibilityLiveRegion(view) != ACCESSIBILITY_LIVE_REGION_NONE) {
+            final AccessibilityEvent event = AccessibilityEvent.obtain();
+            event.setEventType(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
+            event.setContentChangeTypes(changeType);
+            view.sendAccessibilityEventUnchecked(event);
+        } else if (view.getParent() != null) {
+            try {
+                view.getParent().notifySubtreeAccessibilityStateChanged(view, view, changeType);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, view.getParent().getClass().getSimpleName()
+                        + " does not fully implement ViewParent", e);
+            }
+        }
     }
 
     static class UnhandledKeyEventManager {
