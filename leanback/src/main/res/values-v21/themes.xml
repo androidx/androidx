@@ -24,6 +24,7 @@
         <item name="defaultBrandColorDark">?android:attr/colorPrimaryDark</item>
         <item name="android:colorPrimaryDark">@color/lb_default_brand_color_dark</item>
 
+        <item name="android:colorAccent">@color/lb_preference_item_category_text_color</item>
         <item name="android:windowOverscan">true</item>
         <item name="guidedStepTheme">@style/Theme.Leanback.GuidedStep</item>
 
