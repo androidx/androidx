@@ -103,7 +103,7 @@ public final class Configuration {
         }
     }
 
-    private Executor createDefaultExecutor() {
+    private @NonNull Executor createDefaultExecutor() {
         return Executors.newFixedThreadPool(
                 // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
                 Math.max(2, Math.min(Runtime.getRuntime().availableProcessors() - 1, 4)));
@@ -125,7 +125,7 @@ public final class Configuration {
          * @param executor An {@link Executor} for processing work
          * @return This {@link Builder} instance
          */
-        public Builder setExecutor(@NonNull Executor executor) {
+        public @NonNull Builder setExecutor(@NonNull Executor executor) {
             mExecutor = executor;
             return this;
         }
@@ -139,7 +139,9 @@ public final class Configuration {
          * @return This {@link Builder} instance
          * @throws IllegalArgumentException when the size of the range is < 1000
          */
-        public Builder setJobSchedulerJobIdRange(int minJobSchedulerId, int maxJobSchedulerId) {
+        public @NonNull Builder setJobSchedulerJobIdRange(
+                int minJobSchedulerId,
+                int maxJobSchedulerId) {
             if ((maxJobSchedulerId - minJobSchedulerId) < 1000) {
                 throw new IllegalArgumentException(
                         "WorkManager needs a range of at least 1000 job ids.");
@@ -167,7 +169,7 @@ public final class Configuration {
          * @throws IllegalArgumentException when the number of jobs <
          *                                  {@link Configuration#MIN_SCHEDULER_LIMIT}
          */
-        public Builder setMaxSchedulerLimit(int maxSchedulerLimit) {
+        public @NonNull Builder setMaxSchedulerLimit(int maxSchedulerLimit) {
             if (maxSchedulerLimit < MIN_SCHEDULER_LIMIT) {
                 throw new IllegalArgumentException(
                         "WorkManager needs to be able to schedule at least 20 jobs in "
@@ -185,7 +187,7 @@ public final class Configuration {
          * @deprecated Use the {@link Configuration.Builder#setExecutor(Executor)} method instead
          */
         @Deprecated
-        public Builder withExecutor(@NonNull Executor executor) {
+        public @NonNull Builder withExecutor(@NonNull Executor executor) {
             mExecutor = executor;
             return this;
         }
@@ -195,7 +197,7 @@ public final class Configuration {
          *
          * @return A {@link Configuration} object with this {@link Builder}'s parameters.
          */
-        public Configuration build() {
+        public @NonNull Configuration build() {
             return new Configuration(this);
         }
     }
