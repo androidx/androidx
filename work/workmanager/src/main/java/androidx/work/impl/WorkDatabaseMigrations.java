@@ -42,22 +42,11 @@ public class WorkDatabaseMigrations {
                     + " INTEGER NOT NULL, PRIMARY KEY(`work_spec_id`), FOREIGN KEY(`work_spec_id`)"
                     + " REFERENCES `WorkSpec`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )";
 
-    private static final String CREATE_ALARM_INFO =
-            "CREATE TABLE IF NOT EXISTS `alarmInfo` (`work_spec_id` TEXT NOT NULL, `alarm_id`"
-                    + " INTEGER NOT NULL, PRIMARY KEY(`work_spec_id`), FOREIGN KEY"
-                    + "(`work_spec_id`) REFERENCES `WorkSpec`(`id`) ON UPDATE CASCADE ON DELETE "
-                    + "CASCADE )";
-
     private static final String MIGRATE_ALARM_INFO_TO_SYSTEM_ID_INFO =
             "INSERT INTO SystemIdInfo(work_spec_id, system_id) "
                     + "SELECT work_spec_id, alarm_id AS system_id FROM alarmInfo";
 
-    private static final String MIGRATE_SYSTEM_ID_INFO_TO_ALARM_INFO =
-            "INSERT INTO alarmInfo(work_spec_id, alarm_id) "
-                    + "SELECT work_spec_id, system_id AS alarm_id FROM SystemIdInfo";
-
     private static final String REMOVE_ALARM_INFO = "DROP TABLE IF EXISTS alarmInfo";
-    private static final String REMOVE_SYSTEM_ID_INFO = "DROP TABLE IF EXISTS SystemIdInfo";
 
     /**
      * Removes the {@code alarmInfo} table and substitutes it for a more general
@@ -72,20 +61,6 @@ public class WorkDatabaseMigrations {
             database.execSQL(REMOVE_ALARM_INFO);
             database.execSQL("INSERT INTO worktag(tag, work_spec_id) "
                     + "SELECT worker_class_name AS tag, id AS work_spec_id FROM workspec");
-        }
-    };
-
-    /**
-     * Removes the {@code alarmInfo} table and substitutes it for a more general
-     * {@code SystemIdInfo} table.
-     */
-    public static Migration MIGRATION_2_1 = new Migration(VERSION_2, VERSION_1) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL(CREATE_ALARM_INFO);
-            database.execSQL(MIGRATE_SYSTEM_ID_INFO_TO_ALARM_INFO);
-            database.execSQL(REMOVE_SYSTEM_ID_INFO);
-            // Don't remove implicit tags; they may have been added by the developer.
         }
     };
 }
