@@ -19,6 +19,7 @@ package androidx.media2;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.DeniedByServerException;
 import android.media.MediaDrm;
@@ -65,7 +66,7 @@ import java.util.concurrent.Executor;
  * <ol>
  *     <li><p>{@link #PLAYER_STATE_IDLE}: MediaPlayer2 is in the <strong>Idle</strong>
  *         state after you create it using
- *         {@link #create()}, or after calling {@link #reset()}.</p>
+ *         {@link #create(Context)}, or after calling {@link #reset()}.</p>
  *
  *         <p>While in this state, you should call
  *         {@link #setDataSource(DataSourceDesc2) setDataSource()}. It is a good
@@ -333,9 +334,10 @@ public abstract class MediaPlayer2 {
     /**
      * Create a MediaPlayer2 object.
      *
+     * @param context The context the player is running in
      * @return A MediaPlayer2 object created
      */
-    public static final MediaPlayer2 create() {
+    public static final MediaPlayer2 create(@NonNull Context context) {
         return new MediaPlayer2Impl();
     }
 

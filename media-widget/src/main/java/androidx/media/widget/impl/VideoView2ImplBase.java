@@ -561,7 +561,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         // Note: MediaPlayer2 and MediaSession2 instances are created in onAttachedToWindow()
         // and closed in onDetachedFromWindow().
         if (mMediaPlayer == null) {
-            mMediaPlayer = MediaPlayer2.create();
+            mMediaPlayer = MediaPlayer2.create(mInstance.getContext());
 
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);
@@ -753,7 +753,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
         try {
             if (mMediaPlayer == null) {
-                mMediaPlayer = MediaPlayer2.create();
+                mMediaPlayer = MediaPlayer2.create(mInstance.getContext());
             }
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);

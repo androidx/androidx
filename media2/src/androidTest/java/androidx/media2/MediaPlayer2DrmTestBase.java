@@ -118,7 +118,7 @@ public class MediaPlayer2DrmTestBase {
         try {
             mActivityRule.runOnUiThread(new Runnable() {
                 public void run() {
-                    mPlayer = MediaPlayer2.create();
+                    mPlayer = MediaPlayer2.create(mActivity);
                 }
             });
         } catch (Throwable e) {
