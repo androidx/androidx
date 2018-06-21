@@ -23,6 +23,7 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -480,14 +481,14 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         mDisplayHeight = ((WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay().getHeight();
 
-        mEnabledTextAlpha = Float.valueOf(ctx.getResources().getString(R.string
-                .lb_guidedactions_item_unselected_text_alpha));
-        mDisabledTextAlpha = Float.valueOf(ctx.getResources().getString(R.string
-                .lb_guidedactions_item_disabled_text_alpha));
-        mEnabledDescriptionAlpha = Float.valueOf(ctx.getResources().getString(R.string
-                .lb_guidedactions_item_unselected_description_text_alpha));
-        mDisabledDescriptionAlpha = Float.valueOf(ctx.getResources().getString(R.string
-                .lb_guidedactions_item_disabled_description_text_alpha));
+        mEnabledTextAlpha = getFloatValue(ctx.getResources(), val, R.dimen
+                .lb_guidedactions_item_unselected_text_alpha);
+        mDisabledTextAlpha = getFloatValue(ctx.getResources(), val, R.dimen
+                .lb_guidedactions_item_disabled_text_alpha);
+        mEnabledDescriptionAlpha = getFloatValue(ctx.getResources(), val, R.dimen
+                .lb_guidedactions_item_unselected_description_text_alpha);
+        mDisabledDescriptionAlpha = getFloatValue(ctx.getResources(), val, R.dimen
+                .lb_guidedactions_item_disabled_description_text_alpha);
 
         mKeyLinePercent = GuidanceStylingRelativeLayout.getKeyLinePercent(ctx);
         if (mContentView instanceof GuidedActionsRelativeLayout) {
@@ -1501,18 +1502,22 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * ==========================================
      */
 
-    private float getFloat(Context ctx, TypedValue typedValue, int attrId) {
+    private static float getFloat(Context ctx, TypedValue typedValue, int attrId) {
         ctx.getTheme().resolveAttribute(attrId, typedValue, true);
-        // Android resources don't have a native float type, so we have to use strings.
-        return Float.valueOf(ctx.getResources().getString(typedValue.resourceId));
+        return typedValue.getFloat();
     }
 
-    private int getInteger(Context ctx, TypedValue typedValue, int attrId) {
+    private static float getFloatValue(Resources resources, TypedValue typedValue, int resId) {
+        resources.getValue(resId, typedValue, true);
+        return typedValue.getFloat();
+    }
+
+    private static int getInteger(Context ctx, TypedValue typedValue, int attrId) {
         ctx.getTheme().resolveAttribute(attrId, typedValue, true);
         return ctx.getResources().getInteger(typedValue.resourceId);
     }
 
-    private int getDimension(Context ctx, TypedValue typedValue, int attrId) {
+    private static int getDimension(Context ctx, TypedValue typedValue, int attrId) {
         ctx.getTheme().resolveAttribute(attrId, typedValue, true);
         return ctx.getResources().getDimensionPixelSize(typedValue.resourceId);
     }

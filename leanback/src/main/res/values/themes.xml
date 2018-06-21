@@ -132,7 +132,7 @@
 
     <style name="Theme.Leanback.GuidedStep" parent="Theme.Leanback.GuidedStepBase">
         <item name="guidedStepThemeFlag">true</item>
-        <item name="guidedStepHeightWeight">@string/lb_guidedstep_height_weight</item>
+        <item name="guidedStepHeightWeight">@dimen/lb_guidedstep_height_weight</item>
 
 
         <!-- background applied to each GuidedStepFragment by default-->
@@ -168,23 +168,23 @@
 
         <item name="guidedActionPressedAnimation">@animator/lb_guidedactions_item_pressed</item>
         <item name="guidedActionUnpressedAnimation">@animator/lb_guidedactions_item_unpressed</item>
-        <item name="guidedActionEnabledChevronAlpha">@string/lb_guidedactions_item_enabled_chevron_alpha</item>
-        <item name="guidedActionDisabledChevronAlpha">@string/lb_guidedactions_item_disabled_chevron_alpha</item>
-        <item name="guidedActionContentWidthWeight">@string/lb_guidedactions_width_weight</item>
-        <item name="guidedActionContentWidthWeightTwoPanels">@string/lb_guidedactions_width_weight_two_panels</item>
-        <item name="guidedButtonActionsWidthWeight">@string/lb_guidedbuttonactions_width_weight</item>
+        <item name="guidedActionEnabledChevronAlpha">@dimen/lb_guidedactions_item_enabled_chevron_alpha</item>
+        <item name="guidedActionDisabledChevronAlpha">@dimen/lb_guidedactions_item_disabled_chevron_alpha</item>
+        <item name="guidedActionContentWidthWeight">@dimen/lb_guidedactions_width_weight</item>
+        <item name="guidedActionContentWidthWeightTwoPanels">@dimen/lb_guidedactions_width_weight_two_panels</item>
+        <item name="guidedButtonActionsWidthWeight">@dimen/lb_guidedbuttonactions_width_weight</item>
         <item name="guidedActionTitleMinLines">@integer/lb_guidedactions_item_title_min_lines</item>
         <item name="guidedActionTitleMaxLines">@integer/lb_guidedactions_item_title_max_lines</item>
         <item name="guidedActionDescriptionMinLines">@integer/lb_guidedactions_item_description_min_lines</item>
         <item name="guidedActionVerticalPadding">@dimen/lb_guidedactions_vertical_padding</item>
-        <item name="guidedStepKeyline">@string/lb_guidedstep_keyline</item>
+        <item name="guidedStepKeyline">@dimen/lb_guidedstep_keyline</item>
     </style>
 
     <style name="Theme.Leanback.GuidedStep.HalfBase" parent="Theme.Leanback.GuidedStep">
     </style>
 
     <style name="Theme.Leanback.GuidedStep.Half" parent="Theme.Leanback.GuidedStep.HalfBase">
-      <item name="guidedStepHeightWeight">@string/lb_guidedstep_height_weight_translucent</item>
+      <item name="guidedStepHeightWeight">@dimen/lb_guidedstep_height_weight_translucent</item>
       <item name="android:windowIsTranslucent">true</item>
       <item name="android:windowBackground">@android:color/transparent</item>
     </style>

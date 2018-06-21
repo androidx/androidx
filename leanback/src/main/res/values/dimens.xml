@@ -275,23 +275,23 @@
     <dimen name="lb_guidedactions_list_padding_start">24dp</dimen>
     <dimen name="lb_guidedactions_list_padding_end">24dp</dimen>
 
-    <item name="lb_guidedactions_width_weight" format="float" type="string">0.71428571428</item>
-    <item name="lb_guidedactions_width_weight_two_panels" format="float" type="string">1.191780822</item>
-    <item name="lb_guidedbuttonactions_width_weight" format="float" type="string">0.45</item>
+    <item name="lb_guidedactions_width_weight" format="float" type="dimen">0.71428571428</item>
+    <item name="lb_guidedactions_width_weight_two_panels" format="float" type="dimen">1.191780822</item>
+    <item name="lb_guidedbuttonactions_width_weight" format="float" type="dimen">0.45</item>
 
     <dimen name="lb_guidedactions_section_shadow_width">32dp</dimen>
     <dimen name="lb_guidedactions_elevation">12dp</dimen>
     <dimen name="lb_guidedactions_list_vertical_spacing">8dp</dimen>
 
-    <item name="lb_guidedstep_height_weight" format="float" type="string">2.0</item>
-    <item name="lb_guidedstep_height_weight_translucent" format="float" type="string">1.0</item>
-    <item name="lb_guidedactions_item_disabled_text_alpha" format="float" type="string">0.25</item>
-    <item name="lb_guidedactions_item_disabled_description_text_alpha" format="float" type="string">0.25</item>
-    <item name="lb_guidedactions_item_unselected_text_alpha" format="float" type="string">1.00</item>
-    <item name="lb_guidedactions_item_unselected_description_text_alpha" format="float" type="string">0.50</item>
-    <item name="lb_guidedactions_item_enabled_chevron_alpha" format="float" type="string">1.00</item>
-    <item name="lb_guidedactions_item_disabled_chevron_alpha" format="float" type="string">0.50</item>
-    <item name="lb_guidedstep_keyline" format="float" type="string">40.0</item>
+    <item name="lb_guidedstep_height_weight" format="float" type="dimen">2.0</item>
+    <item name="lb_guidedstep_height_weight_translucent" format="float" type="dimen">1.0</item>
+    <item name="lb_guidedactions_item_disabled_text_alpha" format="float" type="dimen">0.25</item>
+    <item name="lb_guidedactions_item_disabled_description_text_alpha" format="float" type="dimen">0.25</item>
+    <item name="lb_guidedactions_item_unselected_text_alpha" format="float" type="dimen">1.00</item>
+    <item name="lb_guidedactions_item_unselected_description_text_alpha" format="float" type="dimen">0.50</item>
+    <item name="lb_guidedactions_item_enabled_chevron_alpha" format="float" type="dimen">1.00</item>
+    <item name="lb_guidedactions_item_disabled_chevron_alpha" format="float" type="dimen">0.50</item>
+    <item name="lb_guidedstep_keyline" format="float" type="dimen">40.0</item>
 
     <dimen name="lb_guidedactions_item_text_width">248dp</dimen>
     <dimen name="lb_guidedactions_item_text_width_no_icon">284dp</dimen>
