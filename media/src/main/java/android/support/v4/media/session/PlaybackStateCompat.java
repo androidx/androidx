@@ -642,10 +642,34 @@ public final class PlaybackStateCompat implements Parcelable {
     }
 
     /**
-     * Get the current playback position in ms.
+     * Get the playback position in ms at last position update time.
      */
     public long getPosition() {
         return mPosition;
+    }
+
+    /**
+     * Get the elapsed real time at which position was last updated. If the
+     * position has never been set this will return 0;
+     *
+     * @return The last time the position was updated.
+     */
+    public long getLastPositionUpdateTime() {
+        return mUpdateTime;
+    }
+
+    /**
+     * Get the current playback position in ms.
+     *
+     * @param timeDiff Only used for testing, otherwise it should be null.
+     * @return The current playback position in ms
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public long getCurrentPosition(Long timeDiff) {
+        long expectedPosition = mPosition + (long) (mSpeed * (
+                (timeDiff != null) ? timeDiff : SystemClock.elapsedRealtime() - mUpdateTime));
+        return Math.max(0, expectedPosition);
     }
 
     /**
@@ -738,16 +762,6 @@ public final class PlaybackStateCompat implements Parcelable {
      */
     public CharSequence getErrorMessage() {
         return mErrorMessage;
-    }
-
-    /**
-     * Get the elapsed real time at which position was last updated. If the
-     * position has never been set this will return 0;
-     *
-     * @return The last time the position was updated.
-     */
-    public long getLastPositionUpdateTime() {
-        return mUpdateTime;
     }
 
     /**

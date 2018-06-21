@@ -16,6 +16,7 @@
 
 package androidx.media2;
 
+import static androidx.media2.MediaItem2.FLAG_PLAYABLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_DESCRIPTION;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_ICON;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_ICON_URI;
@@ -31,14 +32,20 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import androidx.annotation.NonNull;
+import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media2.MediaSession2.CommandButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 class MediaUtils2 {
     static final String TAG = "MediaUtils2";
@@ -127,6 +134,31 @@ class MediaUtils2 {
                 .build();
     }
 
+    static MediaItem2 convertToMediaItem2(@NonNull QueueItem item) {
+        if (item == null) {
+            throw new IllegalArgumentException("item shouldn't be null");
+        }
+        // descriptionCompat cannot be null
+        MediaDescriptionCompat descriptionCompat = item.getDescription();
+        MediaMetadata2 metadata2 = convertToMediaMetadata2(descriptionCompat);
+        return new MediaItem2.Builder(FLAG_PLAYABLE).setMetadata(metadata2)
+                .setUuid(createUuidByQueueIdAndMediaId(item.getQueueId(),
+                        descriptionCompat.getMediaId()))
+                .build();
+    }
+
+    static UUID createUuidByQueueIdAndMediaId(long queueId, String mediaId) {
+        return new UUID(queueId, (mediaId == null) ? 0 : mediaId.hashCode());
+    }
+
+    static MediaItem2 convertToMediaItem2(MediaMetadataCompat metadataCompat) {
+        MediaMetadata2 metadata2 = convertToMediaMetadata2(metadataCompat);
+        if (metadata2 == null || metadata2.getMediaId() == null) {
+            return null;
+        }
+        return new MediaItem2.Builder(FLAG_PLAYABLE).setMetadata(metadata2).build();
+    }
+
     static List<MediaItem2> convertToMediaItem2List(Parcelable[] itemParcelableList) {
         List<MediaItem2> playlist = new ArrayList<>();
         if (itemParcelableList != null) {
@@ -166,6 +198,35 @@ class MediaUtils2 {
             }
         }
         return playlist;
+    }
+
+    static List<MediaItem2> convertQueueItemListToMediaItem2List(List<QueueItem> items) {
+        if (items == null) {
+            return null;
+        }
+        List<MediaItem2> result = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            result.add(convertToMediaItem2(items.get(i)));
+        }
+        return result;
+    }
+
+    static QueueItem convertToQueueItem(MediaItem2 item) {
+        MediaDescriptionCompat description = (item.getMetadata() == null)
+                ? new MediaDescriptionCompat.Builder().setMediaId(item.getMediaId()).build()
+                : convertToMediaMetadataCompat(item.getMetadata()).getDescription();
+        return new QueueItem(description, item.getUuid().getMostSignificantBits());
+    }
+
+    static List<QueueItem> convertToQueueItemList(List<MediaItem2> items) {
+        if (items == null) {
+            return null;
+        }
+        List<QueueItem> result = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            result.add(convertToQueueItem(items.get(i)));
+        }
+        return result;
     }
 
     /**
@@ -218,6 +279,59 @@ class MediaUtils2 {
         }
 
         return metadata2Builder.build();
+    }
+
+    /**
+     * Creates a {@link MediaMetadata2} from the {@link MediaMetadataCompat}.
+     *
+     * @param metadataCompat A {@link MediaMetadataCompat} object.
+     * @return The newly created {@link MediaMetadata2} object.
+     */
+    static MediaMetadata2 convertToMediaMetadata2(MediaMetadataCompat metadataCompat) {
+        if (metadataCompat == null) {
+            return null;
+        }
+        return new MediaMetadata2(metadataCompat.getBundle());
+    }
+
+    static MediaMetadata2 convertToMediaMetadata2(CharSequence queueTitle) {
+        if (queueTitle == null) {
+            return null;
+        }
+        return new MediaMetadata2.Builder()
+                .putString(METADATA_KEY_TITLE, queueTitle.toString()).build();
+    }
+
+    /**
+     * Creates a {@link MediaMetadataCompat} from the {@link MediaMetadata2}.
+     *
+     * @param metadata2 A {@link MediaMetadata2} object.
+     * @return The newly created {@link MediaMetadataCompat} object.
+     */
+    static MediaMetadataCompat convertToMediaMetadataCompat(MediaMetadata2 metadata2) {
+        if (metadata2 == null) {
+            return null;
+        }
+
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+        Bundle bundle = metadata2.toBundle();
+        for (String key : bundle.keySet()) {
+            Object value = bundle.get(key);
+            if (value instanceof CharSequence) {
+                builder.putText(key, (CharSequence) value);
+            } else if (value instanceof Rating2) {
+                builder.putRating(key, convertToRatingCompat((Rating2) value));
+            } else if (value instanceof Bitmap) {
+                builder.putBitmap(key, (Bitmap) value);
+            } else if (value instanceof Long) {
+                builder.putLong(key, (Long) value);
+            }
+        }
+        return builder.build();
+    }
+
+    static MediaMetadataCompat convertToMediaMetadataCompat(MediaDescriptionCompat description) {
+        return convertToMediaMetadataCompat(convertToMediaMetadata2(description));
     }
 
     /**
@@ -421,6 +535,25 @@ class MediaUtils2 {
                 return BaseMediaPlayer.PLAYER_STATE_PLAYING;
         }
         return BaseMediaPlayer.PLAYER_STATE_ERROR;
+    }
+
+    // Note: there's no perfect match for this.
+    static int toBufferingState(int playbackStateCompatState) {
+        switch (playbackStateCompatState) {
+            case PlaybackStateCompat.STATE_BUFFERING:
+                return BaseMediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED;
+            case PlaybackStateCompat.STATE_PLAYING:
+                return BaseMediaPlayer.BUFFERING_STATE_BUFFERING_COMPLETE;
+            default:
+                return BaseMediaPlayer.BUFFERING_STATE_UNKNOWN;
+        }
+    }
+
+    static MediaController2.PlaybackInfo toPlaybackInfo2(MediaControllerCompat.PlaybackInfo info) {
+        return MediaController2.PlaybackInfo.createPlaybackInfo(info.getPlaybackType(),
+                new AudioAttributesCompat.Builder()
+                        .setLegacyStreamType(info.getAudioStream()).build(),
+                info.getVolumeControl(), info.getMaxVolume(), info.getCurrentVolume());
     }
 
     static boolean isDefaultLibraryRootHint(Bundle bundle) {
