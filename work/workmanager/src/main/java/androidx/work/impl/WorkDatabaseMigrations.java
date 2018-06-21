@@ -59,7 +59,7 @@ public class WorkDatabaseMigrations {
             database.execSQL(CREATE_SYSTEM_ID_INFO);
             database.execSQL(MIGRATE_ALARM_INFO_TO_SYSTEM_ID_INFO);
             database.execSQL(REMOVE_ALARM_INFO);
-            database.execSQL("INSERT INTO worktag(tag, work_spec_id) "
+            database.execSQL("INSERT OR IGNORE INTO worktag(tag, work_spec_id) "
                     + "SELECT worker_class_name AS tag, id AS work_spec_id FROM workspec");
         }
     };
