@@ -52,7 +52,7 @@
     <color name="lb_basic_card_title_text_color">#FFEEEEEE</color>
     <color name="lb_basic_card_content_text_color">#B3EEEEEE</color>
 
-    <color name="lb_default_brand_color">#FF37474F</color>
+    <color name="lb_default_brand_color">#FF1B1C1E</color>
     <color name="lb_default_brand_color_dark">#FF263238</color>
     <color name="lb_default_search_color">#FF86C739</color>
     <color name="lb_default_search_icon_color">#FFFFFFFF</color>
@@ -87,4 +87,6 @@
     <color name="lb_page_indicator_arrow_background">#EEEEEE</color>
     <color name="lb_page_indicator_arrow_shadow">#4C000000</color>
 
+    <!-- Leanback settings category text & radio button color -->
+    <color name="lb_preference_item_category_text_color">#FF51AAFF</color>
 </resources>

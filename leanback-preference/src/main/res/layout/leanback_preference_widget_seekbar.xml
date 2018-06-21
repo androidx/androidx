@@ -48,7 +48,7 @@
                   android:layout_height="wrap_content"
                   android:singleLine="true"
                   android:layout_marginBottom="@dimen/lb_preference_item_primary_text_margin_bottom"
-                  android:fontFamily="sans-serif-condensed"
+                  android:fontFamily="sans-serif"
                   android:ellipsize="marquee"
                   android:fadingEdge="horizontal"
                   android:textColor="@color/lb_preference_item_primary_text_color"
