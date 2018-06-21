@@ -55,16 +55,16 @@ import android.support.mediacompat.testlib.IRemoteMediaSession2;
 import android.util.Log;
 
 import androidx.media.AudioAttributesCompat;
-import androidx.media.DataSourceDesc2;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.MediaSession2;
-import androidx.media.MediaSession2.ControllerInfo;
-import androidx.media.SessionCommand2;
-import androidx.media.SessionCommandGroup2;
 import androidx.media.VolumeProviderCompat;
 import androidx.media.test.lib.MockActivity;
 import androidx.media.test.lib.TestUtils.SyncHandler;
+import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaSession2;
+import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.SessionCommand2;
+import androidx.media2.SessionCommandGroup2;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;

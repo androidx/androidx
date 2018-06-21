@@ -19,9 +19,9 @@ package androidx.media.test.client;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import androidx.media.DataSourceDesc2;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
+import androidx.media2.DataSourceDesc2;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;

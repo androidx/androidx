@@ -28,16 +28,16 @@ import android.os.ResultReceiver;
 import android.support.mediacompat.testlib.IRemoteMediaController2;
 import android.util.Log;
 
-import androidx.media.MediaBrowser2;
-import androidx.media.MediaController2;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.MediaSession2;
-import androidx.media.Rating2;
-import androidx.media.SessionCommand2;
-import androidx.media.SessionCommandGroup2;
-import androidx.media.SessionToken2;
 import androidx.media.test.lib.TestUtils.SyncHandler;
+import androidx.media2.MediaBrowser2;
+import androidx.media2.MediaController2;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaSession2;
+import androidx.media2.Rating2;
+import androidx.media2.SessionCommand2;
+import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionToken2;
 
 import java.util.HashMap;
 import java.util.List;

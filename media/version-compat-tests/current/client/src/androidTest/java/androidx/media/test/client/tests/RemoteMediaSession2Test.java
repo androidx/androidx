@@ -28,9 +28,9 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.media.MediaController2;
-import androidx.media.SessionToken2;
 import androidx.media.test.client.RemoteMediaSession2;
+import androidx.media2.MediaController2;
+import androidx.media2.SessionToken2;
 
 import org.junit.After;
 import org.junit.Before;

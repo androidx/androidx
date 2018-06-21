@@ -28,11 +28,11 @@ import android.support.test.runner.AndroidJUnit4;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media.MediaBrowser2;
-import androidx.media.MediaController2;
-import androidx.media.MediaController2.ControllerCallback;
-import androidx.media.SessionCommandGroup2;
-import androidx.media.SessionToken2;
+import androidx.media2.MediaBrowser2;
+import androidx.media2.MediaController2;
+import androidx.media2.MediaController2.ControllerCallback;
+import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionToken2;
 
 import org.junit.runner.RunWith;
 

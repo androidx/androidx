@@ -52,18 +52,18 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media.MediaBrowser2;
-import androidx.media.MediaBrowser2.BrowserCallback;
-import androidx.media.MediaController2;
-import androidx.media.MediaController2.ControllerCallback;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.MediaSession2.CommandButton;
-import androidx.media.SessionCommand2;
-import androidx.media.SessionCommandGroup2;
-import androidx.media.SessionToken2;
 import androidx.media.test.lib.MediaBrowser2Constants;
 import androidx.media.test.lib.TestUtils;
+import androidx.media2.MediaBrowser2;
+import androidx.media2.MediaBrowser2.BrowserCallback;
+import androidx.media2.MediaController2;
+import androidx.media2.MediaController2.ControllerCallback;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaSession2.CommandButton;
+import androidx.media2.SessionCommand2;
+import androidx.media2.SessionCommandGroup2;
+import androidx.media2.SessionToken2;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,7 +77,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests {@link MediaBrowser2.BrowserCallback}.
  * <p>
- * This test inherits {@link androidx.media.MediaController2Test} to ensure that inherited APIs from
+ * This test inherits {@link MediaController2CallbackTest} to ensure that inherited APIs from
  * {@link MediaController2} works cleanly.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)

@@ -28,15 +28,15 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import androidx.media.BaseMediaPlayer;
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.MediaPlaylistAgent;
-import androidx.media.MediaSession2;
-import androidx.media.SessionCommandGroup2;
 import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.MockPlaylistAgent;
+import androidx.media2.BaseMediaPlayer;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlaylistAgent;
+import androidx.media2.MediaSession2;
+import androidx.media2.SessionCommandGroup2;
 
 import org.junit.After;
 import org.junit.Before;

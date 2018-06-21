@@ -25,9 +25,9 @@ package androidx.wear.ambient {
 
   public static abstract class AmbientMode.AmbientCallback {
     ctor public AmbientMode.AmbientCallback();
+    method public void onAmbientOffloadInvalidated();
     method public void onEnterAmbient(android.os.Bundle);
     method public void onExitAmbient();
-    method public void onAmbientOffloadInvalidated();
     method public void onUpdateAmbient();
   }
 
@@ -50,9 +50,9 @@ package androidx.wear.ambient {
 
   public static abstract class AmbientModeSupport.AmbientCallback {
     ctor public AmbientModeSupport.AmbientCallback();
+    method public void onAmbientOffloadInvalidated();
     method public void onEnterAmbient(android.os.Bundle);
     method public void onExitAmbient();
-    method public void onAmbientOffloadInvalidated();
     method public void onUpdateAmbient();
   }
 

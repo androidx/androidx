@@ -54,12 +54,12 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import androidx.media.AudioAttributesCompat;
-import androidx.media.BaseMediaPlayer;
-import androidx.media.MediaController2;
-import androidx.media.MediaController2.PlaybackInfo;
-import androidx.media.MediaItem2;
 import androidx.media.test.client.MediaTestUtils;
 import androidx.media.test.client.RemoteMediaSession2;
+import androidx.media2.BaseMediaPlayer;
+import androidx.media2.MediaController2;
+import androidx.media2.MediaController2.PlaybackInfo;
+import androidx.media2.MediaItem2;
 
 import org.junit.After;
 import org.junit.Before;

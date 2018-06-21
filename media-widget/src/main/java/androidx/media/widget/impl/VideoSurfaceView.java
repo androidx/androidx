@@ -28,7 +28,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.media.MediaPlayer2;
+import androidx.media2.MediaPlayer2;
 
 @RequiresApi(21)
 class VideoSurfaceView extends SurfaceView

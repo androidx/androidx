@@ -16,9 +16,9 @@
 
 package androidx.media.test.service;
 
-import androidx.media.MediaItem2;
-import androidx.media.MediaMetadata2;
-import androidx.media.MediaPlaylistAgent;
+import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlaylistAgent;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;

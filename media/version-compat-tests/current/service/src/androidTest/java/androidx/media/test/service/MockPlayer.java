@@ -19,8 +19,8 @@ package androidx.media.test.service;
 import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import androidx.media.AudioAttributesCompat;
-import androidx.media.BaseMediaPlayer;
-import androidx.media.DataSourceDesc2;
+import androidx.media2.BaseMediaPlayer;
+import androidx.media2.DataSourceDesc2;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
