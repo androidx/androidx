@@ -27,6 +27,7 @@ import java.util.Set;
  * Stores a set of {@link Trigger}s
  */
 public final class ContentUriTriggers implements Iterable<ContentUriTriggers.Trigger> {
+
     private final Set<Trigger> mTriggers = new HashSet<>();
 
     /**
@@ -35,7 +36,7 @@ public final class ContentUriTriggers implements Iterable<ContentUriTriggers.Tri
      * @param triggerForDescendants {@code true} if any changes in descendants cause this
      *                              {@link WorkRequest} to run
      */
-    public void add(Uri uri, boolean triggerForDescendants) {
+    public void add(@NonNull Uri uri, boolean triggerForDescendants) {
         Trigger trigger = new Trigger(uri, triggerForDescendants);
         mTriggers.add(trigger);
     }
@@ -73,18 +74,15 @@ public final class ContentUriTriggers implements Iterable<ContentUriTriggers.Tri
      */
 
     public static final class Trigger {
-        @NonNull
-        private final Uri mUri;
+        private final @NonNull Uri mUri;
         private final boolean mTriggerForDescendants;
 
-        public Trigger(@NonNull Uri uri,
-                       boolean triggerForDescendants) {
+        Trigger(@NonNull Uri uri, boolean triggerForDescendants) {
             mUri = uri;
             mTriggerForDescendants = triggerForDescendants;
         }
 
-        @NonNull
-        public Uri getUri() {
+        public @NonNull Uri getUri() {
             return mUri;
         }
 

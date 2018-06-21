@@ -35,7 +35,7 @@ class DataTest {
         assertEquals(data.getString("three", null), "Three")
         val longArray = data.getLongArray("four")
         assertNotNull(longArray)
-        assertEquals(longArray.size, 2)
+        assertEquals(longArray!!.size, 2)
         assertEquals(longArray[0], 1L)
         assertEquals(longArray[1], 2L)
     }

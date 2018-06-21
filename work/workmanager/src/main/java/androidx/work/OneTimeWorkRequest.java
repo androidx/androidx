@@ -83,7 +83,7 @@ public final class OneTimeWorkRequest extends WorkRequest {
          * @param timeUnit The units of time for {@code duration}
          * @return The current {@link Builder}
          */
-        public Builder setInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
+        public @NonNull Builder setInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
             mWorkSpec.initialDelay = timeUnit.toMillis(duration);
             return this;
         }
@@ -95,7 +95,7 @@ public final class OneTimeWorkRequest extends WorkRequest {
          * @return The current {@link Builder}
          */
         @RequiresApi(26)
-        public Builder setInitialDelay(Duration duration) {
+        public @NonNull Builder setInitialDelay(@NonNull Duration duration) {
             mWorkSpec.initialDelay = duration.toMillis();
             return this;
         }
@@ -110,14 +110,14 @@ public final class OneTimeWorkRequest extends WorkRequest {
          *                    {@link OneTimeWorkRequest}
          * @return The current {@link Builder}
          */
-        public Builder setInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
+        public @NonNull Builder setInputMerger(@NonNull Class<? extends InputMerger> inputMerger) {
             mWorkSpec.inputMergerClassName = inputMerger.getName();
             return this;
         }
 
 
         @Override
-        public OneTimeWorkRequest build() {
+        public @NonNull OneTimeWorkRequest build() {
             if (mBackoffCriteriaSet
                     && Build.VERSION.SDK_INT >= 23
                     && mWorkSpec.constraints.requiresDeviceIdle()) {
@@ -128,7 +128,7 @@ public final class OneTimeWorkRequest extends WorkRequest {
         }
 
         @Override
-        Builder getThis() {
+        @NonNull Builder getThis() {
             return this;
         }
     }
