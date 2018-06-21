@@ -46,7 +46,9 @@ public class RescheduleReceiver extends BroadcastReceiver {
                                 + "ContentProvider#onCreate() or an Application#onCreate().");
             } else {
                 // This helps set up rescheduling of Jobs with JobScheduler. We are doing nothing
-                // for 10 seconds, to give ForceStopRunnable a chance to reschedule.
+                // for 8 seconds, to give ForceStopRunnable a chance to reschedule. Using 8 seconds
+                // instead of 10 seconds, because the OS starts the ANR timer before the call to
+                // onReceive().
                 Handler handler = new Handler(Looper.getMainLooper());
                 final PendingResult pendingResult = goAsync();
                 handler.postDelayed(new Runnable() {
@@ -54,7 +56,8 @@ public class RescheduleReceiver extends BroadcastReceiver {
                     public void run() {
                         pendingResult.finish();
                     }
-                }, TimeUnit.SECONDS.toMillis(10));
+                }, TimeUnit.SECONDS.toMillis(8));
+
             }
         } else {
             Intent reschedule = CommandHandler.createRescheduleIntent(context);
