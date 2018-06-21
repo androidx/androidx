@@ -295,9 +295,15 @@ limitations under the License.
     </style>
 
     <!-- Styling for the switch. -->
-    <style name="Widget.Car.Switch" parent="Widget.AppCompat.CompoundButton.Switch">
+    <style name="Widget.Car.Switch" parent="@android:style/Widget.Material.CompoundButton.Switch">
+        <item name="android:thumbTint">@drawable/car_switch_thumb</item>
+        <item name="android:trackTint">@drawable/car_switch_track</item>
+    </style>
+
+    <!-- Styling for the switch compat. -->
+    <style name="Widget.Car.Switch.Compat" parent="Widget.AppCompat.CompoundButton.Switch">
         <item name="thumbTint">@drawable/car_switch_thumb</item>
-        <item name="trackTint">@drawable/car_switch_track</item>
+        <item name="trackTint">@drawable/car_switch_compat_track</item>
     </style>
 
     <style name="CarListVerticalDivider">
@@ -458,7 +464,7 @@ limitations under the License.
 
     <style name="CarPreference.SwitchPreferenceCompat">
         <item name="android:layout">@layout/preference_material_car</item>
-        <item name="android:widgetLayout">@layout/car_switch_widget</item>
+        <item name="android:widgetLayout">@layout/car_switch_compat_widget</item>
     </style>
 
     <style name="CarPreference.SwitchPreference">
@@ -470,7 +476,6 @@ limitations under the License.
         <item name="android:layout">@layout/preference_widget_seekbar_material_car</item>
         <item name="adjustable">true</item>
         <item name="showSeekBarValue">true</item>
-        <item name="android:widgetLayout">@layout/preference_widget_seekbar</item>
     </style>
 
     <style name="CarPreference.PreferenceScreen">

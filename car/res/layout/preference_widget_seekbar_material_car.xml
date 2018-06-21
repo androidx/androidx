@@ -71,12 +71,13 @@
                 android:paddingEnd="@dimen/preference_seekbar_padding_end"
                 android:focusable="false"
                 android:clickable="false"
-                android:background="@null" />
+                android:background="@null"
+                style="@style/Widget.Car.SeekBar"/>
 
             <TextView
                 android:id="@+id/seekbar_value"
                 android:layout_width="@dimen/preference_seekbar_value_width"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="right|center_vertical"
                 android:textAppearance="@style/TextAppearance.Car.Body2"
                 android:fadingEdge="horizontal"

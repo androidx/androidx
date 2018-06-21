@@ -150,9 +150,11 @@
     <!-- Colors for the switch widget (thumb and track) -->
     <color name="car_switch_thumb_on">@color/car_teal_700</color>
     <color name="car_switch_thumb_on_disabled">@color/car_teal_700_disabled</color>
-    <color name="car_switch_track_on">@color/car_teal_700_disabled</color>
+    <color name="car_switch_track_on">@color/car_teal_700</color>
     <color name="car_switch_thumb_off">@color/car_body2</color>
-    <color name="car_switch_track_off">@color/car_grey_400</color>
+    <color name="car_switch_track_off">@color/car_body2</color>
+    <color name="car_switch_compat_track_on">@color/car_teal_700_disabled</color>
+    <color name="car_switch_compat_track_off">@color/car_grey_400</color>
 
     <!-- Misc colors -->
     <color name="car_accent">@color/car_accent_dark</color>

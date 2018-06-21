@@ -96,14 +96,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/switch_widget"
         style="@style/CarListVerticalDivider"/>
-    <Switch
+
+    <include
+        layout="@layout/car_switch_widget"
         android:id="@+id/switch_widget"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        style="@android:style/Widget.Material.CompoundButton.Switch"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Up to 2 action buttons with dividers. -->
     <View
