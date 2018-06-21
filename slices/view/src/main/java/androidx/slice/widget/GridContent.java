@@ -151,7 +151,9 @@ public class GridContent {
             }
             mMaxCellLineCount = Math.max(mMaxCellLineCount, cc.getTextCount());
             mHasImage |= cc.hasImage();
-            mLargestImageMode = Math.max(mLargestImageMode, cc.getImageMode());
+            mLargestImageMode = mLargestImageMode == UNKNOWN_IMAGE
+                    ? cc.getImageMode()
+                    : Math.max(mLargestImageMode, cc.getImageMode());
         }
     }
 
