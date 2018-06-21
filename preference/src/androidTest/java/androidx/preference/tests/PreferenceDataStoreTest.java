@@ -53,6 +53,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceDataStore;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
+import androidx.preference.SeekBarPreference;
 import androidx.preference.tests.helpers.PreferenceWrapper;
 
 import org.junit.Before;
@@ -237,6 +238,27 @@ public class PreferenceDataStoreTest {
         assertEquals(defaultValue, pref.getText());
     }
 
+    /**
+     * Test that the initial value is set to the default value provided if a saved value cannot be
+     * found in the data store for a {@link SeekBarPreference}.
+     */
+    @Test
+    @UiThreadTest
+    public void testInitialValueIsSetToDefaultForSeekBarTextPreference() {
+        // Return the default value passed to the data store, mimicking implementation behaviour.
+        when(mDataStore.getInt(anyString(), anyInt())).then(returnsSecondArg());
+
+        int defaultValue = 5;
+        SeekBarPreference pref = new SeekBarPreference(mContext);
+        pref.setKey("SeekBarTestPref");
+        pref.setDefaultValue(defaultValue);
+        pref.setPreferenceDataStore(mDataStore);
+
+        mScreen.addPreference(pref);
+
+        assertEquals(defaultValue, pref.getValue());
+    }
+
 
     /**
      * Test that the initial value is set to unchecked if a saved value cannot be found in the data
@@ -276,7 +298,27 @@ public class PreferenceDataStoreTest {
 
         mScreen.addPreference(pref);
 
-        assertEquals(null, pref.getText());
+        assertNull(pref.getText());
+    }
+
+    /**
+     * Test that the initial value is set to 0 if a saved value cannot be found in the data store
+     * and no default value is provided for a {@link SeekBarPreference}.
+     */
+    @Test
+    @UiThreadTest
+    public void testInitialValueIs0IfNoDefaultValueForSeekBarPreference() {
+        // Return the default value passed to the data store, mimicking implementation behaviour.
+        // In this case since we haven't set a default, this should return null.
+        when(mDataStore.getInt(anyString(), anyInt())).then(returnsSecondArg());
+
+        SeekBarPreference pref = new SeekBarPreference(mContext);
+        pref.setKey("SeekBarTestPref");
+        pref.setPreferenceDataStore(mDataStore);
+
+        mScreen.addPreference(pref);
+
+        assertEquals(0, pref.getValue());
     }
 
     @Test
