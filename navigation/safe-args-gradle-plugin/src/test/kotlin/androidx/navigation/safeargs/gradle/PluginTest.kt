@@ -38,6 +38,11 @@ private const val MAIN_DIRECTIONS = "$MAIN_DIR/MainFragmentDirections.java"
 private const val MODIFIED_NEXT_DIRECTIONS = "$MAIN_DIR/ModifiedNextFragmentDirections.java"
 private const val ADDITIONAL_DIRECTIONS = "$MAIN_DIR/AdditionalFragmentDirections.java"
 private const val FOO_DIRECTIONS = "safe/gradle/test/app/foo/FooFragmentDirections.java"
+private const val FEATURE_DIRECTIONS = "$MAIN_DIR/FeatureFragmentDirections.java"
+private const val LIBRARY_DIRECTIONS = "$MAIN_DIR/LibraryFragmentDirections.java"
+private const val FOO_DYNAMIC_DIRECTIONS =
+        "safe/gradle/test/app/dynamic_feature/foo/DynFooFeatureFragmentDirections.java"
+private const val NOTFOO_DYNAMIC_DIRECTIONS = "$MAIN_DIR/DynFeatureFragmentDirections.java"
 
 private const val NAV_RESOURCES = "src/main/res/navigation"
 private const val SEC = 1000L
@@ -56,12 +61,16 @@ class PluginTest {
 
     private fun projectRoot(): File = testProjectDir.root
 
-    private fun assertGenerated(name: String) = assertExists(name, true)
+    private fun assertGenerated(name: String, prefix: String? = null): File {
+        return prefix?.let { assertExists(name, true, it) } ?: assertExists(name, true)
+    }
 
-    private fun assertNotGenerated(name: String) = assertExists(name, false)
+    private fun assertNotGenerated(name: String, prefix: String? = null): File {
+        return prefix?.let { assertExists(name, false, it) } ?: assertExists(name, false)
+    }
 
-    private fun assertExists(name: String, ex: Boolean): File {
-        val generatedFile = File(projectRoot(), "build/$GENERATED_PATH/$name")
+    private fun assertExists(name: String, ex: Boolean, prefix: String = ""): File {
+        val generatedFile = File(projectRoot(), "${prefix}build/$GENERATED_PATH/$name")
         assertThat(generatedFile.exists(), `is`(ex))
         return generatedFile
     }
@@ -92,10 +101,10 @@ class PluginTest {
         properties.load(stream)
         compileSdkVersion = properties.getProperty("compileSdkVersion")
         buildToolsVersion = properties.getProperty("buildToolsVersion")
-        testData("app-project").copyRecursively(projectRoot())
     }
 
     private fun setupSimpleBuildGradle() {
+        testData("app-project").copyRecursively(projectRoot())
         buildFile.writeText("""
             plugins {
                 id('com.android.application')
@@ -109,8 +118,19 @@ class PluginTest {
         """.trimIndent())
     }
 
+    private fun setupMultiModuleBuildGradle() {
+        testData("multimodule-project").copyRecursively(projectRoot())
+        buildFile.writeText("""
+            buildscript {
+                ext.compileSdk = $compileSdkVersion
+                ext.buildTools = "$buildToolsVersion"
+            }
+        """.trimIndent())
+    }
+
     @Test
     fun runGenerateTask() {
+        testData("app-project").copyRecursively(projectRoot())
         buildFile.writeText("""
             plugins {
                 id('com.android.application')
@@ -246,6 +266,66 @@ class PluginTest {
 
         val step3ModifiedTime = assertGenerated("debug/$MODIFIED_NEXT_DIRECTIONS").lastModified()
         assertThat(step2ModifiedTime, not(step3ModifiedTime))
+    }
+
+    @Test
+    fun generateForFeature() {
+        setupMultiModuleBuildGradle()
+        runGradle(
+                ":feature:generateSafeArgsFooDebug",
+                ":feature:generateSafeArgsNotfooDebug"
+        )
+                .assertSuccessfulTask("feature:generateSafeArgsNotfooDebug")
+                .assertSuccessfulTask("feature:generateSafeArgsFooDebug")
+
+        assertGenerated("foo/debug/$FEATURE_DIRECTIONS", "feature/")
+        assertGenerated("notfoo/debug/$FEATURE_DIRECTIONS", "feature/")
+    }
+
+    @Test
+    fun generateForLibrary() {
+        setupMultiModuleBuildGradle()
+        runGradle(
+                ":library:generateSafeArgsFooDebug",
+                ":library:generateSafeArgsNotfooDebug"
+        )
+                .assertSuccessfulTask("library:generateSafeArgsNotfooDebug")
+                .assertSuccessfulTask("library:generateSafeArgsFooDebug")
+
+        assertGenerated("foo/debug/$LIBRARY_DIRECTIONS", "library/")
+        assertGenerated("notfoo/debug/$LIBRARY_DIRECTIONS", "library/")
+    }
+
+    @Test
+    fun generateForBaseFeature() {
+        setupMultiModuleBuildGradle()
+        runGradle(
+                ":base:generateSafeArgsFooDebug",
+                ":base:generateSafeArgsNotfooDebug"
+        )
+                .assertSuccessfulTask("base:generateSafeArgsNotfooDebug")
+                .assertSuccessfulTask("base:generateSafeArgsFooDebug")
+
+        assertGenerated("foo/debug/$MAIN_DIRECTIONS", "base/")
+        assertGenerated("notfoo/debug/$MAIN_DIRECTIONS", "base/")
+        assertGenerated("foo/debug/$NEXT_DIRECTIONS", "base/")
+        assertGenerated("notfoo/debug/$NEXT_DIRECTIONS", "base/")
+    }
+
+    @Test
+    fun generateForDynamicFeature() {
+        setupMultiModuleBuildGradle()
+        runGradle(
+                ":dynamic_feature:generateSafeArgsFooDebug",
+                ":dynamic_feature:generateSafeArgsNotfooDebug"
+        )
+                .assertSuccessfulTask("dynamic_feature:generateSafeArgsNotfooDebug")
+                .assertSuccessfulTask("dynamic_feature:generateSafeArgsFooDebug")
+
+        assertGenerated("notfoo/debug/$NOTFOO_DYNAMIC_DIRECTIONS", "dynamic_feature/")
+        assertNotGenerated("foo/debug/$NOTFOO_DYNAMIC_DIRECTIONS", "dynamic_feature/")
+        assertGenerated("foo/debug/$FOO_DYNAMIC_DIRECTIONS", "dynamic_feature/")
+        assertNotGenerated("notfoo/debug/$FOO_DYNAMIC_DIRECTIONS", "dynamic_feature/")
     }
 }
 
