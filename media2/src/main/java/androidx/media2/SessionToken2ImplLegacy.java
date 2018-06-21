@@ -16,6 +16,7 @@
 
 package androidx.media2;
 
+import static androidx.media2.SessionToken2.KEY_PACKAGE_NAME;
 import static androidx.media2.SessionToken2.KEY_TOKEN_LEGACY;
 import static androidx.media2.SessionToken2.KEY_TYPE;
 import static androidx.media2.SessionToken2.UID_UNKNOWN;
@@ -23,9 +24,11 @@ import static androidx.media2.SessionToken2.UID_UNKNOWN;
 import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.media.MediaSessionManager;
 
 /**
  * Represents an ongoing {@link MediaSession2} or a {@link MediaSessionService2}.
@@ -43,9 +46,18 @@ import androidx.annotation.Nullable;
 final class SessionToken2ImplLegacy implements SessionToken2.SupportLibraryImpl {
 
     private final MediaSessionCompat.Token mLegacyToken;
+    private final String mPackageName;
 
-    SessionToken2ImplLegacy(MediaSessionCompat.Token token) {
+    SessionToken2ImplLegacy(MediaSessionCompat.Token token, String packageName) {
+        if (token == null) {
+            throw new IllegalArgumentException("token cannot be null.");
+        }
+        if (TextUtils.isEmpty(packageName)) {
+            throw new IllegalArgumentException("Package name cannot be null.");
+        }
+
         mLegacyToken = token;
+        mPackageName = packageName;
     }
 
     @Override
@@ -74,7 +86,7 @@ final class SessionToken2ImplLegacy implements SessionToken2.SupportLibraryImpl 
 
     @Override
     public @NonNull String getPackageName() {
-        return null;
+        return mPackageName;
     }
 
     @Override
@@ -102,6 +114,7 @@ final class SessionToken2ImplLegacy implements SessionToken2.SupportLibraryImpl 
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_TYPE, SessionToken2.TYPE_SESSION_LEGACY);
         bundle.putBundle(KEY_TOKEN_LEGACY, mLegacyToken.toBundle());
+        bundle.putString(KEY_PACKAGE_NAME, mPackageName);
         return bundle;
     }
 
@@ -117,6 +130,7 @@ final class SessionToken2ImplLegacy implements SessionToken2.SupportLibraryImpl 
      */
     public static SessionToken2ImplLegacy fromBundle(@NonNull Bundle bundle) {
         Bundle legacyTokenBundle = bundle.getBundle(KEY_TOKEN_LEGACY);
-        return new SessionToken2ImplLegacy(MediaSessionCompat.Token.fromBundle(legacyTokenBundle));
+        return new SessionToken2ImplLegacy(MediaSessionCompat.Token.fromBundle(legacyTokenBundle),
+                bundle.getString(KEY_PACKAGE_NAME));
     }
 }

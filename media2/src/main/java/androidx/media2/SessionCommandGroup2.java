@@ -48,6 +48,10 @@ public final class SessionCommandGroup2 {
     private static final String PREFIX_COMMAND_CODE_PLAYLIST = "COMMAND_CODE_PLAYLIST_";
     // Prefix for command codes that will be sent directly to AudioManager or VolumeProvider.
     private static final String PREFIX_COMMAND_CODE_VOLUME = "COMMAND_CODE_VOLUME_";
+    // Prefix for command codes for session commands
+    private static final String PREFIX_COMMAND_CODE_SESSION = "COMMAND_CODE_SESSION_";
+    // Prefix for command codes for library commands
+    private static final String PREFIX_COMMAND_CODE_LIBRARY = "COMMAND_CODE_LIBRARY_";
 
     private Set<SessionCommand2> mCommands = new HashSet<>();
 
@@ -87,7 +91,8 @@ public final class SessionCommandGroup2 {
      */
     public void addCommand(int commandCode) {
         if (commandCode == COMMAND_CODE_CUSTOM) {
-            throw new IllegalArgumentException("command shouldn't be null");
+            throw new IllegalArgumentException(
+                    "Use addCommand(SessionCommand2) for COMMAND_CODE_CUSTOM.");
         }
         mCommands.add(new SessionCommand2(commandCode));
     }
@@ -109,6 +114,14 @@ public final class SessionCommandGroup2 {
 
     void addAllVolumeCommands() {
         addCommandsWithPrefix(PREFIX_COMMAND_CODE_VOLUME);
+    }
+
+    void addAllSessionCommands() {
+        addCommandsWithPrefix(PREFIX_COMMAND_CODE_SESSION);
+    }
+
+    void addAllLibraryCommands() {
+        addCommandsWithPrefix(PREFIX_COMMAND_CODE_LIBRARY);
     }
 
     private void addCommandsWithPrefix(String prefix) {

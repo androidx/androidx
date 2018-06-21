@@ -119,13 +119,21 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     public void testOnCustomCommand() throws InterruptedException {
         prepareLooper();
         // TODO(jaewan): Need to revisit with the permission.
-        final SessionCommand2 testCommand =
-                new SessionCommand2(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE);
+        final SessionCommand2 testCommand = new SessionCommand2("testCustomCommand", null);
         final Bundle testArgs = new Bundle();
         testArgs.putString("args", "testOnCustomCommand");
 
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
+            @Override
+            public SessionCommandGroup2 onConnect(@NonNull MediaSession2 session,
+                    @NonNull ControllerInfo controller) {
+                SessionCommandGroup2 commands = new SessionCommandGroup2();
+                commands.addAllPredefinedCommands();
+                commands.addCommand(testCommand);
+                return commands;
+            }
+
             @Override
             public void onCustomCommand(MediaSession2 session,
                     MediaSession2.ControllerInfo controller,

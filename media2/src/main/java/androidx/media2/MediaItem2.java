@@ -74,7 +74,8 @@ public class MediaItem2 {
         this(mediaId, dsd, metadata, flags, null);
     }
 
-    private MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc2 dsd,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaItem2(@Nullable String mediaId, @Nullable DataSourceDesc2 dsd,
             @Nullable MediaMetadata2 metadata, @Flags int flags, @Nullable UUID uuid) {
         if (metadata != null && !TextUtils.equals(mediaId, metadata.getMediaId())) {
             throw new IllegalArgumentException("metadata's id should be matched with the mediaid");
@@ -227,6 +228,10 @@ public class MediaItem2 {
         return mUUID.equals(other.mUUID);
     }
 
+    UUID getUuid() {
+        return mUUID;
+    }
+
     /**
      * Builder for {@link MediaItem2}
      */
@@ -235,6 +240,7 @@ public class MediaItem2 {
         private String mMediaId;
         private MediaMetadata2 mMetadata;
         private DataSourceDesc2 mDataSourceDesc;
+        private UUID mUuid;
 
         /**
          * Constructor for {@link Builder}
@@ -289,6 +295,11 @@ public class MediaItem2 {
             return this;
         }
 
+        Builder setUuid(UUID uuid) {
+            mUuid = uuid;
+            return this;
+        }
+
         /**
          * Build {@link MediaItem2}.
          *
@@ -300,7 +311,7 @@ public class MediaItem2 {
             if (id == null) {
                 id = mMediaId;
             }
-            return new MediaItem2(id, mDataSourceDesc, mMetadata, mFlags);
+            return new MediaItem2(id, mDataSourceDesc, mMetadata, mFlags, mUuid);
         }
     }
 }

@@ -23,7 +23,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -58,6 +62,7 @@ public final class SessionToken2 {
     private static final String TAG = "SessionToken2";
 
     private static final long WAIT_TIME_MS_FOR_SESSION_READY = 300;
+    private static final int MSG_SEND_TOKEN2_FOR_LEGACY_SESSION = 1000;
 
     /**
      * @hide
@@ -230,6 +235,10 @@ public final class SessionToken2 {
     }
 
     /**
+     * Creates SessionToken2 object from MediaSessionCompat.Token.
+     * When the SessionToken2 is ready, OnSessionToken2CreateListner will be called.
+     *
+     * TODO: Consider to use this in the constructor of MediaController2.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -249,45 +258,63 @@ public final class SessionToken2 {
             throw new IllegalArgumentException("listener shouldn't be null");
         }
 
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final MediaControllerCompat controller = new MediaControllerCompat(context,
-                                token);
-                    MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
-                        @Override
-                        public void onSessionReady() {
-                            synchronized (listener) {
-                                listener.onSessionToken2Created(token,
-                                        SessionToken2.fromBundle(
-                                                controller.getSessionToken2Bundle()));
-                                listener.notify();
+        try {
+            Bundle token2Bundle = token.getSessionToken2Bundle();
+            if (token2Bundle != null) {
+                notifySessionToken2Created(executor, listener, token,
+                        SessionToken2.fromBundle(token2Bundle));
+                return;
+            }
+
+            final MediaControllerCompat controller = new MediaControllerCompat(context, token);
+            final SessionToken2 token2ForLegacySession = new SessionToken2(
+                    new SessionToken2ImplLegacy(token, controller.getPackageName()));
+
+            final HandlerThread thread = new HandlerThread(TAG);
+            thread.start();
+            final Handler handler = new Handler(thread.getLooper()) {
+                @Override
+                public void handleMessage(Message msg) {
+                    synchronized (listener) {
+                        if (msg.what == MSG_SEND_TOKEN2_FOR_LEGACY_SESSION) {
+                            // token for framework session.
+                            controller.unregisterCallback((MediaControllerCompat.Callback) msg.obj);
+                            token.setSessionToken2Bundle(token2ForLegacySession.toBundle());
+                            notifySessionToken2Created(
+                                    executor, listener, token, token2ForLegacySession);
+                            if (Build.VERSION.SDK_INT >= 18) {
+                                thread.quitSafely();
+                            } else {
+                                thread.quit();
                             }
                         }
-                    };
-                    controller.registerCallback(callback);
-                    if (controller.isSessionReady()) {
-                        listener.onSessionToken2Created(token,
-                                SessionToken2.fromBundle(controller.getSessionToken2Bundle()));
                     }
+                }
+            };
+            MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
+                @Override
+                public void onSessionReady() {
                     synchronized (listener) {
-                        listener.wait(WAIT_TIME_MS_FOR_SESSION_READY);
-                        if (!controller.isSessionReady()) {
-                            // token for framework session.
-                            SessionToken2 token2 = new SessionToken2(
-                                    new SessionToken2ImplLegacy(token));
-                            token.setSessionToken2Bundle(token2.toBundle());
-                            listener.onSessionToken2Created(token, token2);
+                        handler.removeMessages(MSG_SEND_TOKEN2_FOR_LEGACY_SESSION);
+                        if (token.getSessionToken2Bundle() == null) {
+                            token.setSessionToken2Bundle(token2ForLegacySession.toBundle());
+                        }
+                        notifySessionToken2Created(executor, listener, token,
+                                SessionToken2.fromBundle(token.getSessionToken2Bundle()));
+                        if (Build.VERSION.SDK_INT >= 18) {
+                            thread.quitSafely();
+                        } else {
+                            thread.quit();
                         }
                     }
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Failed to create session token2.", e);
-                } catch (InterruptedException e) {
-                    Log.e(TAG, "Failed to create session token2.", e);
                 }
-            }
-        });
+            };
+            controller.registerCallback(callback, handler);
+            Message msg = handler.obtainMessage(MSG_SEND_TOKEN2_FOR_LEGACY_SESSION, callback);
+            handler.sendMessageDelayed(msg, WAIT_TIME_MS_FOR_SESSION_READY);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Failed to create session token2.", e);
+        }
     }
 
     /**
@@ -303,6 +330,18 @@ public final class SessionToken2 {
             return resolveInfo.serviceInfo.metaData.getString(
                     MediaSessionService2.SERVICE_META_DATA, "");
         }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void notifySessionToken2Created(final Executor executor,
+            final OnSessionToken2CreatedListener listener, final MediaSessionCompat.Token token,
+            final SessionToken2 token2) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                listener.onSessionToken2Created(token, token2);
+            }
+        });
     }
 
     private static String getSessionIdFromService(PackageManager manager, String serviceInterface,
