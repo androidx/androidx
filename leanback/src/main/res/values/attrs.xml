@@ -469,7 +469,7 @@
         <attr name="guidedActionUnpressedAnimation" format="reference" />
         <!-- Theme attribute used in a GuidedActionsPresenter for the alpha value of the chevron
              decoration when its action is enabled. Default is {@link
-         androidx.leanbackback.R.string#lb_guidedactions_item_enabled_chevron_alpha}. -->
+         androidx.leanbackback.R.dimen#lb_guidedactions_item_enabled_chevron_alpha}. -->
         <attr name="guidedActionEnabledChevronAlpha" format="reference" />
         <!-- Theme attribute used in a GuidedActionsPresenter for the alpha value of the chevron
              decoration when its action is disabled. Default is {@link

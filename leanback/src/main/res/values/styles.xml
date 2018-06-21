@@ -649,7 +649,7 @@
     <style name="Widget.Leanback.GuidedActionItemTitleStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:alpha">@string/lb_guidedactions_item_unselected_text_alpha</item>
+        <item name="android:alpha">@dimen/lb_guidedactions_item_unselected_text_alpha</item>
         <item name="android:ellipsize">end</item>
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:maxLines">@integer/lb_guidedactions_item_title_min_lines</item>
@@ -662,7 +662,7 @@
     <style name="Widget.Leanback.GuidedActionItemDescriptionStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:alpha">@string/lb_guidedactions_item_unselected_description_text_alpha</item>
+        <item name="android:alpha">@dimen/lb_guidedactions_item_unselected_description_text_alpha</item>
         <item name="android:ellipsize">end</item>
         <item name="android:layout_marginTop">@dimen/lb_guidedactions_item_space_between_title_and_description</item>
         <item name="android:fontFamily">sans-serif-condensed</item>
