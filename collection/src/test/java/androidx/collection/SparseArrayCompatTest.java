@@ -16,6 +16,7 @@
 
 package androidx.collection;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -69,5 +70,36 @@ public class SparseArrayCompatTest {
 
         assertTrue(array.containsValue("one"));
         assertFalse(array.containsValue("two"));
+    }
+
+    @Test
+    public void putAll() {
+        SparseArrayCompat<String> dest = new SparseArrayCompat<>();
+        dest.put(1, "one");
+        dest.put(3, "three");
+
+        SparseArrayCompat<String> source = new SparseArrayCompat<>();
+        source.put(1, "uno");
+        source.put(2, "dos");
+
+        dest.putAll(source);
+        assertEquals(3, dest.size());
+        assertEquals("uno", dest.get(1));
+        assertEquals("dos", dest.get(2));
+        assertEquals("three", dest.get(3));
+    }
+
+    @Test
+    public void putAllVariance() {
+        SparseArrayCompat<Object> dest = new SparseArrayCompat<>();
+        dest.put(1, 1L);
+
+        SparseArrayCompat<String> source = new SparseArrayCompat<>();
+        dest.put(2, "two");
+
+        dest.putAll(source);
+        assertEquals(2, dest.size());
+        assertEquals(1L, dest.get(1));
+        assertEquals("two", dest.get(2));
     }
 }

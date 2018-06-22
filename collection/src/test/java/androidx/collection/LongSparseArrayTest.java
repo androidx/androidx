@@ -16,6 +16,7 @@
 
 package androidx.collection;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -69,5 +70,36 @@ public class LongSparseArrayTest {
 
         assertTrue(array.containsValue("one"));
         assertFalse(array.containsValue("two"));
+    }
+
+    @Test
+    public void putAll() {
+        LongSparseArray<String> dest = new LongSparseArray<>();
+        dest.put(1L, "one");
+        dest.put(3L, "three");
+
+        LongSparseArray<String> source = new LongSparseArray<>();
+        source.put(1L, "uno");
+        source.put(2L, "dos");
+
+        dest.putAll(source);
+        assertEquals(3, dest.size());
+        assertEquals("uno", dest.get(1L));
+        assertEquals("dos", dest.get(2L));
+        assertEquals("three", dest.get(3L));
+    }
+
+    @Test
+    public void putAllVariance() {
+        LongSparseArray<Object> dest = new LongSparseArray<>();
+        dest.put(1L, 1L);
+
+        LongSparseArray<String> source = new LongSparseArray<>();
+        dest.put(2L, "two");
+
+        dest.putAll(source);
+        assertEquals(2, dest.size());
+        assertEquals(1L, dest.get(1L));
+        assertEquals("two", dest.get(2L));
     }
 }

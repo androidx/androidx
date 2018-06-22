@@ -56,9 +56,6 @@ fun <T> SparseArrayCompat<T>.remove(key: Int, value: T): Boolean {
     return false
 }
 
-/** Update this collection by adding or replacing entries from [other]. */
-fun <T> SparseArrayCompat<T>.putAll(other: SparseArrayCompat<T>) = other.forEach(::put)
-
 /** Performs the given [action] for each key/value entry. */
 inline fun <T> SparseArrayCompat<T>.forEach(action: (key: Int, value: T) -> Unit) {
     for (index in 0 until size()) {
