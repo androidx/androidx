@@ -25,7 +25,8 @@ import androidx.annotation.RequiresApi
  * @return the [Animator.AnimatorListener] added to the Animator
  * @see Animator.end
  */
-fun Animator.doOnEnd(action: (animator: Animator) -> Unit) = addListener(onEnd = action)
+inline fun Animator.doOnEnd(crossinline action: (animator: Animator) -> Unit) =
+    addListener(onEnd = action)
 
 /**
  * Add an action which will be invoked when the animation has started.
@@ -33,7 +34,8 @@ fun Animator.doOnEnd(action: (animator: Animator) -> Unit) = addListener(onEnd =
  * @return the [Animator.AnimatorListener] added to the Animator
  * @see Animator.start
  */
-fun Animator.doOnStart(action: (animator: Animator) -> Unit) = addListener(onStart = action)
+inline fun Animator.doOnStart(crossinline action: (animator: Animator) -> Unit) =
+    addListener(onStart = action)
 
 /**
  * Add an action which will be invoked when the animation has been cancelled.
@@ -41,13 +43,16 @@ fun Animator.doOnStart(action: (animator: Animator) -> Unit) = addListener(onSta
  * @return the [Animator.AnimatorListener] added to the Animator
  * @see Animator.cancel
  */
-fun Animator.doOnCancel(action: (animator: Animator) -> Unit) = addListener(onCancel = action)
+inline fun Animator.doOnCancel(crossinline action: (animator: Animator) -> Unit) =
+    addListener(onCancel = action)
 
 /**
  * Add an action which will be invoked when the animation has repeated.
+ *
  * @return the [Animator.AnimatorListener] added to the Animator
  */
-fun Animator.doOnRepeat(action: (animator: Animator) -> Unit) = addListener(onRepeat = action)
+inline fun Animator.doOnRepeat(crossinline action: (animator: Animator) -> Unit) =
+    addListener(onRepeat = action)
 
 /**
  * Add an action which will be invoked when the animation has resumed after a pause.
@@ -56,7 +61,8 @@ fun Animator.doOnRepeat(action: (animator: Animator) -> Unit) = addListener(onRe
  * @see Animator.resume
  */
 @RequiresApi(19)
-fun Animator.doOnResume(action: (animator: Animator) -> Unit) = addPauseListener(onResume = action)
+inline fun Animator.doOnResume(crossinline action: (animator: Animator) -> Unit) =
+    addPauseListener(onResume = action)
 
 /**
  * Add an action which will be invoked when the animation has been paused.
@@ -65,33 +71,25 @@ fun Animator.doOnResume(action: (animator: Animator) -> Unit) = addPauseListener
  * @see Animator.pause
  */
 @RequiresApi(19)
-fun Animator.doOnPause(action: (animator: Animator) -> Unit) = addPauseListener(onPause = action)
+inline fun Animator.doOnPause(crossinline action: (animator: Animator) -> Unit) =
+    addPauseListener(onPause = action)
 
 /**
  * Add a listener to this Animator using the provided actions.
+ *
+ * @return the [Animator.AnimatorListener] added to the Animator
  */
-fun Animator.addListener(
-    onEnd: ((animator: Animator) -> Unit)? = null,
-    onStart: ((animator: Animator) -> Unit)? = null,
-    onCancel: ((animator: Animator) -> Unit)? = null,
-    onRepeat: ((animator: Animator) -> Unit)? = null
+inline fun Animator.addListener(
+    crossinline onEnd: (animator: Animator) -> Unit = {},
+    crossinline onStart: (animator: Animator) -> Unit = {},
+    crossinline onCancel: (animator: Animator) -> Unit = {},
+    crossinline onRepeat: (animator: Animator) -> Unit = {}
 ): Animator.AnimatorListener {
     val listener = object : Animator.AnimatorListener {
-        override fun onAnimationRepeat(animator: Animator) {
-            onRepeat?.invoke(animator)
-        }
-
-        override fun onAnimationEnd(animator: Animator) {
-            onEnd?.invoke(animator)
-        }
-
-        override fun onAnimationCancel(animator: Animator) {
-            onCancel?.invoke(animator)
-        }
-
-        override fun onAnimationStart(animator: Animator) {
-            onStart?.invoke(animator)
-        }
+        override fun onAnimationRepeat(animator: Animator) = onRepeat(animator)
+        override fun onAnimationEnd(animator: Animator) = onEnd(animator)
+        override fun onAnimationCancel(animator: Animator) = onCancel(animator)
+        override fun onAnimationStart(animator: Animator) = onStart(animator)
     }
     addListener(listener)
     return listener
@@ -99,20 +97,17 @@ fun Animator.addListener(
 
 /**
  * Add a pause and resume listener to this Animator using the provided actions.
+ *
+ * @return the [Animator.AnimatorPauseListener] added to the Animator
  */
 @RequiresApi(19)
-fun Animator.addPauseListener(
-    onResume: ((animator: Animator) -> Unit)? = null,
-    onPause: ((animator: Animator) -> Unit)? = null
+inline fun Animator.addPauseListener(
+    crossinline onResume: (animator: Animator) -> Unit = {},
+    crossinline onPause: (animator: Animator) -> Unit = {}
 ): Animator.AnimatorPauseListener {
     val listener = object : Animator.AnimatorPauseListener {
-        override fun onAnimationPause(animator: Animator) {
-            onPause?.invoke(animator)
-        }
-
-        override fun onAnimationResume(animator: Animator) {
-            onResume?.invoke(animator)
-        }
+        override fun onAnimationPause(animator: Animator) = onPause(animator)
+        override fun onAnimationResume(animator: Animator) = onResume(animator)
     }
     addPauseListener(listener)
     return listener

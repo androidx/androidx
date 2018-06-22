@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE") // Aliases to public API.
+
 package androidx.core.text
 
-import android.annotation.SuppressLint
 import android.text.Html
-import android.text.Html.FROM_HTML_MODE_LEGACY
 import android.text.Html.ImageGetter
-import android.text.Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
 import android.text.Html.TagHandler
 import android.text.Spanned
+import androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
+import androidx.core.text.HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
 
 /**
  * Returns a [Spanned] from parsing this string as HTML.
@@ -35,8 +36,8 @@ import android.text.Spanned
  *
  * @see Html.fromHtml
  */
-fun String.parseAsHtml(
-    @SuppressLint("InlinedApi") flags: Int = FROM_HTML_MODE_LEGACY,
+inline fun String.parseAsHtml(
+    flags: Int = FROM_HTML_MODE_LEGACY,
     imageGetter: ImageGetter? = null,
     tagHandler: TagHandler? = null
 ): Spanned = HtmlCompat.fromHtml(this, flags, imageGetter, tagHandler)
@@ -46,6 +47,6 @@ fun String.parseAsHtml(
  *
  * @see Html.toHtml
  */
-fun Spanned.toHtml(
-    @SuppressLint("InlinedApi") option: Int = TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
+inline fun Spanned.toHtml(
+    option: Int = TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
 ): String = HtmlCompat.toHtml(this, option)

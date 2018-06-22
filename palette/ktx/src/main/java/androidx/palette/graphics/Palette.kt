@@ -25,6 +25,11 @@ import android.graphics.Bitmap
  *
  * @see Palette.from
  */
+@Deprecated(
+    "Invoke the builder directly",
+    ReplaceWith("Palette.Builder(this)"),
+    DeprecationLevel.ERROR
+)
 inline fun Bitmap.buildPalette() = Palette.Builder(this)
 
 /**

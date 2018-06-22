@@ -21,17 +21,10 @@ import android.graphics.Bitmap.Config.ARGB_8888
 import android.graphics.Canvas
 import android.graphics.Color.RED
 import androidx.palette.graphics.Target.VIBRANT
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
 import org.junit.Test
 
 class PaletteTest {
-    @Test fun bitmapBuild() {
-        val bitmap = Bitmap.createBitmap(10, 10, ARGB_8888)
-        // There's no easy way to test that the palette was created from our Bitmap.
-        assertNotNull(bitmap.buildPalette())
-    }
-
     @Test fun operatorGet() {
         val bitmap = Bitmap.createBitmap(10, 10, ARGB_8888).apply {
             Canvas(this).drawColor(RED)
