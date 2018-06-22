@@ -195,9 +195,17 @@ public class SliceViewUtil {
 
     /**
      */
-    public static CharSequence getRelativeTimeString(long time) {
-        return DateUtils.getRelativeTimeSpanString(time, Calendar.getInstance().getTimeInMillis(),
-                DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
+    public static CharSequence getTimestampString(Context context, long time) {
+        long currentTimeStamp = System.currentTimeMillis();
+        if (time < currentTimeStamp || DateUtils.isToday(time)) {
+            // Returns relative time string if the time is today or in the past.
+            return DateUtils.getRelativeTimeSpanString(time,
+                    Calendar.getInstance().getTimeInMillis(),
+                    DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
+        } else {
+            // Return dates in the format of MMM d (e.g. Oct 11) if the time is after today.
+            return DateUtils.formatDateTime(context, time, DateUtils.FORMAT_NO_YEAR);
+        }
     }
 
     /**
