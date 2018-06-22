@@ -41,7 +41,9 @@ import androidx.slice.SliceViewManager;
 import androidx.slice.core.SliceQuery;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -118,11 +120,12 @@ public final class SliceLiveData {
         final Context mContext;
         Uri mUri;
         private boolean mActive;
-        Uri mPendingUri;
+        List<Uri> mPendingUri = new ArrayList<>();
         private boolean mLive;
         SliceStructure mStructure;
-        Context mPendingContext;
-        Intent mPendingIntent;
+        List<Context> mPendingContext = new ArrayList<>();
+        List<Intent> mPendingIntent = new ArrayList<>();
+        private boolean mSliceCallbackRegistered;
 
         CachedLiveDataImpl(final Context context, final SliceViewManager manager,
                 final InputStream input, final OnErrorListener listener) {
@@ -155,36 +158,42 @@ public final class SliceLiveData {
 
         void goLive(Uri actionUri, Context context, Intent intent) {
             mLive = true;
-            mPendingUri = actionUri;
-            mPendingContext = context;
-            mPendingIntent = intent;
-            if (mActive) {
+            mPendingUri.add(actionUri);
+            mPendingContext.add(context);
+            mPendingIntent.add(intent);
+            if (mActive && !mSliceCallbackRegistered) {
                 AsyncTask.execute(mUpdateSlice);
                 mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
+                mSliceCallbackRegistered = true;
             }
         }
 
         @Override
         protected void onActive() {
             mActive = true;
-            if (mLive) {
+            if (mLive && !mSliceCallbackRegistered) {
                 AsyncTask.execute(mUpdateSlice);
                 mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
+                mSliceCallbackRegistered = true;
             }
         }
 
         @Override
         protected void onInactive() {
             mActive = false;
-            if (mLive) {
+            if (mLive && mSliceCallbackRegistered) {
                 mSliceViewManager.unregisterSliceCallback(mUri, mSliceCallback);
+                mSliceCallbackRegistered = false;
             }
         }
 
         void onSliceError(int error, Throwable t) {
             mListener.onSliceError(error, t);
             if (mLive) {
-                mSliceViewManager.unregisterSliceCallback(mUri, mSliceCallback);
+                if (mSliceCallbackRegistered) {
+                    mSliceViewManager.unregisterSliceCallback(mUri, mSliceCallback);
+                    mSliceCallbackRegistered = false;
+                }
                 mLive = false;
             }
         }
@@ -201,7 +210,7 @@ public final class SliceLiveData {
                 new SliceViewManager.SliceCallback() {
             @Override
             public void onSliceUpdated(@NonNull Slice s) {
-                if (mPendingUri != null) {
+                if (mPendingUri.size() > 0) {
                     if (s == null) {
                         onSliceError(OnErrorListener.ERROR_SLICE_NO_LONGER_PRESENT, null);
                         return;
@@ -213,21 +222,24 @@ public final class SliceLiveData {
                     }
                     SliceMetadata metaData = SliceMetadata.from(mContext, s);
                     if (metaData.getLoadingState() == SliceMetadata.LOADED_ALL) {
-                        SliceItem item = SliceQuery.findItem(s, mPendingUri);
-                        if (item != null) {
-                            try {
-                                item.fireAction(mPendingContext, mPendingIntent);
-                            } catch (PendingIntent.CanceledException e) {
-                                onSliceError(OnErrorListener.ERROR_UNKNOWN, e);
+                        for (int i = 0; i < mPendingUri.size(); i++) {
+                            SliceItem item = SliceQuery.findItem(s, mPendingUri.get(i));
+                            if (item != null) {
+                                try {
+                                    item.fireAction(mPendingContext.get(i), mPendingIntent.get(i));
+                                } catch (PendingIntent.CanceledException e) {
+                                    onSliceError(OnErrorListener.ERROR_UNKNOWN, e);
+                                    return;
+                                }
+                            } else {
+                                onSliceError(
+                                        OnErrorListener.ERROR_UNKNOWN, new NullPointerException());
                                 return;
                             }
-                        } else {
-                            onSliceError(OnErrorListener.ERROR_UNKNOWN, new NullPointerException());
-                            return;
                         }
-                        mPendingUri = null;
-                        mPendingContext = null;
-                        mPendingIntent = null;
+                        mPendingUri.clear();
+                        mPendingContext.clear();
+                        mPendingIntent.clear();
                     }
                 }
                 postValue(s);

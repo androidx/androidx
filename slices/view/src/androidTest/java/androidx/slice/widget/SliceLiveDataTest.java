@@ -138,6 +138,44 @@ public class SliceLiveDataTest {
     }
 
     @Test
+    public void testMultipleClickGoesLive() throws PendingIntent.CanceledException,
+            InterruptedException {
+        when(mManager.bindSlice(URI)).thenReturn(mBaseSlice);
+
+        ArgumentCaptor<Slice> s = ArgumentCaptor.forClass(Slice.class);
+        verify(mObserver, times(1)).onChanged(s.capture());
+        clearInvocations(mObserver);
+
+        // Triggers three different intents on the slice.
+        Intent intent1 = new Intent("intent1");
+        Intent intent2 = new Intent("intent2");
+        Intent intent3 = new Intent("intent3");
+
+        s.getValue().getItems().get(0).fireAction(null, intent1);
+        s.getValue().getItems().get(0).fireAction(null, intent2);
+        s.getValue().getItems().get(0).fireAction(null, intent3);
+
+        waitForAsync();
+        mInstrumentation.waitForIdleSync();
+
+        verify(mManager, times(1)).bindSlice(any(Uri.class));
+        verify(mManager, times(1)).registerSliceCallback(any(Uri.class),
+                any(SliceCallback.class));
+        verify(mObserver, times(1)).onChanged(any(Slice.class));
+
+        // Make sure error listener is not triggered.
+        verify(mErrorListener, never()).onSliceError(anyInt(), any(Throwable.class));
+
+        // Make sure all three intent actions are fired.
+        verify(mActionHandler, times(1)).onAction(any(SliceItem.class), (Context) eq(null),
+                eq(intent1));
+        verify(mActionHandler, times(1)).onAction(any(SliceItem.class), (Context) eq(null),
+                eq(intent2));
+        verify(mActionHandler, times(1)).onAction(any(SliceItem.class), (Context) eq(null),
+                eq(intent3));
+    }
+
+    @Test
     public void testWaitsForLoad() throws PendingIntent.CanceledException, InterruptedException {
         Slice loadingSlice = new Slice.Builder(URI)
                 .addAction(mActionHandler,
