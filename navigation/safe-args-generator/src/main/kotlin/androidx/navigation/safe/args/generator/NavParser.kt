@@ -107,6 +107,7 @@ internal class NavParser(
 
         val defaultTypedValue = when (type) {
             NavType.INT -> parseIntValue(defaultValue)
+            NavType.LONG -> parseLongValue(defaultValue)
             NavType.FLOAT -> parseFloatValue(defaultValue)
             NavType.BOOLEAN -> parseBoolean(defaultValue)
             NavType.REFERENCE -> parseReference(defaultValue, rFilePackage)?.let {
@@ -166,6 +167,10 @@ internal fun inferArgument(name: String, defaultValue: String, rFilePackage: Str
     if (reference != null) {
         return Argument(name, NavType.REFERENCE, ReferenceValue(reference))
     }
+    val longValue = parseLongValue(defaultValue)
+    if (longValue != null) {
+        return Argument(name, NavType.LONG, longValue)
+    }
     val intValue = parseIntValue(defaultValue)
     if (intValue != null) {
         return Argument(name, NavType.INT, intValue)
@@ -204,6 +209,23 @@ internal fun parseIntValue(value: String): IntValue? {
         return null
     }
     return IntValue(value)
+}
+
+internal fun parseLongValue(value: String): LongValue? {
+    if (!value.endsWith('L')) {
+        return null
+    }
+    try {
+        val normalizedValue = value.substringBeforeLast('L')
+        if (normalizedValue.startsWith("0x")) {
+            normalizedValue.substring(2).toLong(16)
+        } else {
+            normalizedValue.toLong()
+        }
+    } catch (ex: NumberFormatException) {
+        return null
+    }
+    return LongValue(value)
 }
 
 private fun parseFloatValue(value: String): FloatValue? =
