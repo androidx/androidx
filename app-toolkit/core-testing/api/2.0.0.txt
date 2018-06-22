@@ -1,0 +1,15 @@
+package androidx.arch.core.executor.testing {
+
+  public class CountingTaskExecutorRule extends org.junit.rules.TestWatcher {
+    ctor public CountingTaskExecutorRule();
+    method public void drainTasks(int, java.util.concurrent.TimeUnit) throws java.lang.InterruptedException, java.util.concurrent.TimeoutException;
+    method public boolean isIdle();
+    method protected void onIdle();
+  }
+
+  public class InstantTaskExecutorRule extends org.junit.rules.TestWatcher {
+    ctor public InstantTaskExecutorRule();
+  }
+
+}
+
