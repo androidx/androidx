@@ -29,9 +29,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.drawable.DrawerArrowDrawable;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewParent;
 
 import androidx.navigation.NavController;
@@ -155,6 +157,54 @@ public class NavigationUI {
     }
 
     /**
+     * Sets up a {@link Toolbar} for use with a {@link NavController}.
+     *
+     * <p>By calling this method, the title in the Toolbar will automatically be updated when
+     * the destination changes (assuming there is a valid {@link NavDestination#getLabel label}).
+     *
+     * <p>The Toolbar will also display the Up button when you are on a non-root destination. This
+     * method will call {@link NavController#navigateUp()} when the navigation icon
+     * is clicked.
+     *
+     * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
+     * @param navController The NavController that supplies the secondary menu. Navigation actions
+     *                      on this NavController will be reflected in the title of the Toolbar.
+     */
+    public static void setupWithNavController(@NonNull Toolbar toolbar,
+            @NonNull NavController navController) {
+        setupWithNavController(toolbar, navController, null);
+    }
+
+    /**
+     * Sets up a {@link Toolbar} for use with a {@link NavController}.
+     *
+     * <p>By calling this method, the title in the Toolbar will automatically be updated when
+     * the destination changes (assuming there is a valid {@link NavDestination#getLabel label}).
+     *
+     * <p>The Toolbar will also display the Up button when you are on a non-root destination and
+     * the drawer icon when on the root destination, automatically animating between them. This
+     * method will call {@link #navigateUp(DrawerLayout, NavController)} when the navigation icon
+     * is clicked.
+     *
+     * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
+     * @param navController The NavController whose navigation actions will be reflected
+     *                      in the title of the action bar.
+     * @param drawerLayout The DrawerLayout that should be toggled from the home button
+     */
+    public static void setupWithNavController(@NonNull Toolbar toolbar,
+            @NonNull final NavController navController,
+            @Nullable final DrawerLayout drawerLayout) {
+        navController.addOnNavigatedListener(
+                new ToolbarOnNavigatedListener(toolbar, drawerLayout));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateUp(drawerLayout, navController);
+            }
+        });
+    }
+
+    /**
      * Sets up a {@link NavigationView} for use with a {@link NavController}. This will call
      * {@link #onNavDestinationSelected(MenuItem, NavController)} when a menu item is selected.
      * The selected item in the NavigationView will automatically be updated when the destination
@@ -263,7 +313,8 @@ public class NavigationUI {
 
     /**
      * The OnNavigatedListener specifically for keeping the ActionBar updated. This handles both
-     * updating the title and updating the Up Indicator transitioning between the
+     * updating the title and updating the Up Indicator, transitioning between the drawer icon and
+     * up arrow as needed.
      */
     private static class ActionBarOnNavigatedListener implements NavController.OnNavigatedListener {
         private final AppCompatActivity mActivity;
@@ -301,6 +352,62 @@ public class NavigationUI {
                 // We're setting the initial state, so skip the animation
                 animate = false;
             }
+            float endValue = showAsDrawerIndicator ? 0f : 1f;
+            if (animate) {
+                float startValue = mArrowDrawable.getProgress();
+                if (mAnimator != null) {
+                    mAnimator.cancel();
+                }
+                mAnimator = ObjectAnimator.ofFloat(mArrowDrawable, "progress",
+                        startValue, endValue);
+                mAnimator.start();
+            } else {
+                mArrowDrawable.setProgress(endValue);
+            }
+        }
+    }
+
+    /**
+     * The OnNavigatedListener specifically for keeping a Toolbar updated. This handles both
+     * updating the title and updating the Up Indicator, transitioning between the drawer icon and
+     * up arrow as needed.
+     */
+    private static class ToolbarOnNavigatedListener implements NavController.OnNavigatedListener {
+        private final Toolbar mToolbar;
+        @Nullable
+        private final DrawerLayout mDrawerLayout;
+        private DrawerArrowDrawable mArrowDrawable;
+        private ValueAnimator mAnimator;
+
+        ToolbarOnNavigatedListener(
+                @NonNull Toolbar toolbar, @Nullable DrawerLayout drawerLayout) {
+            mToolbar = toolbar;
+            mDrawerLayout = drawerLayout;
+        }
+
+        @Override
+        public void onNavigated(@NonNull NavController controller,
+                @NonNull NavDestination destination) {
+            CharSequence title = destination.getLabel();
+            if (!TextUtils.isEmpty(title)) {
+                mToolbar.setTitle(title);
+            }
+            boolean isStartDestination = findStartDestination(controller.getGraph()) == destination;
+            if (mDrawerLayout == null && isStartDestination) {
+                mToolbar.setNavigationIcon(null);
+            } else {
+                setActionBarUpIndicator(mDrawerLayout != null && isStartDestination);
+            }
+        }
+
+        void setActionBarUpIndicator(boolean showAsDrawerIndicator) {
+            boolean animate = true;
+            if (mArrowDrawable == null) {
+                mArrowDrawable = new DrawerArrowDrawable(mToolbar.getContext());
+                // We're setting the initial state, so skip the animation
+                animate = false;
+            }
+            mToolbar.setNavigationIcon(mArrowDrawable);
             float endValue = showAsDrawerIndicator ? 0f : 1f;
             if (animate) {
                 float startValue = mArrowDrawable.getProgress();
