@@ -56,9 +56,6 @@ fun <T> LongSparseArray<T>.remove(key: Long, value: T): Boolean {
     return false
 }
 
-/** Update this collection by adding or replacing entries from [other]. */
-fun <T> LongSparseArray<T>.putAll(other: LongSparseArray<T>) = other.forEach(::put)
-
 /** Performs the given [action] for each key/value entry. */
 inline fun <T> LongSparseArray<T>.forEach(action: (key: Long, value: T) -> Unit) {
     for (index in 0 until size()) {

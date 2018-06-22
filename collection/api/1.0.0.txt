@@ -89,6 +89,7 @@ package androidx.collection {
     method public boolean isEmpty();
     method public long keyAt(int);
     method public void put(long, E);
+    method public void putAll(androidx.collection.LongSparseArray<? extends E>);
     method public void remove(long);
     method public void removeAt(int);
     method public void setValueAt(int, E);
@@ -155,6 +156,7 @@ package androidx.collection {
     method public boolean isEmpty();
     method public int keyAt(int);
     method public void put(int, E);
+    method public void putAll(androidx.collection.SparseArrayCompat<? extends E>);
     method public void remove(int);
     method public void removeAt(int);
     method public void removeAtRange(int, int);
