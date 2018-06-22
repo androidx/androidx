@@ -35,12 +35,6 @@ operator fun <T> SparseArrayCompat<T>.plus(other: SparseArrayCompat<T>): SparseA
     return new
 }
 
-/** Returns true if the collection contains [key]. */
-inline fun <T> SparseArrayCompat<T>.containsKey(key: Int) = indexOfKey(key) >= 0
-
-/** Returns true if the collection contains [value]. */
-inline fun <T> SparseArrayCompat<T>.containsValue(value: T) = indexOfValue(value) != -1
-
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
 inline fun <T> SparseArrayCompat<T>.getOrDefault(key: Int, defaultValue: T) =
     get(key) ?: defaultValue
