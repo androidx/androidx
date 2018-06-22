@@ -18,7 +18,6 @@ package androidx.work;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
 import java.util.List;
 
@@ -53,7 +52,7 @@ public abstract class InputMerger {
             Class<?> clazz = Class.forName(className);
             return (InputMerger) clazz.newInstance();
         } catch (Exception e) {
-            Log.e(TAG, "Trouble instantiating + " + className, e);
+            Logger.error(TAG, "Trouble instantiating + " + className, e);
         }
         return null;
     }

@@ -30,11 +30,11 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
-import android.util.Log;
 
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.InputMerger;
+import androidx.work.Logger;
 import androidx.work.State;
 import androidx.work.Worker;
 import androidx.work.impl.model.DependencyDao;
@@ -102,7 +102,7 @@ public class WorkerWrapper implements Runnable {
         try {
             mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
             if (mWorkSpec == null) {
-                Log.e(TAG, String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
+                Logger.error(TAG, String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
                 notifyListener(false, false);
                 return;
             }
@@ -130,7 +130,7 @@ public class WorkerWrapper implements Runnable {
         } else {
             InputMerger inputMerger = InputMerger.fromClassName(mWorkSpec.inputMergerClassName);
             if (inputMerger == null) {
-                Log.e(TAG, String.format("Could not create Input Merger %s",
+                Logger.error(TAG, String.format("Could not create Input Merger %s",
                         mWorkSpec.inputMergerClassName));
                 setFailedAndNotify();
                 return;
@@ -154,7 +154,8 @@ public class WorkerWrapper implements Runnable {
         }
 
         if (mWorker == null) {
-            Log.e(TAG, String.format("Could for create Worker %s", mWorkSpec.workerClassName));
+            Logger.error(TAG,
+                    String.format("Could for create Worker %s", mWorkSpec.workerClassName));
             setFailedAndNotify();
             return;
         }
@@ -171,9 +172,8 @@ public class WorkerWrapper implements Runnable {
                 result = mWorker.doWork();
             } catch (Exception | Error e) {
                 result = Worker.Result.FAILURE;
-                Log.e(TAG,
-                        String.format(
-                                "Worker %s failed because it threw an exception/error",
+                Logger.error(TAG,
+                        String.format("Worker %s failed because it threw an exception/error",
                                 mWorkSpecId),
                         e);
             }
@@ -218,11 +218,11 @@ public class WorkerWrapper implements Runnable {
     private void notifyIncorrectStatus() {
         State status = mWorkSpecDao.getState(mWorkSpecId);
         if (status == RUNNING) {
-            Log.d(TAG, String.format("Status for %s is RUNNING;"
+            Logger.debug(TAG, String.format("Status for %s is RUNNING;"
                     + "not doing any work and rescheduling for later execution", mWorkSpecId));
             notifyListener(false, true);
         } else {
-            Log.e(TAG,
+            Logger.debug(TAG,
                     String.format("Status for %s is %s; not doing any work", mWorkSpecId, status));
             notifyListener(false, false);
         }
@@ -230,7 +230,7 @@ public class WorkerWrapper implements Runnable {
 
     private boolean tryCheckForInterruptionAndNotify() {
         if (mInterrupted) {
-            Log.d(TAG, String.format("Work interrupted for %s", mWorkSpecId));
+            Logger.debug(TAG, String.format("Work interrupted for %s", mWorkSpecId));
             State currentState = mWorkSpecDao.getState(mWorkSpecId);
             if (currentState == null) {
                 // This can happen because of a beginUniqueWork(..., REPLACE, ...).  Notify the
@@ -259,7 +259,7 @@ public class WorkerWrapper implements Runnable {
     private void handleResult(Worker.Result result) {
         switch (result) {
             case SUCCESS: {
-                Log.d(TAG, String.format("Worker result SUCCESS for %s", mWorkSpecId));
+                Logger.debug(TAG, String.format("Worker result SUCCESS for %s", mWorkSpecId));
                 if (mWorkSpec.isPeriodic()) {
                     resetPeriodicAndNotify(true);
                 } else {
@@ -269,14 +269,14 @@ public class WorkerWrapper implements Runnable {
             }
 
             case RETRY: {
-                Log.d(TAG, String.format("Worker result RETRY for %s", mWorkSpecId));
+                Logger.debug(TAG, String.format("Worker result RETRY for %s", mWorkSpecId));
                 rescheduleAndNotify();
                 break;
             }
 
             case FAILURE:
             default: {
-                Log.d(TAG, String.format("Worker result FAILURE for %s", mWorkSpecId));
+                Logger.debug(TAG, String.format("Worker result FAILURE for %s", mWorkSpecId));
                 if (mWorkSpec.isPeriodic()) {
                     resetPeriodicAndNotify(false);
                 } else {
@@ -397,7 +397,8 @@ public class WorkerWrapper implements Runnable {
             List<String> dependentWorkIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
             for (String dependentWorkId : dependentWorkIds) {
                 if (mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
-                    Log.d(TAG, String.format("Setting status to enqueued for %s", dependentWorkId));
+                    Logger.debug(TAG,
+                            String.format("Setting status to enqueued for %s", dependentWorkId));
                     mWorkSpecDao.setState(ENQUEUED, dependentWorkId);
                     mWorkSpecDao.setPeriodStartTime(dependentWorkId, currentTimeMillis);
                 }
@@ -460,7 +461,7 @@ public class WorkerWrapper implements Runnable {
                     extras);
             return worker;
         } catch (Exception e) {
-            Log.e(TAG, "Trouble instantiating " + workerClassName, e);
+            Logger.error(TAG, "Trouble instantiating " + workerClassName, e);
         }
         return null;
     }

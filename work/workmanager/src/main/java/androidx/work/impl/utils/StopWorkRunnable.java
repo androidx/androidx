@@ -17,8 +17,8 @@
 package androidx.work.impl.utils;
 
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
+import androidx.work.Logger;
 import androidx.work.State;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -52,7 +52,7 @@ public class StopWorkRunnable implements Runnable {
                 workSpecDao.setState(State.ENQUEUED, mWorkSpecId);
             }
             boolean isStopped = mWorkManagerImpl.getProcessor().stopWork(mWorkSpecId);
-            Log.d(
+            Logger.debug(
                     TAG,
                     String.format(
                             "StopWorkRunnable for %s; Processor.stopWork = %s",

@@ -23,8 +23,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.util.Log;
 
+import androidx.work.Logger;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.IdGenerator;
@@ -81,10 +81,10 @@ public class FirebaseJobScheduler implements Scheduler {
 
     void scheduleNow(WorkSpec workSpec) {
         Job job = mJobConverter.convert(workSpec);
-        Log.d(TAG, String.format("Scheduling work now, ID: %s", workSpec.id));
+        Logger.debug(TAG, String.format("Scheduling work now, ID: %s", workSpec.id));
         int result = mDispatcher.schedule(job);
         if (result != FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS) {
-            Log.e(TAG, String.format("Schedule failed. Result = %s", result));
+            Logger.error(TAG, String.format("Schedule failed. Result = %s", result));
         }
     }
 
@@ -95,7 +95,7 @@ public class FirebaseJobScheduler implements Scheduler {
         if (mIdGenerator == null) {
             mIdGenerator = new IdGenerator(mAppContext);
         }
-        Log.d(TAG, String.format("Scheduling work later, ID: %s", workSpec.id));
+        Logger.debug(TAG, String.format("Scheduling work later, ID: %s", workSpec.id));
         PendingIntent pendingIntent = createScheduleLaterPendingIntent(workSpec);
 
         // This wakes up the device at exactly the next run time.

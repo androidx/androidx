@@ -31,11 +31,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.Logger;
 import androidx.work.State;
 import androidx.work.WorkRequest;
 import androidx.work.impl.Schedulers;
@@ -122,7 +122,7 @@ public class EnqueueRunnable implements Runnable {
                 if (!parent.isEnqueued()) {
                     needsScheduling |= processContinuation(parent);
                 } else {
-                    Log.w(TAG, String.format("Already enqueued work ids (%s).",
+                    Logger.warning(TAG, String.format("Already enqueued work ids (%s).",
                             TextUtils.join(", ", parent.getIds())));
                 }
             }
@@ -172,7 +172,8 @@ public class EnqueueRunnable implements Runnable {
             for (String id : prerequisiteIds) {
                 WorkSpec prerequisiteWorkSpec = workDatabase.workSpecDao().getWorkSpec(id);
                 if (prerequisiteWorkSpec == null) {
-                    Log.e(TAG, String.format("Prerequisite %s doesn't exist; not enqueuing", id));
+                    Logger.error(TAG,
+                            String.format("Prerequisite %s doesn't exist; not enqueuing", id));
                     return false;
                 }
 
