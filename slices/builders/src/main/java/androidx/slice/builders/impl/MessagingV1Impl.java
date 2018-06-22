@@ -30,6 +30,7 @@ import androidx.slice.SliceSpec;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 public class MessagingV1Impl extends TemplateBuilderImpl implements MessagingBuilder {
 
     /**

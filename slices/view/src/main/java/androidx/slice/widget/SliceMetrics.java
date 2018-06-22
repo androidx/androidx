@@ -22,12 +22,14 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 class SliceMetrics {
 
     public static @Nullable SliceMetrics getInstance(@NonNull Context context, @NonNull Uri uri) {

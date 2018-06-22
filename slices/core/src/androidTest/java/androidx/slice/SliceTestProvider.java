@@ -24,11 +24,13 @@ import static android.app.slice.Slice.HINT_TITLE;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.test.filters.SdkSuppress;
 
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice.Builder;
 import androidx.slice.core.test.R;
 
+@SdkSuppress(minSdkVersion = 19)
 public class SliceTestProvider extends androidx.slice.SliceProvider {
 
     @Override

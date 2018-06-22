@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceConvert;
 
@@ -40,6 +41,7 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @TargetApi(28)
+@RequiresApi(19)
 public class SliceProviderWrapperContainer {
 
     /**

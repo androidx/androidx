@@ -77,6 +77,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(LIBRARY)
+@RequiresApi(19)
 public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilder {
 
     private List<Slice> mSliceActions;

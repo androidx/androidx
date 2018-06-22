@@ -41,6 +41,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.slice.Slice;
@@ -52,6 +53,7 @@ import androidx.slice.view.R;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 public class ShortcutView extends SliceChildView {
 
     private static final String TAG = "ShortcutView";

@@ -39,6 +39,7 @@ import android.widget.ImageView;
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -51,6 +52,7 @@ import java.util.Calendar;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 public class SliceViewUtil {
 
     /**

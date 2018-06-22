@@ -23,6 +23,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 
@@ -34,6 +35,7 @@ import java.util.concurrent.Executor;
  * <p>
  * The SliceViewManager manages permissions and pinned state for slices.
  */
+@RequiresApi(19)
 public abstract class SliceViewManager {
 
     /**

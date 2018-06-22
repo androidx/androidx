@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.SystemClock;
 import android.text.TextUtils;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
@@ -38,6 +39,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 public class CompatPinnedList {
 
     private static final String LAST_BOOT = "last_boot";

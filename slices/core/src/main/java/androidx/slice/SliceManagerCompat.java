@@ -20,6 +20,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.compat.SliceProviderCompat;
 
@@ -31,6 +32,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 class SliceManagerCompat extends SliceManager {
 
     private final Context mContext;

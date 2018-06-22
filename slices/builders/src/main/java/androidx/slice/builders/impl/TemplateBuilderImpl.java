@@ -18,6 +18,7 @@ package androidx.slice.builders.impl;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Clock;
 import androidx.slice.Slice;
@@ -28,6 +29,7 @@ import androidx.slice.SystemClock;
  * @hide
  */
 @RestrictTo(LIBRARY)
+@RequiresApi(19)
 public abstract class TemplateBuilderImpl {
 
     private Slice.Builder mSliceBuilder;

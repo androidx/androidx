@@ -34,6 +34,7 @@ import androidx.slice.core.SliceActionImpl;
 /**
  * Class representing an action, supports tappable icons, custom toggle icons, and default toggles.
  */
+@RequiresApi(19)
 public class SliceAction implements androidx.slice.core.SliceAction {
 
     private SliceActionImpl mSliceAction;
