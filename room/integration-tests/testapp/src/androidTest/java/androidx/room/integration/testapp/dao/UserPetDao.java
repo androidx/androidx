@@ -22,6 +22,8 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.RoomWarnings;
+import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.room.integration.testapp.vo.EmbeddedUserAndAllPets;
 import androidx.room.integration.testapp.vo.Pet;
@@ -56,33 +58,45 @@ public interface UserPetDao {
     @Query("SELECT * FROM Pet p LEFT OUTER JOIN User u ON u.mId = p.mUserId")
     List<UserAndPet> loadPets();
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Transaction
     @Query("SELECT * FROM User u LEFT OUTER JOIN Pet p ON u.mId = p.mUserId")
     DataSource.Factory<Integer, UserAndAllPets> dataSourceFactoryMultiTable();
 
+    @Transaction
     @Query("SELECT * FROM User u")
     List<UserAndAllPets> loadAllUsersWithTheirPets();
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Transaction
     @Query("SELECT * FROM User u")
     List<UserIdAndPetNames> loadUserAndPetNames();
 
+    @Transaction
     @Query("SELECT * FROM User u")
     List<UserWithPetsAndToys> loadUserWithPetsAndToys();
 
+    @Transaction
     @Query("SELECT * FROM User UNION ALL SELECT * FROM USER")
     List<UserAndAllPets> unionByItself();
 
+    @Transaction
     @Query("SELECT * FROM User")
     List<UserAndPetAdoptionDates> loadUserWithPetAdoptionDates();
 
+    @Transaction
     @Query("SELECT * FROM User u where u.mId = :userId")
     LiveData<UserAndAllPets> liveUserWithPets(int userId);
 
+    @Transaction
     @Query("SELECT * FROM User u where u.mId = :userId")
     Flowable<UserAndAllPets> flowableUserWithPets(int userId);
 
+    @Transaction
     @Query("SELECT * FROM User u where u.mId = :userId")
     Observable<UserAndAllPets> observableUserWithPets(int userId);
 
+    @Transaction
     @Query("SELECT * FROM User u where u.mId = :uid")
     EmbeddedUserAndAllPets loadUserAndPetsAsEmbedded(int uid);
 

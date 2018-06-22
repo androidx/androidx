@@ -150,7 +150,7 @@ public class GenericEntityTest {
         @Query("SELECT * FROM EntityItem WHERE id = :id")
         EntityItem get(String id);
 
-        @Query("SELECT * FROM EntityItem WHERE id = :id")
+        @Query("SELECT id, mField FROM EntityItem WHERE id = :id")
         PojoItem getPojo(String id);
     }
 
