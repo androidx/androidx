@@ -70,9 +70,9 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * The first entry in the array is a pointer to the next array in the
      * list; the second entry is a pointer to the int[] hash code array for it.
      */
-    private static Object[] sBaseCache;
+    private static @Nullable Object[] sBaseCache;
     private static int sBaseCacheSize;
-    private static Object[] sTwiceBaseCache;
+    private static @Nullable Object[] sTwiceBaseCache;
     private static int sTwiceBaseCacheSize;
 
     private int[] mHashes;
@@ -246,6 +246,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     /**
      * Create a new ArraySet with a given initial capacity.
      */
+    @SuppressWarnings("NullAway") // allocArrays initializes mHashes and mArray.
     public ArraySet(int capacity) {
         if (capacity == 0) {
             mHashes = INT;
@@ -313,7 +314,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @return Returns true if the value exists, else false.
      */
     @Override
-    public boolean contains(Object key) {
+    public boolean contains(@Nullable Object key) {
         return indexOf(key) >= 0;
     }
 
@@ -323,7 +324,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @param key The value to search for.
      * @return Returns the index of the value if it exists, else a negative integer.
      */
-    public int indexOf(Object key) {
+    public int indexOf(@Nullable Object key) {
         return key == null ? indexOfNull() : indexOf(key, key.hashCode());
     }
 
@@ -460,7 +461,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @return {@code true} if this set was modified, {@code false} otherwise.
      */
     @Override
-    public boolean remove(Object object) {
+    public boolean remove(@Nullable Object object) {
         final int index = indexOf(object);
         if (index >= 0) {
             removeAt(index);

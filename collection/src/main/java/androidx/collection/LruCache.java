@@ -16,6 +16,9 @@
 
 package androidx.collection;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -75,7 +78,8 @@ public class LruCache<K, V> {
      * head of the queue. This returns null if a value is not cached and cannot
      * be created.
      */
-    public final V get(K key) {
+    @Nullable
+    public final V get(@NonNull K key) {
         if (key == null) {
             throw new NullPointerException("key == null");
         }
@@ -129,7 +133,8 @@ public class LruCache<K, V> {
      *
      * @return the previous value mapped by {@code key}.
      */
-    public final V put(K key, V value) {
+    @Nullable
+    public final V put(@NonNull K key, @NonNull V value) {
         if (key == null || value == null) {
             throw new NullPointerException("key == null || value == null");
         }
@@ -190,7 +195,8 @@ public class LruCache<K, V> {
      *
      * @return the previous value mapped by {@code key}.
      */
-    public final V remove(K key) {
+    @Nullable
+    public final V remove(@NonNull K key) {
         if (key == null) {
             throw new NullPointerException("key == null");
         }
@@ -225,7 +231,9 @@ public class LruCache<K, V> {
      *     this removal was caused by a {@link #put}. Otherwise it was caused by
      *     an eviction or a {@link #remove}.
      */
-    protected void entryRemoved(boolean evicted, K key, V oldValue, V newValue) {}
+    protected void entryRemoved(boolean evicted, @NonNull K key, @NonNull V oldValue,
+            @Nullable V newValue) {
+    }
 
     /**
      * Called after a cache miss to compute a value for the corresponding key.
@@ -242,7 +250,8 @@ public class LruCache<K, V> {
      * thread calls {@link #put} while another is creating a value for the same
      * key.
      */
-    protected V create(K key) {
+    @Nullable
+    protected V create(@NonNull K key) {
         return null;
     }
 
@@ -261,7 +270,7 @@ public class LruCache<K, V> {
      *
      * <p>An entry's size must not change while it is in the cache.
      */
-    protected int sizeOf(K key, V value) {
+    protected int sizeOf(@NonNull K key, @NonNull V value) {
         return 1;
     }
 

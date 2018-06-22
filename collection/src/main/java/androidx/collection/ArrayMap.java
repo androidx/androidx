@@ -16,6 +16,9 @@
 
 package androidx.collection;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +51,7 @@ import java.util.Set;
  * explicit call to set the capacity should turn off this aggressive shrinking behavior.</p>
  */
 public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
-    MapCollections<K, V> mCollections;
+    @Nullable MapCollections<K, V> mCollections;
 
     public ArrayMap() {
         super();
@@ -147,7 +150,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * @param collection The collection whose contents are to be used to remove keys.
      * @return Returns true if any keys were removed from the array map, else false.
      */
-    public boolean removeAll(Collection<?> collection) {
+    public boolean removeAll(@NonNull Collection<?> collection) {
         return MapCollections.removeAllHelper(this, collection);
     }
 
@@ -157,7 +160,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * keys to keep.
      * @return Returns true if any keys were removed from the array map, else false.
      */
-    public boolean retainAll(Collection<?> collection) {
+    public boolean retainAll(@NonNull Collection<?> collection) {
         return MapCollections.retainAllHelper(this, collection);
     }
 

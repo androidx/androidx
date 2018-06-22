@@ -16,6 +16,8 @@
 
 package androidx.collection;
 
+import androidx.annotation.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -28,9 +30,9 @@ import java.util.Set;
  * structure like {@link ArrayMap}.
  */
 abstract class MapCollections<K, V> {
-    EntrySet mEntrySet;
-    KeySet mKeySet;
-    ValuesCollection mValues;
+    @Nullable EntrySet mEntrySet;
+    @Nullable KeySet mKeySet;
+    @Nullable ValuesCollection mValues;
 
     final class ArrayIterator<T> implements Iterator<T> {
         final int mOffset;

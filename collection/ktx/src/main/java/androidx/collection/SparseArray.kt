@@ -36,8 +36,8 @@ operator fun <T> SparseArrayCompat<T>.plus(other: SparseArrayCompat<T>): SparseA
 }
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
-inline fun <T> SparseArrayCompat<T>.getOrDefault(key: Int, defaultValue: T) =
-    get(key) ?: defaultValue
+inline fun <T> SparseArrayCompat<T>.getOrDefault(key: Int, defaultValue: T): T =
+    get(key, defaultValue)
 
 /** Return the value corresponding to [key], or from [defaultValue] when not present. */
 inline fun <T> SparseArrayCompat<T>.getOrElse(key: Int, defaultValue: () -> T) =
