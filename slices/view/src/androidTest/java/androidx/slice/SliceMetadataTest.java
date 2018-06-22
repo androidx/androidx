@@ -749,6 +749,46 @@ public class SliceMetadataTest {
         assertEquals(true, metadata.isPermissionSlice());
     }
 
+    @Test
+    public void testGetSummaryNone() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Slice slice = new ListBuilder(mContext, uri, ListBuilder.INFINITY)
+                .setHeader(new ListBuilder.HeaderBuilder()
+                        .setTitle("Title")
+                        .setPrimaryAction(getAction("action")))
+                .build();
+        SliceMetadata data = SliceMetadata.from(mContext, slice);
+        assertNull(data.getSummary());
+    }
+
+    @Test
+    public void testGetSummarySubtitleFallback() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Slice slice = new ListBuilder(mContext, uri, ListBuilder.INFINITY)
+                .setHeader(new ListBuilder.HeaderBuilder()
+                        .setTitle("Title")
+                        .setSubtitle("Subtitle")
+                        .setPrimaryAction(getAction("action")))
+                .build();
+        SliceMetadata data = SliceMetadata.from(mContext, slice);
+        // We fall back to subtitle if no summary is set
+        assertEquals("Subtitle", data.getSummary());
+    }
+
+    @Test
+    public void testGetSummary() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        Slice slice = new ListBuilder(mContext, uri, ListBuilder.INFINITY)
+                .setHeader(new ListBuilder.HeaderBuilder()
+                        .setTitle("Title")
+                        .setSubtitle("Subtitle")
+                        .setSummary("Summary")
+                        .setPrimaryAction(getAction("action")))
+                .build();
+        SliceMetadata data = SliceMetadata.from(mContext, slice);
+        assertEquals("Summary", data.getSummary());
+    }
+
     private SliceAction getAction(String actionName) {
         Bitmap b = Bitmap.createBitmap(50, 25, Bitmap.Config.ARGB_8888);
         new Canvas(b).drawColor(0xffff0000);
