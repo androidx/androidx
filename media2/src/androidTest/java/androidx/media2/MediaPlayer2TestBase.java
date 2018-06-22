@@ -222,7 +222,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         try {
             mActivityRule.runOnUiThread(new Runnable() {
                 public void run() {
-                    mp[0] = MediaPlayer2.create();
+                    mp[0] = MediaPlayer2.create(mActivity);
                 }
             });
         } catch (Throwable throwable) {
@@ -253,8 +253,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         try {
             mActivityRule.runOnUiThread(new Runnable() {
                 public void run() {
-                    mPlayer = MediaPlayer2.create();
-                    mPlayer2 = MediaPlayer2.create();
+                    mPlayer = MediaPlayer2.create(mActivity);
+                    mPlayer2 = MediaPlayer2.create(mActivity);
                 }
             });
         } catch (Throwable e) {
