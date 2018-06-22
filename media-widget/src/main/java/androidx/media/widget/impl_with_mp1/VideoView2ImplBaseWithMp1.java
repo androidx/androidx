@@ -347,7 +347,7 @@ class VideoView2ImplBaseWithMp1
      * this view is attached to window. Please check {@link View#isAttachedToWindow}
      * before calling this method.
      *
-     * @throws IllegalStateException if interal MediaSession is not created yet.
+     * @throws IllegalStateException if internal MediaSession is not created yet.
      */
     @Override
     public MediaControllerCompat getMediaController() {
@@ -362,7 +362,7 @@ class VideoView2ImplBaseWithMp1
      * {@link androidx.media2.MediaController2} instance. This method should be called when
      * VideoView2 is attached to window, or it throws IllegalStateException.
      *
-     * @throws IllegalStateException if interal MediaSession is not created yet.
+     * @throws IllegalStateException if internal MediaSession is not created yet.
      */
     @Override
     public SessionToken2 getMediaSessionToken2() {
@@ -493,12 +493,12 @@ class VideoView2ImplBaseWithMp1
     }
 
     /**
-     * Selects which view will be used to render video between SurfacView and TextureView.
+     * Selects which view will be used to render video between SurfaceView and TextureView.
      *
      * @param viewType the view type to render video
      * <ul>
-     * <li>{@link #VideoView2.VIEW_TYPE_SURFACEVIEW}
-     * <li>{@link #VideoView2.VIEW_TYPE_TEXTUREVIEW}
+     * <li>{@link VideoView2#VIEW_TYPE_SURFACEVIEW}
+     * <li>{@link VideoView2#VIEW_TYPE_TEXTUREVIEW}
      * </ul>
      */
     @Override
