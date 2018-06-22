@@ -28,6 +28,7 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import compileLibrarySource
 import createVerifierFromEntities
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -63,6 +64,23 @@ class DaoProcessorTest(val enableVerification: Boolean) {
         """) { _, _ ->
         }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
+    }
+
+    @Test
+    fun testAbstractMethodWithoutQueryInLibraryClass() {
+        val libraryClassLoader = compileLibrarySource(
+                "test.library.MissingAnnotationsBaseDao",
+                """
+                public interface MissingAnnotationsBaseDao {
+                    int getFoo();
+                }
+                """)
+        singleDao(
+                "@Dao public interface MyDao extends test.library.MissingAnnotationsBaseDao {}",
+                classLoader = libraryClassLoader) { _, _ -> }
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD +
+                        " - getFoo() in test.library.MissingAnnotationsBaseDao")
     }
 
     @Test
@@ -267,12 +285,17 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 .withWarningCount(0)
     }
 
-    fun singleDao(vararg inputs: String, handler: (Dao, TestInvocation) -> Unit):
+    fun singleDao(
+        vararg inputs: String,
+        classLoader: ClassLoader = javaClass.classLoader,
+        handler: (Dao, TestInvocation) -> Unit
+    ):
             CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyDao",
                         DAO_PREFIX + inputs.joinToString("\n")
                 ), COMMON.USER))
+                .withClasspathFrom(classLoader)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Dao::class,
                                 androidx.room.Entity::class,

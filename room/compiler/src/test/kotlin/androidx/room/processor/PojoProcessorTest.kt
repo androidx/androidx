@@ -981,15 +981,21 @@ class PojoProcessorTest {
     }
 
     private fun singleRun(
-            code: String, vararg jfos: JavaFileObject, handler: (Pojo) -> Unit): CompileTester {
+        code: String,
+        vararg jfos: JavaFileObject,
+        handler: (Pojo) -> Unit
+    ): CompileTester {
         return singleRun(code, *jfos) { pojo, _ ->
             handler(pojo)
         }
     }
 
     private fun singleRun(
-            code: String, vararg jfos: JavaFileObject,
-            handler: (Pojo, TestInvocation) -> Unit): CompileTester {
+        code: String,
+        vararg jfos: JavaFileObject,
+        classLoader: ClassLoader = javaClass.classLoader,
+        handler: (Pojo, TestInvocation) -> Unit
+    ): CompileTester {
         val pojoCode = """
                 $HEADER
                 $code
@@ -998,21 +1004,25 @@ class PojoProcessorTest {
         return singleRunFullClass(
             code = pojoCode,
             jfos = *jfos,
+            classLoader = classLoader,
             handler = handler
         )
     }
 
     private fun singleRunFullClass(
-        code: String, vararg jfos: JavaFileObject,
-        handler: (Pojo, TestInvocation) -> Unit): CompileTester {
+        code: String,
+        vararg jfos: JavaFileObject,
+        classLoader: ClassLoader = javaClass.classLoader,
+        handler: (Pojo, TestInvocation) -> Unit
+    ): CompileTester {
         val pojoJFO = code.toJFO(MY_POJO.toString())
         val all = (jfos.toList() + pojoJFO).toTypedArray()
-        return simpleRun(*all) { invocation ->
+        return simpleRun(*all, classLoader = classLoader) { invocation ->
             handler.invoke(
                 PojoProcessor(baseContext = invocation.context,
-                    element = invocation.typeElement(MY_POJO.toString()),
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    parent = null).process(),
+                        element = invocation.typeElement(MY_POJO.toString()),
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        parent = null).process(),
                 invocation
             )
         }
