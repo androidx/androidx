@@ -66,30 +66,6 @@ class LongSparseArrayTest {
         assertEquals("two", combined.valueAt(1))
     }
 
-    @Test fun containsKey() {
-        val array = LongSparseArray<String>()
-        assertFalse(array.containsKey(1L))
-        array.put(1L, "one")
-        assertTrue(array.containsKey(1L))
-    }
-
-    @Test fun containsKeyWithValue() {
-        val array = LongSparseArray<String>()
-
-        array.put(1L, "one")
-        assertFalse(array.containsKey(2L))
-
-        array.put(2L, "one")
-        assertTrue(array.containsKey(2L))
-    }
-
-    @Test fun containsValue() {
-        val array = LongSparseArray<String>()
-        assertFalse(array.containsValue("one"))
-        array.put(1L, "one")
-        assertTrue(array.containsValue("one"))
-    }
-
     @Test fun getOrDefault() {
         val array = LongSparseArray<Any>()
         val default = Any()

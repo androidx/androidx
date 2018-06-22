@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class LongSparseArrayTest {
     @Test
-    public void isEmpty() throws Exception {
+    public void isEmpty() {
         LongSparseArray<String> LongSparseArray = new LongSparseArray<>();
         assertTrue(LongSparseArray.isEmpty()); // Newly created LongSparseArray should be empty
 
@@ -53,4 +53,21 @@ public class LongSparseArrayTest {
         assertTrue(LongSparseArray.isEmpty());
     }
 
+    @Test
+    public void containsKey() {
+        LongSparseArray<String> array = new LongSparseArray<>();
+        array.put(1L, "one");
+
+        assertTrue(array.containsKey(1L));
+        assertFalse(array.containsKey(2L));
+    }
+
+    @Test
+    public void containsValue() {
+        LongSparseArray<String> array = new LongSparseArray<>();
+        array.put(1L, "one");
+
+        assertTrue(array.containsValue("one"));
+        assertFalse(array.containsValue("two"));
+    }
 }

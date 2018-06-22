@@ -52,4 +52,22 @@ public class SparseArrayCompatTest {
         sparseArrayCompat.remove(key2);
         assertTrue(sparseArrayCompat.isEmpty());
     }
+
+    @Test
+    public void containsKey() {
+        SparseArrayCompat<String> array = new SparseArrayCompat<>();
+        array.put(1, "one");
+
+        assertTrue(array.containsKey(1));
+        assertFalse(array.containsKey(2));
+    }
+
+    @Test
+    public void containsValue() {
+        SparseArrayCompat<String> array = new SparseArrayCompat<>();
+        array.put(1, "one");
+
+        assertTrue(array.containsValue("one"));
+        assertFalse(array.containsValue("two"));
+    }
 }

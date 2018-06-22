@@ -35,12 +35,6 @@ operator fun <T> LongSparseArray<T>.plus(other: LongSparseArray<T>): LongSparseA
     return new
 }
 
-/** Returns true if the collection contains [key]. */
-inline fun <T> LongSparseArray<T>.containsKey(key: Long) = indexOfKey(key) >= 0
-
-/** Returns true if the collection contains [value]. */
-inline fun <T> LongSparseArray<T>.containsValue(value: T) = indexOfValue(value) != -1
-
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
 inline fun <T> LongSparseArray<T>.getOrDefault(key: Long, defaultValue: T) =
     get(key) ?: defaultValue

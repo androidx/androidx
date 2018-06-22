@@ -79,6 +79,8 @@ package androidx.collection {
     method public void append(long, E);
     method public void clear();
     method public androidx.collection.LongSparseArray<E> clone();
+    method public boolean containsKey(long);
+    method public boolean containsValue(E);
     method public void delete(long);
     method public E get(long);
     method public E get(long, E);
@@ -143,6 +145,8 @@ package androidx.collection {
     method public void append(int, E);
     method public void clear();
     method public androidx.collection.SparseArrayCompat<E> clone();
+    method public boolean containsKey(int);
+    method public boolean containsValue(E);
     method public void delete(int);
     method public E get(int);
     method public E get(int, E);

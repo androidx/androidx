@@ -334,6 +334,16 @@ public class SparseArrayCompat<E> implements Cloneable {
         return -1;
     }
 
+    /** Returns true if the specified key is mapped. */
+    public boolean containsKey(int key) {
+        return indexOfKey(key) >= 0;
+    }
+
+    /** Returns true if the specified value is mapped from any key. */
+    public boolean containsValue(E value) {
+        return indexOfValue(value) >= 0;
+    }
+
     /**
      * Removes all key-value mappings from this SparseArray.
      */
