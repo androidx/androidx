@@ -77,6 +77,8 @@ public class RowContent {
     private boolean mIsHeader;
     private int mLineCount = 0;
     private int mMaxHeight;
+    private int mTextWithRangeHeight;
+    private int mSingleTextWithRangeHeight;
     private int mMinHeight;
     private int mRangeHeight;
 
@@ -85,6 +87,10 @@ public class RowContent {
         if (context != null) {
             mMaxHeight = context.getResources().getDimensionPixelSize(
                     R.dimen.abc_slice_row_max_height);
+            mTextWithRangeHeight = context.getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_row_range_multi_text_height);
+            mSingleTextWithRangeHeight = context.getResources().getDimensionPixelSize(
+                    R.dimen.abc_slice_row_range_single_text_height);
             mMinHeight = context.getResources().getDimensionPixelSize(
                     R.dimen.abc_slice_row_min_height);
             mRangeHeight = context.getResources().getDimensionPixelSize(
@@ -347,15 +353,15 @@ public class RowContent {
         if (!isValid()) {
             return 0;
         }
-        int rowHeight = (getLineCount() > 1 || mIsHeader) ? mMaxHeight : mMinHeight;
         if (getRange() != null) {
-            if (getLineCount() > 0) {
-                rowHeight += mRangeHeight;
-            } else {
-                rowHeight = mIsHeader ? mMaxHeight : mRangeHeight;
-            }
+            // Range element always has set height and then the height of the text
+            // area on the row will vary depending on if 1 or 2 lines of text.
+            int textAreaHeight = getLineCount() > 1 ? mTextWithRangeHeight
+                    : mSingleTextWithRangeHeight;
+            return textAreaHeight + mRangeHeight;
+        } else {
+            return (getLineCount() > 1 || mIsHeader) ? mMaxHeight : mMinHeight;
         }
-        return rowHeight;
     }
 
     private static boolean hasText(SliceItem textSlice) {
