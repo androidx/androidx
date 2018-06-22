@@ -90,7 +90,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
  * A flexible view for providing a limited window into a large data set.
  *
@@ -116,7 +115,7 @@ import java.util.List;
  *     being displayed.</li>
  * </ul>
  *
- * <h4>Positions in RecyclerView:</h4>
+ * <h3>Positions in RecyclerView:</h3>
  * <p>
  * RecyclerView introduces an additional level of abstraction between the {@link Adapter} and
  * {@link LayoutManager} to be able to detect data set changes in batches during a layout
@@ -155,6 +154,53 @@ import java.util.List;
  * <p>
  * When writing a {@link LayoutManager} you almost always want to use layout positions whereas when
  * writing an {@link Adapter}, you probably want to use adapter positions.
+ * <p>
+ * <h3>Presenting Dynamic Data</h3>
+ * To display updatable data in a RecyclerView, your adapter needs to signal inserts, moves, and
+ * deletions to RecyclerView. You can build this yourself by manually calling
+ * {@code adapter.notify*} methods when content changes, or you can use one of the easier solutions
+ * RecyclerView provides:
+ * <p>
+ * <h4>List diffing with DiffUtil</h4>
+ * If your RecyclerView is displaying a list that is re-fetched from scratch for each update (e.g.
+ * from the network, or from a database), {@link DiffUtil} can calculate the difference between
+ * versions of the list. {@code DiffUtil} takes both lists as input and computes the difference,
+ * which can be passed to RecyclerView to trigger minimal animations and updates to keep your UI
+ * performant, and animations meaningful. This approach requires that each list is represented in
+ * memory with immutable content, and relies on receiving updates as new instances of lists. This
+ * approach is also ideal if your UI layer doesn't implement sorting, it just presents the data in
+ * the order it's given.
+ * <p>
+ * The best part of this approach is that it extends to any arbitrary changes - item updates,
+ * moves, addition and removal can all be computed and handled the same way. Though you do have
+ * to keep two copies of the list in memory while diffing, and must avoid mutating them, it's
+ * possible to share unmodified elements between list versions.
+ * <p>
+ * There are three primary ways to do this for RecyclerView. We recommend you start with
+ * {@link ListAdapter}, the higher-level API that builds in {@link List} diffing on a background
+ * thread, with minimal code. {@link AsyncListDiffer} also provides this behavior, but without
+ * defining an Adapter to subclass. If you want more control, {@link DiffUtil} is the lower-level
+ * API you can use to compute the diffs yourself. Each approach allows you to specify how diffs
+ * should be computed based on item data.
+ * <p>
+ * <h4>List mutation with SortedList</h4>
+ * If your RecyclerView receives updates incrementally, e.g. item X is inserted, or item Y is
+ * removed, you can use {@link SortedList} to manage your list. You define how to order items,
+ * and it will automatically trigger update signals that RecyclerView can use. SortedList works
+ * if you only need to handle insert and remove events, and has the benefit that you only ever
+ * need to have a single copy of the list in memory. It can also compute differences with
+ * {@link SortedList#replaceAll(Object[])}, but this method is more limited than the list diffing
+ * behavior above.
+ * <p>
+ * <h4>Paging Library</h4>
+ * The <a href="https://developer.android.com/topic/libraries/architecture/paging/">Paging
+ * library</a> extends the diff-based approach to additionally support paged loading. It provides
+ * the {@link androidx.paging.PagedList} class that operates as a self-loading list, provided a
+ * source of data like a database, or paginated network API. It provides convenient list diffing
+ * support out of the box, similar to {@code ListAdapter} and {@code AsyncListDiffer}. For more
+ * information about the Paging library, see the
+ * <a href="https://developer.android.com/topic/libraries/architecture/paging/">library
+ * documentation</a>.
  *
  * @attr ref androidx.recyclerview.R.styleable#RecyclerView_layoutManager
  */
