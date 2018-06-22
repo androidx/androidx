@@ -44,6 +44,7 @@ public interface PetDao {
     @Query("SELECT COUNT(*) FROM Pet")
     int count();
 
+    @Transaction
     @Query("SELECT * FROM Pet ORDER BY Pet.mPetId ASC")
     List<PetWithToyIds> allPetsWithToyIds();
 

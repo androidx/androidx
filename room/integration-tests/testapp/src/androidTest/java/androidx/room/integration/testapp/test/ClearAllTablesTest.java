@@ -37,6 +37,7 @@ import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.Insert;
 import androidx.room.InvalidationTracker;
 import androidx.room.PrimaryKey;
@@ -80,7 +81,8 @@ public class ClearAllTablesTest {
     }
 
     @Entity(foreignKeys = {
-            @ForeignKey(entity = Parent.class, parentColumns = "id", childColumns = "parentId")})
+            @ForeignKey(entity = Parent.class, parentColumns = "id", childColumns = "parentId")},
+            indices = {@Index("parentId")})
     public static class Child {
         @PrimaryKey
         public long id;

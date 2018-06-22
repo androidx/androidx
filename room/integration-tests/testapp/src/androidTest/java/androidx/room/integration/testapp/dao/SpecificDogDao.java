@@ -19,10 +19,12 @@ package androidx.room.integration.testapp.dao;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Query;
+import androidx.room.RoomWarnings;
 import androidx.room.integration.testapp.vo.PetsToys;
 
 @Dao
 public interface SpecificDogDao {
+    @SuppressWarnings(RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION)
     @Query("SELECT 123 as petId")
     LiveData<PetsToys> getSpecificDogsToys();
 }

@@ -19,6 +19,7 @@ package androidx.room.integration.testapp.vo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.RoomWarnings;
 
 @Entity
 public class School {
@@ -29,6 +30,7 @@ public class School {
     public Address address;
 
     @Embedded(prefix = "manager_")
+    @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED)
     private User mManager;
 
     public int getId() {

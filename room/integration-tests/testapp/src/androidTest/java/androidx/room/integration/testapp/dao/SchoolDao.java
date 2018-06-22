@@ -35,6 +35,7 @@ public abstract class SchoolDao {
     @Query("SELECT * from School WHERE address_street LIKE '%' || :street || '%'")
     public abstract List<School> findByStreet(String street);
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT mId, mName, manager_mName FROM School")
     public abstract List<School> schoolAndManagerNames();
 
@@ -45,6 +46,7 @@ public abstract class SchoolDao {
     @Query("SELECT address_lat as lat, address_lng as lng FROM School WHERE mId = :schoolId")
     public abstract Coordinates loadCoordinates(int schoolId);
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT mId, address_lat, address_lng FROM School WHERE mId = :schoolId")
     public abstract School loadCoordinatesAsSchool(int schoolId);
 }

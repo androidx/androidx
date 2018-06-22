@@ -50,6 +50,8 @@ import androidx.room.integration.testapp.vo.Product;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
 
+import com.google.common.base.Charsets;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -440,14 +442,14 @@ public class SimpleEntityReadWriteTest {
 
     @Test
     public void blob() {
-        BlobEntity a = new BlobEntity(1, "abc".getBytes());
-        BlobEntity b = new BlobEntity(2, "def".getBytes());
+        BlobEntity a = new BlobEntity(1, "abc".getBytes(Charsets.UTF_8));
+        BlobEntity b = new BlobEntity(2, "def".getBytes(Charsets.UTF_8));
         mBlobEntityDao.insert(a);
         mBlobEntityDao.insert(b);
         List<BlobEntity> list = mBlobEntityDao.selectAll();
         assertThat(list, hasSize(2));
-        mBlobEntityDao.updateContent(2, "ghi".getBytes());
-        assertThat(mBlobEntityDao.getContent(2), is(equalTo("ghi".getBytes())));
+        mBlobEntityDao.updateContent(2, "ghi".getBytes(Charsets.UTF_8));
+        assertThat(mBlobEntityDao.getContent(2), is(equalTo("ghi".getBytes(Charsets.UTF_8))));
     }
 
     @Test
