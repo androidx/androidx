@@ -1,0 +1,42 @@
+package androidx.legacy.app {
+
+  public deprecated class ActionBarDrawerToggle implements androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
+    ctor public ActionBarDrawerToggle(android.app.Activity, androidx.drawerlayout.widget.DrawerLayout, int, int, int);
+    ctor public ActionBarDrawerToggle(android.app.Activity, androidx.drawerlayout.widget.DrawerLayout, boolean, int, int, int);
+    method public boolean isDrawerIndicatorEnabled();
+    method public void onConfigurationChanged(android.content.res.Configuration);
+    method public void onDrawerClosed(android.view.View);
+    method public void onDrawerOpened(android.view.View);
+    method public void onDrawerSlide(android.view.View, float);
+    method public void onDrawerStateChanged(int);
+    method public boolean onOptionsItemSelected(android.view.MenuItem);
+    method public void setDrawerIndicatorEnabled(boolean);
+    method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable);
+    method public void setHomeAsUpIndicator(int);
+    method public void syncState();
+  }
+
+  public static abstract deprecated interface ActionBarDrawerToggle.Delegate {
+    method public abstract android.graphics.drawable.Drawable getThemeUpIndicator();
+    method public abstract void setActionBarDescription(int);
+    method public abstract void setActionBarUpIndicator(android.graphics.drawable.Drawable, int);
+  }
+
+  public static abstract deprecated interface ActionBarDrawerToggle.DelegateProvider {
+    method public abstract androidx.legacy.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
+  }
+
+}
+
+package androidx.legacy.widget {
+
+  public deprecated class Space extends android.view.View {
+    ctor public deprecated Space(android.content.Context, android.util.AttributeSet, int);
+    ctor public deprecated Space(android.content.Context, android.util.AttributeSet);
+    ctor public deprecated Space(android.content.Context);
+    method public deprecated void draw(android.graphics.Canvas);
+    method protected deprecated void onMeasure(int, int);
+  }
+
+}
+

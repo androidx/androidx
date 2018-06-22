@@ -1,0 +1,180 @@
+package androidx.annotation {
+
+  public abstract class AnimRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class AnimatorRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class AnyRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class AnyThread implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class ArrayRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class AttrRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class BinderThread implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class BoolRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class CallSuper implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class CheckResult implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class ColorInt implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class ColorLong implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class ColorRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class DimenRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class Dimension implements java.lang.annotation.Annotation {
+    field public static final int DP = 0; // 0x0
+    field public static final int PX = 1; // 0x1
+    field public static final int SP = 2; // 0x2
+  }
+
+  public abstract class DrawableRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class FloatRange implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class FontRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class FractionRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class GuardedBy implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class HalfFloat implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class IdRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class IntDef implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class IntRange implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class IntegerRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class InterpolatorRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class Keep implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class LayoutRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class LongDef implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class MainThread implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class MenuRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class NavigationRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class NonNull implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class Nullable implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class PluralsRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class Px implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class RawRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class RequiresApi implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class RequiresFeature implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class RequiresPermission implements java.lang.annotation.Annotation {
+  }
+
+  public static abstract class RequiresPermission.Read implements java.lang.annotation.Annotation {
+  }
+
+  public static abstract class RequiresPermission.Write implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class RestrictTo implements java.lang.annotation.Annotation {
+  }
+
+  public static final class RestrictTo.Scope extends java.lang.Enum {
+    method public static androidx.annotation.RestrictTo.Scope valueOf(java.lang.String);
+    method public static final androidx.annotation.RestrictTo.Scope[] values();
+    enum_constant public static final deprecated androidx.annotation.RestrictTo.Scope GROUP_ID;
+    enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY;
+    enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY_GROUP;
+    enum_constant public static final androidx.annotation.RestrictTo.Scope SUBCLASSES;
+    enum_constant public static final androidx.annotation.RestrictTo.Scope TESTS;
+  }
+
+  public abstract class Size implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class StringDef implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class StringRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class StyleRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class StyleableRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class TransitionRes implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class UiThread implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class VisibleForTesting implements java.lang.annotation.Annotation {
+    field public static final int NONE = 5; // 0x5
+    field public static final int PACKAGE_PRIVATE = 3; // 0x3
+    field public static final int PRIVATE = 2; // 0x2
+    field public static final int PROTECTED = 4; // 0x4
+  }
+
+  public abstract class WorkerThread implements java.lang.annotation.Annotation {
+  }
+
+  public abstract class XmlRes implements java.lang.annotation.Annotation {
+  }
+
+}
+
