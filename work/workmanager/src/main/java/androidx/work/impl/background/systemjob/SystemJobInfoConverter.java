@@ -27,11 +27,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
+import androidx.work.Logger;
 import androidx.work.NetworkType;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
@@ -90,7 +90,7 @@ class SystemJobInfoConverter {
             if (Build.VERSION.SDK_INT >= 24) {
                 builder.setPeriodic(workSpec.intervalDuration, workSpec.flexDuration);
             } else {
-                Log.d(TAG,
+                Logger.debug(TAG,
                         "Flex duration is currently not supported before API 24. Ignoring.");
                 builder.setPeriodic(workSpec.intervalDuration);
             }
@@ -150,7 +150,7 @@ class SystemJobInfoConverter {
                 }
                 break;
         }
-        Log.d(TAG, String.format(
+        Logger.debug(TAG, String.format(
                 "API version too low. Cannot convert network type value %s", networkType));
         return JobInfo.NETWORK_TYPE_ANY;
     }

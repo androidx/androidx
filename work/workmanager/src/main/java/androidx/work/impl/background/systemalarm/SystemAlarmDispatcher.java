@@ -27,8 +27,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
-import android.util.Log;
 
+import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
 import androidx.work.impl.WorkManagerImpl;
@@ -130,7 +130,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         assertMainThread();
         String action = intent.getAction();
         if (TextUtils.isEmpty(action)) {
-            Log.w(TAG, "Unknown command. Ignoring");
+            Logger.warning(TAG, "Unknown command. Ignoring");
             return false;
         }
 
@@ -152,7 +152,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
 
     void setCompletedListener(@NonNull CommandsCompletedListener listener) {
         if (mCompletedListener != null) {
-            Log.e(TAG, "A completion listener for SystemAlarmDispatcher already exists.");
+            Logger.error(TAG, "A completion listener for SystemAlarmDispatcher already exists.");
             return;
         }
         mCompletedListener = listener;
@@ -182,7 +182,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         // has no more pending commands, stop the service.
         synchronized (mIntents) {
             if (!mCommandHandler.hasPendingCommands() && mIntents.isEmpty()) {
-                Log.d(TAG, "No more commands & intents.");
+                Logger.debug(TAG, "No more commands & intents.");
                 if (mCompletedListener != null) {
                     mCompletedListener.onAllCommandsCompleted();
                 }
@@ -211,12 +211,13 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                     if (intent != null) {
                         final String action = intent.getAction();
                         final int startId = intent.getIntExtra(KEY_START_ID, DEFAULT_START_ID);
-                        Log.d(TAG, String.format("Processing command %s, %s", intent, startId));
+                        Logger.debug(TAG,
+                                String.format("Processing command %s, %s", intent, startId));
                         final PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(
                                 mContext,
                                 String.format("%s (%s)", action, startId));
                         try {
-                            Log.d(TAG, String.format(
+                            Logger.debug(TAG, String.format(
                                     "Acquiring operation wake lock (%s) %s",
                                     action,
                                     wakeLock));
@@ -246,7 +247,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                                 mIntents.remove(0);
                             }
 
-                            Log.d(TAG, String.format(
+                            Logger.debug(TAG, String.format(
                                     "Releasing operation wake lock (%s) %s",
                                     action,
                                     wakeLock));

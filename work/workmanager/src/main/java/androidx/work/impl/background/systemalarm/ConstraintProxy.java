@@ -20,9 +20,9 @@ import static androidx.work.NetworkType.NOT_REQUIRED;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.work.Constraints;
+import androidx.work.Logger;
 import androidx.work.impl.model.WorkSpec;
 
 import java.util.List;
@@ -32,7 +32,7 @@ abstract class ConstraintProxy extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, String.format("onReceive : %s", intent));
+        Logger.debug(TAG, String.format("onReceive : %s", intent));
         Intent constraintChangedIntent = CommandHandler.createConstraintsChangedIntent(context);
         context.startService(constraintChangedIntent);
     }
