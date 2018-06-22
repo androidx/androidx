@@ -27,6 +27,11 @@ import androidx.annotation.StringRes
  *
  * @param duration Toast duration, defaults to [Toast.LENGTH_SHORT]
  */
+@Deprecated(
+    "The use of Toast is discouraged",
+    ReplaceWith("Toast.makeText(this, text, duration).show()"),
+    DeprecationLevel.ERROR
+)
 inline fun Context.toast(text: CharSequence, duration: Int = Toast.LENGTH_SHORT): Toast {
     return Toast.makeText(this, text, duration).apply { show() }
 }
@@ -37,6 +42,11 @@ inline fun Context.toast(text: CharSequence, duration: Int = Toast.LENGTH_SHORT)
  * @param resId Resource id of the string resource to use
  * @param duration Toast duration, defaults to [Toast.LENGTH_SHORT]
  */
+@Deprecated(
+    "The use of Toast is discouraged",
+    ReplaceWith("Toast.makeText(this, resId, duration).show()"),
+    DeprecationLevel.ERROR
+)
 inline fun Context.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT): Toast {
     return Toast.makeText(this, resId, duration).apply { show() }
 }

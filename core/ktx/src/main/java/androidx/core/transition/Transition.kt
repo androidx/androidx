@@ -23,72 +23,55 @@ import androidx.annotation.RequiresApi
  * Add an action which will be invoked when this transition has ended.
  */
 @RequiresApi(19)
-fun Transition.doOnEnd(action: (transition: Transition) -> Unit) {
+inline fun Transition.doOnEnd(crossinline action: (transition: Transition) -> Unit) =
     addListener(onEnd = action)
-}
 
 /**
  * Add an action which will be invoked when this transition has started.
  */
 @RequiresApi(19)
-fun Transition.doOnStart(action: (transition: Transition) -> Unit) {
+inline fun Transition.doOnStart(crossinline action: (transition: Transition) -> Unit) =
     addListener(onStart = action)
-}
 
 /**
  * Add an action which will be invoked when this transition has been cancelled.
  */
 @RequiresApi(19)
-fun Transition.doOnCancel(action: (transition: Transition) -> Unit) {
+inline fun Transition.doOnCancel(crossinline action: (transition: Transition) -> Unit) =
     addListener(onCancel = action)
-}
 
 /**
  * Add an action which will be invoked when this transition has resumed after a pause.
  */
 @RequiresApi(19)
-fun Transition.doOnResume(action: (transition: Transition) -> Unit) {
+inline fun Transition.doOnResume(crossinline action: (transition: Transition) -> Unit) =
     addListener(onResume = action)
-}
 
 /**
  * Add an action which will be invoked when this transition has been paused.
  */
 @RequiresApi(19)
-fun Transition.doOnPause(action: (transition: Transition) -> Unit) {
+inline fun Transition.doOnPause(crossinline action: (transition: Transition) -> Unit) =
     addListener(onPause = action)
-}
 
 /**
  * Add a listener to this Transition using the provided actions.
  */
 @RequiresApi(19)
-fun Transition.addListener(
-    onEnd: ((transition: Transition) -> Unit)? = null,
-    onStart: ((transition: Transition) -> Unit)? = null,
-    onCancel: ((transition: Transition) -> Unit)? = null,
-    onResume: ((transition: Transition) -> Unit)? = null,
-    onPause: ((transition: Transition) -> Unit)? = null
-) {
-    addListener(object : Transition.TransitionListener {
-        override fun onTransitionEnd(transition: Transition) {
-            onEnd?.invoke(transition)
-        }
-
-        override fun onTransitionResume(transition: Transition) {
-            onResume?.invoke(transition)
-        }
-
-        override fun onTransitionPause(transition: Transition) {
-            onPause?.invoke(transition)
-        }
-
-        override fun onTransitionCancel(transition: Transition) {
-            onCancel?.invoke(transition)
-        }
-
-        override fun onTransitionStart(transition: Transition) {
-            onStart?.invoke(transition)
-        }
-    })
+inline fun Transition.addListener(
+    crossinline onEnd: (transition: Transition) -> Unit = {},
+    crossinline onStart: (transition: Transition) -> Unit = {},
+    crossinline onCancel: (transition: Transition) -> Unit = {},
+    crossinline onResume: (transition: Transition) -> Unit = {},
+    crossinline onPause: (transition: Transition) -> Unit = {}
+): Transition.TransitionListener {
+    val listener = object : Transition.TransitionListener {
+        override fun onTransitionEnd(transition: Transition) = onEnd(transition)
+        override fun onTransitionResume(transition: Transition) = onResume(transition)
+        override fun onTransitionPause(transition: Transition) = onPause(transition)
+        override fun onTransitionCancel(transition: Transition) = onCancel(transition)
+        override fun onTransitionStart(transition: Transition) = onStart(transition)
+    }
+    addListener(listener)
+    return listener
 }
