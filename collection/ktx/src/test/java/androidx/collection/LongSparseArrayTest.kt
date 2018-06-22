@@ -100,16 +100,6 @@ class LongSparseArrayTest {
         assertEquals(0, array.size())
     }
 
-    @Test fun putAll() {
-        val dest = LongSparseArray<String>()
-        val source = LongSparseArray<String>()
-        source.put(1L, "one")
-
-        assertEquals(0, dest.size())
-        dest.putAll(source)
-        assertEquals(1, dest.size())
-    }
-
     @Test fun forEach() {
         val array = LongSparseArray<String>()
         array.forEach { _, _ -> fail() }

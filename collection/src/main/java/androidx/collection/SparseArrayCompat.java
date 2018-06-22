@@ -240,6 +240,17 @@ public class SparseArrayCompat<E> implements Cloneable {
     }
 
     /**
+     * Copies all of the mappings from the {@code other} to this map. The effect of this call is
+     * equivalent to that of calling {@link #put(int, Object)} on this map once for each mapping
+     * from key to value in {@code other}.
+     */
+    public void putAll(SparseArrayCompat<? extends E> other) {
+        for (int i = 0, size = other.size(); i < size; i++) {
+            put(other.keyAt(i), other.valueAt(i));
+        }
+    }
+
+    /**
      * Returns the number of key-value mappings that this SparseArray
      * currently stores.
      */

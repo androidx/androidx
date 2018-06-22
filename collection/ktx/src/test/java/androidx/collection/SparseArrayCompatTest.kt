@@ -100,16 +100,6 @@ class SparseArrayCompatTest {
         assertEquals(0, array.size())
     }
 
-    @Test fun putAll() {
-        val dest = SparseArrayCompat<String>()
-        val source = SparseArrayCompat<String>()
-        source.put(1, "one")
-
-        assertEquals(0, dest.size())
-        dest.putAll(source)
-        assertEquals(1, dest.size())
-    }
-
     @Test fun forEach() {
         val array = SparseArrayCompat<String>()
         array.forEach { _, _ -> fail() }
