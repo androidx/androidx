@@ -16,6 +16,9 @@
 
 package androidx.collection;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.ConcurrentModificationException;
 import java.util.Map;
 
@@ -60,9 +63,9 @@ public class SimpleArrayMap<K, V> {
      * The first entry in the array is a pointer to the next array in the
      * list; the second entry is a pointer to the int[] hash code array for it.
      */
-    static Object[] mBaseCache;
+    static @Nullable Object[] mBaseCache;
     static int mBaseCacheSize;
-    static Object[] mTwiceBaseCache;
+    static @Nullable Object[] mTwiceBaseCache;
     static int mTwiceBaseCacheSize;
 
     int[] mHashes;
@@ -239,6 +242,7 @@ public class SimpleArrayMap<K, V> {
     /**
      * Create a new ArrayMap with a given initial capacity.
      */
+    @SuppressWarnings("NullAway") // allocArrays initializes mHashes and mArray.
     public SimpleArrayMap(int capacity) {
         if (capacity == 0) {
             mHashes = ContainerHelpers.EMPTY_INTS;
@@ -304,7 +308,7 @@ public class SimpleArrayMap<K, V> {
      * @param key The key to search for.
      * @return Returns true if the key exists, else false.
      */
-    public boolean containsKey(Object key) {
+    public boolean containsKey(@Nullable Object key) {
         return indexOfKey(key) >= 0;
     }
 
@@ -314,7 +318,7 @@ public class SimpleArrayMap<K, V> {
      * @param key The key to search for.
      * @return Returns the index of the key if it exists, else a negative integer.
      */
-    public int indexOfKey(Object key) {
+    public int indexOfKey(@Nullable Object key) {
         return key == null ? indexOfNull() : indexOf(key, key.hashCode());
     }
 
@@ -354,6 +358,7 @@ public class SimpleArrayMap<K, V> {
      * @return Returns the value associated with the given key,
      * or null if there is no such key.
      */
+    @Nullable
     public V get(Object key) {
         final int index = indexOfKey(key);
         return index >= 0 ? (V)mArray[(index<<1)+1] : null;
@@ -405,6 +410,7 @@ public class SimpleArrayMap<K, V> {
      * @return Returns the old value that was stored for the given key, or null if there
      * was no such key.
      */
+    @Nullable
     public V put(K key, V value) {
         final int osize = mSize;
         final int hash;
@@ -471,7 +477,7 @@ public class SimpleArrayMap<K, V> {
      * Perform a {@link #put(Object, Object)} of all key/value pairs in <var>array</var>
      * @param array The array whose contents are to be retrieved.
      */
-    public void putAll(SimpleArrayMap<? extends K, ? extends V> array) {
+    public void putAll(@NonNull SimpleArrayMap<? extends K, ? extends V> array) {
         final int N = array.mSize;
         ensureCapacity(mSize + N);
         if (mSize == 0) {
@@ -493,6 +499,7 @@ public class SimpleArrayMap<K, V> {
      * @return Returns the value that was stored under the key, or null if there
      * was no such key.
      */
+    @Nullable
     public V remove(Object key) {
         final int index = indexOfKey(key);
         if (index >= 0) {

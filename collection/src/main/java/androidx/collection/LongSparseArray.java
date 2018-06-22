@@ -16,6 +16,9 @@
 
 package androidx.collection;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * SparseArray mapping longs to Objects, a version of the platform's
  * {@code android.util.LongSparseArray} that can be used on older versions of the
@@ -77,13 +80,13 @@ public class LongSparseArray<E> implements Cloneable {
     @Override
     @SuppressWarnings("unchecked")
     public LongSparseArray<E> clone() {
-        LongSparseArray<E> clone = null;
+        LongSparseArray<E> clone;
         try {
             clone = (LongSparseArray<E>) super.clone();
             clone.mKeys = mKeys.clone();
             clone.mValues = mValues.clone();
-        } catch (CloneNotSupportedException cnse) {
-            /* ignore */
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e); // Cannot happen as we implement Cloneable.
         }
         return clone;
     }
@@ -92,7 +95,14 @@ public class LongSparseArray<E> implements Cloneable {
      * Gets the Object mapped from the specified key, or <code>null</code>
      * if no such mapping has been made.
      */
+    @Nullable
+    @SuppressWarnings("NullAway") // See inline comment.
     public E get(long key) {
+        // We pass null as the default to a function which isn't explicitly annotated as nullable.
+        // Not marking the function as nullable should allow us to eventually propagate the generic
+        // parameter's nullability to the caller. If we were to mark it as nullable now, we would
+        // also be forced to mark the return type of that method as nullable which harms the case
+        // where you are passing in a non-null default value.
         return get(key, null);
     }
 
@@ -227,7 +237,7 @@ public class LongSparseArray<E> implements Cloneable {
      * equivalent to that of calling {@link #put(long, Object)} on this map once for each mapping
      * from key to value in {@code other}.
      */
-    public void putAll(LongSparseArray<? extends E> other) {
+    public void putAll(@NonNull LongSparseArray<? extends E> other) {
         for (int i = 0, size = other.size(); i < size; i++) {
             put(other.keyAt(i), other.valueAt(i));
         }

@@ -16,6 +16,9 @@
 
 package androidx.collection;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * SparseArrays map integers to Objects.  Unlike a normal array of Objects,
  * there can be gaps in the indices.  It is intended to be more memory efficient
@@ -81,13 +84,13 @@ public class SparseArrayCompat<E> implements Cloneable {
     @Override
     @SuppressWarnings("unchecked")
     public SparseArrayCompat<E> clone() {
-        SparseArrayCompat<E> clone = null;
+        SparseArrayCompat<E> clone;
         try {
             clone = (SparseArrayCompat<E>) super.clone();
             clone.mKeys = mKeys.clone();
             clone.mValues = mValues.clone();
-        } catch (CloneNotSupportedException cnse) {
-            /* ignore */
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e); // Cannot happen as we implement Cloneable.
         }
         return clone;
     }
@@ -96,7 +99,14 @@ public class SparseArrayCompat<E> implements Cloneable {
      * Gets the Object mapped from the specified key, or <code>null</code>
      * if no such mapping has been made.
      */
+    @Nullable
+    @SuppressWarnings("NullAway") // See inline comment.
     public E get(int key) {
+        // We pass null as the default to a function which isn't explicitly annotated as nullable.
+        // Not marking the function as nullable should allow us to eventually propagate the generic
+        // parameter's nullability to the caller. If we were to mark it as nullable now, we would
+        // also be forced to mark the return type of that method as nullable which harms the case
+        // where you are passing in a non-null default value.
         return get(key, null);
     }
 
@@ -244,7 +254,7 @@ public class SparseArrayCompat<E> implements Cloneable {
      * equivalent to that of calling {@link #put(int, Object)} on this map once for each mapping
      * from key to value in {@code other}.
      */
-    public void putAll(SparseArrayCompat<? extends E> other) {
+    public void putAll(@NonNull SparseArrayCompat<? extends E> other) {
         for (int i = 0, size = other.size(); i < size; i++) {
             put(other.keyAt(i), other.valueAt(i));
         }

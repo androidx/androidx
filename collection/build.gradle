@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     compile(project(":annotation"))
+    annotationProcessor(NULLAWAY)
     testCompile(JUNIT)
 }
 
