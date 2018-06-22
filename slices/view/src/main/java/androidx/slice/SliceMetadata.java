@@ -183,6 +183,20 @@ public class SliceMetadata {
     }
 
     /**
+     * @return the summary associated with this slice, if it exists.
+     */
+    @Nullable
+    public CharSequence getSummary() {
+        if (mHeaderItem != null && !mHeaderItem.hasHint(HINT_HORIZONTAL)) {
+            RowContent rc = new RowContent(mContext, mHeaderItem, true /* isHeader */);
+            if (rc.getSummaryItem() != null) {
+                return rc.getSummaryItem().getText();
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return the group of actions associated with this slice, if they exist.
      */
     @Nullable

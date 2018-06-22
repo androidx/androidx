@@ -13,6 +13,7 @@ package androidx.slice {
     method public java.util.List<androidx.slice.core.SliceAction> getSliceActions();
     method public java.util.List<java.lang.String> getSliceKeywords();
     method public java.lang.CharSequence getSubtitle();
+    method public java.lang.CharSequence getSummary();
     method public java.lang.CharSequence getTitle();
     method public java.util.List<androidx.slice.core.SliceAction> getToggles();
     method public boolean hasLargeMode();
