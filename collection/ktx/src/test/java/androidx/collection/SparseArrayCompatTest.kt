@@ -66,20 +66,6 @@ class SparseArrayCompatTest {
         assertEquals("two", combined.valueAt(1))
     }
 
-    @Test fun containsKey() {
-        val array = SparseArrayCompat<String>()
-        assertFalse(array.containsKey(1))
-        array.put(1, "one")
-        assertTrue(array.containsKey(1))
-    }
-
-    @Test fun containsValue() {
-        val array = SparseArrayCompat<String>()
-        assertFalse(array.containsValue("one"))
-        array.put(1, "one")
-        assertTrue(array.containsValue("one"))
-    }
-
     @Test fun getOrDefault() {
         val array = SparseArrayCompat<Any>()
         val default = Any()
