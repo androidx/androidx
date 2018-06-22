@@ -2249,7 +2249,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             recordMedia(outputFileLocation);
 
             Uri uri = Uri.parse(outputFileLocation);
-            MediaPlayer2 mp = MediaPlayer2.create();
+            MediaPlayer2 mp = MediaPlayer2.create(mActivity);
             try {
                 mp.setDataSource(new DataSourceDesc2.Builder()
                         .setDataSource(mContext, uri)

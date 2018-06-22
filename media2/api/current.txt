@@ -334,7 +334,7 @@ package androidx.media2 {
     method public abstract void clearEventCallback();
     method public abstract void clearPendingCommands();
     method public abstract void close();
-    method public static final androidx.media2.MediaPlayer2 create();
+    method public static final androidx.media2.MediaPlayer2 create(android.content.Context);
     method public abstract void deselectTrack(int);
     method public abstract androidx.media.AudioAttributesCompat getAudioAttributes();
     method public abstract int getAudioSessionId();
