@@ -36,8 +36,8 @@ operator fun <T> LongSparseArray<T>.plus(other: LongSparseArray<T>): LongSparseA
 }
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
-inline fun <T> LongSparseArray<T>.getOrDefault(key: Long, defaultValue: T) =
-    get(key) ?: defaultValue
+inline fun <T> LongSparseArray<T>.getOrDefault(key: Long, defaultValue: T): T =
+    get(key, defaultValue)
 
 /** Return the value corresponding to [key], or from [defaultValue] when not present. */
 inline fun <T> LongSparseArray<T>.getOrElse(key: Long, defaultValue: () -> T) =
