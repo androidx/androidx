@@ -23,19 +23,24 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Process;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.MockPlaylistAgent;
+import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.BaseMediaPlayer;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaPlaylistAgent;
 import androidx.media2.MediaSession2;
+import androidx.media2.MediaSession2.SessionCallback;
 import androidx.media2.SessionCommandGroup2;
 
 import org.junit.After;
@@ -85,7 +90,9 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
-        mSession.close();
+        if (mSession != null) {
+            mSession.close();
+        }
     }
 
     @Test
@@ -234,5 +241,86 @@ public class MediaSession2Test extends MediaSession2TestBase {
 
         player.notifyPlayerStateChanged(BaseMediaPlayer.PLAYER_STATE_PLAYING);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    /**
+     * Test potential deadlock for calls between controller and session.
+     */
+    @Test
+    public void testDeadlock() throws InterruptedException {
+        prepareLooper();
+        sHandler.postAndSync(new Runnable() {
+            @Override
+            public void run() {
+                mSession.close();
+                mSession = null;
+            }
+        });
+
+        // Two more threads are needed not to block test thread nor test wide thread (sHandler).
+        final HandlerThread sessionThread = new HandlerThread("testDeadlock_session");
+        final HandlerThread testThread = new HandlerThread("testDeadlock_test");
+        sessionThread.start();
+        testThread.start();
+        final SyncHandler sessionHandler = new SyncHandler(sessionThread.getLooper());
+        final Handler testHandler = new Handler(testThread.getLooper());
+        final CountDownLatch latch = new CountDownLatch(1);
+        try {
+            final MockPlayer player = new MockPlayer(0);
+            sessionHandler.postAndSync(new Runnable() {
+                @Override
+                public void run() {
+                    mSession = new MediaSession2.Builder(mContext)
+                            .setPlayer(mPlayer)
+                            .setSessionCallback(sHandlerExecutor, new SessionCallback() {})
+                            .setId("testDeadlock").build();
+                }
+            });
+            final RemoteMediaController2 controller = createRemoteController2(mSession.getToken());
+            testHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    final int state = BaseMediaPlayer.PLAYER_STATE_ERROR;
+                    for (int i = 0; i < 100; i++) {
+                        // triggers call from session to controller.
+                        player.notifyPlayerStateChanged(state);
+                        // triggers call from controller to session.
+                        controller.play();
+
+                        // Repeat above
+                        player.notifyPlayerStateChanged(state);
+                        controller.pause();
+                        player.notifyPlayerStateChanged(state);
+                        controller.reset();
+                        player.notifyPlayerStateChanged(state);
+                        controller.skipToNextItem();
+                        player.notifyPlayerStateChanged(state);
+                        controller.skipToPreviousItem();
+                    }
+                    // This may hang if deadlock happens.
+                    latch.countDown();
+                }
+            });
+            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        } finally {
+            if (mSession != null) {
+                sessionHandler.postAndSync(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Clean up here because sessionHandler will be removed afterwards.
+                        mSession.close();
+                        mSession = null;
+                    }
+                });
+            }
+
+            if (Build.VERSION.SDK_INT >= 18) {
+                sessionThread.quitSafely();
+                testThread.quitSafely();
+            } else {
+                sessionThread.quit();
+                testThread.quit();
+            }
+        }
     }
 }
