@@ -49,8 +49,8 @@ import androidx.collection.LruCache;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.graphics.TypefaceCompat;
-import androidx.core.graphics.TypefaceCompatUtil;
+import androidx.core.graphics.TypefaceCompatLegacy;
+import androidx.core.graphics.TypefaceCompatLegacyUtil;
 import androidx.core.provider.SelfDestructiveThread.ReplyCallback;
 import androidx.core.util.Preconditions;
 
@@ -188,7 +188,7 @@ public class FontsContractCompat {
             return new TypefaceResult(null, FontRequestCallback.FAIL_REASON_PROVIDER_NOT_FOUND);
         }
         if (result.getStatusCode() == FontFamilyResult.STATUS_OK) {
-            final Typeface typeface = TypefaceCompat.createFromFontInfo(
+            final Typeface typeface = TypefaceCompatLegacy.createFromFontInfo(
                     context, null /* CancellationSignal */, result.getFonts(), style);
             return new TypefaceResult(typeface, typeface != null
                     ? FontRequestCallback.RESULT_OK
@@ -659,7 +659,7 @@ public class FontsContractCompat {
     @Nullable
     public static Typeface buildTypeface(@NonNull Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts) {
-        return TypefaceCompat.createFromFontInfo(context, cancellationSignal, fonts,
+        return TypefaceCompatLegacy.createFromFontInfo(context, cancellationSignal, fonts,
                 Typeface.NORMAL);
     }
 
@@ -690,7 +690,7 @@ public class FontsContractCompat {
                 continue;
             }
 
-            ByteBuffer buffer = TypefaceCompatUtil.mmap(context, cancellationSignal, uri);
+            ByteBuffer buffer = TypefaceCompatLegacyUtil.mmap(context, cancellationSignal, uri);
             out.put(uri, buffer);
         }
         return Collections.unmodifiableMap(out);

@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 @SmallTest
-public class TypefaceCompatUtilTest {
+public class TypefaceCompatLegacyUtilTest {
 
     public Context mContext;
 
@@ -51,6 +51,6 @@ public class TypefaceCompatUtilTest {
                 .authority(MockFontProvider.AUTHORITY).build();
         final Uri fileUri = ContentUris.withAppendedId(uri, MockFontProvider.INVALID_FONT_FILE_ID);
         // Should not crash.
-        TypefaceCompatUtil.mmap(mContext, null, fileUri);
+        TypefaceCompatLegacyUtil.mmap(mContext, null, fileUri);
     }
 }
