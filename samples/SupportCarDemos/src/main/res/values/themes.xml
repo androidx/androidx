@@ -16,24 +16,14 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- The style for main list that displays all the demo activities. -->
-    <style name="CarListTheme" parent="Theme.Car.NoActionBar">
-        <item name="android:background">@color/car_card</item>
-    </style>
+    <style name="CarListTheme" parent="Theme.AppCompat.Light" />
 
     <!-- The main theme for all activities within the Car Demo. -->
-    <style name="CarTheme" parent="Theme.Car.Light.NoActionBar">
-        <item name="android:checkboxStyle">@style/CheckBoxStyle</item>
-        <item name="pagedListViewStyle">@style/CarDemoList</item>
+    <style name="CarTheme" parent="Theme.Car.NoActionBar">
     </style>
 
     <!-- A theme for activities within the Car Demo that have a drawer. -->
-    <style name="CarDrawerTheme" parent="Theme.Car.Light.NoActionBar.Drawer">
-        <item name="android:colorPrimary">@color/car_grey_200</item>
-        <item name="android:colorPrimaryDark">@color/car_grey_400</item>
-        <item name="drawerArrowStyle">@style/CarDrawerArrowStyle</item>
-        <item name="toolbarNavigationButtonStyle">@style/CarDrawerToolbarButton</item>
-        <item name="toolbarStyle">@style/CarDrawerToolbar</item>
-    </style>
+    <style name="CarDrawerTheme" parent="Theme.Car.NoActionBar.Drawer" />
 
     <!-- A theme for drawers that have a custom layout. -->
     <style name="CarDrawerTheme.Custom">
@@ -61,15 +51,8 @@
         <item name="color">@color/car_title2_dark</item>
     </style>
 
-    <!-- A style for checkboxes. This style assumes the checkbox is on a light-colored
-         background. -->
-    <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
-        <item name="android:textColor">@color/car_body1</item>
-        <item name="android:textSize">@dimen/car_body1_size</item>
-    </style>
-
     <!-- The default styling for a PagedListView. Currently empty, but allows for testing of various
          styles. -->
-    <style name="CarDemoList" parent="Widget.Car.Light.List">
+    <style name="CarDemoList" parent="Widget.Car.Light.List.LightDivider">
     </style>
 </resources>

@@ -20,7 +20,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="@color/car_card"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingStart="@dimen/car_margin"
@@ -39,7 +38,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/car_single_line_list_item_height"
         android:hint="@string/list_dialog_num_of_sections_hint"
-        app:hintTextAppearance="@style/TextAppearance.Car.Hint">
+        app:hintTextAppearance="@style/TextAppearance.Car.Hint.Light">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/num_of_sections_edit"
@@ -47,7 +46,7 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.Car.Body2"/>
+            android:textAppearance="@style/TextAppearance.Car.Body2.Light"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -55,7 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/car_single_line_list_item_height"
         android:hint="@string/list_dialog_num_of_items_hint"
-        app:hintTextAppearance="@style/TextAppearance.Car.Hint">
+        app:hintTextAppearance="@style/TextAppearance.Car.Hint.Light">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/num_of_items_edit"
@@ -63,7 +62,7 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.Car.Body2"/>
+            android:textAppearance="@style/TextAppearance.Car.Body2.Light"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -71,7 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/car_single_line_list_item_height"
         android:hint="@string/list_dialog_initial_position_hint"
-        app:hintTextAppearance="@style/TextAppearance.Car.Hint">
+        app:hintTextAppearance="@style/TextAppearance.Car.Hint.Light">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/initial_position_edit"
@@ -79,7 +78,7 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.Car.Body2"/>
+            android:textAppearance="@style/TextAppearance.Car.Body2.Light"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -87,6 +86,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:checked="true"
-        android:text="@string/create_list_dialog_button"
-        style="@style/Widget.Car.Button" />
+        android:text="@string/create_list_dialog_button" />
 </LinearLayout>

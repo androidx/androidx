@@ -19,7 +19,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="@color/car_card"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -29,7 +28,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/car_padding_4"
         android:checked="true"
-        android:textSize="@dimen/car_body1_size"
         android:text="@string/alert_dialog_checkbox_title" />
 
     <CheckBox
@@ -38,7 +36,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/car_padding_4"
         android:checked="true"
-        android:textSize="@dimen/car_body1_size"
         android:text="@string/alert_dialog_checkbox_body" />
 
     <CheckBox
@@ -47,7 +44,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/car_padding_4"
         android:checked="false"
-        android:textSize="@dimen/car_body1_size"
         android:text="@string/alert_dialog_checkbox_single_line_body" />
 
     <CheckBox
@@ -56,7 +52,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/car_padding_4"
         android:checked="true"
-        android:textSize="@dimen/car_body1_size"
         android:text="@string/alert_dialog_checkbox_action1" />
 
     <CheckBox
@@ -65,7 +60,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/car_padding_4"
         android:checked="true"
-        android:textSize="@dimen/car_body1_size"
         android:text="@string/alert_dialog_checkbox_action2" />
 
     <Button
