@@ -71,6 +71,10 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
     private void enqueueWork() {
         WorkManager workManager = WorkManager.getInstance();
 
+        // Cancelling all work just to make it easier to track what is happening here and make it
+        // more insulated.
+        workManager.cancelAllWork();
+
         OneTimeWorkRequest textReducingWork =
                 new OneTimeWorkRequest.Builder(TextReducingWorker.class)
                     .setInputMerger(ArrayCreatingInputMerger.class)

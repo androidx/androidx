@@ -20,8 +20,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 
+import androidx.work.Logger;
 import androidx.work.impl.WorkManagerImpl;
 
 /**
@@ -37,7 +37,7 @@ public class RescheduleReceiver extends BroadcastReceiver {
             WorkManagerImpl workManager = WorkManagerImpl.getInstance();
             if (workManager == null) {
                 // WorkManager has not already been initialized.
-                Log.e(TAG,
+                Logger.error(TAG,
                         "Cannot reschedule jobs. WorkManager needs to be initialized via a "
                                 + "ContentProvider#onCreate() or an Application#onCreate().");
             } else {

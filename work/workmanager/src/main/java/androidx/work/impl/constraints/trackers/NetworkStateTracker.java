@@ -28,8 +28,8 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.net.ConnectivityManagerCompat;
-import android.util.Log;
 
+import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
 
 /**
@@ -78,10 +78,10 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     @Override
     public void startTracking() {
         if (isNetworkCallbackSupported()) {
-            Log.d(TAG, "Registering network callback");
+            Logger.debug(TAG, "Registering network callback");
             mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);
         } else {
-            Log.d(TAG, "Registering broadcast receiver");
+            Logger.debug(TAG, "Registering broadcast receiver");
             mAppContext.registerReceiver(mBroadcastReceiver,
                     new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
@@ -90,10 +90,10 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     @Override
     public void stopTracking() {
         if (isNetworkCallbackSupported()) {
-            Log.d(TAG, "Unregistering network callback");
+            Logger.debug(TAG, "Unregistering network callback");
             mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
         } else {
-            Log.d(TAG, "Unregistering broadcast receiver");
+            Logger.debug(TAG, "Unregistering broadcast receiver");
             mAppContext.unregisterReceiver(mBroadcastReceiver);
         }
     }
@@ -132,13 +132,13 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         @Override
         public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
             // The Network parameter is unreliable when a VPN app is running - use active network.
-            Log.d(TAG, String.format("Network capabilities changed: %s", capabilities));
+            Logger.debug(TAG, String.format("Network capabilities changed: %s", capabilities));
             setState(getActiveNetworkState());
         }
 
         @Override
         public void onLost(Network network) {
-            Log.d(TAG, "Network connection lost");
+            Logger.debug(TAG, "Network connection lost");
             setState(getActiveNetworkState());
         }
     }
@@ -153,7 +153,7 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
                 return;
             }
             if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-                Log.d(TAG, "Network broadcast received");
+                Logger.debug(TAG, "Network broadcast received");
                 setState(getActiveNetworkState());
             }
         }

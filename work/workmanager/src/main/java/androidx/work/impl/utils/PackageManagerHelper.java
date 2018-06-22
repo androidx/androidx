@@ -19,7 +19,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.util.Log;
+
+import androidx.work.Logger;
 
 /**
  * Helper class for common {@link PackageManager} functions
@@ -51,9 +52,10 @@ public class PackageManagerHelper {
                             : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     PackageManager.DONT_KILL_APP);
 
-            Log.d(TAG, String.format("%s %s", klazz.getName(), (enabled ? "enabled" : "disabled")));
+            Logger.debug(TAG,
+                    String.format("%s %s", klazz.getName(), (enabled ? "enabled" : "disabled")));
         } catch (Exception exception) {
-            Log.d(TAG, String.format("%s could not be %s", klazz.getName(),
+            Logger.debug(TAG, String.format("%s could not be %s", klazz.getName(),
                     (enabled ? "enabled" : "disabled")), exception);
         }
     }

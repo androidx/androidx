@@ -29,8 +29,6 @@ import androidx.work.impl.WorkManagerImpl;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StartWorkRunnable implements Runnable {
 
-    private static final String TAG = "StartWorkRunnable";
-
     private WorkManagerImpl mWorkManagerImpl;
     private String mWorkSpecId;
     private Extras.RuntimeExtras mRuntimeExtras;

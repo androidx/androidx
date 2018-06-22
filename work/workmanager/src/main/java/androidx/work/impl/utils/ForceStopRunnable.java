@@ -29,8 +29,8 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
+import androidx.work.Logger;
 import androidx.work.impl.WorkManagerImpl;
 
 import java.util.concurrent.TimeUnit;
@@ -65,12 +65,12 @@ public class ForceStopRunnable implements Runnable {
     @Override
     public void run() {
         if (shouldRescheduleWorkers()) {
-            Log.d(TAG, "Rescheduling Workers.");
+            Logger.debug(TAG, "Rescheduling Workers.");
             mWorkManager.rescheduleEligibleWork();
             // Mark the jobs as migrated.
             mWorkManager.getPreferences().setNeedsReschedule(false);
         } else if (isForceStopped()) {
-            Log.d(TAG, "Application was force-stopped, rescheduling.");
+            Logger.debug(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
         }
         mWorkManager.onForceStopRunnableCompleted();
@@ -153,7 +153,7 @@ public class ForceStopRunnable implements Runnable {
             if (intent != null) {
                 String action = intent.getAction();
                 if (ACTION_FORCE_STOP_RESCHEDULE.equals(action)) {
-                    Log.v(TAG, "Rescheduling alarm that keeps track of force-stops.");
+                    Logger.verbose(TAG, "Rescheduling alarm that keeps track of force-stops.");
                     WorkManagerImpl workManager = WorkManagerImpl.getInstance();
                     ForceStopRunnable runnable = new ForceStopRunnable(context, workManager);
                     runnable.setAlarm(ForceStopRunnable.ALARM_ID);

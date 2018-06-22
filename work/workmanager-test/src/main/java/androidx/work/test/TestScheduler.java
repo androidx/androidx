@@ -119,8 +119,7 @@ class TestScheduler implements Scheduler, ExecutionListener {
                                     + " This will be ignored when testing.",
                             workSpec.id, workSpec.workerClassName));
                 }
-                WorkManagerImpl.getInstance()
-                        .startWork(workSpec.id);
+                WorkManagerImpl.getInstance().startWork(workSpec.id);
             }
         }
     }
