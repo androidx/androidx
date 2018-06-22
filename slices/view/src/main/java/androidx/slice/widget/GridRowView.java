@@ -427,7 +427,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
             tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, title ? mGridTitleSize : mGridSubtitleSize);
             tv.setTextColor(title ? mTitleColor : mSubtitleColor);
             CharSequence text = FORMAT_LONG.equals(format)
-                    ? SliceViewUtil.getRelativeTimeString(item.getTimestamp())
+                    ? SliceViewUtil.getTimestampString(getContext(), item.getLong())
                     : item.getText();
             tv.setText(text);
             container.addView(tv);
