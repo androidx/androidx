@@ -40,9 +40,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     private SliceActionImpl mSliceAction;
 
     /**
-     * @deprecated TO BE REMOVED
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     @RequiresApi(23)
     public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
             @NonNull CharSequence actionTitle) {
@@ -50,9 +50,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     }
 
     /**
-     * @deprecated TO BE REMOVED
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     @RequiresApi(23)
     public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
             @ListBuilder.ImageMode int imageMode, @NonNull CharSequence actionTitle) {
@@ -60,9 +60,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     }
 
     /**
-     * @deprecated TO BE REMOVED
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     @RequiresApi(23)
     public SliceAction(@NonNull PendingIntent action, @NonNull Icon actionIcon,
             @NonNull CharSequence actionTitle, boolean isChecked) {
@@ -76,9 +76,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionIcon the icon to display for this action.
      * @param actionTitle the title for this action, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
-     * @deprecated TO BE REMOVED
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @NonNull CharSequence actionTitle) {
         this(action, actionIcon, ICON_IMAGE, actionTitle);
@@ -100,9 +100,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @see ListBuilder#ICON_IMAGE
      * @see ListBuilder#SMALL_IMAGE
      * @see ListBuilder#LARGE_IMAGE
-     * @deprecated TO BE REMOVED
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @ListBuilder.ImageMode int imageMode, @NonNull CharSequence actionTitle) {
         mSliceAction = new SliceActionImpl(action, actionIcon, imageMode, actionTitle);
@@ -117,9 +117,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionTitle the title for this toggle, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
      * @param isChecked the state of the toggle.
-     * @deprecated TO BE REMOVED
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @NonNull CharSequence actionTitle, boolean isChecked) {
         mSliceAction = new SliceActionImpl(action, actionIcon, actionTitle, isChecked);
@@ -132,9 +132,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionTitle the title for this toggle, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
      * @param isChecked the state of the toggle.
-     * @deprecated TO BE REMOVED
+     * @hide
      */
-    @Deprecated
+    @RestrictTo(LIBRARY)
     public SliceAction(@NonNull PendingIntent action, @NonNull CharSequence actionTitle,
             boolean isChecked) {
         mSliceAction = new SliceActionImpl(action, actionTitle, isChecked);
