@@ -296,7 +296,7 @@ public class SearchBar extends RelativeLayout {
             }
         });
 
-        mSearchTextEditor.setPrivateImeOptions("EscapeNorth=1;VoiceDismiss=1;");
+        mSearchTextEditor.setPrivateImeOptions("escapeNorth,voiceDismiss");
 
         mSpeechOrbView = (SpeechOrbView)findViewById(R.id.lb_search_bar_speech_orb);
         mSpeechOrbView.setOnOrbClickedListener(new OnClickListener() {
