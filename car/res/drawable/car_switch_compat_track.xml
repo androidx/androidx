@@ -18,20 +18,21 @@
 <selector
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:color="@color/car_switch_compat_track_on"
         android:state_checked="true"
-        android:state_enabled="true"
-        android:color="@color/car_switch_thumb_on"/>
+        android:state_enabled="true"/>
     <item
+        android:color="@color/car_switch_compat_track_on"
         android:state_checked="true"
         android:state_enabled="false"
-        android:color="@color/car_switch_thumb_on_disabled"/>
+        android:alpha="0.5"/>
     <item
+        android:color="@color/car_switch_compat_track_off"
         android:state_checked="false"
-        android:state_enabled="true"
-        android:color="@color/car_switch_thumb_off"/>
+        android:state_enabled="true"/>
     <item
+        android:color="@color/car_switch_compat_track_off"
         android:state_checked="false"
         android:state_enabled="false"
-        android:color="@color/car_switch_thumb_off"
         android:alpha="0.5"/>
 </selector>
