@@ -88,6 +88,7 @@ android-arch-room-common,androidx.room_room-common
 android-arch-room-migration,androidx.room_room-migration
 android-arch-room-runtime,androidx.room_room-runtime
 android-arch-room-testing,androidx.room_room-testing
+android-support-design,com.google.android.material_material
 $(ANDROID_SUPPORT_DESIGN_TARGETS),com.google.android.material_material"""
 
 reader = csv.reader(target_map.split('\n'), delimiter=',')
