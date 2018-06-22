@@ -315,7 +315,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
 
     private void setupListeners(EditText edit) {
         if (edit != null) {
-            edit.setPrivateImeOptions("EscapeNorth=1;");
+            edit.setPrivateImeOptions("escapeNorth");
             edit.setOnEditorActionListener(mActionEditListener);
             if (edit instanceof ImeKeyMonitor) {
                 ImeKeyMonitor monitor = (ImeKeyMonitor)edit;
