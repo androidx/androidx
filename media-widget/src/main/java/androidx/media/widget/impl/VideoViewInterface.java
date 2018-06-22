@@ -36,10 +36,10 @@ interface VideoViewInterface {
 
     /**
      * Takes over oldView. It means that the MediaPlayer will start rendering on this view.
-     * The visibility of oldView will be set as {@link View.GONE}. If the view doesn't have a
+     * The visibility of oldView will be set as {@link View#GONE}. If the view doesn't have a
      * MediaPlayer instance or its surface is not available, the actual execution is deferred until
      * a MediaPlayer instance is set by {@link #setMediaPlayer} or its surface becomes available.
-     * {@link SurfaceListener.onSurfaceTakeOverDone} will be called when the actual execution is
+     * {@link SurfaceListener#onSurfaceTakeOverDone} will be called when the actual execution is
      * done.
      *
      * @param oldView The view that MediaPlayer is currently rendering on.
