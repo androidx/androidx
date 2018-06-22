@@ -19,6 +19,7 @@ package androidx.work.impl;
 import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
+import android.os.Build;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -37,6 +38,7 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
 import androidx.work.impl.background.greedy.GreedyScheduler;
+import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
@@ -511,6 +513,11 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void rescheduleEligibleWork() {
+        // TODO (rahulrav@) Make every scheduler do its own cancelAll().
+        if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
+            SystemJobScheduler.jobSchedulerCancelAll(getApplicationContext());
+        }
+
         // Reset scheduled state.
         getWorkDatabase().workSpecDao().resetScheduledState();
 
