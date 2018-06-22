@@ -18,12 +18,16 @@ package androidx.slice;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Process;
+import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.PermissionChecker;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
 
@@ -48,6 +52,9 @@ class SliceManagerWrapper extends SliceManager {
 
     @Override
     public @NonNull Set<androidx.slice.SliceSpec> getPinnedSpecs(@NonNull Uri uri) {
+        if (Build.VERSION.SDK_INT == 28) {
+            uri = maybeAddCurrentUserId(uri);
+        }
         return SliceConvert.wrap(mManager.getPinnedSpecs(uri));
     }
 
@@ -70,5 +77,28 @@ class SliceManagerWrapper extends SliceManager {
     @Override
     public List<Uri> getPinnedSlices() {
         return mManager.getPinnedSlices();
+    }
+
+    private Uri maybeAddCurrentUserId(Uri uri) {
+        if (uri == null || uri.getAuthority().contains("@")) {
+            return uri;
+        }
+        String auth = uri.getAuthority();
+        return uri.buildUpon()
+                .encodedAuthority(getCurrentUserId() + "@" + auth)
+                .build();
+    }
+
+    private int getCurrentUserId() {
+        UserHandle h = Process.myUserHandle();
+        try {
+            return (int) h.getClass().getDeclaredMethod("getIdentifier").invoke(h);
+        } catch (IllegalAccessException e) {
+            return 0;
+        } catch (InvocationTargetException e) {
+            return 0;
+        } catch (NoSuchMethodException e) {
+            return 0;
+        }
     }
 }
