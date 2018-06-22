@@ -24,7 +24,7 @@ import androidx.annotation.RequiresApi
 /**
  * Flattens (or approximate) the [Path] with a series of line segments.
  *
- * @param error The acceptable error for a line on the Path. Typically this would be
+ * @param error The acceptable error for a line on the Path in pixels. Typically this would be
  *              0.5 so that the error is less than half a pixel. This value must be
  *              positive and is set to 0.5 by default.
  *
