@@ -262,15 +262,6 @@ class ViewTest {
         }
     }
 
-    @Test fun announceForAccessibility() {
-        val testView = AccessibilityAnnouncementCapturingView(context)
-
-        testView.announceForAccessibility(R.string.text)
-
-        val resolvedText = context.getText(R.string.text)
-        assertEquals(testView.announcement, resolvedText)
-    }
-
     @Test fun marginLeft() {
         view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
             leftMargin = 10

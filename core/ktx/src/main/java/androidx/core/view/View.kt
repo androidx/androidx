@@ -99,6 +99,11 @@ inline fun View.doOnPreDraw(crossinline action: (view: View) -> Unit) {
  * @see View.announceForAccessibility
  */
 @RequiresApi(16)
+@Deprecated(
+    "General usage of this functionality is discouraged",
+    ReplaceWith("this.announceForAccessibility(this.resources.getString(resource))"),
+    DeprecationLevel.ERROR
+)
 inline fun View.announceForAccessibility(@StringRes resource: Int) {
     val announcement = resources.getString(resource)
     announceForAccessibility(announcement)
