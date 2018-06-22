@@ -57,10 +57,15 @@ public abstract class SliceViewManager {
     /**
      * Adds a callback to a specific slice uri.
      * <p>
-     * This is a convenience that performs a few slice actions at once. It will put
+     * This is a convenience method that performs a few slice actions at once. It will put
      * the slice in a pinned state since there is a callback attached. It will also
-     * listen for content changes, when a content change observes, the android system
+     * listen for content changes, when a content change is observed, the android system
      * will bind the new slice and provide it to all registered {@link SliceCallback}s.
+     * <p>
+     * This will not trigger a bindSlice immediately, it will only perform a bind and pass
+     * it to the callback after a change occurs. To avoid race conditions and missing data,
+     * callers should call bindSlice immediately after calling registerSliceCallback so that
+     * it has the current slice.
      *
      * @param uri The uri of the slice being listened to.
      * @param callback The listener that should receive the callbacks.
