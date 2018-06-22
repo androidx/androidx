@@ -1294,7 +1294,7 @@ public class MediaControlView2 extends BaseLayout {
 
     // There are two scenarios that can trigger the seekbar listener to trigger:
     //
-    // The first is the user using the touchpad to adjust the posititon of the
+    // The first is the user using the touchpad to adjust the position of the
     // seekbar's thumb. In this case onStartTrackingTouch is called followed by
     // a number of onProgressChanged notifications, concluded by onStopTrackingTouch.
     // We're setting the field "mDragging" to true for the duration of the dragging
