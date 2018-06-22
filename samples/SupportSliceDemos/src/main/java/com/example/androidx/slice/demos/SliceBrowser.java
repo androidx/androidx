@@ -16,6 +16,9 @@
 
 package com.example.androidx.slice.demos;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 import static androidx.slice.core.SliceHints.INFINITY;
 import static androidx.slice.test.SampleSliceProvider.URI_PATHS;
 import static androidx.slice.test.SampleSliceProvider.getUri;
@@ -34,12 +37,14 @@ import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.FrameLayout;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -74,15 +79,19 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     private static final boolean TEST_INTENT = false;
 
     private ArrayList<Uri> mSliceUris = new ArrayList<Uri>();
-    private int mSelectedMode;
     private ViewGroup mContainer;
     private SearchView mSearchView;
     private SimpleCursorAdapter mAdapter;
-    private SubMenu mTypeMenu;
     private LiveData<Slice> mSliceLiveData;
-
     private SliceView mSliceView;
+
+    // Mode menu
+    private int mSelectedMode;
+    private SubMenu mTypeMenu;
+    // Overflow menu
     private boolean mScrollingEnabled = true;
+    private boolean mShowingSerialized = false;
+    private int mSelectedHeight = WRAP_CONTENT;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -135,14 +144,19 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         mSelectedMode = (savedInstanceState != null)
                 ? savedInstanceState.getInt("SELECTED_MODE", SliceView.MODE_LARGE)
                 : SliceView.MODE_LARGE;
+        String uri = null;
         if (savedInstanceState != null) {
             mSearchView.setQuery(savedInstanceState.getString("SELECTED_QUERY"), true);
             mScrollingEnabled = savedInstanceState.getBoolean("SCROLLING_ENABLED");
+            mSelectedHeight = savedInstanceState.getInt("SELECTED_HEIGHT", WRAP_CONTENT);
+            uri = savedInstanceState.getString("SELECTED_SLICE", null);
         }
 
-        // TODO: Listen for changes.
         updateAvailableSlices();
         initSliceView(mSliceView);
+        if (uri != null) {
+            addSlice(Uri.parse(uri));
+        }
         if (TEST_INTENT) {
             addSlice(new Intent("androidx.intent.SLICE_ACTION").setPackage(getPackageName()));
         }
@@ -158,7 +172,12 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         mTypeMenu.add("Large");
         menu.add("Open");
         menu.add("Toggle scrolling");
-        menu.add("Show serialized");
+        menu.add("Toggle serialized");
+        SubMenu heightMenu = menu.addSubMenu("Set height");
+        heightMenu.add("MATCH_PARENT");
+        heightMenu.add("WRAP_CONTENT");
+        heightMenu.add("Tiny");
+        heightMenu.add("Big");
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -190,15 +209,43 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
                 String message = "Scrolling " + (mScrollingEnabled ? "enabled" : "disabled");
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                 return true;
-            case "Show serialized":
+            case "Toggle serialized":
+                mShowingSerialized = !mShowingSerialized;
                 Slice currentSlice = mSliceView.getSlice();
                 setSlice(null);
                 if (currentSlice != null) {
-                    showCached(currentSlice, getApplicationContext());
+                    if (mShowingSerialized) {
+                        showCached(currentSlice, getApplicationContext());
+                    } else {
+                        addSlice(currentSlice.getUri());
+                    }
                 }
+                return true;
+            case "MATCH_PARENT":
+                mSelectedHeight = MATCH_PARENT;
+                updateHeight();
+                return true;
+            case "WRAP_CONTENT":
+                mSelectedHeight = WRAP_CONTENT;
+                updateHeight();
+                return true;
+            case "Tiny":
+                mSelectedHeight = 48;
+                updateHeight();
+                return true;
+            case "Big":
+                mSelectedHeight = 550;
+                updateHeight();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateHeight() {
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mSliceView.getLayoutParams();
+        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, mSelectedHeight,
+                getApplicationContext().getResources().getDisplayMetrics());
+        mSliceView.setLayoutParams(lp);
     }
 
     @Override
@@ -207,6 +254,10 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         outState.putInt("SELECTED_MODE", mSelectedMode);
         outState.putString("SELECTED_QUERY", mSearchView.getQuery().toString());
         outState.putBoolean("SCROLLING_ENABLED", mScrollingEnabled);
+        outState.putInt("SELECTED_HEIGHT", mSelectedHeight);
+        if (mSliceView != null && mSliceView.getSlice() != null) {
+            outState.putString("SLICE_URI", mSliceView.getSlice().getUri().toString());
+        }
     }
 
     private void updateAvailableSlices() {
@@ -324,6 +375,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     }
 
     private void initSliceView(SliceView sliceView) {
+        updateHeight();
         sliceView.setOnSliceActionListener(this);
         sliceView.setScrollable(mScrollingEnabled);
         sliceView.setOnLongClickListener(new View.OnLongClickListener() {
