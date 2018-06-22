@@ -49,6 +49,8 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Pair;
 import androidx.slice.core.SliceQuery;
+import androidx.slice.widget.SliceView;
+import androidx.slice.widget.SliceView.SliceMode;
 import androidx.versionedparcelable.ParcelUtils;
 
 import java.io.BufferedInputStream;
@@ -67,6 +69,26 @@ import java.util.List;
 public class SliceUtils {
 
     private SliceUtils() {
+    }
+
+    /**
+     * Attempt to remove any extra content from the slice.
+     * <p>
+     * This is meant to be used alongside {@link #serializeSlice} to reduce
+     * the size of a slice by only including data for the slice to be displayed
+     * in a specific mode.
+     *
+     * @param s The slice to strip.
+     * @param mode The mode that will be used with {@link SliceView#setMode} to
+     *             display the slice.
+     * @param isScrollable The value that will be used with {@link SliceView#setScrollable} to
+     *             display the slice.
+     * @return returns A new smaller slice if stripping can be done, or the
+     *                 original slice if no content can be removed.
+     */
+    @NonNull
+    public static Slice stripSlice(@NonNull Slice s, @SliceMode int mode, boolean isScrollable) {
+        return s;
     }
 
     /**
