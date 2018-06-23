@@ -19,6 +19,7 @@ package androidx.webkit;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Looper;
@@ -69,6 +70,22 @@ class WebViewOnUiThread {
         });
     }
 
+    private static class Holder {
+        volatile WebView mView;
+    }
+
+    public static WebView createWebView() {
+        final Holder h = new Holder();
+        final Context ctx = InstrumentationRegistry.getTargetContext();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                h.mView = new WebView(ctx);
+            }
+        });
+        return h.mView;
+    }
+
     /**
      * Called after a test is complete and the WebView should be disengaged from
      * the tests.
@@ -111,11 +128,30 @@ class WebViewOnUiThread {
         this.notifyAll();
     }
 
-    public void setWebViewClient(final WebViewClientCompat webviewClient) {
+    public void setWebViewClient(final WebViewClient webviewClient) {
+        setWebViewClient(mWebView, webviewClient);
+    }
+
+    public static void setWebViewClient(
+            final WebView webView, final WebViewClient webviewClient) {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mWebView.setWebViewClient(webviewClient);
+                webView.setWebViewClient(webviewClient);
+            }
+        });
+    }
+
+    public void setWebChromeClient(final WebChromeClient webChromeClient) {
+        setWebChromeClient(mWebView, webChromeClient);
+    }
+
+    public static void setWebChromeClient(
+            final WebView webView, final WebChromeClient webChromeClient) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                webView.setWebChromeClient(webChromeClient);
             }
         });
     }
@@ -271,20 +307,28 @@ class WebViewOnUiThread {
         });
     }
 
-    public void setWebViewClient(final WebViewClient client) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+    public WebViewClient getWebViewClient() {
+        return getWebViewClient(mWebView);
+    }
+
+    public static WebViewClient getWebViewClient(final WebView webView) {
+        return getValue(new ValueGetter<WebViewClient>() {
             @Override
-            public void run() {
-                mWebView.setWebViewClient(client);
+            public WebViewClient capture() {
+                return WebViewCompat.getWebViewClient(webView);
             }
         });
     }
 
-    public WebViewClient getWebViewClient() {
-        return getValue(new ValueGetter<WebViewClient>() {
+    public WebChromeClient getWebChromeClient() {
+        return getWebChromeClient(mWebView);
+    }
+
+    public static WebChromeClient getWebChromeClient(final WebView webView) {
+        return getValue(new ValueGetter<WebChromeClient>() {
             @Override
-            public WebViewClient capture() {
-                return WebViewCompat.getWebViewClient(mWebView);
+            public WebChromeClient capture() {
+                return WebViewCompat.getWebChromeClient(webView);
             }
         });
     }
@@ -293,12 +337,12 @@ class WebViewOnUiThread {
         return mWebView;
     }
 
-    private <T> T getValue(ValueGetter<T> getter) {
+    private static <T> T getValue(ValueGetter<T> getter) {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(getter);
         return getter.getValue();
     }
 
-    private abstract class ValueGetter<T> implements Runnable {
+    private abstract static class ValueGetter<T> implements Runnable {
         private T mValue;
 
         @Override

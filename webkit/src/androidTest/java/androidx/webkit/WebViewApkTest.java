@@ -114,7 +114,10 @@ public class WebViewApkTest {
         // first M67).
         Assume.assumeTrue(apkVersion.compareTo(new WebViewVersion("67.0.3396.0")) >= 0);
 
-        // Add/remove Features for each WebView version.
+        // Add/remove Features for each WebView version. Use http://go/find-releases (or the commits
+        // tab in go/chromiumdash) to figure out the first canary which declares support for the
+        // Feature. If that CL is cherry-picked, also include the first beta containing this
+        // Feature.
         final HashSet<String> expectedFeatures = new HashSet<>();
 
         expectedFeatures.add(Features.SERVICE_WORKER_BASIC_USAGE);
@@ -152,6 +155,10 @@ public class WebViewApkTest {
 
         if (apkVersion.compareTo(new WebViewVersion("69.0.3461.0")) >= 0) {
             expectedFeatures.add(Features.GET_WEB_VIEW_CLIENT);
+        }
+
+        if (apkVersion.compareTo(new WebViewVersion("69.0.3468.0")) >= 0) {
+            expectedFeatures.add(Features.GET_WEB_CHROME_CLIENT);
         }
 
         final HashSet<String> apkFeatures = new HashSet<>(

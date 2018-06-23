@@ -17,6 +17,7 @@
 package androidx.webkit.internal;
 
 import android.net.Uri;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -78,5 +79,12 @@ public class WebViewProviderAdapter {
      */
     public WebViewClient getWebViewClient() {
         return mImpl.getWebViewClient();
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#getWebChromeClient()}.
+     */
+    public WebChromeClient getWebChromeClient() {
+        return mImpl.getWebChromeClient();
     }
 }

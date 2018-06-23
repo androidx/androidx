@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
 import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -448,6 +449,32 @@ public class WebViewCompat {
         } else {
             WebViewClient client = WebViewCompatPolyfill.getWebViewClient(webview);
             if (client != null) return client;
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets the WebChromeClient.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#GET_WEB_CHROME_CLIENT}.
+     *
+     * <p>
+     * @return the WebChromeClient, or {@code null} if not yet set
+     */
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.GET_WEB_CHROME_CLIENT,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static @Nullable WebChromeClient getWebChromeClient(@NonNull WebView webview) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.GET_WEB_CHROME_CLIENT);
+        if (feature.isSupportedByFramework()) {
+            return webview.getWebChromeClient();
+        } else if (feature.isSupportedByWebView()) {
+            return getProvider(webview).getWebChromeClient();
+        } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }

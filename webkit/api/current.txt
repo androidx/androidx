@@ -77,6 +77,7 @@ package androidx.webkit {
     method public static androidx.webkit.WebMessagePortCompat[] createWebMessageChannel(android.webkit.WebView);
     method public static android.content.pm.PackageInfo getCurrentWebViewPackage(android.content.Context);
     method public static android.net.Uri getSafeBrowsingPrivacyPolicyUrl();
+    method public static android.webkit.WebChromeClient getWebChromeClient(android.webkit.WebView);
     method public static android.webkit.WebViewClient getWebViewClient(android.webkit.WebView);
     method public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
     method public static void postWebMessage(android.webkit.WebView, androidx.webkit.WebMessageCompat, android.net.Uri);
@@ -92,6 +93,7 @@ package androidx.webkit {
     method public static boolean isFeatureSupported(java.lang.String);
     field public static final java.lang.String CREATE_WEB_MESSAGE_CHANNEL = "CREATE_WEB_MESSAGE_CHANNEL";
     field public static final java.lang.String DISABLED_ACTION_MODE_MENU_ITEMS = "DISABLED_ACTION_MODE_MENU_ITEMS";
+    field public static final java.lang.String GET_WEB_CHROME_CLIENT = "GET_WEB_CHROME_CLIENT";
     field public static final java.lang.String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
     field public static final java.lang.String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
     field public static final java.lang.String RECEIVE_HTTP_ERROR = "RECEIVE_HTTP_ERROR";

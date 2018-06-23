@@ -35,6 +35,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -233,16 +234,39 @@ public class WebViewCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testGetWebViewClient() throws Exception {
+        // Create a new WebView because WebViewOnUiThread sets a WebViewClient during
+        // construction.
+        WebView webView = WebViewOnUiThread.createWebView();
+
         // getWebViewClient should return a default WebViewClient if it hasn't been set yet
-        WebViewClient client = mWebViewOnUiThread.getWebViewClient();
+        WebViewClient client = WebViewOnUiThread.getWebViewClient(webView);
         assertNotNull(client);
         assertTrue(client instanceof WebViewClient);
 
         // getWebViewClient should return the client after it has been set
         WebViewClient client2 = new WebViewClient();
         assertNotSame(client, client2);
-        mWebViewOnUiThread.setWebViewClient(client2);
-        assertSame(client2, mWebViewOnUiThread.getWebViewClient());
+        WebViewOnUiThread.setWebViewClient(webView, client2);
+        assertSame(client2, WebViewOnUiThread.getWebViewClient(webView));
+    }
+
+    @Test
+    public void testGetWebChromeClient() throws Exception {
+        assumeTrue(WebViewFeature.isFeatureSupported(WebViewFeature.GET_WEB_CHROME_CLIENT));
+
+        // Create a new WebView because WebViewOnUiThread sets a WebChromeClient during
+        // construction.
+        WebView webView = WebViewOnUiThread.createWebView();
+
+        // getWebChromeClient should return null if the client hasn't been set yet
+        WebChromeClient client = WebViewOnUiThread.getWebChromeClient(webView);
+        assertNull(client);
+
+        // getWebChromeClient should return the client after it has been set
+        WebChromeClient client2 = new WebChromeClient();
+        assertNotSame(client, client2);
+        WebViewOnUiThread.setWebChromeClient(webView, client2);
+        assertSame(client2, WebViewOnUiThread.getWebChromeClient(webView));
     }
 
     /**
