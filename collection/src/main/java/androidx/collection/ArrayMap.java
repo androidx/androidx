@@ -129,7 +129,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * @return Returns true if this array map contains a key for every entry
      * in <var>collection</var>, else returns false.
      */
-    public boolean containsAll(Collection<?> collection) {
+    public boolean containsAll(@NonNull Collection<?> collection) {
         return MapCollections.containsAllHelper(this, collection);
     }
 
