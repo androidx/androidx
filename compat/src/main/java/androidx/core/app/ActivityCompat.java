@@ -377,12 +377,7 @@ public class ActivityCompat extends ContextCompat {
      */
     public static void setEnterSharedElementCallback(@NonNull Activity activity,
             @Nullable SharedElementCallback callback) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            android.app.SharedElementCallback frameworkCallback = callback != null
-                    ? new SharedElementCallback23Impl(callback)
-                    : null;
-            activity.setEnterSharedElementCallback(frameworkCallback);
-        } else if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             android.app.SharedElementCallback frameworkCallback = callback != null
                     ? new SharedElementCallback21Impl(callback)
                     : null;
@@ -401,12 +396,7 @@ public class ActivityCompat extends ContextCompat {
      */
     public static void setExitSharedElementCallback(@NonNull Activity activity,
             @Nullable SharedElementCallback callback) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            android.app.SharedElementCallback frameworkCallback = callback != null
-                    ? new SharedElementCallback23Impl(callback)
-                    : null;
-            activity.setExitSharedElementCallback(frameworkCallback);
-        } else if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             android.app.SharedElementCallback frameworkCallback = callback != null
                     ? new SharedElementCallback21Impl(callback)
                     : null;
@@ -574,8 +564,7 @@ public class ActivityCompat extends ContextCompat {
 
     @RequiresApi(21)
     private static class SharedElementCallback21Impl extends android.app.SharedElementCallback {
-
-        protected SharedElementCallback mCallback;
+        private final SharedElementCallback mCallback;
 
         SharedElementCallback21Impl(SharedElementCallback callback) {
             mCallback = callback;
@@ -616,15 +605,9 @@ public class ActivityCompat extends ContextCompat {
         public View onCreateSnapshotView(Context context, Parcelable snapshot) {
             return mCallback.onCreateSnapshotView(context, snapshot);
         }
-    }
-
-    @RequiresApi(23)
-    private static class SharedElementCallback23Impl extends SharedElementCallback21Impl {
-        SharedElementCallback23Impl(SharedElementCallback callback) {
-            super(callback);
-        }
 
         @Override
+        @RequiresApi(23) // Callback added on 23.
         public void onSharedElementsArrived(List<String> sharedElementNames,
                 List<View> sharedElements, final OnSharedElementsReadyListener listener) {
             mCallback.onSharedElementsArrived(sharedElementNames, sharedElements,
