@@ -301,7 +301,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         assertEquals(metadataFromCallback.get(), mController.getPlaylistMetadata());
     }
 
-    @Test
+    //@Test see: b/110738672
     public void testControllerCallback_onSeekCompleted() throws Exception {
         prepareLooper();
         final long testSeekPosition = 400;
@@ -328,7 +328,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Test
+    //@Test see: b/110738672
     public void testControllerCallbackBufferingCompleted() throws Exception {
         prepareLooper();
         final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(1);
@@ -406,7 +406,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Test
+    //@Test see: b/110738672
     public void testControllerCallback_onPlayerStateChanged() throws Exception {
         prepareLooper();
         final int testPlayerState = BaseMediaPlayer.PLAYER_STATE_PLAYING;
@@ -545,7 +545,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         assertTrue(mSessionCallback.mOnSkipToNextCalled);
     }
 
-    @Test
+    //@Test see: b/110738672
     public void testSkipToPlaylistItem() throws Exception {
         prepareLooper();
         createControllerAndWaitConnection();
@@ -862,7 +862,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         assertTrue(TestUtils.equals(bundle, mSessionCallback.mExtras));
     }
 
-    @Test
+    //@Test see: b/110738672
     public void testPrepareFromSearch() throws Exception {
         prepareLooper();
         final String request = "random query";
