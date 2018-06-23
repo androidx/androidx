@@ -16,6 +16,7 @@
 
 package androidx.core.view;
 
+import android.os.Build;
 import android.view.View;
 import android.view.Window;
 
@@ -81,7 +82,10 @@ public final class WindowCompat {
     @SuppressWarnings("TypeParameterUnusedInFormals")
     @NonNull
     public static <T extends View> T requireViewById(@NonNull Window window, @IdRes int id) {
-        // TODO: use and link to Window#requireViewById() directly, once available
+        if (Build.VERSION.SDK_INT >= 28) {
+            return window.requireViewById(id);
+        }
+
         T view = window.findViewById(id);
         if (view == null) {
             throw new IllegalArgumentException("ID does not reference a View inside this Window");
