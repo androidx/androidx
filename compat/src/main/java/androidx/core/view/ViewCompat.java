@@ -2208,7 +2208,6 @@ public class ViewCompat {
 
             v.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                 @Override
-                @RequiresApi(21) // TODO remove https://issuetracker.google.com/issues/76458979
                 public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
                     WindowInsetsCompat compatInsets = WindowInsetsCompat.wrap(insets);
                     compatInsets = listener.onApplyWindowInsets(view, compatInsets);

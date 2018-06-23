@@ -34,7 +34,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres;
@@ -575,7 +574,6 @@ public final class TvContractCompat {
      * @param channelId The channel ID to be browsable.
      * @see Channels#COLUMN_BROWSABLE
      */
-    @RequiresApi(api = 26)
     public static void requestChannelBrowsable(Context context, long channelId) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             TvContract.requestChannelBrowsable(context, channelId);

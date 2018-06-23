@@ -17,7 +17,6 @@ package androidx.tvprovider.media.tv;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -52,7 +51,6 @@ import java.util.Set;
  * for creating your preview channel object. Once you create a preview channel, you can
  * use {@link PreviewChannelHelper} to publish it and add {@link PreviewProgram programs} to it.
  */
-@TargetApi(26)
 public class PreviewChannel {
 
     private static final String TAG = "PreviewChannel";

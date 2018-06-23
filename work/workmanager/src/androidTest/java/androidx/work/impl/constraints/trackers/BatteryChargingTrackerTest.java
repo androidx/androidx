@@ -28,13 +28,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -85,7 +85,7 @@ public class BatteryChargingTrackerTest {
                 charging ? Intent.ACTION_POWER_CONNECTED : Intent.ACTION_POWER_DISCONNECTED);
     }
 
-    @TargetApi(23)
+    @RequiresApi(23)
     private Intent createChargingIntent_afterApi23(boolean charging) {
         return new Intent(
                 charging ? BatteryManager.ACTION_CHARGING : BatteryManager.ACTION_DISCHARGING);

@@ -16,7 +16,7 @@
 
 package androidx.print;
 
-import android.annotation.TargetApi;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -90,13 +90,13 @@ public final class PrintHelper {
     /**
      * this is a black and white image
      */
-    @TargetApi(19) // Keep lint quiet about using API 19+ constant.
+    @SuppressLint("InlinedApi")
     public static final int COLOR_MODE_MONOCHROME = PrintAttributes.COLOR_MODE_MONOCHROME;
 
     /**
      * this is a color image (default)
      */
-    @TargetApi(19) // Keep lint quiet about using API 19+ constant.
+    @SuppressLint("InlinedApi")
     public static final int COLOR_MODE_COLOR = PrintAttributes.COLOR_MODE_COLOR;
 
     /**

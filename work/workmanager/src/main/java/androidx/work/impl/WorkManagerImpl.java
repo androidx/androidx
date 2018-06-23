@@ -16,6 +16,7 @@
 
 package androidx.work.impl;
 
+import android.annotation.TargetApi;
 import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
@@ -512,6 +513,7 @@ public class WorkManagerImpl extends WorkManager implements SynchronousWorkManag
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @TargetApi(23) // https://issuetracker.google.com/issues/110576968
     public void rescheduleEligibleWork() {
         // TODO (rahulrav@) Make every scheduler do its own cancelAll().
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {

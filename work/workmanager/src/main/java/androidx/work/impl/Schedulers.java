@@ -18,6 +18,7 @@ package androidx.work.impl;
 
 import static androidx.work.impl.utils.PackageManagerHelper.setComponentEnabled;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -105,6 +106,7 @@ public class Schedulers {
         }
     }
 
+    @SuppressLint("NewApi") // TODO https://issuetracker.google.com/issues/110576968
     static @NonNull Scheduler createBestAvailableBackgroundScheduler(
             @NonNull Context context,
             @NonNull WorkManagerImpl workManager) {
