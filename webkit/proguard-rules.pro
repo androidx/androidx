@@ -13,4 +13,4 @@
 # limitations under the License.
 
 # Prevent WebViewClientCompat from being renamed, since chromium depends on this name.
--keep public class androidx.webkit.WebViewClientCompat { public *; }
+-keepnames public class androidx.webkit.WebViewClientCompat
