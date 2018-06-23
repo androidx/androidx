@@ -25,6 +25,7 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.framework.FrameworkSQLiteOpenHelperFactory;
 import android.arch.persistence.room.testing.MigrationTestHelper;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.support.test.InstrumentationRegistry;
@@ -35,6 +36,7 @@ import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkDatabaseMigrations;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkTypeConverters;
+import androidx.work.impl.utils.Preferences;
 import androidx.work.worker.TestWorker;
 
 import org.junit.Before;
@@ -51,8 +53,9 @@ public class WorkDatabaseMigrationTest {
 
     private static final String TEST_DATABASE = "workdatabase-test";
     private static final boolean VALIDATE_DROPPED_TABLES = true;
-    private static final int OLD_VERSION = 1;
-    private static final int NEW_VERSION = 2;
+    private static final int VERSION_1 = 1;
+    private static final int VERSION_2 = 2;
+    private static final int VERSION_3 = 3;
     private static final String COLUMN_WORKSPEC_ID = "work_spec_id";
     private static final String COLUMN_SYSTEM_ID = "system_id";
     private static final String COLUMN_ALARM_ID = "alarm_id";
@@ -69,6 +72,7 @@ public class WorkDatabaseMigrationTest {
     private static final String TABLE_WORKTAG = "WorkTag";
     private static final String TABLE_WORKNAME = "WorkName";
 
+    private Context mContext;
     private File mDatabasePath;
 
     @Rule
@@ -80,6 +84,7 @@ public class WorkDatabaseMigrationTest {
     @Before
     public void setUp() {
         // Delete the database if it exists.
+        mContext = InstrumentationRegistry.getTargetContext();
         mDatabasePath = InstrumentationRegistry.getContext().getDatabasePath(TEST_DATABASE);
         if (mDatabasePath.exists()) {
             mDatabasePath.delete();
@@ -90,7 +95,7 @@ public class WorkDatabaseMigrationTest {
     @MediumTest
     public void testMigrationVersion1To2() throws IOException {
         SupportSQLiteDatabase database =
-                mMigrationTestHelper.createDatabase(TEST_DATABASE, OLD_VERSION);
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_1);
 
         String[] prepopulatedWorkSpecIds = new String[] {
                 UUID.randomUUID().toString(),
@@ -142,7 +147,7 @@ public class WorkDatabaseMigrationTest {
 
         database = mMigrationTestHelper.runMigrationsAndValidate(
                 TEST_DATABASE,
-                NEW_VERSION,
+                VERSION_2,
                 VALIDATE_DROPPED_TABLES,
                 WorkDatabaseMigrations.MIGRATION_1_2);
 
@@ -180,6 +185,25 @@ public class WorkDatabaseMigrationTest {
         assertThat(checkExists(database, TABLE_WORKSPEC), is(true));
         assertThat(checkExists(database, TABLE_WORKTAG), is(true));
         assertThat(checkExists(database, TABLE_WORKNAME), is(true));
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion2To3() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_2);
+        WorkDatabaseMigrations.Migration2To3 migration2To3 = new WorkDatabaseMigrations
+                .Migration2To3(mContext);
+
+        database = mMigrationTestHelper.runMigrationsAndValidate(
+                TEST_DATABASE,
+                VERSION_3,
+                VALIDATE_DROPPED_TABLES,
+                migration2To3);
+
+        Preferences preferences = new Preferences(mContext);
+        assertThat(preferences.needsReschedule(), is(true));
         database.close();
     }
 

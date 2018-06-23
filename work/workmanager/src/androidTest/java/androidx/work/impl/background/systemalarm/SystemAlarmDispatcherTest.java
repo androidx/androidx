@@ -389,6 +389,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         // Use a mocked scheduler in this test.
         Scheduler scheduler = mock(Scheduler.class);
         doCallRealMethod().when(mWorkManager).rescheduleEligibleWork();
+        when(mWorkManager.getApplicationContext()).thenReturn(mContext);
         when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(scheduler));
 
         OneTimeWorkRequest failed = new OneTimeWorkRequest.Builder(TestWorker.class)

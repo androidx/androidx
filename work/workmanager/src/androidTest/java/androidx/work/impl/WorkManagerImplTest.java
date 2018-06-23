@@ -1405,6 +1405,7 @@ public class WorkManagerImplTest {
         WorkDatabase.generateCleanupCallback().onOpen(db);
 
         assertThat(workSpecDao.getState(work.getStringId()), is(ENQUEUED));
+        assertThat(work.getWorkSpec().scheduleRequestedAt, is(WorkSpec.SCHEDULE_NOT_REQUESTED_YET));
     }
 
     @Test
