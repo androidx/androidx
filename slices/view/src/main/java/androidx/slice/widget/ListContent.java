@@ -273,7 +273,11 @@ public class ListContent {
         }
         int rowCount = mRowItems.size();
         for (int i = 0; i < rowCount; i++) {
-            int itemHeight = getHeight(mRowItems.get(i), i == 0 /* isHeader */,
+            boolean hasRealHeader = false;
+            if (i == 0) {
+                hasRealHeader = !mRowItems.get(i).hasAnyHints(HINT_LIST_ITEM, HINT_HORIZONTAL);
+            }
+            int itemHeight = getHeight(mRowItems.get(i), i == 0 && hasRealHeader,
                     i, rowCount, MODE_LARGE);
             if (height > 0 && visibleHeight + itemHeight > height) {
                 break;
