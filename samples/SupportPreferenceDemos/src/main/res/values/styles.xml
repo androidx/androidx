@@ -19,6 +19,12 @@
 
     <style name="DemoTheme" parent="android:Theme.Holo.Light.DarkActionBar"/>
 
+    <style name="DemoThemeCompat" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#3F51B5</item>
+        <item name="colorPrimaryDark">#303F9F</item>
+        <item name="colorAccent">#FF4081</item>
+    </style>
+
     <style name="SupportPreferenceLeanback" parent="Theme.Leanback">
         <item name="preferenceTheme">@style/PreferenceThemeOverlayLeanback</item>
     </style>

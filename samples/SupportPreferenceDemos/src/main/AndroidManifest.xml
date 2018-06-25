@@ -20,11 +20,13 @@
     package="com.example.android.supportpreference">
 
     <uses-sdk
-        tools:overrideLibrary="androidx.leanback.preference, androidx.leanback, androidx.car" />
+        tools:overrideLibrary="androidx.leanback.preference, androidx.leanback, androidx.car"/>
 
-    <uses-feature android:name="android.software.Leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
+    <uses-feature android:name="android.software.leanback" android:required="false"/>
 
-    <application android:label="Preferences Demo"
+    <application
+        android:label="Preferences Demo"
         android:icon="@drawable/app_sample_code"
         android:allowBackup="false"
         android:supportsRtl="true"
@@ -32,14 +34,16 @@
 
         <activity android:name=".SupportPreferenceDemos">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".FragmentSupportPreferences"
+        <activity
+            android:name=".FragmentSupportPreferences"
+            android:parentActivityName=".SupportPreferenceDemos"
             android:label="@string/fragment_support_preferences_demo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -47,9 +51,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".FragmentSupportPreferencesCompat"
+        <activity
+            android:name=".FragmentSupportPreferencesCompat"
+            android:parentActivityName=".SupportPreferenceDemos"
             android:label="@string/fragment_support_preferences_compat_demo"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            android:theme="@style/DemoThemeCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
@@ -57,7 +63,9 @@
         </activity>
 
         <!-- Nothing technically wrong with showing this on a non-TV platform -->
-        <activity android:name=".FragmentSupportPreferencesLeanback"
+        <activity
+            android:name=".FragmentSupportPreferencesLeanback"
+            android:parentActivityName=".SupportPreferenceDemos"
             android:label="@string/fragment_support_preferences_leanback_demo"
             android:theme="@style/SupportPreferenceLeanback"
             android:enabled="@bool/atLeastJellyBeanMR2">
@@ -67,9 +75,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".FragmentSupportPreferencesCar"
+        <activity
+            android:name=".FragmentSupportPreferencesCar"
+            android:parentActivityName=".SupportPreferenceDemos"
             android:label="@string/fragment_support_preferences_car_demo"
-            android:theme="@style/SupportPreferenceCar">
+            android:theme="@style/SupportPreferenceCar"
+            android:enabled="@bool/atLeastLollipop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="com.example.android.supportpreference.SAMPLE_CODE"/>
