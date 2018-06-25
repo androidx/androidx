@@ -159,9 +159,12 @@ public class SliceMetadataTest {
         new Canvas(b).drawColor(0xffff0000);
         IconCompat icon = IconCompat.createWithBitmap(b);
 
-        SliceAction action1 = new SliceAction(pi, icon, "action1");
-        SliceAction action2 = new SliceAction(pi, icon, "action2");
-        SliceAction action3 = new SliceAction(pi, icon, "action3");
+        SliceAction action1 = SliceAction.create(pi, icon, ListBuilder.SMALL_IMAGE, "action1");
+        SliceAction action2 = SliceAction.createDeeplink(pi, icon,
+                ListBuilder.SMALL_IMAGE, "action2");
+        SliceAction action3 = SliceAction.create(pi, icon, ListBuilder.SMALL_IMAGE, "action3");
+
+        assertTrue(action2.isActivity());
 
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
         lb.addRow(new ListBuilder.RowBuilder()
@@ -812,5 +815,6 @@ public class SliceMetadataTest {
         assertEquals(desired.getPriority(), actual.getPriority());
         assertEquals(desired.getIcon() == null, actual.getIcon() == null);
         assertEquals(desired.getImageMode(), actual.getImageMode());
+        assertEquals(desired.isActivity(), actual.isActivity());
     }
 }

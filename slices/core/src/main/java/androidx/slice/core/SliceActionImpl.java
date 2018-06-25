@@ -64,6 +64,7 @@ public class SliceActionImpl implements SliceAction {
     private int mPriority = -1;
     private SliceItem mSliceItem;
     private SliceItem mActionItem;
+    private boolean mIsActivity;
 
     /**
      * Construct a SliceAction representing a tappable icon.
@@ -174,6 +175,7 @@ public class SliceActionImpl implements SliceAction {
         if (mIsToggle) {
             mIsChecked = actionItem.hasHint(HINT_SELECTED);
         }
+        mIsActivity = mSliceItem.hasHint(SliceHints.HINT_ACTIVITY);
         SliceItem priority = SliceQuery.findSubtype(actionItem.getSlice(), FORMAT_INT,
                 SUBTYPE_PRIORITY);
         mPriority = priority != null ? priority.getInt() : -1;
@@ -304,7 +306,7 @@ public class SliceActionImpl implements SliceAction {
 
     @Override
     public boolean isActivity() {
-        return false;
+        return mIsActivity;
     }
 
     /**
@@ -335,7 +337,14 @@ public class SliceActionImpl implements SliceAction {
         }
         String subtype = mIsToggle ? SUBTYPE_TOGGLE : null;
         builder.addHints(HINT_SHORTCUT);
+        if (mIsActivity) {
+            builder.addHints(SliceHints.HINT_ACTIVITY);
+        }
         builder.addAction(mAction, sb.build(), subtype);
         return builder.build();
+    }
+
+    public void setActivity(boolean isActivity) {
+        mIsActivity = isActivity;
     }
 }

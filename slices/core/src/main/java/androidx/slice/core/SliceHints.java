@@ -52,6 +52,11 @@ public class SliceHints {
      */
     public static final String SUBTYPE_MILLIS = "millis";
 
+    /**
+     * Hint indicating that the action/slice tagged with this will launch an activity.
+     */
+    public static final String HINT_ACTIVITY = "activity";
+
     @IntDef({
             LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
     })
