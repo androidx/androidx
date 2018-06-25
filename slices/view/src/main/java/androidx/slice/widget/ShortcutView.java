@@ -39,6 +39,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.ImageView;
 
 import androidx.annotation.RequiresApi;
@@ -107,6 +108,11 @@ public class ShortcutView extends SliceChildView {
         } else {
             setClickable(false);
         }
+
+        // Set the parent layout gravity to center in order to align icons.
+        LayoutParams lp = (LayoutParams) iv.getLayoutParams();
+        lp.gravity = Gravity.CENTER;
+        setLayoutParams(lp);
     }
 
     @Override
