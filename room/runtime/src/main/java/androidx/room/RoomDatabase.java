@@ -70,7 +70,12 @@ public abstract class RoomDatabase {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int MAX_BIND_PARAMETER_CNT = 999;
-    // set by the generated open helper.
+    /**
+     * Set by the generated open helper.
+     *
+     * @deprecated Will be hidden in the next release.
+     */
+    @Deprecated
     protected volatile SupportSQLiteDatabase mDatabase;
     private Executor mQueryExecutor;
     private SupportSQLiteOpenHelper mOpenHelper;
@@ -78,7 +83,11 @@ public abstract class RoomDatabase {
     private boolean mAllowMainThreadQueries;
     boolean mWriteAheadLoggingEnabled;
 
+    /**
+     * @deprecated Will be hidden in the next release.
+     */
     @Nullable
+    @Deprecated
     protected List<Callback> mCallbacks;
 
     private final ReentrantLock mCloseLock = new ReentrantLock();
