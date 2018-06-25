@@ -60,7 +60,6 @@ import androidx.media2.subtitle.ClosedCaptionRenderer;
 import androidx.media2.subtitle.SubtitleController;
 import androidx.media2.subtitle.SubtitleTrack;
 import androidx.mediarouter.media.MediaControlIntent;
-import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.palette.graphics.Palette;
@@ -104,7 +103,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     MediaControlView2 mMediaControlView;
     MediaSession2 mMediaSession;
     private String mTitle;
-    private Executor mCallbackExecutor;
+    Executor mCallbackExecutor;
 
     private WindowManager mManager;
     View mMusicView;
@@ -141,81 +140,68 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mRouteSelector;
     MediaRouter.RouteInfo mRoute;
-    RoutePlayer mRoutePlayer;
+    RoutePlayer2 mRoutePlayer;
 
     private final MediaRouter.Callback mRouterCallback = new MediaRouter.Callback() {
         @Override
         public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
             if (route.supportsControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)) {
-                // Stop local playback (if necessary)
+                // Save local playback state and position
+                int localPlaybackState = mCurrentState;
+                long localPlaybackPosition =
+                        (mMediaSession == null) ? 0 : mMediaSession.getCurrentPosition();
+
+                // Update player
                 resetPlayer();
                 mRoute = route;
-                mRoutePlayer = new RoutePlayer(mInstance.getContext(), route);
-                mRoutePlayer.setPlayerEventCallback(new RoutePlayer.PlayerEventCallback() {
-                    @Override
-                    public void onPlayerStateChanged(MediaItemStatus itemStatus) {
-                      /*
-                        PlaybackStateCompat.Builder psBuilder = new PlaybackStateCompat.Builder();
-                        psBuilder.setActions(RoutePlayer.PLAYBACK_ACTIONS);
-                        long position = itemStatus.getContentPosition();
-                        switch (itemStatus.getPlaybackState()) {
-                            case MediaItemStatus.PLAYBACK_STATE_PENDING:
-                                psBuilder.setState(PlaybackStateCompat.STATE_NONE, position, 0);
-                                mCurrentState = STATE_IDLE;
-                                break;
-                            case MediaItemStatus.PLAYBACK_STATE_PLAYING:
-                                psBuilder.setState(PlaybackStateCompat.STATE_PLAYING, position, 1);
-                                mCurrentState = STATE_PLAYING;
-                                break;
-                            case MediaItemStatus.PLAYBACK_STATE_PAUSED:
-                                psBuilder.setState(PlaybackStateCompat.STATE_PAUSED, position, 0);
-                                mCurrentState = STATE_PAUSED;
-                                break;
-                            case MediaItemStatus.PLAYBACK_STATE_BUFFERING:
-                                psBuilder.setState(
-                                        PlaybackStateCompat.STATE_BUFFERING, position, 0);
-                                mCurrentState = STATE_PAUSED;
-                                break;
-                            case MediaItemStatus.PLAYBACK_STATE_FINISHED:
-                                psBuilder.setState(PlaybackStateCompat.STATE_STOPPED, position, 0);
-                                mCurrentState = STATE_PLAYBACK_COMPLETED;
-                                break;
-                        }
-
-                        PlaybackStateCompat pbState = psBuilder.build();
-                        mMediaSession.setPlaybackState(pbState);
-
-                        MediaMetadataCompat.Builder mmBuilder = new MediaMetadataCompat.Builder();
-                        mmBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
-                                itemStatus.getContentDuration());
-                        mMediaSession.setMetadata(mmBuilder.build());
-                    */
-                    }
-                });
-                // Start remote playback (if necessary)
-                // TODO: b/77556429
-                if (mMediaItem != null) {
-                    DataSourceDesc2 dsd = mMediaItem.getDataSourceDesc();
-                    if (dsd != null && dsd.getUri() != null) {
-                        mRoutePlayer.openVideo(dsd.getUri());
-                    }
+                mRoutePlayer = new RoutePlayer2(mInstance.getContext(), route);
+                mRoutePlayer.setDataSource(mMediaItem.getDataSourceDesc());
+                mRoutePlayer.setCurrentPosition(localPlaybackPosition);
+                if (mMediaSession != null) {
+                    mMediaSession.updatePlayer(mRoutePlayer, mMediaSession.getPlaylistAgent(),
+                            null);
+                } else {
+                    final Context context = mInstance.getContext();
+                    mMediaSession = new MediaSession2.Builder(context)
+                            .setPlayer(mRoutePlayer)
+                            .setId("VideoView2_" + mInstance.toString())
+                            .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
+                            .build();
+                }
+                if (localPlaybackState == STATE_PLAYING) {
+                    mMediaSession.play();
                 }
             }
         }
 
         @Override
         public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route, int reason) {
+            // TODO: b/109909344
+            long currentPosition = 0;
+            int currentState = 0;
             if (mRoute != null && mRoutePlayer != null) {
-                mRoutePlayer.release();
+                currentPosition = mRoutePlayer.getCurrentPosition();
+                currentState = mRoutePlayer.getPlayerState();
+                mRoutePlayer.close();
                 mRoutePlayer = null;
             }
             if (mRoute == route) {
                 mRoute = null;
             }
             if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
-                // TODO: Resume local playback  (if necessary)
-                // TODO: b/77556429
+                // Resume local playback (if necessary)
                 openVideo();
+                if (mMediaSession != null && mMediaPlayer != null) {
+                    mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(),
+                            mMediaSession.getPlaylistAgent(), null);
+                    mMediaSession.seekTo(currentPosition);
+
+                    if (currentState == BaseMediaPlayer.PLAYER_STATE_PAUSED) {
+                        mMediaSession.pause();
+                    } else if (currentState == BaseMediaPlayer.PLAYER_STATE_PLAYING) {
+                        mMediaSession.play();
+                    }
+                }
             }
         }
     };
@@ -568,7 +554,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer);
 
             if (mMediaSession != null) {
-                mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(), null, null);
+                mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(),
+                        mMediaSession.getPlaylistAgent(), null);
             }
         } else {
             if (!mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer)) {
@@ -587,12 +574,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
         attachMediaControlView();
         mMediaRouter = MediaRouter.getInstance(mInstance.getContext());
-        /*
-        (b/79723218)
-        mMediaRouter.setMediaSession2(mMediaSession);
+        // TODO: Revisit once ag/4207152 is merged.
+        mMediaRouter.setMediaSessionCompat(mMediaSession.getSessionCompat());
         mMediaRouter.addCallback(mRouteSelector, mRouterCallback,
                 MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
-                */
     }
 
     @Override
@@ -740,13 +725,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             Log.d(TAG, "openVideo()");
         }
         DataSourceDesc2 dsd = mMediaItem.getDataSourceDesc();
-        Uri uri = null;
         if (dsd != null) {
-            uri = dsd.getUri();
             resetPlayer();
             if (isRemotePlayback()) {
-                // TODO: b/77556429
-                mRoutePlayer.openVideo(uri);
+                mRoutePlayer.setDataSource(dsd);
                 return;
             }
         }
@@ -771,7 +753,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                         .build();
             } else {
-                mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(), null, null);
+                mMediaSession.updatePlayer(mMediaPlayer.getBaseMediaPlayer(),
+                        mMediaSession.getPlaylistAgent(), null);
             }
 
             final Context context = mInstance.getContext();
@@ -788,6 +771,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mMediaSession.prepare();
 
             // Save file name as title since the file may not have a title Metadata.
+            Uri uri = dsd == null ? null : dsd.getUri();
             mTitle = uri != null ? uri.getPath() : null;
             String scheme = uri != null ? uri.getScheme() : null;
             if (scheme != null && scheme.equals("file")) {
@@ -1155,7 +1139,17 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 @NonNull MediaSession2 session,
                 @NonNull MediaSession2.ControllerInfo controller) {
             SessionCommandGroup2 commands = new SessionCommandGroup2();
-            commands.addAllPredefinedCommands();
+            commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PAUSE);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PLAY);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_RESET);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_PREPARE);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_PLAYBACK_SEEK_TO);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI);
+            commands.addCommand(SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE);
             commands.addCommand(new SessionCommand2(MediaControlView2.COMMAND_SHOW_SUBTITLE, null));
             commands.addCommand(new SessionCommand2(MediaControlView2.COMMAND_HIDE_SUBTITLE, null));
             commands.addCommand(new SessionCommand2(
