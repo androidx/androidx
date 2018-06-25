@@ -135,6 +135,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private int mIdealRangeHeight;
     // How big mRangeBar wants to be.
     private int mMeasuredRangeHeight;
+    private int mMaxSmallHeight;
 
     public RowView(Context context) {
         super(context);
@@ -174,9 +175,18 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     }
 
     @Override
+    public void setMaxSmallHeight(int maxSmallHeight) {
+        mMaxSmallHeight = maxSmallHeight;
+        if (mRowContent != null) {
+            populateViews(true);
+        }
+    }
+
+    @Override
     public int getSmallHeight() {
         // RowView is in small format when it is the header of a list and displays at max height.
-        return mRowContent != null && mRowContent.isValid() ? mRowContent.getSmallHeight() : 0;
+        return mRowContent != null && mRowContent.isValid()
+                ? mRowContent.getSmallHeight(mMaxSmallHeight) : 0;
     }
 
     @Override
@@ -184,7 +194,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (mIsSingleItem) {
             return getSmallHeight();
         }
-        return mRowContent != null && mRowContent.isValid() ? mRowContent.getActualHeight() : 0;
+        return mRowContent != null && mRowContent.isValid()
+                ? mRowContent.getActualHeight(mMaxSmallHeight) : 0;
     }
     /**
      * @return height row content (i.e. title, subtitle) without the height of the range element.

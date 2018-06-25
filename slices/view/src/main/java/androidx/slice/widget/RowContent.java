@@ -342,19 +342,22 @@ public class RowContent {
     /**
      * @return the height to display a row at when it is used as a small template.
      */
-    public int getSmallHeight() {
-        return getRange() != null
-                ? getActualHeight()
-                : mMaxHeight;
+    public int getSmallHeight(int maxSmallHeight) {
+        int maxHeight = maxSmallHeight > 0 ? maxSmallHeight : mMaxHeight;
+        int size =  getRange() != null
+                ? getActualHeight(maxHeight)
+                : maxHeight;
+        return size;
     }
 
     /**
      * @return the height the content in this template requires to be displayed.
      */
-    public int getActualHeight() {
+    public int getActualHeight(int maxSmallHeight) {
         if (!isValid()) {
             return 0;
         }
+        int maxHeight = maxSmallHeight > 0 ? maxSmallHeight : mMaxHeight;
         if (getRange() != null) {
             // Range element always has set height and then the height of the text
             // area on the row will vary depending on if 1 or 2 lines of text.
@@ -362,7 +365,7 @@ public class RowContent {
                     : mSingleTextWithRangeHeight;
             return textAreaHeight + mRangeHeight;
         } else {
-            return (getLineCount() > 1 || mIsHeader) ? mMaxHeight : mMinHeight;
+            return (getLineCount() > 1 || mIsHeader) ? maxHeight : mMinHeight;
         }
     }
 

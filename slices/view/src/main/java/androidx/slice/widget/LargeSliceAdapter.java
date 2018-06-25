@@ -93,6 +93,8 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     int mInsetEnd;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mInsetBottom;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mMaxSmallHeight;
 
     public LargeSliceAdapter(Context context) {
         mContext = context;
@@ -182,6 +184,14 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
         View v = inflateForType(viewType);
         v.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         return new SliceViewHolder(v);
+    }
+
+    /**
+     * Overrides the normal maximum height for a slice displayed in {@link SliceView#MODE_SMALL}.
+     */
+    public void setMaxSmallHeight(int maxSmallHeight) {
+        mMaxSmallHeight = maxSmallHeight;
+        notifyHeaderChanged();
     }
 
     @Override
@@ -286,6 +296,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             final boolean isHeader = ListContent.isValidHeader(item);
             int mode = mParent != null ? mParent.getMode() : MODE_LARGE;
             mSliceChildView.setMode(mode);
+            mSliceChildView.setMaxSmallHeight(mMaxSmallHeight);
             mSliceChildView.setTint(mColor);
             mSliceChildView.setStyle(mAttrs, mDefStyleAttr, mDefStyleRes);
             mSliceChildView.setSliceItem(item, isHeader, position, getItemCount(), mSliceObserver);
