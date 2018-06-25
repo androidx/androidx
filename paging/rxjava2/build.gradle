@@ -40,7 +40,7 @@ dependencies {
 supportLibrary {
     name = "Android Paging RXJava2"
     publish = true
-    mavenVersion = LibraryVersions.PAGING_RX
+    mavenVersion = LibraryVersions.PAGING
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2018"
     description = "Android Paging RXJava2"
