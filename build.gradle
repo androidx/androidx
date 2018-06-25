@@ -57,6 +57,3 @@ def allDocs = init.enableDoclavaAndJDiff(this, new DacOptions("androidx", "ANDRO
 
 buildTask.dependsOn(allDocs)
 
-///// FLATFOOT START
-
-///// FLATFOOT END
