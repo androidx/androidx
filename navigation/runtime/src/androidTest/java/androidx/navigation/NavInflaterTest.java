@@ -94,6 +94,35 @@ public class NavInflaterTest {
     }
 
     @Test
+    public void testDefaultArgumentsBoolean() {
+        Bundle defaultArguments = inflateDefaultArgumentsFromGraph();
+
+        assertThat(defaultArguments.getBoolean("test_boolean"), is(true));
+        assertThat(defaultArguments.getBoolean("test_boolean2"), is(false));
+        assertThat(defaultArguments.getBoolean("test_boolean3"), is(true));
+        assertThat(defaultArguments.getBoolean("test_boolean4"), is(false));
+    }
+
+    @Test
+    public void testDefaultArgumentsLong() {
+        Bundle defaultArguments = inflateDefaultArgumentsFromGraph();
+
+        assertThat(defaultArguments.getLong("test_long"), is(456789013456L));
+        assertThat(defaultArguments.getLong("test_long2"), is(456789013456L));
+        assertThat(defaultArguments.getLong("test_long3"), is(123L));
+    }
+
+    @Test
+    public void testDefaultArgumentsString() {
+        Bundle defaultArguments = inflateDefaultArgumentsFromGraph();
+
+        assertThat(defaultArguments.getString("test_string"), is("abc"));
+        assertThat(defaultArguments.getString("test_string2"), is("true"));
+        assertThat(defaultArguments.getString("test_string3"), is("123L"));
+        assertThat(defaultArguments.getString("test_string4"), is("123"));
+    }
+
+    @Test
     public void testDefaultArgumentsReference() {
         Bundle defaultArguments = inflateDefaultArgumentsFromGraph();
         Context context = InstrumentationRegistry.getTargetContext();

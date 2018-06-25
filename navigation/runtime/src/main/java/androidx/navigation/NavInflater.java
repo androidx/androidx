@@ -186,10 +186,29 @@ public class NavInflater {
             value = new TypedValue();
             sTmpValue.set(value);
         }
-        if (a.getValue(R.styleable.NavArgument_android_defaultValue, value)) {
+        String argType = a.getString(R.styleable.NavArgument_type);
+        if ("string".equals(argType)) {
+            dest.getDefaultArguments()
+                    .putString(name, a.getString(R.styleable.NavArgument_android_defaultValue));
+        } else if (a.getValue(R.styleable.NavArgument_android_defaultValue, value)) {
             switch (value.type) {
                 case TypedValue.TYPE_STRING:
-                    dest.getDefaultArguments().putString(name, value.string.toString());
+                    String stringValue = value.string.toString();
+                    if (argType == null) {
+                        Long longValue = parseLongValue(stringValue);
+                        if (longValue != null) {
+                            dest.getDefaultArguments().putLong(name, longValue);
+                            break;
+                        }
+                    } else if ("long".equals(argType)) {
+                        Long longValue = parseLongValue(stringValue);
+                        if (longValue != null) {
+                            dest.getDefaultArguments().putLong(name, longValue);
+                            break;
+                        }
+                        throw new XmlPullParserException("unsupported long value " + value.string);
+                    }
+                    dest.getDefaultArguments().putString(name, stringValue);
                     break;
                 case TypedValue.TYPE_DIMENSION:
                     dest.getDefaultArguments().putInt(name,
@@ -204,13 +223,33 @@ public class NavInflater {
                 default:
                     if (value.type >= TypedValue.TYPE_FIRST_INT
                             && value.type <= TypedValue.TYPE_LAST_INT) {
-                        dest.getDefaultArguments().putInt(name, value.data);
+                        if (value.type == TypedValue.TYPE_INT_BOOLEAN) {
+                            dest.getDefaultArguments().putBoolean(name, value.data != 0);
+                        } else {
+                            dest.getDefaultArguments().putInt(name, value.data);
+                        }
                     } else {
                         throw new XmlPullParserException("unsupported argument type " + value.type);
                     }
             }
         }
         a.recycle();
+    }
+
+    private @Nullable Long parseLongValue(String value) {
+        if (!value.endsWith("L")) {
+            return null;
+        }
+        try {
+            value = value.substring(0, value.length() - 1);
+            if (value.startsWith("0x")) {
+                return Long.parseLong(value.substring(2), 16);
+            } else {
+                return Long.parseLong(value);
+            }
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 
     private void inflateDeepLink(@NonNull Resources res, @NonNull NavDestination dest,

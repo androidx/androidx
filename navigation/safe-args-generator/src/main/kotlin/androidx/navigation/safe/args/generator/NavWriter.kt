@@ -111,7 +111,8 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
         addStatement("${className.simpleName()} that = (${className.simpleName()}) object")
         args.forEach {
             val compareExpression = when (it.type) {
-                NavType.INT, NavType.BOOLEAN, NavType.REFERENCE -> "${it.name} != that.${it.name}"
+                NavType.INT, NavType.BOOLEAN, NavType.REFERENCE, NavType.LONG ->
+                    "${it.name} != that.${it.name}"
                 NavType.FLOAT -> "Float.compare(that.${it.name}, ${it.name}) != 0"
                 NavType.STRING -> "${it.name} != null ? !${it.name}.equals(that.${it.name}) " +
                         ": that.${it.name} != null"
@@ -135,6 +136,7 @@ private class ClassWithArgsSpecs(val args: List<Argument>) {
                 NavType.FLOAT -> "Float.floatToIntBits(${it.name})"
                 NavType.STRING -> "(${it.name} != null ? ${it.name}.hashCode() : 0)"
                 NavType.BOOLEAN -> "(${it.name} ? 1 : 0)"
+                NavType.LONG -> "(int)(${it.name} ^ (${it.name} >>> 32))"
             }
             addStatement("result = 31 * result + $N", hashCodeExpression)
         }
