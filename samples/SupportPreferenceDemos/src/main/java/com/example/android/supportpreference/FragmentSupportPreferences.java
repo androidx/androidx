@@ -34,6 +34,8 @@ public class FragmentSupportPreferences extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Display the fragment as the main content.
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction().replace(android.R.id.content,

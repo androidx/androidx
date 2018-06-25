@@ -16,7 +16,24 @@
   -->
 
 <resources>
+    <style name="DemoTheme" parent="android:Theme.Material.Light.DarkActionBar">
+        <item name="android:colorPrimary">#3F51B5</item>
+        <item name="android:colorPrimaryDark">#303F9F</item>
+        <item name="android:colorAccent">#FF4081</item>
+    </style>
 
-    <style name="DemoTheme" parent="android:Theme.Material.Light.DarkActionBar" />
+    <style name="SupportPreferenceLeanback" parent="Theme.Leanback">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlayLeanback</item>
+        <item name="android:colorPrimary">#3F51B5</item>
+        <item name="android:colorPrimaryDark">#303F9F</item>
+        <item name="android:colorAccent">#FF4081</item>
+    </style>
 
+    <style name="SupportPreferenceCar" parent="Theme.Car.NoActionBar">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlayCar</item>
+        <item name="android:windowBackground">@color/car_card</item>
+        <item name="android:colorPrimary">#3F51B5</item>
+        <item name="android:colorPrimaryDark">#303F9F</item>
+        <item name="android:colorAccent">#FF4081</item>
+    </style>
 </resources>
