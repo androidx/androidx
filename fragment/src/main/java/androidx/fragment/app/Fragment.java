@@ -2354,7 +2354,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             writer.print("mStateAfterAnimating=");
             writer.println(getStateAfterAnimating());
         }
-        LoaderManager.getInstance(this).dump(prefix, fd, writer, args);
+        if (getContext() != null) {
+            LoaderManager.getInstance(this).dump(prefix, fd, writer, args);
+        }
         if (mChildFragmentManager != null) {
             writer.print(prefix); writer.println("Child " + mChildFragmentManager + ":");
             mChildFragmentManager.dump(prefix + "  ", fd, writer, args);
