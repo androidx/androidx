@@ -32,7 +32,7 @@ import java.util.Arrays;
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class MediaMetaData2Test extends MediaTestBase {
+public class TimedMetaData2Test extends MediaTestBase {
 
     @Test
     public void testConstructor() {
