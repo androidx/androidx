@@ -80,7 +80,7 @@ class PagedStorageDiffHelperTest {
                 PagedStorage(4, listOf("a", "b", "c"), 5)) {
             verify(it).onRemoved(0, 1)
             verify(it).onInserted(4, 1)
-            //NOTE: ideally would be onChanged(4, 1, null);
+            // NOTE: ideally would be onChanged(4, 1, null);
             verifyNoMoreInteractions(it)
         }
     }
@@ -92,6 +92,17 @@ class PagedStorageDiffHelperTest {
                 PagedStorage(5, listOf("a2", "b1", "c2"), 5)) {
             verify(it).onChanged(5, 1, null)
             verify(it).onChanged(7, 1, null)
+            verifyNoMoreInteractions(it)
+        }
+    }
+
+    @Test
+    fun move() {
+        validateTwoListDiff(
+                PagedStorage(5, listOf("a", "b", "c", "d"), 5),
+                PagedStorage(5, listOf("a", "b", "d", "c"), 5)) {
+            // 7, 8 would also be valid, but below is what DiffUtil outputs
+            verify(it).onMoved(8, 7)
             verifyNoMoreInteractions(it)
         }
     }
@@ -108,9 +119,11 @@ class PagedStorageDiffHelperTest {
             }
         }
 
-        private fun validateTwoListDiff(oldList: PagedStorage<String>,
-                                        newList: PagedStorage<String>,
-                                        validator: (callback: ListUpdateCallback) -> Unit) {
+        private fun validateTwoListDiff(
+            oldList: PagedStorage<String>,
+            newList: PagedStorage<String>,
+            validator: (callback: ListUpdateCallback) -> Unit
+        ) {
             val diffResult = PagedStorageDiffHelper.computeDiff(oldList, newList, DIFF_CALLBACK)
 
             val listUpdateCallback = mock(ListUpdateCallback::class.java)
