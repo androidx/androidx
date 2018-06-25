@@ -176,7 +176,9 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     public static SliceAction createDeeplink(@NonNull PendingIntent action,
             @NonNull IconCompat actionIcon, @ListBuilder.ImageMode int imageMode,
             @NonNull CharSequence actionTitle) {
-        return new SliceAction(action, actionIcon, imageMode, actionTitle);
+        SliceAction sliceAction = new SliceAction(action, actionIcon, imageMode, actionTitle);
+        sliceAction.mSliceAction.setActivity(true);
+        return sliceAction;
     }
 
     /**
@@ -268,7 +270,7 @@ public class SliceAction implements androidx.slice.core.SliceAction {
 
     @Override
     public boolean isActivity() {
-        return false;
+        return mSliceAction.isActivity();
     }
 
     /**
