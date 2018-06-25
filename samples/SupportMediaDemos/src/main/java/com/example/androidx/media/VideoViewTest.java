@@ -228,7 +228,7 @@ public class VideoViewTest extends FragmentActivity {
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
                 mActivity.finish();
             }
-            return true;
+            return false;
         }
 
         public void setActivity(Activity activity) {
