@@ -62,6 +62,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -81,6 +82,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 public class RowView extends SliceChildView implements View.OnClickListener {
 
     private static final String TAG = "RowView";

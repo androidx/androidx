@@ -23,12 +23,13 @@ import android.net.Uri;
 import android.util.Log;
 import android.util.Pair;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.slice.Clock;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.SliceSpec;
 import androidx.slice.SliceSpecs;
-import androidx.slice.Clock;
 import androidx.slice.SystemClock;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
 
@@ -39,6 +40,7 @@ import java.util.List;
 /**
  * Base class of builders of various template types.
  */
+@RequiresApi(19)
 public abstract class TemplateSliceBuilder {
 
     private static final String TAG = "TemplateSliceBuilder";

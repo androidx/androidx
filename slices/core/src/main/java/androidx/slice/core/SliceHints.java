@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -30,6 +31,7 @@ import java.lang.annotation.Retention;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
+@RequiresApi(19)
 public class SliceHints {
 
     /**

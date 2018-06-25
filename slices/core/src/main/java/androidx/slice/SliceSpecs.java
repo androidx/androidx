@@ -16,6 +16,7 @@
 
 package androidx.slice;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -23,6 +24,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(19)
 public class SliceSpecs {
 
     /**

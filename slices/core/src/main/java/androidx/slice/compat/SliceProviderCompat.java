@@ -42,6 +42,7 @@ import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.collection.ArraySet;
@@ -61,6 +62,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
+@RequiresApi(19)
 public class SliceProviderCompat {
     public static final String PERMS_PREFIX = "slice_perms_";
     private static final String TAG = "SliceProviderCompat";

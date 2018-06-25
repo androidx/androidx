@@ -34,6 +34,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Process;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -44,6 +45,7 @@ import org.mockito.stubbing.Answer;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@SdkSuppress(minSdkVersion = 19)
 public class CompatPermissionManagerTest {
 
     private final Context mContext = InstrumentationRegistry.getContext();

@@ -26,6 +26,7 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -34,6 +35,7 @@ import androidx.annotation.RestrictTo;
  *
  * Two structures can be compared using {@link #equals(Object)}.
  */
+@RequiresApi(19)
 public class SliceStructure {
 
     private final String mStructure;

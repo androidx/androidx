@@ -78,6 +78,7 @@ import java.util.Set;
  * displayed.
  */
 @VersionedParcelize(allowSerialization = true)
+@RequiresApi(19)
 public final class Slice implements VersionedParcelable {
 
     private static final String HINTS = "hints";

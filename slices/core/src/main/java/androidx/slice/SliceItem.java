@@ -71,6 +71,7 @@ import java.util.List;
  * are defined on {@link Slice}.
  */
 @VersionedParcelize(allowSerialization = true, ignoreParcelables = true, isCustom = true)
+@RequiresApi(19)
 public final class SliceItem extends CustomVersionedParcelable {
 
     private static final String HINTS = "hints";

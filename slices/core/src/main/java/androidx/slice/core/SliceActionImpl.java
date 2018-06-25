@@ -42,6 +42,7 @@ import android.graphics.drawable.Icon;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
@@ -52,6 +53,7 @@ import androidx.slice.SliceItem;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
+@RequiresApi(19)
 public class SliceActionImpl implements SliceAction {
 
     private PendingIntent mAction;

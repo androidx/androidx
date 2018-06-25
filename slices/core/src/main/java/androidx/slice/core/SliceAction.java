@@ -21,11 +21,13 @@ import android.app.PendingIntent;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.graphics.drawable.IconCompat;
 
 /**
  * Interface for a slice action, supports tappable icons, custom toggle icons, and default toggles.
  */
+@RequiresApi(19)
 public interface SliceAction {
 
     /**

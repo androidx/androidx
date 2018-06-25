@@ -44,6 +44,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -73,6 +74,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@SdkSuppress(minSdkVersion = 19)
 public class SliceMetadataTest {
 
     private final Context mContext = InstrumentationRegistry.getContext();

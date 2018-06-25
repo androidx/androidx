@@ -18,12 +18,14 @@ package androidx.slice;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
+@RequiresApi(19)
 public interface Clock {
     long currentTimeMillis();
 }

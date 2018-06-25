@@ -19,6 +19,7 @@ package androidx.slice;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
@@ -44,6 +45,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)
+@RequiresApi(19)
 public final class SliceSpec implements VersionedParcelable {
 
     @ParcelField(1)

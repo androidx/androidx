@@ -45,6 +45,7 @@ import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Pair;
@@ -66,6 +67,7 @@ import java.util.List;
 /**
  * Utilities for dealing with slices.
  */
+@RequiresApi(19)
 public class SliceUtils {
 
     private SliceUtils() {

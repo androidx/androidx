@@ -86,6 +86,7 @@ import java.util.List;
  * </pre>
  * @see SliceLiveData
  */
+@RequiresApi(19)
 public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClickListener {
 
     private static final String TAG = "SliceView";

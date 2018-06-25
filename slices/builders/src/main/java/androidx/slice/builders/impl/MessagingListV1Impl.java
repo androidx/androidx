@@ -32,6 +32,7 @@ import androidx.slice.SliceSpec;
  * @hide
  */
 @RestrictTo(LIBRARY)
+@RequiresApi(19)
 public class MessagingListV1Impl extends TemplateBuilderImpl implements MessagingBuilder{
 
     private final ListBuilderV1Impl mListBuilder;

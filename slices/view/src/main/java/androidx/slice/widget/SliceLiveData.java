@@ -27,6 +27,7 @@ import android.os.AsyncTask;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 import androidx.lifecycle.LiveData;
@@ -52,6 +53,7 @@ import java.util.Set;
  * @see #fromUri(Context, Uri)
  * @see LiveData
  */
+@RequiresApi(19)
 public final class SliceLiveData {
 
     /**

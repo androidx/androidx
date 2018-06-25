@@ -37,6 +37,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 
@@ -56,6 +57,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 class SliceXml {
 
     private static final String NAMESPACE = null;

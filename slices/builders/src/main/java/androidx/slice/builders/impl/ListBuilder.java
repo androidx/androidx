@@ -38,6 +38,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(LIBRARY)
+@RequiresApi(19)
 public interface ListBuilder {
 
     /**

@@ -22,6 +22,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
@@ -35,6 +36,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(19)
 public class SliceQuery {
 
     /**

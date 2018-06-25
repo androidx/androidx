@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceAction;
@@ -35,6 +36,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 public abstract class SliceChildView extends FrameLayout {
 
     protected SliceView.OnSliceActionListener mObserver;

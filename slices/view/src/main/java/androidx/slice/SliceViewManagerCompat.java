@@ -24,6 +24,7 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.compat.SliceProviderCompat;
 import androidx.slice.widget.SliceLiveData;
@@ -35,6 +36,7 @@ import java.util.Collection;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 class SliceViewManagerCompat extends SliceViewManagerBase {
 
     SliceViewManagerCompat(Context context) {

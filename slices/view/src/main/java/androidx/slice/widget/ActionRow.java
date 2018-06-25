@@ -54,6 +54,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 public class ActionRow extends FrameLayout {
 
     private static final int MAX_ACTIONS = 5;
