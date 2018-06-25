@@ -61,7 +61,9 @@ class SliceViewManagerWrapper extends SliceViewManagerBase {
 
     @Override
     public void unpinSlice(@NonNull Uri uri) {
-        mManager.unpinSlice(uri);
+        if (mManager.getPinnedSlices().contains(uri)) {
+            mManager.unpinSlice(uri);
+        }
     }
 
     @Nullable
